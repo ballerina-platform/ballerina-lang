@@ -3,20 +3,16 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -142,22 +138,23 @@
                                       "value": "x",
                                       "leadingMinutiae": [
                                         {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "        "
+                                        },
+                                        {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
-                                            "kind": "INT_KEYWORD",
-                                            "leadingMinutiae": [
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
                                               {
-                                                "kind": "WHITESPACE_MINUTIAE",
-                                                "value": "        "
-                                              }
-                                            ],
-                                            "trailingMinutiae": [
-                                              {
-                                                "kind": "WHITESPACE_MINUTIAE",
-                                                "value": " "
+                                                "kind": "INT_KEYWORD"
                                               }
                                             ]
                                           }
+                                        },
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
                                         }
                                       ],
                                       "trailingMinutiae": [

@@ -16,8 +16,11 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
@@ -26,16 +29,15 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
@@ -49,11 +51,11 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
-import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
+import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
@@ -84,7 +86,6 @@ import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
@@ -97,7 +98,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -118,7 +118,7 @@ import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 import static org.ballerinalang.langserver.implementation.GotoImplementationUtil.getImplementationLocation;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFuncScopeEntry;
-import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFunctionInvocationDetails;
+import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getInvocationSymbolPath;
 
 /**
  * Text document service implementation for ballerina.
@@ -175,7 +175,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
 
             try {
-                CompletionUtil.pruneSource(context);
                 LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
@@ -188,12 +187,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String msg = "Operation 'text/completion' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
             } finally {
-                try {
-                    docManager.resetPrunedContent(Paths.get(URI.create(fileUri)));
-                } catch (WorkspaceDocumentException e) {
-                    logError("Error resetting pruned state. ", e, position.getTextDocument(),
-                            position.getPosition());
-                }
                 lock.ifPresent(Lock::unlock);
             }
             return Either.forLeft(completions);
@@ -221,7 +214,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
             Hover hover;
             try {
-                hover = ReferencesUtil.getHover(context);
+                hover = ReferencesUtil.getHover(context, position.getPosition());
             } catch (TokenOrSymbolNotFoundException e) {
                 hover = HoverUtil.getDefaultHoverObject();
             } catch (Throwable e) {
@@ -254,24 +247,55 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
             try {
                 // Prune the source and compile
-                SignatureHelpUtil.pruneSource(context);
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                        LSCustomErrorStrategy.class, false, false, true);
-                // Capture visible symbols of the cursor position
-                SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context);
-                bLangPackage.accept(signatureTreeVisitor);
+                        null, false, false, true);
+                // Find token at cursor position
+                Token cursorToken = TokensUtil.findTokenAtPosition(context, position.getPosition());
                 int activeParamIndex = 0;
+                //TODO: Once https://git.io/JJIFp fixed, can get docs directly from the node of syntaxTree
+                NonTerminalNode sNode = cursorToken.parent();
+                SyntaxKind sKind = (sNode != null) ? sNode.kind() : null;
+
+                // Find invocation node
+                while (sNode != null &&
+                        sKind != SyntaxKind.FUNCTION_CALL &&
+                        sKind != SyntaxKind.METHOD_CALL &&
+                        sKind != SyntaxKind.REMOTE_METHOD_CALL_ACTION &&
+                        sKind != SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
+                        sKind != SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
+                    sNode = sNode.parent();
+                    sKind = sNode.kind();
+                }
+
+                // Find parameter index
+                int cLine = position.getPosition().getLine();
+                int cCol = position.getPosition().getCharacter();
+                for (Node child : sNode.children()) {
+                    int sLine = child.lineRange().startLine().line();
+                    int sCol = child.lineRange().startLine().offset();
+                    if ((cLine == sLine && cCol < sCol) || (cLine < sLine)) {
+                        break;
+                    }
+                    if (child.kind() == SyntaxKind.COMMA_TOKEN) {
+                        activeParamIndex++;
+                    }
+                }
+
+                // Find visible symbols for the block statement
+                LinePosition start = sNode.lineRange().startLine();
+                Position pos = new Position(start.line(), start.offset());
+                SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context, pos);
+                bLangPackage.accept(signatureTreeVisitor);
                 List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
                 if (visibleSymbols == null) {
                     throw new Exception("Couldn't find the symbol, visible symbols are NULL!");
                 }
+
                 // Search function invocation symbol
                 List<SignatureInformation> signatures = new ArrayList<>();
                 List<Scope.ScopeEntry> symbols = new ArrayList<>(visibleSymbols);
-                Pair<Optional<String>, Integer> funcPathAndParamIndexPair = getFunctionInvocationDetails(context);
-                Optional<String> funcPath = funcPathAndParamIndexPair.getLeft();
-                activeParamIndex = funcPathAndParamIndexPair.getRight();
-                funcPath.ifPresent(pathStr -> {
+                Optional<String> symbolPath = getInvocationSymbolPath(sNode, context);
+                symbolPath.ifPresent(pathStr -> {
                     Optional<Scope.ScopeEntry> searchSymbol = getFuncScopeEntry(context, pathStr, symbols);
                     searchSymbol.ifPresent(entry -> {
                         if (entry.symbol instanceof BInvokableSymbol) {
@@ -293,12 +317,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 logError(msg, e, position.getTextDocument(), position.getPosition());
                 return new SignatureHelp();
             } finally {
-                try {
-                    docManager.resetPrunedContent(Paths.get(URI.create(uri)));
-                } catch (WorkspaceDocumentException e) {
-                    logError("Error resetting pruned state. ", e, position.getTextDocument(),
-                            position.getPosition());
-                }
                 lock.ifPresent(Lock::unlock);
             }
         });
@@ -316,7 +334,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .withStdLibDefinitionParam(this.enableStdlibDefinition)
                     .build();
             try {
-                return Either.forLeft(DefinitionUtil.getDefinition(context));
+                return Either.forLeft(DefinitionUtil.getDefinition(context, position.getPosition()));
             } catch (UserErrorException e) {
                 notifyUser("Goto Definition", e);
                 return Either.forLeft(new ArrayList<>());
@@ -347,7 +365,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
             try {
                 boolean includeDeclaration = params.getContext().isIncludeDeclaration();
-                return ReferencesUtil.getReferences(context, includeDeclaration);
+                return ReferencesUtil.getReferences(context, includeDeclaration, params.getPosition());
             } catch (UserErrorException e) {
                 notifyUser("Find References", e);
                 return new ArrayList<>();
@@ -384,7 +402,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         .withDocumentSymbolParams(fileUri)
                         .build();
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                        LSCustomErrorStrategy.class, false, false, true);
+                        null, false, false, true);
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
                         .findFirst();
@@ -427,7 +445,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             int line = params.getRange().getStart().getLine();
             int col = params.getRange().getStart().getCharacter();
             TextDocumentPositionParams positionParams = new TextDocumentPositionParams(params.getTextDocument(),
-                                                                                       new Position(line, col));
+                    new Position(line, col));
 
             LSContext context = new DocumentServiceOperationContext
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_ACTION)
@@ -577,7 +595,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
 
             try {
-                return ReferencesUtil.getRenameWorkspaceEdits(context, params.getNewName());
+                return ReferencesUtil.getRenameWorkspaceEdits(context, params.getNewName(), position);
             } catch (UserErrorException e) {
                 notifyUser("Rename", e);
                 return null;
@@ -610,11 +628,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Lock> lock = docManager.lockFile(compilationPath);
 
             try {
-                BLangPackage bLangPkg = LSModuleCompiler.getBLangPackage(context, docManager,
-                                                                         GotoImplementationCustomErrorStrategy.class,
-                                                                         false, false, true);
+                BLangPackage bLangPkg = LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
                 List<Location> locations = getImplementationLocation(bLangPkg, context, position.getPosition(),
-                                                                     lsDocument.getProjectRoot());
+                        lsDocument.getProjectRoot());
                 implementationLocations.addAll(locations);
             } catch (UserErrorException e) {
                 notifyUser("Goto Implementation", e);
@@ -663,8 +679,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 if (CommonUtil.isCachedExternalSource(fileUri)) {
                     context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
                     context.put(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED, true);
-                    LSModuleCompiler.getBLangPackages(context, docManager, LSCustomErrorStrategy.class, false,
-                            true, true, true);
+                    LSModuleCompiler.getBLangPackages(context, docManager, null, false, true, true, true);
                     // Populate the Standard Library Cache
                     CommonUtil.updateStdLibCache(context);
                     // Note: If the source is a cached stdlib source then return early and ignore sending diagnostics
@@ -710,10 +725,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         Optional<Lock> lock = docManager.lockFile(compilationPath);
         try {
             // Update content
-            List<TextDocumentContentChangeEvent> changes = params.getContentChanges();
-            for (TextDocumentContentChangeEvent changeEvent : changes) {
-                docManager.updateFile(compilationPath, changeEvent.getText());
-            }
+            docManager.updateFile(compilationPath, params.getContentChanges());
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() + "' {fileUri: '" +
                     compilationPath + "'} updated}");
 

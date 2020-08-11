@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -290,48 +285,63 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "BINARY_EXPRESSION",
+                      "kind": "SIMPLE_NAME_REFERENCE",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR"
-                      ],
                       "children": [
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR"
+                          ],
+                          "leadingMinutiae": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "b",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "PLUS_TOKEN",
-                          "trailingMinutiae": [
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "b"
+                                  }
+                                ]
+                              }
+                            },
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
+                            },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "PLUS_TOKEN"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "c"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         }

@@ -124,7 +124,7 @@ public class Strand {
     }
 
     public boolean isInTransaction() {
-        return this.currentTrxContext != null;
+        return this.currentTrxContext != null && this.currentTrxContext.isTransactional();
     }
 
     @Deprecated

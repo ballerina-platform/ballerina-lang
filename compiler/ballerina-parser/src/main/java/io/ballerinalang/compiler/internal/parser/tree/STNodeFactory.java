@@ -48,18 +48,18 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createFunctionDefinitionNode(
+            SyntaxKind kind,
             STNode metadata,
-            STNode visibilityQualifier,
-            STNode transactionalKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
             STNode functionBody) {
 
         return new STFunctionDefinitionNode(
+                kind,
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -380,6 +380,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
+    public static STNode createFailExpressionNode(
+            SyntaxKind kind,
+            STNode failKeyword,
+            STNode expression) {
+
+        return new STFailExpressionNode(
+                kind,
+                failKeyword,
+                expression);
+    }
+
     public static STNode createFieldAccessExpressionNode(
             STNode expression,
             STNode dotToken,
@@ -658,15 +669,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createRecordTypeDescriptorNode(
-            STNode objectKeyword,
+            STNode recordKeyword,
             STNode bodyStartDelimiter,
             STNode fields,
+            STNode recordRestDescriptor,
             STNode bodyEndDelimiter) {
 
         return new STRecordTypeDescriptorNode(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter);
     }
 
@@ -1598,7 +1611,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createMethodDeclarationNode(
             STNode metadata,
-            STNode visibilityQualifier,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
@@ -1606,7 +1619,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STMethodDeclarationNode(
                 metadata,
-                visibilityQualifier,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -2065,27 +2078,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
-    public static STNode createObjectMethodDefinitionNode(
-            STNode metadata,
-            STNode visibilityQualifier,
-            STNode remoteKeyword,
-            STNode transactionalKeyword,
-            STNode functionKeyword,
-            STNode methodName,
-            STNode methodSignature,
-            STNode functionBody) {
-
-        return new STObjectMethodDefinitionNode(
-                metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
-                functionKeyword,
-                methodName,
-                methodSignature,
-                functionBody);
-    }
-
     public static STNode createDistinctTypeDescriptorNode(
             STNode distinctKeyword,
             STNode typeDescriptor) {
@@ -2259,6 +2251,26 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 startBacktick,
                 backtickContent,
                 endBacktick);
+    }
+
+    public static STNode createOrderByClauseNode(
+            STNode orderKeyword,
+            STNode byKeyword,
+            STNode orderKey) {
+
+        return new STOrderByClauseNode(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    public static STNode createOrderKeyNode(
+            STNode expression,
+            STNode orderDirection) {
+
+        return new STOrderKeyNode(
+                expression,
+                orderDirection);
     }
 }
 

@@ -1,0 +1,8 @@
+import ls_org1/module1;
+
+public listener module1:Listener l1 = new(9090);
+
+service testService on 
+
+function testFunction() {
+}

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.common.utils.completion;
 
-import org.antlr.v4.runtime.CommonToken;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -25,26 +24,20 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
-import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -58,74 +51,7 @@ public class BLangRecordLiteralUtil {
     private BLangRecordLiteralUtil() {
     }
 
-    /**
-     * Get the record field completion items.
-     *
-     * @param context       Language server operation Context
-     * @param recordLiteral Record Literal
-     * @return {@link LSCompletionItem}   List of Completion Items
-     */
-    public static List<LSCompletionItem> getFieldsForMatchingRecord(LSContext context,
-                                                                    BLangRecordLiteral recordLiteral) {
-        BType expectedType = recordLiteral.expectedType;
-        List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
-        Optional<BType> evalType = expectedType instanceof BUnionType ? getRecordTypeFromUnionType(expectedType)
-                : Optional.ofNullable(expectedType);
-        if (!evalType.isPresent()) {
-            return new ArrayList<>();
-        }
-        List<LSCompletionItem> completionItems = new ArrayList<>(getSpreadCompletionItems(context, evalType.get()));
-        List<CommonToken> commonTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
-        String lastToken = (commonTokens.isEmpty()) ? "" : commonTokens.get(commonTokens.size() - 1).getText();
-        long dotCount = lastToken.codePoints().filter(charVal -> charVal == '.').count();
-
-        if (dotCount < 1 && evalType.get() instanceof BRecordType) {
-            // Suggests fields only when the the ellipsis is not being typed
-            List<BField> fields = new ArrayList<>(((BRecordType) evalType.get()).fields.values());
-            completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields));
-            completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields));
-            completionItems.addAll(getVariableCompletionsForFields(context, visibleSymbols, fields));
-        }
-
-        return completionItems;
-    }
-
-    private static Optional<BType> getRecordTypeFromUnionType(BType bType) {
-        if (!(bType instanceof BUnionType)) {
-            return Optional.empty();
-        }
-        List<BType> filteredRecords = ((BUnionType) bType).getMemberTypes().stream()
-                .filter(type -> type instanceof BRecordType)
-                .collect(Collectors.toList());
-
-        if (filteredRecords.size() == 1) {
-            return Optional.ofNullable(filteredRecords.get(0));
-        }
-        return Optional.empty();
-    }
-
-    private static List<LSCompletionItem> getVariableCompletionsForFields(LSContext ctx,
-                                                                          List<Scope.ScopeEntry> visibleSymbols,
-                                                                          List<BField> recordFields) {
-        Map<String, BType> filedTypeMap = new HashMap<>();
-        recordFields.forEach(bField -> filedTypeMap.put(bField.name.value, bField.type));
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.forEach(scopeEntry -> {
-            BSymbol symbol = scopeEntry.symbol;
-            BType type = symbol instanceof BConstantSymbol ? ((BConstantSymbol) symbol).literalType : symbol.type;
-            String symbolName = symbol.name.getValue();
-            if (filedTypeMap.containsKey(symbolName) && filedTypeMap.get(symbolName) == type
-                    && symbol instanceof BVarSymbol) {
-                String bTypeName = CommonUtil.getBTypeName(type, ctx, false);
-                CompletionItem cItem = BVariableCompletionItemBuilder.build((BVarSymbol) symbol, symbolName, bTypeName);
-                completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
-            }
-        });
-
-        return completionItems;
-    }
-
-    private static List<LSCompletionItem> getSpreadCompletionItems(LSContext context, BType evalType) {
+    public static List<LSCompletionItem> getSpreadCompletionItems(LSContext context, BType evalType) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<BType> typeList = getTypeListForMapAndRecords(evalType);
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
@@ -164,6 +90,7 @@ public class BLangRecordLiteralUtil {
             return Optional.empty();
         }
         // Modify the spread completion item to automatically determine the prefixed number of dots to complete ellipsis
+        // TODO: Fix
         modifySpreadCompletionItem(context, cItem);
 
         return Optional.of(new SymbolCompletionItem(context, bSymbol, cItem));
@@ -186,10 +113,11 @@ public class BLangRecordLiteralUtil {
     }
 
     private static void modifySpreadCompletionItem(LSContext context, CompletionItem cItem) {
-        List<CommonToken> commonTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
-        String lastToken = (commonTokens.isEmpty()) ? "" : commonTokens.get(commonTokens.size() - 1).getText();
-        long dotCount = lastToken.codePoints().filter(charVal -> charVal == '.').count();
-        String prefix = String.join("", Collections.nCopies(ELLIPSIS.length() - Math.toIntExact(dotCount), "."));
+        // TODO: Fix 
+//        List<CommonToken> commonTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
+//        String lastToken = (commonTokens.isEmpty()) ? "" : commonTokens.get(commonTokens.size() - 1).getText();
+//        long dotCount = lastToken.codePoints().filter(charVal -> charVal == '.').count();
+        String prefix = String.join("", Collections.nCopies(ELLIPSIS.length(), "."));
 
         cItem.setInsertText(prefix + cItem.getInsertText());
         cItem.setLabel(ELLIPSIS + cItem.getLabel());

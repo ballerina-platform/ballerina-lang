@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -123,27 +118,29 @@
                       ]
                     },
                     {
-                      "kind": "FUNCTION_BODY_BLOCK",
+                      "kind": "EXPRESSION_FUNCTION_BODY",
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
+                          "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_MISSING_OPEN_BRACE_TOKEN"
+                            "ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN"
                           ]
                         },
                         {
-                          "kind": "LIST",
-                          "children": []
-                        },
-                        {
-                          "kind": "CLOSE_BRACE_TOKEN",
-                          "isMissing": true,
+                          "kind": "SIMPLE_NAME_REFERENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
+                              ]
+                            }
                           ]
                         }
                       ]

@@ -43,16 +43,15 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STFunctionDefinitionNode transform(
             STFunctionDefinitionNode functionDefinitionNode) {
         STNode metadata = modifyNode(functionDefinitionNode.metadata);
-        STNode visibilityQualifier = modifyNode(functionDefinitionNode.visibilityQualifier);
-        STNode transactionalKeyword = modifyNode(functionDefinitionNode.transactionalKeyword);
+        STNode qualifierList = modifyNode(functionDefinitionNode.qualifierList);
         STNode functionKeyword = modifyNode(functionDefinitionNode.functionKeyword);
         STNode functionName = modifyNode(functionDefinitionNode.functionName);
         STNode functionSignature = modifyNode(functionDefinitionNode.functionSignature);
         STNode functionBody = modifyNode(functionDefinitionNode.functionBody);
         return functionDefinitionNode.modify(
+                functionDefinitionNode.kind,
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -394,6 +393,17 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STFailExpressionNode transform(
+            STFailExpressionNode failExpressionNode) {
+        STNode failKeyword = modifyNode(failExpressionNode.failKeyword);
+        STNode expression = modifyNode(failExpressionNode.expression);
+        return failExpressionNode.modify(
+                failExpressionNode.kind,
+                failKeyword,
+                expression);
+    }
+
+    @Override
     public STFieldAccessExpressionNode transform(
             STFieldAccessExpressionNode fieldAccessExpressionNode) {
         STNode expression = modifyNode(fieldAccessExpressionNode.expression);
@@ -696,14 +706,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STRecordTypeDescriptorNode transform(
             STRecordTypeDescriptorNode recordTypeDescriptorNode) {
-        STNode objectKeyword = modifyNode(recordTypeDescriptorNode.objectKeyword);
+        STNode recordKeyword = modifyNode(recordTypeDescriptorNode.recordKeyword);
         STNode bodyStartDelimiter = modifyNode(recordTypeDescriptorNode.bodyStartDelimiter);
         STNode fields = modifyNode(recordTypeDescriptorNode.fields);
+        STNode recordRestDescriptor = modifyNode(recordTypeDescriptorNode.recordRestDescriptor);
         STNode bodyEndDelimiter = modifyNode(recordTypeDescriptorNode.bodyEndDelimiter);
         return recordTypeDescriptorNode.modify(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter);
     }
 
@@ -1713,14 +1725,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STMethodDeclarationNode transform(
             STMethodDeclarationNode methodDeclarationNode) {
         STNode metadata = modifyNode(methodDeclarationNode.metadata);
-        STNode visibilityQualifier = modifyNode(methodDeclarationNode.visibilityQualifier);
+        STNode qualifierList = modifyNode(methodDeclarationNode.qualifierList);
         STNode functionKeyword = modifyNode(methodDeclarationNode.functionKeyword);
         STNode methodName = modifyNode(methodDeclarationNode.methodName);
         STNode methodSignature = modifyNode(methodDeclarationNode.methodSignature);
         STNode semicolon = modifyNode(methodDeclarationNode.semicolon);
         return methodDeclarationNode.modify(
                 metadata,
-                visibilityQualifier,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -2222,28 +2234,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STObjectMethodDefinitionNode transform(
-            STObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        STNode metadata = modifyNode(objectMethodDefinitionNode.metadata);
-        STNode visibilityQualifier = modifyNode(objectMethodDefinitionNode.visibilityQualifier);
-        STNode remoteKeyword = modifyNode(objectMethodDefinitionNode.remoteKeyword);
-        STNode transactionalKeyword = modifyNode(objectMethodDefinitionNode.transactionalKeyword);
-        STNode functionKeyword = modifyNode(objectMethodDefinitionNode.functionKeyword);
-        STNode methodName = modifyNode(objectMethodDefinitionNode.methodName);
-        STNode methodSignature = modifyNode(objectMethodDefinitionNode.methodSignature);
-        STNode functionBody = modifyNode(objectMethodDefinitionNode.functionBody);
-        return objectMethodDefinitionNode.modify(
-                metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
-                functionKeyword,
-                methodName,
-                methodSignature,
-                functionBody);
-    }
-
-    @Override
     public STDistinctTypeDescriptorNode transform(
             STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         STNode distinctKeyword = modifyNode(distinctTypeDescriptorNode.distinctKeyword);
@@ -2429,6 +2419,28 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 startBacktick,
                 backtickContent,
                 endBacktick);
+    }
+
+    @Override
+    public STOrderByClauseNode transform(
+            STOrderByClauseNode orderByClauseNode) {
+        STNode orderKeyword = modifyNode(orderByClauseNode.orderKeyword);
+        STNode byKeyword = modifyNode(orderByClauseNode.byKeyword);
+        STNode orderKey = modifyNode(orderByClauseNode.orderKey);
+        return orderByClauseNode.modify(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    @Override
+    public STOrderKeyNode transform(
+            STOrderKeyNode orderKeyNode) {
+        STNode expression = modifyNode(orderKeyNode.expression);
+        STNode orderDirection = modifyNode(orderKeyNode.orderDirection);
+        return orderKeyNode.modify(
+                expression,
+                orderDirection);
     }
 
     // Tokens

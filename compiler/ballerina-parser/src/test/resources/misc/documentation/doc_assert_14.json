@@ -72,8 +72,13 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "typeDef"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "typeDef"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -119,8 +124,13 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "helloWorld"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "helloWorld"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -166,8 +176,13 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "testVar"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "testVar"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -213,8 +228,13 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "testVar"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "testVar"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -260,8 +280,13 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "annot"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "annot"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -307,8 +332,13 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "testModule"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "testModule"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -354,8 +384,13 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "add"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "add"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -401,8 +436,13 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "x"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "x"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -448,8 +488,13 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "constant"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "constant"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -477,6 +522,10 @@
               ]
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -488,6 +537,696 @@
             {
               "kind": "IDENTIFIER_TOKEN",
               "value": "foo"
+            },
+            {
+              "kind": "FUNCTION_SIGNATURE",
+              "children": [
+                {
+                  "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_PAREN_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "FUNCTION_BODY_BLOCK",
+              "children": [
+                {
+                  "kind": "OPEN_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "FUNCTION_DEFINITION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "MARKDOWN_DOCUMENTATION",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " if identifier is a qualified name M:X,",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " then the source file must have imported M, and X must refer to a public name of an appropriate type in M",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " Test "
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "TYPE_DOC_REFERENCE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "m"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "typeDef"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " Test "
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "SERVICE_DOC_REFERENCE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "m"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "helloWorld"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " Test "
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "VARIABLE_DOC_REFERENCE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "m"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "testVar"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " Test "
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "VAR_DOC_REFERENCE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "m"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "testVar"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " Test "
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "ANNOTATION_DOC_REFERENCE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "m"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "annot"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " Test "
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "MODULE_DOC_REFERENCE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "m"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "testModule"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " Test "
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "FUNCTION_DOC_REFERENCE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "m"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "add"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " Test "
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "PARAMETER_DOC_REFERENCE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "m"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "x"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " Test "
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "CONST_DOC_REFERENCE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "m"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "constant"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "FUNCTION_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "bar"
             },
             {
               "kind": "FUNCTION_SIGNATURE",

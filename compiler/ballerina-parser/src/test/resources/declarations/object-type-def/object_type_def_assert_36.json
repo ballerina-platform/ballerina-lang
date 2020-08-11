@@ -2,15 +2,6 @@
   "kind": "TYPE_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -61,15 +52,6 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
                   "kind": "READONLY_TYPE_DESC",
                   "children": [
                     {
@@ -90,13 +72,8 @@
                   ]
                 },
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a"
-                    }
-                  ]
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -113,15 +90,6 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
                   "kind": "READONLY_TYPE_DESC",
                   "children": [
                     {
@@ -142,17 +110,12 @@
                   ]
                 },
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a",
+                  "trailingMinutiae": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/java;
+import ballerina/time;
 
 # Represents a WebSocket client endpoint.
 public type WebSocketClient client object {
@@ -36,6 +37,9 @@ public type WebSocketClient client object {
     # + config - The configurations to be used when initializing the client
     public function init(string url, public WebSocketClientConfiguration? config = ()) {
         self.url = url;
+        if (config is WebSocketClientConfiguration) {
+            addCookies(config);
+        }
         self.config = config ?: {};
         self.initEndpoint();
     }
@@ -172,7 +176,29 @@ public type WebSocketClient client object {
     
 };
 
-# Configurations for the WebSocket client endpoint.
+# Configurations for the WebSocket client.
+# Following fields are inherited from the other configuration records in addition to the Client specific
+# configs.
+#
+# |                                                                              |
+# |:---------------------------------------------------------------------------- |
+# | callbackService - Copied from CommonWebSocketClientConfiguration             |
+# | subProtocols - Copied from CommonWebSocketClientConfiguration                |
+# | customHeaders - Copied from CommonWebSocketClientConfiguration               |
+# | idleTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration        |
+# | readyOnConnect - Copied from CommonWebSocketClientConfiguration              |
+# | secureSocket - Copied from CommonWebSocketClientConfiguration                |
+# | maxFrameSize - Copied from CommonWebSocketClientConfiguration                |
+# | webSocketCompressionEnabled - Copied from CommonWebSocketClientConfiguration |
+# | handShakeTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration   |
+# | cookies - Copied from CommonWebSocketClientConfiguration                     |
+# + retryConfig - Retry related configurations
+public type WebSocketClientConfiguration record {|
+    *CommonWebSocketClientConfiguration;
+    WebSocketRetryConfig retryConfig?;
+|};
+
+# Common client configurations for WebSocket clients.
 #
 # + callbackService - The callback service of the client. Resources in this service gets called on the
 #                     receipt of messages from the server
@@ -190,8 +216,8 @@ public type WebSocketClient client object {
 # + handShakeTimeoutInSeconds - Time (in seconds) that a connection waits to get the response of
 #                               the webSocket handshake. If the timeout exceeds, then the connection is terminated with
 #                               an error.If the value < 0, then the value sets to the default value(300).
-# + retryConfig - Retry related configurations
-public type WebSocketClientConfiguration record {|
+# + cookies - An Array of `http:Cookie`
+public type CommonWebSocketClientConfiguration record {|
     service? callbackService = ();
     string[] subProtocols = [];
     map<string> customHeaders = {};
@@ -201,8 +227,33 @@ public type WebSocketClientConfiguration record {|
     int maxFrameSize = 0;
     boolean webSocketCompressionEnabled = true;
     int handShakeTimeoutInSeconds = 300;
-    WebSocketRetryConfig retryConfig?;
+    Cookie[] cookies?;
 |};
+
+# Adds cookies to the custom header.
+#
+# + config - Represents the cookies to be added
+public function addCookies(WebSocketClientConfiguration|WebSocketFailoverClientConfiguration config) {
+    string cookieHeader = "";
+    var cookiesToAdd = config["cookies"];
+    if (cookiesToAdd is Cookie[]) {
+        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+        foreach var cookie in sortedCookies {
+            var cookieName = cookie.name;
+            var cookieValue = cookie.value;
+            if (cookieName is string && cookieValue is string) {
+                cookieHeader = cookieHeader + cookieName + EQUALS + cookieValue + SEMICOLON + SPACE;
+            }
+            cookie.lastAccessedTime = time:currentTime();
+        }
+        if (cookieHeader != "") {
+            cookieHeader = cookieHeader.substring(0, cookieHeader.length() - 2);
+            map<string> headers = config["customHeaders"];
+            headers["Cookie"] = cookieHeader;
+            config["customHeaders"] = headers;
+        }
+    }
+}
 
 # Retry configurations for WebSocket.
 #

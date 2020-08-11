@@ -115,25 +115,26 @@
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "SELECT_CLAUSE",
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                     "children": [
                       {
-                        "kind": "SELECT_KEYWORD",
-                        "trailingMinutiae": [
-                          {
-                            "kind": "WHITESPACE_MINUTIAE",
-                            "value": " "
-                          }
-                        ]
-                      },
+                        "kind": "SELECT_KEYWORD"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                },
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
                       {
-                        "kind": "SIMPLE_NAME_REFERENCE",
-                        "children": [
-                          {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "d"
-                          }
-                        ]
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "d"
                       }
                     ]
                   }

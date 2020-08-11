@@ -71,7 +71,7 @@ public class AnonymousFuncExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testMissingFUncBody() {
+    public void testMissingFuncBody() {
         testFile("anon-func/anon_func_source_06.bal", "anon-func/anon_func_assert_06.json");
     }
 

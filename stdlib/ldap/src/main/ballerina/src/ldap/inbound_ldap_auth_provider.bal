@@ -70,9 +70,8 @@ public type InboundLdapAuthProvider object {
         }
         if (authenticated is boolean) {
             if (authenticated) {
-                auth:setAuthenticationContext("ldap", credential);
                 string userId = self.ldapConnectionConfig.domainName + ":" + username;
-                auth:setPrincipal(userId, username, scopes);
+                auth:setInvocationContext("ldap", credential, userId, scopes);
             }
             return authenticated;
         } else {
@@ -139,7 +138,10 @@ public type SecureSocket record {|
 |};
 
 # Represets the LDAP connection.
+#
+# + instanceId - Instance ID of the endpoint
 public type LdapConnection record {|
+    string instanceId;
 |};
 
 # Retrieves the group(s) of the user related to the provided username.

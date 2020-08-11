@@ -46,9 +46,9 @@ public class MemberAccessTest {
         negativeResult = BCompileUtil.compile("test-src/expressions/access/member_access_negative.bal");
     }
 
-    @Test
+    @Test(groups = { "disableOnOldParser" })
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 52);
+        Assert.assertEquals(negativeResult.getErrorCount(), 53);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 34, 12);
@@ -116,7 +116,8 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "list index out of range: index: '5'", 182, 12);
         validateError(negativeResult, i++, "list index out of range: index: '5'", 187, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 195, 14);
-        validateError(negativeResult, i, "undefined field 'age' in 'Employee'", 196, 14);
+        validateError(negativeResult, i++, "undefined field 'age' in 'Employee'", 196, 14);
+        validateError(negativeResult, i++, "missing key expr in member access expr", 201, 26);
     }
 
     @Test(dataProvider = "listMemberAccessFunctions")

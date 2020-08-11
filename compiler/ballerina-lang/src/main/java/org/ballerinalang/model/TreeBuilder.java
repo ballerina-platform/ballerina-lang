@@ -23,6 +23,8 @@ import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.LimitClauseNode;
 import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.clauses.OnConflictClauseNode;
+import org.ballerinalang.model.clauses.OrderByClauseNode;
+import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -55,6 +57,7 @@ import org.ballerinalang.model.tree.expressions.CheckPanickedExpressionNode;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
 import org.ballerinalang.model.tree.expressions.ElvisExpressionNode;
 import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
+import org.ballerinalang.model.tree.expressions.FailExpressionNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.GroupExpressionNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
@@ -177,6 +180,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -189,6 +194,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -556,6 +562,10 @@ public class TreeBuilder {
         return new BLangCheckedExpr();
     }
 
+    public static FailExpressionNode createFailExpressionNode() {
+        return new BLangFailExpr();
+    }
+
     public static QueryExpressionNode createQueryExpressionNode() {
         return new BLangQueryExpr();
     }
@@ -771,6 +781,14 @@ public class TreeBuilder {
 
     public static OnClauseNode createOnClauseNode() {
         return new BLangOnClause();
+    }
+
+    public static OrderKeyNode createOrderKeyNode() {
+        return new BLangOrderKey();
+    }
+
+    public static OrderByClauseNode createOrderByClauseNode() {
+        return new BLangOrderByClause();
     }
 
     public static SelectClauseNode createSelectClauseNode() {

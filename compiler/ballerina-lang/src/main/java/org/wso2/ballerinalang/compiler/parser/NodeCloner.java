@@ -64,6 +64,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -77,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -909,7 +912,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         if (source instanceof BLangRecordVarNameField) {
             BLangRecordVarNameField clonedVarNameField = new BLangRecordVarNameField();
-            clonedVarNameField.isReadonly = ((BLangRecordVarNameField) source).isReadonly;
+            clonedVarNameField.readonly = ((BLangRecordVarNameField) source).readonly;
             clone = clonedVarNameField;
         } else {
             clone = new BLangSimpleVarRef();
@@ -1302,6 +1305,13 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.expr = clone(source.expr);
     }
 
+    public void visit(BLangFailExpr source) {
+
+        BLangFailExpr clone = new BLangFailExpr();
+        source.cloneRef = clone;
+        clone.expr = clone(source.expr);
+    }
+
     @Override
     public void visit(BLangCheckPanickedExpr source) {
 
@@ -1420,6 +1430,23 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangOnClause clone = new BLangOnClause();
         source.cloneRef = clone;
         clone.expression = clone(source.expression);
+    }
+
+    @Override
+    public void visit(BLangOrderKey source) {
+
+        BLangOrderKey clone = new BLangOrderKey();
+        source.cloneRef = clone;
+        clone.expression = clone(source.expression);
+        clone.isAscending = source.isAscending;
+    }
+
+    @Override
+    public void visit(BLangOrderByClause source) {
+
+        BLangOrderByClause clone = new BLangOrderByClause();
+        source.cloneRef = clone;
+        clone.orderByKeyList = cloneList(source.orderByKeyList);
     }
 
     @Override
@@ -1947,6 +1974,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.referenceName = source.referenceName;
         clone.kind = source.kind;
         clone.type = source.type;
+        clone.hasParserWarnings = source.hasParserWarnings;
     }
 
     @Override
@@ -1961,7 +1989,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangRecordKeyValueField clone = new BLangRecordKeyValueField();
         source.cloneRef = clone;
         clone.pos = source.pos;
-        clone.isReadonly = source.isReadonly;
+        clone.readonly = source.readonly;
         clone.addWS(source.getWS());
 
         BLangRecordKey newKey = new BLangRecordKey(clone(source.key.expr));

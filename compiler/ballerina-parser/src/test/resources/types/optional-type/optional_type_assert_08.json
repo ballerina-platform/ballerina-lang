@@ -1,0 +1,109 @@
+{
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "FUNCTION_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "REST_PARAM",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "OPTIONAL_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INT_KEYWORD"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "QUESTION_MARK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "ELLIPSIS_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "nums"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

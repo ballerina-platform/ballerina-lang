@@ -133,6 +133,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(checkExpressionNode);
     }
 
+    public void visit(STFailExpressionNode failExpressionNode) {
+        visitSyntaxNode(failExpressionNode);
+    }
+
     public void visit(STFieldAccessExpressionNode fieldAccessExpressionNode) {
         visitSyntaxNode(fieldAccessExpressionNode);
     }
@@ -721,10 +725,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(matchGuardNode);
     }
 
-    public void visit(STObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        visitSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public void visit(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         visitSyntaxNode(distinctTypeDescriptorNode);
     }
@@ -783,6 +783,14 @@ public abstract class STNodeVisitor {
 
     public void visit(STDocumentationReferenceNode documentationReferenceNode) {
         visitSyntaxNode(documentationReferenceNode);
+    }
+
+    public void visit(STOrderByClauseNode orderByClauseNode) {
+        visitSyntaxNode(orderByClauseNode);
+    }
+
+    public void visit(STOrderKeyNode orderKeyNode) {
+        visitSyntaxNode(orderKeyNode);
     }
 
     // STNodeList

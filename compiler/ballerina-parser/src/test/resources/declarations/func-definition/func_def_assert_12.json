@@ -3,26 +3,22 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "leadingMinutiae": [
-        {
-          "kind": "END_OF_LINE_MINUTIAE",
-          "value": "\n"
-        }
-      ],
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "leadingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -67,14 +63,17 @@
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "CLOSE_PAREN_TOKEN",
-                    "trailingMinutiae": [
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
                       {
-                        "kind": "WHITESPACE_MINUTIAE",
-                        "value": " "
+                        "kind": "CLOSE_PAREN_TOKEN"
                       }
                     ]
                   }
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ],
               "trailingMinutiae": [

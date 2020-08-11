@@ -41,21 +41,16 @@
         {
             "name": "FunctionDefinitionNode",
             "base": "ModuleMemberDeclarationNode",
-            "kind": "FUNCTION_DEFINITION",
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
-                },
-                {
-                    "name": "visibilityQualifier",
-                    "type": "Token",
+                    "type": "MetadataNode",
                     "isOptional": true
                 },
                 {
-                    "name": "transactionalKeyword",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",
@@ -117,7 +112,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -157,7 +153,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -189,7 +186,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "serviceKeyword",
@@ -639,6 +637,20 @@
             ]
         },
         {
+            "name": "FailExpressionNode",
+            "base": "ExpressionNode",
+            "attributes": [
+                {
+                    "name": "failKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
             "name": "FieldAccessExpressionNode",
             "base": "ExpressionNode",
             "kind": "FIELD_ACCESS",
@@ -664,7 +676,7 @@
             "attributes": [
                 {
                     "name": "functionName",
-                    "type": "Node"
+                    "type": "NameReferenceNode"
                 },
                 {
                     "name": "openParenToken",
@@ -821,7 +833,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -1165,7 +1178,7 @@
             "kind": "RECORD_TYPE_DESC",
             "attributes": [
                 {
-                    "name": "objectKeyword",
+                    "name": "recordKeyword",
                     "type": "Token"
                 },
                 {
@@ -1176,6 +1189,11 @@
                     "name": "fields",
                     "type": "Node",
                     "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "recordRestDescriptor",
+                    "type": "RecordRestDescriptorNode",
+                    "isOptional": true
                 },
                 {
                     "name": "bodyEndDelimiter",
@@ -1240,7 +1258,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -1281,7 +1300,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "readonlyKeyword",
@@ -1314,7 +1334,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "readonlyKeyword",
@@ -1445,7 +1466,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "finalKeyword",
@@ -1571,7 +1593,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -2890,12 +2913,13 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
-                    "name": "visibilityQualifier",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",
@@ -3372,7 +3396,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "qualifier",
@@ -3408,7 +3433,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "identifier",
@@ -3728,48 +3754,6 @@
             ]
         },
         {
-            "name": "ObjectMethodDefinitionNode",
-            "base": "Node",
-            "kind": "OBJECT_METHOD_DEFINITION",
-            "attributes": [
-                {
-                    "name": "metadata",
-                    "type": "MetadataNode"
-                },
-                {
-                    "name": "visibilityQualifier",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "remoteKeyword",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "transactionalKeyword",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "functionKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "methodName",
-                    "type": "IdentifierToken"
-                },
-                {
-                    "name": "methodSignature",
-                    "type": "FunctionSignatureNode"
-                },
-                {
-                    "name": "functionBody",
-                    "type": "FunctionBodyNode"
-                }
-            ]
-        },
-        {
             "name": "DistinctTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "DISTINCT_TYPE_DESC",
@@ -4072,11 +4056,47 @@
                 },
                 {
                     "name": "backtickContent",
-                    "type": "Token"
+                    "type": "Node"
                 },
                 {
                     "name": "endBacktick",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "OrderByClauseNode",
+            "base": "ClauseNode",
+            "kind": "ORDER_BY_CLAUSE",
+            "attributes": [
+                {
+                    "name": "orderKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "byKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "orderKey",
+                    "type": "OrderKeyNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                }
+            ]
+        },
+        {
+            "name": "OrderKeyNode",
+            "base": "Node",
+            "kind": "ORDER_KEY",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "orderDirection",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         }

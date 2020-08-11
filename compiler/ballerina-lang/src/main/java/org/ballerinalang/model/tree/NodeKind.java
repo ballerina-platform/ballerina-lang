@@ -112,6 +112,7 @@ public enum NodeKind {
     MATCH_EXPRESSION_PATTERN_CLAUSE,
     CHECK_EXPR,
     CHECK_PANIC_EXPR,
+    FAIL,
     ERROR_CONSTRUCTOR,
     TYPE_TEST_EXPR,
     IS_LIKE,
@@ -182,6 +183,8 @@ public enum NodeKind {
     ON_CONFLICT,
     ON,
     LIMIT,
+    ORDER_BY,
+    ORDER_KEY,
 
     /* Types */
     ARRAY_TYPE,

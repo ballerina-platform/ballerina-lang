@@ -51,7 +51,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText2", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "\\");
+        Assert.assertEquals(returns[0].stringValue(), "\\\\");
     }
 
     @Test
@@ -59,7 +59,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText3", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "{");
+        Assert.assertEquals(returns[0].stringValue(), "\\{");
     }
 
     @Test
@@ -75,7 +75,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText5", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "${");
+        Assert.assertEquals(returns[0].stringValue(), "$\\{");
     }
 
     @Test
@@ -172,7 +172,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText17", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "${count}");
+        Assert.assertEquals(returns[0].stringValue(), "$\\{count}");
     }
 
     @Test
@@ -180,7 +180,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText18", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "\\10");
+        Assert.assertEquals(returns[0].stringValue(), "\\\\10");
     }
 
     @Test
@@ -188,7 +188,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText19", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Path = \\root");
+        Assert.assertEquals(returns[0].stringValue(), "Path = \\\\root");
     }
 
     @Test
@@ -196,7 +196,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText20", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Path = \\");
+        Assert.assertEquals(returns[0].stringValue(), "Path = \\\\");
     }
 
     @Test
@@ -244,7 +244,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateEscapeChars", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "\n\r\b\t\f\'\"`{\\");
+        Assert.assertEquals(returns[0].stringValue(), "\\n\\r\\b\\t\\f\\'\\\"`\\{\\\\");
     }
 
     @Test
@@ -276,7 +276,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateDollarFollowedByEscapedLeftBrace", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Hi $$$${ 25 End");
+        Assert.assertEquals(returns[0].stringValue(), "Hi $$$$\\{ 25 End");
     }
 
     @Test
@@ -301,6 +301,6 @@ public class StringTemplateLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "complexStringTemplateExpr", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(),
-                "Hello \n$\\$${Dummy\tText`\\test Ballerina endText\\{{{{{innerStartText 7 }}!!!");
+                "Hello \\n$\\\\$$\\{Dummy\\tText\\`\\\\test Ballerina endText\\\\{{{{{innerStartText 7 }}!!!");
     }
 }

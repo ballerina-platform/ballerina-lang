@@ -3,20 +3,16 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -278,11 +274,17 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true,
+                                  "kind": "XML_SIMPLE_NAME",
                                   "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_IDENTIFIER"
+                                      ]
+                                    }
                                   ]
                                 },
                                 {
