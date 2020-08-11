@@ -25,6 +25,7 @@ import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
@@ -1545,6 +1546,21 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withStartBacktick(formatToken(startBacktick, 1, 0, 0, 0))
                 .withContent(content)
                 .withType(formatToken(type, 0, 0, 0, 0))
+                .withEndBacktick(formatToken(endBacktick, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public ByteArrayLiteralNode transform(ByteArrayLiteralNode byteArrayLiteralNode) {
+        Token type = getToken(byteArrayLiteralNode.type());
+        Token startBacktick = getToken(byteArrayLiteralNode.startBacktick());
+        Token content = getToken(byteArrayLiteralNode.content().orElse(null));
+        Token endBacktick = getToken(byteArrayLiteralNode.endBacktick());
+
+        return byteArrayLiteralNode.modify()
+                .withType(formatToken(type, 0, 0, 0, 0))
+                .withStartBacktick(formatToken(startBacktick, 0, 0, 0, 0))
+                .withContent(formatToken(content, 0, 0, 0, 0))
                 .withEndBacktick(formatToken(endBacktick, 0, 0, 0, 0))
                 .apply();
     }
