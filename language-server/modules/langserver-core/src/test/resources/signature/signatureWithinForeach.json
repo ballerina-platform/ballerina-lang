@@ -7,7 +7,7 @@
     "result": {
       "signatures": [
         {
-          "label": "indexOf(string str, string substr, int startIndex?)",
+          "label": "indexOf(string substr, int startIndex?)",
           "documentation": {
             "right": {
               "kind": "markdown",
@@ -15,17 +15,6 @@
             }
           },
           "parameters": [
-            {
-              "label": {
-                "left": "string str"
-              },
-              "documentation": {
-                "right": {
-                  "kind": "markdown",
-                  "value": "**Parameter**  \n**`string`str**: the string in which to search"
-                }
-              }
-            },
             {
               "label": {
                 "left": "string substr"
