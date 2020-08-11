@@ -6,7 +6,7 @@ type Foo object {
     string name;
     public int status = 0;
     private float score;
-    
+
     public function init() {
     }
 
@@ -16,7 +16,7 @@ type Foo object {
     }
 
     private remote function get() {
-    
+
     }
 
     object {

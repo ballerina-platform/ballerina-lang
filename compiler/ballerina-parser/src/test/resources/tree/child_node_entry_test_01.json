@@ -5,6 +5,8 @@
         {
             "kind": "FUNCTION_DEFINITION",
             "value": {
+                "qualifierList" : [
+                ],
                 "functionKeyword": {
                     "kind": "FUNCTION_KEYWORD",
                     "value": "function"
