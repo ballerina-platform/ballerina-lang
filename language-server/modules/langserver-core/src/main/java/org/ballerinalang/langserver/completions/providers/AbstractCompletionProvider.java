@@ -130,6 +130,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return this.kind;
     }
 
+    @Override
+    public boolean onPreValidation(T node) {
+        return true;
+    }
+
     /**
      * Populate the completion item list by considering the.
      *
@@ -475,22 +480,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         addIfNotExists(Snippet.DEF_RESOURCE_WS_IDLE.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_ERROR.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
-    }
-
-    protected Optional<Scope.ScopeEntry> getPackageSymbolFromAlias(LSContext context, String alias) {
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        Optional<BLangImportPackage> pkgForAlias = context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
-                .filter(pkg -> pkg.alias.value.equals(alias))
-                .findAny();
-        if (alias.isEmpty() || !pkgForAlias.isPresent()) {
-            return Optional.empty();
-        }
-        return visibleSymbols.stream()
-                .filter(scopeEntry -> {
-                    BSymbol symbol = scopeEntry.symbol;
-                    return symbol == pkgForAlias.get().symbol;
-                })
-                .findAny();
     }
 
     /**

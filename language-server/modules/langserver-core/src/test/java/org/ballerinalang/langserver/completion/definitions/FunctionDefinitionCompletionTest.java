@@ -69,9 +69,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"errorLiftingSuggestions2.json", "function"}, // Do not support
                 {"iterableOperation1.json", "function"},
                 {"iterableOperation2.json", "function"},
-//                {"iterableOperation3.json", "function"},
                 {"iterableOperation4.json", "function"},
-//                {"iterableOperation5.json", "function"},
                 {"iterableOperation6.json", "function"},
 //                {"completionWithinWorkersInResource.json", "function"},
                 {"suggestionsInWorkersWithinFunction.json", "function"},
@@ -81,14 +79,9 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinElseIf.json", "function"},
                 {"completionBeforeWhile.json", "function"},
                 {"completionWithinWhile.json", "function"},
-//                {"completionAfterReturn.json", "function"},
-//                {"functionCompletionWithMissingImport.json", "function"},
                 {"completionWithinRecord1.json", "function"},
                 {"completionWithinRecord2.json", "function"},
                 {"completionWithinRecord3.json", "function"},
-//                {"anonFunctionSnippetSuggestion1.json", "function"}, // Revamp needed
-//                {"anonFunctionSnippetSuggestion2.json", "function"}, // Revamp needed
-//                {"anonFunctionSnippetSuggestion3.json", "function"}, // Revamp needed
                 {"typeGuardSuggestions1.json", "function"},
                 {"typeGuardSuggestions2.json", "function"},
                 {"typeGuardSuggestions3.json", "function"},
@@ -97,12 +90,6 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"typeguardDestruct1.json", "function"},
                 {"completionAfterIf1.json", "function"},
                 {"completionAfterIf2.json", "function"},
-//                {"workerDeclarationContext1.json", "function"},
-//                {"workerDeclarationContext2.json", "function"},
-//                {"workerDeclarationContext3.json", "function"},
-                {"workerDeclarationContext4.json", "function"},
-//                {"workerDeclarationContext5.json", "function"},
-//                {"workerDeclarationContext6.json", "function"},
 //                {"completionWithinInvocationArgs1.json", "function"}, // Revamp needed
 //                {"completionWithinInvocationArgs2.json", "function"}, // Revamp needed
 //                {"completionWithinInvocationArgs3.json", "function"}, // Revamp needed
@@ -116,11 +103,6 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
 //                {"completionWithinInvocationArgs11.json", "function"}, // Revamp needed
 //                {"completionWithinInvocationArgs12.json", "function"}, // Revamp needed
 //                {"completionWithinInvocationArgs13.json", "function"}, // Revamp needed
-                {"chainCompletion1.json", "function"},
-                {"chainCompletion2.json", "function"},
-                {"chainCompletion3.json", "function"},
-                {"chainCompletion4.json", "function"},
-                {"chainCompletion5.json", "function"},
 //                {"chainCompletion6.json", "function"}, // Revamp needed
 //                {"chainCompletion7.json", "function"}, // Revamp needed
                 {"externalKeywordSuggestion1.json", "function"},
