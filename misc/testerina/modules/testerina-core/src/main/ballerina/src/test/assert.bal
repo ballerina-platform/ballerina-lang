@@ -68,8 +68,7 @@ public function assertFalse(boolean condition, public string msg = "Assertion Fa
 # + expected - Expected value
 # + msg - Assertion error message
 public function assertEquals(anydata|error actual, anydata|error expected, public string msg = "Assertion Failed!") {
-    boolean isEqual = false;
-    isEqual = (actual == expected);
+    boolean isEqual = (actual == expected);
     if (!isEqual) {
         string expectedStr = io:sprintf("%s", expected);
         string actualStr = io:sprintf("%s", actual);
@@ -84,8 +83,7 @@ public function assertEquals(anydata|error actual, anydata|error expected, publi
 # + expected - Expected value
 # + msg - Assertion error message
 public function assertNotEquals(anydata|error actual, anydata|error expected, public string msg = "Assertion Failed!") {
-    boolean isEqual = false;
-    isEqual = (actual == expected);
+    boolean isEqual = (actual == expected);
     if (isEqual) {
         string expectedStr = io:sprintf("%s", expected);
         string actualStr = io:sprintf("%s", actual);
