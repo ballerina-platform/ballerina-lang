@@ -725,10 +725,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(matchGuardNode);
     }
 
-    public T transform(STObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        return transformSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public T transform(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         return transformSyntaxNode(distinctTypeDescriptorNode);
     }
