@@ -26,6 +26,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -124,8 +125,8 @@ public class VariableDeclarationNodeContext extends AbstractCompletionProvider<V
         ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Optional<Scope.ScopeEntry> objectType;
         if (typeDescriptorNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            String modulePrefix = ((QualifiedNameReferenceNode) typeDescriptorNode).modulePrefix().text();
-            Optional<Scope.ScopeEntry> module = this.getPackageSymbolFromAlias(context, modulePrefix);
+            String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeDescriptorNode));
+            Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, modulePrefix);
             if (!module.isPresent()) {
                 return completionItems;
             }
@@ -163,7 +164,8 @@ public class VariableDeclarationNodeContext extends AbstractCompletionProvider<V
     private List<LSCompletionItem> getModuleContent(LSContext context,
                                                     QualifiedNameReferenceNode qNameRef,
                                                     Predicate<Scope.ScopeEntry> predicate) {
-        Optional<Scope.ScopeEntry> module = this.getPackageSymbolFromAlias(context, qNameRef.modulePrefix().text());
+        Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context,
+                QNameReferenceUtil.getAlias(qNameRef));
         if (!module.isPresent()) {
             return new ArrayList<>();
         }

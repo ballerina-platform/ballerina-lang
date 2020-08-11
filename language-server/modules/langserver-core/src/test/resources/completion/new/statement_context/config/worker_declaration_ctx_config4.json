@@ -1,14 +1,15 @@
 {
   "position": {
-    "line": 6,
-    "character": 21
+    "line": 2,
+    "character": 15
   },
-  "source": "function/source/workerDeclarationContext1.bal",
+  "source": "statement_context/source/worker_declaration_ctx_source4.bal",
   "items": [
     {
       "label": "returns",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "220",
       "insertText": "returns ",
       "insertTextFormat": "Snippet"
     }
