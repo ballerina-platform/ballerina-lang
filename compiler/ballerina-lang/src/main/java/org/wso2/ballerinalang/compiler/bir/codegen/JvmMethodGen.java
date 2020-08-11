@@ -1876,7 +1876,8 @@ public class JvmMethodGen {
                 if (localVar.kind == VarKind.LOCAL) {
                     int insOffset = localVar.insOffset;
                     if (localVar.startBB != null) {
-                        startLabel = labelGen.getLabel(funcName + localVar.startBB.id.value + "ins" + insOffset);
+                        startLabel = labelGen.getLabel(
+                                funcName + localVar.startBB.id.value + "ins" + localVar.name.value + insOffset);
                     }
                     if (localVar.endBB != null) {
                         endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
