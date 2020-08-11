@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,55 +16,47 @@
 
 import ballerina/http;
 
-listener http:Listener cachingProxyListener = new(9244);
-http:Client cachingEP1 = new("http://localhost:9243", { cache: { isShared: true } });
+http:Client cachingEP4 = new("http://localhost:9243", { cache: { isShared: true } });
 
 @http:ServiceConfig {
-    basePath: "/nocache"
+    basePath: "/validation-request"
 }
-service cachingProxyService on cachingProxyListener {
+service cachingProxy2 on cachingProxyListener {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
     resource function cacheableProxyResource(http:Caller caller, http:Request req) {
-        var response = cachingEP1->forward("/nocachebackend", req);
+        var response = cachingEP4->forward("/validation-req-be", req);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(<@untainted> response.message());
+            res.setPayload(response.message());
             checkpanic caller->respond(res);
         }
     }
 }
 
-listener http:Listener cachingBackendListener = new(9243);
-int nocachehitcount = 0;
-
 @http:ServiceConfig {
-    basePath: "/nocachebackend"
+    basePath: "/validation-req-be"
 }
-service nocacheBackend on cachingBackendListener {
+service cachingBackEnd2 on cachingBackendListener {
 
     @http:ResourceConfig { path: "/" }
-    resource function sayHello(http:Caller caller, http:Request req) {
-        json nocachePayload = {};
+    resource function mustRevalidate(http:Caller caller, http:Request req) {
+        json payload = {"message":"Hello, World!"};
         http:Response res = new;
         http:ResponseCacheControl resCC = new;
-        if (nocachehitcount < 1) {
-            nocachePayload = { "message": "1st response" };
-            res.cacheControl = resCC;
-        } else {
-            nocachePayload = { "message": "2nd response" };
-        }
-        resCC.noCache = true;
-        res.setETag(nocachePayload);
-        nocachehitcount += 1;
-        res.setHeader("x-service-hit-count", nocachehitcount.toString());
-        res.setPayload(nocachePayload);
+        resCC.mustRevalidate = true;
+        resCC.maxAge = 3;
+        res.cacheControl = resCC;
+        res.setETag(payload);
+        res.setPayload(payload);
+        res.setHeader("x-caller-req-header", req.getHeader("x-caller-req-header"));
 
-        checkpanic caller->respond(res);
+        checkpanic caller->respond(<@untainted>res);
     }
 }
+
