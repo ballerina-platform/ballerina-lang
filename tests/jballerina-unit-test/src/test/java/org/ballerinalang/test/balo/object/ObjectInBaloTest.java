@@ -46,6 +46,7 @@ public class ObjectInBaloTest {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "utils");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project_two", "testorgtwo", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_objects.bal");
     }
 
@@ -585,7 +586,10 @@ public class ObjectInBaloTest {
         return new Object[][]{
                 {"testSubTypingWithModuleLevelVisibleFields"},
                 {"testSubTypingWithModuleLevelVisibleMethods"},
-                {"testSubTypingWithAllPublicFields"}
+                {"testSubTypingWithAllPublicFields"},
+                {"testSubTypingNegativeForDifferentOrgNameAndVersionWithModuleLevelVisibleFields"},
+                {"testSubTypingNegativeForDifferentOrgNameAndVersionWithModuleLevelVisibleMethods"},
+                {"testSubTypingForDifferentOrgNameAndVersionWithAllPublicFields"}
         };
     }
 
@@ -615,5 +619,6 @@ public class ObjectInBaloTest {
     public void tearDown() {
         BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
         BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "utils");
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project_two", "testorgtwo", "foo");
     }
 }

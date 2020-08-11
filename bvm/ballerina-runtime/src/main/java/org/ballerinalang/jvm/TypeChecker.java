@@ -1363,9 +1363,8 @@ public class TypeChecker {
             return false;
         }
 
-
-        String targetTypeModule = Optional.ofNullable(targetType.getPackage()).map(BPackage::getName).orElse("");
-        String sourceTypeModule = Optional.ofNullable(sourceObjectType.getPackage()).map(BPackage::getName).orElse("");
+        String targetTypeModule = Optional.ofNullable(targetType.getPackage()).map(BPackage::toString).orElse("");
+        String sourceTypeModule = Optional.ofNullable(sourceObjectType.getPackage()).map(BPackage::toString).orElse("");
 
         if (sourceVal == null) {
             if (!checkObjectSubTypeForFields(targetFields, sourceFields, targetTypeModule, sourceTypeModule,
