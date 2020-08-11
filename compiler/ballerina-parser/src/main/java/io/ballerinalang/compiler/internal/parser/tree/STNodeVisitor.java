@@ -185,10 +185,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(restParameterNode);
     }
 
-    public void visit(STExpressionListItemNode expressionListItemNode) {
-        visitSyntaxNode(expressionListItemNode);
-    }
-
     public void visit(STImportOrgNameNode importOrgNameNode) {
         visitSyntaxNode(importOrgNameNode);
     }

@@ -160,8 +160,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(serviceDeclarationNode.serviceName());
         Token onKeyword =
                 modifyToken(serviceDeclarationNode.onKeyword());
-        NodeList<ExpressionNode> expressions =
-                modifyNodeList(serviceDeclarationNode.expressions());
+        SeparatedNodeList<ExpressionNode> expressions =
+                modifySeparatedNodeList(serviceDeclarationNode.expressions());
         Node serviceBody =
                 modifyNode(serviceDeclarationNode.serviceBody());
         return serviceDeclarationNode.modify(
@@ -743,18 +743,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 typeName,
                 ellipsisToken,
                 paramName);
-    }
-
-    @Override
-    public ExpressionListItemNode transform(
-            ExpressionListItemNode expressionListItemNode) {
-        Token leadingComma =
-                modifyToken(expressionListItemNode.leadingComma().orElse(null));
-        ExpressionNode expression =
-                modifyNode(expressionListItemNode.expression());
-        return expressionListItemNode.modify(
-                leadingComma,
-                expression);
     }
 
     @Override
@@ -2053,7 +2041,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             QueryPipelineNode queryPipelineNode) {
         FromClauseNode fromClause =
                 modifyNode(queryPipelineNode.fromClause());
-        NodeList<Node> intermediateClauses =
+        NodeList<ClauseNode> intermediateClauses =
                 modifyNodeList(queryPipelineNode.intermediateClauses());
         return queryPipelineNode.modify(
                 fromClause,

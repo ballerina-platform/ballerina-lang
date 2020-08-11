@@ -1066,8 +1066,6 @@ public class ParserTestUtils {
                 return SyntaxKind.SPREAD_FIELD;
             case "SERVICE_BODY":
                 return SyntaxKind.SERVICE_BODY;
-            case "EXPRESSION_LIST_ITEM":
-                return SyntaxKind.EXPRESSION_LIST_ITEM;
             case "ARRAY_DIMENSION":
                 return SyntaxKind.ARRAY_DIMENSION;
             case "METADATA":

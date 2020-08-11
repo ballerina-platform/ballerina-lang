@@ -150,7 +150,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token serviceKeyword,
             IdentifierToken serviceName,
             Token onKeyword,
-            NodeList<ExpressionNode> expressions,
+            SeparatedNodeList<ExpressionNode> expressions,
             Node serviceBody) {
         Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
         Objects.requireNonNull(serviceName, "serviceName must not be null");
@@ -729,17 +729,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 ellipsisToken.internalNode(),
                 getOptionalSTNode(paramName));
         return stRestParameterNode.createUnlinkedFacade();
-    }
-
-    public static ExpressionListItemNode createExpressionListItemNode(
-            Token leadingComma,
-            ExpressionNode expression) {
-        Objects.requireNonNull(expression, "expression must not be null");
-
-        STNode stExpressionListItemNode = STNodeFactory.createExpressionListItemNode(
-                getOptionalSTNode(leadingComma),
-                expression.internalNode());
-        return stExpressionListItemNode.createUnlinkedFacade();
     }
 
     public static ImportOrgNameNode createImportOrgNameNode(
@@ -2011,7 +2000,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static QueryPipelineNode createQueryPipelineNode(
             FromClauseNode fromClause,
-            NodeList<Node> intermediateClauses) {
+            NodeList<ClauseNode> intermediateClauses) {
         Objects.requireNonNull(fromClause, "fromClause must not be null");
         Objects.requireNonNull(intermediateClauses, "intermediateClauses must not be null");
 

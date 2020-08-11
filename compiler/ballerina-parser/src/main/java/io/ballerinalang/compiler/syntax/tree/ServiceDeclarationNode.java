@@ -49,8 +49,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(3);
     }
 
-    public NodeList<ExpressionNode> expressions() {
-        return new NodeList<>(childInBucket(4));
+    public SeparatedNodeList<ExpressionNode> expressions() {
+        return new SeparatedNodeList<>(childInBucket(4));
     }
 
     public Node serviceBody() {
@@ -83,7 +83,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             Token serviceKeyword,
             IdentifierToken serviceName,
             Token onKeyword,
-            NodeList<ExpressionNode> expressions,
+            SeparatedNodeList<ExpressionNode> expressions,
             Node serviceBody) {
         if (checkForReferenceEquality(
                 metadata,
@@ -119,7 +119,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         private Token serviceKeyword;
         private IdentifierToken serviceName;
         private Token onKeyword;
-        private NodeList<ExpressionNode> expressions;
+        private SeparatedNodeList<ExpressionNode> expressions;
         private Node serviceBody;
 
         public ServiceDeclarationNodeModifier(ServiceDeclarationNode oldNode) {
@@ -161,7 +161,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         }
 
         public ServiceDeclarationNodeModifier withExpressions(
-                NodeList<ExpressionNode> expressions) {
+                SeparatedNodeList<ExpressionNode> expressions) {
             Objects.requireNonNull(expressions, "expressions must not be null");
             this.expressions = expressions;
             return this;

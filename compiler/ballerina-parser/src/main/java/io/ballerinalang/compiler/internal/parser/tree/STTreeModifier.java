@@ -584,16 +584,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STExpressionListItemNode transform(
-            STExpressionListItemNode expressionListItemNode) {
-        STNode leadingComma = modifyNode(expressionListItemNode.leadingComma);
-        STNode expression = modifyNode(expressionListItemNode.expression);
-        return expressionListItemNode.modify(
-                leadingComma,
-                expression);
-    }
-
-    @Override
     public STImportOrgNameNode transform(
             STImportOrgNameNode importOrgNameNode) {
         STNode orgName = modifyNode(importOrgNameNode.orgName);

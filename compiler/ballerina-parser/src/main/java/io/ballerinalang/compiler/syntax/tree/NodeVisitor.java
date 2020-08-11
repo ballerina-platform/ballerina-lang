@@ -195,10 +195,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(restParameterNode);
     }
 
-    public void visit(ExpressionListItemNode expressionListItemNode) {
-        visitSyntaxNode(expressionListItemNode);
-    }
-
     public void visit(ImportOrgNameNode importOrgNameNode) {
         visitSyntaxNode(importOrgNameNode);
     }

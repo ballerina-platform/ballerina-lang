@@ -559,15 +559,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 paramName);
     }
 
-    public static STNode createExpressionListItemNode(
-            STNode leadingComma,
-            STNode expression) {
-
-        return new STExpressionListItemNode(
-                leadingComma,
-                expression);
-    }
-
     public static STNode createImportOrgNameNode(
             STNode orgName,
             STNode slashToken) {

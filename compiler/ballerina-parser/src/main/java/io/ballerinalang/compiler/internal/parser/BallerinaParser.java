@@ -360,6 +360,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseReceiveField();
             case TABLE_ROW_END:
                 return parseTableRowEnd();
+            case LISTENERS_LIST_END:
+                return parseListenersMemberEnd();
             default:
                 return resumeKeywordParsing(context, args);
         }
@@ -2572,7 +2574,7 @@ public class BallerinaParser extends AbstractParser {
      * <code>
      * function-body := function-body-block | external-function-body
      * external-function-body := = annots external ;
-     * function-body-block := { [default-worker-init, named-worker-decl+] default-worker }
+     * function-body-block := { [default-worker-init named-worker-decl+] default-worker }
      * </code>
      *
      * @param isObjectMethod Flag indicating whether this is an object-method
@@ -2908,7 +2910,7 @@ public class BallerinaParser extends AbstractParser {
                 annotation = parseAnnotations();
                 break;
             case EXTERNAL_KEYWORD:
-                annotation = STNodeFactory.createNodeList();
+                annotation = STNodeFactory.createEmptyNodeList();
                 break;
             default:
                 Solution solution = recover(nextToken, ParserRuleContext.EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS, assign);
@@ -5025,7 +5027,7 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind != SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
             return STNodeFactory.createNilLiteralNode(openParen, closeParen);
         } else {
-            STNode params = STNodeFactory.createNodeList();
+            STNode params = STNodeFactory.createEmptyNodeList();
             STNode anonFuncParam =
                     STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
             return anonFuncParam;
@@ -6817,59 +6819,66 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseListeners() {
-        // TODO: Change body to align with parseOptionalExpressionsList()
         startContext(ParserRuleContext.LISTENERS_LIST);
         List<STNode> listeners = new ArrayList<>();
 
         STToken nextToken = peek();
-        if (isEndOfExpressionsList(nextToken.kind)) {
+        if (isEndOfListeners(nextToken.kind)) {
             endContext();
             return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first expression, that has no leading comma
-        STNode leadingComma = STNodeFactory.createEmptyNode();
-        STNode exprListItem = parseExpressionListItem(leadingComma);
-        listeners.add(exprListItem);
+        STNode expr = parseExpression();
+        listeners.add(expr);
 
         // Parse the remaining expressions
-        nextToken = peek();
-        while (!isEndOfExpressionsList(nextToken.kind)) {
-            leadingComma = parseComma();
-            exprListItem = parseExpressionListItem(leadingComma);
-            listeners.add(exprListItem);
-            nextToken = peek();
+        STNode listenersMemberEnd;
+        while (!isEndOfListeners(peek().kind)) {
+            listenersMemberEnd = parseListenersMemberEnd();
+            if (listenersMemberEnd == null) {
+                break;
+            }
+            listeners.add(listenersMemberEnd);
+            expr = parseExpression();
+            listeners.add(expr);
         }
 
         endContext();
         return STNodeFactory.createNodeList(listeners);
     }
 
-    private boolean isEndOfExpressionsList(SyntaxKind tokenKind) {
+    private boolean isEndOfListeners(SyntaxKind tokenKind) {
         switch (tokenKind) {
-            case COMMA_TOKEN:
-                return false;
-            case EOF_TOKEN:
-            case SEMICOLON_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case CLOSE_PAREN_TOKEN:
             case OPEN_BRACE_TOKEN:
+            case EOF_TOKEN:
                 return true;
             default:
-                return !isValidExprStart(tokenKind);
+                return false;
         }
     }
 
-    /**
-     * Parse expression list item.
-     *
-     * @param leadingComma Leading comma
-     * @return Parsed node
-     */
-    private STNode parseExpressionListItem(STNode leadingComma) {
-        STNode expr = parseExpression();
-        return STNodeFactory.createExpressionListItemNode(leadingComma, expr);
+    private STNode parseListenersMemberEnd() {
+        return parseListenersMemberEnd(peek().kind);
+    }
+
+    private STNode parseListenersMemberEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case OPEN_BRACE_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.LISTENERS_LIST_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+                return parseListenersMemberEnd(solution.tokenKind);
+        }
     }
 
     /**
@@ -7428,7 +7437,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse annotation list with atleast one annotation.
+     * Parse annotation list with at least one annotation.
      * 
      * @return Annotation list
      */
@@ -10741,7 +10750,7 @@ public class BallerinaParser extends AbstractParser {
 
         // Parse the remaining order keys
         nextToken = peek();
-        STNode orderKeyListMemberEnd;;
+        STNode orderKeyListMemberEnd;
         while (!isEndOfOrderKeys(nextToken.kind)) {
             orderKeyListMemberEnd = parseOrderKeyListMemberEnd();
             if (orderKeyListMemberEnd == null) {
@@ -14070,7 +14079,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case RIGHT_DOUBLE_ARROW_TOKEN:
-                STNode params = STNodeFactory.createNodeList();
+                STNode params = STNodeFactory.createEmptyNodeList();
                 STNode anonFuncParam =
                         STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
                 endContext();
@@ -16305,7 +16314,7 @@ public class BallerinaParser extends AbstractParser {
             bpOrConstructor = parseMappingBindingPatternOrMappingConstructor(openBrace, members, closeBrace);
         } else {
             members.add(memberEnd);
-            bpOrConstructor = parseMappingBindingPatternOrMappingConstructor(openBrace, members);;
+            bpOrConstructor = parseMappingBindingPatternOrMappingConstructor(openBrace, members);
         }
 
         switch (bpOrConstructor.kind) {

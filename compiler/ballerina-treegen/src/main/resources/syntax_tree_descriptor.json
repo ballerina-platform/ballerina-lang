@@ -204,7 +204,7 @@
                 {
                     "name": "expressions",
                     "type": "ExpressionNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "serviceBody",
@@ -968,22 +968,6 @@
                     "name": "paramName",
                     "type": "Token",
                     "isOptional": true
-                }
-            ]
-        },
-        {
-            "name": "ExpressionListItemNode",
-            "base": "Node",
-            "kind": "EXPRESSION_LIST_ITEM",
-            "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "expression",
-                    "type": "ExpressionNode"
                 }
             ]
         },
@@ -2752,7 +2736,7 @@
                 },
                 {
                     "name": "intermediateClauses",
-                    "type": "Node",
+                    "type": "ClauseNode",
                     "occurrences": "MULTIPLE"
                 }
             ]

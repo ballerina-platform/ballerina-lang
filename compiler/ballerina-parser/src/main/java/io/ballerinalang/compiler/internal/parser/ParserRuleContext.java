@@ -100,6 +100,7 @@ public enum ParserRuleContext {
     SERVICE_DECL("service-decl"),
     OPTIONAL_SERVICE_NAME("service-rhs"),
     LISTENERS_LIST("listeners-list"),
+    LISTENERS_LIST_END("listeners-list-end"),
     RESOURCE_DEF("resource-def"),
     RESOURCE_DEF_QUALIFIERS("resource-def-qualifiers"),
     RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL("resource-def-start-without-transactional"),
