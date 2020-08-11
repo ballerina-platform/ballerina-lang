@@ -19,12 +19,10 @@ import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
 import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
@@ -39,6 +37,7 @@ import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternVarnameNode;
+import io.ballerinalang.compiler.syntax.tree.FieldMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
@@ -54,10 +53,12 @@ import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
+import io.ballerinalang.compiler.syntax.tree.MappingMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.MetadataNode;
 import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
@@ -72,12 +73,14 @@ import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
+import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.RestMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
@@ -91,8 +94,10 @@ import io.ballerinalang.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TemplateMemberNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
+import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
+import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
@@ -115,7 +120,6 @@ import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
 import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
 import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.LineRange;
@@ -350,18 +354,18 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
-    @Override
-    public BuiltinSimpleNameReferenceNode transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
-        if (!isInLineRange(builtinSimpleNameReferenceNode)) {
-            return builtinSimpleNameReferenceNode;
-        }
-        int startCol = getStartColumn(builtinSimpleNameReferenceNode, builtinSimpleNameReferenceNode.kind(), true);
-        Token name = getToken(builtinSimpleNameReferenceNode.name());
-
-        return builtinSimpleNameReferenceNode.modify()
-                .withName(formatToken(name, startCol, 0, 0, 0))
-                .apply();
-    }
+//    @Override
+//    public BuiltinSimpleNameReferenceNode transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+//        if (!isInLineRange(builtinSimpleNameReferenceNode)) {
+//            return builtinSimpleNameReferenceNode;
+//        }
+//        int startCol = getStartColumn(builtinSimpleNameReferenceNode, builtinSimpleNameReferenceNode.kind(), true);
+//        Token name = getToken(builtinSimpleNameReferenceNode.name());
+//
+//        return builtinSimpleNameReferenceNode.modify()
+//                .withName(formatToken(name, startCol, 0, 0, 0))
+//                .apply();
+//    }
 
     @Override
     public FunctionBodyBlockNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
@@ -726,11 +730,10 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(simpleNameReferenceNode)) {
             return simpleNameReferenceNode;
         }
-        int startColumn = getStartColumn(simpleNameReferenceNode, simpleNameReferenceNode.kind(), true);
         Token name = getToken(simpleNameReferenceNode.name());
 
         return simpleNameReferenceNode.modify()
-                .withName(formatToken(name, startColumn, 0, 0, 0))
+                .withName(formatToken(name, 0, 0, 0, 0))
                 .apply();
     }
 
@@ -1180,12 +1183,11 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public NilTypeDescriptorNode transform(NilTypeDescriptorNode nilTypeDescriptorNode) {
-        int startCol = getStartColumn(nilTypeDescriptorNode, nilTypeDescriptorNode.kind(), true);
         Token openParenToken = getToken(nilTypeDescriptorNode.openParenToken());
         Token closeParenToken = getToken(nilTypeDescriptorNode.closeParenToken());
 
         return nilTypeDescriptorNode.modify()
-                .withOpenParenToken(formatToken(openParenToken, startCol, 0, 0, 0))
+                .withOpenParenToken(formatToken(openParenToken, 0, 0, 0, 0))
                 .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
                 .apply();
     }
@@ -1562,6 +1564,88 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withStartBacktick(formatToken(startBacktick, 0, 0, 0, 0))
                 .withContent(formatToken(content, 0, 0, 0, 0))
                 .withEndBacktick(formatToken(endBacktick, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public ListConstructorExpressionNode transform(ListConstructorExpressionNode listConstructorExpressionNode) {
+        Token openBracket = getToken(listConstructorExpressionNode.openBracket());
+        SeparatedNodeList<Node> expressions = this.modifySeparatedNodeList(listConstructorExpressionNode.expressions());
+        Token closeBracket = getToken(listConstructorExpressionNode.closeBracket());
+
+        return listConstructorExpressionNode.modify()
+                .withOpenBracket(formatToken(openBracket, 0, 0, 0, 0))
+                .withExpressions(expressions)
+                .withCloseBracket(formatToken(closeBracket, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public TypeReferenceNode transform(TypeReferenceNode typeReferenceNode) {
+        Token asteriskToken = getToken(typeReferenceNode.asteriskToken());
+        Node typeName = this.modifyNode(typeReferenceNode.typeName());
+        Token semicolonToken = getToken(typeReferenceNode.semicolonToken());
+
+        if (typeName != null) {
+            typeReferenceNode = typeReferenceNode.modify()
+                    .withTypeName(typeName)
+                    .apply();
+        }
+
+        return typeReferenceNode.modify()
+                .withAsteriskToken(formatToken(asteriskToken, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public TupleTypeDescriptorNode transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
+        int startCol = getStartColumn(tupleTypeDescriptorNode, tupleTypeDescriptorNode.kind(), true);
+        Token openBracketToken = getToken(tupleTypeDescriptorNode.openBracketToken());
+        SeparatedNodeList<Node> memberTypeDesc = this.modifySeparatedNodeList(tupleTypeDescriptorNode.memberTypeDesc());
+        Token closeBracketToken = getToken(tupleTypeDescriptorNode.closeBracketToken());
+
+        return tupleTypeDescriptorNode.modify()
+                .withOpenBracketToken(formatToken(openBracketToken, startCol, 0, 0, 0))
+                .withMemberTypeDesc(memberTypeDesc)
+                .withCloseBracketToken(formatToken(closeBracketToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public MappingMatchPatternNode transform(MappingMatchPatternNode mappingMatchPatternNode) {
+        Token openBraceToken = getToken(mappingMatchPatternNode.openBraceToken());
+        SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns =
+                this.modifySeparatedNodeList(mappingMatchPatternNode.fieldMatchPatterns());
+        RestMatchPatternNode restMatchPattern =
+                this.modifyNode(mappingMatchPatternNode.restMatchPattern().orElse(null));
+        Token closeBraceToken = getToken(mappingMatchPatternNode.closeBraceToken());
+
+        return mappingMatchPatternNode.modify(
+                openBraceToken,
+                fieldMatchPatterns,
+                restMatchPattern,
+                closeBraceToken);
+    }
+
+    @Override
+    public ParameterizedTypeDescriptorNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        int startCol = getStartColumn(parameterizedTypeDescriptorNode, parameterizedTypeDescriptorNode.kind(), true);
+        Token parameterizedType = getToken(parameterizedTypeDescriptorNode.parameterizedType());
+        Token ltToken = getToken(parameterizedTypeDescriptorNode.ltToken());
+        Node typeNode = this.modifyNode(parameterizedTypeDescriptorNode.typeNode());
+        Token gtToken = getToken(parameterizedTypeDescriptorNode.gtToken());
+
+        if (typeNode != null) {
+            parameterizedTypeDescriptorNode = parameterizedTypeDescriptorNode.modify()
+                    .withTypeNode(typeNode)
+                    .apply();
+        }
+
+        return parameterizedTypeDescriptorNode.modify()
+                .withParameterizedType(formatToken(parameterizedType, startCol, 0, 0, 0))
+                .withLtToken(formatToken(ltToken, 0, 0, 0, 0))
+                .withGtToken(formatToken(gtToken, 0, 0, 0, 0))
                 .apply();
     }
 
