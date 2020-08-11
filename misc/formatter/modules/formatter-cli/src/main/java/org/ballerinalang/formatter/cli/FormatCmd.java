@@ -18,6 +18,8 @@ package org.ballerinalang.formatter.cli;
 import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -27,6 +29,7 @@ import java.util.List;
 @CommandLine.Command(name = "format", description = "format given Ballerina source file")
 public class FormatCmd implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
+    private static final String NOT_SUPPORTED_MESSAGE = "user.dir";
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -39,7 +42,9 @@ public class FormatCmd implements BLauncherCmd {
 
     @Override
     public void execute() {
-        // TODO
+        // Get source root path.
+        Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
+        FormatUtil.execute(argList, helpFlag, dryRun, sourceRootPath);
     }
 
     @Override
@@ -49,16 +54,16 @@ public class FormatCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-
+        throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-
+        throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
     }
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-
+        throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
     }
 }

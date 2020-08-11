@@ -27,7 +27,7 @@ under the License.
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.format.*"/>
+            <package name="org.ballerinalang.formatter.cli.*"/>
         </packages>
     </test>
 </suite>
