@@ -149,6 +149,10 @@ type PersonObj object {
     }
 
     function name() returns string => self.fname + " " + self.lname;
+
+    function getObjectValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
+        class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+    } external;
 };
 
 type IntStream stream<int>;
@@ -188,6 +192,13 @@ function testComplexTypes() {
 
     table<Person> newTab = echo(PersonTable, tab);
     assert(tab, newTab);
+}
+
+function testObjectExternFunctions() {
+    PersonObj pObj = new("John", "Doe");
+    string s = pObj.getObjectValue(string);
+    assert("Hello World!", s);
+    assert("Hello World!", pObj.fname);
 }
 
 function testFunctionAssignment() {

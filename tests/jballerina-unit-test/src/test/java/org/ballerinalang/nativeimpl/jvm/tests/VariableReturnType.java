@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.api.BError;
@@ -99,6 +100,14 @@ public class VariableReturnType {
 
     public static Object getValue(BTypedesc td) {
         return getValue(td.getDescribingType());
+    }
+
+    public static Object getObjectValue(ObjectValue objectValue, BTypedesc td) {
+        BType describingType = td.getDescribingType();
+        if (describingType.getTag() == STRING_TAG) {
+            objectValue.set(new BmpStringValue("fname"), getValue(describingType));
+        }
+        return objectValue.get(new BmpStringValue("fname"));
     }
 
     public static MapValue query(BString query, BTypedesc typedesc) {
