@@ -83,4 +83,5 @@ For more information on all the operations supported by the `mysql:Client`, whic
 4. Updating data
 5. Deleting data
 6. Batch insert and update data
-7. Closing client
+7. Execute stored procedures
+8. Closing client

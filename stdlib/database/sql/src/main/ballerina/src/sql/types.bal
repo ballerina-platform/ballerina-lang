@@ -392,12 +392,19 @@ type ResultIterator object {
     }
 };
 
+# Represents SQL OutParameter used in procedure calls.
 public type OutParameter object {
+
+    # Parses returned SQL value to ballerina value
+    #
+    # + td - Type description of the data that need to be converted
+    # + return - The converted ballerina value or Error
     public function get(typedesc<anydata> td) returns td|Error = @java:Method {
         class: "org.ballerinalang.sql.utils.OutParameterUtils"
     } external;
 };
 
+# Represents SQL InOutParameter used in procedure calls.
 public type InOutParameter object {
     Value 'in;
 
@@ -405,11 +412,16 @@ public type InOutParameter object {
         self.'in = 'in;
     }
 
+    # Parses returned SQL value to ballerina value
+    #
+    # + td - Type description of the data that need to be converted
+    # + return - The converted ballerina value or Error
     public function get(typedesc<anydata> td) returns td|Error = @java:Method {
         class: "org.ballerinalang.sql.utils.OutParameterUtils"
     } external;
 };
 
+# Represents all the parameters used in SQL stored procedure call.
 public type Parameter Value|OutParameter|InOutParameter;
 
 # Represents Parameterized Call SQL Statement.
@@ -429,10 +441,17 @@ public type ProcedureCallResult object {
     public ExecutionResult? executionResult = ();
     public stream<record {}, Error>? queryResult = ();
 
+    # Updates `executionResult` or `queryResult` with the next result in the result. This will also close the current
+    # results by default.
+    #
+    # + return - True if the next result is `queryResult`
     public function getNextQueryResult() returns boolean|Error {
         return getNextQueryResult(self);
     }
 
+    # Closes the `ProcedureCallResult` object and releases resources.
+    #
+    # + return - `Error` if any error occurred while closing.
     public function close() returns Error? {
         return closeCallResult(self);
     }

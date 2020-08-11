@@ -50,6 +50,12 @@ public type Client abstract client object {
     #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
     public remote function batchExecute(@untainted ParameterizedQuery[] sqlQueries) returns ExecutionResult[]|Error;
 
+    # Executes a SQL stored procedure and returns the result as stream and execution summary.
+    #
+    # + sqlQuery - The query to executed the SQL stored procedure.
+    # + rowTypes - The array of `typedesc` of the records that should be returned as a result. If this is not provided
+    #               the default column names of the query result set be used for the record attributes.
+    # + return - Summary of the execution is returned in `ProcedureCallResult` or `sql:Error`.
     public remote function call(@untainted ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes = [])
     returns ProcedureCallResult|Error;
 
