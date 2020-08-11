@@ -241,16 +241,16 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(functionDefinitionNode)) {
             return functionDefinitionNode;
         }
-        int startColumn = getStartColumn(functionDefinitionNode, functionDefinitionNode.kind(), true);
-        Token visibilityQualifier = getToken(functionDefinitionNode.visibilityQualifier().orElse(null));
+        MetadataNode metadata = this.modifyNode(functionDefinitionNode.metadata().orElse(null));
+        NodeList<Token> qualifierList = this.modifyNodeList(functionDefinitionNode.qualifierList());
         Token functionKeyword = getToken(functionDefinitionNode.functionKeyword());
         Token functionName = getToken(functionDefinitionNode.functionName());
 
         FunctionSignatureNode functionSignatureNode = this.modifyNode(functionDefinitionNode.functionSignature());
 
-        if (visibilityQualifier != null) {
+        if (metadata != null) {
             functionDefinitionNode = functionDefinitionNode.modify()
-                    .withVisibilityQualifier(formatToken(visibilityQualifier, startColumn, 1, 1, 0))
+                    .withMetadata(metadata)
                     .apply();
         }
 
@@ -262,6 +262,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         FunctionBodyNode functionBodyNode = this.modifyNode(functionDefinitionNode.functionBody());
         return functionDefinitionNode.modify()
+                .withQualifierList(qualifierList)
                 .withFunctionBody(functionBodyNode)
                 .apply();
     }
@@ -469,7 +470,7 @@ public class FormattingTreeModifier extends TreeModifier {
         IdentifierToken serviceName = (IdentifierToken) getToken(serviceDeclarationNode.serviceName());
         Token onKeyword = getToken(serviceDeclarationNode.onKeyword());
 
-        MetadataNode metadata = this.modifyNode(serviceDeclarationNode.metadata());
+        MetadataNode metadata = this.modifyNode(serviceDeclarationNode.metadata().orElse(null));
         NodeList<ExpressionNode> expressions = this.modifyNodeList(serviceDeclarationNode.expressions());
 
         serviceDeclarationNode = serviceDeclarationNode.modify()
@@ -841,7 +842,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token equalsToken = getToken(moduleVariableDeclarationNode.equalsToken());
         Token semicolonToken = getToken(moduleVariableDeclarationNode.semicolonToken());
         Token finalKeyword = getToken(moduleVariableDeclarationNode.finalKeyword().orElse(null));
-        MetadataNode metadata = this.modifyNode(moduleVariableDeclarationNode.metadata());
+        MetadataNode metadata = this.modifyNode(moduleVariableDeclarationNode.metadata().orElse(null));
 
         moduleVariableDeclarationNode = moduleVariableDeclarationNode.modify()
                 .withTypedBindingPattern(this.modifyNode(moduleVariableDeclarationNode.typedBindingPattern()))
@@ -873,7 +874,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token semicolonToken = getToken(constantDeclarationNode.semicolonToken());
         Token visibilityQualifier = getToken(constantDeclarationNode.visibilityQualifier());
         Node initializer = this.modifyNode(constantDeclarationNode.initializer());
-        MetadataNode metadata = this.modifyNode(constantDeclarationNode.metadata());
+        MetadataNode metadata = this.modifyNode(constantDeclarationNode.metadata().orElse(null));
         TypeDescriptorNode typeDescriptorNode = this.modifyNode(constantDeclarationNode.typeDescriptor());
 
         if (visibilityQualifier != null) {
@@ -968,7 +969,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token listenerKeyword = getToken(listenerDeclarationNode.listenerKeyword());
         Token visibilityQualifier = getToken(listenerDeclarationNode.visibilityQualifier().orElse(null));
         Node initializer = this.modifyNode(listenerDeclarationNode.initializer());
-        MetadataNode metadata = this.modifyNode(listenerDeclarationNode.metadata());
+        MetadataNode metadata = this.modifyNode(listenerDeclarationNode.metadata().orElse(null));
         Node typeDescriptor = this.modifyNode(listenerDeclarationNode.typeDescriptor());
 
         if (visibilityQualifier != null) {
