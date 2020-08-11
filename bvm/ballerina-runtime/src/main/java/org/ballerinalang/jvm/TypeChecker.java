@@ -651,7 +651,7 @@ public class TypeChecker {
             return checkIsType(sourceType, targetType);
         }
 
-        if (targetType.getTag() == TypeTags.INTERSECTION_TAG) {
+        if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
             targetType = ((BIntersectionType) targetType).getEffectiveType();
             targetTypeTag = targetType.getTag();
         }
@@ -1084,15 +1084,11 @@ public class TypeChecker {
         for (BField field : fields.values()) {
             String fieldName = field.getFieldName();
 
-            boolean optionalField = Flags.isFlagOn(field.flags, Flags.OPTIONAL);
-
             if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
                 BString fieldNameBString = StringUtils.fromString(fieldName);
 
-                if (optionalField) {
-                    if (!sourceVal.containsKey(fieldNameBString)) {
-                        continue;
-                    }
+                if (Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !sourceVal.containsKey(fieldNameBString)) {
+                    continue;
                 }
 
                 if (!checkIsLikeType(sourceVal.get(fieldNameBString), targetType)) {
@@ -1157,13 +1153,11 @@ public class TypeChecker {
             if (Flags.isFlagOn(sourceField.flags, Flags.READONLY)) {
                 BString fieldNameBString = StringUtils.fromString(fieldName);
 
-                if (optionalSourceField) {
-                    if (!sourceRecordValue.containsKey(fieldNameBString)) {
-                        if (!optionalTargetField) {
-                            return false;
-                        }
-                        continue;
+                if (optionalSourceField && !sourceRecordValue.containsKey(fieldNameBString)) {
+                    if (!optionalTargetField) {
+                        return false;
                     }
+                    continue;
                 }
 
                 if (!checkIsLikeType(sourceRecordValue.get(fieldNameBString), targetField.type)) {
