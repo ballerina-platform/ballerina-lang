@@ -149,9 +149,6 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
 
-    @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
-    private boolean dumpLLVMIR;
-
     @CommandLine.Option(names = "--no-optimize-llvm", hidden = true)
     private boolean noOptimizeLlvm;
 

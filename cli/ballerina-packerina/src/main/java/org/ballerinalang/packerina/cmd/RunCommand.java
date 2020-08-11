@@ -99,9 +99,6 @@ public class RunCommand implements BLauncherCmd {
             description = "Compile Ballerina program to a native binary")
     private boolean nativeBinary;
 
-    @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
-    private boolean dumpLLVMIR;
-
     @CommandLine.Option(names = "--no-optimize-llvm", hidden = true)
     private boolean noOptimizeLLVM;
 
