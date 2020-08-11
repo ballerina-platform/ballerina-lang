@@ -179,7 +179,6 @@ dependencies {
     balDoc project(path: ':ballerina-time', configuration: 'balDoc')
     balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
     balDoc project(path: ':ballerina-kafka', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-nats', configuration: 'balDoc')
     balDoc project(path: ':ballerina-stringutils', configuration: 'balDoc')
     balDoc project(path: ':ballerina-ldap', configuration: 'balDoc')
     balDoc project(path: ':ballerina-oauth2', configuration: 'balDoc')
