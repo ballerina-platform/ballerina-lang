@@ -17,8 +17,6 @@ public type OrderCreationError2 distinct OrderCreationError;
 public type NewPostDefinedError distinct PostDefinedError;
 public type PostDefinedError error<ErrorData>;
 
-
 public type ErrorData record {|
     string code;
 |};
-

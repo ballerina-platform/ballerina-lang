@@ -19,7 +19,9 @@ public function testFunctionCallInDetailArgExpr() {
     json codeJson = "1234";
     map<anydata> details = {};
     var x = GraphAPIError("Concurrent graph modification", code = codeJson.toString(), details = details);
-    assertEquality(x.toString(), "error Concurrent graph modification code=1234 details=");
+    assertEquality(x.message(), "Concurrent graph modification");
+    assertEquality(x.detail().code, "1234");
+    assertEquality(x.detail().details, details);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
