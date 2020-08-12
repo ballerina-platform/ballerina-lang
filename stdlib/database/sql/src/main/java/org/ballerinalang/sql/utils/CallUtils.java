@@ -85,7 +85,7 @@ public class CallUtils {
     private static final Calendar calendar = Calendar.getInstance(
             TimeZone.getTimeZone(Constants.TIMEZONE_UTC.getValue()));
 
-    public static Object nativeCall(ObjectValue client, AbstractObjectValue paramSQLString, ArrayValue recordTypes) {
+    public static Object nativeCall(ObjectValue client, Object paramSQLString, ArrayValue recordTypes) {
         Object dbClient = client.getNativeData(DATABASE_CLIENT);
         Strand strand = Scheduler.getStrand();
         if (dbClient != null) {
@@ -98,7 +98,7 @@ public class CallUtils {
                 if (paramSQLString instanceof StringValue) {
                     sqlQuery = ((StringValue) paramSQLString).getValue();
                 } else {
-                    sqlQuery = Utils.getSqlQuery(paramSQLString);
+                    sqlQuery = Utils.getSqlQuery((AbstractObjectValue) paramSQLString);
                 }
                 connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareCall(sqlQuery);
@@ -112,25 +112,29 @@ public class CallUtils {
                 } else {
                     cache = new HashMap<>();
                 }
+                if (paramSQLString instanceof AbstractObjectValue) {
+                    HashMap<Integer, Integer> metaData;
+                    if (metaDataObject != null) {
+                        metaData = (HashMap<Integer, Integer>) metaDataObject;
+                    } else {
+                        metaData = new HashMap<>();
+                    }
 
-                HashMap<Integer, Integer> metaData;
-                if (metaDataObject != null) {
-                    metaData = (HashMap<Integer, Integer>) metaDataObject;
-                } else {
-                    metaData = new HashMap<>();
-                }
-
-                setCallParameters(connection, statement, sqlQuery, paramSQLString, cache, metaData);
-                if (!cache.isEmpty()) {
-                    client.addNativeData(PROCEDURE_CALL_PARAM_CACHE, cache);
-                }
-                if (!metaData.isEmpty()) {
-                    client.addNativeData(PROCEDURE_CALL_META_DATA, metaData);
+                    setCallParameters(connection, statement, sqlQuery, (AbstractObjectValue) paramSQLString,
+                            cache, metaData);
+                    if (!cache.isEmpty()) {
+                        client.addNativeData(PROCEDURE_CALL_PARAM_CACHE, cache);
+                    }
+                    if (!metaData.isEmpty()) {
+                        client.addNativeData(PROCEDURE_CALL_META_DATA, metaData);
+                    }
                 }
 
                 boolean resultType = statement.execute();
 
-                populateOutParameters(statement, paramSQLString, cache);
+                if (paramSQLString instanceof AbstractObjectValue) {
+                    populateOutParameters(statement, (AbstractObjectValue) paramSQLString, cache);
+                }
 
                 ObjectValue procedureCallResult = BallerinaValues.createObjectValue(SQL_PACKAGE_ID,
                         PROCEDURE_CALL_RESULT, strand);

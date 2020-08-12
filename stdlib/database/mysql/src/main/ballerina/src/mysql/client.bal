@@ -108,7 +108,7 @@ public type Client client object {
     # + rowTypes - The array of `typedesc` of the records that should be returned as a result. If this is not provided
     #               the default column names of the query result set be used for the record attributes.
     # + return - Summary of the execution is returned in `ProcedureCallResult` or `sql:Error`.
-    public remote function call(@untainted sql:ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes = [])
+    public remote function call(@untainted string|sql:ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes = [])
     returns sql:ProcedureCallResult|sql:Error {
         if (self.clientActive) {
             return nativeCall(self, sqlQuery, rowTypes);
@@ -200,7 +200,7 @@ returns sql:ExecutionResult[]|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 
-function nativeCall(Client sqlClient, sql:ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes)
+function nativeCall(Client sqlClient, string|sql:ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes)
 returns sql:ProcedureCallResult|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.CallUtils"
 } external;
