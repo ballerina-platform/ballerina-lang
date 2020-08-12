@@ -246,6 +246,9 @@ public class FilterUtils {
 
         return entries.stream().filter(entry -> {
             BSymbol symbol = entry.symbol;
+            if ((symbol.flags & Flags.PUBLIC) != Flags.PUBLIC) {
+                return false;
+            }
             if (symbol instanceof BInvokableSymbol) {
                 List<BVarSymbol> params = ((BInvokableSymbol) symbol).params;
                 return params.isEmpty() || params.get(0).type.tag == bType.tag ||

@@ -18,17 +18,14 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
 
 /**
  * Ballerina xml variable type.
@@ -39,13 +36,13 @@ public class BXmlItemAttributeMap extends BCompoundVariable {
     private static final String FIELD_MAP_KEY = "key";
     private static final String FIELD_MAP_VALUE = "value";
 
-    public BXmlItemAttributeMap(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.MAP, value, dapVariable);
+    public BXmlItemAttributeMap(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.MAP, value);
     }
 
     @Override
     public String computeValue() {
-        return getBType(jvmValue);
+        return VariableUtils.getBType(jvmValue);
     }
 
     @Override

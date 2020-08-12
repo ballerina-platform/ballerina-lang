@@ -295,12 +295,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 List<SignatureInformation> signatures = new ArrayList<>();
                 List<Scope.ScopeEntry> symbols = new ArrayList<>(visibleSymbols);
                 Optional<String> symbolPath = getInvocationSymbolPath(sNode, context);
+                boolean isMethodCall = sNode.kind() == SyntaxKind.METHOD_CALL;
                 symbolPath.ifPresent(pathStr -> {
                     Optional<Scope.ScopeEntry> searchSymbol = getFuncScopeEntry(context, pathStr, symbols);
                     searchSymbol.ifPresent(entry -> {
                         if (entry.symbol instanceof BInvokableSymbol) {
                             BInvokableSymbol symbol = (BInvokableSymbol) entry.symbol;
-                            signatures.add(SignatureHelpUtil.getSignatureInformation(symbol, context));
+                            signatures.add(SignatureHelpUtil.getSignatureInformation(symbol, isMethodCall, context));
                         }
                     });
                 });
