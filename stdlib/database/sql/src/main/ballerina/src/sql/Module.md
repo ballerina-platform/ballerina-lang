@@ -349,7 +349,7 @@ This example demonstrates how to execute a stored procedure with a single INSERT
 int uid = 10;
 sql:OutParameter insertId = new;
 
-var ret = dbClient->call(`call InsertPerson(${uid}, ${insertId}`);
+var ret = dbClient->call(`call InsertPerson(${uid}, ${insertId})`);
 if (ret is error) {
     io:println("Error occurred:", err.message());
 } else {
