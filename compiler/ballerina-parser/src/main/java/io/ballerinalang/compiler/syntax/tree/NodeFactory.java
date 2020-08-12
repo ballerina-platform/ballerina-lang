@@ -671,7 +671,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static DefaultableParameterNode createDefaultableParameterNode(
-            Token leadingComma,
             NodeList<AnnotationNode> annotations,
             Token visibilityQualifier,
             Node typeName,
@@ -684,7 +683,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stDefaultableParameterNode = STNodeFactory.createDefaultableParameterNode(
-                getOptionalSTNode(leadingComma),
                 annotations.underlyingListNode().internalNode(),
                 getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
@@ -695,7 +693,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static RequiredParameterNode createRequiredParameterNode(
-            Token leadingComma,
             NodeList<AnnotationNode> annotations,
             Token visibilityQualifier,
             Node typeName,
@@ -704,7 +701,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(typeName, "typeName must not be null");
 
         STNode stRequiredParameterNode = STNodeFactory.createRequiredParameterNode(
-                getOptionalSTNode(leadingComma),
                 annotations.underlyingListNode().internalNode(),
                 getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
@@ -713,7 +709,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static RestParameterNode createRestParameterNode(
-            Token leadingComma,
             NodeList<AnnotationNode> annotations,
             Node typeName,
             Token ellipsisToken,
@@ -723,7 +718,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
 
         STNode stRestParameterNode = STNodeFactory.createRestParameterNode(
-                getOptionalSTNode(leadingComma),
                 annotations.underlyingListNode().internalNode(),
                 typeName.internalNode(),
                 ellipsisToken.internalNode(),
@@ -1827,7 +1821,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static FunctionSignatureNode createFunctionSignatureNode(
             Token openParenToken,
-            NodeList<ParameterNode> parameters,
+            SeparatedNodeList<ParameterNode> parameters,
             Token closeParenToken,
             ReturnTypeDescriptorNode returnTypeDesc) {
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");

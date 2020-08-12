@@ -511,7 +511,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createDefaultableParameterNode(
-            STNode leadingComma,
             STNode annotations,
             STNode visibilityQualifier,
             STNode typeName,
@@ -520,7 +519,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode expression) {
 
         return new STDefaultableParameterNode(
-                leadingComma,
                 annotations,
                 visibilityQualifier,
                 typeName,
@@ -530,14 +528,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createRequiredParameterNode(
-            STNode leadingComma,
             STNode annotations,
             STNode visibilityQualifier,
             STNode typeName,
             STNode paramName) {
 
         return new STRequiredParameterNode(
-                leadingComma,
                 annotations,
                 visibilityQualifier,
                 typeName,
@@ -545,14 +541,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createRestParameterNode(
-            STNode leadingComma,
             STNode annotations,
             STNode typeName,
             STNode ellipsisToken,
             STNode paramName) {
 
         return new STRestParameterNode(
-                leadingComma,
                 annotations,
                 typeName,
                 ellipsisToken,

@@ -877,11 +877,6 @@
             "kind": "DEFAULTABLE_PARAM",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "annotations",
                     "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
@@ -916,11 +911,6 @@
             "kind": "REQUIRED_PARAM",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "annotations",
                     "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
@@ -946,11 +936,6 @@
             "base": "ParameterNode",
             "kind": "REST_PARAM",
             "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
                 {
                     "name": "annotations",
                     "type": "AnnotationNode",
@@ -2484,7 +2469,7 @@
                 {
                     "name": "parameters",
                     "type": "ParameterNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",

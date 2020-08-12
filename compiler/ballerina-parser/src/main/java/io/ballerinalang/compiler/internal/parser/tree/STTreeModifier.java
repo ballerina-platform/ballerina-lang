@@ -534,7 +534,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STDefaultableParameterNode transform(
             STDefaultableParameterNode defaultableParameterNode) {
-        STNode leadingComma = modifyNode(defaultableParameterNode.leadingComma);
         STNode annotations = modifyNode(defaultableParameterNode.annotations);
         STNode visibilityQualifier = modifyNode(defaultableParameterNode.visibilityQualifier);
         STNode typeName = modifyNode(defaultableParameterNode.typeName);
@@ -542,7 +541,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode equalsToken = modifyNode(defaultableParameterNode.equalsToken);
         STNode expression = modifyNode(defaultableParameterNode.expression);
         return defaultableParameterNode.modify(
-                leadingComma,
                 annotations,
                 visibilityQualifier,
                 typeName,
@@ -554,13 +552,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STRequiredParameterNode transform(
             STRequiredParameterNode requiredParameterNode) {
-        STNode leadingComma = modifyNode(requiredParameterNode.leadingComma);
         STNode annotations = modifyNode(requiredParameterNode.annotations);
         STNode visibilityQualifier = modifyNode(requiredParameterNode.visibilityQualifier);
         STNode typeName = modifyNode(requiredParameterNode.typeName);
         STNode paramName = modifyNode(requiredParameterNode.paramName);
         return requiredParameterNode.modify(
-                leadingComma,
                 annotations,
                 visibilityQualifier,
                 typeName,
@@ -570,13 +566,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STRestParameterNode transform(
             STRestParameterNode restParameterNode) {
-        STNode leadingComma = modifyNode(restParameterNode.leadingComma);
         STNode annotations = modifyNode(restParameterNode.annotations);
         STNode typeName = modifyNode(restParameterNode.typeName);
         STNode ellipsisToken = modifyNode(restParameterNode.ellipsisToken);
         STNode paramName = modifyNode(restParameterNode.paramName);
         return restParameterNode.modify(
-                leadingComma,
                 annotations,
                 typeName,
                 ellipsisToken,
