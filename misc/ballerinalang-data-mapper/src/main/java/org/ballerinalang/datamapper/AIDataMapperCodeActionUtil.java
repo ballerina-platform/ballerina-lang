@@ -1,13 +1,17 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
- * This software is the property of WSO2 Inc. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein is strictly forbidden, unless permitted by WSO2 in accordance with
- * the WSO2 Commercial License available at http://wso2.com/licenses.
- * For specific language governing the permissions and limitations under
- * this license, please see the license as well as any agreement you’ve
- * entered into with WSO2 governing the purchase of this software and any
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.ballerinalang.datamapper;
 
@@ -59,6 +63,12 @@ class AIDataMapperCodeActionUtil {
     private static final int MAXIMUM_CACHE_SIZE = 100;
     private static Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
+
+    private static final String SCHEMA_NAME_PROPERTY = "schema";
+    private static final String FIELD_ID_PROPERTY = "id";
+    private static final String FIELD_TYPE_PROPERTY = "type";
+    private static final String PROPERTIES = "properties";
+
 
     /**
      * Returns the workspace edits for the automatic data mapping code action.
@@ -140,10 +150,10 @@ class AIDataMapperCodeActionUtil {
             List<BField> rightSchemaFields = new ArrayList<>(((BRecordType) variableTypeMappingFrom).fields.values());
             JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
 
-            rightRecordJSON.addProperty("schema", foundTypeRight);
-            rightRecordJSON.addProperty("id", "dummy_id");
-            rightRecordJSON.addProperty("type", "object");
-            rightRecordJSON.add("properties", rightSchema);
+            rightRecordJSON.addProperty(SCHEMA_NAME_PROPERTY, foundTypeRight);
+            rightRecordJSON.addProperty(FIELD_ID_PROPERTY, "dummy_id");
+            rightRecordJSON.addProperty(FIELD_TYPE_PROPERTY, "object");
+            rightRecordJSON.add(PROPERTIES, rightSchema);
         }
         // Schema 2
         BType variableTypeMappingTo = ((BLangSimpleVarRef) bLangNode).expectedType;
@@ -151,10 +161,10 @@ class AIDataMapperCodeActionUtil {
             List<BField> leftSchemaFields = new ArrayList<>(((BRecordType) variableTypeMappingTo).fields.values());
             JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
 
-            leftRecordJSON.addProperty("schema", foundTypeLeft);
-            leftRecordJSON.addProperty("id", "dummy_id");
-            leftRecordJSON.addProperty("type", "object");
-            leftRecordJSON.add("properties", leftSchema);
+            leftRecordJSON.addProperty(SCHEMA_NAME_PROPERTY, foundTypeLeft);
+            leftRecordJSON.addProperty(FIELD_ID_PROPERTY, "dummy_id");
+            leftRecordJSON.addProperty(FIELD_TYPE_PROPERTY, "object");
+            leftRecordJSON.add(PROPERTIES, leftSchema);
         }
 
         JsonArray schemas = new JsonArray();
@@ -188,22 +198,22 @@ class AIDataMapperCodeActionUtil {
         JsonObject properties = new JsonObject();
         for (BField attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
-            fieldDetails.addProperty("id", "dummy_id");
+            fieldDetails.addProperty(FIELD_ID_PROPERTY, "dummy_id");
             if (attribute.type instanceof BArrayType) {
                 BType attributeEType = ((BArrayType) attribute.type).eType;
                 if (attributeEType instanceof BRecordType) {
-                    fieldDetails.addProperty("type", "ballerina_type");
-                    fieldDetails.add("properties",
+                    fieldDetails.addProperty(FIELD_TYPE_PROPERTY, "ballerina_type");
+                    fieldDetails.add(PROPERTIES,
                             recordToJSON(new ArrayList<>(((BRecordType) attributeEType).fields.values())));
                 } else {
-                    fieldDetails.addProperty("type", String.valueOf(attribute.type));
+                    fieldDetails.addProperty(FIELD_TYPE_PROPERTY, String.valueOf(attribute.type));
                 }
             } else if (attribute.type instanceof BRecordType) {
-                fieldDetails.addProperty("type", "ballerina_type");
-                fieldDetails.add("properties",
+                fieldDetails.addProperty(FIELD_TYPE_PROPERTY, "ballerina_type");
+                fieldDetails.add(PROPERTIES,
                         recordToJSON(new ArrayList<>(((BRecordType) attribute.type).fields.values())));
             } else {
-                fieldDetails.addProperty("type", String.valueOf(attribute.type));
+                fieldDetails.addProperty(FIELD_TYPE_PROPERTY, String.valueOf(attribute.type));
             }
             properties.add(String.valueOf(attribute.name), fieldDetails);
         }

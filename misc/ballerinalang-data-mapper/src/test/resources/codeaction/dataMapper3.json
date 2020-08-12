@@ -1,16 +1,16 @@
 {
-  "line": 59,
+  "line": 73,
   "character": 23,
   "expected": {
     "title": "Generate mapping function",
     "edits": [
       {"range":{
         "start":{
-          "line":59,
+          "line":73,
           "character":23
         },
         "end":{
-          "line":59,
+          "line":73,
           "character":30
         }
       },
@@ -18,11 +18,11 @@
       },
       {"range":{
         "start":{
-          "line":63,
+          "line":77,
           "character":0
         },
         "end":{
-          "line":63,
+          "line":77,
           "character":1
         }
       },
