@@ -134,7 +134,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     @Override
-    public boolean onPreValidation(T node) {
+    public boolean onPreValidation(LSContext context, T node) {
         return true;
     }
 

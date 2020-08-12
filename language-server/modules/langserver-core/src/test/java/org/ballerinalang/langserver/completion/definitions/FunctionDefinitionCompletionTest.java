@@ -134,17 +134,6 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"forkJoinCompletion4.json", "function"},
 //                {"packageContentSuggestionInvalid1.json", "function"}, // Revamp needed
 //                {"errorUnionSuggestion1.json", "function"},
-//                {"returnParameterContextSuggestion1.json", "function"},
-//                {"returnParameterContextSuggestion2.json", "function"},
-//                {"returnParameterContextSuggestion3.json", "function"},
-//                {"returnParameterContextSuggestion4.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion5.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion6.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion7.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion8.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion9.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion10.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion11.json", "function"}, // Revamp needed
 //                {"typeDescSuggestions1.json", "function"},
 //                {"typeDescSuggestions2.json", "function"}, // Revamp needed
 //                {"delimiterBasedCompletionOverArrays.json", "function"}, // Revamp needed
