@@ -14,32 +14,30 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.variable;
+package org.ballerinalang.debugadapter.jdi;
 
+import com.sun.jdi.ClassLoaderReference;
+import com.sun.jdi.Location;
 import com.sun.jdi.StackFrame;
-import com.sun.jdi.ThreadReference;
 
 /**
- * Debug context information for ballerina debug variables.
+ * Proxy definition for JDI stack frame.
+ *
+ * @since 2.0.0
  */
-public class VariableContext {
-    private final StackFrame frame;
-    private final ThreadReference owningThread;
+public interface StackFrameProxy extends ObjectReferenceProxy {
 
-    public VariableContext(StackFrame frame) {
-        this(frame, frame.thread());
-    }
+    StackFrame getStackFrame() throws JdiProxyException;
 
-    public VariableContext(StackFrame frame, ThreadReference threadRef) {
-        this.frame = frame;
-        this.owningThread = threadRef;
-    }
+    int getFrameIndex() throws JdiProxyException;
 
-    public ThreadReference getOwningThread() {
-        return owningThread;
-    }
+    VirtualMachineProxy getVirtualMachine();
 
-    public StackFrame getFrame() {
-        return frame;
-    }
+    Location location() throws JdiProxyException;
+
+    ClassLoaderReference getClassLoader() throws JdiProxyException;
+
+    LocalVariableProxy visibleVariableByName(String name) throws JdiProxyException;
+
+    ThreadReferenceProxy threadProxy();
 }
