@@ -20,12 +20,21 @@ package org.ballerinalang.formatter.core;
  */
 public class FormattingOptions {
 
-    // TODO: set default values for the options
     // Size of a tab in spaces.
     private int tabSize;
 
     // Prefer spaces over tabs.
     private boolean insertSpaces;
+
+    FormattingOptions() {
+        this.tabSize = 4;
+        this.insertSpaces = true;
+    }
+
+    FormattingOptions(int tabSize, boolean insertSpaces) {
+        this.tabSize = tabSize;
+        this.insertSpaces = insertSpaces;
+    }
 
     public int getTabSize() {
         return tabSize;

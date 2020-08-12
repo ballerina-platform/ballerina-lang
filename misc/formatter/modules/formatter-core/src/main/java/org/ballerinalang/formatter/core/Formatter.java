@@ -26,10 +26,47 @@ import io.ballerinalang.compiler.text.TextDocuments;
  */
 public class Formatter {
 
-    // TODO: Add test cases for error scenarios also
-    // TODO: Add some syntax errors and see how the parser behaves
-    // TODO: overload these functions to have default formatting options
-    // TODO: Doc comments
+    // TODO: Add test cases for syntax error scenarios as well
+
+    /**
+     * Formats the provided source string and returns back the formatted source string.
+     *
+     * @param source A Ballerina source in string form
+     * @return A modified source string after formatting changes
+     */
+    public static String format(String source) {
+        return format(source, new FormattingOptions());
+    }
+
+    /**
+     * Formats a line range of the provided SyntaxTree. All the nodes falling within the line range
+     * specified will be formatted.
+     *
+     * @param syntaxTree The complete SyntaxTree, of which a part is to be formatted
+     * @param range LineRange which specifies the range to be formatted
+     * @return The modified SyntaxTree after formatting changes
+     */
+    public static SyntaxTree format(SyntaxTree syntaxTree, LineRange range) {
+        return format(syntaxTree, range, new FormattingOptions());
+    }
+
+    /**
+     * Formats the provided SyntaxTree and returns back a formatted SyntaxTree.
+     *
+     * @param syntaxTree The SyntaxTree which is to be formatted
+     * @return The modified SyntaxTree after formatting changes
+     */
+    public static SyntaxTree format(SyntaxTree syntaxTree) {
+        return format(syntaxTree, new FormattingOptions());
+    }
+
+    /**
+     * Formats the provided source string while using the formatting options provided.
+     *
+     * @param source A Ballerina source in string form
+     * @param options Formatting options that are to be used when formatting
+     * @return A modified source string after formatting changes
+     */
     public static String format(String source, FormattingOptions options) {
         TextDocument textDocument = TextDocuments.from(source);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
@@ -41,6 +78,15 @@ public class Formatter {
         return syntaxTree.modifyWith(newModulePart).toSourceCode();
     }
 
+    /**
+     * Formats a line range of the provided SyntaxTree while using the formatting options provided. All the
+     * nodes falling within the line range provided will be formatted.
+     *
+     * @param syntaxTree The complete SyntaxTree, of which a part is to be formatted
+     * @param range LineRange which needs to be formatted
+     * @param options Formatting options that are to be used when formatting
+     * @return The modified SyntaxTree after formatting changes
+     */
     public static SyntaxTree format(SyntaxTree syntaxTree, LineRange range, FormattingOptions options) {
         FormattingTreeModifier treeModifier = new FormattingTreeModifier();
         ModulePartNode modulePartNode = syntaxTree.rootNode();
@@ -51,6 +97,13 @@ public class Formatter {
         return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
     }
 
+    /**
+     * Formats the provided SyntaxTree while using the formatting options provided.
+     *
+     * @param syntaxTree The SyntaxTree which is to be formatted
+     * @param options Formatting options that are to be used when formatting
+     * @return The modified SyntaxTree after formatting changes
+     */
     public static SyntaxTree format(SyntaxTree syntaxTree, FormattingOptions options) {
         FormattingTreeModifier treeModifier = new FormattingTreeModifier();
         ModulePartNode modulePartNode = syntaxTree.rootNode();
