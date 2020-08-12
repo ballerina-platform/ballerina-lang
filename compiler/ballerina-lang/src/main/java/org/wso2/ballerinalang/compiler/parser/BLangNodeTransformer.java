@@ -1223,6 +1223,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 case RESOURCE_KEYWORD:
                     bLFunction.flagSet.add(Flag.RESOURCE);
                     break;
+                case ISOLATED_KEYWORD:
+                    bLFunction.flagSet.add(Flag.ISOLATED);
+                    break;
                 default:
                     continue;
             }

@@ -338,6 +338,7 @@ public enum ParserRuleContext {
     SOURCE_KEYWORD("source"),
     XMLNS_KEYWORD("xmlns"),
     WORKER_KEYWORD("worker"),
+    ISOLATED_KEYWORD("isolated"),
     FORK_KEYWORD("fork"),
     TRAP_KEYWORD("trap"),
     IN_KEYWORD("in"),
