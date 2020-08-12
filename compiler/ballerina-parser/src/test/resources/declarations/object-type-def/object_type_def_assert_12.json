@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -71,15 +66,6 @@
                           "kind": "OBJECT_FIELD",
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
                               "kind": "PUBLIC_KEYWORD",
                               "leadingMinutiae": [
                                 {
@@ -127,15 +113,6 @@
                           "kind": "OBJECT_FIELD",
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
                               "kind": "OBJECT_TYPE_DESC",
                               "children": [
                                 {
@@ -176,15 +153,6 @@
                                     {
                                       "kind": "OBJECT_FIELD",
                                       "children": [
-                                        {
-                                          "kind": "METADATA",
-                                          "children": [
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            }
-                                          ]
-                                        },
                                         {
                                           "kind": "INT_TYPE_DESC",
                                           "children": [
@@ -248,13 +216,8 @@
                                       "kind": "OBJECT_METHOD_DEFINITION",
                                       "children": [
                                         {
-                                          "kind": "METADATA",
-                                          "children": [
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            }
-                                          ]
+                                          "kind": "LIST",
+                                          "children": []
                                         },
                                         {
                                           "kind": "FUNCTION_KEYWORD",
@@ -369,13 +332,8 @@
                           "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
+                              "kind": "LIST",
+                              "children": []
                             },
                             {
                               "kind": "FUNCTION_KEYWORD",

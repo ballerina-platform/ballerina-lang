@@ -38,7 +38,7 @@ import org.testng.annotations.Test;
  */
 public class ArrowExprTest {
 
-    private CompileResult basic, resultNegative, resultSemanticsNegative;
+    private CompileResult basic, resultNegative, resultTypeNarrowNegative, resultSemanticsNegative;
 
     @BeforeClass
     public void setup() {
@@ -46,6 +46,8 @@ public class ArrowExprTest {
         resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression-semantics-" +
                 "negative.bal");
         resultNegative = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression-negative.bal");
+        resultTypeNarrowNegative = BCompileUtil.compile("test-src/expressions/lambda/" +
+                "arrow-expression-type-narrow-negative.bal");
     }
 
     @Test(description = "Test arrow expression that takes one input parameter")
@@ -251,9 +253,21 @@ public class ArrowExprTest {
         BAssertUtil.validateError(resultNegative, 1, "variable 'm' is not initialized", 20, 58);
     }
 
+    @Test(description = "Test compile time errors for arrow expression with type narrowing scenario")
+    public void testNegativeArrowExprWithTypeNarrowing() {
+        Assert.assertEquals(resultTypeNarrowNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultTypeNarrowNegative, 0,
+                "operator '+' not defined for 'string' and '(string|int)'", 21, 45);
+    }
+
     @Test(description = "Test arrow expression chaining with one parameter")
     public void testNestedArrowExpressionWithOneParameter() {
         BRunUtil.invoke(basic, "testNestedArrowExpressionWithOneParameter");
+    }
+
+    @Test(description = "Test type narrowing in arrow expression")
+    public void testTypeNarrowingInArrowExpression() {
+        BRunUtil.invoke(basic, "testTypeNarrowingInArrowExpression");
     }
 
 }

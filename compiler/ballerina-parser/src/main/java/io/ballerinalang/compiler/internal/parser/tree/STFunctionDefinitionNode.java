@@ -32,25 +32,24 @@ import java.util.Collections;
  */
 public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
-    public final STNode visibilityQualifier;
-    public final STNode transactionalKeyword;
+    public final STNode qualifierList;
     public final STNode functionKeyword;
     public final STNode functionName;
     public final STNode functionSignature;
     public final STNode functionBody;
 
     STFunctionDefinitionNode(
+            SyntaxKind kind,
             STNode metadata,
-            STNode visibilityQualifier,
-            STNode transactionalKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
             STNode functionBody) {
         this(
+                kind,
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -59,18 +58,17 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     }
 
     STFunctionDefinitionNode(
+            SyntaxKind kind,
             STNode metadata,
-            STNode visibilityQualifier,
-            STNode transactionalKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
             STNode functionBody,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.FUNCTION_DEFINITION, diagnostics);
+        super(kind, diagnostics);
         this.metadata = metadata;
-        this.visibilityQualifier = visibilityQualifier;
-        this.transactionalKeyword = transactionalKeyword;
+        this.qualifierList = qualifierList;
         this.functionKeyword = functionKeyword;
         this.functionName = functionName;
         this.functionSignature = functionSignature;
@@ -78,8 +76,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
 
         addChildren(
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -88,9 +85,9 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFunctionDefinitionNode(
+                this.kind,
                 this.metadata,
-                this.visibilityQualifier,
-                this.transactionalKeyword,
+                this.qualifierList,
                 this.functionKeyword,
                 this.functionName,
                 this.functionSignature,
@@ -99,17 +96,16 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     }
 
     public STFunctionDefinitionNode modify(
+            SyntaxKind kind,
             STNode metadata,
-            STNode visibilityQualifier,
-            STNode transactionalKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
             STNode functionBody) {
         if (checkForReferenceEquality(
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -118,9 +114,9 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
         }
 
         return new STFunctionDefinitionNode(
+                kind,
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 functionName,
                 functionSignature,

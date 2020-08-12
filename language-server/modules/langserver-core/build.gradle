@@ -46,6 +46,7 @@ dependencies {
     implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
 
     // Standard libs
+    implementation project(':language-server:language-server-stdlib')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-cache')
@@ -62,7 +63,6 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-math')
     implementation project(':ballerina-mime')
-    implementation project(':ballerina-nats')
     implementation project(':ballerina-oauth2')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-openapi')
@@ -99,6 +99,7 @@ dependencies {
     implementation 'com.github.jknack:handlebars:4.0.6'
     implementation 'com.moandjiezana.toml:toml4j'
 
+    baloImplementation project(path: ':language-server:language-server-stdlib', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
@@ -115,7 +116,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-nats', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-openapi', configuration: 'baloImplementation')

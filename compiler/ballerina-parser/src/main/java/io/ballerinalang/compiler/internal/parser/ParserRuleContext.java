@@ -78,6 +78,8 @@ public enum ParserRuleContext {
     OBJECT_FUNC_OR_FIELD("object-func-or-field"),
     OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY("object-func-or-field-without-visibility"),
     OBJECT_METHOD_START("object-method-start"),
+    OBJECT_METHOD_WITHOUT_REMOTE("object.method.without.remote"),
+    OBJECT_METHOD_WITHOUT_TRANSACTIONAL("object.method.without.transactional"),
     OBJECT_FIELD_RHS("object-field-rhs"),
     OBJECT_TYPE_QUALIFIER("object-type-qualifier"),
     OBJECT_TYPE_DESCRIPTOR_START("object-type-desc-start"),
@@ -99,6 +101,9 @@ public enum ParserRuleContext {
     OPTIONAL_SERVICE_NAME("service-rhs"),
     LISTENERS_LIST("listeners-list"),
     RESOURCE_DEF("resource-def"),
+    RESOURCE_DEF_QUALIFIERS("resource-def-qualifiers"),
+    RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL("resource-def-start-without-transactional"),
+    RESOURCE_DEF_START_WITHOUT_RESOURCE("resource-def-start-without-resource"),
     LISTENER_DECL("listener-decl"),
     CONSTANT_DECL("const-decl"),
     CONST_DECL_TYPE("const-decl-type"),
@@ -205,6 +210,7 @@ public enum ParserRuleContext {
     STMT_START_BRACKETED_LIST_RHS("stmt-start-bracketed-list-rhs"),
     BRACKETED_LIST("bracketed-list"),
     BRACKETED_LIST_RHS("bracketed-list-rhs"),
+    BRACED_LIST_RHS("braced-list-rhs"),
     BRACKETED_LIST_MEMBER("bracketed-list-member"),
     BRACKETED_LIST_MEMBER_END("bracketed-list-member-end"),
     LIST_BINDING_MEMBER_OR_ARRAY_LENGTH("list-binding-member-or-array-length"),
@@ -278,6 +284,7 @@ public enum ParserRuleContext {
     COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
     BINDING_PATTERN_OR_EXPR_RHS("binding-pattern-or-expr-rhs"),
+    TYPE_DESC_OR_EXPR_RHS("type-desc-or-expr-rhs"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPR_STMT_RHS("expr-stmt-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
@@ -371,6 +378,7 @@ public enum ParserRuleContext {
     ORDER_KEYWORD("order"),
     BY_KEYWORD("by"),
     EQUALS_KEYWORD("equals"),
+    OBJECT_MEMBER_QUALIFIER("object-member-qualifier"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -563,6 +571,7 @@ public enum ParserRuleContext {
     ENUM_MEMBER_RHS("enum-member-internal-rhs"),
     ENUM_MEMBER_START("enum-member-start"),
     TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER("tuple-type-desc-or-list-cont-member"),
+    TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC("top.level.func.def.or.func.type.desc"),
     ;
 
     private String value;
