@@ -126,7 +126,7 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
             long duration = jaegerSpan.getDuration() / 1000;    // Jaeger stores duration in microseconds by default
             ChoreoTraceSpan traceSpan = new ChoreoTraceSpan(spanContext.getTraceId(), spanContext.getSpanId(),
                     jaegerSpan.getServiceName(), jaegerSpan.getOperationName(), timestamp, duration, tags, references);
-            synchronized (traceSpans) {
+            synchronized (this) {
                 traceSpans.add(traceSpan);
             }
         }
@@ -134,7 +134,7 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
         @Override
         public void run() {
             ChoreoTraceSpan[] spansToBeSent;
-            synchronized (traceSpans) {
+            synchronized (this) {
                 if (traceSpans.size() > 0) {
                     spansToBeSent = traceSpans.toArray(new ChoreoTraceSpan[0]);
                     traceSpans.clear();
@@ -147,7 +147,7 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                     try {
                         choreoClient.publishTraceSpans(spansToBeSent);
                     } catch (Throwable t) {
-                        synchronized (traceSpans) {
+                        synchronized (this) {
                             traceSpans.addAll(Arrays.asList(spansToBeSent));
                         }
                         LOGGER.error("failed to publish traces to Choreo due to " + t.getMessage());

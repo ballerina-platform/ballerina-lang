@@ -24,7 +24,6 @@ import org.ballerinalang.config.ConfigRegistry;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.ServiceLoader;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
@@ -57,7 +56,7 @@ public class TracersStore {
 
             ServiceLoader<OpenTracer> openTracers = ServiceLoader.load(OpenTracer.class);
             for (OpenTracer openTracer : openTracers) {
-                if (Objects.equals(openTracer.getName().toLowerCase(), tracerName.toLowerCase())) {
+                if (tracerName.equalsIgnoreCase(openTracer.getName())) {
                     tracerGenerator = openTracer;
                     break;
                 }
