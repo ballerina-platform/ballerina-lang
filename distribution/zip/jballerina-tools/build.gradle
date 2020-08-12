@@ -35,6 +35,9 @@ configurations {
     langserverLib {
         transitive false
     }
+    datamapperLib {
+        transitive false
+    }
     ballerinaZip {
         transitive false
     }
@@ -122,6 +125,8 @@ dependencies {
     dist project(':observerability-symbol-collector')
     dist project(':testerina:testerina-runtime')
     docerina project(':docerina-gradle-plugin')
+
+    datamapperLib project(':ballerinalang-data-mapper')
 
     langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
     langserverLib project(':language-server:language-server-stdio-launcher')
@@ -354,6 +359,13 @@ def copyLangServerLibsSpec = {
     }
 }
 
+def copyDataMapperLibsSpec = {
+    path -> copySpec {
+        from configurations.datamapperLib
+        into(path + 'lib/tools/lang-server/lib')
+    }
+}
+
 def copyComposerDistributionSpec = {
     path -> copySpec {
         from(configurations.composerDistribution)
@@ -446,6 +458,7 @@ task createZip(type: Zip) {
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyLangServerLibsSpec(basePath)
+    with copyDataMapperLibsSpec(basePath)
     with copyLangServerBinSpec(basePath)
     with copyComposerDistributionSpec(basePath)
     with copyComposerFontsSpec(basePath)
@@ -470,6 +483,7 @@ task updateBalHome(type: Copy) {
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyLangServerLibsSpec(installDir)
+    with copyDataMapperLibsSpec(installDir)
     with copyLangServerBinSpec(installDir)
     with copyComposerDistributionSpec(installDir)
     with copyComposerFontsSpec(installDir)
@@ -497,6 +511,7 @@ task createDistribution(type: Copy) {
     with copyBalxSpec("")
     with copyBinSpec("")
     with copyLangServerLibsSpec("")
+    with copyDataMapperLibsSpec("")
     with copyLangServerBinSpec("")
     with copyComposerDistributionSpec("")
     with copyComposerFontsSpec("")

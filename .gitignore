@@ -1,7 +1,7 @@
 *.class
 *.log
 
-# Ballerina 
+# Ballerina
 Ballerina.lock
 
 

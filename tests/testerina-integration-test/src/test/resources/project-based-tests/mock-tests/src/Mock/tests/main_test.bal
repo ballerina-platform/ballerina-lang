@@ -204,7 +204,11 @@ public function call_Test9() {
     io:println("\t[call_Test9] Test calling the import mock function with varargs");
     test:when(mock_print).call("mockPrint");
     main();
-    test:assertEquals(outputs[0], "FunctionMocking Tests");
+    if (outputs[0] is anydata) {
+        test:assertEquals(<anydata>outputs[0], "FunctionMocking Tests");
+    } else {
+        test:assertExactEquals(outputs[0], "FunctionMocking Tests");
+    }
 }
 
 @test:Config {

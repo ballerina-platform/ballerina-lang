@@ -80,6 +80,14 @@
       "sortText": "180",
       "insertText": "TestRecord3",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "190",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
