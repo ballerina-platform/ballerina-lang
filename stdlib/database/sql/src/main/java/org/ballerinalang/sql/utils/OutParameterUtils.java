@@ -135,7 +135,7 @@ public class OutParameterUtils {
                     return convert((SQLXML) value, sqlType, ballerinaType);
                 default:
                     // Cannot reach to Default
-                    return ErrorGenerator.getSQLApplicationError("Unsupported sql type " + sqlType);
+                    return ErrorGenerator.getSQLApplicationError("Unsupported SQL type " + sqlType);
             }
         } catch (ApplicationError | IOException applicationError) {
             return ErrorGenerator.getSQLApplicationError(applicationError.getMessage());

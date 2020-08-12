@@ -95,9 +95,9 @@ public class ExecuteUtils {
                         Constants.EXECUTION_RESULT_RECORD, resultFields);
             } catch (SQLException e) {
                 return ErrorGenerator.getSQLDatabaseError(e,
-                        "Error while executing sql query: " + sqlQuery + ". ");
+                        "Error while executing SQL query: " + sqlQuery + ". ");
             } catch (ApplicationError | IOException e) {
-                return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
+                return ErrorGenerator.getSQLApplicationError("Error while executing SQL query: "
                         + sqlQuery + ". " + e.getMessage());
             } finally {
                 closeResources(strand, resultSet, statement, connection);
@@ -171,10 +171,10 @@ public class ExecuteUtils {
                 return ErrorGenerator.getSQLBatchExecuteError(e, executionResults,
                         "Error while executing batch command starting with: '" + sqlQuery + "'.");
             } catch (SQLException e) {
-                return ErrorGenerator.getSQLDatabaseError(e, "Error while executing sql batch " +
+                return ErrorGenerator.getSQLDatabaseError(e, "Error while executing SQL batch " +
                         "command starting with : " + sqlQuery + ". ");
             } catch (ApplicationError | IOException e) {
-                return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
+                return ErrorGenerator.getSQLApplicationError("Error while executing SQL query: "
                         + e.getMessage());
             } finally {
                 closeResources(strand, resultSet, statement, connection);

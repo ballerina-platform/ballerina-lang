@@ -218,7 +218,7 @@ public class RecordIteratorUtils {
                         throw new ApplicationError("Error while converting to JSON type. " + e.getDetail());
                     }
                 }
-                throw new ApplicationError("unsupported sql type " + columnDefinition.getSqlName());
+                throw new ApplicationError("Unsupported SQL type " + columnDefinition.getSqlName());
         }
     }
 

@@ -189,9 +189,9 @@ public class CallUtils {
                 procedureCallResult.addNativeData(RESULT_SET_COUNT_NATIVE_DATA_FIELD, resultSetCount);
                 return procedureCallResult;
             } catch (SQLException e) {
-                return ErrorGenerator.getSQLDatabaseError(e, "Error while executing sql query: " + sqlQuery + ". ");
+                return ErrorGenerator.getSQLDatabaseError(e, "Error while executing SQL query: " + sqlQuery + ". ");
             } catch (ApplicationError | IOException e) {
-                return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
+                return ErrorGenerator.getSQLApplicationError("Error while executing SQL query: "
                         + sqlQuery + ". " + e.getMessage());
             }
         } else {
@@ -366,7 +366,7 @@ public class CallUtils {
                             statement.getSQLXML(paramIndex));
                     break;
                 default:
-                    throw new ApplicationError("Unsupported sql type '" + sqlType + "' when reading Procedure call " +
+                    throw new ApplicationError("Unsupported SQL type '" + sqlType + "' when reading Procedure call " +
                             "Out parameter of index '" + paramIndex + "'.");
             }
         }

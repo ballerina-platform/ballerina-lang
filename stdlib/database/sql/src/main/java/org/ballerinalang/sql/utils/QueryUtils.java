@@ -106,7 +106,7 @@ public class QueryUtils {
             } catch (SQLException e) {
                 closeResources(strand, resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLDatabaseError(e,
-                        "Error while executing sql query: " + sqlQuery + ". ");
+                        "Error while executing SQL query: " + sqlQuery + ". ");
                 return new StreamValue(new BStreamType(getDefaultStreamConstraint()), createRecordIterator(errorValue));
             } catch (ApplicationError applicationError) {
                 closeResources(strand, resultSet, statement, connection);
@@ -119,7 +119,7 @@ public class QueryUtils {
                     message = e.getClass().getName();
                 }
                 ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(
-                        "Error while executing sql query: " + sqlQuery + ". " + message);
+                        "Error while executing SQL query: " + sqlQuery + ". " + message);
                 return getErrorStream(recordType, errorValue);
             }
         } else {

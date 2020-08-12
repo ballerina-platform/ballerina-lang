@@ -690,7 +690,7 @@ class Utils {
         } else {
             valueName = value.getClass().getName();
         }
-        return new ApplicationError("Invalid parameter :" + valueName + " is passed as value for sql type : "
+        return new ApplicationError("Invalid parameter :" + valueName + " is passed as value for SQL type : "
                 + sqlType);
     }
 
@@ -1361,7 +1361,7 @@ class Utils {
                     ballerinaFieldName = field.getKey();
                     ballerinaType = validFieldConstraint(sqlType, field.getValue().type);
                     if (ballerinaType == null) {
-                        throw new ApplicationError(field.getValue().type.getName() + " cannot be mapped to sql type '"
+                        throw new ApplicationError(field.getValue().type.getName() + " cannot be mapped to SQL type '"
                                 + sqlTypeName + "'");
                     }
                     break;
