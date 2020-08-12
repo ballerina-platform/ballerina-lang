@@ -19,7 +19,6 @@ package org.ballerinalang.sql.utils;
 
 
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
@@ -52,12 +51,17 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import static org.ballerinalang.jvm.StringUtils.fromString;
+import static org.ballerinalang.sql.utils.Utils.cleanUpConnection;
+import static org.ballerinalang.sql.utils.Utils.convert;
+import static org.ballerinalang.sql.utils.Utils.getString;
+
 /**
  * This class provides functionality for the `RecordIterator` to iterate through the sql result set.
  *
  * @since 1.2.0
  */
-public class RecordItertorUtils {
+public class RecordIteratorUtils {
     private static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC.getValue()));
 
     public static Object nextResult(ObjectValue recordIterator) {
@@ -71,8 +75,8 @@ public class RecordItertorUtils {
                         .getNativeData(Constants.COLUMN_DEFINITIONS_DATA_FIELD);
                 for (int i = 0; i < columnDefinitions.size(); i++) {
                     ColumnDefinition columnDefinition = columnDefinitions.get(i);
-                    bStruct.put(StringUtils.fromString(columnDefinition.getBallerinaFieldName()),
-                                getResult(resultSet, i + 1, columnDefinition));
+                    bStruct.put(fromString(columnDefinition.getBallerinaFieldName()),
+                            getResult(resultSet, i + 1, columnDefinition));
                 }
                 return bStruct;
             } else {
@@ -95,117 +99,117 @@ public class RecordItertorUtils {
         BType ballerinaType = columnDefinition.getBallerinaType();
         switch (sqlType) {
             case Types.ARRAY:
-                return Utils.convert(resultSet.getArray(columnIndex), sqlType, ballerinaType);
+                return convert(resultSet.getArray(columnIndex), sqlType, ballerinaType);
             case Types.CHAR:
             case Types.VARCHAR:
             case Types.LONGVARCHAR:
             case Types.NCHAR:
             case Types.NVARCHAR:
             case Types.LONGNVARCHAR:
-                return Utils.convert(resultSet.getString(columnIndex), sqlType, ballerinaType);
+                return convert(resultSet.getString(columnIndex), sqlType, ballerinaType);
             case Types.BINARY:
             case Types.VARBINARY:
             case Types.LONGVARBINARY:
                 if (ballerinaType.getTag() == TypeTags.STRING_TAG) {
-                    return Utils.convert(resultSet.getString(columnIndex), sqlType, ballerinaType,
+                    return convert(resultSet.getString(columnIndex), sqlType, ballerinaType,
                             columnDefinition.getSqlName());
                 } else {
-                    return Utils.convert(resultSet.getBytes(columnIndex), sqlType, ballerinaType,
+                    return convert(resultSet.getBytes(columnIndex), sqlType, ballerinaType,
                             columnDefinition.getSqlName());
                 }
             case Types.BLOB:
-                return Utils.convert(resultSet.getBlob(columnIndex), sqlType, ballerinaType);
+                return convert(resultSet.getBlob(columnIndex), sqlType, ballerinaType);
             case Types.CLOB:
-                String clobValue = Utils.getString(resultSet.getClob(columnIndex));
-                return Utils.convert(clobValue, sqlType, ballerinaType);
+                String clobValue = getString(resultSet.getClob(columnIndex));
+                return convert(clobValue, sqlType, ballerinaType);
             case Types.NCLOB:
-                String nClobValue = Utils.getString(resultSet.getNClob(columnIndex));
-                return Utils.convert(nClobValue, sqlType, ballerinaType);
+                String nClobValue = getString(resultSet.getNClob(columnIndex));
+                return convert(nClobValue, sqlType, ballerinaType);
             case Types.DATE:
                 Date date = resultSet.getDate(columnIndex, calendar);
-                return Utils.convert(date, sqlType, ballerinaType);
+                return convert(date, sqlType, ballerinaType);
             case Types.TIME:
                 Time time = resultSet.getTime(columnIndex, calendar);
-                return Utils.convert(time, sqlType, ballerinaType);
+                return convert(time, sqlType, ballerinaType);
             case Types.TIME_WITH_TIMEZONE:
                 try {
                     time = resultSet.getTime(columnIndex, calendar);
-                    return Utils.convert(time, sqlType, ballerinaType);
+                    return convert(time, sqlType, ballerinaType);
                 } catch (SQLException ex) {
                     //Some database drivers do not support getTime operation,
                     // therefore falling back to getObject method.
                     OffsetTime offsetTime = resultSet.getObject(columnIndex, OffsetTime.class);
-                    return Utils.convert(Time.valueOf(offsetTime.toLocalTime()), sqlType, ballerinaType);
+                    return convert(Time.valueOf(offsetTime.toLocalTime()), sqlType, ballerinaType);
                 }
             case Types.TIMESTAMP:
                 Timestamp timestamp = resultSet.getTimestamp(columnIndex, calendar);
-                return Utils.convert(timestamp, sqlType, ballerinaType);
+                return convert(timestamp, sqlType, ballerinaType);
             case Types.TIMESTAMP_WITH_TIMEZONE:
                 try {
                     timestamp = resultSet.getTimestamp(columnIndex, calendar);
-                    return Utils.convert(timestamp, sqlType, ballerinaType);
+                    return convert(timestamp, sqlType, ballerinaType);
                 } catch (SQLException ex) {
                     //Some database drivers do not support getTimestamp operation,
                     // therefore falling back to getObject method.
                     OffsetDateTime offsetDateTime = resultSet.getObject(columnIndex, OffsetDateTime.class);
-                    return Utils.convert(Timestamp.valueOf(offsetDateTime.toLocalDateTime()), sqlType, ballerinaType);
+                    return convert(Timestamp.valueOf(offsetDateTime.toLocalDateTime()), sqlType, ballerinaType);
                 }
             case Types.ROWID:
-                return Utils.convert(resultSet.getRowId(columnIndex).getBytes(), sqlType, ballerinaType, "SQL RowID");
+                return convert(resultSet.getRowId(columnIndex).getBytes(), sqlType, ballerinaType, "SQL RowID");
             case Types.TINYINT:
             case Types.SMALLINT:
                 long iValue = resultSet.getInt(columnIndex);
-                return Utils.convert(iValue, sqlType, ballerinaType, resultSet.wasNull());
+                return convert(iValue, sqlType, ballerinaType, resultSet.wasNull());
             case Types.INTEGER:
             case Types.BIGINT:
                 long lValue = resultSet.getLong(columnIndex);
-                return Utils.convert(lValue, sqlType, ballerinaType, resultSet.wasNull());
+                return convert(lValue, sqlType, ballerinaType, resultSet.wasNull());
             case Types.REAL:
             case Types.FLOAT:
                 double fValue = resultSet.getFloat(columnIndex);
-                return Utils.convert(fValue, sqlType, ballerinaType, resultSet.wasNull());
+                return convert(fValue, sqlType, ballerinaType, resultSet.wasNull());
             case Types.DOUBLE:
                 double dValue = resultSet.getDouble(columnIndex);
-                return Utils.convert(dValue, sqlType, ballerinaType, resultSet.wasNull());
+                return convert(dValue, sqlType, ballerinaType, resultSet.wasNull());
             case Types.NUMERIC:
             case Types.DECIMAL:
                 BigDecimal decimalValue = resultSet.getBigDecimal(columnIndex);
-                return Utils.convert(decimalValue, sqlType, ballerinaType, resultSet.wasNull());
+                return convert(decimalValue, sqlType, ballerinaType, resultSet.wasNull());
             case Types.BIT:
             case Types.BOOLEAN:
                 boolean boolValue = resultSet.getBoolean(columnIndex);
-                return Utils.convert(boolValue, sqlType, ballerinaType, resultSet.wasNull());
+                return convert(boolValue, sqlType, ballerinaType, resultSet.wasNull());
             case Types.REF:
             case Types.STRUCT:
                 Struct structData = (Struct) resultSet.getObject(columnIndex);
-                return Utils.convert(structData, sqlType, ballerinaType);
+                return convert(structData, sqlType, ballerinaType);
             case Types.SQLXML:
                 SQLXML sqlxml = resultSet.getSQLXML(columnIndex);
-                return Utils.convert(sqlxml, sqlType, ballerinaType);
+                return convert(sqlxml, sqlType, ballerinaType);
             default:
                 if (ballerinaType.getTag() == TypeTags.INT_TAG) {
-                    Utils.convert(resultSet.getInt(columnIndex), sqlType, ballerinaType, resultSet.wasNull());
+                    convert(resultSet.getInt(columnIndex), sqlType, ballerinaType, resultSet.wasNull());
                 } else if (ballerinaType.getTag() == TypeTags.STRING_TAG
                         || ballerinaType.getTag() == TypeTags.ANY_TAG
                         || ballerinaType.getTag() == TypeTags.ANYDATA_TAG) {
-                    return Utils.convert(resultSet.getString(columnIndex), sqlType, ballerinaType);
+                    return convert(resultSet.getString(columnIndex), sqlType, ballerinaType);
                 } else if (ballerinaType.getTag() == TypeTags.BOOLEAN_TAG) {
-                    return Utils.convert(resultSet.getBoolean(columnIndex),
+                    return convert(resultSet.getBoolean(columnIndex),
                             sqlType, ballerinaType, resultSet.wasNull());
                 } else if (ballerinaType.getTag() == TypeTags.ARRAY_TAG &&
                         ((BArrayType) ballerinaType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                    return Utils.convert(resultSet.getBytes(columnIndex), sqlType, ballerinaType,
+                    return convert(resultSet.getBytes(columnIndex), sqlType, ballerinaType,
                             columnDefinition.getSqlName());
                 } else if (ballerinaType.getTag() == TypeTags.FLOAT_TAG) {
-                    return Utils.convert(resultSet.getDouble(columnIndex), sqlType, ballerinaType,
+                    return convert(resultSet.getDouble(columnIndex), sqlType, ballerinaType,
                             resultSet.wasNull());
                 } else if (ballerinaType.getTag() == TypeTags.DECIMAL_TAG) {
-                    return Utils.convert(resultSet.getBigDecimal(columnIndex), sqlType, ballerinaType,
+                    return convert(resultSet.getBigDecimal(columnIndex), sqlType, ballerinaType,
                             resultSet.wasNull());
                 } else if (ballerinaType.getTag() == TypeTags.XML_TAG) {
-                    return Utils.convert(resultSet.getSQLXML(columnIndex), sqlType, ballerinaType);
+                    return convert(resultSet.getSQLXML(columnIndex), sqlType, ballerinaType);
                 } else if (ballerinaType.getTag() == TypeTags.JSON_TAG) {
-                    String jsonString = Utils.convert(resultSet.getString(columnIndex), sqlType, ballerinaType)
+                    String jsonString = convert(resultSet.getString(columnIndex), sqlType, ballerinaType)
                             .getValue();
                     Reader reader = new StringReader(jsonString);
                     try {
@@ -214,7 +218,7 @@ public class RecordItertorUtils {
                         throw new ApplicationError("Error while converting to JSON type. " + e.getDetail());
                     }
                 }
-                throw new ApplicationError("unsupported sql type " + columnDefinition.getSqlName());
+                throw new ApplicationError("Unsupported SQL type " + columnDefinition.getSqlName());
         }
     }
 
@@ -222,30 +226,6 @@ public class RecordItertorUtils {
         ResultSet resultSet = (ResultSet) recordIterator.getNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD);
         Statement statement = (Statement) recordIterator.getNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD);
         Connection connection = (Connection) recordIterator.getNativeData(Constants.CONNECTION_NATIVE_DATA_FIELD);
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-                recordIterator.addNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD, null);
-            } catch (SQLException e) {
-                return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the result set. ");
-            }
-        }
-        if (statement != null) {
-            try {
-                statement.close();
-                recordIterator.addNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD, null);
-            } catch (SQLException e) {
-                return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the result set. ");
-            }
-        }
-        if (connection != null) {
-            try {
-                connection.close();
-                recordIterator.addNativeData(Constants.CONNECTION_NATIVE_DATA_FIELD, null);
-            } catch (SQLException e) {
-                return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the connection. ");
-            }
-        }
-        return null;
+        return cleanUpConnection(recordIterator, resultSet, statement, connection);
     }
 }
