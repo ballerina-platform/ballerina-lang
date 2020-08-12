@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -78,6 +79,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
     private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
+    private static final String AFTER_SUITE_ALWAYS_RUN_FIELD_NAME = "alwaysRun";
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
     private static final String MOCK_FN_DELIMITER = "~";
 
@@ -148,7 +150,22 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             if (BEFORE_SUITE_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addBeforeSuiteFunction(functionName);
             } else if (AFTER_SUITE_ANNOTATION_NAME.equals(annotationName)) {
-                suite.addAfterSuiteFunction(functionName);
+                AtomicBoolean alwaysRun = new AtomicBoolean(false);
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+                    attributes.forEach(field -> {
+                        BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                        String name = attributeNode.getKey().toString();
+                        BLangExpression valueExpr = attributeNode.getValue();
+                        if (AFTER_SUITE_ALWAYS_RUN_FIELD_NAME.equals(name) &&
+                                Boolean.TRUE.toString().equals(valueExpr.toString())) {
+                            alwaysRun.set(true);
+                        }
+                    });
+                }
+                suite.addAfterSuiteFunction(functionName, alwaysRun);
             } else if (BEFORE_EACH_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addBeforeEachFunction(functionName);
             } else if (AFTER_EACH_ANNOTATION_NAME.equals(annotationName)) {
@@ -161,7 +178,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 List<String> groups = registry.getGroups();
                 boolean shouldIncludeGroups = registry.shouldIncludeGroups();
 
-                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                     List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getFields();
 
@@ -250,7 +267,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 String[] vals = new String[2];
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;
-                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                     List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getFields();
                     attributes.forEach(field -> {
@@ -342,7 +359,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     String[] annotationValues = new String[2]; // [0] - moduleName, [1] - functionName
                     annotationValues[0] = packageName; // Set default value of the annotation as the current package
 
-                    if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                    if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                         // Get list of attributes in the Mock annotation
                         List<RecordLiteralNode.RecordField> fields =
                                 ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();

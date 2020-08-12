@@ -725,10 +725,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(matchGuardNode);
     }
 
-    public void visit(STObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        visitSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public void visit(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         visitSyntaxNode(distinctTypeDescriptorNode);
     }

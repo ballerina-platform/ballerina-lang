@@ -244,6 +244,17 @@ public class MinutiaeListAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(actualStr, expectedStr);
     }
 
+    @Test
+    public void testLiteralTokenMinutiaModification() {
+        ModulePartNode modulePartNode = getModulePartNode("minutiae_test_05.bal");
+        NewLineMinutiaeRemover newLineMinutiaeRemover = new NewLineMinutiaeRemover();
+        ModulePartNode newModulePartNode = newLineMinutiaeRemover.transform(modulePartNode);
+
+        String expectedStr = getFileContentAsString("minutiae_test_05_with_no_newlines.bal");
+        String actualStr = newModulePartNode.toString();
+        Assert.assertEquals(actualStr, expectedStr);
+    }
+
     private void testMinutiaList(MinutiaeList minutiaeList, SyntaxKind[] expectedKinds) {
         Assert.assertEquals(minutiaeList.size(), expectedKinds.length);
 

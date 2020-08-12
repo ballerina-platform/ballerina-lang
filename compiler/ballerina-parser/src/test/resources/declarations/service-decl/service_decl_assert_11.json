@@ -15,6 +15,10 @@
           "hasDiagnostics": true,
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -214,6 +218,10 @@
                       "kind": "FUNCTION_DEFINITION",
                       "hasDiagnostics": true,
                       "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
                         {
                           "kind": "FUNCTION_KEYWORD",
                           "leadingMinutiae": [

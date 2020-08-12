@@ -15,26 +15,23 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -46,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link VariableDeclarationNode} context.
@@ -81,7 +77,8 @@ public class VariableDeclarationNodeContext extends AbstractCompletionProvider<V
                             && (symbol instanceof BTypeSymbol || symbol instanceof BInvokableSymbol)
                             && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
                 };
-                completionItems.addAll(this.getModuleContent(context, nameRef, filter));
+                List<Scope.ScopeEntry> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
+                completionItems.addAll(this.getCompletionItemList(moduleContent, context));
             } else {
                 /*
                 Routes to the parent. Parent can be function block, and etc.
@@ -103,7 +100,8 @@ public class VariableDeclarationNodeContext extends AbstractCompletionProvider<V
                 BSymbol symbol = scopeEntry.symbol;
                 return symbol instanceof BVarSymbol && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
             };
-            completionItems.addAll(this.getModuleContent(context, qNameRef, filter));
+            List<Scope.ScopeEntry> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
+            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
             /*
             Captures the following cases
@@ -124,8 +122,8 @@ public class VariableDeclarationNodeContext extends AbstractCompletionProvider<V
         ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Optional<Scope.ScopeEntry> objectType;
         if (typeDescriptorNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            String modulePrefix = ((QualifiedNameReferenceNode) typeDescriptorNode).modulePrefix().text();
-            Optional<Scope.ScopeEntry> module = this.getPackageSymbolFromAlias(context, modulePrefix);
+            String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeDescriptorNode));
+            Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, modulePrefix);
             if (!module.isPresent()) {
                 return completionItems;
             }
@@ -148,30 +146,5 @@ public class VariableDeclarationNodeContext extends AbstractCompletionProvider<V
                 completionItems.add(this.getImplicitNewCompletionItem((BObjectTypeSymbol) scopeEntry.symbol, context)));
 
         return completionItems;
-    }
-
-    private boolean onQualifiedNameIdentifier(LSContext context, Node node) {
-        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            return false;
-        }
-        LinePosition colonPos = ((QualifiedNameReferenceNode) node).colon().lineRange().endLine();
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-
-        return colonPos.line() == cursor.getLine() && colonPos.offset() <= cursor.getCharacter();
-    }
-
-    private List<LSCompletionItem> getModuleContent(LSContext context,
-                                                    QualifiedNameReferenceNode qNameRef,
-                                                    Predicate<Scope.ScopeEntry> predicate) {
-        Optional<Scope.ScopeEntry> module = this.getPackageSymbolFromAlias(context, qNameRef.modulePrefix().text());
-        if (!module.isPresent()) {
-            return new ArrayList<>();
-        }
-
-        List<Scope.ScopeEntry> filteredContent = module.get().symbol.scope.entries.values().stream()
-                .filter(predicate)
-                .collect(Collectors.toList());
-
-        return this.getCompletionItemList(filteredContent, context);
     }
 }

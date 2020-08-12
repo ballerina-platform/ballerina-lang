@@ -735,10 +735,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(matchGuardNode);
     }
 
-    public void visit(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        visitSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public void visit(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         visitSyntaxNode(distinctTypeDescriptorNode);
     }

@@ -48,18 +48,18 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createFunctionDefinitionNode(
+            SyntaxKind kind,
             STNode metadata,
-            STNode visibilityQualifier,
-            STNode transactionalKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
             STNode functionBody) {
 
         return new STFunctionDefinitionNode(
+                kind,
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -1611,7 +1611,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createMethodDeclarationNode(
             STNode metadata,
-            STNode visibilityQualifier,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
@@ -1619,7 +1619,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STMethodDeclarationNode(
                 metadata,
-                visibilityQualifier,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -2076,27 +2076,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STMatchGuardNode(
                 ifKeyword,
                 expression);
-    }
-
-    public static STNode createObjectMethodDefinitionNode(
-            STNode metadata,
-            STNode visibilityQualifier,
-            STNode remoteKeyword,
-            STNode transactionalKeyword,
-            STNode functionKeyword,
-            STNode methodName,
-            STNode methodSignature,
-            STNode functionBody) {
-
-        return new STObjectMethodDefinitionNode(
-                metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
-                functionKeyword,
-                methodName,
-                methodSignature,
-                functionBody);
     }
 
     public static STNode createDistinctTypeDescriptorNode(

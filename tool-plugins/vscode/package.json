@@ -110,6 +110,16 @@
                     "type": "boolean",
                     "default": true,
                     "description": "If set to true ballerina endpoints code lens feature will be allowed"
+                },
+                "ballerina.dataMapper.enabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set to true ballerina data mapper code action feature will be allowed"
+                },
+                "ballerina.dataMapper.url": {
+                    "type": "string",
+                    "default": "https://datamapper.choreo.dev",
+                    "description": "URL of the host for data mapper back end"
                 }
             }
         },

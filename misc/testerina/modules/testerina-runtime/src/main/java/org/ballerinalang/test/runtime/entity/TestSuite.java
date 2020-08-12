@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Java class to store and get data from a json (for a test run).
@@ -45,7 +46,7 @@ public class TestSuite {
 
     private Map<String, String> testUtilityFunctions = new HashMap<>();
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
-    private List<String> afterSuiteFunctionNames = new ArrayList<>();
+    private Map<String, AtomicBoolean> afterSuiteFunctionNames = new HashMap<>();
     private List<String> beforeEachFunctionNames = new ArrayList<>();
     private List<String> afterEachFunctionNames = new ArrayList<>();
     private List<Test> tests = new ArrayList<>();
@@ -157,7 +158,7 @@ public class TestSuite {
         return beforeSuiteFunctionNames;
     }
 
-    public List<String> getAfterSuiteFunctionNames() {
+    public Map<String, AtomicBoolean> getAfterSuiteFunctionNames() {
         return afterSuiteFunctionNames;
     }
 
@@ -189,8 +190,8 @@ public class TestSuite {
         this.beforeSuiteFunctionNames.add(function);
     }
 
-    public void addAfterSuiteFunction(String function) {
-        this.afterSuiteFunctionNames.add(function);
+    public void addAfterSuiteFunction(String function, AtomicBoolean alwaysRun) {
+        this.afterSuiteFunctionNames.put(function, alwaysRun);
     }
 
     public void addBeforeEachFunction(String function) {
