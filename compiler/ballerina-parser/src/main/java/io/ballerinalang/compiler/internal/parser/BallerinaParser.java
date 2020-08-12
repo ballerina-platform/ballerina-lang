@@ -4038,6 +4038,7 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createModuleVariableDeclarationNode(metadata, finalKeyword, typedBindingPattern,
                     assign, expr, semicolon);
         }
+        assert metadata.kind == SyntaxKind.LIST; // Annotations only
         return STNodeFactory.createVariableDeclarationNode(metadata, finalKeyword, typedBindingPattern, assign, expr,
                 semicolon);
     }
@@ -16387,10 +16388,10 @@ public class BallerinaParser extends AbstractParser {
                 STNode typeDesc = parseComplexTypeDescriptor(readonlyKeyword,
                         ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
                 endContext();
-                STNode metadata = STNodeFactory.createEmptyNode();
+                STNode annots = STNodeFactory.createEmptyNodeList();
                 STNode finalKeyword = STNodeFactory.createEmptyNode();
                 STNode typedBP = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
-                return parseVarDeclRhs(metadata, finalKeyword, typedBP, false);
+                return parseVarDeclRhs(annots, finalKeyword, typedBP, false);
         }
     }
 
@@ -16437,9 +16438,9 @@ public class BallerinaParser extends AbstractParser {
                     STNode bindingPattern = STNodeFactory.createCaptureBindingPatternNode(identifier);
                     STNode typedBindingPattern =
                             STNodeFactory.createTypedBindingPatternNode(readonlyKeyword, bindingPattern);
-                    STNode metadata = STNodeFactory.createEmptyNode();
+                    STNode annots = STNodeFactory.createEmptyNodeList();
                     STNode finalKeyword = STNodeFactory.createEmptyNode();
-                    return parseVarDeclRhs(metadata, finalKeyword, typedBindingPattern, false);
+                    return parseVarDeclRhs(annots, finalKeyword, typedBindingPattern, false);
                 }
 
                 startContext(ParserRuleContext.AMBIGUOUS_STMT);
@@ -16938,7 +16939,7 @@ public class BallerinaParser extends AbstractParser {
         switchContext(ParserRuleContext.BLOCK_STMT);
         startContext(ParserRuleContext.VAR_DECL_STMT);
         STNode finalKeyword = STNodeFactory.createEmptyNode();
-        STNode annots = STNodeFactory.createEmptyNode();
+        STNode annots = STNodeFactory.createEmptyNodeList();
 
         // We reach here for something like: "{ foo:bar[". But we started parsing the rhs component
         // starting with "bar". Hence if its a typed-binding-pattern, then merge the "foo:" with
