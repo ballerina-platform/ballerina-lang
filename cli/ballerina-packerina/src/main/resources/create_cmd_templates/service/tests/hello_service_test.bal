@@ -18,7 +18,7 @@ function testServiceFunction() {
 
 # After Suite Function
 
-@test:AfterSuite
+@test:AfterSuite {}
 function afterSuiteServiceFunc() {
     io:println("I'm the after suite service function!");
 }
