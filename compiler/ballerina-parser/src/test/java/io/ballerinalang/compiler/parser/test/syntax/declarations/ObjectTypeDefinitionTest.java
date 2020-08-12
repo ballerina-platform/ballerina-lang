@@ -149,6 +149,11 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
         test("object-type-def/object_type_def_source_34.bal", "object-type-def/object_type_def_assert_34.json");
     }
 
+    @Test
+    public void testObjectMethod() {
+        test("object-type-def/object_type_def_source_41.bal", "object-type-def/object_type_def_assert_41.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -209,5 +214,15 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testDuplicateClientQualifiers() {
         test("object-type-def/object_type_def_source_35.bal", "object-type-def/object_type_def_assert_35.json");
+    }
+
+    @Test
+    public void testInvalidTokenInObjectmembers() {
+        test("object-type-def/object_type_def_source_40.bal", "object-type-def/object_type_def_assert_40.json");
+    }
+
+    @Test
+    public void testInvalidObjectMethodWithTransactional() {
+        test("object-type-def/object_type_def_source_42.bal", "object-type-def/object_type_def_assert_42.json");
     }
 }

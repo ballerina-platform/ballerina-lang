@@ -76,6 +76,26 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
                 "/query_expr_assert_41.json");
     }
 
+    @Test
+    public void testQueryWithOnConflictAndLimitClauses() {
+        test("from int a in b select c on conflict d", "query-expr/query_expr_assert_51.json");
+        test("from int a in b select c limit d", "query-expr/query_expr_assert_52.json");
+        test("from int a in b select c on conflict d limit e", "query-expr/query_expr_assert_53.json");
+    }
+
+    @Test
+    public void testQueryWithInnerJoinClause() {
+        test("from int a in b join int c in d on e equals f select g", "query-expr/query_expr_assert_54.json");
+        test("from int a in b join int c in d select g", "query-expr/query_expr_assert_61.json");
+    }
+
+    @Test
+    public void testQueryWithOuterJoinClause() {
+        test("from int a in b outer join int c in d on e equals f select g",
+                "query-expr/query_expr_assert_55.json");
+        test("from int a in b outer join int c in d select g", "query-expr/query_expr_assert_62.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -183,6 +203,26 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     public void testQueryWithOrderByClauseRecovery() {
         test("from int a in b order by select c", "query-expr/query_expr_assert_42.json");
         test("from int a in b order c select d", "query-expr/query_expr_assert_43.json");
-        test("from int a in b order by c ascending d select e", "query-expr/query_expr_assert_44.json");
+        test("from int a in b order by c ascending d e select f", "query-expr/query_expr_assert_44.json");
+        test("from int a in b by c select d", "query-expr/query_expr_assert_45.json");
+        test("from int a in b order by ascending select e", "query-expr/query_expr_assert_46.json");
+    }
+
+    @Test
+    public void testQueryWithOnConflictAndLimitClauseRecovery() {
+        test("from int a in b select c on d", "query-expr/query_expr_assert_47.json");
+        test("from int a in b select c conflict d", "query-expr/query_expr_assert_48.json");
+        test("from int a in b select limit", "query-expr/query_expr_assert_49.json");
+        test("from int a in b select conflict limit", "query-expr/query_expr_assert_50.json");
+    }
+
+    @Test
+    public void testQueryWithJoinClauseRecovery() {
+        test("from int a in b join in d on e equals f select g", "query-expr/query_expr_assert_56.json");
+        test("from int a in b join int c d on e equals f select g", "query-expr/query_expr_assert_57.json");
+        test("from int a in b join int c in d on select g", "query-expr/query_expr_assert_58.json");
+        test("from int a in b join int c in on e equals f select g", "query-expr/query_expr_assert_59.json");
+        test("from int a in b join int c in select g", "query-expr/query_expr_assert_60.json");
+        test("from int a in b outer int c in d on e equals f select g", "query-expr/query_expr_assert_63.json");
     }
 }
