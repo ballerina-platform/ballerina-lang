@@ -1,2 +1,6 @@
-// Mock functions allow you to hide the real function and engage your own functions when running tests.
-// This allows you to isolate your test functions from the rest.
+// Mock functions allow you to hide the real functions and engage your own functions when running the tests.
+// This allows you to isolate your test functions from the rest. Both mocking an imported function and a
+// function declared in the module under a test can be mocked with dedicated annotations.<br/><br/>
+// Mocking an imported function will apply the mocked function to every instance of the original function call.
+// It is not limited to the test file in which it is being mocked. Mocking a function from the module under the test
+// can be scoped to have different behaviors for different test cases.<br/><br/>
