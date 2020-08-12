@@ -64,9 +64,9 @@ class AIDataMapperCodeActionUtil {
     private static Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
 
-    private static final String SCHEMA_NAME_PROPERTY = "schema";
-    private static final String FIELD_ID_PROPERTY = "id";
-    private static final String FIELD_TYPE_PROPERTY = "type";
+    private static final String SCHEMA = "schema";
+    private static final String ID = "id";
+    private static final String TYPE = "type";
     private static final String PROPERTIES = "properties";
 
 
@@ -150,9 +150,9 @@ class AIDataMapperCodeActionUtil {
             List<BField> rightSchemaFields = new ArrayList<>(((BRecordType) variableTypeMappingFrom).fields.values());
             JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
 
-            rightRecordJSON.addProperty(SCHEMA_NAME_PROPERTY, foundTypeRight);
-            rightRecordJSON.addProperty(FIELD_ID_PROPERTY, "dummy_id");
-            rightRecordJSON.addProperty(FIELD_TYPE_PROPERTY, "object");
+            rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
+            rightRecordJSON.addProperty(ID, "dummy_id");
+            rightRecordJSON.addProperty(TYPE, "object");
             rightRecordJSON.add(PROPERTIES, rightSchema);
         }
         // Schema 2
@@ -161,9 +161,9 @@ class AIDataMapperCodeActionUtil {
             List<BField> leftSchemaFields = new ArrayList<>(((BRecordType) variableTypeMappingTo).fields.values());
             JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
 
-            leftRecordJSON.addProperty(SCHEMA_NAME_PROPERTY, foundTypeLeft);
-            leftRecordJSON.addProperty(FIELD_ID_PROPERTY, "dummy_id");
-            leftRecordJSON.addProperty(FIELD_TYPE_PROPERTY, "object");
+            leftRecordJSON.addProperty(SCHEMA, foundTypeLeft);
+            leftRecordJSON.addProperty(ID, "dummy_id");
+            leftRecordJSON.addProperty(TYPE, "object");
             leftRecordJSON.add(PROPERTIES, leftSchema);
         }
 
@@ -198,22 +198,22 @@ class AIDataMapperCodeActionUtil {
         JsonObject properties = new JsonObject();
         for (BField attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
-            fieldDetails.addProperty(FIELD_ID_PROPERTY, "dummy_id");
+            fieldDetails.addProperty(ID, "dummy_id");
             if (attribute.type instanceof BArrayType) {
                 BType attributeEType = ((BArrayType) attribute.type).eType;
                 if (attributeEType instanceof BRecordType) {
-                    fieldDetails.addProperty(FIELD_TYPE_PROPERTY, "ballerina_type");
+                    fieldDetails.addProperty(TYPE, "ballerina_type");
                     fieldDetails.add(PROPERTIES,
                             recordToJSON(new ArrayList<>(((BRecordType) attributeEType).fields.values())));
                 } else {
-                    fieldDetails.addProperty(FIELD_TYPE_PROPERTY, String.valueOf(attribute.type));
+                    fieldDetails.addProperty(TYPE, String.valueOf(attribute.type));
                 }
             } else if (attribute.type instanceof BRecordType) {
-                fieldDetails.addProperty(FIELD_TYPE_PROPERTY, "ballerina_type");
+                fieldDetails.addProperty(TYPE, "ballerina_type");
                 fieldDetails.add(PROPERTIES,
                         recordToJSON(new ArrayList<>(((BRecordType) attribute.type).fields.values())));
             } else {
-                fieldDetails.addProperty(FIELD_TYPE_PROPERTY, String.valueOf(attribute.type));
+                fieldDetails.addProperty(TYPE, String.valueOf(attribute.type));
             }
             properties.add(String.valueOf(attribute.name), fieldDetails);
         }
