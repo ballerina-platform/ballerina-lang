@@ -598,16 +598,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STImportSubVersionNode transform(
-            STImportSubVersionNode importSubVersionNode) {
-        STNode leadingDot = modifyNode(importSubVersionNode.leadingDot);
-        STNode versionNumber = modifyNode(importSubVersionNode.versionNumber);
-        return importSubVersionNode.modify(
-                leadingDot,
-                versionNumber);
-    }
-
-    @Override
     public STImportVersionNode transform(
             STImportVersionNode importVersionNode) {
         STNode versionKeyword = modifyNode(importVersionNode.versionKeyword);

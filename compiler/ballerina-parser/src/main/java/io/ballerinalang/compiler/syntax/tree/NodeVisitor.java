@@ -203,10 +203,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(importPrefixNode);
     }
 
-    public void visit(ImportSubVersionNode importSubVersionNode) {
-        visitSyntaxNode(importSubVersionNode);
-    }
-
     public void visit(ImportVersionNode importVersionNode) {
         visitSyntaxNode(importVersionNode);
     }

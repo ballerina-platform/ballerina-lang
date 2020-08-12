@@ -749,20 +749,9 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stImportPrefixNode.createUnlinkedFacade();
     }
 
-    public static ImportSubVersionNode createImportSubVersionNode(
-            Token leadingDot,
-            Token versionNumber) {
-        Objects.requireNonNull(versionNumber, "versionNumber must not be null");
-
-        STNode stImportSubVersionNode = STNodeFactory.createImportSubVersionNode(
-                getOptionalSTNode(leadingDot),
-                versionNumber.internalNode());
-        return stImportSubVersionNode.createUnlinkedFacade();
-    }
-
     public static ImportVersionNode createImportVersionNode(
             Token versionKeyword,
-            NodeList<Node> versionNumber) {
+            SeparatedNodeList<Token> versionNumber) {
         Objects.requireNonNull(versionKeyword, "versionKeyword must not be null");
         Objects.requireNonNull(versionNumber, "versionNumber must not be null");
 

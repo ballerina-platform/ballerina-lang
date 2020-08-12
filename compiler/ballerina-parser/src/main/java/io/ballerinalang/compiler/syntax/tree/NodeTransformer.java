@@ -204,10 +204,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(importPrefixNode);
     }
 
-    public T transform(ImportSubVersionNode importSubVersionNode) {
-        return transformSyntaxNode(importSubVersionNode);
-    }
-
     public T transform(ImportVersionNode importVersionNode) {
         return transformSyntaxNode(importVersionNode);
     }

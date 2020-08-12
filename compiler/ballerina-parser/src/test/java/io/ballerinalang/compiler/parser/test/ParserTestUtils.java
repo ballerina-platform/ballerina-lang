@@ -1054,8 +1054,6 @@ public class ParserTestUtils {
                 return SyntaxKind.SUB_MODULE_NAME;
             case "IMPORT_VERSION":
                 return SyntaxKind.IMPORT_VERSION;
-            case "IMPORT_SUB_VERSION":
-                return SyntaxKind.IMPORT_SUB_VERSION;
             case "IMPORT_PREFIX":
                 return SyntaxKind.IMPORT_PREFIX;
             case "SPECIFIC_FIELD":

@@ -158,7 +158,7 @@ public class BallerinaParser extends AbstractParser {
             case IMPORT_VERSION_DECL:
                 return parseVersion();
             case IMPORT_SUB_VERSION:
-                return parseSubVersion(context);
+                return parseSubVersionEnd();
             case IMPORT_PREFIX_DECL:
                 return parseImportPrefixDecl();
             case FUNC_BODY:
@@ -1230,12 +1230,16 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> versionParts = new ArrayList<>();
         versionParts.add(majorVersion);
 
-        STNode minorVersion = parseMinorVersion();
-        if (minorVersion != null) {
+        STNode minorVersionEnd = parseSubVersionEnd();
+        if (minorVersionEnd != null) {
+            versionParts.add(minorVersionEnd);
+            STNode minorVersion = parseMinorVersion();
             versionParts.add(minorVersion);
 
-            STNode patchVersion = parsePatchVersion();
-            if (patchVersion != null) {
+            STNode patchVersionEnd = parseSubVersionEnd();
+            if (patchVersionEnd != null) {
+                versionParts.add(patchVersionEnd);
+                STNode patchVersion = parsePatchVersion();
                 versionParts.add(patchVersion);
             }
         }
@@ -1249,11 +1253,11 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseMinorVersion() {
-        return parseSubVersion(ParserRuleContext.MINOR_VERSION);
+        return parseDecimalIntLiteral(ParserRuleContext.MINOR_VERSION);
     }
 
     private STNode parsePatchVersion() {
-        return parseSubVersion(ParserRuleContext.PATCH_VERSION);
+        return parseDecimalIntLiteral(ParserRuleContext.PATCH_VERSION);
     }
 
     /**
@@ -1272,26 +1276,19 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    /**
-     * Parse sub version. i.e: minor-version/patch-version.
-     *
-     * @param context Context indicating what kind of sub-version is being parsed.
-     * @return Parsed node
-     */
-    private STNode parseSubVersion(ParserRuleContext context) {
+    private STNode parseSubVersionEnd() {
         STToken nextToken = peek();
-        return parseSubVersion(nextToken.kind, context);
+        return parseSubVersionEnd(nextToken.kind);
     }
 
-    private STNode parseSubVersion(SyntaxKind nextTokenKind, ParserRuleContext context) {
+    private STNode parseSubVersionEnd(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case AS_KEYWORD:
             case SEMICOLON_TOKEN:
+            case EOF_TOKEN:
                 return null;
             case DOT_TOKEN:
-                STNode leadingDot = parseDotToken();
-                STNode versionNumber = parseDecimalIntLiteral(context);
-                return STNodeFactory.createImportSubVersionNode(leadingDot, versionNumber);
+                return parseDotToken();
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.IMPORT_SUB_VERSION);
@@ -1303,7 +1300,7 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseSubVersion(solution.tokenKind, context);
+                return parseSubVersionEnd(solution.tokenKind);
         }
     }
 

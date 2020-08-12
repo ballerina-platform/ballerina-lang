@@ -571,15 +571,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 prefix);
     }
 
-    public static STNode createImportSubVersionNode(
-            STNode leadingDot,
-            STNode versionNumber) {
-
-        return new STImportSubVersionNode(
-                leadingDot,
-                versionNumber);
-    }
-
     public static STNode createImportVersionNode(
             STNode versionKeyword,
             STNode versionNumber) {

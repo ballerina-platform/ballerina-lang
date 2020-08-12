@@ -193,10 +193,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(importPrefixNode);
     }
 
-    public void visit(STImportSubVersionNode importSubVersionNode) {
-        visitSyntaxNode(importSubVersionNode);
-    }
-
     public void visit(STImportVersionNode importVersionNode) {
         visitSyntaxNode(importVersionNode);
     }

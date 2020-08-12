@@ -987,22 +987,6 @@
             ]
         },
         {
-            "name": "ImportSubVersionNode",
-            "base": "Node",
-            "kind": "IMPORT_SUB_VERSION",
-            "attributes": [
-                {
-                    "name": "leadingDot",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "versionNumber",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
             "name": "ImportVersionNode",
             "base": "Node",
             "kind": "IMPORT_VERSION",
@@ -1013,8 +997,8 @@
                 },
                 {
                     "name": "versionNumber",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
+                    "type": "Token",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 }
             ]
         },

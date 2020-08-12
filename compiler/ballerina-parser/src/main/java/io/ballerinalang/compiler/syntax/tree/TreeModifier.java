@@ -761,24 +761,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ImportSubVersionNode transform(
-            ImportSubVersionNode importSubVersionNode) {
-        Token leadingDot =
-                modifyToken(importSubVersionNode.leadingDot().orElse(null));
-        Token versionNumber =
-                modifyToken(importSubVersionNode.versionNumber());
-        return importSubVersionNode.modify(
-                leadingDot,
-                versionNumber);
-    }
-
-    @Override
     public ImportVersionNode transform(
             ImportVersionNode importVersionNode) {
         Token versionKeyword =
                 modifyToken(importVersionNode.versionKeyword());
-        NodeList<Node> versionNumber =
-                modifyNodeList(importVersionNode.versionNumber());
+        SeparatedNodeList<Token> versionNumber =
+                modifySeparatedNodeList(importVersionNode.versionNumber());
         return importVersionNode.modify(
                 versionKeyword,
                 versionNumber);
