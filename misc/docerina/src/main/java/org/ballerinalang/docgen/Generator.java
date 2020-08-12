@@ -77,13 +77,19 @@ public class Generator {
      *
      * @param module  module model to fill.
      * @param balPackage module tree.
+     * @return whether the module has any public constructs.
      */
-    public static void generateModuleConstructs(Module module, BLangPackage balPackage) {
+    public static boolean generateModuleConstructs(Module module, BLangPackage balPackage) {
+
+        boolean hasPublicConstructs = false;
 
         // Check for type definitions in the package
         for (BLangTypeDefinition typeDefinition : balPackage.getTypeDefinitions()) {
             if (typeDefinition.getFlags().contains(Flag.PUBLIC)) {
                 createTypeDefModels(typeDefinition, module);
+                if (!typeDefinition.name.value.contains("$anonType$")) {
+                    hasPublicConstructs = true;
+                }
             }
         }
 
@@ -91,6 +97,7 @@ public class Generator {
         for (BLangFunction function : balPackage.getFunctions()) {
             if (function.getFlags().contains(Flag.PUBLIC) && !function.getFlags().contains(Flag.ATTACHED)) {
                 module.functions.add(createDocForFunction(function, module));
+                hasPublicConstructs = true;
             }
         }
 
@@ -98,6 +105,7 @@ public class Generator {
         for (BLangAnnotation annotation : balPackage.getAnnotations()) {
             if (annotation.getFlags().contains(Flag.PUBLIC)) {
                 module.annotations.add(createDocForAnnotation(annotation, module));
+                hasPublicConstructs = true;
             }
         }
 
@@ -105,8 +113,11 @@ public class Generator {
         for (BLangConstant constant : balPackage.getConstants()) {
             if (constant.getFlags().contains(Flag.PUBLIC)) {
                 module.constants.add(createDocForConstant(constant, module));
+                hasPublicConstructs = true;
             }
         }
+
+        return hasPublicConstructs;
     }
 
     /**
