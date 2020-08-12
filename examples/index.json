@@ -682,6 +682,10 @@
                 "url": "testerina-function-mocks"
             },
             {
+                "name": "Object Mocks",
+                "url": "testerina-object-mocks"
+            },
+            {
                 "name": "Group Tests",
                 "url": "testerina-group-tests"
             }        
