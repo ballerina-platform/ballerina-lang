@@ -168,8 +168,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_IDENT:
                 return parseFunctionIdent();
             case FUNCTION_KEYWORD_RHS:
-                return parseFunctionKeywordRhs((STNode) args[0], (STNode) args[1], (boolean) args[2],
-                        (STNode) args[3]);
+                return parseFunctionKeywordRhs((STNode) args[0], (STNode) args[1], (boolean) args[2], (STNode) args[3]);
             case ANNOT_REFERENCE:
             case RECORD_FIELD_NAME_OR_TYPE_NAME:
                 return parseQualifiedIdentifier(context, (boolean) args[0]);
@@ -800,13 +799,6 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseTopLevelNode(solution.tokenKind);
         }
 
@@ -862,13 +854,6 @@ public class BallerinaParser extends AbstractParser {
 
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA, metadata);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 if (solution.action == Action.KEEP) {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
@@ -964,8 +949,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.IMPORT_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.IMPORT_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.IMPORT_KEYWORD);
+            return consume();
         }
     }
 
@@ -983,8 +968,8 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
                     mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
         } else {
-            Solution sol = recover(token, currentCtx);
-            return sol.recoveredNode;
+            recover(token, currentCtx);
+            return consume();
         }
     }
 
@@ -1039,9 +1024,6 @@ public class BallerinaParser extends AbstractParser {
 
                 // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseImportDecl(solution.tokenKind, importKeyword, identifier);
         }
@@ -1060,8 +1042,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.SLASH_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.SLASH);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.SLASH);
+            return consume();
         }
     }
 
@@ -1075,8 +1057,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.DOT_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(peek(), ParserRuleContext.DOT);
-            return sol.recoveredNode;
+            recover(peek(), ParserRuleContext.DOT);
+            return consume();
         }
     }
 
@@ -1161,13 +1143,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.IMPORT_VERSION_DECL);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseVersion(solution.tokenKind);
         }
 
@@ -1183,8 +1158,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.VERSION_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(peek(), ParserRuleContext.VERSION_KEYWORD);
-            return sol.recoveredNode;
+            recover(peek(), ParserRuleContext.VERSION_KEYWORD);
+            return consume();
         }
     }
 
@@ -1216,13 +1191,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.VERSION_NUMBER);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseVersionNumber(solution.tokenKind);
         }
@@ -1267,8 +1235,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.DECIMAL_INTEGER_LITERAL) {
             return consume();
         } else {
-            Solution sol = recover(peek(), context);
-            return sol.recoveredNode;
+            recover(peek(), context);
+            return consume();
         }
     }
 
@@ -1295,13 +1263,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.IMPORT_SUB_VERSION);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseSubVersion(solution.tokenKind, context);
         }
@@ -1338,13 +1299,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.IMPORT_PREFIX_DECL);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseImportPrefixDecl(solution.tokenKind);
         }
     }
@@ -1359,8 +1313,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.AS_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(peek(), ParserRuleContext.AS_KEYWORD);
-            return sol.recoveredNode;
+            recover(peek(), ParserRuleContext.AS_KEYWORD);
+            return consume();
         }
     }
 
@@ -1374,8 +1328,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(peek(), ParserRuleContext.IMPORT_PREFIX);
-            return sol.recoveredNode;
+            recover(peek(), ParserRuleContext.IMPORT_PREFIX);
+            return consume();
         }
     }
 
@@ -1457,13 +1411,6 @@ public class BallerinaParser extends AbstractParser {
                 Solution solution =
                         recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER, metadata, qualifier);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 if (solution.action == Action.KEEP) {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
                     // at the correct place, but some token after that is not. There only one such
@@ -1503,8 +1450,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.PUBLIC_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.PUBLIC_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.PUBLIC_KEYWORD);
+            return consume();
         }
     }
 
@@ -1528,8 +1475,8 @@ public class BallerinaParser extends AbstractParser {
      * @param qualifiers qualifier list
      * @return Parsed node
      */
-    private STNode parseFuncDefOrFuncTypeDesc(ParserRuleContext context, STNode metadata,
-                                              boolean isObjectMethod, List<STNode> qualifiers) {
+    private STNode parseFuncDefOrFuncTypeDesc(ParserRuleContext context, STNode metadata, boolean isObjectMethod,
+                                              List<STNode> qualifiers) {
         STNode qualifierList = parseFunctionQualifiers(context, qualifiers);
         return parseFuncDefOrFuncTypeDesc(metadata, isObjectMethod, qualifierList);
     }
@@ -1581,9 +1528,6 @@ public class BallerinaParser extends AbstractParser {
                 Solution solution = recover(token, ParserRuleContext.FUNCTION_KEYWORD_RHS, metadata, functionKeyword,
                         isObjectMethod, qualifiers);
 
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
                 return parseFunctionKeywordRhs(solution.tokenKind, metadata, functionKeyword, isObjectMethod,
                         qualifiers);
         }
@@ -1647,8 +1591,8 @@ public class BallerinaParser extends AbstractParser {
                         return parseObjectFieldRhs(metadata, STNodeFactory.createEmptyNode(), readonlyQualifier,
                                 typeDesc, fieldName);
                     } else {
-                        return parseObjectFieldRhs(metadata, qualifiers.childInBucket(0), readonlyQualifier,
-                                typeDesc, fieldName);
+                        return parseObjectFieldRhs(metadata, qualifiers.childInBucket(0), readonlyQualifier, typeDesc,
+                                fieldName);
                     }
                 }
 
@@ -1801,8 +1745,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.FUNCTION_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.FUNCTION_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.FUNCTION_KEYWORD);
+            return consume();
         }
     }
 
@@ -1816,8 +1760,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.FUNC_NAME);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.FUNC_NAME);
+            return consume();
         }
     }
 
@@ -1832,8 +1776,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ctx);
-            return sol.recoveredNode;
+            recover(token, ctx);
+            return consume();
         }
     }
 
@@ -1847,8 +1791,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CLOSE_PARENTHESIS);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CLOSE_PARENTHESIS);
+            return consume();
         }
     }
 
@@ -1968,9 +1912,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.PARAM_END);
 
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseParameterRhs(solution.tokenKind);
         }
@@ -2026,13 +1967,6 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 // Since we come here after recovering by insertion, then the current token becomes the next token.
                 // So the nextNextToken offset becomes 1.
                 return parseParameter(solution.tokenKind, prevParamKind, leadingComma, 0, isParamNameOptional);
@@ -2073,13 +2007,6 @@ public class BallerinaParser extends AbstractParser {
                     // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
                     qualifier = STNodeFactory.createEmptyNode();
                     break;
-                }
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
                 }
 
                 // Since we come here after recovering by insertion, then the current token becomes the next token.
@@ -2141,14 +2068,6 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         Solution solution = recover(token, ParserRuleContext.AFTER_PARAMETER_TYPE, prevParamKind, leadingComma, annots,
                 qualifier, type, isParamNameOptional);
-
-        // If the parser recovered by inserting a token, then try to re-parse the same
-        // rule with the inserted token. This is done to pick the correct branch
-        // to continue the parsing.
-        if (solution.action == Action.REMOVE) {
-            return solution.recoveredNode;
-        }
-
         return parseAfterParamType(solution.tokenKind, prevParamKind, leadingComma, annots, qualifier, type,
                 isParamNameOptional);
 
@@ -2164,8 +2083,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.ELLIPSIS_TOKEN) {
             return consume(); // parse '...'
         } else {
-            Solution sol = recover(token, ParserRuleContext.ELLIPSIS);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ELLIPSIS);
+            return consume();
         }
     }
 
@@ -2214,9 +2133,7 @@ public class BallerinaParser extends AbstractParser {
             // If the parser recovered by inserting a token, then try to re-parse the same
             // rule with the inserted token. This is done to pick the correct branch
             // to continue the parsing.
-            if (solution.action == Action.REMOVE) {
-                return solution.recoveredNode;
-            }
+            
 
             return parseParameterRhs(solution.tokenKind, prevParamKind, leadingComma, annots, qualifier, type,
                     paramName);
@@ -2233,8 +2150,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.COMMA_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.COMMA);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.COMMA);
+            return consume();
         }
     }
 
@@ -2281,8 +2198,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.RETURNS_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.RETURNS_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.RETURNS_KEYWORD);
+            return consume();
         }
     }
 
@@ -2471,13 +2388,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.TYPE_DESCRIPTOR, context, isInConditionalExpr);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseTypeDescriptorInternal(solution.tokenKind, context, isInConditionalExpr);
         }
     }
@@ -2503,8 +2413,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.DISTINCT_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.DISTINCT_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.DISTINCT_KEYWORD);
+            return consume();
         }
     }
 
@@ -2533,13 +2443,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.NIL_OR_PARENTHESISED_TYPE_DESC_RHS, openParen);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseNilOrParenthesisedTypeDescRhs(solution.tokenKind, openParen);
         }
     }
@@ -2555,8 +2458,8 @@ public class BallerinaParser extends AbstractParser {
             STToken token = consume();
             return createBuiltinSimpleNameReference(token);
         } else {
-            Solution sol = recover(peek(), ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
-            STNode recoveredNode = sol.recoveredNode;
+            recover(peek(), ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
+            STNode recoveredNode = consume();
             return createBuiltinSimpleNameReference(recoveredNode);
         }
     }
@@ -2613,9 +2516,6 @@ public class BallerinaParser extends AbstractParser {
                 // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
 
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 // If the recovered token is not something that can be re-parsed,
                 // then don't try to re-parse the same rule.
@@ -2846,8 +2746,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(peek(), ParserRuleContext.VARIABLE_NAME);
-            return sol.recoveredNode;
+            recover(peek(), ParserRuleContext.VARIABLE_NAME);
+            return consume();
         }
     }
 
@@ -2861,8 +2761,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.OPEN_BRACE);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.OPEN_BRACE);
+            return consume();
         }
     }
 
@@ -2876,8 +2776,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CLOSE_BRACE);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CLOSE_BRACE);
+            return consume();
         }
     }
 
@@ -2918,9 +2818,6 @@ public class BallerinaParser extends AbstractParser {
                 // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
 
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseExternalFuncBodyRhs((STToken) solution.recoveredNode, assign);
         }
@@ -2941,8 +2838,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.SEMICOLON_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.SEMICOLON);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.SEMICOLON);
+            return consume();
         }
     }
 
@@ -2956,8 +2853,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.EXTERNAL_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.EXTERNAL_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.EXTERNAL_KEYWORD);
+            return consume();
         }
     }
 
@@ -2975,8 +2872,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.EQUAL_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ASSIGN_OP);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ASSIGN_OP);
+            return consume();
         }
     }
 
@@ -2990,8 +2887,8 @@ public class BallerinaParser extends AbstractParser {
         if (isBinaryOperator(token.kind)) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.BINARY_OPERATOR);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.BINARY_OPERATOR);
+            return consume();
         }
     }
 
@@ -3185,8 +3082,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.TYPE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.TYPE_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.TYPE_KEYWORD);
+            return consume();
         }
     }
 
@@ -3200,8 +3097,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.TYPE_NAME);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.TYPE_NAME);
+            return consume();
         }
     }
 
@@ -3278,13 +3175,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.RECORD_BODY_START);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseRecordBodyStartDelimiter(solution.tokenKind);
         }
     }
@@ -3299,8 +3189,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.OPEN_BRACE_PIPE_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CLOSED_RECORD_BODY_START);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CLOSED_RECORD_BODY_START);
+            return consume();
         }
     }
 
@@ -3326,8 +3216,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.CLOSE_BRACE_PIPE_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CLOSED_RECORD_BODY_END);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CLOSED_RECORD_BODY_END);
+            return consume();
         }
     }
 
@@ -3341,8 +3231,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.RECORD_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.RECORD_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.RECORD_KEYWORD);
+            return consume();
         }
     }
 
@@ -3396,13 +3286,6 @@ public class BallerinaParser extends AbstractParser {
 
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.RECORD_FIELD_OR_RECORD_END, isInclusive);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseFieldOrRestDescriptor(solution.tokenKind, isInclusive);
         }
@@ -3518,17 +3401,15 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             typeRefOrPkgRef = consume();
         } else {
-            Solution sol = recover(token, currentCtx, isInConditionalExpr);
-            if (sol.action == Action.REMOVE) {
-                return sol.recoveredNode;
-            }
+            Solution solution = recover(token, currentCtx, isInConditionalExpr);
+            
 
-            if (sol.tokenKind != SyntaxKind.IDENTIFIER_TOKEN) {
+            if (solution.tokenKind != SyntaxKind.IDENTIFIER_TOKEN) {
                 addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
                 return parseQualifiedIdentifier(currentCtx, isInConditionalExpr);
             }
 
-            typeRefOrPkgRef = sol.recoveredNode;
+            typeRefOrPkgRef = solution.recoveredNode;
         }
 
         return parseQualifiedIdentifier(typeRefOrPkgRef, isInConditionalExpr);
@@ -3600,13 +3481,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.FIELD_OR_REST_DESCIPTOR_RHS, metadata, type);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseFieldOrRestDescriptorRhs(solution.tokenKind, metadata, type);
         }
     }
@@ -3668,13 +3542,6 @@ public class BallerinaParser extends AbstractParser {
                 Solution solution = recover(token, ParserRuleContext.FIELD_DESCRIPTOR_RHS, metadata, readonlyQualifier,
                         type, fieldName);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseFieldDescriptorRhs(solution.tokenKind, metadata, readonlyQualifier, type, fieldName);
         }
     }
@@ -3689,8 +3556,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
             return consume(); // '?' token
         } else {
-            Solution sol = recover(token, ParserRuleContext.QUESTION_MARK);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.QUESTION_MARK);
+            return consume();
         }
     }
 
@@ -3800,13 +3667,6 @@ public class BallerinaParser extends AbstractParser {
                 if (solution.action == Action.KEEP) {
                     // singleton type starting tokens can be correct one's hence keep them.
                     break;
-                }
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
                 }
 
                 return parseStatement(solution.tokenKind, nextTokenIndex);
@@ -3938,13 +3798,6 @@ public class BallerinaParser extends AbstractParser {
                     finalKeyword = STNodeFactory.createEmptyNode();
                     return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
                 }
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 // we come here if a token was inserted. Then the current token become the
                 // next token. So 'nextTokenIndex = nextTokenIndex - 1'
                 return parseStatement(solution.tokenKind, annots, nextTokenIndex - 1);
@@ -3984,8 +3837,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.FINAL_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.FINAL_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.FINAL_KEYWORD);
+            return consume();
         }
     }
 
@@ -4043,13 +3896,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.VAR_DECL_STMT_RHS, metadata, finalKeyword,
                         typedBindingPattern, isModuleVar);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseVarDeclRhs(solution.tokenKind, metadata, finalKeyword, typedBindingPattern, isModuleVar);
         }
@@ -4327,9 +4173,6 @@ public class BallerinaParser extends AbstractParser {
 
         Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, annots, isRhsExpr, allowActions,
                 isInConditionalExpr);
-        if (solution.action == Action.REMOVE) {
-            return solution.recoveredNode;
-        }
 
         if (solution.action == Action.KEEP) {
             if (kind == SyntaxKind.XML_KEYWORD) {
@@ -4339,22 +4182,8 @@ public class BallerinaParser extends AbstractParser {
             return parseStringTemplateExpression();
         }
 
-        switch (solution.tokenKind) {
-            case IDENTIFIER_TOKEN:
-                return parseQualifiedIdentifier(solution.recoveredNode, isInConditionalExpr);
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
-            case NULL_KEYWORD:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
-                return solution.recoveredNode;
-            default:
                 return parseTerminalExpression(solution.tokenKind, annots, isRhsExpr, allowActions,
                         isInConditionalExpr);
-        }
     }
 
     private boolean isValidExprStart(SyntaxKind tokenKind) {
@@ -4434,8 +4263,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.NEW_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.NEW_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.NEW_KEYWORD);
+            return consume();
         }
     }
 
@@ -4695,9 +4524,7 @@ public class BallerinaParser extends AbstractParser {
         // If the current rule was recovered by removing a token, then this entire rule is already
         // parsed while recovering. so we done need to parse the remaining of this rule again.
         // Proceed only if the recovery action was an insertion.
-        if (solution.action == Action.REMOVE) {
-            return solution.recoveredNode;
-        }
+
 
         // If the parser recovered by inserting a token, then try to re-parse the same rule with the
         // inserted token. This is done to pick the correct branch to continue the parsing.
@@ -4910,13 +4737,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.MEMBER_ACCESS_KEY_EXPR_END);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseMemberAccessKeyExprEnd(solution.tokenKind);
         }
     }
@@ -4931,8 +4751,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CLOSE_BRACKET);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CLOSE_BRACKET);
+            return consume();
         }
     }
 
@@ -5300,13 +5120,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ARG_END);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseArgEnd(solution.tokenKind);
         }
     }
@@ -5342,13 +5155,6 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 Solution solution = recover(peek(), ParserRuleContext.ARG_START);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseArgument(solution.tokenKind);
         }
@@ -5426,13 +5232,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.OBJECT_TYPE_QUALIFIER);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseObjectTypeQualifiers(solution.tokenKind);
         }
 
@@ -5485,8 +5284,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.CLIENT_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CLIENT_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CLIENT_KEYWORD);
+            return consume();
         }
     }
 
@@ -5500,8 +5299,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.ABSTRACT_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ABSTRACT_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ABSTRACT_KEYWORD);
+            return consume();
         }
     }
 
@@ -5515,8 +5314,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.OBJECT_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.OBJECT_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.OBJECT_KEYWORD);
+            return consume();
         }
     }
 
@@ -5577,13 +5376,6 @@ public class BallerinaParser extends AbstractParser {
 
                 Solution solution = recover(peek(), ParserRuleContext.OBJECT_MEMBER_START);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseObjectMember(solution.tokenKind);
         }
 
@@ -5627,13 +5419,6 @@ public class BallerinaParser extends AbstractParser {
 
                 Solution solution = recover(peek(), ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA, metadata);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseObjectMemberWithoutMeta(solution.tokenKind, metadata);
         }
 
@@ -5650,8 +5435,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.PUBLIC_KEYWORD || token.kind == SyntaxKind.PRIVATE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.OBJECT_MEMBER_QUALIFIER);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.OBJECT_MEMBER_QUALIFIER);
+            return consume();
         }
     }
 
@@ -5706,14 +5491,6 @@ public class BallerinaParser extends AbstractParser {
 
         Solution solution = recover(peek(), ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY, metadata,
                 visibilityQualifier);
-
-        // If the parser recovered by inserting a token, then try to re-parse the same
-        // rule with the inserted token. This is done to pick the correct branch
-        // to continue the parsing.
-        if (solution.action == Action.REMOVE) {
-            return solution.recoveredNode;
-        }
-
         return parseObjectMethodOrField(solution.tokenKind, nextTokenKind, metadata, visibilityQualifier);
     }
 
@@ -5728,7 +5505,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseFunctionQualifiers(SyntaxKind tokenKind, ParserRuleContext context,
-                                               List<STNode> qualifierList) {
+                                           List<STNode> qualifierList) {
         while (!isEndOfFunctionQualifiers(tokenKind)) {
             STNode qualifier;
             switch (tokenKind) {
@@ -5747,9 +5524,7 @@ public class BallerinaParser extends AbstractParser {
                     // If the parser recovered by inserting a token, then try to re-parse the same
                     // rule with the inserted token. This is done to pick the correct branch
                     // to continue the parsing.
-                    if (solution.action == Action.REMOVE) {
-                        return solution.recoveredNode;
-                    }
+                    
 
                     return parseFunctionQualifiers(solution.tokenKind, context, qualifierList);
             }
@@ -5760,7 +5535,7 @@ public class BallerinaParser extends AbstractParser {
                 if (qualifierList.size() == 0) {
                     addInvalidNodeToNextToken(qualifier, diagnosticCode, qualifier.toString().trim());
                 } else {
-                    //If the qualifier list is not empty add invalid node to the last node in the list.
+                    // If the qualifier list is not empty add invalid node to the last node in the list.
                     updateLastNodeInListWithInvalidNode(qualifierList, qualifier, diagnosticCode);
                 }
             } else {
@@ -5791,7 +5566,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case TRANSACTIONAL_KEYWORD:
                 break;
-            default://RESOURCE_KEYWORD
+            default:// RESOURCE_KEYWORD
                 if (context != ParserRuleContext.RESOURCE_DEF_QUALIFIERS) {
                     return DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED;
                 }
@@ -5813,8 +5588,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.REMOTE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.REMOTE_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.REMOTE_KEYWORD);
+            return consume();
         }
     }
 
@@ -5916,13 +5691,6 @@ public class BallerinaParser extends AbstractParser {
                 Solution solution = recover(token, ParserRuleContext.OBJECT_FIELD_RHS, metadata, visibilityQualifier,
                         readonlyQualifier, type, fieldName);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseObjectFieldRhs(solution.tokenKind, metadata, visibilityQualifier, readonlyQualifier, type,
                         fieldName);
         }
@@ -5964,8 +5732,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.IF_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.IF_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.IF_KEYWORD);
+            return consume();
         }
     }
 
@@ -5979,8 +5747,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.ELSE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ELSE_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ELSE_KEYWORD);
+            return consume();
         }
     }
 
@@ -6040,13 +5808,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.ELSE_BODY);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseElseBody(solution.tokenKind);
         }
     }
@@ -6076,8 +5837,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.WHILE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.WHILE_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.WHILE_KEYWORD);
+            return consume();
         }
     }
 
@@ -6106,8 +5867,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.PANIC_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.PANIC_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.PANIC_KEYWORD);
+            return consume();
         }
     }
 
@@ -6150,8 +5911,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.CHECK_KEYWORD || token.kind == SyntaxKind.CHECKPANIC_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CHECKING_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CHECKING_KEYWORD);
+            return consume();
         }
     }
 
@@ -6196,8 +5957,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.FAIL_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.FAIL_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.FAIL_KEYWORD);
+            return consume();
         }
     }
 
@@ -6226,8 +5987,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.CONTINUE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CONTINUE_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CONTINUE_KEYWORD);
+            return consume();
         }
     }
 
@@ -6255,8 +6016,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.RETURN_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.RETURN_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.RETURN_KEYWORD);
+            return consume();
         }
     }
 
@@ -6284,8 +6045,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.BREAK_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.BREAK_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.BREAK_KEYWORD);
+            return consume();
         }
     }
 
@@ -6386,13 +6147,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.MAPPING_FIELD_END);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseMappingFieldEnd(solution.tokenKind);
 
         }
@@ -6464,13 +6218,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, fieldContext, fieldContext);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseMappingField(solution.tokenKind, fieldContext);
         }
     }
@@ -6489,13 +6236,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.SPECIFIC_FIELD, readonlyKeyword);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseSpecificField(solution.tokenKind, readonlyKeyword);
 
@@ -6547,13 +6287,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.SPECIFIC_FIELD_RHS, readonlyKeyword, key);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseSpecificFieldRhs(solution.tokenKind, readonlyKeyword, key);
 
         }
@@ -6570,8 +6303,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.STRING_LITERAL) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.STRING_LITERAL);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.STRING_LITERAL);
+            return consume();
         }
     }
 
@@ -6585,8 +6318,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.COLON_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.COLON);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.COLON);
+            return consume();
         }
     }
 
@@ -6600,8 +6333,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.READONLY_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.READONLY_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.READONLY_KEYWORD);
+            return consume();
         }
     }
 
@@ -6636,8 +6369,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.OPEN_BRACKET);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.OPEN_BRACKET);
+            return consume();
         }
     }
 
@@ -6680,8 +6413,8 @@ public class BallerinaParser extends AbstractParser {
         if (isCompoundBinaryOperator(token.kind)) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.COMPOUND_BINARY_OPERATOR);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.COMPOUND_BINARY_OPERATOR);
+            return consume();
         }
     }
 
@@ -6743,13 +6476,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.OPTIONAL_SERVICE_NAME);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseServiceName(solution.tokenKind);
         }
     }
@@ -6764,8 +6490,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.SERVICE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.SERVICE_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.SERVICE_KEYWORD);
+            return consume();
         }
     }
 
@@ -6805,8 +6531,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.ON_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ON_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ON_KEYWORD);
+            return consume();
         }
     }
 
@@ -6944,7 +6670,7 @@ public class BallerinaParser extends AbstractParser {
             case RESOURCE_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
             case FUNCTION_KEYWORD:
-            case REMOTE_KEYWORD:   // remote qualifier is not allowed but let it pass here and validate in
+            case REMOTE_KEYWORD: // remote qualifier is not allowed but let it pass here and validate in
                 // parseFunctionQualifiers method
                 metadata = STNodeFactory.createEmptyNode();
                 break;
@@ -6959,13 +6685,6 @@ public class BallerinaParser extends AbstractParser {
 
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.RESOURCE_DEF);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseResource(solution.tokenKind);
         }
@@ -6988,8 +6707,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.RESOURCE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.RESOURCE_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.RESOURCE_KEYWORD);
+            return consume();
         }
     }
 
@@ -7071,8 +6790,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.LISTENER_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.LISTENER_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.LISTENER_KEYWORD);
+            return consume();
         }
     }
 
@@ -7118,13 +6837,6 @@ public class BallerinaParser extends AbstractParser {
                 }
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.CONST_DECL_TYPE, metadata, qualifier, keyword);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseConstDeclFromType(solution.tokenKind, metadata, qualifier, keyword);
         }
@@ -7186,13 +6898,6 @@ public class BallerinaParser extends AbstractParser {
                 Solution solution = recover(token, ParserRuleContext.CONST_DECL_RHS, metadata, qualifier, keyword,
                         typeOrVarName, isListener);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseConstantOrListenerDeclRhs(solution.tokenKind, metadata, qualifier, keyword, typeOrVarName,
                         isListener);
         }
@@ -7225,8 +6930,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.CONST_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CONST_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CONST_KEYWORD);
+            return consume();
         }
     }
 
@@ -7259,8 +6964,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.TYPEOF_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.TYPEOF_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.TYPEOF_KEYWORD);
+            return consume();
         }
     }
 
@@ -7310,8 +7015,8 @@ public class BallerinaParser extends AbstractParser {
         if (isUnaryOperator(token.kind)) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.UNARY_OPERATOR);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.UNARY_OPERATOR);
+            return consume();
         }
     }
 
@@ -7394,8 +7099,8 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
             default:
-                Solution sol = recover(token, ParserRuleContext.ARRAY_LENGTH);
-                return sol.recoveredNode;
+                recover(token, ParserRuleContext.ARRAY_LENGTH);
+                return consume();
         }
     }
 
@@ -7480,8 +7185,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.AT_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.AT);
-            return sol.recoveredNode;
+            recover(nextToken, ParserRuleContext.AT);
+            return consume();
         }
     }
 
@@ -7551,8 +7256,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.IS_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.IS_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.IS_KEYWORD);
+            return consume();
         }
     }
 
@@ -7634,13 +7339,6 @@ public class BallerinaParser extends AbstractParser {
                     context = ParserRuleContext.STMT_START_WITH_EXPR_RHS;
                 }
                 Solution solution = recover(peek(), context, expression);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseStatementStartWithExprRhs(solution.tokenKind, expression);
         }
@@ -7829,13 +7527,6 @@ public class BallerinaParser extends AbstractParser {
                 Solution solution =
                         recover(token, ParserRuleContext.REMOTE_CALL_OR_ASYNC_SEND_END, expression, rightArrow, name);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseRemoteCallOrAsyncSendEnd(solution.tokenKind, expression, rightArrow, name);
         }
     }
@@ -7850,8 +7541,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.DEFAULT_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.DEFAULT_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.DEFAULT_KEYWORD);
+            return consume();
         }
     }
 
@@ -7877,8 +7568,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.RIGHT_ARROW_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.RIGHT_ARROW);
-            return sol.recoveredNode;
+            recover(nextToken, ParserRuleContext.RIGHT_ARROW);
+            return consume();
         }
     }
 
@@ -7909,8 +7600,8 @@ public class BallerinaParser extends AbstractParser {
             case FUTURE_KEYWORD: // future type desc
                 return consume();
             default:
-                Solution sol = recover(nextToken, ParserRuleContext.PARAMETERIZED_TYPE);
-                return sol.recoveredNode;
+                recover(nextToken, ParserRuleContext.PARAMETERIZED_TYPE);
+                return consume();
         }
     }
 
@@ -7924,8 +7615,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.GT_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.GT);
-            return sol.recoveredNode;
+            recover(nextToken, ParserRuleContext.GT);
+            return consume();
         }
     }
 
@@ -7939,8 +7630,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.LT_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.LT);
-            return sol.recoveredNode;
+            recover(nextToken, ParserRuleContext.LT);
+            return consume();
         }
     }
 
@@ -7983,8 +7674,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.ANNOTATION_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ANNOTATION_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ANNOTATION_KEYWORD);
+            return consume();
         }
     }
 
@@ -8016,9 +7707,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.ANNOT_DECL_OPTIONAL_TYPE, metadata, qualifier,
                         constKeyword, annotationKeyword);
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseAnnotationDeclFromType(solution.tokenKind, metadata, qualifier, constKeyword,
                         annotationKeyword);
@@ -8042,8 +7730,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(peek(), ParserRuleContext.ANNOTATION_TAG);
-            return sol.recoveredNode;
+            recover(peek(), ParserRuleContext.ANNOTATION_TAG);
+            return consume();
         }
     }
 
@@ -8110,13 +7798,6 @@ public class BallerinaParser extends AbstractParser {
                 Solution solution = recover(token, ParserRuleContext.ANNOT_DECL_RHS, metadata, qualifier, constKeyword,
                         annotationKeyword, typeDescOrAnnotTag);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseAnnotationDeclRhs(solution.tokenKind, metadata, qualifier, constKeyword, annotationKeyword,
                         typeDescOrAnnotTag);
         }
@@ -8153,13 +7834,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS, metadata, qualifier,
                         constKeyword, annotationKeyword, typeDesc, annotTag);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseAnnotationDeclAttachPoints(solution.tokenKind, metadata, qualifier, constKeyword,
                         annotationKeyword, typeDesc, annotTag);
@@ -8260,12 +7934,9 @@ public class BallerinaParser extends AbstractParser {
             case COMMA_TOKEN:
                 return consume();
             default:
-                Solution sol = recover(peek(), ParserRuleContext.ATTACH_POINT_END);
-                if (sol.action == Action.REMOVE) {
-                    return sol.recoveredNode;
-                }
+                Solution solution = recover(peek(), ParserRuleContext.ATTACH_POINT_END);
 
-                return sol.tokenKind == SyntaxKind.COMMA_TOKEN ? sol.recoveredNode : null;
+                return parseAttachPointEnd(solution.tokenKind);
         }
     }
 
@@ -8335,8 +8006,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.SOURCE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.SOURCE_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.SOURCE_KEYWORD);
+            return consume();
         }
     }
 
@@ -8381,9 +8052,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseDualAttachPointIdent(sourceKeyword, firstIdent);
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ATTACH_POINT_IDENT, sourceKeyword);
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 firstIdent = solution.recoveredNode;
                 return parseDualAttachPointIdent(sourceKeyword, firstIdent);
@@ -8436,8 +8104,8 @@ public class BallerinaParser extends AbstractParser {
             case FIELD_KEYWORD:
                 return consume();
             default:
-                Solution sol = recover(token, ParserRuleContext.IDENT_AFTER_OBJECT_IDENT);
-                return sol.recoveredNode;
+                recover(token, ParserRuleContext.IDENT_AFTER_OBJECT_IDENT);
+                return consume();
         }
     }
 
@@ -8451,8 +8119,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.FUNCTION_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.FUNCTION_IDENT);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.FUNCTION_IDENT);
+            return consume();
         }
     }
 
@@ -8466,8 +8134,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.FIELD_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.FIELD_IDENT);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.FIELD_IDENT);
+            return consume();
         }
     }
 
@@ -8509,8 +8177,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.XMLNS_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.XMLNS_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.XMLNS_KEYWORD);
+            return consume();
         }
     }
 
@@ -8565,9 +8233,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.CONSTANT_EXPRESSION_START);
 
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 // Here we assume inserted token is always an identifier token
                 return STNodeFactory.createSimpleNameReferenceNode(solution.recoveredNode);
@@ -8602,13 +8267,6 @@ public class BallerinaParser extends AbstractParser {
                 Solution solution = recover(token, ParserRuleContext.XML_NAMESPACE_PREFIX_DECL, xmlnsKeyword,
                         namespaceUri, isModuleVar);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseXMLDeclRhs(solution.tokenKind, xmlnsKeyword, namespaceUri, isModuleVar);
         }
         STNode semicolon = parseSemicolon();
@@ -8630,8 +8288,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(peek(), ParserRuleContext.NAMESPACE_PREFIX);
-            return sol.recoveredNode;
+            recover(peek(), ParserRuleContext.NAMESPACE_PREFIX);
+            return consume();
         }
     }
 
@@ -8677,8 +8335,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.WORKER_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(peek(), ParserRuleContext.WORKER_KEYWORD);
-            return sol.recoveredNode;
+            recover(peek(), ParserRuleContext.WORKER_KEYWORD);
+            return consume();
         }
     }
 
@@ -8694,8 +8352,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(peek(), ParserRuleContext.WORKER_NAME);
-            return sol.recoveredNode;
+            recover(peek(), ParserRuleContext.WORKER_NAME);
+            return consume();
         }
     }
 
@@ -8723,8 +8381,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.LOCK_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.LOCK_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.LOCK_KEYWORD);
+            return consume();
         }
     }
 
@@ -8760,8 +8418,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.PIPE_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.PIPE);
+            return consume();
         }
     }
 
@@ -8873,8 +8531,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.FORK_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.FORK_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.FORK_KEYWORD);
+            return consume();
         }
     }
 
@@ -8961,8 +8619,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.TRAP_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.TRAP_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.TRAP_KEYWORD);
+            return consume();
         }
     }
 
@@ -9042,13 +8700,6 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.LIST_CONSTRUCTOR_MEMBER_END);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
                 return parseListConstructorMemberEnd(solution.tokenKind);
         }
     }
@@ -9081,8 +8732,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.FOREACH_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.FOREACH_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.FOREACH_KEYWORD);
+            return consume();
         }
     }
 
@@ -9096,8 +8747,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.IN_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.IN_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.IN_KEYWORD);
+            return consume();
         }
     }
 
@@ -9180,8 +8831,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.TABLE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.TABLE_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.TABLE_KEYWORD);
+            return consume();
         }
     }
 
@@ -9249,13 +8900,6 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TABLE_ROW_END);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
                 return parseListConstructorMemberEnd(solution.tokenKind);
         }
     }
@@ -9288,8 +8932,8 @@ public class BallerinaParser extends AbstractParser {
             // this is to treat "key" as a keyword, even if its parsed as an identifier from lexer.
             return getKeyKeyword(consume());
         } else {
-            Solution sol = recover(token, ParserRuleContext.KEY_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.KEY_KEYWORD);
+            return consume();
         }
     }
 
@@ -9401,8 +9045,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.ERROR_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ERROR_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ERROR_KEYWORD);
+            return consume();
         }
     }
 
@@ -9434,8 +9078,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.TYPEDESC_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.TYPEDESC_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.TYPEDESC_KEYWORD);
+            return consume();
         }
     }
 
@@ -9514,13 +9158,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution =
                         recover(peek(), ParserRuleContext.STREAM_TYPE_FIRST_PARAM_RHS, ltToken, leftTypeDescNode);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
                 return parseStreamTypeParamsNode(solution.tokenKind, ltToken, leftTypeDescNode);
         }
 
@@ -9539,8 +9176,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.STREAM_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.STREAM_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.STREAM_KEYWORD);
+            return consume();
         }
     }
 
@@ -9578,8 +9215,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.LET_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.LET_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.LET_KEYWORD);
+            return consume();
         }
     }
 
@@ -9722,8 +9359,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.STRING_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.STRING_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.STRING_KEYWORD);
+            return consume();
         }
     }
 
@@ -9753,8 +9390,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.XML_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.XML_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.XML_KEYWORD);
+            return consume();
         }
     }
 
@@ -9832,8 +9469,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.INTERPOLATION_START_TOKEN);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.INTERPOLATION_START_TOKEN);
+            return consume();
         }
     }
 
@@ -9847,8 +9484,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.BACKTICK_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ctx);
-            return sol.recoveredNode;
+            recover(token, ctx);
+            return consume();
         }
     }
 
@@ -9928,13 +9565,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseKeyTypeConstraint(keyKeywordToken);
             default:
                 Solution solution = recover(peek(), ParserRuleContext.KEY_CONSTRAINTS_RHS, keyKeywordToken);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
                 return parseKeyConstraint(solution.tokenKind, keyKeywordToken);
         }
     }
@@ -10027,9 +9657,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseExpressionFuncBody(true, isRhsExpr);
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ANON_FUNC_BODY, isRhsExpr);
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
                 return parseAnonFuncBody(solution.tokenKind, isRhsExpr);
         }
     }
@@ -10069,8 +9696,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.EXPR_FUNC_BODY_START);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.EXPR_FUNC_BODY_START);
+            return consume();
         }
     }
 
@@ -10158,13 +9785,6 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ANON_FUNC_PARAM_RHS);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseImplicitAnonFuncParamEnd(solution.tokenKind);
         }
@@ -10277,13 +9897,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseTupleMemberRhs(solution.tokenKind);
         }
     }
@@ -10340,13 +9953,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_START, isRhsExpr);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseTableConstructorOrQuery(solution.tokenKind, isRhsExpr);
         }
 
@@ -10376,13 +9982,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TABLE_KEYWORD_RHS, tableKeyword, isRhsExpr);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseTableConstructorOrQuery(solution.tokenKind, null, tableKeyword, isRhsExpr);
         }
     }
@@ -10401,13 +10000,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_RHS, tableKeyword,
                         keySpecifier, isRhsExpr);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseTableConstructorOrQueryRhs(solution.tokenKind, tableKeyword, keySpecifier, isRhsExpr);
         }
@@ -10538,13 +10130,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.QUERY_PIPELINE_RHS, isRhsExpr);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseIntermediateClause(solution.tokenKind, isRhsExpr);
         }
     }
@@ -10559,8 +10144,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.JOIN_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.JOIN_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.JOIN_KEYWORD);
+            return consume();
         }
     }
 
@@ -10618,8 +10203,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.FROM_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.FROM_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.FROM_KEYWORD);
+            return consume();
         }
     }
 
@@ -10649,8 +10234,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.WHERE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.WHERE_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.WHERE_KEYWORD);
+            return consume();
         }
     }
 
@@ -10682,8 +10267,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.ORDER_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ORDER_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ORDER_KEYWORD);
+            return consume();
         }
     }
 
@@ -10697,8 +10282,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.BY_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.BY_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.BY_KEYWORD);
+            return consume();
         }
     }
 
@@ -10807,13 +10392,6 @@ public class BallerinaParser extends AbstractParser {
 
                 Solution solution = recover(peek(), ParserRuleContext.ORDER_KEY_LIST_END);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseOrderKeyListMemberEnd(solution.tokenKind);
         }
     }
@@ -10870,8 +10448,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.SELECT_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.SELECT_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.SELECT_KEYWORD);
+            return consume();
         }
     }
 
@@ -10908,8 +10486,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.CONFLICT_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CONFLICT_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CONFLICT_KEYWORD);
+            return consume();
         }
     }
 
@@ -11040,8 +10618,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.START_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.START_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.START_KEYWORD);
+            return consume();
         }
     }
 
@@ -11068,8 +10646,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.FLUSH_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.FLUSH_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.FLUSH_KEYWORD);
+            return consume();
         }
     }
 
@@ -11298,12 +10876,9 @@ public class BallerinaParser extends AbstractParser {
             case DEFAULT_KEYWORD:
                 return STNodeFactory.createSimpleNameReferenceNode(consume());
             default:
-                Solution sol = recover(token, ParserRuleContext.PEER_WORKER_NAME);
-                if (sol.action == Action.REMOVE) {
-                    return sol.recoveredNode;
-                }
+                Solution solution = recover(token, ParserRuleContext.PEER_WORKER_NAME);
 
-                return STNodeFactory.createSimpleNameReferenceNode(sol.recoveredNode);
+                return parsePeerWorkerName();
         }
     }
 
@@ -11319,8 +10894,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.SYNC_SEND_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.SYNC_SEND_TOKEN);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.SYNC_SEND_TOKEN);
+            return consume();
         }
     }
 
@@ -11350,13 +10925,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseMultipleReceiveWorkers();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.RECEIVE_WORKERS);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseReceiveWorkers(solution.tokenKind);
         }
@@ -11435,13 +11003,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.RECEIVE_FIELD_END);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseReceiveFieldEnd(solution.tokenKind);
         }
     }
@@ -11469,15 +11030,12 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.RECEIVE_FIELD);
 
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 if (solution.tokenKind == SyntaxKind.IDENTIFIER_TOKEN) {
                     return createQualifiedReceiveField(solution.recoveredNode);
                 }
 
-                return solution.recoveredNode;
+                return consume();
         }
     }
 
@@ -11502,8 +11060,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.LEFT_ARROW_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.LEFT_ARROW_TOKEN);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.LEFT_ARROW_TOKEN);
+            return consume();
         }
     }
 
@@ -11574,8 +11132,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.WAIT_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.WAIT_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.WAIT_KEYWORD);
+            return consume();
         }
     }
 
@@ -11670,13 +11228,6 @@ public class BallerinaParser extends AbstractParser {
 
                 Solution solution = recover(peek(), ParserRuleContext.WAIT_FUTURE_EXPR_END, nextTokenIndex);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 // current token becomes next token
                 return parseWaitFutureExprEnd(solution.tokenKind, 0);
         }
@@ -11757,13 +11308,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.WAIT_FIELD_END);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseWaitFieldEnd(solution.tokenKind);
         }
     }
@@ -11789,9 +11333,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.WAIT_FIELD_NAME);
 
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseWaitField(solution.tokenKind);
         }
@@ -11835,8 +11376,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.ANNOT_CHAINING_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ANNOT_CHAINING_TOKEN);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ANNOT_CHAINING_TOKEN);
+            return consume();
         }
     }
 
@@ -11894,8 +11435,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.DO_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.DO_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.DO_KEYWORD);
+            return consume();
         }
     }
 
@@ -11933,8 +11474,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.OPTIONAL_CHAINING_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.OPTIONAL_CHAINING_TOKEN);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.OPTIONAL_CHAINING_TOKEN);
+            return consume();
         }
     }
 
@@ -12013,8 +11554,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.ENUM_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ENUM_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ENUM_KEYWORD);
+            return consume();
         }
     }
 
@@ -12102,13 +11643,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_RHS, metadata, identifierNode);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseEnumMemberRhs(solution.tokenKind, metadata, identifierNode);
         }
 
@@ -12127,13 +11661,6 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_END);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseEnumMemberEnd(solution.tokenKind);
         }
@@ -12164,8 +11691,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.TRANSACTION_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.TRANSACTION_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.TRANSACTION_KEYWORD);
+            return consume();
         }
     }
 
@@ -12191,8 +11718,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.COMMIT_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.COMMIT_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.COMMIT_KEYWORD);
+            return consume();
         }
     }
 
@@ -12231,13 +11758,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseRetryTypeParamRhs(nextTokenKind, retryKeyword, typeParam);
             default:
                 Solution solution = recover(peek(), ParserRuleContext.RETRY_KEYWORD_RHS, retryKeyword);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseRetryKeywordRhs(solution.tokenKind, retryKeyword);
         }
@@ -12292,8 +11812,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.RETRY_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.RETRY_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.RETRY_KEYWORD);
+            return consume();
         }
     }
 
@@ -12329,8 +11849,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.ROLLBACK_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ROLLBACK_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ROLLBACK_KEYWORD);
+            return consume();
         }
     }
 
@@ -12356,8 +11876,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.TRANSACTIONAL_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.TRANSACTIONAL_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.TRANSACTIONAL_KEYWORD);
+            return consume();
         }
     }
 
@@ -12476,8 +11996,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.BASE16_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.BASE16_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.BASE16_KEYWORD);
+            return consume();
         }
     }
 
@@ -12491,8 +12011,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.BASE64_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.BASE64_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.BASE64_KEYWORD);
+            return consume();
         }
     }
 
@@ -12715,8 +12235,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.DOT_LT_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.DOT_LT_TOKEN);
-            return sol.recoveredNode;
+            recover(nextToken, ParserRuleContext.DOT_LT_TOKEN);
+            return consume();
         }
     }
 
@@ -12778,11 +12298,11 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
                 return null;
             default:
-                Solution sol = recover(token, ParserRuleContext.XML_NAME_PATTERN_RHS);
-                if (sol.tokenKind == SyntaxKind.GT_TOKEN) {
+                Solution solution = recover(token, ParserRuleContext.XML_NAME_PATTERN_RHS);
+                if (solution.tokenKind == SyntaxKind.GT_TOKEN) {
                     return null;
                 }
-                return sol.recoveredNode;
+                return parseXMLNamePatternSeparator();
         }
     }
 
@@ -12816,17 +12336,9 @@ public class BallerinaParser extends AbstractParser {
                 identifier = consume();
                 break;
             default:
-                Solution sol = recover(token, ParserRuleContext.XML_ATOMIC_NAME_PATTERN_START);
-                if (sol.action == Action.REMOVE) {
-                    return sol.recoveredNode;
-                }
+                Solution solution = recover(token, ParserRuleContext.XML_ATOMIC_NAME_PATTERN_START);
 
-                if (sol.recoveredNode.kind == SyntaxKind.ASTERISK_TOKEN) {
-                    return sol.recoveredNode;
-                }
-
-                identifier = sol.recoveredNode;
-                break;
+                return parseXMLAtomicNamePatternBody();
         }
 
         return parseXMLAtomicNameIdentifier(identifier);
@@ -12900,8 +12412,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.SLASH_LT_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.SLASH_LT_TOKEN);
-            return sol.recoveredNode;
+            recover(nextToken, ParserRuleContext.SLASH_LT_TOKEN);
+            return consume();
         }
     }
 
@@ -12915,8 +12427,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
-            return sol.recoveredNode;
+            recover(nextToken, ParserRuleContext.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
+            return consume();
         }
     }
 
@@ -12950,8 +12462,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.MATCH_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.MATCH_KEYWORD);
-            return sol.recoveredNode;
+            recover(nextToken, ParserRuleContext.MATCH_KEYWORD);
+            return consume();
         }
     }
 
@@ -13020,13 +12532,6 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createEmptyNode();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.OPTIONAL_MATCH_GUARD);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseMatchGuard(solution.tokenKind);
         }
@@ -13119,13 +12624,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_START);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseMatchPattern(solution.tokenKind);
         }
     }
@@ -13145,13 +12643,6 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_RHS);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseMatchPatternEnd(solution.tokenKind);
         }
@@ -13181,8 +12672,8 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.VAR_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.VAR_KEYWORD);
-            return sol.recoveredNode;
+            recover(nextToken, ParserRuleContext.VAR_KEYWORD);
+            return consume();
         }
     }
 
@@ -13306,13 +12797,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_RHS);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseListMatchPatternMemberRhs(solution.tokenKind);
         }
     }
@@ -13394,13 +12878,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseFieldMatchPatternMember(solution.tokenKind);
         }
     }
@@ -13444,13 +12921,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER_RHS);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseFieldMatchPatternRhs(solution.tokenKind);
         }
     }
@@ -13469,13 +12939,6 @@ public class BallerinaParser extends AbstractParser {
                 }
                 Solution solution =
                         recover(peek(), ParserRuleContext.FUNC_MATCH_PATTERN_OR_CONST_PATTERN, typeRefOrConstExpr);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseFunctionalMatchPatternOrConsPattern(solution.tokenKind, typeRefOrConstExpr);
         }
@@ -13602,13 +13065,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ARG_MATCH_PATTERN);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseArgMatchPattern(solution.tokenKind);
         }
     }
@@ -13658,13 +13114,6 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ARG_MATCH_PATTERN_RHS);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseArgMatchPatternRhs(solution.tokenKind);
         }
@@ -13913,13 +13362,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution =
                         recover(token, ParserRuleContext.BINDING_PATTERN_OR_EXPR_RHS, typeOrExpr, allowAssignment);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseTypedBindingPatternOrExprRhs(solution.tokenKind, typeOrExpr, allowAssignment);
         }
@@ -14205,13 +13647,6 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.TYPE_DESC_OR_EXPR_RHS, typeOrExpr);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseTypeDescOrExprRhs(solution.tokenKind, typeOrExpr);
         }
     }
@@ -14412,16 +13847,9 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD:
                 return parseErrorBindingPattern();
             default:
-                Solution sol = recover(peek(), ParserRuleContext.BINDING_PATTERN);
+                Solution solution = recover(peek(), ParserRuleContext.BINDING_PATTERN);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (sol.action == Action.REMOVE) {
-                    return sol.recoveredNode;
-                }
-
-                return parseBindingPattern(sol.tokenKind);
+                return parseBindingPattern();
         }
     }
 
@@ -14533,13 +13961,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.LIST_BINDING_PATTERN_MEMBER_END);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseListBindingPatternMemberRhs(solution.tokenKind);
         }
     }
@@ -14581,16 +14002,8 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD:
                 return parseBindingPattern();
             default:
-                Solution sol = recover(peek(), ParserRuleContext.LIST_BINDING_PATTERN_MEMBER);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (sol.action == Action.REMOVE) {
-                    return sol.recoveredNode;
-                }
-
-                return parseListBindingPatternMember(sol.tokenKind);
+                Solution solution = recover(peek(), ParserRuleContext.LIST_BINDING_PATTERN_MEMBER);
+                return parseListBindingPatternMember();
         }
     }
 
@@ -14738,13 +14151,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.MAPPING_BINDING_PATTERN_END);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseMappingBindingPatternEnd(solution.tokenKind);
         }
     }
@@ -14768,9 +14174,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.FIELD_BINDING_PATTERN_NAME);
 
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseFieldBindingPattern(solution.tokenKind);
         }
@@ -14881,13 +14284,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ARG_BINDING_PATTERN_END);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseArgsBindingPatternEnd(solution.tokenKind);
         }
     }
@@ -14931,13 +14327,6 @@ public class BallerinaParser extends AbstractParser {
 
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ARG_BINDING_PATTERN);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseArgBindingPattern(solution.tokenKind);
         }
@@ -15036,13 +14425,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution =
                         recover(peek(), ParserRuleContext.TYPED_BINDING_PATTERN_TYPE_RHS, typeDesc, context, isRoot);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseTypedBindingPatternTypeRhs(solution.tokenKind, typeDesc, context, isRoot);
         }
@@ -15180,13 +14562,6 @@ public class BallerinaParser extends AbstractParser {
                                 : ParserRuleContext.BRACKETED_LIST_MEMBER;
                 Solution solution = recover(peek(), recoverContext, isTypedBindingPattern);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseBracketedListMember(solution.tokenKind, isTypedBindingPattern);
         }
 
@@ -15237,13 +14612,6 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.BRACKETED_LIST_MEMBER_END);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseBracketedListMemberEnd(solution.tokenKind);
         }
@@ -15357,14 +14725,6 @@ public class BallerinaParser extends AbstractParser {
 
         Solution solution = recover(peek(), ParserRuleContext.BRACKETED_LIST_RHS, typeDescOrExpr, openBracket, member,
                 closeBracket, isTypedBindingPattern, allowAssignment, context);
-
-        // If the parser recovered by inserting a token, then try to re-parse the same
-        // rule with the inserted token. This is done to pick the correct branch
-        // to continue the parsing.
-        if (solution.action == Action.REMOVE) {
-            return solution.recoveredNode;
-        }
-
         return parseTypedBindingPatternOrMemberAccessRhs(solution.tokenKind, typeDescOrExpr, openBracket, member,
                 closeBracket, isTypedBindingPattern, allowAssignment, context);
     }
@@ -15462,8 +14822,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.PIPE_TOKEN || token.kind == SyntaxKind.BITWISE_AND_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.UNION_OR_INTERSECTION_TOKEN);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.UNION_OR_INTERSECTION_TOKEN);
+            return consume();
         }
     }
 
@@ -15658,13 +15018,6 @@ public class BallerinaParser extends AbstractParser {
 
                 Solution solution = recover(peek(), ParserRuleContext.STMT_START_BRACKETED_LIST_MEMBER);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseStatementStartBracketedListMember(solution.tokenKind);
         }
     }
@@ -15790,13 +15143,6 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 Solution solution = recover(peek(), ParserRuleContext.TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER, annots);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseTupleTypeDescOrListConstructorMember(solution.tokenKind, annots);
         }
@@ -16646,13 +15992,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER);
 
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseListBindingPatternOrListConstructorMember(solution.tokenKind);
         }
     }
@@ -16678,13 +16017,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.FIELD_BINDING_PATTERN_END, key);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 readonlyKeyword = STNodeFactory.createEmptyNode();
                 return parseSpecificFieldRhs(solution.tokenKind, readonlyKeyword, key);
@@ -16853,13 +16185,6 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 Solution solution = recover(peek(), ParserRuleContext.LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
 
                 return parseListBindingPatternOrListConstructorMember(solution.tokenKind);
         }

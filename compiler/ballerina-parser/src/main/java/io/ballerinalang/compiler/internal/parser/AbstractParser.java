@@ -39,6 +39,7 @@ public abstract class AbstractParser {
     protected final AbstractParserErrorHandler errorHandler;
     protected final AbstractTokenReader tokenReader;
     private final Deque<InvalidNodeInfo> invalidNodeInfoStack = new ArrayDeque<>(5);
+    protected STToken insertedToken = null;
 
     public AbstractParser(AbstractTokenReader tokenReader, AbstractParserErrorHandler errorHandler) {
         this.tokenReader = tokenReader;
@@ -55,14 +56,28 @@ public abstract class AbstractParser {
     public abstract STNode resumeParsing(ParserRuleContext context, Object... args);
 
     protected STToken peek() {
+        if (this.insertedToken != null) {
+            return this.insertedToken;
+        }
+
         return this.tokenReader.peek();
     }
 
     protected STToken peek(int k) {
+        if (this.insertedToken != null) {
+            k = k - 1;
+        }
+
         return this.tokenReader.peek(k);
     }
 
     protected STToken consume() {
+        if (this.insertedToken != null) {
+            STToken nextToken = this.insertedToken;
+            this.insertedToken = null;
+            return nextToken;
+        }
+
         if (invalidNodeInfoStack.isEmpty()) {
             return this.tokenReader.read();
         }
@@ -86,8 +101,10 @@ public abstract class AbstractParser {
         // If the action is to remove, then re-parse the same rule.
         if (sol.action == Action.REMOVE) {
             addInvalidTokenToNextToken(sol.removedToken);
-            sol.recoveredNode = resumeParsing(currentCtx, args);
+        } else if (sol.action == Action.INSERT) {
+            this.insertedToken = (STToken) sol.recoveredNode;
         }
+
         return sol;
     }
 
