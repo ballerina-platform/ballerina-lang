@@ -69,6 +69,20 @@ public class ArgumentParserNegativeTest {
         Assert.fail("insufficient arguments not identified");
     }
 
+    @Test
+    public void testIncorrectArgs() {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_int_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"-j=1"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: incorrect arguments to call the 'main' function"),
+                    "invalid error message, usage error for incorrect arguments not found");
+            return;
+        }
+        Assert.fail("incorrect arguments not identified");
+    }
+
     @Test(dataProvider = "intValues")
     public void testInvalidIntArg(String arg) {
         try {
