@@ -24,29 +24,34 @@ import ballerina/test;
 
 string a = "";
 
+@test:BeforeSuite
+function beforeSuiteFunc() {
+    a += "1";
+}
+
 @test:BeforeGroups { value : ["g1"] }
 function beforeGroupsFunc1() {
-    a += "6";
+    a += "7";
 }
 
 @test:AfterGroups { value : ["g1"] }
 function afterGroupsFunc1() {
-    a += "8";
+    a += "9";
 }
 
 @test:BeforeEach
 function beforeEachFunc() {
-    a += "1";
+    a += "2";
 }
 
 @test:AfterEach
 function afterEachFunc() {
-    a += "5";
+    a += "6";
 }
 
 # Before test function
 function beforeFunc() {
-    a += "2";
+    a += "3";
 }
 
 # Test function
@@ -55,22 +60,22 @@ function beforeFunc() {
     after: "afterFunc"
 }
 function testFunction() {
-    a += "3";
+    a += "4";
 }
 
 @test:Config {groups: ["g1"]}
 function testFunction2() {
-    a += "7";
+    a += "8";
 }
 
 # After test function
 
 function afterFunc() {
-    a += "4";
+    a += "5";
 }
 
 # After Suite Function
 @test:AfterSuite {}
 function afterSuiteFunc() {
-    io:println(a);
+    io:println("Value of a is " + a);
 }

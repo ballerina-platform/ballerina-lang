@@ -68,6 +68,5 @@ function testFunction5() {
 # After Suite Function
 @test:AfterSuite {}
 function afterSuiteFunc() {
-    test:assertEquals(a, "123456787");
-    io:println(a);
+    io:println("Value of a is " + a);
 }
