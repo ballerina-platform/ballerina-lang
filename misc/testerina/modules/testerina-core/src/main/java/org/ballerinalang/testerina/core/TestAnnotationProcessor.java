@@ -82,6 +82,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String AFTER_SUITE_ALWAYS_RUN_FIELD_NAME = "alwaysRun";
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
     private static final String MOCK_FN_DELIMITER = "~";
+    private static final String BEFORE_GROUPS_ANNOTATION_NAME = "BeforeGroups";
+    private static final String AFTER_GROUPS_ANNOTATION_NAME = "AfterGroups";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private boolean enabled = true;
@@ -166,6 +168,46 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     });
                 }
                 suite.addAfterSuiteFunction(functionName, alwaysRun);
+            } else if (BEFORE_GROUPS_ANNOTATION_NAME.equals(annotationName)) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+
+                    for (RecordLiteralNode.RecordField field : attributes) {
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                            BLangExpression valueExpr = attributeNode.getValue();
+                            if (valueExpr instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
+                                suite.addBeforeGroupsFunction(functionName,
+                                        values.exprs.stream().map(node -> node.toString())
+                                                .collect(Collectors.toList()));
+                            }
+                        }
+
+                    }
+                }
+            } else if (AFTER_GROUPS_ANNOTATION_NAME.equals(annotationName)) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+
+                    for (RecordLiteralNode.RecordField field : attributes) {
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                            BLangExpression valueExpr = attributeNode.getValue();
+                            if (valueExpr instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
+                                suite.addAfterGroupFunction(functionName,
+                                        values.exprs.stream().map(node -> node.toString())
+                                                .collect(Collectors.toList()));
+                            }
+                        }
+
+                    }
+                }
             } else if (BEFORE_EACH_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addBeforeEachFunction(functionName);
             } else if (AFTER_EACH_ANNOTATION_NAME.equals(annotationName)) {
@@ -181,8 +223,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                     List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getFields();
-
-                    attributes.forEach(field -> {
+                    for (RecordLiteralNode.RecordField field : attributes) {
                         String name;
                         BLangExpression valueExpr;
 
@@ -203,7 +244,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                 .toString())) {
                             // If enable is false, disable the test, no further processing is needed
                             shouldSkip.set(true);
-                            return;
+                            continue;
                         }
 
                         // check if groups attribute is present in the annotation
@@ -212,6 +253,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                 BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
                                 test.setGroups(values.exprs.stream().map(node -> node.toString())
                                         .collect(Collectors.toList()));
+                                suite.addTestToGroups(test);
+
                                 // Check whether user has provided a group list
                                 if (groups != null && !groups.isEmpty()) {
                                     boolean isGroupPresent = isGroupAvailable(groups, test.getGroups());
@@ -220,14 +263,14 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                         if (!isGroupPresent) {
                                             // skip the test if this group is not defined in this test
                                             shouldSkip.set(true);
-                                            return;
+                                            continue;
                                         }
                                     } else {
                                         // exclude only if the test belong to one of these groups
                                         if (isGroupPresent) {
                                             // skip if this test belongs to one of the excluded groups
                                             shouldSkip.set(true);
-                                            return;
+                                            continue;
                                         }
                                     }
                                     groupsFound.set(true);
@@ -253,7 +296,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                         (test::addDependsOnTestFunction);
                             }
                         }
-                    });
+                    }
                 }
                 if (groups != null && !groups.isEmpty() && !groupsFound.get() && shouldIncludeGroups) {
                     // if the user has asked to run only a specific list of groups and this test doesn't have
@@ -336,7 +379,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 // disregard this annotation
             }
         }
-
     }
 
     // Extract mock function information
