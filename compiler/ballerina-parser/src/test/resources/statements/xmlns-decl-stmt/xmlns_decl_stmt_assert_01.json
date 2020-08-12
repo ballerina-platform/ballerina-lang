@@ -77,7 +77,7 @@
                   "children": [
                     {
                       "kind": "STRING_LITERAL_TOKEN",
-                      "value": "STRING_LITERAL_TOKEN"
+                      "value": "http://ballerinalang.com/ns1"
                     }
                   ]
                 },
@@ -115,7 +115,7 @@
                   "children": [
                     {
                       "kind": "STRING_LITERAL_TOKEN",
-                      "value": "STRING_LITERAL_TOKEN",
+                      "value": "http://ballerinalang.com/ns1",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",

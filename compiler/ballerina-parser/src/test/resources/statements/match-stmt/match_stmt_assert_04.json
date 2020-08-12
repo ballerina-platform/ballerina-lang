@@ -139,7 +139,7 @@
                               "children": [
                                 {
                                   "kind": "STRING_LITERAL_TOKEN",
-                                  "value": "STRING_LITERAL_TOKEN",
+                                  "value": "south",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -298,7 +298,7 @@
                               "children": [
                                 {
                                   "kind": "STRING_LITERAL_TOKEN",
-                                  "value": "STRING_LITERAL_TOKEN",
+                                  "value": "south",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",

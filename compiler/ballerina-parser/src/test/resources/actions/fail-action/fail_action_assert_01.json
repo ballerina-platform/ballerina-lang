@@ -161,7 +161,7 @@
                               "children": [
                                 {
                                   "kind": "STRING_LITERAL_TOKEN",
-                                  "value": "STRING_LITERAL_TOKEN"
+                                  "value": "Custom error thrown explicitly."
                                 }
                               ]
                             }

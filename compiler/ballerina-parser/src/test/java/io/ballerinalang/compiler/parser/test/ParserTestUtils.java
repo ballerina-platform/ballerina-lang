@@ -356,7 +356,7 @@ public class ParserTestUtils {
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifierToken) token).text;
-            case STRING_LITERAL:
+            case STRING_LITERAL_TOKEN:
                 String val = token.text();
                 int stringLen = val.length();
                 int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;

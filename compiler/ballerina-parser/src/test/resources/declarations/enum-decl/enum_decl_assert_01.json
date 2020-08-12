@@ -506,7 +506,7 @@
                       "children": [
                         {
                           "kind": "STRING_LITERAL_TOKEN",
-                          "value": "STRING_LITERAL_TOKEN"
+                          "value": "read-color"
                         }
                       ]
                     }
@@ -554,7 +554,7 @@
                       "children": [
                         {
                           "kind": "STRING_LITERAL_TOKEN",
-                          "value": "STRING_LITERAL_TOKEN"
+                          "value": "green-color"
                         }
                       ]
                     }

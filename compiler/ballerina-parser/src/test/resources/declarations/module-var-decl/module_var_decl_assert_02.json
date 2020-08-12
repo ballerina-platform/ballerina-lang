@@ -69,7 +69,7 @@
               "children": [
                 {
                   "kind": "STRING_LITERAL_TOKEN",
-                  "value": "STRING_LITERAL_TOKEN"
+                  "value": "http://hello1.com"
                 }
               ]
             },
@@ -163,7 +163,7 @@
               "children": [
                 {
                   "kind": "STRING_LITERAL_TOKEN",
-                  "value": "STRING_LITERAL_TOKEN"
+                  "value": "http://hello2.com"
                 }
               ]
             },
@@ -243,7 +243,7 @@
               "children": [
                 {
                   "kind": "STRING_LITERAL_TOKEN",
-                  "value": "STRING_LITERAL_TOKEN"
+                  "value": "http://hello3.com"
                 }
               ]
             },

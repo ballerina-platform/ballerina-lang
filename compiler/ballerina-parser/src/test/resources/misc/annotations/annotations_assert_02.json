@@ -69,7 +69,7 @@
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL_TOKEN",
-                                      "value": "STRING_LITERAL_TOKEN",
+                                      "value": "name",
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
@@ -91,7 +91,7 @@
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL_TOKEN",
-                                          "value": "STRING_LITERAL_TOKEN"
+                                          "value": "foo"
                                         }
                                       ]
                                     }
@@ -137,7 +137,7 @@
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL_TOKEN",
-                                          "value": "STRING_LITERAL_TOKEN"
+                                          "value": "some function"
                                         }
                                       ]
                                     }
@@ -157,7 +157,7 @@
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL_TOKEN",
-                                      "value": "STRING_LITERAL_TOKEN",
+                                      "value": "info",
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
@@ -194,7 +194,7 @@
                                               "children": [
                                                 {
                                                   "kind": "STRING_LITERAL_TOKEN",
-                                                  "value": "STRING_LITERAL_TOKEN"
+                                                  "value": "returns"
                                                 },
                                                 {
                                                   "kind": "COLON_TOKEN",
@@ -210,7 +210,7 @@
                                                   "children": [
                                                     {
                                                       "kind": "STRING_LITERAL_TOKEN",
-                                                      "value": "STRING_LITERAL_TOKEN"
+                                                      "value": "none"
                                                     }
                                                   ]
                                                 }

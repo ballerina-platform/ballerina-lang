@@ -2540,7 +2540,7 @@
                                                 "ERROR_INVALID_TOKEN",
                                                 "ERROR_INVALID_TOKEN"
                                               ],
-                                              "value": "STRING_LITERAL_TOKEN",
+                                              "value": "dulmina",
                                               "leadingMinutiae": [
                                                 {
                                                   "kind": "INVALID_NODE_MINUTIAE",

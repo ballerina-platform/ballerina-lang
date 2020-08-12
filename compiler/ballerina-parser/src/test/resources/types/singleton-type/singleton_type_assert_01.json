@@ -76,7 +76,7 @@
                           "children": [
                             {
                               "kind": "STRING_LITERAL_TOKEN",
-                              "value": "STRING_LITERAL_TOKEN",
+                              "value": "dulmina",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -603,7 +603,7 @@
                               "children": [
                                 {
                                   "kind": "STRING_LITERAL_TOKEN",
-                                  "value": "STRING_LITERAL_TOKEN",
+                                  "value": "dulmina",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -681,7 +681,7 @@
                               "children": [
                                 {
                                   "kind": "STRING_LITERAL_TOKEN",
-                                  "value": "STRING_LITERAL_TOKEN",
+                                  "value": "mystring",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",

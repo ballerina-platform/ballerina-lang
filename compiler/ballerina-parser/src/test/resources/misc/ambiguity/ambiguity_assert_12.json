@@ -302,7 +302,7 @@
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL_TOKEN",
-                                      "value": "STRING_LITERAL_TOKEN",
+                                      "value": "Apple",
                                       "leadingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
@@ -327,7 +327,7 @@
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL_TOKEN",
-                                          "value": "STRING_LITERAL_TOKEN"
+                                          "value": "Orange"
                                         }
                                       ]
                                     },
@@ -342,7 +342,7 @@
                                           "children": [
                                             {
                                               "kind": "STRING_LITERAL_TOKEN",
-                                              "value": "STRING_LITERAL_TOKEN"
+                                              "value": "Mango"
                                             }
                                           ]
                                         },
@@ -430,7 +430,7 @@
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL_TOKEN",
-                                          "value": "STRING_LITERAL_TOKEN",
+                                          "value": "Apple",
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
@@ -456,7 +456,7 @@
                                           "children": [
                                             {
                                               "kind": "STRING_LITERAL_TOKEN",
-                                              "value": "STRING_LITERAL_TOKEN"
+                                              "value": "Orange"
                                             }
                                           ]
                                         }
@@ -476,7 +476,7 @@
                                               "children": [
                                                 {
                                                   "kind": "STRING_LITERAL_TOKEN",
-                                                  "value": "STRING_LITERAL_TOKEN"
+                                                  "value": "Mango"
                                                 }
                                               ]
                                             }

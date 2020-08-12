@@ -73,7 +73,7 @@
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL_TOKEN",
-                                      "value": "STRING_LITERAL_TOKEN",
+                                      "value": "name",
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
@@ -95,7 +95,7 @@
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL_TOKEN",
-                                          "value": "STRING_LITERAL_TOKEN",
+                                          "value": "foo",
                                           "trailingMinutiae": [
                                             {
                                               "kind": "END_OF_LINE_MINUTIAE",
@@ -142,7 +142,7 @@
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL_TOKEN",
-                                          "value": "STRING_LITERAL_TOKEN"
+                                          "value": "some function"
                                         }
                                       ]
                                     }
@@ -163,7 +163,7 @@
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL_TOKEN",
-                                      "value": "STRING_LITERAL_TOKEN",
+                                      "value": "info",
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
@@ -203,7 +203,7 @@
                                               "children": [
                                                 {
                                                   "kind": "STRING_LITERAL_TOKEN",
-                                                  "value": "STRING_LITERAL_TOKEN",
+                                                  "value": "returns",
                                                   "trailingMinutiae": [
                                                     {
                                                       "kind": "WHITESPACE_MINUTIAE",
@@ -224,7 +224,7 @@
                                                   "children": [
                                                     {
                                                       "kind": "STRING_LITERAL_TOKEN",
-                                                      "value": "STRING_LITERAL_TOKEN"
+                                                      "value": "none"
                                                     }
                                                   ]
                                                 }

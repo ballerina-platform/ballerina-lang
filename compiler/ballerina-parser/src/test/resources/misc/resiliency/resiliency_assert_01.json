@@ -217,7 +217,7 @@
                                                 "children": [
                                                   {
                                                     "kind": "STRING_LITERAL_TOKEN",
-                                                    "value": "STRING_LITERAL_TOKEN"
+                                                    "value": "b"
                                                   }
                                                 ]
                                               }
@@ -300,7 +300,7 @@
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL_TOKEN",
-                                      "value": "STRING_LITERAL_TOKEN"
+                                      "value": "f"
                                     }
                                   ]
                                 },

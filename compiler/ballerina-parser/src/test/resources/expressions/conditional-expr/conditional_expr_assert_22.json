@@ -56,7 +56,7 @@
       "children": [
         {
           "kind": "STRING_LITERAL_TOKEN",
-          "value": "STRING_LITERAL_TOKEN"
+          "value": "c"
         }
       ]
     }

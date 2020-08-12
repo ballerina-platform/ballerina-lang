@@ -124,7 +124,7 @@
                       "diagnostics": [
                         "ERROR_MISSING_DOUBLE_QUOTE"
                       ],
-                      "value": "STRING_LITERAL_TOKEN",
+                      "value": "hello world;",
                       "trailingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -205,7 +205,7 @@
                   "children": [
                     {
                       "kind": "STRING_LITERAL_TOKEN",
-                      "value": "STRING_LITERAL_TOKEN"
+                      "value": "how are you?"
                     }
                   ]
                 },

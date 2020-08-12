@@ -148,7 +148,7 @@
                               "children": [
                                 {
                                   "kind": "STRING_LITERAL_TOKEN",
-                                  "value": "STRING_LITERAL_TOKEN"
+                                  "value": "ERROR_REASON"
                                 }
                               ]
                             }
@@ -195,7 +195,7 @@
                               "children": [
                                 {
                                   "kind": "STRING_LITERAL_TOKEN",
-                                  "value": "STRING_LITERAL_TOKEN"
+                                  "value": "error message"
                                 }
                               ]
                             }

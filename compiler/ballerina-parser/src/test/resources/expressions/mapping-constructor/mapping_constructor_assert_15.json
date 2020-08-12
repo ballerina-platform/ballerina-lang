@@ -84,7 +84,7 @@
           "children": [
             {
               "kind": "STRING_LITERAL_TOKEN",
-              "value": "STRING_LITERAL_TOKEN",
+              "value": "name",
               "leadingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -100,7 +100,7 @@
               "children": [
                 {
                   "kind": "STRING_LITERAL_TOKEN",
-                  "value": "STRING_LITERAL_TOKEN"
+                  "value": "John"
                 }
               ]
             }
@@ -219,7 +219,7 @@
                       "children": [
                         {
                           "kind": "STRING_LITERAL_TOKEN",
-                          "value": "STRING_LITERAL_TOKEN",
+                          "value": "name",
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -235,7 +235,7 @@
                           "children": [
                             {
                               "kind": "STRING_LITERAL_TOKEN",
-                              "value": "STRING_LITERAL_TOKEN"
+                              "value": "Jane"
                             }
                           ]
                         }
@@ -306,7 +306,7 @@
                           "children": [
                             {
                               "kind": "STRING_LITERAL_TOKEN",
-                              "value": "STRING_LITERAL_TOKEN",
+                              "value": "value2",
                               "trailingMinutiae": [
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -404,7 +404,7 @@
               "children": [
                 {
                   "kind": "STRING_LITERAL_TOKEN",
-                  "value": "STRING_LITERAL_TOKEN",
+                  "value": "value1",
                   "trailingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",

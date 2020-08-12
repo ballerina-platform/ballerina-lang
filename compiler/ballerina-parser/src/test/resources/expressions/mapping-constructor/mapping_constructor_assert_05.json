@@ -68,7 +68,7 @@
           "children": [
             {
               "kind": "STRING_LITERAL_TOKEN",
-              "value": "STRING_LITERAL_TOKEN"
+              "value": "name"
             },
             {
               "kind": "COLON_TOKEN"
@@ -78,7 +78,7 @@
               "children": [
                 {
                   "kind": "STRING_LITERAL_TOKEN",
-                  "value": "STRING_LITERAL_TOKEN"
+                  "value": "Supun"
                 }
               ]
             }
@@ -143,7 +143,7 @@
               "children": [
                 {
                   "kind": "STRING_LITERAL_TOKEN",
-                  "value": "STRING_LITERAL_TOKEN"
+                  "value": "value"
                 }
               ]
             }
