@@ -29,7 +29,6 @@ import java.util.List;
 @CommandLine.Command(name = "format", description = "format given Ballerina source file")
 public class FormatCmd implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
-    private static final String NOT_SUPPORTED_MESSAGE = "user.dir";
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -54,16 +53,16 @@ public class FormatCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
+
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
+
     }
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-        throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
+
     }
 }

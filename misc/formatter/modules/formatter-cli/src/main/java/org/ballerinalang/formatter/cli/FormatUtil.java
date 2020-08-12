@@ -152,7 +152,7 @@ class FormatUtil {
                 generateChangeReport(formattedFiles, dryRun);
             }
         } catch (IOException | NullPointerException e) {
-            throw LauncherUtils.createLauncherException(Messages.getException());
+            throw LauncherUtils.createLauncherException(Messages.getException() + e);
         }
     }
 
@@ -350,7 +350,6 @@ class FormatUtil {
             super(new OutputStream() {
                 @Override
                 public void write(int b) {
-                    throw new UnsupportedOperationException("Not supported");
                 }
             }, true, "UTF-8");
         }
