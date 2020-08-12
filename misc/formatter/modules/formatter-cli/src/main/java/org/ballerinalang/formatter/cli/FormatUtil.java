@@ -98,7 +98,7 @@ class FormatUtil {
                     // Format and get the generated formatted source code content.
                     String formattedSourceCode = Formatter.format(source);
 
-                    if (doChangesAvailable(source, formattedSourceCode)) {
+                    if (areChangesAvailable(source, formattedSourceCode)) {
                         if (!dryRun) {
                             // Write the formatted content back to the file.
                             FormatUtil.writeFile(filePath.toAbsolutePath().toString(), formattedSourceCode);
@@ -120,7 +120,7 @@ class FormatUtil {
                     // Check whether the module dir exists.
                     if (!FormatUtil.isModuleExist(moduleName, sourceRootPath)) {
                         // If module directory doesn't exist and contains a "."
-                        // throw a exception to say file or module doesn't exist.
+                        // throw an exception to say file or module doesn't exist.
                         // Else throw a exception to say module doesn't exist.
                         if (moduleName.contains(".")) {
                             throw LauncherUtils.createLauncherException(Messages
@@ -131,7 +131,7 @@ class FormatUtil {
                     }
 
                     // Check whether the given directory is not in a ballerina project.
-                    if (FormatUtil.notABallerinaProject(sourceRootPath)) {
+                    if (!FormatUtil.isBallerinaProject(sourceRootPath)) {
                         throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
                     }
                     BLangPackage bLangPackage = FormatUtil
@@ -215,18 +215,15 @@ class FormatUtil {
 
     private static void formatAndWrite(BLangCompilationUnit compilationUnit, Path sourceRootPath,
                                        List<String> formattedFiles, boolean dryRun) throws IOException {
-        String fileName = sourceRootPath.toString() + File.separator
-                + "src"
-                + File.separator
-                + compilationUnit.getPosition().getSource().getPackageName()
-                + File.separator
-                + compilationUnit.getPosition().getSource().getCompilationUnitName();
+        String fileName = Paths.get(sourceRootPath.toString()).resolve("src")
+                .resolve(compilationUnit.getPosition().getSource().getPackageName())
+                .resolve(compilationUnit.getPosition().getSource().getCompilationUnitName()).toString();
 
         // Format and get the formatted source.
         String formattedSource = Formatter.format(new String(Files.readAllBytes(Paths.get(fileName)),
                 StandardCharsets.UTF_8));
 
-        if (doChangesAvailable(formattedSource, formattedSource)) {
+        if (areChangesAvailable(formattedSource, formattedSource)) {
             if (!dryRun) {
                 // Write formatted content to the file.
                 FormatUtil.writeFile(fileName, formattedSource);
@@ -296,14 +293,14 @@ class FormatUtil {
     }
 
     /**
-     * Check whether the given path isn't a source root of a ballerina project.
+     * Check whether the given path is a source root of a ballerina project.
      *
      * @param path - path where the command is executed from
      * @return {@link boolean} true or false
      */
-    private static boolean notABallerinaProject(Path path) {
+    private static boolean isBallerinaProject(Path path) {
         Path cachePath = path.resolve("Ballerina.toml");
-        return !cachePath.toFile().exists();
+        return cachePath.toFile().exists();
     }
 
     /**
@@ -327,7 +324,7 @@ class FormatUtil {
         }
     }
 
-    private static boolean doChangesAvailable(String originalSource, String formattedSource) {
+    private static boolean areChangesAvailable(String originalSource, String formattedSource) {
         return !originalSource.equals(formattedSource);
     }
 

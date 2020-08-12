@@ -30,7 +30,7 @@ import java.util.List;
  * Format CLI tool test suit for testing tool's exceptions.
  */
 public class FormatCmdTest {
-    private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    private static final Path RES_DIR = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
     private static final String NOT_A_PROJECT = "notAProject";
 
     @Test(description = "Test to check the exception for too many argument provided.")
@@ -172,8 +172,7 @@ public class FormatCmdTest {
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
-                Assert.assertEquals(exception.get(0), "error: "
-                                + Messages.getException(),
+                Assert.assertTrue(exception.get(0).contains("error: " + Messages.getException()),
                         "actual exception didn't match the expected.");
             } else {
                 Assert.fail("failed the test with " + exception.size()

@@ -40,7 +40,9 @@ import java.util.List;
  */
 public abstract class FormatterTest {
 
-    private final Path resourceDirectory = Paths.get("src/test/resources/").toAbsolutePath();
+    // TODO: Add test cases for syntax error scenarios as well
+
+    private final Path resourceDirectory = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
     private static final String ASSERT_DIR = "assert";
     private static final String SOURCE_DIR = "source";
 

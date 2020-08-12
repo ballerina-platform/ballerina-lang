@@ -36,7 +36,7 @@ public class FormatCmd implements BLauncherCmd {
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = {"-d", "--dry-run"}, hidden = true)
+    @CommandLine.Option(names = {"-d", "--dry-run"})
     private boolean dryRun;
 
     @Override

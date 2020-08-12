@@ -26,8 +26,6 @@ import io.ballerinalang.compiler.text.TextDocuments;
  */
 public class Formatter {
 
-    // TODO: Add test cases for syntax error scenarios as well
-
     /**
      * Formats the provided source string and returns back the formatted source string.
      *
