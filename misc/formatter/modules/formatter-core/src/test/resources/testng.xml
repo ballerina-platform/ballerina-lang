@@ -27,11 +27,10 @@ under the License.
             </run>
         </groups>
         <packages>
-<!--            <package name="org.ballerinalang.formatter.core.types.*" />-->
-<!--            <package name="org.ballerinalang.formatter.core.statements.*" />-->
-<!--            <package name="org.ballerinalang.formatter.core.expressions.*" />-->
-<!--            <package name="org.ballerinalang.formatter.core.declarations.*" />-->
-<!--            <package name="org.ballerinalang.formatter.core.actions.*" />-->
+            <package name="org.ballerinalang.formatter.core.types.*" />
+            <package name="org.ballerinalang.formatter.core.expressions.*" />
+            <package name="org.ballerinalang.formatter.core.actions.*" />
+            <package name="org.ballerinalang.formatter.core.declarations.*" />
         </packages>
     </test>
 </suite>

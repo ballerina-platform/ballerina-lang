@@ -17,8 +17,13 @@ package org.ballerinalang.formatter.core.expressions;
 
 import org.ballerinalang.formatter.core.FormatterTest;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test the formatting of range expressions.
@@ -27,6 +32,11 @@ import java.nio.file.Paths;
  */
 public class RangeExpressionsTest extends FormatterTest {
 
+    @Test(dataProvider = "test-file-provider")
+    public void test(String source, String sourcePath) throws IOException {
+        super.test(source, sourcePath);
+    }
+
     @DataProvider(name = "test-file-provider")
     @Override
     public Object[][] dataProvider() {
@@ -34,10 +44,8 @@ public class RangeExpressionsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"range_expression_1.bal", this.getTestResourceDir()}
-        };
+    public List<String> skipList() {
+        return new ArrayList<>(Arrays.asList("range_expression_1.bal", "range_expression_2.bal"));
     }
 
     @Override

@@ -43,8 +43,8 @@ public class OtherTypesTest extends FormatterTest {
     @Override
     public Object[][] testSubset() {
         return new Object[][] {
-                {"any_type_1.bal", this.getTestResourceDir()},
-                {"json_type_1.bal", this.getTestResourceDir()},
+                {"optional_type_1.bal", this.getTestResourceDir()},
+                {"union_type_1.bal", this.getTestResourceDir()}
         };
     }
 

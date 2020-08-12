@@ -19,10 +19,12 @@ import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
 import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
@@ -120,6 +122,7 @@ import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
 import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
 import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.LineRange;
@@ -355,18 +358,18 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
-//    @Override
-//    public BuiltinSimpleNameReferenceNode transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
-//        if (!isInLineRange(builtinSimpleNameReferenceNode)) {
-//            return builtinSimpleNameReferenceNode;
-//        }
-//        int startCol = getStartColumn(builtinSimpleNameReferenceNode, builtinSimpleNameReferenceNode.kind(), true);
-//        Token name = getToken(builtinSimpleNameReferenceNode.name());
-//
-//        return builtinSimpleNameReferenceNode.modify()
-//                .withName(formatToken(name, startCol, 0, 0, 0))
-//                .apply();
-//    }
+    @Override
+    public BuiltinSimpleNameReferenceNode transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        if (!isInLineRange(builtinSimpleNameReferenceNode)) {
+            return builtinSimpleNameReferenceNode;
+        }
+        int startCol = getStartColumn(builtinSimpleNameReferenceNode, builtinSimpleNameReferenceNode.kind(), true);
+        Token name = getToken(builtinSimpleNameReferenceNode.name());
+
+        return builtinSimpleNameReferenceNode.modify()
+                .withName(formatToken(name, startCol, 0, 0, 0))
+                .apply();
+    }
 
     @Override
     public FunctionBodyBlockNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
@@ -448,17 +451,17 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
-//    @Override
-//    public BasicLiteralNode transform(BasicLiteralNode basicLiteralNode) {
-//        if (!isInLineRange(basicLiteralNode)) {
-//            return basicLiteralNode;
-//        }
-//        Token literalToken = getToken(basicLiteralNode.literalToken());
-//
-//        return basicLiteralNode.modify()
-//                .withLiteralToken(formatToken(literalToken, 0, 0, 0, 0))
-//                .apply();
-//    }
+    @Override
+    public BasicLiteralNode transform(BasicLiteralNode basicLiteralNode) {
+        if (!isInLineRange(basicLiteralNode)) {
+            return basicLiteralNode;
+        }
+        Token literalToken = getToken(basicLiteralNode.literalToken());
+
+        return basicLiteralNode.modify()
+                .withLiteralToken(formatToken(literalToken, 0, 0, 0, 0))
+                .apply();
+    }
 
 
     @Override
@@ -1394,14 +1397,14 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
-//    @Override
-//    public XMLTextNode transform(XMLTextNode xMLTextNode) {
-//        Token content = getToken(xMLTextNode.content());
-//
-//        return xMLTextNode.modify()
-//                .withContent(formatToken(content, 0, 0, 0, 0))
-//                .apply();
-//    }
+    @Override
+    public XMLTextNode transform(XMLTextNode xMLTextNode) {
+        Token content = getToken(xMLTextNode.content());
+
+        return xMLTextNode.modify()
+                .withContent(formatToken(content, 0, 0, 0, 0))
+                .apply();
+    }
 
     @Override
     public XMLAttributeNode transform(XMLAttributeNode xMLAttributeNode) {

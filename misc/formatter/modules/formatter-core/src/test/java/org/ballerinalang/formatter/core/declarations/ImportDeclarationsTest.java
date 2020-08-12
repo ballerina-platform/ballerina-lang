@@ -17,8 +17,12 @@ package org.ballerinalang.formatter.core.declarations;
 
 import org.ballerinalang.formatter.core.FormatterTest;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Test the formatting of import declarations.
@@ -27,6 +31,11 @@ import java.nio.file.Paths;
  */
 public class ImportDeclarationsTest extends FormatterTest {
 
+    @Test(dataProvider = "test-file-provider")
+    public void test(String source, String sourcePath) throws IOException {
+        super.test(source, sourcePath);
+    }
+
     @DataProvider(name = "test-file-provider")
     @Override
     public Object[][] dataProvider() {
@@ -34,10 +43,8 @@ public class ImportDeclarationsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"import_declaration_1.bal", this.getTestResourceDir()}
-        };
+    public List<String> skipList() {
+        return Collections.singletonList("import_declaration_1.bal");
     }
 
     @Override

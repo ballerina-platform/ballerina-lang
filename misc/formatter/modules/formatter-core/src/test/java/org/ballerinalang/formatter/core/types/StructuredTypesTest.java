@@ -43,8 +43,8 @@ public class StructuredTypesTest extends FormatterTest {
     @Override
     public Object[][] testSubset() {
         return new Object[][] {
-                {"array_type_1.bal", this.getTestResourceDir()},
-                {"map_type_1.bal", this.getTestResourceDir()},
+                {"array_type_3.bal", this.getTestResourceDir()},
+                {"array_type_5.bal", this.getTestResourceDir()}
         };
     }
 

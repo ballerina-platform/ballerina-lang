@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,9 +44,7 @@ public class SimpleTypesTest extends FormatterTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList("boolean_type_1.bal", "decimal_type_1.bal", "decimal_type_2.bal", "float_type_1.bal",
-                "float_type_2.bal", "float_type_3.bal", "nil_type_1.bal", "nil_type_3.bal", "int_type_1.bal",
-                "int_type_2.bal", "int_type_3.bal", "int_type_4.bal");
+        return Collections.singletonList("nil_type_1.bal");
     }
 
     @Override

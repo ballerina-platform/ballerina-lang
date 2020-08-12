@@ -1,3 +1,3 @@
 function foo() {
-    xml x3 = xml `<!--I am a comment-->`;
+    xml x5 = x1 + x2 + x3 + x4;
 }

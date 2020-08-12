@@ -17,8 +17,13 @@ package org.ballerinalang.formatter.core.actions;
 
 import org.ballerinalang.formatter.core.FormatterTest;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test the formatting of checking actions.
@@ -27,6 +32,11 @@ import java.nio.file.Paths;
  */
 public class CheckingActionsTest extends FormatterTest {
 
+    @Test(dataProvider = "test-file-provider")
+    public void test(String source, String sourcePath) throws IOException {
+        super.test(source, sourcePath);
+    }
+
     @DataProvider(name = "test-file-provider")
     @Override
     public Object[][] dataProvider() {
@@ -34,10 +44,8 @@ public class CheckingActionsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"checking_action_1.bal", this.getTestResourceDir()}
-        };
+    public List<String> skipList() {
+        return new ArrayList<>(Arrays.asList("checking_action_1.bal", "checking_action_2.bal"));
     }
 
     @Override
