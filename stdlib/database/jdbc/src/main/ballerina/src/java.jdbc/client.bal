@@ -98,7 +98,7 @@ public type Client client object {
 
     # Executes a SQL stored procedure and returns the result as stream and execution summary.
     #
-    # + sqlQuery - The query to executed the SQL stored procedure
+    # + sqlQuery - The query to execute the SQL stored procedure
     # + rowTypes - The array of `typedesc` of the records that should be returned as a result. If this is not provided
     #               the default column names of the query result set be used for the record attributes.
     # + return - Summary of the execution is returned in `ProcedureCallResult` or `sql:Error`
