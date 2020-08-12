@@ -23,11 +23,11 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.jvnet.mimepull.Header;
 
 import java.util.List;
@@ -77,7 +77,7 @@ public class EntityHeaderHandler {
         int index = 0;
         for (final Header header : bodyPartHeaders) {
             httpHeaders.put(StringUtils.fromString(header.getName().toLowerCase(Locale.getDefault())),
-                            new ArrayValueImpl(new BString[]{StringUtils.fromString(header.getValue())}));
+                            BValueCreator.createArrayValue(new BString[]{StringUtils.fromString(header.getValue())}));
             headerNames.add(index++, StringUtils.fromString(header.getName()));
         }
         partStruct.set(MimeConstants.HEADERS_MAP_FIELD, httpHeaders);
@@ -115,7 +115,7 @@ public class EntityHeaderHandler {
     public static void addHeader(ObjectValue entity, MapValue<BString, Object> headers, String key,
                                  String value) {
         headers.put(StringUtils.fromString(key.toLowerCase(Locale.getDefault())),
-                    new ArrayValueImpl(new BString[]{StringUtils.fromString(value)}));
+                    BValueCreator.createArrayValue(new BString[]{StringUtils.fromString(value)}));
 
         // update header name array
         ArrayValue headerNames = getEntityHeaderNameArray(entity);
@@ -132,6 +132,6 @@ public class EntityHeaderHandler {
     }
 
     private static ArrayValue getNewHeaderNamesArray() {
-        return new ArrayValueImpl(new BString[0]);
+        return (ArrayValue) BValueCreator.createArrayValue(new BString[0]);
     }
 }

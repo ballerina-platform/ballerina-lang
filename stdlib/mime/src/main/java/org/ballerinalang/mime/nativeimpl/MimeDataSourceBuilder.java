@@ -23,12 +23,12 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityHeaderHandler;
@@ -74,11 +74,13 @@ public abstract class MimeDataSourceBuilder {
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
-                return new ArrayValueImpl(StringUtils.getJsonString(messageDataSource).getBytes(charsetValue));
+                return BValueCreator.createArrayValue(
+                        StringUtils.getJsonString(messageDataSource).getBytes(charsetValue));
             }
-            return new ArrayValueImpl(StringUtils.getJsonString(messageDataSource).getBytes(Charset.defaultCharset()));
+            return BValueCreator.createArrayValue(
+                    StringUtils.getJsonString(messageDataSource).getBytes(Charset.defaultCharset()));
         }
-        return new ArrayValueImpl(new byte[0]);
+        return BValueCreator.createArrayValue(new byte[0]);
     }
 
     public static Object getJson(ObjectValue entityObj) {
