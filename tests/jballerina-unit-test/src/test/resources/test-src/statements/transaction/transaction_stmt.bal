@@ -364,3 +364,25 @@ transactional function setRollbackOnlyError() {
     error cause = error("rollback only is set, hence commit failed !");
     transactions:setRollbackOnly(cause);
 }
+
+type Bank client object {
+    remote transactional function deposit(string str) returns string {
+        return str + "-> deposit trx func";
+    }
+
+    function doTransaction() returns string {
+        string str = "";
+        transaction {
+            str += "trx started ";
+            var amount = self->deposit(str);
+            str = amount;
+            checkpanic commit;
+        }
+        return str;
+    }
+};
+
+function testInvokeRemoteTransactionalMethodInTransactionalScope() {
+    Bank bank = new;
+    assertEquality("trx started -> deposit trx func", bank.doTransaction());
+}
