@@ -23,8 +23,8 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
-                  "value": "Test"
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "STRING_LITERAL_TOKEN"
                 }
               ]
             }

@@ -25,8 +25,8 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
-                          "value": "http://ballerinalang.org/ns1",
+                          "kind": "STRING_LITERAL_TOKEN",
+                          "value": "STRING_LITERAL_TOKEN",
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",

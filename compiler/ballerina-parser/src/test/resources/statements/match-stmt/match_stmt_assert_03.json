@@ -133,8 +133,8 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
-                                  "value": "south",
+                                  "kind": "STRING_LITERAL_TOKEN",
+                                  "value": "STRING_LITERAL_TOKEN",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -162,8 +162,8 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
-                                  "value": "north",
+                                  "kind": "STRING_LITERAL_TOKEN",
+                                  "value": "STRING_LITERAL_TOKEN",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -218,8 +218,8 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
-                                  "value": "east",
+                                  "kind": "STRING_LITERAL_TOKEN",
+                                  "value": "STRING_LITERAL_TOKEN",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -280,8 +280,8 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
-                                  "value": "west",
+                                  "kind": "STRING_LITERAL_TOKEN",
+                                  "value": "STRING_LITERAL_TOKEN",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",

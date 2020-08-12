@@ -411,13 +411,13 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case STRING_LITERAL:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
-            case DECIMAL_INTEGER_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
-            case HEX_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_HEX_INTEGER_LITERAL;
-            case DECIMAL_FLOATING_POINT_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_FLOATING_POINT_LITERAL;
-            case HEX_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_HEX_FLOATING_POINT_LITERAL;
             case XML_TEXT_CONTENT:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_TEXT_CONTENT;

@@ -1171,7 +1171,7 @@
                                           "kind": "COLON_TOKEN"
                                         },
                                         {
-                                          "kind": "TRUE_KEYWORD",
+                                          "kind": "BOOLEAN_LITERAL",
                                           "children": [
                                             {
                                               "kind": "TRUE_KEYWORD"
@@ -1268,10 +1268,10 @@
                                               "kind": "PLUS_TOKEN"
                                             },
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "NUMERIC_LITERAL",
                                               "children": [
                                                 {
-                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                   "value": "5"
                                                 }
                                               ]
@@ -1303,8 +1303,8 @@
                                           "kind": "STRING_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "STRING_LITERAL",
-                                              "value": "dulmina"
+                                              "kind": "STRING_LITERAL_TOKEN",
+                                              "value": "STRING_LITERAL_TOKEN"
                                             }
                                           ]
                                         }

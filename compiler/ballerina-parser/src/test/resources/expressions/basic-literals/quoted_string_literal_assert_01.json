@@ -2,8 +2,8 @@
   "kind": "STRING_LITERAL",
   "children": [
     {
-      "kind": "STRING_LITERAL",
-      "value": "hello \\u{A}world \\n how \\tare you?"
+      "kind": "STRING_LITERAL_TOKEN",
+      "value": "STRING_LITERAL_TOKEN"
     }
   ]
 }

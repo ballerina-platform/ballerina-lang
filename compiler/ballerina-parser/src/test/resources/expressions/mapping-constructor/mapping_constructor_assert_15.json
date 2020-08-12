@@ -24,10 +24,10 @@
               "kind": "COLON_TOKEN"
             },
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "NUMERIC_LITERAL",
               "children": [
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                   "value": "20"
                 }
               ]
@@ -83,8 +83,8 @@
           "kind": "SPECIFIC_FIELD",
           "children": [
             {
-              "kind": "STRING_LITERAL",
-              "value": "name",
+              "kind": "STRING_LITERAL_TOKEN",
+              "value": "STRING_LITERAL_TOKEN",
               "leadingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -99,8 +99,8 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
-                  "value": "John"
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "STRING_LITERAL_TOKEN"
                 }
               ]
             }
@@ -163,10 +163,10 @@
                           "kind": "COLON_TOKEN"
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "50"
                             }
                           ]
@@ -218,8 +218,8 @@
                       "kind": "SPECIFIC_FIELD",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
-                          "value": "name",
+                          "kind": "STRING_LITERAL_TOKEN",
+                          "value": "STRING_LITERAL_TOKEN",
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -234,8 +234,8 @@
                           "kind": "STRING_LITERAL",
                           "children": [
                             {
-                              "kind": "STRING_LITERAL",
-                              "value": "Jane"
+                              "kind": "STRING_LITERAL_TOKEN",
+                              "value": "STRING_LITERAL_TOKEN"
                             }
                           ]
                         }
@@ -305,8 +305,8 @@
                           "kind": "STRING_LITERAL",
                           "children": [
                             {
-                              "kind": "STRING_LITERAL",
-                              "value": "value2",
+                              "kind": "STRING_LITERAL_TOKEN",
+                              "value": "STRING_LITERAL_TOKEN",
                               "trailingMinutiae": [
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -403,8 +403,8 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
-                  "value": "value1",
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "STRING_LITERAL_TOKEN",
                   "trailingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",

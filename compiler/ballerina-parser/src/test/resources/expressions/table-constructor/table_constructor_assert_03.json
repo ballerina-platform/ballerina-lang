@@ -29,8 +29,8 @@
                   "kind": "SPECIFIC_FIELD",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
-                      "value": "name"
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "STRING_LITERAL_TOKEN"
                     },
                     {
                       "kind": "COLON_TOKEN"
@@ -39,8 +39,8 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
-                          "value": "Lochana"
+                          "kind": "STRING_LITERAL_TOKEN",
+                          "value": "STRING_LITERAL_TOKEN"
                         }
                       ]
                     }
@@ -66,10 +66,10 @@
                       "kind": "COLON_TOKEN"
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "24"
                         }
                       ]
@@ -105,8 +105,8 @@
                   "kind": "SPECIFIC_FIELD",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
-                      "value": "name"
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "STRING_LITERAL_TOKEN"
                     },
                     {
                       "kind": "COLON_TOKEN"
@@ -115,8 +115,8 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
-                          "value": "Dulmina"
+                          "kind": "STRING_LITERAL_TOKEN",
+                          "value": "STRING_LITERAL_TOKEN"
                         }
                       ]
                     }
@@ -142,10 +142,10 @@
                       "kind": "COLON_TOKEN"
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "25"
                         }
                       ]

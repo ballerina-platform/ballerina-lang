@@ -251,7 +251,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS, ParserRuleContext.READONLY_KEYWORD };
 
     private static final ParserRuleContext[] SPECIFIC_FIELD =
-            { ParserRuleContext.MAPPING_FIELD_NAME, ParserRuleContext.STRING_LITERAL };
+            { ParserRuleContext.MAPPING_FIELD_NAME, ParserRuleContext.STRING_LITERAL_TOKEN };
 
     private static final ParserRuleContext[] SPECIFIC_FIELD_RHS =
             { ParserRuleContext.COLON, ParserRuleContext.MAPPING_FIELD_END };
@@ -276,8 +276,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.TYPE_NAME_OR_VAR_NAME, ParserRuleContext.ASSIGN_OP };
 
     private static final ParserRuleContext[] ARRAY_LENGTH =
-            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.DECIMAL_INTEGER_LITERAL,
-                    ParserRuleContext.HEX_INTEGER_LITERAL, ParserRuleContext.ASTERISK, ParserRuleContext.VARIABLE_REF };
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.DECIMAL_INTEGER_LITERAL_TOKEN,
+                    ParserRuleContext.HEX_INTEGER_LITERAL_TOKEN, ParserRuleContext.ASTERISK,
+                    ParserRuleContext.VARIABLE_REF };
 
     private static final ParserRuleContext[] PARAM_LIST =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.REQUIRED_PARAM };
@@ -855,11 +856,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case BOOLEAN_LITERAL:
                     hasMatch = nextToken.kind == SyntaxKind.TRUE_KEYWORD || nextToken.kind == SyntaxKind.FALSE_KEYWORD;
                     break;
-                case DECIMAL_INTEGER_LITERAL:
+                case DECIMAL_INTEGER_LITERAL_TOKEN:
                 case MAJOR_VERSION:
                 case MINOR_VERSION:
                 case PATCH_VERSION:
-                    hasMatch = nextToken.kind == SyntaxKind.DECIMAL_INTEGER_LITERAL;
+                    hasMatch = nextToken.kind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
                     break;
                 case SLASH:
                     hasMatch = nextToken.kind == SyntaxKind.SLASH_TOKEN;
@@ -870,14 +871,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case COLON:
                     hasMatch = nextToken.kind == SyntaxKind.COLON_TOKEN;
                     break;
-                case STRING_LITERAL:
-                    hasMatch = nextToken.kind == SyntaxKind.STRING_LITERAL;
+                case STRING_LITERAL_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.STRING_LITERAL_TOKEN;
                     break;
                 case UNARY_OPERATOR:
                     hasMatch = isUnaryOperator(nextToken);
                     break;
-                case HEX_INTEGER_LITERAL:
-                    hasMatch = nextToken.kind == SyntaxKind.HEX_INTEGER_LITERAL;
+                case HEX_INTEGER_LITERAL_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
                     break;
                 case AT:
                     hasMatch = nextToken.kind == SyntaxKind.AT_TOKEN;
@@ -916,11 +917,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case RESOURCE_IDENT:
                     hasMatch = nextToken.kind == SyntaxKind.RESOURCE_KEYWORD;
                     break;
-                case DECIMAL_FLOATING_POINT_LITERAL:
-                    hasMatch = nextToken.kind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
+                case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN;
                     break;
-                case HEX_FLOATING_POINT_LITERAL:
-                    hasMatch = nextToken.kind == SyntaxKind.HEX_FLOATING_POINT_LITERAL;
+                case HEX_FLOATING_POINT_LITERAL_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN;
                     break;
                 case PIPE:
                     hasMatch = nextToken.kind == SyntaxKind.PIPE_TOKEN;
@@ -2299,7 +2300,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.SPECIFIC_FIELD_RHS;
             case COLON:
                 return getNextRuleForColon();
-            case STRING_LITERAL:
+            case STRING_LITERAL_TOKEN:
                 // We assume string literal is specifically used only in the mapping constructor key.
                 return ParserRuleContext.COLON;
             case COMPUTED_FIELD_NAME:
@@ -2356,8 +2357,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_KEYWORD;
             case RIGHT_ARROW:
                 return ParserRuleContext.EXPRESSION;
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
             case TYPE_NAME_OR_VAR_NAME:
                 return getNextRuleForDecimalIntegerLiteral();
             case EXPRESSION_STATEMENT:
@@ -3902,7 +3903,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     }
 
     /**
-     * Get the next parser context to visit after a {@link ParserRuleContext#DECIMAL_INTEGER_LITERAL}.
+     * Get the next parser context to visit after a {@link ParserRuleContext#DECIMAL_INTEGER_LITERAL_TOKEN}.
      *
      * @return Next parser context
      */
@@ -4300,12 +4301,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAJOR_VERSION:
             case MINOR_VERSION:
             case PATCH_VERSION:
-                return SyntaxKind.DECIMAL_INTEGER_LITERAL;
+                return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
             case IMPORT_DECL_RHS:
             case IMPORT_SUB_VERSION:
                 return SyntaxKind.SEMICOLON_TOKEN;
-            case STRING_LITERAL:
-                return SyntaxKind.STRING_LITERAL;
+            case STRING_LITERAL_TOKEN:
+                return SyntaxKind.STRING_LITERAL_TOKEN;
             case OPTIONAL_TYPE_DESCRIPTOR:
                 return SyntaxKind.OPTIONAL_TYPE_DESC;
             case ARRAY_TYPE_DESCRIPTOR:
@@ -4316,26 +4317,26 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESCRIPTOR:
                 return SyntaxKind.TYPE_DESC;
             case ARRAY_LENGTH:
-                return SyntaxKind.DECIMAL_INTEGER_LITERAL;
-            case HEX_INTEGER_LITERAL:
-                return SyntaxKind.HEX_INTEGER_LITERAL;
+                return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
+            case HEX_INTEGER_LITERAL_TOKEN:
+                return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
             case CONSTANT_EXPRESSION:
-                return SyntaxKind.STRING_LITERAL;
+                return SyntaxKind.STRING_LITERAL_TOKEN;
             case CONSTANT_EXPRESSION_START:
             case XML_NAMESPACE_PREFIX_DECL:
                 return SyntaxKind.SEMICOLON_TOKEN;
             case NIL_LITERAL:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
-            case DECIMAL_FLOATING_POINT_LITERAL:
-                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
-            case HEX_FLOATING_POINT_LITERAL:
-                return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN;
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
+                return SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN;
             case STATEMENT:
             case STATEMENT_WITHOUT_ANNOTS:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
-            case DECIMAL_INTEGER_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
             case SIGNED_INT_OR_FLOAT_RHS:
-                return SyntaxKind.DECIMAL_INTEGER_LITERAL;
+                return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
             case ENUM_MEMBER_RHS:
             case ENUM_MEMBER_END:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
@@ -4675,14 +4676,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private boolean isBasicLiteral(SyntaxKind kind) {
         switch (kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case STRING_LITERAL_TOKEN:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 return true;
             default:
                 return false;

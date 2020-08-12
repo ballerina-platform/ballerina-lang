@@ -57,8 +57,8 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
-                  "value": "http://hello1.com"
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "STRING_LITERAL_TOKEN"
                 }
               ]
             },
@@ -129,8 +129,8 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
-                  "value": "http://hello2.com"
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "STRING_LITERAL_TOKEN"
                 }
               ]
             },
@@ -200,8 +200,8 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
-                  "value": "http://hello3.com"
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "STRING_LITERAL_TOKEN"
                 }
               ]
             },

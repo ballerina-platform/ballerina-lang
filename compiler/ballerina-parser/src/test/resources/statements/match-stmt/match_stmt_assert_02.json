@@ -215,10 +215,10 @@
                                       ]
                                     },
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "NUMERIC_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                           "value": "5"
                                         }
                                       ]
@@ -291,10 +291,10 @@
                                       ]
                                     },
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "NUMERIC_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                           "value": "7"
                                         }
                                       ]
@@ -408,8 +408,8 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
-                                  "value": "south",
+                                  "kind": "STRING_LITERAL_TOKEN",
+                                  "value": "STRING_LITERAL_TOKEN",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -426,8 +426,8 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
-                                  "value": "north",
+                                  "kind": "STRING_LITERAL_TOKEN",
+                                  "value": "STRING_LITERAL_TOKEN",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -485,8 +485,8 @@
                                       "kind": "STRING_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "STRING_LITERAL",
-                                          "value": "This is a direction"
+                                          "kind": "STRING_LITERAL_TOKEN",
+                                          "value": "STRING_LITERAL_TOKEN"
                                         }
                                       ]
                                     },
@@ -532,8 +532,8 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
-                                  "value": "west",
+                                  "kind": "STRING_LITERAL_TOKEN",
+                                  "value": "STRING_LITERAL_TOKEN",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -685,8 +685,8 @@
                                       "kind": "STRING_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "STRING_LITERAL",
-                                          "value": "This is a direction with condition"
+                                          "kind": "STRING_LITERAL_TOKEN",
+                                          "value": "STRING_LITERAL_TOKEN"
                                         }
                                       ]
                                     },

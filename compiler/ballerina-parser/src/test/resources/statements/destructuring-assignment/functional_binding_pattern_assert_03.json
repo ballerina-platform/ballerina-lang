@@ -144,8 +144,8 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
-                      "value": "hello"
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "STRING_LITERAL_TOKEN"
                     }
                   ]
                 },
@@ -248,8 +248,8 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
-                      "value": "hello"
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "STRING_LITERAL_TOKEN"
                     }
                   ]
                 },
@@ -401,8 +401,8 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
-                      "value": "hello"
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "STRING_LITERAL_TOKEN"
                     }
                   ]
                 },
@@ -531,8 +531,8 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
-                      "value": "hello"
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "STRING_LITERAL_TOKEN"
                     }
                   ]
                 },
@@ -773,8 +773,8 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
-                      "value": "hello"
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "STRING_LITERAL_TOKEN"
                     }
                   ]
                 },
@@ -999,8 +999,8 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
-                      "value": "hello"
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "STRING_LITERAL_TOKEN"
                     }
                   ]
                 },
@@ -1153,8 +1153,8 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
-                      "value": "hello"
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "STRING_LITERAL_TOKEN"
                     }
                   ]
                 },
@@ -1298,8 +1298,8 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
-                      "value": "hello"
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "STRING_LITERAL_TOKEN"
                     }
                   ]
                 },

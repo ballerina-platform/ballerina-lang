@@ -22,11 +22,11 @@
                   "kind": "PLUS_TOKEN"
                 },
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [

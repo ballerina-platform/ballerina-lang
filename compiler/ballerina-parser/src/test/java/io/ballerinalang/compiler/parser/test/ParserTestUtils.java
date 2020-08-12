@@ -361,10 +361,10 @@ public class ParserTestUtils {
                 int stringLen = val.length();
                 int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;
                 return val.substring(1, lastCharPosition);
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
             case PARAMETER_NAME:
             case BACKTICK_CONTENT:
             case DEPRECATION_LITERAL:
@@ -792,14 +792,22 @@ public class ParserTestUtils {
                 return SyntaxKind.BINARY_EXPRESSION;
             case "STRING_LITERAL":
                 return SyntaxKind.STRING_LITERAL;
-            case "DECIMAL_INTEGER_LITERAL":
-                return SyntaxKind.DECIMAL_INTEGER_LITERAL;
-            case "HEX_INTEGER_LITERAL":
-                return SyntaxKind.HEX_INTEGER_LITERAL;
-            case "DECIMAL_FLOATING_POINT_LITERAL":
-                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
-            case "HEX_FLOATING_POINT_LITERAL":
-                return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
+            case "STRING_LITERAL_TOKEN":
+                return SyntaxKind.STRING_LITERAL_TOKEN;
+            case "NUMERIC_LITERAL":
+                return SyntaxKind.NUMERIC_LITERAL;
+            case "BOOLEAN_LITERAL":
+                return SyntaxKind.BOOLEAN_LITERAL;
+            case "DECIMAL_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
+            case "HEX_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
+            case "DECIMAL_FLOATING_POINT_LITERAL_TOKEN":
+                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN;
+            case "HEX_FLOATING_POINT_LITERAL_TOKEN":
+                return SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN;
+            case "ASTERISK_LITERAL":
+                return SyntaxKind.ASTERISK_LITERAL;
             case "FUNCTION_CALL":
                 return SyntaxKind.FUNCTION_CALL;
             case "POSITIONAL_ARG":

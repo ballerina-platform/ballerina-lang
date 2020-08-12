@@ -1331,8 +1331,8 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
-                  "value": "hello"
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "STRING_LITERAL_TOKEN"
                 }
               ]
             },
@@ -1458,10 +1458,10 @@
               ]
             },
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "NUMERIC_LITERAL",
               "children": [
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                   "value": "4"
                 }
               ]
@@ -1590,8 +1590,8 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
-                  "value": "http://ballerinalang.io"
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "STRING_LITERAL_TOKEN"
                 }
               ]
             },
