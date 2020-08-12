@@ -21,7 +21,9 @@ import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -63,5 +65,19 @@ public class ModuleLevelDeclarationTest extends AbstractIncrementalParserTest {
         IdentifierToken funcName = functionDefinitionNode.functionName();
 
         Assert.assertEquals(funcName.text(), "main");
+    }
+
+    @Test
+    public void testReusingModuleLevelDeclerations() {
+        SyntaxTree oldTree = parseFile("module_declarations/module_declarations_old.bal");
+        SyntaxTree newTree = parse(oldTree, "module_declarations/module_declarations_new.bal");
+        Node[] newNodes = populateNewNodes(oldTree, newTree);
+        Assert.assertEquals(((Token) newNodes[0]).text(), "public");
+        Assert.assertEquals(((Token) newNodes[1]).text(), "function");
+        Assert.assertEquals(((Token) newNodes[2]).text(), "updatedFoo");
+        Assert.assertEquals(newNodes[3].kind(), SyntaxKind.FUNCTION_SIGNATURE);
+        Assert.assertEquals(newNodes[4].kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
+        Assert.assertEquals(newNodes[5].kind(), SyntaxKind.FUNCTION_DEFINITION);
+        Assert.assertEquals(newNodes[6].kind(), SyntaxKind.MODULE_PART);
     }
 }

@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -184,6 +185,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
  * @since 1.2.0
  */
 class JvmTypeGen {
+
+    private static ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
 
     /**
      * Create static fields to hold the user defined types.
@@ -1583,8 +1586,15 @@ class JvmTypeGen {
             loadType(mv, restType);
         }
 
+        BType retType;
+        if (Symbols.isFlagOn(bType.retType.flags, Flags.PARAMETERIZED)) {
+            retType = typeBuilder.build(bType.retType);
+        } else {
+            retType = bType.retType;
+        }
+
         // load return type type
-        loadType(mv, bType.retType);
+        loadType(mv, retType);
 
         // initialize the function type using the param types array and the return type
         mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, JVM_INIT_METHOD,

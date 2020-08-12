@@ -46,4 +46,9 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
 
         return completionItems;
     }
+
+    @Override
+    public boolean onPreValidation(FunctionBodyBlockNode node) {
+        return !node.openBraceToken().isMissing() && !node.closeBraceToken().isMissing();
+    }
 }

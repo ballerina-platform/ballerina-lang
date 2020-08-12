@@ -113,7 +113,11 @@ public class ArgumentParser {
             // handle named args
             if (isNameArg) {
                 isNamedArgFound = true;
-                ParamInfo info = namedArgs.get(getParamName(arg));
+                String paramName = getParamName(arg);
+                ParamInfo info = namedArgs.get(paramName);
+                if (info == null) {
+                    throw BallerinaErrors.createError("undefined parameter: '" + paramName + "'");
+                }
                 bValueArgs[info.index * 2 + 1] = getBValue(info.type, getValueString(arg));
                 bValueArgs[info.index * 2 + 2] = true;
                 if (!info.hasDefaultable) {
