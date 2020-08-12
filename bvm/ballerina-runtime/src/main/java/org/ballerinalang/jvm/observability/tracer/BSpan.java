@@ -44,11 +44,11 @@ public class BSpan {
      * {@link Map} of properties, which used to represent
      * the span contexts of each tracer.
      */
-    private Map<String, String> properties;
+    private final Map<String, String> properties;
     /**
      * {@link Map} of tags, which will get injected to span.
      */
-    private Map<String, String> tags;
+    private final Map<String, String> tags;
     /**
      * Name of the service.
      */
@@ -60,7 +60,7 @@ public class BSpan {
     /**
      * Active Ballerina {@link ObserverContext}.
      */
-    private ObserverContext observerContext;
+    private final ObserverContext observerContext;
     /**
      * Open tracer specific span.
      */
