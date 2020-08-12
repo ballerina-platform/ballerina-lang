@@ -14,32 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import pkg.variable;
-
 const ASSERTION_ERR_REASON = "AssertionError";
 
-function getVarsInOtherPkg() {
-    string stringVar =  variable: 'get_String_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ();
-    any anyVar = variable: 'get_Variable_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ();
-    assertEquality("value", stringVar);
-    assertEquality(<any>88343, anyVar);
-}
-
-function accessStructInOtherPkg() {
-    string firstName = variable:'get_Person_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ().'1st_name ;
-    string lastName =
-    variable:'get_Person_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ().'\ \/\:\@\[\`\{\~\u{2324}_last_name;
-    int age = variable:'get_Person_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ().'Ȧɢέ;
-    assertEquality("Harry", firstName);
-    assertEquality("potter", lastName);
-    assertEquality(25, age);
+function useILAsArrayIndex() {
+    float[] '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Array = [234.0, 8834.834, 88.0];
+    int '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Array_index = 1;
+    float value = '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Array ['\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Array_index];
+    assertEquality(8834.834, value);
 }
 
 public function main() {
-    getVarsInOtherPkg();
-    accessStructInOtherPkg();
-    io:println("Values returned successfully");
+   useILAsArrayIndex();
 }
 
 function assertEquality(any|error expected, any|error actual) {

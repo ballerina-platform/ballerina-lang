@@ -54,7 +54,6 @@ public class IdentifierLiteralTestCase extends BaseTest {
     private static final String invalidILSpecialCharactersFileName = "invalid_IL_special_char.bal";
     private static final String invalidILEscapeCharactersFileName = "invalid_IL_escape_char.bal";
     private static final String invalidILUnicodeCharactersFileName = "invalid_IL_unicode_char.bal";
-    private static final String testProjectEntryPoint = "TestProject";
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws BallerinaTestException {

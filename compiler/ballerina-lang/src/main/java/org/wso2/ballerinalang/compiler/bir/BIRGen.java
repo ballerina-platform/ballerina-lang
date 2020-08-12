@@ -805,7 +805,7 @@ public class BIRGen extends BLangNodeVisitor {
 
 
     private boolean isWorkerSend(String chnlName, String workerName) {
-        return chnlName.startsWith(workerName) && chnlName.split(workerName)[1].startsWith("->");
+        return chnlName.split("->")[0].equals(workerName);
     }
 
     @Override

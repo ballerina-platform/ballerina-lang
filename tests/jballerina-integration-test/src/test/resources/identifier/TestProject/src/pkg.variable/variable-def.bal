@@ -14,26 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-string 'ƮέŞŢ_String_\u2324\ 1\!\$\.\[\;\:\< = "value";
-any 'ƮέŞŢ_Any_\u2324\ 1\!\$\.\[\;\:\< = 88343;
-Person 'ƮέŞŢ_Person_\u2324\ 1\!\$\.\[\;\:\< =
-{'1st_name: "Harry", '\\\|\ \!\#\$\.\[\;\/\{\"\:\<\>\u2324_last_name:"potter", 'Ȧɢέ: 25};
+string 'ƮέŞŢ_String_\ \/\:\@\[\`\{\~\u{2324} = "value";
+any 'ƮέŞŢ_Any_\ \/\:\@\[\`\{\~\u{2324} = 88343;
+Person 'ƮέŞŢ_Person_\ \/\:\@\[\`\{\~\u{2324} =
+{'1st_name: "Harry", '\ \/\:\@\[\`\{\~\u{2324}_last_name:"potter", 'Ȧɢέ: 25};
 
 
-public function 'get_String_\u2324\ 1\!\$\.\[\;\:\<_ƮέŞŢ() returns string {
-    return 'ƮέŞŢ_String_\u2324\ 1\!\$\.\[\;\:\<;
+public function 'get_String_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ() returns string {
+    return 'ƮέŞŢ_String_\ \/\:\@\[\`\{\~\u{2324};
 }
 
-public function 'get_Variable_\u2324\ 1\!\$\.\[\;\:\<_ƮέŞŢ() returns any {
-    return 'ƮέŞŢ_Any_\u2324\ 1\!\$\.\[\;\:\<;
+public function 'get_Variable_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ() returns any {
+    return 'ƮέŞŢ_Any_\ \/\:\@\[\`\{\~\u{2324};
 }
 
-public function 'get_Person_\u2324\ 1\!\$\.\[\;\:\<_ƮέŞŢ() returns Person {
-    return 'ƮέŞŢ_Person_\u2324\ 1\!\$\.\[\;\:\<;
+public function 'get_Person_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ() returns Person {
+    return 'ƮέŞŢ_Person_\ \/\:\@\[\`\{\~\u{2324};
 }
 
 public type Person record {
     string '1st_name;
-    string '\\\|\ \!\#\$\.\[\;\/\{\"\:\<\>\u2324_last_name;
+    string '\ \/\:\@\[\`\{\~\u{2324}_last_name;
     int 'Ȧɢέ;
 };

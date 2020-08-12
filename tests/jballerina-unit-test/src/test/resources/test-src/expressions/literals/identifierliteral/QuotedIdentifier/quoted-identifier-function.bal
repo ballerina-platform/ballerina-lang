@@ -14,32 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import pkg.variable;
-
 const ASSERTION_ERR_REASON = "AssertionError";
 
-function getVarsInOtherPkg() {
-    string stringVar =  variable: 'get_String_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ();
-    any anyVar = variable: 'get_Variable_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ();
-    assertEquality("value", stringVar);
-    assertEquality(<any>88343, anyVar);
+function '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_IL_function(string val) returns string {
+    string s = " with IL function name";
+    return val + s;
 }
 
-function accessStructInOtherPkg() {
-    string firstName = variable:'get_Person_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ().'1st_name ;
-    string lastName =
-    variable:'get_Person_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ().'\ \/\:\@\[\`\{\~\u{2324}_last_name;
-    int age = variable:'get_Person_\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ().'Ȧɢέ;
-    assertEquality("Harry", firstName);
-    assertEquality("potter", lastName);
-    assertEquality(25, age);
+function testFunctionNameWithIL() {
+     assertEquality("test with IL function name", '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_IL_function("test"));
+}
+
+function passILValuesToFunction() {
+    string '1st_Name = "Bill";
+    string '\ \/\:\@\[\`\{\~\u{2324}_last_name = "Kary";
+    int 'Ȧɢέ = 40;
+
+    string expected = "first name :Bill, last name :Kary, age :40";
+    assertEquality(expected,passILValuesAsParams('1st_Name, '\ \/\:\@\[\`\{\~\u{2324}_last_name, 'Ȧɢέ));
+}
+
+function passILValuesAsParams(string '1st_Arg, string '\ \/\:\@\[\`\{\~\u{2324}_arg2, int 'üňĩćőđę_arg3)
+returns string {
+    string result = "first name :" + '1st_Arg +
+    ", last name :" + '\ \/\:\@\[\`\{\~\u{2324}_arg2 +
+    ", age :" + 'üňĩćőđę_arg3.toString();
+    return result;
 }
 
 public function main() {
-    getVarsInOtherPkg();
-    accessStructInOtherPkg();
-    io:println("Values returned successfully");
+    testFunctionNameWithIL();
+    passILValuesToFunction();
 }
 
 function assertEquality(any|error expected, any|error actual) {
@@ -52,3 +57,4 @@ function assertEquality(any|error expected, any|error actual) {
     panic error(ASSERTION_ERR_REASON,
                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
+

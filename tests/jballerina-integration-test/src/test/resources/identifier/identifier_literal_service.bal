@@ -22,13 +22,13 @@ listener http:Listener testEP = new(9090);
     basePath:"/identifierLiteral"
 }
 
-service 'ʂαɱρʆę_Service_\u2324\ 1\!\$\[\; on testEP {
+service 'ʂαɱρʆę_Service_\ \/\:\@\[\`\{\~\u{2324} on testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/resource1"
     }
-    resource function 'ʂαɱρʆę_Resource1_\u2324\ 1\!\$\[\; (http:Caller caller, http:Request req) {
+    resource function 'ʂαɱρʆę_Resource1_\ \/\:\@\[\`\{\~\u{2324} (http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"key":"keyVal", "value":"valueOfTheString"};
         res.setJsonPayload(responseJson);
@@ -39,10 +39,10 @@ service 'ʂαɱρʆę_Service_\u2324\ 1\!\$\[\; on testEP {
             methods:["GET"],
             path:"/resource2"
         }
-        resource function 'ʂαɱρʆę_Resource2_\u2324\ 1\!\$\[\; (http:Caller caller, http:Request req) {
+        resource function 'ʂαɱρʆę_Resource2_\ \/\:\@\[\`\{\~\u{2324} (http:Caller caller, http:Request req) {
             http:Response res = new;
-            string 'ʂαɱρʆę_Var_\u2324\ 1\!\$\[\; = "hello";
-            res.setTextPayload('ʂαɱρʆę_Var_\u2324\ 1\!\$\[\;);
+            string 'ʂαɱρʆę_Var_\ \/\:\@\[\`\{\~\u{2324} = "hello";
+            res.setTextPayload('ʂαɱρʆę_Var_\ \/\:\@\[\`\{\~\u{2324});
             checkpanic caller->respond(res);
         }
 

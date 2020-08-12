@@ -46,6 +46,11 @@ public class IdentifierLiteralTest extends AbstractExpressionsTest {
     }
 
     @Test
+    public void testeUnicodeCodePointIdentifier() {
+        testFile("identifier-literal/unicode_codepoint_source.bal", "identifier-literal/unicode_codepoint_assert.json");
+    }
+
+    @Test
     public void testeInvalidCharacterIdentifier() {
         testFile("identifier-literal/invalid_identifier_source.bal",
                 "identifier-literal/invalid_identifier_assert.json");
