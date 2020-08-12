@@ -70,15 +70,15 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     private Map<ReferenceType, List<ReferenceType>> myNestedClassesCache = new HashMap<>();
 
     public final Throwable mySuspendLogger = new Throwable();
-    private final boolean myVersionHigher_15;
-    private final boolean myVersionHigher_14;
+    private final boolean myVersionHigher15;
+    private final boolean myVersionHigher14;
 
     public VirtualMachineProxyImpl(VirtualMachine virtualMachine) {
 
         myVirtualMachine = virtualMachine;
         // All versions of Dalvik/ART support at least the JDWP spec as of 1.6.
-        myVersionHigher_15 = versionHigher("1.5");
-        myVersionHigher_14 = myVersionHigher_15 || versionHigher("1.4");
+        myVersionHigher15 = versionHigher("1.5");
+        myVersionHigher14 = myVersionHigher15 || versionHigher("1.4");
         // avoid lazy-init for some properties: the following will pre-calculate values
         canRedefineClasses();
         canWatchFieldModification();
@@ -95,7 +95,8 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
                 // Example:
                 // java.lang.IllegalArgumentException: Invalid JNI signature character ';'
                 //  caused by some bytecode "optimizers" which break type signatures as a side effect.
-                //  solution if you are using JAX-WS: add -Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true to JVM args
+                //  solution if you are using JAX-WS: add -Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true to
+                //  JVM args
                 LOG.info(String.valueOf(e));
             }
         }
@@ -413,7 +414,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     private final Capability myUseInstanceFilters = new Capability() {
         @Override
         protected boolean calcValue() {
-            return myVersionHigher_14 && myVirtualMachine.canUseInstanceFilters();
+            return myVersionHigher14 && myVirtualMachine.canUseInstanceFilters();
         }
     };
 
@@ -424,7 +425,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     private final Capability myRedefineClasses = new Capability() {
         @Override
         protected boolean calcValue() {
-            return myVersionHigher_14 && myVirtualMachine.canRedefineClasses();
+            return myVersionHigher14 && myVirtualMachine.canRedefineClasses();
         }
     };
 
@@ -435,7 +436,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     private final Capability myAddMethod = new Capability() {
         @Override
         protected boolean calcValue() {
-            return myVersionHigher_14 && myVirtualMachine.canAddMethod();
+            return myVersionHigher14 && myVirtualMachine.canAddMethod();
         }
     };
 
@@ -446,7 +447,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     private final Capability myUnrestrictedlyRedefineClasses = new Capability() {
         @Override
         protected boolean calcValue() {
-            return myVersionHigher_14 && myVirtualMachine.canUnrestrictedlyRedefineClasses();
+            return myVersionHigher14 && myVirtualMachine.canUnrestrictedlyRedefineClasses();
         }
     };
 
@@ -457,7 +458,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     private final Capability myPopFrames = new Capability() {
         @Override
         protected boolean calcValue() {
-            return myVersionHigher_14 && myVirtualMachine.canPopFrames();
+            return myVersionHigher14 && myVirtualMachine.canPopFrames();
         }
     };
 
@@ -479,7 +480,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     private final Capability myCanGetInstanceInfo = new Capability() {
         @Override
         protected boolean calcValue() {
-            if (!myVersionHigher_15) {
+            if (!myVersionHigher15) {
                 return false;
             }
             try {
@@ -509,7 +510,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     private final Capability myGetSourceDebugExtension = new Capability() {
         @Override
         protected boolean calcValue() {
-            return myVersionHigher_14 && myVirtualMachine.canGetSourceDebugExtension();
+            return myVersionHigher14 && myVirtualMachine.canGetSourceDebugExtension();
         }
     };
 
@@ -520,7 +521,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     private final Capability myRequestVMDeathEvent = new Capability() {
         @Override
         protected boolean calcValue() {
-            return myVersionHigher_14 && myVirtualMachine.canRequestVMDeathEvent();
+            return myVersionHigher14 && myVirtualMachine.canRequestVMDeathEvent();
         }
     };
 
@@ -531,7 +532,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     private final Capability myGetMethodReturnValues = new Capability() {
         @Override
         protected boolean calcValue() {
-            if (myVersionHigher_15) {
+            if (myVersionHigher15) {
                 //return myVirtualMachine.canGetMethodReturnValues();
                 try {
                     final Method method = VirtualMachine.class.getDeclaredMethod("canGetMethodReturnValues");
@@ -549,7 +550,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     }
 
     public String getDefaultStratum() {
-        return myVersionHigher_14 ? myVirtualMachine.getDefaultStratum() : null;
+        return myVersionHigher14 ? myVirtualMachine.getDefaultStratum() : null;
     }
 
     public String description() {
@@ -611,7 +612,11 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         return null;
     }
 
+    @Override
     public boolean equals(Object obj) {
+        if (!(obj instanceof VirtualMachineProxyImpl)) {
+            return false;
+        }
         return myVirtualMachine.equals(((VirtualMachineProxyImpl) obj).getVirtualMachine());
     }
 
@@ -680,7 +685,8 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     }
 
     static final class JNITypeParserReflect {
-        static final Method typeNameToSignatureMethod;
+        static Method typeNameToSignatureMethod;
+
         static {
             Method method = null;
             try {

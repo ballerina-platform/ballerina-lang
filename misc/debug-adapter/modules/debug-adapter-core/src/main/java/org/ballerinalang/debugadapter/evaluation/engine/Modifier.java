@@ -22,6 +22,9 @@ import com.sun.jdi.Type;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 
+/**
+ * Value modifier implementation.
+ */
 public interface Modifier {
 
     boolean canInspect();
@@ -29,12 +32,12 @@ public interface Modifier {
     boolean canSetValue();
 
     /**
-     * sets the value to the expression
+     * sets the value to the expression.
      */
     void setValue(Value value) throws ClassNotLoadedException, InvalidTypeException, EvaluationException;
 
     /**
-     * @return the expected type of the expression or null is class was not loaded
+     * @return the expected type of the expression or null is class was not loaded.
      */
     Type getExpectedType() throws ClassNotLoadedException, EvaluationException;
 

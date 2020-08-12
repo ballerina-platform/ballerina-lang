@@ -56,7 +56,7 @@ public final class ThreadReferenceProxyImpl extends ObjectReferenceProxyImpl imp
 
     private ThreeState myResumeOnHotSwap = ThreeState.UNSURE;
 
-    public static final Comparator<ThreadReferenceProxyImpl> ourComparator = (th1, th2) -> {
+    public static final Comparator<ThreadReferenceProxyImpl> COMPARATOR = (th1, th2) -> {
         int res = Boolean.compare(th2.isSuspended(), th1.isSuspended());
         if (res == 0) {
             return th1.name().compareToIgnoreCase(th2.name());
@@ -175,7 +175,7 @@ public final class ThreadReferenceProxyImpl extends ObjectReferenceProxyImpl imp
                 } else {
                     // JDI bug: although isSuspended() == true, frameCount() may throw IncompatibleThreadStateException
                     // see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4783403
-                    // unfortunately, impossible to get this information at the moment, so assume the frame count is null
+                    // unfortunately, impossible to get this information at the moment, so assume frame count is null
                     myFrameCount = 0;
                 }
             } catch (InternalException e) {
@@ -196,7 +196,7 @@ public final class ThreadReferenceProxyImpl extends ObjectReferenceProxyImpl imp
     /**
      * Same as frames(), but always force full frames refresh if not cached,
      * this is useful when you need all frames but do not plan to invoke anything
-     * as only one request is sent
+     * as only one request is sent.
      */
     public List<StackFrameProxyImpl> forceFrames() throws JdiProxyException {
         final ThreadReference threadRef = getThreadReference();
@@ -341,5 +341,15 @@ public final class ThreadReferenceProxyImpl extends ObjectReferenceProxyImpl imp
             myResumeOnHotSwap = ThreeState.fromBoolean(name().startsWith("YJPAgent-"));
         }
         return myResumeOnHotSwap.toBoolean();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

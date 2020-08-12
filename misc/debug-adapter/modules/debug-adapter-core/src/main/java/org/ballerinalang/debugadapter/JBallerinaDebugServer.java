@@ -571,7 +571,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         Map<String, Value> childVariables = parentVar.getChildVariables();
         Long stackFrameId = variableToStackFrameMap.get(args.getVariablesReference());
         if (stackFrameId == null) {
-            return null;
+            return new Variable[0];
         }
         return childVariables.entrySet().stream().map(entry -> {
             Value value = entry.getValue();

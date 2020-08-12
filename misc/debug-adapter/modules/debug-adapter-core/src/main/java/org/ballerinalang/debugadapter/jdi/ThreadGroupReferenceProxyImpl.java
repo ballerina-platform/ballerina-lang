@@ -92,4 +92,14 @@ public class ThreadGroupReferenceProxyImpl extends ObjectReferenceProxyImpl impl
         // myParentThreadGroupProxy = null;
         super.clearCaches();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

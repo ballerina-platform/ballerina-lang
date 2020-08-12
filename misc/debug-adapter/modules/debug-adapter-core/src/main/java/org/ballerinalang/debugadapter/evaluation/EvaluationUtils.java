@@ -30,6 +30,9 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Debug expression evaluation utils.
+ */
 public class EvaluationUtils {
 
     private static final String JAVA_LANG_CLASS = "java.lang.Class";

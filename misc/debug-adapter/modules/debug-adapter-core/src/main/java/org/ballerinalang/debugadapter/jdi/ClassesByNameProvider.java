@@ -22,13 +22,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Implementation for name based class provider.
+ */
 public interface ClassesByNameProvider {
+
     List<ReferenceType> get(String s);
 
     static ClassesByNameProvider createCache(List<ReferenceType> allTypes) {
         return new Cache(allTypes);
     }
 
+    /**
+     * Caching implementation for name based class provider.
+     */
     final class Cache implements ClassesByNameProvider {
 
         private final ConcurrentHashMap<String, ReferenceType> myCache;

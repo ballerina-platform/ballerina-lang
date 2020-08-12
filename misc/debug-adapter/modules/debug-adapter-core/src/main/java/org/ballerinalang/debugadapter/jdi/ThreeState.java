@@ -17,6 +17,9 @@
 
 package org.ballerinalang.debugadapter.jdi;
 
+/**
+ * Validity states.
+ */
 public enum ThreeState {
     YES, NO, UNSURE;
 

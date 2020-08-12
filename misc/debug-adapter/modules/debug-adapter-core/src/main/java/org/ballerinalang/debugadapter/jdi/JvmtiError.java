@@ -17,7 +17,7 @@
 package org.ballerinalang.debugadapter.jdi;
 
 /**
- * (Copied from jvmti.h)
+ * (Copied from jvmti.h).
  */
 public class JvmtiError {
     private JvmtiError() {

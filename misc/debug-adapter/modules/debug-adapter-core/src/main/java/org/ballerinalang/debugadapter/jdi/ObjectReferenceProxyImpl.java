@@ -120,11 +120,14 @@ public class ObjectReferenceProxyImpl extends JdiProxy {
         return getObjectReference().entryCount();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof ObjectReferenceProxyImpl)) {
             return false;
         }
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         return myObjectReference.equals(((ObjectReferenceProxyImpl) o).myObjectReference);
     }
 

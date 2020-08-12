@@ -287,7 +287,9 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
             } catch (InternalException e) {
                 if (e.errorCode() == JvmtiError.INVALID_SLOT || e.errorCode() == JvmtiError.ABSENT_INFORMATION) {
                     throw new JdiProxyException("Debug info might be corrupt", e);
-                } else throw e;
+                } else {
+                    throw e;
+                }
             } catch (Exception e) {
                 if (!getVirtualMachine().canBeModified()) { // do not care in read only vms
                     LOG.debug(e.getMessage());
@@ -313,7 +315,9 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
                 if (e.errorCode() == JvmtiError.INVALID_SLOT || e.errorCode() == JvmtiError.ABSENT_INFORMATION) {
                     LOG.info(e.getMessage());
                     myAllValues = new HashMap<>();
-                } else throw e;
+                } else {
+                    throw e;
+                }
             } catch (Exception e) {
                 if (!getVirtualMachine().canBeModified()) { // do not care in read only vms
                     LOG.debug(e.getMessage());
@@ -357,7 +361,9 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
             return false;
         }
         StackFrameProxyImpl frameProxy = (StackFrameProxyImpl) obj;
-        if (frameProxy == this) return true;
+        if (frameProxy == this) {
+            return true;
+        }
 
         return (myFrameFromBottomIndex == frameProxy.myFrameFromBottomIndex) &&
                 (myThreadProxy.equals(frameProxy.myThreadProxy));
