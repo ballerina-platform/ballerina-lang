@@ -79,7 +79,7 @@ public class BallerinaTreeModifyUtil {
         put("SERVICE_START", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
                 "service $SERVICE on new http:Listener($PORT) {\n" +
                 "@http:ResourceConfig {\n\tmethods: [$METHODS],\npath: \"/$RES_PATH\"\n}\n" +
-                "    resource function $RESOURCE(http:Caller caller, http:Request req) returns error? {\n\n");
+                "    resource function $RESOURCE(http:Caller caller, http:Request req) returns @tainted error? {\n\n");
         put("SERVICE_END",
                 "    }\n" +
                         "}\n");
@@ -100,6 +100,7 @@ public class BallerinaTreeModifyUtil {
         put("RESPOND_WITH_CHECK", "check $CALLER->respond($EXPRESSION);\n");
         put("PROPERTY_STATEMENT", "$PROPERTY");
         put("RETURN_STATEMENT", "return $RETURN_EXPR;");
+        put("CHECKED_PAYLOAD_FUNCTION_INVOCATION", "$TYPE $VARIABLE = check $RESPONSE.$PAYLOAD()");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {
