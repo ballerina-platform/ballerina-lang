@@ -96,7 +96,7 @@ class FormatUtil {
 
                     String source = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
                     // Format and get the generated formatted source code content.
-                    String formattedSourceCode = Formatter.format(source, null);
+                    String formattedSourceCode = Formatter.format(source);
 
                     if (doChangesAvailable(source, formattedSourceCode)) {
                         if (!dryRun) {
@@ -224,7 +224,7 @@ class FormatUtil {
 
         // Format and get the formatted source.
         String formattedSource = Formatter.format(new String(Files.readAllBytes(Paths.get(fileName)),
-                StandardCharsets.UTF_8), null);
+                StandardCharsets.UTF_8));
 
         if (doChangesAvailable(formattedSource, formattedSource)) {
             if (!dryRun) {
