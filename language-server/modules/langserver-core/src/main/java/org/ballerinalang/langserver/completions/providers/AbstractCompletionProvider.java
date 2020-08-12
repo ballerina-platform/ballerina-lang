@@ -18,8 +18,10 @@
 package org.ballerinalang.langserver.completions.providers;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -43,6 +45,7 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -459,6 +462,16 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 return items;
         }
         return items;
+    }
+
+    protected boolean onQualifiedNameIdentifier(LSContext context, Node node) {
+        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            return false;
+        }
+        LinePosition colonPos = ((QualifiedNameReferenceNode) node).colon().lineRange().endLine();
+        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+
+        return colonPos.line() == cursor.getLine() && colonPos.offset() <= cursor.getCharacter();
     }
 
     private void addAllWSClientResources(LSContext ctx, List<LSCompletionItem> items, BLangService service) {
