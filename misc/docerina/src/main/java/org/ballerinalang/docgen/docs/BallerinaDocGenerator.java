@@ -180,7 +180,9 @@ public class BallerinaDocGenerator {
 
         // Generate project model
         Project project = getDocsGenModel(moduleDocList);
-        writeAPIDocs(project, output, excludeIndex);
+        if (!project.modules.isEmpty()) {
+            writeAPIDocs(project, output, excludeIndex);
+        }
     }
 
     public static void writeAPIDocs(Project project, String output, boolean excludeIndex) {
@@ -622,11 +624,13 @@ public class BallerinaDocGenerator {
 
             // populate module constructs
             sortModuleConstructs(moduleDoc.bLangPackage);
-            Generator.generateModuleConstructs(module, moduleDoc.bLangPackage);
+            boolean hasPublicConstructs = Generator.generateModuleConstructs(module, moduleDoc.bLangPackage);
 
             // collect module's doc resources
-            module.resources.addAll(moduleDoc.resources);
-            moduleDocs.add(module);
+            if (hasPublicConstructs) {
+                module.resources.addAll(moduleDoc.resources);
+                moduleDocs.add(module);
+            }
         }
         project.modules = moduleDocs;
         return project;

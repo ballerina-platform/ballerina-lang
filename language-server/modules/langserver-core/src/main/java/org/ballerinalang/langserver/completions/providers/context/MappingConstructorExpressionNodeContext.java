@@ -29,6 +29,7 @@ import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.completion.BLangRecordLiteralUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -102,9 +103,9 @@ public class MappingConstructorExpressionNodeContext extends
                         .findFirst();
             } else if (typeDesc.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) typeDesc;
-                String modulePrefix = nameRef.modulePrefix().text();
+                String modulePrefix = QNameReferenceUtil.getAlias(nameRef);
                 String recName = nameRef.identifier().text();
-                Optional<Scope.ScopeEntry> module = this.getPackageSymbolFromAlias(context, modulePrefix);
+                Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, modulePrefix);
                 return module.flatMap(value -> value.symbol.scope.entries.values().stream()
                         .filter(entry -> {
                             BSymbol symbol = entry.symbol;
@@ -204,7 +205,8 @@ public class MappingConstructorExpressionNodeContext extends
             annotationName = ((SimpleNameReferenceNode) annotRef).name().text();
         } else if (annotRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) annotRef;
-            Optional<Scope.ScopeEntry> module = this.getPackageSymbolFromAlias(context, qNameRef.modulePrefix().text());
+            Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context,
+                    QNameReferenceUtil.getAlias(qNameRef));
             if (!module.isPresent()) {
                 return Optional.empty();
             }

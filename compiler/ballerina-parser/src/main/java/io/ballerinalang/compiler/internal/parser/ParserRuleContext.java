@@ -78,6 +78,8 @@ public enum ParserRuleContext {
     OBJECT_FUNC_OR_FIELD("object-func-or-field"),
     OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY("object-func-or-field-without-visibility"),
     OBJECT_METHOD_START("object-method-start"),
+    OBJECT_METHOD_WITHOUT_REMOTE("object.method.without.remote"),
+    OBJECT_METHOD_WITHOUT_TRANSACTIONAL("object.method.without.transactional"),
     OBJECT_FIELD_RHS("object-field-rhs"),
     OBJECT_TYPE_QUALIFIER("object-type-qualifier"),
     OBJECT_TYPE_DESCRIPTOR_START("object-type-desc-start"),
@@ -99,6 +101,9 @@ public enum ParserRuleContext {
     OPTIONAL_SERVICE_NAME("service-rhs"),
     LISTENERS_LIST("listeners-list"),
     RESOURCE_DEF("resource-def"),
+    RESOURCE_DEF_QUALIFIERS("resource-def-qualifiers"),
+    RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL("resource-def-start-without-transactional"),
+    RESOURCE_DEF_START_WITHOUT_RESOURCE("resource-def-start-without-resource"),
     LISTENER_DECL("listener-decl"),
     CONSTANT_DECL("const-decl"),
     CONST_DECL_TYPE("const-decl-type"),
@@ -566,6 +571,7 @@ public enum ParserRuleContext {
     ENUM_MEMBER_RHS("enum-member-internal-rhs"),
     ENUM_MEMBER_START("enum-member-start"),
     TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER("tuple-type-desc-or-list-cont-member"),
+    TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC("top.level.func.def.or.func.type.desc"),
     ;
 
     private String value;

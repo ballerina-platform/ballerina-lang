@@ -6,19 +6,27 @@
   "source": "statement_context/source/async_send_action_ctx_source1.bal",
   "items": [
     {
-      "label": "fs2",
+      "label": "w1",
       "kind": "Variable",
-      "detail": "future<string>",
+      "detail": "future<()>",
       "sortText": "130",
-      "insertText": "fs2",
+      "insertText": "w1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fs",
+      "label": "w3",
       "kind": "Variable",
-      "detail": "future<string>",
+      "detail": "future<()>",
       "sortText": "130",
-      "insertText": "fs",
+      "insertText": "w3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "default",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "default",
       "insertTextFormat": "Snippet"
     }
   ]

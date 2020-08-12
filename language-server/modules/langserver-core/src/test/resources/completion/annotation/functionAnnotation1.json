@@ -56,7 +56,7 @@
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "110",
-      "insertText": "test:AfterSuite",
+      "insertText": "test:AfterSuite \n\t${1}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

@@ -48,7 +48,7 @@ function afterFunc () {
 
 # After Suite Function
 
-@test:AfterSuite
+@test:AfterSuite {}
 function afterSuiteFunc () {
     io:println("I'm the after suite function!");
 }

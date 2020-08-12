@@ -508,13 +508,13 @@ public type Request object {
             } else if (directive == ONLY_IF_CACHED) {
                 reqCC.onlyIfCached = true;
             } else if (directive.startsWith(MAX_AGE)) {
-                reqCC.maxAge = getExpirationDirectiveValue(directive);
+                reqCC.maxAge = getDirectiveValue(directive);
             } else if (directive == MAX_STALE) {
                 reqCC.maxStale = MAX_STALE_ANY_AGE;
             } else if (directive.startsWith(MAX_STALE)) {
-                reqCC.maxStale = getExpirationDirectiveValue(directive);
+                reqCC.maxStale = getDirectiveValue(directive);
             } else if (directive.startsWith(MIN_FRESH)) {
-                reqCC.minFresh = getExpirationDirectiveValue(directive);
+                reqCC.minFresh = getDirectiveValue(directive);
             }
             // non-standard directives are ignored
         }

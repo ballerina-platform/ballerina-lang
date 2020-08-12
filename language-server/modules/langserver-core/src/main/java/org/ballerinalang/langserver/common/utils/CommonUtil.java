@@ -553,6 +553,29 @@ public class CommonUtil {
         return split[split.length - 1];
     }
 
+    /**
+     * Get the module symbol associated with the given alias.
+     * 
+     * @param context Language server operation context
+     * @param alias alias value
+     * @return {@link Optional} scope entry for the module symbol
+     */
+    public static Optional<Scope.ScopeEntry> packageSymbolFromAlias(LSContext context, String alias) {
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        Optional<BLangImportPackage> pkgForAlias = context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
+                .filter(pkg -> pkg.alias.value.equals(alias))
+                .findAny();
+        if (alias.isEmpty() || !pkgForAlias.isPresent()) {
+            return Optional.empty();
+        }
+        return visibleSymbols.stream()
+                .filter(scopeEntry -> {
+                    BSymbol symbol = scopeEntry.symbol;
+                    return symbol == pkgForAlias.get().symbol;
+                })
+                .findAny();
+    }
+
     private static String getShallowBTypeName(BType bType, LSContext ctx) {
         if (bType.tsymbol == null) {
             return bType.toString();

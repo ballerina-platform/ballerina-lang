@@ -25,6 +25,7 @@ public class LSClientConfig {
     private final CodeLensConfig codeLens;
     private final boolean traceLog;
     private final GoToDefinitionConfig goToDefinition;
+    private final DataMapperConfig dataMapper;
 
     private LSClientConfig() {
         this.home = "";
@@ -39,6 +40,7 @@ public class LSClientConfig {
         this.debugLog = Boolean.parseBoolean(balDebugLog);
         this.traceLog = Boolean.parseBoolean(balTraceLog);
         this.codeLens = new CodeLensConfig();
+        this.dataMapper = new DataMapperConfig();
         this.goToDefinition = (balDefStdLibs != null) ? new GoToDefinitionConfig(Boolean.parseBoolean(balDefStdLibs)) :
                 new GoToDefinitionConfig(true);
     }
@@ -104,5 +106,14 @@ public class LSClientConfig {
      */
     public GoToDefinitionConfig getGoToDefinition() {
         return goToDefinition;
+    }
+
+    /**
+     * Returns Returns Data Mapper Code Action Configs.
+     *
+     * @return {@link DataMapperConfig}
+     */
+    public DataMapperConfig getDataMapper() {
+        return dataMapper;
     }
 }

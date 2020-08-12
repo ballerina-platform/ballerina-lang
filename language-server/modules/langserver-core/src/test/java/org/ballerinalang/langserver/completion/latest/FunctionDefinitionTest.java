@@ -19,9 +19,6 @@ package org.ballerinalang.langserver.completion.latest;
 
 import org.testng.annotations.DataProvider;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Function Definition Context tests.
  *
@@ -32,21 +29,6 @@ public class FunctionDefinitionTest extends CompletionTestNew {
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
-    }
-
-    @Override
-    public Object[][] testSubset() {
-         // Enable the following in order to test a subset of test cases
-//          return new Object[][] {
-//                  {"config1.json", this.getTestResourceDir()},
-//                  {"config2.json", this.getTestResourceDir()},
-//          };
-        return new Object[0][];
-    }
-
-    @Override
-    public List<String> skipList() {
-        return Arrays.asList("config2.json", "config8.json");
     }
 
     @Override

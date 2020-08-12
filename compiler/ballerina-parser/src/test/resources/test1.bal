@@ -1,5 +1,5 @@
-public function foo() {
+type foo object {
+     remote transactional function foo(){
 
-    foreach var [ fruits , , ...foobar] in test {
-    }
-}
+     }
+};
