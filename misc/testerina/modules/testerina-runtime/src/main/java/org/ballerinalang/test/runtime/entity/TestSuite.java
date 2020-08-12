@@ -227,6 +227,12 @@ public class TestSuite {
         return groups;
     }
 
+    /**
+     * Adds a provided @AfterGroups function to the test suite.
+     *
+     * @param afterGroupFunc name of the function
+     * @param groups groups to which the function belongs
+     */
     public void addAfterGroupFunction(String afterGroupFunc, List<String> groups) {
         for (String groupName : groups) {
             if (this.groups.get(groupName) == null) {
@@ -236,6 +242,12 @@ public class TestSuite {
         }
     }
 
+    /**
+     * Adds a provided @BeforeGroups function to the test suite.
+     *
+     * @param beforeGroupsFunc name of the function
+     * @param groups groups to which the function belongs
+     */
     public void addBeforeGroupsFunction(String beforeGroupsFunc, List<String> groups) {
         for (String groupName : groups) {
             if (this.groups.get(groupName) == null) {
@@ -245,6 +257,11 @@ public class TestSuite {
         }
     }
 
+    /**
+     * Adds a groups to the test suite using the provided Test object.
+     *
+     * @param test Test object to filter groups from
+     */
     public void addTestToGroups(Test test) {
         TestGroup testGroup;
         for (String groupName : test.getGroups()) {
