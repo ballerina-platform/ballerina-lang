@@ -105,9 +105,12 @@ public class VariableReturnType {
     public static Object getObjectValue(ObjectValue objectValue, BTypedesc td) {
         BType describingType = td.getDescribingType();
         if (describingType.getTag() == STRING_TAG) {
-            objectValue.set(new BmpStringValue("fname"), getValue(describingType));
+            BString newFname = objectValue.getStringValue(new BmpStringValue("fname"))
+                    .concat(new BmpStringValue(" ")).concat(objectValue.getStringValue(new BmpStringValue("lname")));
+            objectValue.set(new BmpStringValue("fname"), newFname);
+            return newFname;
         }
-        return objectValue.get(new BmpStringValue("fname"));
+        return getValue(td.getDescribingType());
     }
 
     public static MapValue query(BString query, BTypedesc typedesc) {
