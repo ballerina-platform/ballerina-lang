@@ -59,7 +59,7 @@ public abstract class FormatterTest {
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
         Assert.assertFalse(newSyntaxTree.hasDiagnostics());
-        Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+        Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath).replaceAll("\\r\\n", "\n"));
     }
 
     /**
