@@ -256,4 +256,14 @@ public class QueryExpressionWithVarTypeTest {
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
+
+    @Test(description = "Test variable shadowing with query expressions (with local variables)")
+    public void testVariableShadowingWithQueryExpressions2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testVariableShadowingWithQueryExpressions2");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
 }
