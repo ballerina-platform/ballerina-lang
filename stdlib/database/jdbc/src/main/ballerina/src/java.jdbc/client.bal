@@ -31,7 +31,7 @@ public type Client client object {
     # + options - The Database specific JDBC client properties
     # + connectionPool - The `sql:ConnectionPool` object to be used within the jdbc client.
     #                   If there is no connectionPool is provided, the global connection pool will be used and it will
-    #                   be shared by other clients which has same properties
+    #                   be shared by other clients which has same properties.
     public function init(public string url, public string? user = (), public string? password = (),
         public Options? options = (), public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
         ClientConfiguration clientConf = {
@@ -49,7 +49,7 @@ public type Client client object {
     # + sqlQuery - The query which needs to be executed as `string` or `ParameterizedQuery` when the SQL query has
     #              params to be passed in
     # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
-    #             column names of the query result set be used for the record attributes
+    #             column names of the query result set be used for the record attributes.
     # + return - Stream of records in the type of `rowType`
     public remote function query(@untainted string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowType = ())
     returns @tainted stream <record {}, sql:Error> {
@@ -79,7 +79,7 @@ public type Client client object {
     # and returns the summary of the execution.
     #
     # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedQuery` with an array
-    #                of values passed in.
+    #                of values passed in
     # + return - Summary of the executed SQL queries as `ExecutionResult[]` which includes details such as
     #            `affectedRowCount` and `lastInsertId`. If one of the commands in the batch fails, this function
     #            will return `BatchExecuteError`, however the JDBC driver may or may not continue to process the
@@ -98,10 +98,10 @@ public type Client client object {
 
     # Executes a SQL stored procedure and returns the result as stream and execution summary.
     #
-    # + sqlQuery - The query to executed the SQL stored procedure.
+    # + sqlQuery - The query to executed the SQL stored procedure
     # + rowTypes - The array of `typedesc` of the records that should be returned as a result. If this is not provided
     #               the default column names of the query result set be used for the record attributes.
-    # + return - Summary of the execution is returned in `ProcedureCallResult` or `sql:Error`.
+    # + return - Summary of the execution is returned in `ProcedureCallResult` or `sql:Error`
     public remote function call(@untainted string|sql:ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes = [])
     returns sql:ProcedureCallResult|sql:Error {
         if (self.clientActive) {
@@ -121,6 +121,7 @@ public type Client client object {
 };
 
 # Provides a set of configuration related to database.
+# 
 # + datasourceName - The driver class name to be used to get the connection
 # + properties - the properties of the database which should be applied when getting the connection
 public type Options record {|

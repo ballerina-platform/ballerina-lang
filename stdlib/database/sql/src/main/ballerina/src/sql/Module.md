@@ -354,7 +354,7 @@ if (ret is error) {
     io:println("Error occurred:", err.message());
 } else {
     io:println("Outparameter insert id: ", insertId.get(int));
-    stream<record{}, sql:Error>? resultStr = result.queryResult;
+    stream<record{}, sql:Error>? resultStr = ret.queryResult;
     if (!(resultStr is ())) {
         sql:Error? e = resultStr.forEach(function(record{} result) {
         io:println("Full Customer details: ", result);

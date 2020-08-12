@@ -42,7 +42,7 @@ public type Client abstract client object {
     # and returns the summary of the execution.
     #
     # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedQuery` with an array
-    #                of values passed in.
+    #                of values passed in
     # + return - Summary of the executed SQL queries as `ExecutionResult[]` which includes details such as
     #            `affectedRowCount` and `lastInsertId`. If one of the commands in the batch fails, this function
     #            will return `BatchExecuteError`, however the JDBC driver may or may not continue to process the
@@ -52,10 +52,10 @@ public type Client abstract client object {
 
     # Executes a SQL stored procedure and returns the result as stream and execution summary.
     #
-    # + sqlQuery - The query to executed the SQL stored procedure.
+    # + sqlQuery - The query to executed the SQL stored procedure
     # + rowTypes - The array of `typedesc` of the records that should be returned as a result. If this is not provided
     #               the default column names of the query result set be used for the record attributes.
-    # + return - Summary of the execution is returned in `ProcedureCallResult` or `sql:Error`.
+    # + return - Summary of the execution is returned in `ProcedureCallResult` or `sql:Error`
     public remote function call(@untainted string|ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes = [])
     returns ProcedureCallResult|Error;
 
