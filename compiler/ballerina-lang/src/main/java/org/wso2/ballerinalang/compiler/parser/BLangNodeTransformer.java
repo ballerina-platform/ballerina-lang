@@ -52,7 +52,6 @@ import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.FailExpressionNode;
@@ -79,7 +78,6 @@ import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
@@ -550,8 +548,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (versionNode != null) {
             if (versionNode.isMissing()) {
                 version = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
+            } else {
+                version = extractVersion(versionNode.versionNumber());
             }
-            version = extractVersion(versionNode.versionNumber());
         }
 
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
@@ -919,8 +918,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return createService(serviceDeclrNode, serviceDeclrNode.serviceName(), false);
     }
 
-    private BLangNode createService(Node serviceNode, IdentifierToken serviceNameNode,
-                                    boolean isAnonServiceValue) {
+    private BLangNode createService(Node serviceNode, IdentifierToken serviceNameNode, boolean isAnonServiceValue) {
         // Any Service can be represented in two major components.
         //  1) A anonymous type node (Object)
         //  2) Variable assignment with "serviceName".
@@ -3647,14 +3645,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return statements;
     }
 
-    private String extractVersion(NodeList<Node> versionNumbers) {
-        StringBuilder version = null;
-        for (Node versionNumber : versionNumbers) {
-            if (versionNumber.kind() == SyntaxKind.IMPORT_SUB_VERSION) {
-                version.append(".").append(((ImportSubVersionNode) versionNumber).versionNumber().text());
-                continue;
+    private String extractVersion(SeparatedNodeList<Token> versionNumbers) {
+        StringBuilder version = new StringBuilder();
+        int size = versionNumbers.size();
+        for (int i = 0; i < size; i++) {
+            if (i != 0) {
+                version.append(".");
             }
-            version = new StringBuilder(((Token) versionNumber).text());
+            version.append(versionNumbers.get(i).text());
         }
         return version.toString();
     }
@@ -3753,8 +3751,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             group.expression = (BLangExpression) actionOrExpression.apply(this);
             group.pos = getPosition(actionOrExpression);
             return group;
-        } else if (actionOrExpression.kind() == SyntaxKind.EXPRESSION_LIST_ITEM) {
-            return createExpression(((ExpressionListItemNode) actionOrExpression).expression());
         } else if (isType(actionOrExpression.kind())) {
             BLangTypedescExpr typeAccessExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
             typeAccessExpr.pos = getPosition(actionOrExpression);

@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-
-package io.ballerinalang.compiler.parser.test.syntax.expressions;
+package io.ballerinalang.compiler.parser.test.syntax.misc;
 
 import org.testng.annotations.Test;
 
@@ -25,36 +23,38 @@ import org.testng.annotations.Test;
  * Test parsing quoted identifier literals.
  *
  */
-public class IdentifierLiteralTest extends AbstractExpressionsTest {
+public class QuotedIdentifierTest extends AbstractMiscTest {
+
+    // Valid syntax
 
     @Test
     public void testAlphanumericIdentifier() {
-        testFile("identifier-literal/alphanumeric_identifier_source.bal",
-                "identifier-literal/alphanumeric_identifier_assert.json");
+        testFile("quoted-identifiers/alphanumeric_identifier_source.bal",
+                "quoted-identifiers/alphanumeric_identifier_assert.json");
     }
 
     @Test
     public void testeSpecialCharacterIdentifier() {
-        testFile("identifier-literal/special_char_identifier_source.bal",
-                "identifier-literal/special_char_identifier_assert.json");
+        testFile("quoted-identifiers/special_char_identifier_source.bal",
+                "quoted-identifiers/special_char_identifier_assert.json");
     }
 
     @Test
     public void testeUnicodeCharacterIdentifier() {
-        testFile("identifier-literal/unicode_char_identifier_source.bal",
-                "identifier-literal/unicode_char_identifier_assert.json");
+        testFile("quoted-identifiers/unicode_char_identifier_source.bal",
+                "quoted-identifiers/unicode_char_identifier_assert.json");
     }
 
     @Test
     public void testeUnicodeCodePointIdentifier() {
-        testFile("identifier-literal/unicode_codepoint_source.bal", "identifier-literal/unicode_codepoint_assert.json");
+        testFile("quoted-identifiers/unicode_codepoint_source.bal", "quoted-identifiers/unicode_codepoint_assert.json");
     }
+
+    // Invalid Syntax
 
     @Test
     public void testeInvalidCharacterIdentifier() {
-        testFile("identifier-literal/invalid_identifier_source.bal",
-                "identifier-literal/invalid_identifier_assert.json");
+        testFile("quoted-identifiers/invalid_identifier_source.bal",
+                "quoted-identifiers/invalid_identifier_assert.json");
     }
-
-
 }
