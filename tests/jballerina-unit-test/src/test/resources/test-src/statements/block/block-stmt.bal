@@ -1,137 +1,162 @@
-import ballerina/io;
-function testFailExp()  {
-
- //private test testFailExp() -> () {
- //       %0(RETURN) ();
- //       %0(RETURN) ();
- //       %1(LOCAL) error;
- //       %3(TEMP) string;
- //       %4(TEMP) error;
- //       %5(TEMP) ();
- //       %6(TEMP) map<anydata | readonly>;
- //       %7(TEMP) typeDesc<any | error>;
- //       %8(TEMP) map<anydata | readonly>;
- //       %9(TEMP) string;
- //       %10(TEMP) string;
- //       %11(TEMP) anydata;
- //       %12(TEMP) any | error{map<anydata | readonly>}[];
- //       %13(TEMP) int;
- //       %14(TEMP) any | error;
- //       %15(TEMP) any | error;
- //       %16(TEMP) string;
- //       %17(TEMP) ();
- //       %18(LOCAL) function() -> any | error{map<anydata | readonly>};
- //       %21(TEMP) any | error;
- //       %22(TEMP) ();
- //       %23(TEMP) any | error{map<anydata | readonly>}[];
- //       %24(TEMP) int;
- //       %25(TEMP) any | error;
- //       %26(TEMP) any | error;
- //       %27(TEMP) string;
- //       %28(TEMP) ();
- //       %29(TEMP) any | error[];
- //       %30(TEMP) int;
- //       %31(TEMP) any | error;
- //       %32(TEMP) any | error;
- //       %33(TEMP) string;
- //       %34(TEMP) ();
- //
- //       bb0 {
- //           GOTO bb1;
- //       }
- //       bb1 {
- //           %3 = ConstLoad custom error;
- //           %5 = ConstLoad 0;
- //           %4 = <error{map<anydata | readonly>}> %5;
- //   ;
- //           %9 = ConstLoad message;
- //           %10 = ConstLoad error value;
- //           %8 = NewMap %7;
- //           %11 = cloneReadOnly(%8) -> bb2;
- //       }
- //       bb2 {
- //           %6 = <map<anydata | readonly>> %11;
- //           %1 = error error(%3, %4, %6);
- //           %13 = ConstLoad -1;
- //           %16 = ConstLoad Before fail;
- //           %15 = <any | error{map<anydata | readonly>}> %16;
- //           %14 = <any | error> %15;
- //           %12 = newArray any | error[][%13];
- //           %17 = println(%12) -> bb3;
- //       }
- //       bb3 {
- //           GOTO bb4;
- //       }
- //       bb4 {
- //           %18 = fp $anon/.:0.0.0::$onFailFunc$0;
- //           %21 = FPCall %18() -> bb5;
- //       }
- //       bb5 {
- //           %22 = ConstLoad 0;
- //           GOTO bb8;
- //       }
- //       bb6 {
- //           %24 = ConstLoad -1;
- //           %27 = ConstLoad After fail;
- //           %26 = <any | error> %27;
- //           %25 = <any | error> %26;
- //           %23 = newArray any | error[][%24];
- //           %28 = println(%23) -> bb7;
- //       }
- //       bb7 {
- //           GOTO bb8;
- //       }
- //       bb8 {
- //           %30 = ConstLoad -1;
- //           %33 = ConstLoad After do !!!;
- //           %32 = <any | error> %33;
- //           %31 = <any | error> %32;
- //           %29 = newArray any | error[][%30];
- //           %34 = println(%29) -> bb9;
- //       }
- //       bb9 {
- //           %0 = ConstLoad 0;
- //           GOTO bb11;
- //       }
- //       bb10 {
- //           GOTO bb11;
- //       }
- //       bb11 {
- //           return;
- //       }
- //   }
-
-   do {
-        error err = error("custom error", message = "error value");
-        io:println("Before fail");
-        fail err;
-        io:println("After fail");
-   }
-   on fail error e {
-      io:println("whoops!!!!");
-   }
-   io:println("After do !!!");
-
-}
-
-
-function testCheckExp() returns error? {
-   do {
-        error err = error("custom error", message = "error value");
-        io:println("Before fail");
-        int res = check foo(true);
-        io:println("After fail");
-   }
-   on fail error e {
-      io:println("whoops!!!!");
-   }
-   io:println("After do !!!");
-}
-
-function foo(boolean er) returns int|error {
-    if(er) {
-        error err = error("custom error");
-        return err;
+function testReturnStmtLocation1() {
+    int a = 2;
+    if (a > 0) {
+        string s1 = "hello if";
+    } else {
+        string s2 = "hello else";
     }
-    return 1;
+    return;
+}
+
+function testReturnStmtLocation2() returns (int) {
+    int a = 2;
+    if (a > 0) {
+        string s1 = "hello if";
+    } else {
+        string s2 = "hello else";
+    }
+    return a;
+}
+
+function testReturnStmtLocation3() {
+    int a = 2;
+    if (a > 0) {
+        string s1 = "hello if";
+        return;
+    } else {
+        string s2 = "hello else";
+    }
+}
+
+function testReturnStmtLocation4() {
+    int a = 2;
+    while(a < 4) {
+        a = a + 1;
+        if (a == 3) {
+            return;
+        }
+    }
+}
+
+function testCommentAfterReturnStmt() returns (int) {
+    int a = 2;
+    if (a > 0) {
+        string s1 = "hello if";
+        return 1;
+        //comment after return stmt
+    } else {
+        string s2 = "hello else";
+    }
+    return a;
+    //comment after return stmt
+}
+
+function testVariableShadowingBasic() returns int{
+    int a = 5;
+    int b = 4;
+
+    if (a > 3) {
+        b = a + b;
+    }
+    return b;
+}
+
+
+function testVariableShadowingInCurrentScope1(int a) returns int{
+    int b = 4;
+
+    if (a > 3) {
+        b = a + b;
+    }
+    return b;
+}
+
+function testVariableShadowingInCurrentScope2(int a) returns function (float) returns (string){
+    int b = 4;
+
+    if (a < 10) {
+        b = a + b;
+    }
+
+    var foo = function (float f) returns (string) {
+        if (a > 8) {
+            b = a + <int>f + b;
+        }
+        return "K" + b.toString();
+    };
+    return foo;
+}
+
+function test1() returns int {
+    int a = testVariableShadowingBasic();
+    return a;
+}
+
+function test2() returns int {
+    int a = testVariableShadowingInCurrentScope1(4);
+    return a;
+}
+
+function test3() returns string {
+    var foo = testVariableShadowingInCurrentScope2(9);
+    string a = foo(3.4);
+    return a;
+}
+
+function returnStmtLocation1InBlock() returns int {
+    int a = 2;
+    {
+        a = 10;
+    }
+    return a;
+}
+
+function returnStmtLocation2InBlock() returns int {
+    int a = 2;
+    {
+        a = 10;
+        return a;
+    }
+}
+
+int a = 10;
+function testScopeOfBlock() {
+    {
+        int a = 5;
+    }
+    assertEquality(10, a);
+}
+
+function testStmtInBlock() {
+    int a = 2;
+    int b = 5;
+    {
+        while (a < 4) {
+            a = a + 1;
+            if (a == 3) {
+                b = 8;
+            }
+        }
+    }
+    assertEquality(8, b);
+}
+
+function testReturnStmtLocationInBlock() {
+    assertEquality(10, returnStmtLocation1InBlock());
+    assertEquality(10, returnStmtLocation2InBlock());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if (expected is anydata && actual is anydata && expected == actual) {
+        return;
+    }
+
+    if (expected === actual) {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

@@ -140,6 +140,7 @@
             <class name="org.ballerinalang.test.statements.transaction.RetryTransactionStmtTest" />
             <class name="org.ballerinalang.test.statements.transaction.NestedTransactionTest" />
             <class name="org.ballerinalang.test.statements.transaction.NestedRetryTransactionStmtsTest" />
+            <class name="org.ballerinalang.test.statements.dostatement.DoStmtsTest" />
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
             <!--<methods>-->
