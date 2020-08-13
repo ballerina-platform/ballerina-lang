@@ -725,10 +725,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(matchGuardNode);
     }
 
-    public T transform(STObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        return transformSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public T transform(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         return transformSyntaxNode(distinctTypeDescriptorNode);
     }
@@ -787,6 +783,14 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STDocumentationReferenceNode documentationReferenceNode) {
         return transformSyntaxNode(documentationReferenceNode);
+    }
+
+    public T transform(STOrderByClauseNode orderByClauseNode) {
+        return transformSyntaxNode(orderByClauseNode);
+    }
+
+    public T transform(STOrderKeyNode orderKeyNode) {
+        return transformSyntaxNode(orderKeyNode);
     }
 
     // Tokens

@@ -252,6 +252,23 @@ function getResourceAuthConfig(FilterContext context) returns ResourceAuth? {
     }
 }
 
+# Checks whether the `http:ResourceConfig` has `http:WebSocketUpgradeConfig` or not.
+#
+# + context - The `FilterContext` instance
+# + return - Whether the `http:ResourceConfig` has `http:WebSocketUpgradeConfig` or not
+function isWebSocketUpgradeRequest(FilterContext context) returns boolean {
+    any annData = reflect:getResourceAnnotations(context.getService(), context.getResourceName(), RESOURCE_ANN_NAME,
+                                                 ANN_MODULE);
+    if (annData is ()) {
+        return false;
+    }
+    HttpResourceConfig resourceConfig = <HttpResourceConfig> annData;
+    if (resourceConfig?.webSocketUpgrade is WebSocketUpgradeConfig) {
+        return true;
+    }
+    return false;
+}
+
 # Checks whether the service is secured by evaluating the enabled flag configured by the user.
 #
 # + serviceAuth - Service auth annotation

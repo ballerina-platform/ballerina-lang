@@ -33,7 +33,6 @@ import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
-import org.ballerinalang.toml.model.Manifest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
@@ -41,7 +40,6 @@ import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -56,9 +54,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.debugadapter.JBallerinaDebugServer.MODULE_VERSION_REGEX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.getSourceNames;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getRelativeSourcePath;
 
 /**
  * Listens and publishes events through JDI.
@@ -103,13 +100,8 @@ public class EventBus {
             return;
         }
         context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
-        breakpointsList.forEach((filePath, breakpoints) -> {
-            Arrays.stream(breakpoints).forEach(breakpoint -> {
-                this.context.getDebuggee().allClasses().forEach(referenceType -> {
-                    this.addBreakpoint(referenceType, breakpoint);
-                });
-            });
-        });
+        breakpointsList.forEach((filePath, breakpoints) -> Arrays.stream(breakpoints).forEach(breakpoint ->
+                context.getDebuggee().allClasses().forEach(referenceType -> addBreakpoint(referenceType, breakpoint))));
     }
 
     public Map<Long, ThreadReference> getThreadsMap() {
@@ -274,44 +266,6 @@ public class EventBus {
             LOGGER.error(e.getMessage());
             createStepRequest(threadId, StepRequest.STEP_OVER);
         }
-    }
-
-    /**
-     * Extracts relative path of the source file location from JDI class-reference mappings.
-     */
-    private static String getRelativeSourcePath(ReferenceType refType, Breakpoint bp)
-            throws AbsentInformationException {
-
-        List<String> sourcePaths = refType.sourcePaths("");
-        List<String> sourceNames = refType.sourceNames("");
-        if (sourcePaths.isEmpty() || sourceNames.isEmpty()) {
-            return "";
-        }
-        String sourcePath = sourcePaths.get(0);
-        String sourceName = sourceNames.get(0);
-
-        // Some additional processing is required here to rectify the source path, as the source name will be the
-        // relative path instead of the file name, for the ballerina module sources.
-        //
-        // Note: Directly using file separator as a regex will fail on windows.
-        String fileSeparatorRegex = File.separatorChar == '\\' ? "\\\\" : File.separator;
-        String[] srcNames = getSourceNames(sourceName);
-        String fileName = srcNames[srcNames.length - 1];
-        String relativePath = sourcePath.replace(sourceName, fileName);
-
-        // Replaces org name with the ballerina src directory name, as the JDI path is prepended with the org name
-        // for the bal files inside ballerina modules.
-        Path projectRoot = findProjectRoot(Paths.get(bp.getSource().getPath()));
-        if (projectRoot != null) {
-            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-            String orgName = manifest.getProject().getOrgName();
-            if (!orgName.isEmpty() && relativePath.startsWith(orgName)) {
-                relativePath = relativePath.replaceFirst(orgName, "src");
-            }
-        }
-        // Removes module version part from the JDI reference source path.
-        relativePath = relativePath.replaceFirst(fileSeparatorRegex + MODULE_VERSION_REGEX, "");
-        return relativePath;
     }
 
     /**

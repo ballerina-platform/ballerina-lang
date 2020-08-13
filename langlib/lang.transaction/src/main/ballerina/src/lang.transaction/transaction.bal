@@ -61,7 +61,14 @@ public transactional function onRollback(RollbackHandler handler) = external;
 
 public transactional function info() returns Info = external;
 
-public transactional function setRollbackOnly(error? e) = external;
+public transactional function setRollbackOnly(error? e) {
+    if(e is error) {
+      TransactionError trxError = prepareError(e.message(), e);
+      wrapRollbackError(trxError);
+    }
+}
+
+function wrapRollbackError(Error? e) = external;
 
 public transactional function getRollbackOnly() returns boolean = external;
 

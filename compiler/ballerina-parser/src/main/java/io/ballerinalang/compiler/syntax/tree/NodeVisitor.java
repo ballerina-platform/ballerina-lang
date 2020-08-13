@@ -735,10 +735,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(matchGuardNode);
     }
 
-    public void visit(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        visitSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public void visit(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         visitSyntaxNode(distinctTypeDescriptorNode);
     }
@@ -797,6 +793,14 @@ public abstract class NodeVisitor {
 
     public void visit(DocumentationReferenceNode documentationReferenceNode) {
         visitSyntaxNode(documentationReferenceNode);
+    }
+
+    public void visit(OrderByClauseNode orderByClauseNode) {
+        visitSyntaxNode(orderByClauseNode);
+    }
+
+    public void visit(OrderKeyNode orderKeyNode) {
+        visitSyntaxNode(orderKeyNode);
     }
 
     // Tokens

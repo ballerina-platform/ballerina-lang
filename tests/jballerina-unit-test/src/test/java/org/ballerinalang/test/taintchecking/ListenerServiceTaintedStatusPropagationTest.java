@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 @Test
 public class ListenerServiceTaintedStatusPropagationTest {
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testUntaintedListernBasedService() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/listener-taintedness-propagation-untainted-listener.bal");

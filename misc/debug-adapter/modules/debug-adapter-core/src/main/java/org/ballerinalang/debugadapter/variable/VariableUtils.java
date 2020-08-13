@@ -20,6 +20,7 @@ import com.sun.jdi.Field;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,12 +93,12 @@ public class VariableUtils {
      * @param jvmObject ballerina jvm variable instance.
      * @return result of the method invocation as a string.
      */
-    public static String getStringValue(VariableContext context, Value jvmObject) {
+    public static String getStringValue(SuspendedContext context, Value jvmObject) {
         try {
             Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STRINGVALUE);
             if (method.isPresent()) {
-                Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread(),
-                        method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
+                        .getThreadReference(), method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
                 return VariableUtils.getStringFrom(stringValue);
             }
             return UNKNOWN_VALUE;

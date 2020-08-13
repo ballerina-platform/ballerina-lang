@@ -32,46 +32,57 @@ public type WritableCharacterChannel object {
         initWritableCharacterChannel(self, bChannel, charset);
     }
 
-# Writes a given sequence of characters (string).
-# ```ballerina
-# int|io:Error result = writableCharChannel.write("Content", 0);
-# ```
-#
-# + content - Content, which should be written
-# + startOffset - Number of characters, which should be offset when writing the content
-# + return - Content length that written or else `io:Error`
+    # Writes a given sequence of characters (string).
+    # ```ballerina
+    # int|io:Error result = writableCharChannel.write("Content", 0);
+    # ```
+    #
+    # + content - Content, which should be written
+    # + startOffset - Number of characters, which should be offset when writing the content
+    # + return - Content length that written or else `io:Error`
     public function write(string content, int startOffset) returns int|Error {
         return writeExtern(self, content, startOffset);
     }
 
-# Writes a given JSON to the given channel.
-# ```ballerina
-# io:Error? err = writableCharChannel.writeJson(inputJson, 0);
-# ```
-#
-# + content - The JSON, which should be written
-# + return - If an `io:Error` occurred while writing
+    # Writes a given JSON to the given channel.
+    # ```ballerina
+    # io:Error? err = writableCharChannel.writeJson(inputJson, 0);
+    # ```
+    #
+    # + content - The JSON, which should be written
+    # + return - If an `io:Error` occurred while writing
     public function writeJson(json content) returns Error? {
         return writeJsonExtern(self, content);
     }
 
-# Writes a given XML to the channel.
-# ```ballerina
-# io:Error? err = writableCharChannel.writeXml(inputXml, 0);
-# ```
-# 
-# + content - The XML, which should be written
-# + return - `()` or else `io:Error` if any error occurred
+    # Writes a given XML to the channel.
+    # ```ballerina
+    # io:Error? err = writableCharChannel.writeXml(inputXml, 0);
+    # ```
+    #
+    # + content - The XML, which should be written
+    # + return - `()` or else `io:Error` if any error occurred
     public function writeXml(xml content) returns Error? {
         return writeXmlExtern(self, content);
     }
 
-# Closes a given `WritableCharacterChannel` channel.
-# ```ballerina
-# io:Error err = writableCharChannel.close();
-# ```
-#
-# + return - `()` or else an `io:Error` if any error occurred
+    # Writes a given key-valued pair `map<string>` to a property file.
+    # ```ballerina
+    # io:Error? err = writableCharChannel.writeProperties(properties);
+    # ```
+    # + properties - The map<string> that contains keys and values.
+    # + comment - Comment describing the property list
+    # + return - `()` or else `io:Error` if any error occurred
+    public function writeProperties(map<string> properties, string comment) returns Error? {
+        return writePropertiesExtern(self, properties, comment);
+    }
+
+    # Closes a given `WritableCharacterChannel` channel.
+    # ```ballerina
+    # io:Error err = writableCharChannel.close();
+    # ```
+    #
+    # + return - `()` or else an `io:Error` if any error occurred
     public function close() returns Error? {
         return closeWritableCharacterChannel(self);
     }
@@ -96,6 +107,12 @@ function writeJsonExtern(WritableCharacterChannel characterChannel, json content
 
 function writeXmlExtern(WritableCharacterChannel characterChannel, xml content) returns Error? = @java:Method {
     name: "writeXml",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
+} external;
+
+function writePropertiesExtern(WritableCharacterChannel characterChannel, map<string> properties,
+                                string comment) returns Error? = @java:Method {
+    name: "writeProperties",
     class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;
 

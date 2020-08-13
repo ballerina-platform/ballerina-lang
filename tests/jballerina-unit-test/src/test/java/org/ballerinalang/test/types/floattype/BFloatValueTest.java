@@ -162,11 +162,10 @@ public class BFloatValueTest {
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 2200.0, "Invalid float value returned.");
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testIntegerValue() {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
-        String expectedError = "extraneous input '10.1'";
-        BAssertUtil.validateError(negativeResult, 0, expectedError, 3, 10);
+        BAssertUtil.validateError(negativeResult, 0, "leading zeros in numeric literals", 3, 9);
     }
 
     @Test(description = "Test float literal discrimination error")

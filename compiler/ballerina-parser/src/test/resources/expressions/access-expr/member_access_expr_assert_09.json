@@ -73,7 +73,12 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "COMMA_TOKEN"
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
+                          {
+                            "kind": "COMMA_TOKEN"
+                          }
+                        ]
                       }
                     }
                   ]

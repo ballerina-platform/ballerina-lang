@@ -212,12 +212,11 @@ public class XMLAccessTest {
                 "<object xmlns=\"http://www.force.com/2009/06/asyncapi/dataload\">Account</object>");
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testInvalidXMLAccessWithIndex() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 5, 5);
-        BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 13, 5);
-        BAssertUtil.validateError(negativeResult, i++, "invalid assignment in variable 'x1/*'", 13, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 13, 10);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 15);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 19, 15);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 20, 15);

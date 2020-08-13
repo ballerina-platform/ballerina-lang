@@ -1,0 +1,1 @@
+function foo(int?... nums) { }

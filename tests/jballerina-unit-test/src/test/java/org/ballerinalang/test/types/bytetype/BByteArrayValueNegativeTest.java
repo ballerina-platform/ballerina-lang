@@ -26,33 +26,46 @@ import org.testng.annotations.Test;
 /**
  * This test class will test the byte array value negative test cases.
  */
-@Test(groups = { "brokenOnNewParser" })
+@Test(groups = { "disableOnOldParser" })
 public class BByteArrayValueNegativeTest {
 
     //TODO Transaction -- need to fix the error message due to new keywords introduced with predicates for transaction.
     @Test(description = "Test blob value negative")
     public void testBlobValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-array-value-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 21);
-
+        Assert.assertEquals(result.getErrorCount(), 32);
         int index = 0;
-        String msg1 = "expecting {'is', 'equals', ';', '.', '[', '?', '?.', '+', '-', '*', '/', '%', '==', '!=', '>'," +
-                " '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|', '?:', '->>', '..<', '.@'}";
-        
-        BAssertUtil.validateError(result, index++, "mismatched input '6'. " + msg1, 2, 22);
-        BAssertUtil.validateError(result, index++, "mismatched input '16'. " + msg1, 3, 21);
-        BAssertUtil.validateError(result, index++, "mismatched input '`'. " + msg1, 4, 23);
-        BAssertUtil.validateError(result, index++, "mismatched input '`'. " + msg1, 5, 23);
-        BAssertUtil.validateError(result, index++, "mismatched input '`'. " + msg1, 6, 23);
-        BAssertUtil.validateError(result, index++, "mismatched input '`'. expecting {'service', 'function'," +
-                " 'object', 'record', 'abstract', 'client', 'typeof', 'distinct', 'int', 'byte', 'float', 'decimal', " +
-                "'boolean', 'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', 'typedesc', " +
-                "'future', 'anydata', 'handle', 'readonly', 'never', 'new', 'init', 'foreach', 'continue', " +
-                "'trap', COMMIT, 'transactional', 'start', 'check', 'checkpanic', 'fail', 'flush', 'wait', 'from', " +
-                "'let', '{', '(', '[', '+', '-', '!', '<', '~', '<-', '@', DecimalIntegerLiteral, HexIntegerLiteral," +
-                " HexadecimalFloatingPointLiteral, DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral," +
-                " Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier, XMLLiteralStart, " +
-                "StringTemplateLiteralStart}", 6, 59);
-        BAssertUtil.validateError(result, index, "mismatched input '`'. " + msg1, 7, 23);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 2, 16);
+        BAssertUtil.validateError(result, index++, "undefined symbol 'base1'", 2, 16);
+        BAssertUtil.validateError(result, index++, "missing plus token", 2, 22);
+        BAssertUtil.validateError(result, index++, "missing plus token", 2, 24);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 3, 16);
+        BAssertUtil.validateError(result, index++, "undefined symbol 'base'", 3, 16);
+        BAssertUtil.validateError(result, index++, "missing plus token", 3, 21);
+        BAssertUtil.validateError(result, index++, "missing plus token", 3, 24);
+        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 4, 23);
+        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 5, 23);
+        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 6, 23);
+        BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 7, 23);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 8, 16);
+        BAssertUtil.validateError(result, index++, "missing byte array content", 8, 16);
+        BAssertUtil.validateError(result, index++, "operator '+' not defined for 'byte[]' and 'string'", 8, 16);
+        BAssertUtil.validateError(result, index++, "missing plus token", 8, 23);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 12, 16);
+        BAssertUtil.validateError(result, index++, "undefined symbol 'base6'", 12, 16);
+        BAssertUtil.validateError(result, index++, "missing plus token", 12, 22);
+        BAssertUtil.validateError(result, index++, "missing plus token", 12, 24);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 13, 16);
+        BAssertUtil.validateError(result, index++, "undefined symbol 'base'", 13, 16);
+        BAssertUtil.validateError(result, index++, "missing plus token", 13, 21);
+        BAssertUtil.validateError(result, index++, "missing plus token", 13, 24);
+        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 14, 23);
+        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 15, 23);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 16, 16);
+        BAssertUtil.validateError(result, index++, "missing byte array content", 16, 16);
+        BAssertUtil.validateError(result, index++, "operator '+' not defined for 'byte[]' and 'string'", 16, 16);
+        BAssertUtil.validateError(result, index++, "missing plus token", 16, 23);
+        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 17, 23);
+        BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 18, 23);
     }
 }

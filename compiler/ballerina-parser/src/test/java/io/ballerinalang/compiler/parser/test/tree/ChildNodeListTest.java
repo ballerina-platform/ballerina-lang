@@ -43,7 +43,7 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
         int actualChildCount = firstFunctionNode.children().size();
-        Assert.assertEquals(actualChildCount, 6);
+        Assert.assertEquals(actualChildCount, 5);
         // Check signature child count
         FunctionSignatureNode signature = firstFunctionNode.functionSignature();
         int actualSignatureChildCount = signature.children().size();
@@ -52,7 +52,7 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
         // The 'public' keyword and the return type desc is missing in the second function
         FunctionDefinitionNode secondFunctionNode = (FunctionDefinitionNode) modulePartNode.members().get(1);
         actualChildCount = secondFunctionNode.children().size();
-        Assert.assertEquals(actualChildCount, 5);
+        Assert.assertEquals(actualChildCount, 4);
         // Check signature child count
         signature = secondFunctionNode.functionSignature();
         actualSignatureChildCount = signature.children().size();
@@ -62,7 +62,7 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testIterator() {
         List<SyntaxKind> expectedKinds = new ArrayList<>();
-        Collections.addAll(expectedKinds, SyntaxKind.METADATA, SyntaxKind.PUBLIC_KEYWORD,
+        Collections.addAll(expectedKinds, SyntaxKind.PUBLIC_KEYWORD,
                 SyntaxKind.FUNCTION_KEYWORD, SyntaxKind.IDENTIFIER_TOKEN, SyntaxKind.FUNCTION_SIGNATURE,
                 SyntaxKind.FUNCTION_BODY_BLOCK);
 

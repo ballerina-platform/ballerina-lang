@@ -151,6 +151,7 @@ public class JvmConstants {
     public static final String COLLECTION = "java/util/Collection";
     public static final String BIG_DECIMAL = "java/math/BigDecimal";
     public static final String NUMBER = "java/lang/Number";
+    public static final String HASH_MAP = "java/util/HashMap";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
@@ -204,6 +205,22 @@ public class JvmConstants {
     public static final String MODULE_STARTED = "$moduleStarted";
     public static final String START_FUNCTION_SUFFIX = "<start>";
     public static final String STOP_FUNCTION_SUFFIX = "<stop>";
+    public static final String DESUGARED_BB_ID_NAME = "desugaredBB";
+    public static final String WRAPPER_GEN_BB_ID_NAME = "wrapperGen";
+    public static final String JVM_INIT_METHOD = "<init>";
+    public static final String JVM_TO_STRING_METHOD = "toString";
+    public static final String JVM_TO_UNSIGNED_INT_METHOD = "toUnsignedInt";
+    public static final String GET_VALUE_METHOD = "getValue";
+    public static final String ANY_TO_BYTE_METHOD = "anyToByte";
+    public static final String ANY_TO_INT_METHOD = "anyToInt";
+    public static final String DECIMAL_VALUE_OF_J_METHOD = "valueOfJ";
+    public static final String VALUE_OF_METHOD = "valueOf";
+    public static final String POPULATE_INITIAL_VALUES_METHOD = "populateInitialValues";
+    public static final String CREATE_TYPES_METHOD = "$createTypes";
+    public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
+    public static final String GLOBAL_LOCK_NAME = "lock";
+    public static final String SERVICE_EP_AVAILABLE = "serviceEPAvailable";
+    public static final String LOCK_STORE_VAR_NAME = "LOCK_STORE";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
@@ -248,5 +265,4 @@ public class JvmConstants {
     public static final String METHOD_TOO_LARGE = "MethodTooLarge";
     public static final String CLASS_TOO_LARGE = "ClassTooLarge";
 
-    public static final String GLOBAL_LOCK_NAME = "lock";
 }

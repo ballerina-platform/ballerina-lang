@@ -18,7 +18,7 @@
 #
 # + errorCode - SQL error code
 # + sqlState - SQL state
-# + executionResults - Result of execution of commands.
+# + executionResults - Result of execution of commands
 public type BatchExecuteErrorDetail record {|
     int errorCode;
     string sqlState;

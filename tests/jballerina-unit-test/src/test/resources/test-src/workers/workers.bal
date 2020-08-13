@@ -543,6 +543,7 @@ function waitFor() {
 }
 
 function add2(int i, int j) returns int {
+   runtime:sleep(1000);
    int l = 0;
    while (l < 99999) {
      l = singleAdd(l);

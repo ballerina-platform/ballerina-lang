@@ -27,6 +27,7 @@ import java.util.List;
 public class Platform {
     public String target;
     public List<Library> libraries;
+    public List<Repository> repositories;
 
     public String getTarget() {
         return target;
@@ -42,5 +43,9 @@ public class Platform {
 
     public void setLibraries(List<Library> libraries) {
         this.libraries = libraries;
+    }
+
+    public List<Repository> getRepositories() {
+        return repositories;
     }
 }

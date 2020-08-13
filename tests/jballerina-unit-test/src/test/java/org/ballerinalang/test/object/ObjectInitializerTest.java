@@ -75,7 +75,7 @@ public class ObjectInitializerTest {
 
     }
 
-    @Test(description = "Test negative object initializers scenarios", groups = { "brokenOnNewParser" })
+    @Test(description = "Test negative object initializers scenarios")
     public void testObjectInitializerNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_initializer_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 8);

@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -101,11 +96,17 @@
                       ]
                     },
                     {
-                      "kind": "DEFAULT_KEYWORD",
-                      "isMissing": true,
+                      "kind": "SIMPLE_NAME_REFERENCE",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_DEFAULT_KEYWORD"
+                      "children": [
+                        {
+                          "kind": "DEFAULT_KEYWORD",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_DEFAULT_KEYWORD"
+                          ]
+                        }
                       ]
                     }
                   ]

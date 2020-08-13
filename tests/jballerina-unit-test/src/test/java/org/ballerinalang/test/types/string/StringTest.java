@@ -45,7 +45,6 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  * Test Native functions in ballerina.model.string.
  */
 public class StringTest {
-    private static final String s1 = "WSO2 Inc.";
     private CompileResult result;
 
     @BeforeClass
@@ -226,35 +225,17 @@ public class StringTest {
         ByteArrayUtils.assertJBytesWithBBytes(bytes, bByteArray.getBytes());
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testMultilineStringLiterals() {
         CompileResult multilineLiterals = BCompileUtil.compile("test-src/types/string/string_negative.bal");
         int indx = 0;
-
-        validateError(multilineLiterals, indx++, "token recognition error at: '\"Hello\\n'", 17, 23);
-        validateError(multilineLiterals, indx++,
-                      "mismatched input '!'. expecting {'is', 'equals', ';', '.', '[', '?', '?.', '+', '-', '*', '/'," +
-                              " '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '.." +
-                              ".', '|', '?:', '->>', '..<', '.@'}", 18, 6);
-        validateError(multilineLiterals, indx++, "token recognition error at: '\";\\n'", 18, 7);
-        validateError(multilineLiterals, indx++, "token recognition error at: '\"Hello\\n'", 21, 17);
-        validateError(multilineLiterals, indx++,
-                      "mismatched input '!'. expecting {'is', 'equals', ';', '.', '[', '?', '?.', '+', '-', '*', '/'," +
-                              " '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '.." +
-                              ".', '|', '?:', '->>', '..<', '.@'}", 22, 10);
-        validateError(multilineLiterals, indx++, "token recognition error at: '\";\\n'", 22, 11);
-        validateError(multilineLiterals, indx++, "token recognition error at: '\"Another Hello\\n'", 24, 17);
-        validateError(multilineLiterals, indx++,
-                      "mismatched input 'with'. expecting {'is', 'equals', ';', '.', '[', '?', '?.', '+', '-', '*', " +
-                              "'/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '" +
-                              "...', '|', '?:', '->>', '..<', '.@'}", 25, 19);
-        validateError(multilineLiterals, indx++, "token recognition error at: '\";\\n'", 25, 39);
-        validateError(multilineLiterals, indx++, "token recognition error at: '\"Multiple\\n'", 27, 17);
-        validateError(multilineLiterals, indx++, "mismatched input 'Hello'. expecting {'is', 'equals', ';', '.', " +
-                "'[', '?', '?.', '+', '-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', " +
-                "'!==', '&', '^', '@', '...', '|', '?:', '->>', '..<', '.@'}", 29, 5);
-        validateError(multilineLiterals, indx++, "token recognition error at: '\";\\n'", 30, 11);
-
+        validateError(multilineLiterals, indx++, "missing double quote", 18, 17);
+        validateError(multilineLiterals, indx++, "missing plus token", 19, 1);
+        validateError(multilineLiterals, indx++, "undefined symbol 'World'", 19, 5);
+        validateError(multilineLiterals, indx++, "missing plus token", 19, 10);
+        validateError(multilineLiterals, indx++, "operator '!' not defined for 'string'", 19, 10);
+        validateError(multilineLiterals, indx++, "missing double quote", 19, 11);
+        validateError(multilineLiterals, indx++, "missing semicolon token", 20, 1);
         Assert.assertEquals(multilineLiterals.getErrorCount(), indx);
     }
 }

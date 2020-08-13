@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -72,10 +67,6 @@
                   "children": [
                     {
                       "kind": "WAIT_KEYWORD",
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_WAIT_FUTURE_EXPRESSION"
-                      ],
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -90,8 +81,17 @@
                       ]
                     },
                     {
-                      "kind": "LIST",
-                      "children": []
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_WAIT_FUTURE_EXPRESSION"
+                      ],
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true
+                        }
+                      ]
                     }
                   ]
                 },
@@ -230,10 +230,6 @@
                   "children": [
                     {
                       "kind": "WAIT_KEYWORD",
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_WAIT_FUTURE_EXPRESSION"
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -242,8 +238,17 @@
                       ]
                     },
                     {
-                      "kind": "LIST",
-                      "children": []
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_WAIT_FUTURE_EXPRESSION"
+                      ],
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true
+                        }
+                      ]
                     }
                   ]
                 },

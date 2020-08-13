@@ -88,7 +88,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
             int blockOwnerECol = this.getBlockOwnerECol(blockOwner, blockNode);
 
             return (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
-                    (line > nodeELine || (line == nodeELine && col > nodeECol));
+                    (line > nodeELine || (line == nodeELine && col >= nodeECol));
         }
     }
 

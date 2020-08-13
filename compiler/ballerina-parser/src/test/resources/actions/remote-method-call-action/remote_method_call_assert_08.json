@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -71,9 +66,14 @@
               "children": [
                 {
                   "kind": "BINARY_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "REMOTE_METHOD_CALL_ACTION",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_EXPRESSION_EXPECTED_ACTION_FOUND"
+                      ],
                       "children": [
                         {
                           "kind": "BINARY_EXPRESSION",

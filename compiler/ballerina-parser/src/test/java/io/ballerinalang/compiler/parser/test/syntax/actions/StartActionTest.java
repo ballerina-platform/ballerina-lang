@@ -49,4 +49,9 @@ public class StartActionTest extends AbstractActionTest {
     public void testStartActionWithAnnotsRecovery() {
         testFile("start-action/start_action_source_04.bal", "start-action/start_action_assert_04.json");
     }
+
+    @Test
+    public void testStartActionWithInvalidExpr() {
+        testFile("start-action/start_action_source_05.bal", "start-action/start_action_assert_05.json");
+    }
 }

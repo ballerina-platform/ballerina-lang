@@ -223,12 +223,14 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     }
 
     private Diagnostic.DiagnosticPosition getDeleteRange(Diagnostic.DiagnosticPosition position) {
-        for (Diagnostic.DiagnosticPosition aPosition : deleteRanges.keySet()) {
-            if (aPosition.getStartLine() <= position.getStartLine() &&
-                    aPosition.getEndLine() >= position.getEndLine() &&
-                    aPosition.getStartColumn() <= position.getStartColumn() &&
-                    aPosition.getEndColumn() >= position.getEndColumn()) {
-                return aPosition;
+        if (position != null) {
+            for (Diagnostic.DiagnosticPosition aPosition : deleteRanges.keySet()) {
+                if (aPosition.getStartLine() <= position.getStartLine() &&
+                        aPosition.getEndLine() >= position.getEndLine() &&
+                        aPosition.getStartColumn() <= position.getStartColumn() &&
+                        aPosition.getEndColumn() >= position.getEndColumn()) {
+                    return aPosition;
+                }
             }
         }
         return null;

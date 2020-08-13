@@ -94,6 +94,16 @@ public class DocumentationTest extends AbstractMiscTest {
         testFile("documentation/doc_source_15.bal", "documentation/doc_assert_15.json");
     }
 
+    @Test
+    public void testSingleBacktickContentInDocumentation() {
+        testFile("documentation/doc_source_16.bal", "documentation/doc_assert_16.json");
+    }
+
+    @Test
+    public void testBacktickContentForFunctionKeyword() {
+        testFile("documentation/doc_source_17.bal", "documentation/doc_assert_17.json");
+    }
+
     // Invalid Syntax
 
     @Test
