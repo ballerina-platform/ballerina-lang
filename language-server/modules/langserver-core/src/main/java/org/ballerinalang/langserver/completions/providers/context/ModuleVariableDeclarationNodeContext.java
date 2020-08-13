@@ -48,8 +48,7 @@ import java.util.function.Predicate;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ModuleVariableDeclarationNodeContext extends VariableDeclarationProvider<ModuleVariableDeclarationNode> {
     public ModuleVariableDeclarationNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ModuleVariableDeclarationNode.class);
+        super(ModuleVariableDeclarationNode.class);
     }
 
     @Override

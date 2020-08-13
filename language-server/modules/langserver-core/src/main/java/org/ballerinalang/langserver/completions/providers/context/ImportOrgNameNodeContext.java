@@ -43,8 +43,7 @@ import java.util.stream.Stream;
 public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportOrgNameNode> {
 
     public ImportOrgNameNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ImportOrgNameNode.class);
+        super(ImportOrgNameNode.class);
     }
 
     @Override

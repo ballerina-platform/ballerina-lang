@@ -41,8 +41,7 @@ import java.util.function.Predicate;
 public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<RecordTypeDescriptorNode> {
 
     public RecordTypeDescriptorNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(RecordTypeDescriptorNode.class);
+        super(RecordTypeDescriptorNode.class);
     }
 
     @Override

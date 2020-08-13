@@ -46,8 +46,9 @@ import java.util.function.Predicate;
  * @since 2.0.0
  */
 public class VariableDeclarationProvider<T extends Node> extends AbstractCompletionProvider<T> {
-    public VariableDeclarationProvider(Kind kind) {
-        super(kind);
+
+    public VariableDeclarationProvider(Class<T> attachmentPoint) {
+        super(attachmentPoint);
     }
 
     protected List<LSCompletionItem> initializerContextCompletions(LSContext context,

@@ -50,8 +50,7 @@ import java.util.Optional;
 public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider<ImplicitNewExpressionNode> {
 
     public ImplicitNewExpressionNodeContext() {
-        super(Kind.EXPRESSION);
-        this.attachmentPoints.add(ImplicitNewExpressionNode.class);
+        super(ImplicitNewExpressionNode.class);
     }
 
     @Override

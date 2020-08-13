@@ -41,8 +41,7 @@ import java.util.Optional;
 public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePartNode> {
 
     public ModulePartNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ModulePartNode.class);
+        super(ModulePartNode.class);
     }
 
     @Override

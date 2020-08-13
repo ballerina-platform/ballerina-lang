@@ -56,8 +56,7 @@ import java.util.stream.Collectors;
 public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<ListenerDeclarationNode> {
 
     public ListenerDeclarationNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ListenerDeclarationNode.class);
+        super(ListenerDeclarationNode.class);
     }
 
     @Override

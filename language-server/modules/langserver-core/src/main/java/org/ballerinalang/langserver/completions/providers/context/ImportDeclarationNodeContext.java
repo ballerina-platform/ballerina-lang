@@ -48,8 +48,7 @@ import java.util.stream.Stream;
 public class ImportDeclarationNodeContext extends AbstractCompletionProvider<ImportDeclarationNode> {
 
     public ImportDeclarationNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ImportDeclarationNode.class);
+        super(ImportDeclarationNode.class);
     }
 
     @Override

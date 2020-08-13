@@ -55,8 +55,9 @@ import java.util.stream.IntStream;
  * @since 2.0.0
  */
 public class BlockNodeContextProvider<T extends Node> extends AbstractCompletionProvider<T> {
-    public BlockNodeContextProvider(Kind kind) {
-        super(kind);
+
+    public BlockNodeContextProvider(Class<T> attachmentPoint) {
+        super(attachmentPoint);
     }
 
     @Override

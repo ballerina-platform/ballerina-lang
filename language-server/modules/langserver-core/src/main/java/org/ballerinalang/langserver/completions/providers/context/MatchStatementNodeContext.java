@@ -33,8 +33,7 @@ import java.util.List;
 public class MatchStatementNodeContext extends AbstractCompletionProvider<MatchStatementNode> {
 
     public MatchStatementNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(MatchStatementNode.class);
+        super(MatchStatementNode.class);
     }
 
     @Override

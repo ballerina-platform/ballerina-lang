@@ -39,8 +39,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class FunctionSignatureNodeContext extends AbstractCompletionProvider<FunctionSignatureNode> {
     public FunctionSignatureNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(FunctionSignatureNode.class);
+        super(FunctionSignatureNode.class);
     }
 
     @Override

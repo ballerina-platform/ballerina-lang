@@ -53,8 +53,7 @@ import java.util.stream.Collectors;
 public class AnnotationNodeContext extends AbstractCompletionProvider<AnnotationNode> {
 
     public AnnotationNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(AnnotationNode.class);
+        super(AnnotationNode.class);
     }
 
     @Override

@@ -45,8 +45,7 @@ import java.util.stream.Collectors;
 public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider<ExplicitNewExpressionNode> {
 
     public ExplicitNewExpressionNodeContext() {
-        super(Kind.EXPRESSION);
-        this.attachmentPoints.add(ExplicitNewExpressionNode.class);
+        super(ExplicitNewExpressionNode.class);
     }
 
     @Override
