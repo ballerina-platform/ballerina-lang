@@ -15832,7 +15832,8 @@ public class BallerinaParser extends AbstractParser {
             return tupleTypeOrListConst;
         }
 
-        return parseStmtStartsWithTupleTypeOrExprRhs(null, tupleTypeOrListConst, isRoot);
+        STNode annots = STNodeFactory.createEmptyNodeList();
+        return parseStmtStartsWithTupleTypeOrExprRhs(annots, tupleTypeOrListConst, isRoot);
 
     }
 
