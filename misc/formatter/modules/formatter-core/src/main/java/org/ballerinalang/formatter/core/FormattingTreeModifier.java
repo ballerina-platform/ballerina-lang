@@ -1636,18 +1636,27 @@ public class FormattingTreeModifier extends TreeModifier {
     public ParameterizedTypeDescriptorNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         int startCol = getStartColumn(parameterizedTypeDescriptorNode, parameterizedTypeDescriptorNode.kind(), true);
         Token parameterizedType = getToken(parameterizedTypeDescriptorNode.parameterizedType());
-        Token ltToken = getToken(parameterizedTypeDescriptorNode.ltToken());
-        Node typeNode = this.modifyNode(parameterizedTypeDescriptorNode.typeNode());
-        Token gtToken = getToken(parameterizedTypeDescriptorNode.gtToken());
+        TypeParameterNode typeParameter = this.modifyNode(parameterizedTypeDescriptorNode.typeParameter());
+
+        return parameterizedTypeDescriptorNode.modify()
+                .withParameterizedType(formatToken(parameterizedType, startCol, 0, 0, 0))
+                .withTypeParameter(typeParameter)
+                .apply();
+    }
+
+    @Override
+    public TypeParameterNode transform(TypeParameterNode typeParameterNode) {
+        Token ltToken = getToken(typeParameterNode.ltToken());
+        TypeDescriptorNode typeNode = this.modifyNode(typeParameterNode.typeNode());
+        Token gtToken = getToken(typeParameterNode.gtToken());
 
         if (typeNode != null) {
-            parameterizedTypeDescriptorNode = parameterizedTypeDescriptorNode.modify()
+            typeParameterNode = typeParameterNode.modify()
                     .withTypeNode(typeNode)
                     .apply();
         }
 
-        return parameterizedTypeDescriptorNode.modify()
-                .withParameterizedType(formatToken(parameterizedType, startCol, 0, 0, 0))
+        return typeParameterNode.modify()
                 .withLtToken(formatToken(ltToken, 0, 0, 0, 0))
                 .withGtToken(formatToken(gtToken, 0, 0, 0, 0))
                 .apply();

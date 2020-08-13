@@ -921,14 +921,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STParameterizedTypeDescriptorNode transform(
             STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         STNode parameterizedType = modifyNode(parameterizedTypeDescriptorNode.parameterizedType);
-        STNode ltToken = modifyNode(parameterizedTypeDescriptorNode.ltToken);
-        STNode typeNode = modifyNode(parameterizedTypeDescriptorNode.typeNode);
-        STNode gtToken = modifyNode(parameterizedTypeDescriptorNode.gtToken);
+        STNode typeParameter = modifyNode(parameterizedTypeDescriptorNode.typeParameter);
         return parameterizedTypeDescriptorNode.modify(
                 parameterizedType,
-                ltToken,
-                typeNode,
-                gtToken);
+                typeParameter);
     }
 
     @Override
