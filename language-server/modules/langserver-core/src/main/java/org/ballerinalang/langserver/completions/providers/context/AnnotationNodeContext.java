@@ -161,4 +161,9 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
         return completionItems;
     }
+
+    @Override
+    public boolean onPreValidation(LSContext context, AnnotationNode node) {
+        return !node.atToken().isMissing();
+    }
 }

@@ -65,4 +65,5 @@ public class CompletionKeys {
     // Following key is used for the completion within the if else/ while condition context
     public static final LSContext.Key<Boolean> IN_CONDITION_CONTEXT_KEY
             = new LSContext.Key<>();
+    public static final LSContext.Key<Integer> TEXT_POSITION_IN_TREE = new LSContext.Key<>();
 }

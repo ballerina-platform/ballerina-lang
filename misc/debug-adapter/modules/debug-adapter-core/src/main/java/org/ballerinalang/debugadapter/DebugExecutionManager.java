@@ -17,22 +17,16 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.Bootstrap;
-import com.sun.jdi.ClassNotLoadedException;
-import com.sun.jdi.IncompatibleThreadStateException;
-import com.sun.jdi.InvalidTypeException;
-import com.sun.jdi.InvocationException;
-import com.sun.jdi.StackFrame;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
-import com.sun.tools.example.debug.expr.ExpressionParser;
-import com.sun.tools.example.debug.expr.ParseException;
 import com.sun.tools.jdi.SocketAttachingConnector;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.ExpressionTransformer;
+import org.ballerinalang.debugadapter.evaluation.EvaluatorBuilder;
+import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,20 +80,13 @@ public class DebugExecutionManager {
     /**
      * Evaluates a given ballerina expression w.r.t. the provided debug state(stack frame).
      */
-    public Optional<Value> evaluate(final StackFrame f, String expression) {
+    public Optional<Value> evaluate(SuspendedContext context, String expression) {
         try {
-            ExpressionParser.GetFrame frameGetter = () -> f;
-            ExpressionTransformer exprTransformer = new ExpressionTransformer();
-            String jExpression = exprTransformer.transform(expression);
-            return Optional.ofNullable(ExpressionParser.evaluate(jExpression, attachedVm, frameGetter));
+            EvaluatorBuilder exprTransformer = new EvaluatorBuilder(context);
+            Evaluator evaluator = exprTransformer.build(expression);
+            return Optional.ofNullable(evaluator.evaluate().getJdiValue());
         } catch (EvaluationException e) {
             return Optional.ofNullable(attachedVm.mirrorOf(e.getMessage()));
-        } catch (ParseException | InvocationException | InvalidTypeException | ClassNotLoadedException |
-                IncompatibleThreadStateException e) {
-            // Todo - Handling errors more specifically
-            String message = EvaluationExceptionKind.PREFIX + e.getMessage();
-            LOGGER.error(message, e);
-            return Optional.ofNullable(attachedVm.mirrorOf(message));
         } catch (Exception e) {
             String message = EvaluationExceptionKind.PREFIX + "internal error";
             LOGGER.error(message, e);

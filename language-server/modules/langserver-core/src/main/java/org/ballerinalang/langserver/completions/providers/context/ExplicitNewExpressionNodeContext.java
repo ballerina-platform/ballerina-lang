@@ -24,6 +24,7 @@ import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -75,8 +76,8 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
             completionItems.addAll(this.getPackagesCompletionItems(context));
         } else if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode referenceNode = (QualifiedNameReferenceNode) typeDescriptor;
-            String moduleName = referenceNode.modulePrefix().text();
-            Optional<Scope.ScopeEntry> module = this.getPackageSymbolFromAlias(context, moduleName);
+            String moduleName = QNameReferenceUtil.getAlias(referenceNode);
+            Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, moduleName);
             if (!module.isPresent()) {
                 return completionItems;
             }
