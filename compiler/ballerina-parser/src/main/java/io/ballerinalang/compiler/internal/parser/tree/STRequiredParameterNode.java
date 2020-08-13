@@ -31,20 +31,17 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STRequiredParameterNode extends STParameterNode {
-    public final STNode leadingComma;
     public final STNode annotations;
     public final STNode visibilityQualifier;
     public final STNode typeName;
     public final STNode paramName;
 
     STRequiredParameterNode(
-            STNode leadingComma,
             STNode annotations,
             STNode visibilityQualifier,
             STNode typeName,
             STNode paramName) {
         this(
-                leadingComma,
                 annotations,
                 visibilityQualifier,
                 typeName,
@@ -53,21 +50,18 @@ public class STRequiredParameterNode extends STParameterNode {
     }
 
     STRequiredParameterNode(
-            STNode leadingComma,
             STNode annotations,
             STNode visibilityQualifier,
             STNode typeName,
             STNode paramName,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.REQUIRED_PARAM, diagnostics);
-        this.leadingComma = leadingComma;
         this.annotations = annotations;
         this.visibilityQualifier = visibilityQualifier;
         this.typeName = typeName;
         this.paramName = paramName;
 
         addChildren(
-                leadingComma,
                 annotations,
                 visibilityQualifier,
                 typeName,
@@ -76,7 +70,6 @@ public class STRequiredParameterNode extends STParameterNode {
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRequiredParameterNode(
-                this.leadingComma,
                 this.annotations,
                 this.visibilityQualifier,
                 this.typeName,
@@ -85,13 +78,11 @@ public class STRequiredParameterNode extends STParameterNode {
     }
 
     public STRequiredParameterNode modify(
-            STNode leadingComma,
             STNode annotations,
             STNode visibilityQualifier,
             STNode typeName,
             STNode paramName) {
         if (checkForReferenceEquality(
-                leadingComma,
                 annotations,
                 visibilityQualifier,
                 typeName,
@@ -100,7 +91,6 @@ public class STRequiredParameterNode extends STParameterNode {
         }
 
         return new STRequiredParameterNode(
-                leadingComma,
                 annotations,
                 visibilityQualifier,
                 typeName,

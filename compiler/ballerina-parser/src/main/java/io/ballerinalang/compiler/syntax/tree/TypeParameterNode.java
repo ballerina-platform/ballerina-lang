@@ -36,7 +36,7 @@ public class TypeParameterNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Node typeNode() {
+    public TypeDescriptorNode typeNode() {
         return childInBucket(1);
     }
 
@@ -64,7 +64,7 @@ public class TypeParameterNode extends NonTerminalNode {
 
     public TypeParameterNode modify(
             Token ltToken,
-            Node typeNode,
+            TypeDescriptorNode typeNode,
             Token gtToken) {
         if (checkForReferenceEquality(
                 ltToken,
@@ -91,7 +91,7 @@ public class TypeParameterNode extends NonTerminalNode {
     public static class TypeParameterNodeModifier {
         private final TypeParameterNode oldNode;
         private Token ltToken;
-        private Node typeNode;
+        private TypeDescriptorNode typeNode;
         private Token gtToken;
 
         public TypeParameterNodeModifier(TypeParameterNode oldNode) {
@@ -109,7 +109,7 @@ public class TypeParameterNode extends NonTerminalNode {
         }
 
         public TypeParameterNodeModifier withTypeNode(
-                Node typeNode) {
+                TypeDescriptorNode typeNode) {
             Objects.requireNonNull(typeNode, "typeNode must not be null");
             this.typeNode = typeNode;
             return this;

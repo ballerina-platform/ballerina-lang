@@ -74,21 +74,21 @@
               ]
             },
             {
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
               "kind": "DEFAULTABLE_PARAM",
               "hasDiagnostics": true,
               "diagnostics": [
                 "ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER"
               ],
               "children": [
-                {
-                  "kind": "COMMA_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
                 {
                   "kind": "LIST",
                   "children": []

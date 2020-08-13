@@ -86,17 +86,16 @@
                       ]
                     },
                     {
-                      "kind": "DEFAULTABLE_PARAM",
+                      "kind": "COMMA_TOKEN",
+                      "isMissing": true,
                       "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_COMMA_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "DEFAULTABLE_PARAM",
                       "children": [
-                        {
-                          "kind": "COMMA_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_COMMA_TOKEN"
-                          ]
-                        },
                         {
                           "kind": "LIST",
                           "children": [
@@ -316,17 +315,16 @@
                       ]
                     },
                     {
-                      "kind": "DEFAULTABLE_PARAM",
+                      "kind": "COMMA_TOKEN",
+                      "isMissing": true,
                       "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_COMMA_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "DEFAULTABLE_PARAM",
                       "children": [
-                        {
-                          "kind": "COMMA_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_COMMA_TOKEN"
-                          ]
-                        },
                         {
                           "kind": "LIST",
                           "children": [

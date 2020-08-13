@@ -118,26 +118,20 @@
                       "value": "5"
                     },
                     {
-                      "kind": "IMPORT_SUB_VERSION",
-                      "hasDiagnostics": true,
-                      "children": [
+                      "kind": "DOT_TOKEN",
+                      "trailingMinutiae": [
                         {
-                          "kind": "DOT_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
-                          ]
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
                         }
+                      ]
+                    },
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
                       ]
                     }
                   ]
@@ -204,32 +198,21 @@
                       "value": "5"
                     },
                     {
-                      "kind": "IMPORT_SUB_VERSION",
-                      "children": [
-                        {
-                          "kind": "DOT_TOKEN"
-                        },
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                          "value": "6"
-                        }
-                      ]
+                      "kind": "DOT_TOKEN"
                     },
                     {
-                      "kind": "IMPORT_SUB_VERSION",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                      "value": "6"
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                      "isMissing": true,
                       "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "DOT_TOKEN"
-                        },
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
-                          ]
-                        }
+                      "diagnostics": [
+                        "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
                       ]
                     }
                   ]
