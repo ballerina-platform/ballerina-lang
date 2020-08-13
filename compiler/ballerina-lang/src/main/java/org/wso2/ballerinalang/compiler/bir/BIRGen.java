@@ -947,7 +947,7 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockStmt astBlockStmt) {
         BIRBasicBlock blockEndBB = null;
-        BIRBasicBlock prevOnFailEndBB = this.env.enclOnFailEndBB;
+        BIRBasicBlock currentOnFailEndBB = this.env.enclOnFailEndBB;
         BlockNode prevBlock = this.currentBlock;
         this.currentBlock = astBlockStmt;
         this.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
@@ -980,33 +980,35 @@ public class BIRGen extends BLangNodeVisitor {
             if (this.env.enclLoopEndBB != null) {
                 blockEndBB.terminator = new BIRTerminator.GOTO(astBlockStmt.pos, this.env.enclLoopEndBB);
             }
+            if (this.env.enclBB.terminator == null) {
+                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, blockEndBB);
+            }
             this.env.enclBasicBlocks.add(blockEndBB);
             this.env.enclBB = blockEndBB;
-            this.env.enclOnFailEndBB = null;
         }
-        this.env.enclOnFailEndBB = prevOnFailEndBB;
+        this.env.enclOnFailEndBB = currentOnFailEndBB;
         this.currentBlock = prevBlock;
     }
 
     @Override
     public void visit(BLangFailExpr failExpr) {
-        // Create a basic block for the while expression.
-        //todo rename blocks
-        BIRBasicBlock whileExprBB = new BIRBasicBlock(this.env.nextBBId(names));
-        addToTrapStack(whileExprBB);
-        this.env.enclBasicBlocks.add(whileExprBB);
+        // Create a basic block for the on fail clause.
+        BIRBasicBlock onFailBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(onFailBB);
+        this.env.enclBasicBlocks.add(onFailBB);
 
         // Insert a GOTO instruction as the terminal instruction into current basic block.
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(failExpr.pos, whileExprBB);
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(failExpr.pos, onFailBB);
 
         // Visit condition expression
-        this.env.enclBB = whileExprBB;
+        this.env.enclBB = onFailBB;
         failExpr.exprStmt.accept(this);
         this.env.enclBB.terminator = new BIRTerminator.GOTO(failExpr.pos, this.env.enclOnFailEndBB);
 
         // Statements after fail expression are unreachable, hence ignored
         BIRBasicBlock ignoreBlock = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(ignoreBlock);
+        ignoreBlock.terminator = new BIRTerminator.GOTO(failExpr.pos, this.env.enclOnFailEndBB);
         this.env.enclBasicBlocks.add(ignoreBlock);
         this.env.enclBB = ignoreBlock;
     }
@@ -1298,9 +1300,6 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
                     invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
                     thenBB, calleeAnnots, bInvokableSymbol.getFlags());
-        }
-        if (thenBB.terminator == null && this.env.enclOnFailEndBB != null) {
-            thenBB.terminator = new BIRTerminator.GOTO(invocationExpr.pos, this.env.enclOnFailEndBB);
         }
         this.env.enclBB = thenBB;
     }
