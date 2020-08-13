@@ -17,8 +17,13 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.model.Package;
+import org.ballerinalang.toml.model.BuildOptions;
+import org.ballerinalang.toml.model.Platform;
+
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code PackageConfig} contains necessary configuration elements required to
@@ -35,22 +40,39 @@ public class PackageConfig {
     // Ballerina toml file config
     private final ModuleConfig defaultModule;
     private final List<ModuleConfig> otherModules;
+    private final Package pkg;
+    private final Map<String, Object> dependencies;
+    private final Platform platform;
+    private final BuildOptions buildOptions;
 
     private PackageConfig(PackageId packageId,
                           Path packagePath,
                           ModuleConfig defaultModule,
-                          List<ModuleConfig> otherModules) {
+                          List<ModuleConfig> otherModules,
+                          Package pkg,
+                          Map<String, Object> dependencies,
+                          Platform platform,
+                          BuildOptions buildOptions) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.defaultModule = defaultModule;
         this.otherModules = otherModules;
+        this.pkg = pkg;
+        this.dependencies = dependencies;
+        this.platform = platform;
+        this.buildOptions = buildOptions;
     }
 
     public static PackageConfig from(PackageId packageId,
                                      Path packagePath,
                                      ModuleConfig defaultModule,
-                                     List<ModuleConfig> otherModules) {
-        return new PackageConfig(packageId, packagePath, defaultModule, otherModules);
+                                     List<ModuleConfig> otherModules,
+                                     Package pkg,
+                                     Map<String, Object> dependencies,
+                                     Platform platform,
+                                     BuildOptions buildOptions) {
+        return new PackageConfig(packageId, packagePath, defaultModule, otherModules, pkg, dependencies, platform,
+                buildOptions);
     }
 
     public PackageId packageId() {
@@ -69,5 +91,21 @@ public class PackageConfig {
 
     public List<ModuleConfig> otherModules() {
         return otherModules;
+    }
+
+    public Package getPackage () {
+        return this.pkg;
+    }
+
+    public Map<String, Object> dependencies() {
+        return this.dependencies;
+    }
+
+    public Platform platform() {
+        return this.platform;
+    }
+
+    public BuildOptions buildOptions() {
+        return this.buildOptions;
     }
 }
