@@ -134,7 +134,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     @Override
-    public boolean onPreValidation(T node) {
+    public boolean onPreValidation(LSContext context, T node) {
         return true;
     }
 
@@ -187,36 +187,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                                                            LSContext context) {
         return list.isLeft() ? list.getLeft() : this.getCompletionItemList(list.getRight(), context);
     }
-
-    /**
-     * Get the basic types.
-     *
-     * @param context        LS Operation Context
-     * @param visibleSymbols List of visible symbols
-     * @return {@link List}     List of completion items
-     */
-    @Deprecated
-    protected List<LSCompletionItem> getBasicTypesItems(LSContext context, List<Scope.ScopeEntry> visibleSymbols) {
-        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.forEach(scopeEntry -> {
-            BSymbol bSymbol = scopeEntry.symbol;
-            if (((bSymbol instanceof BConstructorSymbol && Names.ERROR.equals(bSymbol.name)))
-                    || (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol))) {
-                BSymbol symbol = bSymbol;
-                if (bSymbol instanceof BConstructorSymbol) {
-                    symbol = ((BConstructorSymbol) bSymbol).type.tsymbol;
-                }
-                CompletionItem cItem = BTypeCompletionItemBuilder.build(symbol, scopeEntry.symbol.name.getValue());
-                completionItems.add(new SymbolCompletionItem(context, symbol, cItem));
-            }
-        });
-
-        completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
-
-        return completionItems;
-    }
-
+    
     /**
      * Get the type completion Items.
      *

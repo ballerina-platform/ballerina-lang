@@ -98,7 +98,7 @@ public class CompletionUtil {
 
         while ((reference != null)) {
             provider = providers.get(reference.getClass());
-            if (provider != null && provider.onPreValidation(reference)) {
+            if (provider != null && provider.onPreValidation(ctx, reference)) {
                 break;
             }
             reference = reference.parent();
