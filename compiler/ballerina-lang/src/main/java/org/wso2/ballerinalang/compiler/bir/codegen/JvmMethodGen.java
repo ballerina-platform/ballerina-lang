@@ -74,8 +74,10 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
@@ -239,12 +241,14 @@ public class JvmMethodGen {
     private JvmPackageGen jvmPackageGen;
     private SymbolTable symbolTable;
     private BUnionType errorOrNilType;
+    private Set<Label> visitedLables;
 
     JvmMethodGen(JvmPackageGen jvmPackageGen) {
 
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
         this.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
+        this.visitedLables = new HashSet<>();
     }
 
     private static int[] toIntArray(List<Integer> states) {
@@ -1459,11 +1463,23 @@ public class JvmMethodGen {
 
     private static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv) {
 
-        if (pos != null && pos.sLine != 0x80000000) {
             Label label = new Label();
+            generateDiagnosticPos(pos, mv, label);
+    }
+
+    private static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv, Label label) {
+        if (pos != null && pos.sLine != 0x80000000) {
             mv.visitLabel(label);
             mv.visitLineNumber(pos.sLine, label);
         }
+    }
+
+    private void generateDiagnosticPosForUnvisitedLables(Label label, DiagnosticPos pos, MethodVisitor mv) {
+        if (this.visitedLables.contains(label)) {
+            return;
+        }
+
+        generateDiagnosticPos(pos, mv, label);
     }
 
     static void generateStrandMetadata(MethodVisitor mv, String moduleClass,
@@ -1944,7 +1960,11 @@ public class JvmMethodGen {
                     continue;
                 } else {
                     insKind = inst.getKind();
-                    generateDiagnosticPos(((BIRNode) inst).pos, mv);
+                    if (insKind == InstructionKind.MOVE || insKind == InstructionKind.CONST_LOAD) {
+                        generateLabelForLocalVariables(inst, labelGen, funcName, mv);
+                    } else {
+                        generateDiagnosticPos(((BIRNode) inst).pos, mv);
+                    }
                 }
 
                 generateInstructions(instGen, localVarOffset, asyncDataCollector, insKind, inst);
@@ -1987,6 +2007,25 @@ public class JvmMethodGen {
                 genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset);
             }
             j += 1;
+        }
+    }
+
+    private void generateLabelForLocalVariables(BIRInstruction inst, LabelGenerator labelGen, String funcName,
+            MethodVisitor mv) {
+        InstructionKind insKind = inst.getKind();
+        BIRVariableDcl lhsVar;
+        if (insKind == InstructionKind.MOVE) {
+            Move moveIns = (Move) inst;
+            lhsVar = moveIns.lhsOp.variableDcl;
+        } else {
+            ConstantLoad cLoadIns = (ConstantLoad) inst;
+            lhsVar = cLoadIns.lhsOp.variableDcl;
+        }
+
+        if (lhsVar.startBB != null && lhsVar.name != null) {
+            Label label = labelGen
+                    .getLabel(funcName + lhsVar.startBB.id.value + "ins" + lhsVar.name.value + lhsVar.insOffset);
+            generateDiagnosticPosForUnvisitedLables(label, ((BIRNode) inst).pos, mv);
         }
     }
 
