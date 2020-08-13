@@ -338,7 +338,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.constants.forEach(constant -> typDefs.add(constant));
         pkgNode.typeDefinitions.forEach(typDef -> typDefs.add(typDef));
         defineTypeNodes(typDefs, pkgEnv);
-        defineClasses(pkgNode.topLevelNodes, pkgEnv);
+        List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
+        defineClasses(classDefinitions, pkgEnv);
 
         for (BLangSimpleVariable variable : pkgNode.globalVars) {
             if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA && variable.isDeclaredWithVar) {
@@ -362,10 +363,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type def members (if any)
         defineMembers(pkgNode.typeDefinitions, pkgEnv);
 
+        // Define class constructs (fields and members)
+        defineClassConstructs(classDefinitions, pkgEnv);
+
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
         // them and set the fields and members of the relevant immutable type.
         validateReadOnlyIntersectionTypeDefinitions(pkgNode.typeDefinitions);
+        // todo: check with Maryam weather we have to add something like this for class defs.
         defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, pkgEnv);
 
         // Define service and resource nodes.
@@ -385,43 +390,189 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .forEach(varSymbol -> varSymbol.tag = SymTag.ENDPOINT);
     }
 
-    private void defineClasses(List<TopLevelNode> topLevelNodes, SymbolEnv pkgEnv) {
-        for (TopLevelNode topLevelNode : topLevelNodes) {
-            if (topLevelNode.getKind() != NodeKind.CLASS_DEFN) {
+    private void defineClassConstructs(List<BLangClassDefinition> classDefinitions, SymbolEnv env) {
+        for (BLangClassDefinition classDefinition : classDefinitions) {
+            defineClassConstructs(env, classDefinition);
+        }
+    }
+
+    private void defineClassConstructs(SymbolEnv env, BLangClassDefinition classDefinition) {
+        SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
+        BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
+        BObjectType objType = (BObjectType) tSymbol.type;
+
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            defineNode(field, typeDefEnv);
+            if (field.symbol.type == symTable.semanticError) {
                 continue;
             }
-            BLangClassDefinition classDefinition = (BLangClassDefinition) topLevelNode;
+            objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos, field.symbol));
+        }
 
+        // todo: check for class fields and object fields
+        defineReferencedClassFields(classDefinition, typeDefEnv, objType);
+
+        defineReferencedClassMembers(env, classDefinition);
+    }
+
+    private void defineReferencedClassMembers(SymbolEnv env, BLangClassDefinition classDefinition) {
+        BObjectType objectType = (BObjectType) classDefinition.symbol.type;
+
+        if (objectType.mutableType != null) {
+            // If this is an object type definition defined for an immutable type.
+            // We skip defining methods here since they would either be defined already, or would be defined
+            // later.
+            return;
+        }
+
+        SymbolEnv objMethodsEnv =
+                SymbolEnv.createClassMethodsEnv(classDefinition, (BObjectTypeSymbol) classDefinition.symbol, env); // verify this `env` to be module level env
+
+        // Define the functions defined within the object
+        defineClassInitFunction(classDefinition, objMethodsEnv);
+        classDefinition.functions.forEach(f -> {
+            f.setReceiver(ASTBuilderUtil.createReceiver(classDefinition.pos, objectType));
+            defineNode(f, objMethodsEnv);
+        });
+
+        Set<String> includedFunctionNames = new HashSet<>();
+        // Add the attached functions of the referenced types to this object.
+        // Here it is assumed that all the attached functions of the referred type are
+        // resolved by the time we reach here. It is achieved by ordering the typeDefs
+        // according to the precedence.
+        for (BLangType typeRef : classDefinition.typeRefs) {
+            List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
+            for (BAttachedFunction function : functions) {
+                defineReferencedFunction(classDefinition.pos, classDefinition.flagSet, objMethodsEnv,
+                        typeRef, function, includedFunctionNames, classDefinition.symbol, classDefinition.functions);
+            }
+        }
+    }
+
+    private void defineReferencedClassFields(BLangClassDefinition classDefinition, SymbolEnv typeDefEnv, BObjectType objType) {
+        Set<BSymbol> referencedTypes = new HashSet<>();
+        List<BLangType> invalidTypeRefs = new ArrayList<>();
+        // Get the inherited fields from the type references
+
+        Map<String, BLangSimpleVariable> fieldNames = new HashMap<>();
+        for (BLangSimpleVariable fieldVariable : classDefinition.fields) {
+            fieldNames.put(fieldVariable.name.value, fieldVariable);
+        }
+
+        classDefinition.referencedFields = classDefinition.typeRefs.stream().flatMap(typeRef -> {
+            BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
+            if (referredType == symTable.semanticError) {
+                return Stream.empty();
+            }
+
+            // Check for duplicate type references
+            if (!referencedTypes.add(referredType.tsymbol)) {
+                dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_TYPE_REFERENCE, typeRef);
+                return Stream.empty();
+            }
+
+            if (classDefinition.type.tag == TypeTags.OBJECT) {
+                if (referredType.tag != TypeTags.OBJECT) {
+                    dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
+                    invalidTypeRefs.add(typeRef);
+                    return Stream.empty();
+                }
+
+                BObjectType objectType = (BObjectType) referredType;
+                if (classDefinition.type.tsymbol.owner != referredType.tsymbol.owner) {
+                    for (BField field : objectType.fields.values()) {
+                        if (!Symbols.isPublic(field.symbol)) {
+                            dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS,
+                                    typeRef);
+                            invalidTypeRefs.add(typeRef);
+                            return Stream.empty();
+                        }
+                    }
+
+                    for (BAttachedFunction func : ((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs) {
+                        if (!Symbols.isPublic(func.symbol)) {
+                            dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS,
+                                    typeRef);
+                            invalidTypeRefs.add(typeRef);
+                            return Stream.empty();
+                        }
+                    }
+                }
+            }
+
+            if (classDefinition.type.tag == TypeTags.RECORD && referredType.tag != TypeTags.RECORD) {
+                dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_RECORD_TYPE_REFERENCE, typeRef);
+                invalidTypeRefs.add(typeRef);
+                return Stream.empty();
+            }
+
+            // Here it is assumed that all the fields of the referenced types are resolved
+            // by the time we reach here. It is achieved by ordering the typeDefs according
+            // to the precedence.
+            // Default values of fields are not inherited.
+            return ((BStructureType) referredType).fields.values().stream().filter(f -> {
+                if (fieldNames.containsKey(f.name.value)) {
+                    BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
+                    return !types.isAssignable(existingVariable.type, f.type);
+                }
+                return true;
+            }).map(field -> {
+                BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
+                var.flagSet = field.symbol.getFlags();
+                return var;
+            });
+        }).collect(Collectors.toList());
+        classDefinition.typeRefs.removeAll(invalidTypeRefs);
+
+        for (BLangSimpleVariable field : classDefinition.referencedFields) {
+            defineNode(field, typeDefEnv);
+            if (field.symbol.type == symTable.semanticError) {
+                continue;
+            }
+            objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos,
+                    field.symbol));
+        }
+    }
+
+    private List<BLangClassDefinition> getClassDefinitions(List<TopLevelNode> topLevelNodes) {
+        List<BLangClassDefinition> classDefinitions = new ArrayList<>();
+        for (TopLevelNode topLevelNode : topLevelNodes) {
+            if (topLevelNode.getKind() == NodeKind.CLASS_DEFN) {
+                classDefinitions.add((BLangClassDefinition) topLevelNode);
+            }
+        }
+        return classDefinitions;
+    }
+
+    private void defineClasses(List<BLangClassDefinition> classDefinitions, SymbolEnv pkgEnv) {
+        for (BLangClassDefinition classDefinition : classDefinitions) {
             EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
             boolean isReadOnly = flags.contains(Flag.READONLY);
             if (isReadOnly) {
                 flags.add(Flag.READONLY);
             }
 
-            BTypeSymbol classSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
+            BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
                     names.fromIdNode(classDefinition.name),
                     pkgEnv.enclPkg.symbol.pkgID, null, pkgEnv.scope.owner);
+            tSymbol.scope = new Scope(tSymbol);
 
-            BObjectType objectType = isReadOnly ?
-                    new BObjectType(classSymbol, Flags.READONLY) :
-                    new BObjectType(classSymbol);
+            BObjectType objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
 
-            classSymbol.type = objectType;
-            classDefinition.symbol = classSymbol;
+            tSymbol.type = objectType;
+            classDefinition.symbol = tSymbol;
 
             // For each referenced type, check whether the types are already resolved.
             // If not, then that type should get a higher precedence.
             for (BLangType typeRef : classDefinition.typeRefs) {
                 BType referencedType = symResolver.resolveTypeNode(typeRef, env);
-                if (referencedType == symTable.noType) {
-                    if (!this.unresolvedClasses.contains(classDefinition)) {
-                        this.unresolvedClasses.add(classDefinition);
-                        return;
-                    }
+                if (referencedType == symTable.noType && !this.unresolvedClasses.contains(classDefinition)) {
+                    this.unresolvedClasses.add(classDefinition);
+                    return;
                 }
             }
 
-            pkgEnv.scope.define(classSymbol.name, classSymbol);
+            pkgEnv.scope.define(tSymbol.name, tSymbol);
         }
     }
 
@@ -1690,7 +1841,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                     List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
                     for (BAttachedFunction function : functions) {
-                        defineReferencedFunction(typeDef, objMethodsEnv, typeRef, function, includedFunctionNames);
+                        defineReferencedFunction(typeDef.pos, typeDef.flagSet, objMethodsEnv,
+                                typeRef, function, includedFunctionNames, typeDef.symbol,
+                                ((BLangObjectTypeNode) typeDef.typeNode).functions);
                     }
                 }
             }
@@ -2059,6 +2212,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(initFunction, conEnv);
     }
 
+    private void defineClassInitFunction(BLangClassDefinition classDefinition, SymbolEnv conEnv) {
+        BLangFunction initFunction = classDefinition.initFunction;
+        if (initFunction == null) {
+            return;
+        }
+
+        //Set cached receiver to the init function
+        initFunction.receiver = ASTBuilderUtil.createReceiver(classDefinition.pos, classDefinition.type);
+
+        initFunction.attachedFunction = true;
+        initFunction.flagSet.add(Flag.ATTACHED);
+        defineNode(initFunction, conEnv);
+    }
+
     private void defineAttachedFunctions(BLangFunction funcNode, BInvokableSymbol funcSymbol,
                                          SymbolEnv invokableEnv, boolean isValidAttachedFunc) {
         BTypeSymbol typeSymbol = funcNode.receiver.type.tsymbol;
@@ -2314,11 +2481,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
     }
 
-    private void defineReferencedFunction(BLangTypeDefinition typeDef, SymbolEnv objEnv, BLangType typeRef,
-                                          BAttachedFunction referencedFunc, Set<String> includedFunctionNames) {
+    private void defineReferencedFunction(DiagnosticPos pos, Set<Flag> flagSet, SymbolEnv objEnv, BLangType typeRef,
+                                          BAttachedFunction referencedFunc, Set<String> includedFunctionNames,
+                                          BTypeSymbol typeDefSymbol, List<BLangFunction> declaredFunctions) {
         String referencedFuncName = referencedFunc.funcName.value;
         Name funcName = names.fromString(
-                Symbols.getAttachedFuncSymbolName(typeDef.symbol.name.value, referencedFuncName));
+                Symbols.getAttachedFuncSymbolName(typeDefSymbol.name.value, referencedFuncName));
         BSymbol matchingObjFuncSym = symResolver.lookupSymbolInMainSpace(objEnv, funcName);
 
         if (matchingObjFuncSym != symTable.notFoundSymbol) {
@@ -2329,18 +2497,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
                     referencedFunc.symbol)) {
-                Optional<BLangFunction> matchingFunc = ((BLangObjectTypeNode) typeDef.typeNode)
-                        .functions.stream().filter(fn -> fn.symbol == matchingObjFuncSym).findFirst();
-                DiagnosticPos pos = matchingFunc.isPresent() ? matchingFunc.get().pos : typeRef.pos;
-                dlog.error(pos, DiagnosticCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
+                Optional<BLangFunction> matchingFunc = declaredFunctions.stream().filter(fn -> fn.symbol == matchingObjFuncSym).findFirst();
+                DiagnosticPos methodPos = matchingFunc.isPresent() ? matchingFunc.get().pos : typeRef.pos;
+                dlog.error(methodPos, DiagnosticCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
                            referencedFunc.funcName, typeRef);
             }
 
             if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
-                Optional<BLangFunction> matchingFunc = ((BLangObjectTypeNode) typeDef.typeNode)
-                        .functions.stream().filter(fn -> fn.symbol == matchingObjFuncSym).findFirst();
-                DiagnosticPos pos = matchingFunc.isPresent() ? matchingFunc.get().pos : typeRef.pos;
-                dlog.error(pos, DiagnosticCode.REFERRED_FUNCTION_SIGNATURE_MISMATCH,
+                Optional<BLangFunction> matchingFunc = declaredFunctions.stream().filter(fn -> fn.symbol == matchingObjFuncSym).findFirst();
+                DiagnosticPos methodPos = matchingFunc.isPresent() ? matchingFunc.get().pos : typeRef.pos;
+                dlog.error(methodPos, DiagnosticCode.REFERRED_FUNCTION_SIGNATURE_MISMATCH,
                            getCompleteFunctionSignature(referencedFunc.symbol),
                            getCompleteFunctionSignature((BInvokableSymbol) matchingObjFuncSym));
             }
@@ -2355,8 +2521,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // If not, define the function symbol within the object.
         // Take a copy of the symbol, with the new name, and the package ID same as the object type.
         BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateFunctionDeclarationSymbol(referencedFunc.symbol,
-                                                                                        typeDef.symbol, funcName,
-                                                                                        typeDef.symbol.pkgID);
+                typeDefSymbol, funcName, typeDefSymbol.pkgID);
         defineSymbol(typeRef.pos, funcSymbol, objEnv);
 
         // Create and define the parameters and receiver. This should be done after defining the function symbol.
@@ -2366,13 +2531,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             defineSymbol(typeRef.pos, funcSymbol.restParam, funcEnv);
         }
         funcSymbol.receiverSymbol =
-                defineVarSymbol(typeDef.pos, typeDef.flagSet, typeDef.symbol.type, Names.SELF, funcEnv);
+                defineVarSymbol(pos, flagSet, typeDefSymbol.type, Names.SELF, funcEnv);
 
         // Cache the function symbol.
         BAttachedFunction attachedFunc =
                 new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type);
-        ((BObjectTypeSymbol) typeDef.symbol).attachedFuncs.add(attachedFunc);
-        ((BObjectTypeSymbol) typeDef.symbol).referencedFunctions.add(attachedFunc);
+        ((BObjectTypeSymbol) typeDefSymbol).attachedFuncs.add(attachedFunc);
+        ((BObjectTypeSymbol) typeDefSymbol).referencedFunctions.add(attachedFunc);
     }
 
     private boolean hasSameFunctionSignature(BInvokableSymbol attachedFuncSym, BInvokableSymbol referencedFuncSym) {

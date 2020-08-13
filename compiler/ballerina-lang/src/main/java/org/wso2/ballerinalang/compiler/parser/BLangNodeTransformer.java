@@ -3408,9 +3408,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             trimLeft(blangClass.pos, getPosition(classDefinitionNode.closeBrace()));
             trimRight(blangClass.pos, getPosition(classDefinitionNode.openBrace()));
         }
-
-        addToTop(blangClass);
-
         return blangClass;
     }
 

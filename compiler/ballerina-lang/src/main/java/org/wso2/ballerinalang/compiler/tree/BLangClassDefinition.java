@@ -27,7 +27,7 @@ import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
@@ -48,10 +48,11 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public BLangSimpleVariable receiver;
     public List<BLangSimpleVariable> fields;
     public List<BLangType> typeRefs;
-    public BSymbol symbol;
+    public BTypeSymbol symbol;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
+    public List<BLangSimpleVariable> referencedFields;
 
     public BLangClassDefinition() {
         this.functions = new ArrayList<>();
