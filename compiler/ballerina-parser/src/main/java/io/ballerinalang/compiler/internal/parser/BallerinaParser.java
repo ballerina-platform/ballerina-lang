@@ -7738,7 +7738,7 @@ public class BallerinaParser extends AbstractParser {
         // Validate the array length expression
         STNode lengthExpr = lengthExprs.get(0);
         switch (lengthExpr.kind) {
-            case ASTERISK_TOKEN:
+            case ASTERISK_LITERAL:
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
                 break;
@@ -15946,7 +15946,7 @@ public class BallerinaParser extends AbstractParser {
 
         switch (memberNode.kind) {
             case NUMERIC_LITERAL:
-            case ASTERISK_TOKEN:
+            case ASTERISK_LITERAL:
                 return SyntaxKind.ARRAY_TYPE_DESC;
             case CAPTURE_BINDING_PATTERN:
             case LIST_BINDING_PATTERN:
