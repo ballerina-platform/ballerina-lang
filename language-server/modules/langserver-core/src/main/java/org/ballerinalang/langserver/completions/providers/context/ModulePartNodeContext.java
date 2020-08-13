@@ -20,7 +20,6 @@ import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -28,7 +27,6 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,14 +56,13 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 // ignore
             }
         } else {
-            List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
             completionItems.addAll(addTopLevelItems(context));
-            completionItems.addAll(getBasicTypesItems(context, visibleSymbols));
+            completionItems.addAll(this.getTypeItems(context));
             completionItems.addAll(this.getPackagesCompletionItems(context));
         }
         return completionItems;
     }
-    
+
     private Optional<Node> routeToChild(LSContext context, ModulePartNode modulePartNode) {
         for (ModuleMemberDeclarationNode member : modulePartNode.members()) {
             Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
@@ -79,7 +76,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 return Optional.of(member);
             }
         }
-        
+
         return Optional.empty();
     }
 }

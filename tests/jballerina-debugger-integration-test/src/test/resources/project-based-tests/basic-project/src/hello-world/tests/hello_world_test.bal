@@ -33,5 +33,9 @@ public function mockPrint((any|error)... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(outputs[0], "Hello, World!");
+    if (outputs[0] is anydata) {
+        test:assertEquals(<anydata>outputs[0], "Hello, World!");
+    } else {
+        test:assertExactEquals(outputs[0], "Hello, World!");
+    }
 }

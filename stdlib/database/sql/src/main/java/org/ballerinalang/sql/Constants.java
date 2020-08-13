@@ -18,9 +18,10 @@
 
 package org.ballerinalang.sql;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.api.BString;
+
+import static org.ballerinalang.jvm.StringUtils.fromString;
 
 /**
  * Constants for SQL client.
@@ -48,8 +49,17 @@ public final class Constants {
     public static final String STATEMENT_NATIVE_DATA_FIELD = "Statement";
     public static final String COLUMN_DEFINITIONS_DATA_FIELD = "ColumnDefinition";
     public static final String RECORD_TYPE_DATA_FIELD = "recordType";
+    public static final String PROCEDURE_CALL_PARAM_CACHE = "procedureCallParamCache";
+    public static final String PROCEDURE_CALL_META_DATA = "procedureCallMetaData";
 
-    public static final BString TIMEZONE_UTC = StringUtils.fromString("UTC");
+    public static final String PROCEDURE_CALL_RESULT = "ProcedureCallResult";
+    public static final String TYPE_DESCRIPTIONS_NATIVE_DATA_FIELD = "TypeDescription";
+    public static final String RESULT_SET_COUNT_NATIVE_DATA_FIELD = "ResultSetCount";
+    public static final String RESULT_SET_TOTAL_NATIVE_DATA_FIELD = "ResultSetTotal";
+    public static final BString EXECUTION_RESULT_FIELD = fromString("executionResult");
+    public static final BString QUERY_RESULT_FIELD = fromString("queryResult");
+
+    public static final BString TIMEZONE_UTC = fromString("UTC");
 
     public static final String EXECUTION_RESULT_RECORD = "ExecutionResult";
     public static final String AFFECTED_ROW_COUNT_FIELD = "affectedRowCount";
@@ -65,17 +75,17 @@ public final class Constants {
      * Constants related connection pool.
      */
     public static final class ConnectionPool {
-        public static final BString MAX_OPEN_CONNECTIONS = StringUtils.fromString("maxOpenConnections");
-        public static final BString MAX_CONNECTION_LIFE_TIME_SECONDS = StringUtils.fromString(
+        public static final BString MAX_OPEN_CONNECTIONS = fromString("maxOpenConnections");
+        public static final BString MAX_CONNECTION_LIFE_TIME_SECONDS = fromString(
                 "maxConnectionLifeTimeInSeconds");
-        public static final BString MIN_IDLE_CONNECTIONS = StringUtils.fromString("minIdleConnections");
+        public static final BString MIN_IDLE_CONNECTIONS = fromString("minIdleConnections");
     }
 
     /**
      * Constants related to database options.
      */
     public static final class Options {
-        public static final BString URL = StringUtils.fromString("url");
+        public static final BString URL = fromString("url");
     }
 
     /**
@@ -93,15 +103,15 @@ public final class Constants {
      * Constants related to parameterized string fields.
      */
     public static final class ParameterizedQueryFields {
-        public static final BString STRINGS = StringUtils.fromString("strings");
-        public static final BString INSERTIONS = StringUtils.fromString("insertions");
+        public static final BString STRINGS = fromString("strings");
+        public static final BString INSERTIONS = fromString("insertions");
     }
 
     /**
      * Constants related to TypedValue fields.
      */
     public static final class TypedValueFields {
-        public static final BString VALUE = StringUtils.fromString("value");
+        public static final BString VALUE = fromString("value");
     }
 
     /**
@@ -143,12 +153,25 @@ public final class Constants {
      * Constants for SQL Params.
      */
     public static final class SQLParamsFields {
-        public static final BString URL = StringUtils.fromString("url");
-        public static final BString USER = StringUtils.fromString("user");
-        public static final BString PASSWORD = StringUtils.fromString("password");
-        public static final BString DATASOURCE_NAME = StringUtils.fromString("datasourceName");
-        public static final BString OPTIONS = StringUtils.fromString("options");
-        public static final BString CONNECTION_POOL = StringUtils.fromString("connectionPool");
-        public static final BString CONNECTION_POOL_OPTIONS = StringUtils.fromString("connectionPoolOptions");
+        public static final BString URL = fromString("url");
+        public static final BString USER = fromString("user");
+        public static final BString PASSWORD = fromString("password");
+        public static final BString DATASOURCE_NAME = fromString("datasourceName");
+        public static final BString OPTIONS = fromString("options");
+        public static final BString CONNECTION_POOL = fromString("connectionPool");
+        public static final BString CONNECTION_POOL_OPTIONS = fromString("connectionPoolOptions");
     }
+
+    /**
+     * Constants for Procedure call parameter objects.
+     */
+    public static final class ParameterObject {
+        public static final String INOUT_PARAMETER = "InOutParameter";
+        public static final String OUT_PARAMETER = "OutParameter";
+        public static final String SQL_TYPE_NATIVE_DATA = "sqlType";
+        public static final String VALUE_NATIVE_DATA = "value";
+
+        public static final BString IN_VALUE_FIELD = fromString("in");
+    }
+
 }
