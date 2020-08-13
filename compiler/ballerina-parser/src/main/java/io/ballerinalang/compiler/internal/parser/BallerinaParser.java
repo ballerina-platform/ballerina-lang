@@ -7890,11 +7890,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseParameterizedTypeDescriptor() {
         STNode parameterizedTypeKeyword = parseParameterizedTypeKeyword();
-        STNode ltToken = parseLTToken();
-        STNode typeNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
-        STNode gtToken = parseGTToken();
-        return STNodeFactory.createParameterizedTypeDescriptorNode(parameterizedTypeKeyword, ltToken, typeNode,
-                gtToken);
+        STNode typeParameter = parseTypeParameter();
+        return STNodeFactory.createParameterizedTypeDescriptorNode(parameterizedTypeKeyword, typeParameter);
     }
 
     /**

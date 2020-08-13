@@ -2731,7 +2731,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
         constrainedType.type = refType;
-        constrainedType.constraint = createTypeNode(parameterizedTypeDescNode.typeNode());
+        constrainedType.constraint = createTypeNode(parameterizedTypeDescNode.typeParameter().typeNode());
         constrainedType.pos = getPosition(parameterizedTypeDescNode);
         return constrainedType;
     }

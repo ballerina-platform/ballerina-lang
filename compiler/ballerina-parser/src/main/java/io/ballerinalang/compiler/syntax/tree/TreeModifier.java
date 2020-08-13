@@ -1173,17 +1173,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         Token parameterizedType =
                 modifyToken(parameterizedTypeDescriptorNode.parameterizedType());
-        Token ltToken =
-                modifyToken(parameterizedTypeDescriptorNode.ltToken());
-        Node typeNode =
-                modifyNode(parameterizedTypeDescriptorNode.typeNode());
-        Token gtToken =
-                modifyToken(parameterizedTypeDescriptorNode.gtToken());
+        TypeParameterNode typeParameter =
+                modifyNode(parameterizedTypeDescriptorNode.typeParameter());
         return parameterizedTypeDescriptorNode.modify(
                 parameterizedType,
-                ltToken,
-                typeNode,
-                gtToken);
+                typeParameter);
     }
 
     @Override
@@ -1837,7 +1831,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             TypeParameterNode typeParameterNode) {
         Token ltToken =
                 modifyToken(typeParameterNode.ltToken());
-        Node typeNode =
+        TypeDescriptorNode typeNode =
                 modifyNode(typeParameterNode.typeNode());
         Token gtToken =
                 modifyToken(typeParameterNode.gtToken());

@@ -1558,16 +1558,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "ltToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "typeNode",
-                    "type": "Node"
-                },
-                {
-                    "name": "gtToken",
-                    "type": "Token"
+                    "name": "typeParameter",
+                    "type": "TypeParameterNode"
                 }
             ]
         },
@@ -2450,7 +2442,7 @@
                 },
                 {
                     "name": "typeNode",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode"
                 },
                 {
                     "name": "gtToken",

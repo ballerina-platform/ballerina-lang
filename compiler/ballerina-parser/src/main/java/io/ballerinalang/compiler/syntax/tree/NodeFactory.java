@@ -1140,19 +1140,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ParameterizedTypeDescriptorNode createParameterizedTypeDescriptorNode(
             Token parameterizedType,
-            Token ltToken,
-            Node typeNode,
-            Token gtToken) {
+            TypeParameterNode typeParameter) {
         Objects.requireNonNull(parameterizedType, "parameterizedType must not be null");
-        Objects.requireNonNull(ltToken, "ltToken must not be null");
-        Objects.requireNonNull(typeNode, "typeNode must not be null");
-        Objects.requireNonNull(gtToken, "gtToken must not be null");
+        Objects.requireNonNull(typeParameter, "typeParameter must not be null");
 
         STNode stParameterizedTypeDescriptorNode = STNodeFactory.createParameterizedTypeDescriptorNode(
                 parameterizedType.internalNode(),
-                ltToken.internalNode(),
-                typeNode.internalNode(),
-                gtToken.internalNode());
+                typeParameter.internalNode());
         return stParameterizedTypeDescriptorNode.createUnlinkedFacade();
     }
 
@@ -1799,7 +1793,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TypeParameterNode createTypeParameterNode(
             Token ltToken,
-            Node typeNode,
+            TypeDescriptorNode typeNode,
             Token gtToken) {
         Objects.requireNonNull(ltToken, "ltToken must not be null");
         Objects.requireNonNull(typeNode, "typeNode must not be null");

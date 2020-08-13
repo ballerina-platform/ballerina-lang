@@ -869,15 +869,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createParameterizedTypeDescriptorNode(
             STNode parameterizedType,
-            STNode ltToken,
-            STNode typeNode,
-            STNode gtToken) {
+            STNode typeParameter) {
 
         return new STParameterizedTypeDescriptorNode(
                 parameterizedType,
-                ltToken,
-                typeNode,
-                gtToken);
+                typeParameter);
     }
 
     public static STNode createNilLiteralNode(
