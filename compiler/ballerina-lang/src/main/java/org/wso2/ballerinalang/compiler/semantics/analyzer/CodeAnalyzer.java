@@ -1376,16 +1376,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDo doNode) {
-        this.loopWithinTransactionCheckStack.push(true);
         boolean statementReturns = this.statementReturns;
         this.checkStatementExecutionValidity(doNode);
-        this.loopCount++;
         analyzeNode(doNode.body, env);
-        this.loopCount--;
+        analyzeNode(doNode.onFailClause, env);
         this.statementReturns = statementReturns;
         this.resetLastStatement();
-        this.loopWithinTransactionCheckStack.pop();
-
 //        if (doNode.onFailClause != null) {
 //            analyzeNode(doNode.onFailClause, env);
 //        }
@@ -2828,7 +2824,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
+        this.returnWithinLambdaWrappingCheckStack.push(false);
         analyzeNode(onFailClause.body, env);
+        onFailClause.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
+        this.returnWithinLambdaWrappingCheckStack.pop();
     }
 
     @Override
