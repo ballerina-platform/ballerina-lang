@@ -373,20 +373,20 @@ public  class BTypeToJsonValidatorUtil {
                                                         Map<String, Schema> properties,
                                                         BRecordType recordType) throws OpenApiValidatorException {
 //      BType record against the schema
-        for (BField field : recordType.fields) {
+        for (Map.Entry<String, BField> field : recordType.fields.entrySet()) {
             boolean isExist = false;
             for (Map.Entry<String, Schema> entry : properties.entrySet()) {
-                if (entry.getKey().equals(field.name.getValue())) {
+                if (entry.getKey().equals(field.getValue().name.getValue())) {
                     isExist = true;
                     if (entry.getValue().getType() != null) {
-                        if (!field.getType().getKind().typeName()
+                        if (!field.getValue().getType().getKind().typeName()
                                 .equals(BTypeToJsonValidatorUtil.convertOpenAPITypeToBallerina(entry.getValue()
                                         .getType()))) {
 
                             TypeMismatch validationError = new TypeMismatch(
-                                    field.name.getValue(),
+                                    field.getValue().name.getValue(),
                                     convertTypeToEnum(entry.getValue().getType()),
-                                    convertTypeToEnum(field.getType().getKind().typeName()),
+                                    convertTypeToEnum(field.getValue().getType().getKind().typeName()),
                                     getRecordName(recordType.toString()));
 
                             validationErrors.add(validationError);
@@ -394,27 +394,27 @@ public  class BTypeToJsonValidatorUtil {
                         } else if (entry.getValue() instanceof ObjectSchema) {
 //                         Handle the nested record type
                             Schema schemaObject = entry.getValue();
-                            if (field.type instanceof BRecordType) {
+                            if (field.getValue().type instanceof BRecordType) {
                                 List<ValidationError> nestedRecordValidation = BTypeToJsonValidatorUtil
-                                        .validate(schemaObject, field.symbol);
+                                        .validate(schemaObject, field.getValue().symbol);
                                 validationErrors.addAll(nestedRecordValidation);
                             } else {
 //                                    Type mismatch handle
                                 TypeMismatch validationError = new TypeMismatch(
-                                        field.name.getValue(),
+                                        field.getValue().name.getValue(),
                                         convertTypeToEnum("object"),
-                                        convertTypeToEnum(field.getType().getKind().typeName()),
+                                        convertTypeToEnum(field.getValue().getType().getKind().typeName()),
                                         getRecordName(recordType.name.toString()));
                                 validationErrors.add(validationError);
                             }
                         } else {
 //                          Handle array type mismatching.
-                            if (field.getType().getKind().typeName().equals("[]")) {
+                            if (field.getValue().getType().getKind().typeName().equals("[]")) {
                                 BArrayType bArrayType = null;
                                 Schema entrySchema = entry.getValue();
                                 ArraySchema arraySchema = new ArraySchema();
-                                if (field.type instanceof  BArrayType) {
-                                    bArrayType = (BArrayType) field.type;
+                                if (field.getValue().type instanceof  BArrayType) {
+                                    bArrayType = (BArrayType) field.getValue().type;
                                 }
                                 if (entrySchema instanceof ArraySchema) {
                                     arraySchema = (ArraySchema) entrySchema;
@@ -451,7 +451,7 @@ public  class BTypeToJsonValidatorUtil {
                                         if ((traversNestedArray.eType.tsymbol.type instanceof BRecordType) &&
                                                 traversSchemaNestedArray.getItems() instanceof ObjectSchema) {
                                             Schema schema2 = traversSchemaNestedArray.getItems();
-                                            BVarSymbol bVarSymbol2 = field.symbol;
+                                            BVarSymbol bVarSymbol2 = field.getValue().symbol;
                                             List<ValidationError> nestedRecordValidation = BTypeToJsonValidatorUtil
                                                     .validate(schema2, bVarSymbol2);
                                             validationErrors.addAll(nestedRecordValidation);
@@ -462,7 +462,7 @@ public  class BTypeToJsonValidatorUtil {
                                                     traversSchemaNestedArray.getItems().getType()))) {
 
                                         TypeMismatch validationError = new TypeMismatch(
-                                                field.name.getValue(),
+                                                field.getValue().name.getValue(),
                                                 convertTypeToEnum(traversSchemaNestedArray.getItems().getType()),
                                                 convertTypeToEnum(traversNestedArray.eType.tsymbol.toString()),
                                                 getRecordName(recordType.toString()));
@@ -475,16 +475,18 @@ public  class BTypeToJsonValidatorUtil {
                 }
             }
             if (!isExist) {
-                MissingFieldInJsonSchema validationError = new MissingFieldInJsonSchema(field.name.toString(),
-                        convertTypeToEnum(field.getType().getKind().typeName()), getRecordName(recordType.toString()));
+                MissingFieldInJsonSchema validationError =
+                        new MissingFieldInJsonSchema(field.getValue().name.toString(),
+                        convertTypeToEnum(field.getValue().getType().getKind().typeName()),
+                                getRecordName(recordType.toString()));
                 validationErrors.add(validationError);
             }
         }
 //            Find missing fields in BallerinaType
         for (Map.Entry<String, Schema> entry : properties.entrySet()) {
             boolean isExist = false;
-            for (BField field : recordType.fields) {
-                if (field.name.getValue().equals(entry.getKey())) {
+            for (Map.Entry<String, BField> field : recordType.fields.entrySet()) {
+                if (field.getValue().name.getValue().equals(entry.getKey())) {
                     isExist = true;
                 }
             }
@@ -620,8 +622,8 @@ public  class BTypeToJsonValidatorUtil {
      */
     public static List<String> getRecordFields(BRecordType bRecordType) {
         List<String> recordFields = new ArrayList<>();
-        for (BField field: bRecordType.getFields()) {
-            BType bType = field.getType();
+        for (Map.Entry<String, BField> field: bRecordType.getFields().entrySet()) {
+            BType bType = field.getValue().getType();
             if (bType instanceof BRecordType) {
                 BRecordType recordField = (BRecordType) bType;
                 List<String> nestedRecordFields = getRecordFields(recordField);
@@ -644,15 +646,15 @@ public  class BTypeToJsonValidatorUtil {
                             recordFields.addAll(nestedARecord);
 
                         } else {
-                            recordFields.add(field.getName().toString());
+                            recordFields.add(field.getValue().getName().toString());
                         }
                     }
                 } else {
-                    recordFields.add(field.getName().toString());
+                    recordFields.add(field.getValue().getName().toString());
                 }
             } else {
-                if (field.name != null) {
-                    recordFields.add(field.name.toString());
+                if (field.getValue().name != null) {
+                    recordFields.add(field.getValue().name.toString());
                 }
             }
         }
