@@ -201,7 +201,7 @@ public enum SyntaxKind {
     PARAMETER_DOC_REFERENCE_TOKEN(907, "parameter"),
     CONST_DOC_REFERENCE_TOKEN(908, "const"),
 
-    //Literal tokens
+    // Literal tokens
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL_TOKEN(1001),
     DECIMAL_INTEGER_LITERAL_TOKEN(1002),
@@ -211,7 +211,7 @@ public enum SyntaxKind {
     XML_TEXT_CONTENT(1006),
     TEMPLATE_STRING(1007),
 
-    //Documentation
+    // Documentation
     DOCUMENTATION_DESCRIPTION(1100),
     PARAMETER_NAME(1101),
     BACKTICK_CONTENT(1102),
@@ -221,15 +221,6 @@ public enum SyntaxKind {
     INVALID_TOKEN(1190),
 
     //-----------------------------------------------non-terminal-kinds-----------------------------------------------
-
-    //Basic literal kinds
-    STRING_LITERAL(1200),
-    NUMERIC_LITERAL(1201),
-    BOOLEAN_LITERAL(1202),
-    NIL_LITERAL(1203),
-    BASIC_LITERAL(1204),
-    BYTE_ARRAY_LITERAL(1205),
-    ASTERISK_LITERAL(1206),
 
     // Minutiae kinds
     WHITESPACE_MINUTIAE(1500),
@@ -316,6 +307,12 @@ public enum SyntaxKind {
     XML_NAME_PATTERN_CHAIN(1335),
     XML_ATOMIC_NAME_PATTERN(1336),
     FAIL_EXPRESSION(1337),
+    STRING_LITERAL(1338),
+    NUMERIC_LITERAL(1339),
+    BOOLEAN_LITERAL(1340),
+    NIL_LITERAL(1341),
+    BYTE_ARRAY_LITERAL(1342),
+    ASTERISK_LITERAL(1343),
 
     // Type descriptors
     TYPE_DESC(2000),

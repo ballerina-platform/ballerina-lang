@@ -7743,8 +7743,9 @@ public class BallerinaParser extends AbstractParser {
             case QUALIFIED_NAME_REFERENCE:
                 break;
             case NUMERIC_LITERAL:
-                if (lengthExpr.childInBucket(0).kind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
-                lengthExpr.childInBucket(0).kind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+                SyntaxKind innerChildKind = lengthExpr.childInBucket(0).kind;
+                if (innerChildKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
+                        innerChildKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
                     break;
                 }
                 //fall through
@@ -14069,7 +14070,6 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isExpression(SyntaxKind kind) {
         switch (kind) {
-            case BASIC_LITERAL:
             case NUMERIC_LITERAL:
             case STRING_LITERAL_TOKEN:
             case NIL_LITERAL:
@@ -17120,7 +17120,6 @@ public class BallerinaParser extends AbstractParser {
         switch (expression.kind) {
             case INDEXED_EXPRESSION:
                 return parseArrayTypeDescriptorNode((STIndexedExpressionNode) expression);
-            case BASIC_LITERAL:
             case NUMERIC_LITERAL:
             case BOOLEAN_LITERAL:
             case STRING_LITERAL:
