@@ -28,16 +28,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 /**
  * Summary of the OpenAPI documentation for a API path.
  */
-class OpenAPIPathSummary {
+public class OpenAPIPathSummary {
     private String path;
     private List<String> availableOperations;
     private Map<String, Operation> operations;
 
-    OpenAPIPathSummary() {
+    public OpenAPIPathSummary() {
         this.availableOperations = new ArrayList<>();
         this.operations = new HashMap<>();
         this.path = null;
@@ -122,5 +121,8 @@ class OpenAPIPathSummary {
             }
         }
         return requestBodySchemas;
+    }
+    public Map<String, Operation> getOperations() {
+        return this.operations;
     }
 }

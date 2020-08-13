@@ -42,4 +42,11 @@ public class Constants {
     public static final String FAILONERRORS = "failOnErrors";
     public static final String EXCLUDETAGS = "excludeTags";
     public static final String EXCLUDEOPERATIONS = "excludeOperations";
+    public static final String METHOD = "method";
+    /**
+     * Enum Type for handle the validation error types.
+     */
+    public enum Type {
+        STRING, INT, RECORD, OBJECT, ARRAY, BOOLEAN, DECIMAL, ANYDATA, INTEGER, NUMBER
+    }
 }
