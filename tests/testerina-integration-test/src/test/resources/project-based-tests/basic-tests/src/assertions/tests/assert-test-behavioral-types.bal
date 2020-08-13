@@ -50,14 +50,14 @@ function testAssertObjectEqualsNegative() {
 function testAssertObjectNotEquals() {
     Person p1 = new;
     Person p2 = new ();
-    test:assertExactNotEquals(p1, p2);
+    test:assertNotExactEquals(p1, p2);
 }
 
 @test:Config {}
 function testAssertObjectNotEqualsNegative() {
     Person p1 = new;
     Person p2 = p1;
-    error? err = trap test:assertExactNotEquals(p1, p2);
+    error? err = trap test:assertNotExactEquals(p1, p2);
     test:assertTrue(err is error);
 }
 
@@ -86,7 +86,7 @@ function testAssertObjectArrayNotEquals() {
     Person p2 = new Person();
     Person[] family1 = [p1, p2];
     Person[] family2 = [p1, p2];
-    test:assertExactNotEquals(family1, family2);
+    test:assertNotExactEquals(family1, family2);
 }
 
 @test:Config {}
@@ -95,7 +95,7 @@ function testAssertObjectArrayNotEqualsNegative() {
     Person p2 = new Person();
     Person[] family1 = [p1, p2];
     Person[] family2 = family1;
-    error? err = trap test:assertExactNotEquals(family1, family2);
+    error? err = trap test:assertNotExactEquals(family1, family2);
     test:assertTrue(err is error);
 }
 
@@ -136,7 +136,7 @@ function testAssertObjectRecordNotEquals() {
         id: 1,
         person: p1
     };
-    test:assertExactNotEquals(student1, student2);
+    test:assertNotExactEquals(student1, student2);
 }
 
 @test:Config {}
@@ -147,6 +147,6 @@ function testAssertObjectRecordNotEqualsNegative() {
         person: p1
     };
     EnrolledStudent student2 = student1;
-    error? err = trap test:assertExactNotEquals(student1, student2);
+    error? err = trap test:assertNotExactEquals(student1, student2);
     test:assertTrue(err is error);
 }
