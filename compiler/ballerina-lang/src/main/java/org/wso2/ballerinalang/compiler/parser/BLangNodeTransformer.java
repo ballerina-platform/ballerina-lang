@@ -1649,7 +1649,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 if (valueExpr == null) {
                     BLangRecordLiteral.BLangRecordVarNameField fieldVar =
                             (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
-                    fieldVar.variableName = createIdentifier(((SpecificFieldNode) field).fieldName());
+                    fieldVar.variableName = createIdentifier((Token) ((SpecificFieldNode) field).fieldName());
                     fieldVar.pkgAlias = createIdentifier(null, "");
                     fieldVar.pos = fieldVar.variableName.pos;
                     fieldVar.readonly = specificField.readonlyKeyword().isPresent();
@@ -3963,12 +3963,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (type == SyntaxKind.NUMERIC_LITERAL) {
             SyntaxKind literalTokenKind = ((BasicLiteralNode) literal).literalToken().kind();
             if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
-                    type == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+                    literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
                 typeTag = TypeTags.INT;
                 value = getIntegerLiteral(literal, textValue, sign);
                 originalValue = textValue;
                 bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-            } else if (type == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
+            } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
                 //TODO: Check effect of mapping negative(-) numbers as unary-expr
                 typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
                 if (isFiniteType) {
@@ -3979,7 +3979,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     originalValue = textValue;
                 }
                 bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-            } else if (type == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN) {
+            } else if (literalTokenKind == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN) {
                 //TODO: Check effect of mapping negative(-) numbers as unary-expr
                 typeTag = TypeTags.FLOAT;
                 value = getHexNodeValue(textValue);

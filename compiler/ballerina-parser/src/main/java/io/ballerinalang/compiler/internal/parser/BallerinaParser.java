@@ -5165,8 +5165,13 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
+
     private STNode parseBasicLiteral() {
-        STToken literalToken = consume();
+        STNode literalToken = consume();
+        return parseBasicLiteral(literalToken);
+    }
+
+    private STNode parseBasicLiteral(STNode literalToken) {
         SyntaxKind nodeKind;
         switch (literalToken.kind) {
             case NULL_KEYWORD:
@@ -6592,12 +6597,14 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseStringLiteral() {
         STToken token = peek();
+        STNode stringLiteral;
         if (token.kind == SyntaxKind.STRING_LITERAL_TOKEN) {
-            return consume();
+            stringLiteral =  consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.STRING_LITERAL_TOKEN);
-            return sol.recoveredNode;
+            stringLiteral = sol.recoveredNode;
         }
+        return parseBasicLiteral(stringLiteral);
     }
 
     /**
@@ -16368,7 +16375,6 @@ public class BallerinaParser extends AbstractParser {
                     STNode valueExpr = parseExpression();
                     return STNodeFactory.createSpecificFieldNode(readonlyKeyword, key, colon, valueExpr);
                 }
-                key = STNodeFactory.createBasicLiteralNode(SyntaxKind.STRING_LITERAL, key);
                 switchContext(ParserRuleContext.BLOCK_STMT);
                 startContext(ParserRuleContext.AMBIGUOUS_STMT);
                 STNode expr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, key, false, true);

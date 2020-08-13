@@ -1066,7 +1066,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Token"
+                    "type": "Node"
                 },
                 {
                     "name": "colon",
