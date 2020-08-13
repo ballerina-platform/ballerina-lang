@@ -39,15 +39,15 @@ public class IncrementalParser extends BallerinaParser {
         this.subtreeSupplier = subtreeSupplier;
     }
 
-    protected STNode parseTopLevelNode(SyntaxKind tokenKind) {
+    protected STNode parseTopLevelNode() {
         STNode modelLevelDecl = getIfReusable(subtreeSupplier.peek(), isModelLevelDeclaration);
-        return modelLevelDecl != null ? modelLevelDecl : super.parseTopLevelNode(tokenKind);
+        return modelLevelDecl != null ? modelLevelDecl : super.parseTopLevelNode();
     }
 
-    protected STNode parseFunctionBody(SyntaxKind tokenKind) {
+    protected STNode parseFunctionBody(boolean isObjectMethod) {
         STNode funcBodyNode = getIfReusable(subtreeSupplier.peek(), isFunctionBody);
         // TODO: How to deal with object methods?
-        return funcBodyNode != null ? funcBodyNode : super.parseFunctionBody(tokenKind, false);
+        return funcBodyNode != null ? funcBodyNode : super.parseFunctionBody(isObjectMethod);
     }
 
     protected STNode parseStatement() {

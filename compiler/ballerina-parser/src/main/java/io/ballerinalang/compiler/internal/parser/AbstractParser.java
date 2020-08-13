@@ -53,8 +53,6 @@ public abstract class AbstractParser {
 
     public abstract STNode parse();
 
-    public abstract STNode resumeParsing(ParserRuleContext context, Object... args);
-
     protected STToken peek() {
         if (this.insertedToken != null) {
             return this.insertedToken;
