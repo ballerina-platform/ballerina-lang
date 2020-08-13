@@ -19,15 +19,12 @@ package org.ballerinalang.langserver.completion.latest;
 
 import org.testng.annotations.DataProvider;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
- * Service Body Context tests.
- *
+ * Expression Context tests.
+ * 
  * @since 2.0.0
  */
-public class ServiceBodyTest extends CompletionTestNew {
+public class ModulePartNodeContextTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -36,11 +33,6 @@ public class ServiceBodyTest extends CompletionTestNew {
 
     @Override
     public String getTestResourceDir() {
-        return "service_body";
-    }
-
-    @Override
-    public List<String> skipList() {
-        return Collections.singletonList("config3.json");
+        return "module_part_context";
     }
 }
