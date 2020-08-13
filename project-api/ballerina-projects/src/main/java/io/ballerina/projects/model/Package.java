@@ -27,7 +27,8 @@ import java.util.List;
  * @since 2.0.0
  */
 public class Package {
-    private String orgName = "";
+    private String org = "";
+    private String name = "";
     private String version = "";
     private List<String> license = new LinkedList<>();
     private List<String> authors = new LinkedList<>();
@@ -35,12 +36,20 @@ public class Package {
     private List<String> keywords = new LinkedList<>();
     private List<String> templates = new LinkedList<>();
 
-    public String getOrgName() {
-        return orgName;
+    public String getOrg() {
+        return org;
     }
 
-    public void setOrgName(String orgName) {
-        this.orgName = orgName;
+    public void setOrg(String org) {
+        this.org = org;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getVersion() {

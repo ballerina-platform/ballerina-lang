@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.model.BallerinaToml;
+
 import java.nio.file.Path;
 import java.util.List;
 
@@ -30,19 +32,23 @@ public class PackageData {
     // Ballerina toml file config
     private final ModuleData defaultModule;
     private final List<ModuleData> otherModules;
+    private final BallerinaToml ballerinaToml;
 
     private PackageData(Path packagePath,
                         ModuleData defaultModule,
-                        List<ModuleData> otherModules) {
+                        List<ModuleData> otherModules,
+                        BallerinaToml ballerinaToml) {
         this.packagePath = packagePath;
         this.defaultModule = defaultModule;
         this.otherModules = otherModules;
+        this.ballerinaToml = ballerinaToml;
     }
 
     public static PackageData from(Path packagePath,
                                    ModuleData defaultModule,
-                                   List<ModuleData> otherModules) {
-        return new PackageData(packagePath, defaultModule, otherModules);
+                                   List<ModuleData> otherModules,
+                                   BallerinaToml ballerinaToml) {
+        return new PackageData(packagePath, defaultModule, otherModules, ballerinaToml);
     }
 
     public Path packagePath() {
@@ -55,5 +61,9 @@ public class PackageData {
 
     public List<ModuleData> otherModules() {
         return otherModules;
+    }
+
+    public BallerinaToml ballerinaToml() {
+        return this.ballerinaToml;
     }
 }

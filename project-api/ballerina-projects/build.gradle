@@ -20,6 +20,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
+    implementation 'com.moandjiezana.toml:toml4j'
     testImplementation 'org.testng:testng'
 }
 

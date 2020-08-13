@@ -23,6 +23,7 @@ import io.ballerina.projects.ModuleConfig;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageId;
+import io.ballerina.projects.model.BallerinaToml;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -47,7 +48,8 @@ class ProjectLoader {
                 .stream()
                 .map(moduleData -> createModuleData(moduleData, packageId))
                 .collect(Collectors.toList());
-        return PackageConfig.from(packageId, packagePage, defaultModuleConfig, otherModuleConfigs);
+        final BallerinaToml ballerinaToml = packageData.ballerinaToml();
+        return PackageConfig.from(packageId, packagePage, defaultModuleConfig, otherModuleConfigs, ballerinaToml);
     }
 
     public static ModuleConfig createModuleData(ModuleData moduleData, PackageId packageId) {

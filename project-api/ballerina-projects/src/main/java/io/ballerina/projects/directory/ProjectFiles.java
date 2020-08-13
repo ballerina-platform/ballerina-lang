@@ -17,6 +17,10 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.model.BallerinaToml;
+import io.ballerina.projects.model.BallerinaTomlProcessor;
+import org.ballerinalang.toml.exceptions.TomlException;
+
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -65,11 +69,17 @@ public class ProjectFiles {
         }
 
         // Load Ballerina.toml
+        BallerinaToml ballerinaToml;
+        try {
+            ballerinaToml = BallerinaTomlProcessor.parse(packageDirPath.resolve("ballerina.toml"));
+        } catch (IOException | TomlException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
         // Load default module
         // load other modules
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
-        return PackageData.from(packageDirPath, defaultModule, otherModules);
+        return PackageData.from(packageDirPath, defaultModule, otherModules, ballerinaToml);
     }
 
     private static List<ModuleData> loadOtherModules(Path packageDirPath) {
