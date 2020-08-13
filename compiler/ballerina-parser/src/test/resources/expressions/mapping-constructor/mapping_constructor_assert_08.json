@@ -50,8 +50,13 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "STRING_LITERAL_TOKEN",
-              "value": "b"
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "b"
+                }
+              ]
             },
             {
               "kind": "COLON_TOKEN"

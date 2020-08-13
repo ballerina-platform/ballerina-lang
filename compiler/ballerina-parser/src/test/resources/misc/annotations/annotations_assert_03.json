@@ -72,12 +72,17 @@
                                   "kind": "SPECIFIC_FIELD",
                                   "children": [
                                     {
-                                      "kind": "STRING_LITERAL_TOKEN",
-                                      "value": "name",
-                                      "leadingMinutiae": [
+                                      "kind": "STRING_LITERAL",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
+                                          "kind": "STRING_LITERAL_TOKEN",
+                                          "value": "name",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "    "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -162,12 +167,17 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "STRING_LITERAL_TOKEN",
-                                      "value": "info",
-                                      "leadingMinutiae": [
+                                      "kind": "STRING_LITERAL",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
+                                          "kind": "STRING_LITERAL_TOKEN",
+                                          "value": "info",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "    "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -202,12 +212,17 @@
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "STRING_LITERAL_TOKEN",
-                                                  "value": "returns",
-                                                  "trailingMinutiae": [
+                                                  "kind": "STRING_LITERAL",
+                                                  "children": [
                                                     {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": " "
+                                                      "kind": "STRING_LITERAL_TOKEN",
+                                                      "value": "returns",
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": " "
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },

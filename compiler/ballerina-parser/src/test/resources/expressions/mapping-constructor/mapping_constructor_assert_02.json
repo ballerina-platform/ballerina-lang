@@ -41,8 +41,13 @@
           "kind": "SPECIFIC_FIELD",
           "children": [
             {
-              "kind": "STRING_LITERAL_TOKEN",
-              "value": "name"
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "name"
+                }
+              ]
             },
             {
               "kind": "COLON_TOKEN"
