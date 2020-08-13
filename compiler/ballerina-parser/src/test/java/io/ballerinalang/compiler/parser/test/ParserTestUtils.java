@@ -175,6 +175,9 @@ public class ParserTestUtils {
         boolean expectedMissing = isMissingField != null && isMissingField.getAsBoolean();
         boolean actualMissing = node.isMissing();
         if (expectedMissing) {
+//            if (node.kind.compareTo(SyntaxKind.TEMPLATE_STRING) >= 0) {
+//                throw new IllegalArgumentException("expected token kind found node kind");
+//            }
             Assert.assertTrue(actualMissing, "'" + node.toString().trim() +
                     "' expected to be a STMissingToken, but found '" +
                     node.kind + "'.");
@@ -218,6 +221,16 @@ public class ParserTestUtils {
     private static void assertNodeKind(JsonObject json, STNode node) {
         SyntaxKind expectedNodeKind = getNodeKind(json.get(KIND_FIELD).getAsString());
         SyntaxKind actualNodeKind = node.kind;
+//        if (isToken(node)) {
+//            if (node.kind.compareTo(SyntaxKind.INVALID_TOKEN) > 0 && node.kind != SyntaxKind.EOF_TOKEN) {
+//                throw new AssertionError("expected terminal found non-terminal " + node.kind);
+//            }
+//        } else {
+//            if (node.kind.compareTo(SyntaxKind.INVALID_TOKEN) <= 0) {
+//
+//                throw new AssertionError("expected non-terminal found terminal " + node.kind);
+//            }
+//        }
         Assert.assertEquals(actualNodeKind, expectedNodeKind, "error at node [" + node.toString() + "].");
     }
 
@@ -297,9 +310,9 @@ public class ParserTestUtils {
         // Here we get a MissingToken, but we should get a non-terminal node instead.
         // This case is reported in this issue, https://github.com/ballerina-platform/ballerina-lang/issues/23902
         // TODO Remove the following if condition once the above issue is fixed.
-        if (tree.isMissing()) {
-            return;
-        }
+//        if (tree.isMissing()) {
+//            return;
+//        }
 
         JsonArray children = json.getAsJsonArray(CHILDREN_FIELD);
         int size = children.size();
