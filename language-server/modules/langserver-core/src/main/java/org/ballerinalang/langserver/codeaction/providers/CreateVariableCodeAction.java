@@ -283,7 +283,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 BSymbol symbol = ((BLangInvocation) bLangNode).symbol;
                 if (symbol instanceof BInvokableSymbol) {
                     variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                            ((BInvokableSymbol) symbol).retType,
+                                                                            ((BLangInvocation) bLangNode).type,
                                                                             context);
                 }
                 String variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
