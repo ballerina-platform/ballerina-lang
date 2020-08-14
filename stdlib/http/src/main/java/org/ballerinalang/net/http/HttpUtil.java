@@ -271,7 +271,7 @@ public class HttpUtil {
             byteChannelAlreadySet = (Boolean) messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
         }
         if (entityBodyRequired && !byteChannelAlreadySet) {
-            populateEntityBody(messageObj, entity, isRequest, false);
+            populateEntityBody(messageObj, entity, isRequest, entityHeadersRequired);
         }
         if (entityHeadersRequired) {
             populateEntityHeaders(messageObj, entity);
