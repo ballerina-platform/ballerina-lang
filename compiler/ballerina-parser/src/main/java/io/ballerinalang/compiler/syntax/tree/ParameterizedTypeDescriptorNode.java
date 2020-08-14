@@ -36,16 +36,8 @@ public class ParameterizedTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(0);
     }
 
-    public Token ltToken() {
+    public TypeParameterNode typeParameter() {
         return childInBucket(1);
-    }
-
-    public Node typeNode() {
-        return childInBucket(2);
-    }
-
-    public Token gtToken() {
-        return childInBucket(3);
     }
 
     @Override
@@ -62,29 +54,21 @@ public class ParameterizedTypeDescriptorNode extends TypeDescriptorNode {
     protected String[] childNames() {
         return new String[]{
                 "parameterizedType",
-                "ltToken",
-                "typeNode",
-                "gtToken"};
+                "typeParameter"};
     }
 
     public ParameterizedTypeDescriptorNode modify(
             Token parameterizedType,
-            Token ltToken,
-            Node typeNode,
-            Token gtToken) {
+            TypeParameterNode typeParameter) {
         if (checkForReferenceEquality(
                 parameterizedType,
-                ltToken,
-                typeNode,
-                gtToken)) {
+                typeParameter)) {
             return this;
         }
 
         return NodeFactory.createParameterizedTypeDescriptorNode(
                 parameterizedType,
-                ltToken,
-                typeNode,
-                gtToken);
+                typeParameter);
     }
 
     public ParameterizedTypeDescriptorNodeModifier modify() {
@@ -99,16 +83,12 @@ public class ParameterizedTypeDescriptorNode extends TypeDescriptorNode {
     public static class ParameterizedTypeDescriptorNodeModifier {
         private final ParameterizedTypeDescriptorNode oldNode;
         private Token parameterizedType;
-        private Token ltToken;
-        private Node typeNode;
-        private Token gtToken;
+        private TypeParameterNode typeParameter;
 
         public ParameterizedTypeDescriptorNodeModifier(ParameterizedTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
             this.parameterizedType = oldNode.parameterizedType();
-            this.ltToken = oldNode.ltToken();
-            this.typeNode = oldNode.typeNode();
-            this.gtToken = oldNode.gtToken();
+            this.typeParameter = oldNode.typeParameter();
         }
 
         public ParameterizedTypeDescriptorNodeModifier withParameterizedType(
@@ -118,33 +98,17 @@ public class ParameterizedTypeDescriptorNode extends TypeDescriptorNode {
             return this;
         }
 
-        public ParameterizedTypeDescriptorNodeModifier withLtToken(
-                Token ltToken) {
-            Objects.requireNonNull(ltToken, "ltToken must not be null");
-            this.ltToken = ltToken;
-            return this;
-        }
-
-        public ParameterizedTypeDescriptorNodeModifier withTypeNode(
-                Node typeNode) {
-            Objects.requireNonNull(typeNode, "typeNode must not be null");
-            this.typeNode = typeNode;
-            return this;
-        }
-
-        public ParameterizedTypeDescriptorNodeModifier withGtToken(
-                Token gtToken) {
-            Objects.requireNonNull(gtToken, "gtToken must not be null");
-            this.gtToken = gtToken;
+        public ParameterizedTypeDescriptorNodeModifier withTypeParameter(
+                TypeParameterNode typeParameter) {
+            Objects.requireNonNull(typeParameter, "typeParameter must not be null");
+            this.typeParameter = typeParameter;
             return this;
         }
 
         public ParameterizedTypeDescriptorNode apply() {
             return oldNode.modify(
                     parameterizedType,
-                    ltToken,
-                    typeNode,
-                    gtToken);
+                    typeParameter);
         }
     }
 }

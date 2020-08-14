@@ -1,4 +1,0 @@
-
-function testFunction() returns i {
-
-}

@@ -50,6 +50,7 @@ public class TestSuite {
     private List<String> beforeEachFunctionNames = new ArrayList<>();
     private List<String> afterEachFunctionNames = new ArrayList<>();
     private List<Test> tests = new ArrayList<>();
+    private Map<String, TestGroup> groups = new HashMap<>();
 
     private boolean isReportRequired;
 
@@ -220,5 +221,57 @@ public class TestSuite {
 
     public void setReportRequired(boolean reportRequired) {
         isReportRequired = reportRequired;
+    }
+
+    public Map<String, TestGroup> getGroups() {
+        return groups;
+    }
+
+    /**
+     * Adds a provided @AfterGroups function to the test suite.
+     *
+     * @param afterGroupFunc name of the function
+     * @param groups groups to which the function belongs
+     */
+    public void addAfterGroupFunction(String afterGroupFunc, List<String> groups) {
+        for (String groupName : groups) {
+            if (this.groups.get(groupName) == null) {
+                this.groups.put(groupName, new TestGroup());
+            }
+            this.groups.get(groupName).addAfterGroupsFunction(afterGroupFunc);
+        }
+    }
+
+    /**
+     * Adds a provided @BeforeGroups function to the test suite.
+     *
+     * @param beforeGroupsFunc name of the function
+     * @param groups groups to which the function belongs
+     */
+    public void addBeforeGroupsFunction(String beforeGroupsFunc, List<String> groups) {
+        for (String groupName : groups) {
+            if (this.groups.get(groupName) == null) {
+                this.groups.put(groupName, new TestGroup());
+            }
+            this.groups.get(groupName).addBeforeGroupsFunction(beforeGroupsFunc);
+        }
+    }
+
+    /**
+     * Adds a groups to the test suite using the provided Test object.
+     *
+     * @param test Test object to filter groups from
+     */
+    public void addTestToGroups(Test test) {
+        TestGroup testGroup;
+        for (String groupName : test.getGroups()) {
+            if (this.getGroups().get(groupName) != null) {
+                testGroup = this.getGroups().get(groupName);
+            } else {
+                testGroup = new TestGroup();
+            }
+            testGroup.incrementTestCount();
+            this.groups.put(groupName, testGroup);
+        }
     }
 }

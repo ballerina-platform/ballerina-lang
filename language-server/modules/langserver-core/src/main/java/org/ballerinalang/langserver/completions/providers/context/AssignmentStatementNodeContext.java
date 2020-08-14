@@ -85,7 +85,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     }
 
     @Override
-    public boolean onPreValidation(AssignmentStatementNode node) {
+    public boolean onPreValidation(LSContext context, AssignmentStatementNode node) {
         return !node.equalsToken().isMissing();
     }
 

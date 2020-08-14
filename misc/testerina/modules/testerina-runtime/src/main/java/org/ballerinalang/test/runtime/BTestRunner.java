@@ -51,10 +51,9 @@ import org.ballerinalang.test.runtime.util.TesterinaUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -182,10 +181,10 @@ public class BTestRunner {
         }
 
         // Create a queue and enqueue all vertices with indegree 0
-        Queue<Integer> q = new LinkedList<Integer>();
+        Stack<Integer> stack = new Stack<>();
         for (i = 0; i < numberOfNodes; i++) {
             if (indegrees[i] == 0) {
-                q.add(i);
+                stack.add(i);
             }
         }
 
@@ -194,16 +193,16 @@ public class BTestRunner {
 
         // Create a vector to store result (A topological ordering of the vertices)
         Vector<Integer> topOrder = new Vector<Integer>();
-        while (!q.isEmpty()) {
+        while (!stack.isEmpty()) {
             // Extract front of queue (or perform dequeue) and add it to topological order
-            int u = q.poll();
+            int u = stack.pop();
             topOrder.add(u);
 
             // Iterate through all its neighbouring nodes of dequeued node u and decrease their in-degree by 1
             for (int node : dependencyMatrix[u]) {
                 // If in-degree becomes zero, add it to queue
                 if (--indegrees[node] == 0) {
-                    q.add(node);
+                    stack.push(node);
                 }
             }
             cnt++;
@@ -236,6 +235,7 @@ public class BTestRunner {
         }
         AtomicBoolean shouldSkip = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterSuite = new AtomicBoolean();
+        AtomicBoolean shouldSkipAfterGroups = new AtomicBoolean();
         String packageName = suite.getPackageName();
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         // Load module init class
@@ -270,6 +270,7 @@ public class BTestRunner {
         }
         shouldSkip.set(false);
         shouldSkipAfterSuite.set(false);
+        shouldSkipAfterGroups.set(false);
         tReport.addPackageReport(packageName);
         tReport.setReportRequired(suite.isReportRequired());
         // Initialize the test suite.
@@ -278,7 +279,7 @@ public class BTestRunner {
         // Run Before suite functions
         executeBeforeSuiteFunctions(suite, classLoader, scheduler, shouldSkip, shouldSkipAfterSuite);
         // Run Tests
-        executeTests(suite, packageName, classLoader, scheduler, shouldSkip);
+        executeTests(suite, packageName, classLoader, scheduler, shouldSkip, shouldSkipAfterGroups);
         // Run After suite functions
         executeAfterSuiteFunctions(suite, classLoader, scheduler, shouldSkipAfterSuite);
         // Call module stop and test stop function
@@ -304,11 +305,16 @@ public class BTestRunner {
     }
 
     private void executeTests(TestSuite suite, String packageName, ClassLoader classLoader, Scheduler scheduler,
-                              AtomicBoolean shouldSkip) {
+                              AtomicBoolean shouldSkip, AtomicBoolean shouldSkipAfterGroups) {
         List<String> failedOrSkippedTests = new ArrayList<>();
         List<String> failedAfterFuncTests = new ArrayList<>();
         suite.getTests().forEach(test -> {
             AtomicBoolean shouldSkipTest = new AtomicBoolean(false);
+
+            // execute the before groups functions
+            executeBeforeGroupFunctions(test, suite, classLoader, scheduler, shouldSkip,
+                    shouldSkipTest, shouldSkipAfterGroups);
+
             // run the before each tests
             executeBeforeEachFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
             // run the before tests
@@ -320,7 +326,39 @@ public class BTestRunner {
             executeAfterFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest, failedAfterFuncTests);
             // run the after each tests
             executeAfterEachFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
+
+            // execute the after groups functions
+            executeAfterGroupFunctions(test, suite, classLoader, scheduler, shouldSkip,
+                    shouldSkipTest, shouldSkipAfterGroups);
         });
+    }
+
+    private void executeBeforeGroupFunctions(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
+                                       AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
+                                             AtomicBoolean shouldSkipAfterGroups)  {
+        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+            for (String groupName : test.getGroups()) {
+                if (!suite.getGroups().get(groupName).getBeforeGroupsFunctions().isEmpty()
+                        && !suite.getGroups().get(groupName).isFirstTestExecuted()) {
+                    // run before tests
+                    String errorMsg;
+                    for (String beforeGroupFunc : suite.getGroups().get(groupName).getBeforeGroupsFunctions()) {
+                        try {
+                            invokeTestFunction(suite, beforeGroupFunc, classLoader, scheduler);
+                        } catch (Throwable e) {
+                            shouldSkip.set(true);
+                            shouldSkipTest.set(true);
+                            shouldSkipAfterGroups.set(true);
+                            errorMsg = String.format("\t[fail] " + beforeGroupFunc +
+                                            " [before test group function for the test %s] :\n\t    %s", test,
+                                    formatErrorMessage(e));
+                            errStream.println(errorMsg);
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
     private void executeBeforeEachFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
@@ -409,6 +447,9 @@ public class BTestRunner {
                                                  formatErrorMessage(e));
             tReport.addFunctionResult(packageName, functionResult);
         }
+        for (String groupName : test.getGroups()) {
+            suite.getGroups().get(groupName).incrementExecutedCount();
+        }
     }
 
     private void executeAfterFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
@@ -442,6 +483,35 @@ public class BTestRunner {
                     errStream.println(errorMsg);
                 }
             });
+        }
+    }
+
+    private void executeAfterGroupFunctions(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
+                                             AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
+                                            AtomicBoolean shouldSkipAfterGroups)  {
+        if (!shouldSkipAfterGroups.get() && !shouldSkip.get() && !shouldSkipTest.get()) {
+            for (String groupName : test.getGroups()) {
+                if (!suite.getGroups().get(groupName).getAfterGroupsFunctions().isEmpty()
+                        && suite.getGroups().get(groupName).isLastTestExecuted()) {
+                    // run before tests
+                    String errorMsg;
+                    for (String afterGroupFunc : suite.getGroups().get(groupName).getAfterGroupsFunctions()) {
+                        try {
+
+                            invokeTestFunction(suite, afterGroupFunc, classLoader, scheduler);
+                        } catch (Throwable e) {
+                            shouldSkip.set(true);
+                            shouldSkipTest.set(true);
+                            shouldSkipAfterGroups.set(true);
+                            errorMsg = String.format("\t[fail] " + afterGroupFunc +
+                                            " [after test group function for the test %s] :\n\t    %s", test,
+                                    formatErrorMessage(e));
+                            errStream.println(errorMsg);
+                        }
+                    }
+
+                }
+            }
         }
     }
 

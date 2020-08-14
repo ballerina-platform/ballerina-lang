@@ -163,7 +163,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     }
 
     @Override
-    public boolean onPreValidation(AnnotationNode node) {
+    public boolean onPreValidation(LSContext context, AnnotationNode node) {
         return !node.atToken().isMissing();
     }
 }
