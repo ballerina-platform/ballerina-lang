@@ -1,19 +1,16 @@
 import ballerina/io;
 
-//function testOnFail() returns string {
-function testOnFail() returns any|error {
+function testOnFail() returns boolean {
+   boolean failureHandled = false;
    do {
-        error err = error("custom error", message = "error value");
-        io:println("Before fail");
-        fail err;
-        io:println("After fail");
+     error err = error("custom error", message = "error value");
+     io:println("Before failure throw");
+     fail err;
+     failureHandled = false;
    }
    on fail error e {
-      io:println("whoops!!!!");
-      return "failed";
+      io:println("whoops error caught !");
+      failureHandled = true;
    }
-   io:println("After do !!!");
-   io:println("###############################################");
-   return "at end";
-
+   return failureHandled;
 }
