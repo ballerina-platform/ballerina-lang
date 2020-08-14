@@ -41,9 +41,9 @@ public class ResourceValidator {
 
     /**
      * Validate the missing fields in openapi operation according to resource service.
-     * @param operation
-     * @param resourceMethod
-     * @return
+     * @param operation         openAPi operation
+     * @param resourceMethod    validate resourceMethods
+     * @return                  list of validationErrors
      * @throws OpenApiValidatorException
      */
     public static List<ValidationError> validateWhatMissingResource(Operation operation, ResourceMethod resourceMethod)
@@ -52,7 +52,7 @@ public class ResourceValidator {
         if (!resourceMethod.getParamNames().isEmpty()) {
             for (ResourceParameter resourceParameter: resourceMethod.getParamNames()) {
                 Boolean isParameterExit = false;
-                //            Request body handling
+//                            Request body handling
                 if ((resourceMethod.getBody() != null) && (resourceMethod.getBody().equals(resourceParameter.getName()))
                         && (operation.getRequestBody() != null)) {
                     if (operation.getRequestBody() != null) {
@@ -84,7 +84,7 @@ public class ResourceValidator {
                             }
                         }
                     }
-                    //                    Handle Path parameter
+//                    Handle Path parameter
                 } else if (operation.getParameters() != null) {
                     for (Parameter parameter : operation.getParameters()) {
                         if (resourceParameter.getName().equals(parameter.getName())) {
@@ -111,7 +111,7 @@ public class ResourceValidator {
         return validationErrors;
     }
 
-//    get the requestBody parameter form operation
+//    Get the requestBody parameter from operation
     public static Map<String, Schema> getOperationRequestBody(Operation operation) {
 
         Map<String, Schema> requestBodySchemas = new HashMap<>();
@@ -123,29 +123,29 @@ public class ResourceValidator {
     }
 
     /**
-     *
-     * @param operation
-     * @param resourceMethod
-     * @return
+     * Validate the missing fields in resource parameter according to given operation.
+     * @param operation         openApi operation
+     * @param resourceMethod    resource method object
+     * @return                  list of ValidationErrors
      * @throws OpenApiValidatorException
      */
 
     public static List<ValidationError> validateWhatMissingService(Operation operation, ResourceMethod resourceMethod)
             throws OpenApiValidatorException {
         List<ValidationError> validationErrorList = new ArrayList<>();
-//        handle path , query paramters
+//        Handle path , query parameters
         if (operation.getParameters() != null) {
             List<Parameter> operationParam = operation.getParameters();
             for (Parameter param : operationParam) {
                 Boolean isOParamExit = false;
-//                temporary solution for skipping the query parameter, when openApi tool available with query
-//                parameter can remove this if condition
+//                Temporary solution for skipping the query parameter, this if condition can be removed when openApi
+//                tool available with query parameter
                 if (param instanceof QueryParameter) {
                     isOParamExit = true;
                 }
                 if (!resourceMethod.getParamNames().isEmpty()) {
                     for (ResourceParameter resourceParam: resourceMethod.getParamNames()) {
-//                        check whether it is path parameter , in future can add query parameter
+//                        Check whether it is path parameter
                         if (param instanceof PathParameter) {
                             if (param.getName().equals(resourceParam.getName())) {
                                 isOParamExit = true;
@@ -167,7 +167,7 @@ public class ResourceValidator {
                 }
             }
         }
-//        handle the requestBody
+//        Handle the requestBody
         if (operation.getRequestBody() != null) {
 
             List<ResourceParameter> resourceParam = resourceMethod.getParamNames();
