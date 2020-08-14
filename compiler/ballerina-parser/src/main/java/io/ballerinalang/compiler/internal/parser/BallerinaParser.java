@@ -1726,7 +1726,12 @@ public class BallerinaParser extends AbstractParser {
                     return parseSimpleTypeDescriptor();
                 }
 
-                recover(nextToken, ParserRuleContext.TYPE_DESCRIPTOR, context, isInConditionalExpr);
+                Solution solution = recover(nextToken, ParserRuleContext.TYPE_DESCRIPTOR, context, isInConditionalExpr);
+
+                if (solution.action == Action.KEEP) {
+                    return parseSingletonTypeDesc();
+                }
+
                 return parseTypeDescriptorInternal(context, isInConditionalExpr);
         }
     }
@@ -4182,6 +4187,7 @@ public class BallerinaParser extends AbstractParser {
             case PUBLIC_KEYWORD:
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
+            case RESOURCE_KEYWORD:
             case EQUAL_TOKEN:
             case DOCUMENTATION_STRING:
             case AT_TOKEN:

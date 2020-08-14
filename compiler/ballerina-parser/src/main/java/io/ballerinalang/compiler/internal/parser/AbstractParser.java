@@ -125,8 +125,7 @@ public abstract class AbstractParser {
     }
 
     protected STToken getNextNextToken(SyntaxKind tokenKind) {
-        STToken nextToken = peek(1);
-        return nextToken.kind == tokenKind ? peek(2) : nextToken;
+        return peek(2);
     }
 
     /**
