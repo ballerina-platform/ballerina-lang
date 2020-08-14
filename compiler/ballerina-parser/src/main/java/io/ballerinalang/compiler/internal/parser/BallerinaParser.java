@@ -255,7 +255,6 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             case PUBLIC_KEYWORD:
                 qualifier = parseQualifier();
-                nextToken = peek();
                 break;
             case FUNCTION_KEYWORD:
             case TYPE_KEYWORD:
@@ -1302,17 +1301,11 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseParameter(STNode leadingComma, SyntaxKind prevParamKind, boolean isParamNameOptional) {
-        return parseParameter(prevParamKind, leadingComma, 1, isParamNameOptional);
-    }
-
-    private STNode parseParameter(SyntaxKind prevParamKind, STNode leadingComma, int nextTokenOffset,
-                                  boolean isParamNameOptional) {
         STNode annots;
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case AT_TOKEN:
                 annots = parseOptionalAnnotations();
-                nextToken = peek();
                 break;
             case PUBLIC_KEYWORD:
             case IDENTIFIER_TOKEN:
@@ -1326,7 +1319,7 @@ public class BallerinaParser extends AbstractParser {
 
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.PARAMETER_START, prevParamKind, leadingComma,
-                        nextTokenOffset, isParamNameOptional);
+                        isParamNameOptional);
 
                 if (solution.action == Action.KEEP) {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
@@ -1336,17 +1329,14 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                // FIXME: Since we come here after recovering by insertion, then the current token becomes the next
-                // token.
-                // So the nextNextToken offset becomes 1.
-                return parseParameter(prevParamKind, leadingComma, 0, isParamNameOptional);
+                return parseParameter(leadingComma, prevParamKind, isParamNameOptional);
         }
 
-        return parseParamGivenAnnots(prevParamKind, leadingComma, annots, 1, isParamNameOptional);
+        return parseParamGivenAnnots(prevParamKind, leadingComma, annots, isParamNameOptional);
     }
 
     private STNode parseParamGivenAnnots(SyntaxKind prevParamKind, STNode leadingComma, STNode annots,
-                                         int nextNextTokenOffset, boolean isParamNameOptional) {
+                                         boolean isParamNameOptional) {
         STNode qualifier;
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -1365,7 +1355,7 @@ public class BallerinaParser extends AbstractParser {
 
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.PARAMETER_WITHOUT_ANNOTS, prevParamKind,
-                        leadingComma, annots, nextNextTokenOffset, isParamNameOptional);
+                        leadingComma, annots, isParamNameOptional);
 
                 if (solution.action == Action.KEEP) {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
@@ -1375,9 +1365,7 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                // Since we come here after recovering by insertion, then the current token becomes the next token.
-                // So the nextNextToken offset becomes 1.
-                return parseParamGivenAnnots(prevParamKind, leadingComma, annots, 0, isParamNameOptional);
+                return parseParamGivenAnnots(prevParamKind, leadingComma, annots, isParamNameOptional);
         }
 
         return parseParamGivenAnnotsAndQualifier(prevParamKind, leadingComma, annots, qualifier, isParamNameOptional);
@@ -2864,10 +2852,6 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     protected STNode parseStatement() {
-        return parseStatement(1);
-    }
-
-    protected STNode parseStatement(int nextTokenIndex) {
         STToken nextToken = peek();
         STNode annots = null;
         switch (nextToken.kind) {
@@ -2879,7 +2863,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseStatement();
             case AT_TOKEN:
                 annots = parseOptionalAnnotations();
-                nextToken = peek();
                 break;
             case FINAL_KEYWORD:
 
@@ -2924,21 +2907,21 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 // Expression-stmt start
-                if (isValidExpressionStart(nextToken.kind, nextTokenIndex)) {
+                if (isValidExpressionStart(nextToken.kind, 1)) {
                     break;
                 }
 
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.STATEMENT, nextTokenIndex);
+                Solution solution = recover(token, ParserRuleContext.STATEMENT);
                 if (solution.action == Action.KEEP) {
                     // singleton type starting tokens can be correct one's hence keep them.
                     break;
                 }
 
-                return parseStatement(nextTokenIndex);
+                return parseStatement();
         }
 
-        return parseStatement(annots, nextTokenIndex);
+        return parseStatement(annots);
     }
 
     private STNode getAnnotations(STNode nullbaleAnnot) {
@@ -2949,17 +2932,13 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createEmptyNodeList();
     }
 
-    private STNode parseStatement(STNode annots) {
-        return parseStatement(annots, 1);
-    }
-
     /**
      * Parse a single statement, given the next token kind.
      *
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    private STNode parseStatement(STNode annots, int nextTokenIndex) {
+    private STNode parseStatement(STNode annots) {
         // TODO: validate annotations: not every statement supports annots
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -3044,7 +3023,7 @@ public class BallerinaParser extends AbstractParser {
             case MATCH_KEYWORD:
                 return parseMatchStatement();
             default:
-                if (isValidExpressionStart(nextToken.kind, nextTokenIndex)) {
+                if (isValidExpressionStart(nextToken.kind, 1)) {
                     // These are expressions that are definitely not types.
                     return parseStatementStartWithExpr(getAnnotations(annots));
                 }
@@ -3058,7 +3037,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots, nextTokenIndex);
+                Solution solution = recover(token, ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots);
 
                 if (solution.action == Action.KEEP) {
                     // singleton type starting tokens can be correct one's hence keep them.
@@ -3066,8 +3045,7 @@ public class BallerinaParser extends AbstractParser {
                     return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
                 }
 
-                // FIXME: nextTokenIndex correct?
-                return parseStatement(annots, nextTokenIndex);
+                return parseStatement(annots);
         }
     }
 
@@ -3764,7 +3742,6 @@ public class BallerinaParser extends AbstractParser {
         // If the current rule was recovered by removing a token, then this entire rule is already
         // parsed while recovering. so we done need to parse the remaining of this rule again.
         // Proceed only if the recovery action was an insertion.
-        // FIXME: re-parse is removed?
         if (solution.action == Action.REMOVE) {
             return parseExpressionRhs(solution.tokenKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions,
                     isInMatchGuard, isInConditionalExpr);
@@ -4103,19 +4080,8 @@ public class BallerinaParser extends AbstractParser {
                     // Here the context is ended inside the method.
                     return parseImplicitAnonFunc(openParen, expr, isRhsExpr);
                 default:
-                    STToken token = peek();
-                    recover(token, ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS, openParen, expr, isRhsExpr);
-
-                    // If the parser recovered by inserting a token, then try to re-parse the same
-                    // rule with the inserted token. This is done to pick the correct branch
-                    // to continue the parsing.
-
-                    // FIXME
-                    // if (solution.action == Action.REMOVE) {
-                    // endContext();
-                    // return solution.recoveredNode;
-                    // }
-
+                    recover(nextToken, ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS, openParen, expr,
+                            isRhsExpr);
                     return parseBracedExprOrAnonFuncParamRhs(openParen, expr, isRhsExpr);
             }
         }
@@ -4296,7 +4262,6 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            nextToken = peek();
             STNode curArg = parseArgument();
             DiagnosticErrorCode errorCode = validateArgumentOrder(lastValidArgKind, curArg.kind);
             if (errorCode == null) {
@@ -10123,7 +10088,7 @@ public class BallerinaParser extends AbstractParser {
         nextToken = peek();
         STNode waitFutureExprEnd;
         while (!isEndOfWaitFutureExprList(nextToken.kind)) {
-            waitFutureExprEnd = parseWaitFutureExprEnd(1);
+            waitFutureExprEnd = parseWaitFutureExprEnd();
             if (waitFutureExprEnd == null) {
                 break;
             }
@@ -10163,20 +10128,18 @@ public class BallerinaParser extends AbstractParser {
         return waitFutureExpr;
     }
 
-    private STNode parseWaitFutureExprEnd(int nextTokenIndex) {
+    private STNode parseWaitFutureExprEnd() {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case PIPE_TOKEN:
                 return parsePipeToken();
             default:
-                if (isEndOfWaitFutureExprList(nextToken.kind) ||
-                        !isValidExpressionStart(nextToken.kind, nextTokenIndex)) {
+                if (isEndOfWaitFutureExprList(nextToken.kind) || !isValidExpressionStart(nextToken.kind, 1)) {
                     return null;
                 }
 
-                recover(peek(), ParserRuleContext.WAIT_FUTURE_EXPR_END, nextTokenIndex);
-                // FIXME: current token becomes next token
-                return parseWaitFutureExprEnd(nextTokenIndex);
+                recover(peek(), ParserRuleContext.WAIT_FUTURE_EXPR_END);
+                return parseWaitFutureExprEnd();
         }
     }
 
