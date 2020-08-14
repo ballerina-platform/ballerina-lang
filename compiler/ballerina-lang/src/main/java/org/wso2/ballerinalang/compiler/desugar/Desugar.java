@@ -426,38 +426,39 @@ public class Desugar extends BLangNodeVisitor {
                 pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
             }
         }
-        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
-        int toplevelNodeCount = topLevelNodes.size();
+        int toplevelNodeCount = pkgNode.topLevelNodes.size();
         for (int i = 0; i < toplevelNodeCount; i++) {
-            TopLevelNode topLevelNode = topLevelNodes.get(i);
+            TopLevelNode topLevelNode = pkgNode.topLevelNodes.get(i);
             if (topLevelNode.getKind() != NodeKind.CLASS_DEFN) {
                 continue;
             }
-            BLangClassDefinition classDefinition = (BLangClassDefinition) topLevelNode;
+            addClassMemberFunctionsToTopLevel(pkgNode, env, (BLangClassDefinition) topLevelNode);
+        }
+    }
 
-            classDefinition.functions.forEach(f -> {
-                if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
-                    pkgNode.functions.add(f);
-                    pkgNode.topLevelNodes.add(f);
-                }
-            });
-
-            BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDefinition, env);
-            tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
-                    tempGeneratedInitFunction.symbol.scope, env);
-            this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
-            classDefinition.generatedInitFunction = tempGeneratedInitFunction;
-
-            // Add generated init function to the attached function list
-            pkgNode.functions.add(classDefinition.generatedInitFunction);
-            pkgNode.topLevelNodes.add(classDefinition.generatedInitFunction);
-
-            // Add init function to the attached function list
-            if (classDefinition.initFunction != null) {
-                pkgNode.functions.add(classDefinition.initFunction);
-                pkgNode.topLevelNodes.add(classDefinition.initFunction);
+    private void addClassMemberFunctionsToTopLevel(BLangPackage pkgNode, SymbolEnv env,
+                                                   BLangClassDefinition classDefinition) {
+        for (BLangFunction function : classDefinition.functions) {
+            if (!pkgNode.objAttachedFunctions.contains(function.symbol)) {
+                pkgNode.functions.add(function);
+                pkgNode.topLevelNodes.add(function);
             }
+        }
 
+        BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDefinition, env);
+        tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
+                tempGeneratedInitFunction.symbol.scope, env);
+        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
+        classDefinition.generatedInitFunction = tempGeneratedInitFunction;
+
+        // Add generated init function to the attached function list
+        pkgNode.functions.add(classDefinition.generatedInitFunction);
+        pkgNode.topLevelNodes.add(classDefinition.generatedInitFunction);
+
+        // Add init function to the attached function list
+        if (classDefinition.initFunction != null) {
+            pkgNode.functions.add(classDefinition.initFunction);
+            pkgNode.topLevelNodes.add(classDefinition.initFunction);
         }
     }
 
