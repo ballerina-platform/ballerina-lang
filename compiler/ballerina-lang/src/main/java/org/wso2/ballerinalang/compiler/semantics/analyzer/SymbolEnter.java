@@ -560,6 +560,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BObjectType objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
 
             tSymbol.type = objectType;
+            classDefinition.type = objectType;
             classDefinition.symbol = tSymbol;
 
             // For each referenced type, check whether the types are already resolved.

@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -42,7 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -110,8 +110,8 @@ public class TypeDefBuilderHelper {
 
     public static BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode recordTypeNode, SymbolEnv env,
                                                                 Names names, SymbolTable symTable) {
-        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode, env,
-                                                                        Names.INIT_FUNCTION_SUFFIX, names, symTable);
+        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode.pos, recordTypeNode.symbol, env,
+                names, Names.INIT_FUNCTION_SUFFIX, symTable, recordTypeNode.type);
         BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.type.tsymbol);
         structureSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
                                                              (BInvokableType) initFunction.type);
@@ -121,18 +121,18 @@ public class TypeDefBuilderHelper {
         return initFunction;
     }
 
-    public static BLangFunction createInitFunctionForStructureType(BLangStructureTypeNode structureTypeNode,
-                                                                   SymbolEnv env, Name suffix, Names names,
-                                                                   SymbolTable symTable) {
-        String structTypeName = structureTypeNode.type.tsymbol.name.value;
+    public static BLangFunction createInitFunctionForStructureType(DiagnosticPos pos, BSymbol symbol, SymbolEnv env,
+                                                                   Names names, Name suffix,
+                                                                   SymbolTable symTable, BType type) {
+        String structTypeName = type.tsymbol.name.value;
         BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(structureTypeNode.pos, structTypeName, suffix);
+                .createInitFunctionWithNilReturn(pos, structTypeName, suffix);
 
         // Create the receiver and add receiver details to the node
-        initFunction.receiver = ASTBuilderUtil.createReceiver(structureTypeNode.pos, structureTypeNode.type);
+        initFunction.receiver = ASTBuilderUtil.createReceiver(pos, type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, structureTypeNode.type, null);
+                                                   env.enclPkg.symbol.pkgID, type, null);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
@@ -144,11 +144,11 @@ public class TypeDefBuilderHelper {
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                                      initFunction.type, structureTypeNode.symbol, initFunction.body != null);
+                                      initFunction.type, symbol, initFunction.body != null);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
-        initFunction.name = ASTBuilderUtil.createIdentifier(structureTypeNode.pos, funcSymbolName.value);
+        initFunction.name = ASTBuilderUtil.createIdentifier(pos, funcSymbolName.value);
 
         // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,

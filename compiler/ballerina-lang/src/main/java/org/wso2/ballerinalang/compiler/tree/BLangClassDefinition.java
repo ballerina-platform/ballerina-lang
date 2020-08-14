@@ -122,7 +122,7 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     }
 
     @Override
-    public List<? extends AnnotationAttachmentNode> getAnnotationAttachments() {
+    public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
     }
 

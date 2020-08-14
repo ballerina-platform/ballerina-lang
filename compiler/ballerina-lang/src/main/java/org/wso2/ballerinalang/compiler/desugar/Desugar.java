@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
@@ -73,6 +74,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -424,6 +426,39 @@ public class Desugar extends BLangNodeVisitor {
                 pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
             }
         }
+        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
+        int toplevelNodeCount = topLevelNodes.size();
+        for (int i = 0; i < toplevelNodeCount; i++) {
+            TopLevelNode topLevelNode = topLevelNodes.get(i);
+            if (topLevelNode.getKind() != NodeKind.CLASS_DEFN) {
+                continue;
+            }
+            BLangClassDefinition classDefinition = (BLangClassDefinition) topLevelNode;
+
+            classDefinition.functions.forEach(f -> {
+                if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
+                    pkgNode.functions.add(f);
+                    pkgNode.topLevelNodes.add(f);
+                }
+            });
+
+            BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDefinition, env);
+            tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
+                    tempGeneratedInitFunction.symbol.scope, env);
+            this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
+            classDefinition.generatedInitFunction = tempGeneratedInitFunction;
+
+            // Add generated init function to the attached function list
+            pkgNode.functions.add(classDefinition.generatedInitFunction);
+            pkgNode.topLevelNodes.add(classDefinition.generatedInitFunction);
+
+            // Add init function to the attached function list
+            if (classDefinition.initFunction != null) {
+                pkgNode.functions.add(classDefinition.initFunction);
+                pkgNode.topLevelNodes.add(classDefinition.initFunction);
+            }
+
+        }
     }
 
     /**
@@ -446,14 +481,29 @@ public class Desugar extends BLangNodeVisitor {
             return generatedInitFunc;
         }
 
-        BAttachedFunction initializerFunc = ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc;
-        BAttachedFunction generatedInitializerFunc =
-                ((BObjectTypeSymbol) objectTypeNode.symbol).generatedInitializerFunc;
-        addRequiredParamsToGeneratedInitFunction(objectTypeNode.initFunction, generatedInitFunc,
-                                                 generatedInitializerFunc);
-        addRestParamsToGeneratedInitFunction(objectTypeNode.initFunction, generatedInitFunc, generatedInitializerFunc);
+        return wireUpGeneratedInitFunction(generatedInitFunc, (BObjectTypeSymbol) objectTypeNode.symbol, objectTypeNode.initFunction);
+    }
 
-        generatedInitFunc.returnTypeNode = objectTypeNode.initFunction.returnTypeNode;
+    private BLangFunction createGeneratedInitializerFunction(BLangClassDefinition classDefinition, SymbolEnv env) {
+        BLangFunction generatedInitFunc = createInitFunctionForClassDefn(classDefinition, env);
+        if (classDefinition.initFunction == null) {
+            return generatedInitFunc;
+        }
+
+        return wireUpGeneratedInitFunction(generatedInitFunc,
+                    (BObjectTypeSymbol) classDefinition.symbol, classDefinition.initFunction);
+    }
+
+    private BLangFunction wireUpGeneratedInitFunction(BLangFunction generatedInitFunc,
+                                                      BObjectTypeSymbol objectTypeSymbol, BLangFunction initFunction) {
+        BAttachedFunction initializerFunc = objectTypeSymbol.initializerFunc;
+        BAttachedFunction generatedInitializerFunc =
+                objectTypeSymbol.generatedInitializerFunc;
+        addRequiredParamsToGeneratedInitFunction(initFunction, generatedInitFunc,
+                                                 generatedInitializerFunc);
+        addRestParamsToGeneratedInitFunction(initFunction, generatedInitFunc, generatedInitializerFunc);
+
+        generatedInitFunc.returnTypeNode = initFunction.returnTypeNode;
         generatedInitializerFunc.symbol.retType = generatedInitFunc.returnTypeNode.type;
 
         ((BInvokableType) generatedInitFunc.symbol.type).paramTypes = initializerFunc.type.paramTypes;
@@ -4497,9 +4547,9 @@ public class Desugar extends BLangNodeVisitor {
      */
     private BLangFunction createUserDefinedObjectInitFn(BLangObjectTypeNode objectTypeNode, SymbolEnv env) {
         BLangFunction initFunction =
-                TypeDefBuilderHelper.createInitFunctionForStructureType(objectTypeNode, env,
-                                                                        Names.USER_DEFINED_INIT_SUFFIX, names,
-                                                                        symTable);
+                TypeDefBuilderHelper.createInitFunctionForStructureType(objectTypeNode.pos, objectTypeNode.symbol, env,
+                        names, Names.USER_DEFINED_INIT_SUFFIX,
+                        symTable, objectTypeNode.type);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) objectTypeNode.type.tsymbol);
         typeSymbol.initializerFunc = new BAttachedFunction(Names.USER_DEFINED_INIT_SUFFIX, initFunction.symbol,
                                                            (BInvokableType) initFunction.type);
@@ -6795,12 +6845,24 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangFunction createInitFunctionForObjectType(BLangObjectTypeNode structureTypeNode, SymbolEnv env) {
         BLangFunction initFunction =
-                TypeDefBuilderHelper.createInitFunctionForStructureType(structureTypeNode, env,
-                                                                        Names.GENERATED_INIT_SUFFIX, names, symTable);
+                TypeDefBuilderHelper.createInitFunctionForStructureType(structureTypeNode.pos, structureTypeNode.symbol,
+                        env, names, Names.GENERATED_INIT_SUFFIX, symTable, structureTypeNode.type);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) structureTypeNode.type.tsymbol);
         typeSymbol.generatedInitializerFunc = new BAttachedFunction(Names.GENERATED_INIT_SUFFIX, initFunction.symbol,
                 (BInvokableType) initFunction.type);
         structureTypeNode.generatedInitFunction = initFunction;
+        initFunction.returnTypeNode.type = symTable.nilType;
+        return rewrite(initFunction, env);
+    }
+
+    private BLangFunction createInitFunctionForClassDefn(BLangClassDefinition classDefinition, SymbolEnv env) {
+        BLangFunction initFunction =
+                TypeDefBuilderHelper.createInitFunctionForStructureType(classDefinition.pos, classDefinition.symbol,
+                        env, names, Names.GENERATED_INIT_SUFFIX, symTable, classDefinition.type);
+        BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefinition.type.tsymbol);
+        typeSymbol.generatedInitializerFunc = new BAttachedFunction(Names.GENERATED_INIT_SUFFIX, initFunction.symbol,
+                (BInvokableType) initFunction.type);
+        classDefinition.generatedInitFunction = initFunction;
         initFunction.returnTypeNode.type = symTable.nilType;
         return rewrite(initFunction, env);
     }
