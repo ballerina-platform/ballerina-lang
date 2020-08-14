@@ -133,12 +133,9 @@ public abstract class NonTerminalNode extends Node {
      */
     public NonTerminalNode findNode(TextRange textRange) {
         TextRange textRangeWithMinutiae = textRangeWithMinutiae();
-        if (textRangeWithMinutiae.endOffset() == textRange.startOffset() && this instanceof ModulePartNode) {
-            return this;
-        }
-
-        if (!textRangeWithMinutiae.contains(textRange.startOffset())
-                || !textRangeWithMinutiae.contains(textRange.endOffset())) {
+        if (!(this instanceof ModulePartNode)
+                && (!textRangeWithMinutiae.contains(textRange.startOffset())
+                || !textRangeWithMinutiae.contains(textRange.endOffset()))) {
             throw new IllegalStateException("Invalid Text Range for: " + textRange.toString());
         }
 
@@ -260,7 +257,7 @@ public abstract class NonTerminalNode extends Node {
                 continue;
             }
             int offsetWithMinutiae = offset + internalChildNode.widthWithMinutiae();
-            if (textRange.startOffset() > offset && textRange.endOffset() < offsetWithMinutiae) {
+            if (textRange.startOffset() > offset && textRange.endOffset() <= offsetWithMinutiae) {
                 // Populate the external node.
                 return Optional.ofNullable(this.childInBucket(bucket));
             }

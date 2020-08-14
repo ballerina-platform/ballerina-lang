@@ -33,7 +33,6 @@ import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
@@ -51,7 +50,6 @@ import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
@@ -203,29 +201,11 @@ public class FormattingTreeModifier extends TreeModifier {
             return importVersionNode;
         }
         Token versionKeyword = getToken(importVersionNode.versionKeyword());
-        NodeList<Node> versionNumber = this.modifyNodeList(importVersionNode.versionNumber());
+        SeparatedNodeList<Token> versionNumber = this.modifySeparatedNodeList(importVersionNode.versionNumber());
 
         return importVersionNode.modify()
-                .withVersionKeyword(formatToken(versionKeyword, 1, 0, 0, 0))
+                .withVersionKeyword(formatToken(versionKeyword, 1, 1, 0, 0))
                 .withVersionNumber(versionNumber)
-                .apply();
-    }
-
-    @Override
-    public ImportSubVersionNode transform(ImportSubVersionNode importSubVersionNode) {
-        if (!isInLineRange(importSubVersionNode)) {
-            return importSubVersionNode;
-        }
-        Token leadingDot = getToken(importSubVersionNode.leadingDot().orElse(null));
-        Token versionNumber = getToken(importSubVersionNode.versionNumber());
-
-        if (leadingDot != null) {
-            importSubVersionNode = importSubVersionNode.modify().withLeadingDot(formatToken(leadingDot, 0, 0, 0, 0))
-                    .apply();
-        }
-
-        return importSubVersionNode.modify()
-                .withVersionNumber(formatToken(versionNumber, 1, 0, 0, 0))
                 .apply();
     }
 
@@ -278,7 +258,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openPara = getToken(functionSignatureNode.openParenToken());
         Token closePara = getToken(functionSignatureNode.closeParenToken());
 
-        NodeList<ParameterNode> parameters = this.modifyNodeList(functionSignatureNode.parameters());
+        SeparatedNodeList<ParameterNode> parameters = this.modifySeparatedNodeList(functionSignatureNode.parameters());
         ReturnTypeDescriptorNode returnTypeDescriptorNode = functionSignatureNode.returnTypeDesc().orElse(null);
 
         if (returnTypeDescriptorNode != null) {
@@ -331,17 +311,11 @@ public class FormattingTreeModifier extends TreeModifier {
             return requiredParameterNode;
         }
         Token paramName = getToken(requiredParameterNode.paramName().orElse(null));
-        Token leadingComma = getToken(requiredParameterNode.leadingComma().orElse(null));
         Token visibilityQualifier = getToken(requiredParameterNode.visibilityQualifier().orElse(null));
 
         NodeList<AnnotationNode> annotations = this.modifyNodeList(requiredParameterNode.annotations());
         Node typeName = this.modifyNode(requiredParameterNode.typeName());
 
-        if (leadingComma != null) {
-            requiredParameterNode = requiredParameterNode.modify()
-                    .withLeadingComma(formatToken(leadingComma, 0, 1, 0, 0))
-                    .apply();
-        }
         if (paramName != null) {
             requiredParameterNode = requiredParameterNode.modify()
                     .withParamName(formatToken(paramName, 1, 0, 0, 0))
@@ -474,7 +448,8 @@ public class FormattingTreeModifier extends TreeModifier {
         Token onKeyword = getToken(serviceDeclarationNode.onKeyword());
 
         MetadataNode metadata = this.modifyNode(serviceDeclarationNode.metadata().orElse(null));
-        NodeList<ExpressionNode> expressions = this.modifyNodeList(serviceDeclarationNode.expressions());
+        SeparatedNodeList<ExpressionNode> expressions =
+                this.modifySeparatedNodeList(serviceDeclarationNode.expressions());
 
         serviceDeclarationNode = serviceDeclarationNode.modify()
                 .withServiceKeyword(formatToken(serviceKeyword, 0, 0, 1, 0))
@@ -504,25 +479,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 1))
                 .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 1))
                 .withResources(resources)
-                .apply();
-    }
-
-    @Override
-    public ExpressionListItemNode transform(ExpressionListItemNode expressionListItemNode) {
-        if (!isInLineRange(expressionListItemNode)) {
-            return expressionListItemNode;
-        }
-        ExpressionNode expression = this.modifyNode(expressionListItemNode.expression());
-        Token commaToken = getToken(expressionListItemNode.leadingComma().orElse(null));
-
-        if (commaToken != null) {
-            return expressionListItemNode.modify()
-                    .withExpression(expression)
-                    .withLeadingComma(formatToken(commaToken, 0, 0, 0, 0))
-                    .apply();
-        }
-        return expressionListItemNode.modify()
-                .withExpression(expression)
                 .apply();
     }
 
@@ -1636,18 +1592,27 @@ public class FormattingTreeModifier extends TreeModifier {
     public ParameterizedTypeDescriptorNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         int startCol = getStartColumn(parameterizedTypeDescriptorNode, parameterizedTypeDescriptorNode.kind(), true);
         Token parameterizedType = getToken(parameterizedTypeDescriptorNode.parameterizedType());
-        Token ltToken = getToken(parameterizedTypeDescriptorNode.ltToken());
-        Node typeNode = this.modifyNode(parameterizedTypeDescriptorNode.typeNode());
-        Token gtToken = getToken(parameterizedTypeDescriptorNode.gtToken());
+        TypeParameterNode typeParameter = this.modifyNode(parameterizedTypeDescriptorNode.typeParameter());
+
+        return parameterizedTypeDescriptorNode.modify()
+                .withParameterizedType(formatToken(parameterizedType, startCol, 0, 0, 0))
+                .withTypeParameter(typeParameter)
+                .apply();
+    }
+
+    @Override
+    public TypeParameterNode transform(TypeParameterNode typeParameterNode) {
+        Token ltToken = getToken(typeParameterNode.ltToken());
+        TypeDescriptorNode typeNode = this.modifyNode(typeParameterNode.typeNode());
+        Token gtToken = getToken(typeParameterNode.gtToken());
 
         if (typeNode != null) {
-            parameterizedTypeDescriptorNode = parameterizedTypeDescriptorNode.modify()
+            typeParameterNode = typeParameterNode.modify()
                     .withTypeNode(typeNode)
                     .apply();
         }
 
-        return parameterizedTypeDescriptorNode.modify()
-                .withParameterizedType(formatToken(parameterizedType, startCol, 0, 0, 0))
+        return typeParameterNode.modify()
                 .withLtToken(formatToken(ltToken, 0, 0, 0, 0))
                 .withGtToken(formatToken(gtToken, 0, 0, 0, 0))
                 .apply();

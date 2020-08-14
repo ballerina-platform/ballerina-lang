@@ -104,7 +104,7 @@ function testAssertExactEqualsObject() {
 function testAssertNotExactEqualsObject() {
     Person p1 = new;
     Person p2 = new ();
-    test:assertExactNotEquals(p1, p2, msg = "Objects are exactly equal");
+    test:assertNotExactEquals(p1, p2, msg = "Objects are exactly equal");
 }
 
 @test:Config {}

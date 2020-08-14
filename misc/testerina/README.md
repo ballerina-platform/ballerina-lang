@@ -40,7 +40,7 @@ assertExactEquals(Any actual, Any expected, string message[Optional])
 Asserts that the actual entity is exactly equal to the expected entity, with an optional message.
 
 ````ballerina
-assertExactNotEquals(Any actual, Any expected, string message[Optional])
+assertNotExactEquals(Any actual, Any expected, string message[Optional])
 ````
 Asserts that the actual entity is not exactly equal to the expected entity, with an optional message.
 
