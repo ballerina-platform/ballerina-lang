@@ -47,5 +47,4 @@ service putService on ep0, ep1 {
     resource function resource_put_user (http:Caller caller, http:Request req,  Pet  body) returns error? {
 
     }
-
 }

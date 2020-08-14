@@ -29,5 +29,4 @@ service petstore on ep0, ep1 {
         resource function showPetById (http:Caller caller, http:Request req, Pet body) returns error? {
 
         }
-
     }
