@@ -62,7 +62,15 @@ public abstract class AbstractParser {
     }
 
     protected STToken peek(int k) {
-        if (this.insertedToken != null) {
+        if (this.insertedToken == null) {
+            return this.tokenReader.peek(k);
+        }
+
+        if (k == 1) {
+            return this.insertedToken;
+        }
+
+        if (k > 0) {
             k = k - 1;
         }
 
@@ -104,6 +112,10 @@ public abstract class AbstractParser {
         }
 
         return sol;
+    }
+
+    protected void insertToken(SyntaxKind kind) {
+        this.insertedToken = SyntaxErrors.createMissingTokenWithDiagnostics(kind);
     }
 
     protected void startContext(ParserRuleContext context) {

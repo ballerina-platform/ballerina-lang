@@ -2290,6 +2290,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private SyntaxKind getBinaryOperatorKindToInsert(OperatorPrecedence opPrecedenceLevel) {
         switch (opPrecedenceLevel) {
+            case MULTIPLICATIVE:
+                return SyntaxKind.ASTERISK_TOKEN;
             case DEFAULT:
             case UNARY:
             case ACTION:
@@ -2297,11 +2299,6 @@ public class BallerinaParser extends AbstractParser {
             case REMOTE_CALL_ACTION:
             case ANON_FUNC_OR_LET:
             case QUERY:
-                // If the current precedence level is unary/action, then we return
-                // the binary operator with closest precedence level to it.
-                // Therefore fall through
-            case MULTIPLICATIVE:
-                return SyntaxKind.ASTERISK_TOKEN;
             case ADDITIVE:
                 return SyntaxKind.PLUS_TOKEN;
             case SHIFT:
@@ -3570,17 +3567,9 @@ public class BallerinaParser extends AbstractParser {
         return parseExpressionRhs(precedenceLevel, lhsExpr, isRhsExpr, allowActions, false, false);
     }
 
-    private STNode parseExpressionRhs(OperatorPrecedence precedenceLevel, STNode lhsExpr, boolean isRhsExpr,
-                                      boolean allowActions, boolean isInMatchGuard, boolean isInConditionalExpr) {
-        STToken token = peek();
-        return parseExpressionRhs(token.kind, precedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
-                isInConditionalExpr);
-    }
-
     /**
      * Parse the right hand side of an expression given the next token kind.
      *
-     * @param tokenKind Next token kind
      * @param currentPrecedenceLevel Precedence level of the expression that is being parsed currently
      * @param lhsExpr LHS expression
      * @param isRhsExpr Flag indicating whether this is a rhs expr or not
@@ -3588,12 +3577,11 @@ public class BallerinaParser extends AbstractParser {
      * @param isInMatchGuard Flag indicating whether this expression is in a match-guard
      * @return Parsed node
      */
-    private STNode parseExpressionRhs(SyntaxKind tokenKind, OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr,
-                                      boolean isRhsExpr, boolean allowActions, boolean isInMatchGuard,
-                                      boolean isInConditionalExpr) {
-        STNode actionOrExpression = parseExpressionRhsInternal(tokenKind, currentPrecedenceLevel, lhsExpr, isRhsExpr,
-                allowActions, isInMatchGuard, isInConditionalExpr);
-        // braced actions are just paranthesis enclosing actions, no need to add a diagnostic there when we have added
+    private STNode parseExpressionRhs(OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr, boolean isRhsExpr,
+                                      boolean allowActions, boolean isInMatchGuard, boolean isInConditionalExpr) {
+        STNode actionOrExpression = parseExpressionRhsInternal(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions,
+                isInMatchGuard, isInConditionalExpr);
+        // braced actions are just parenthesis enclosing actions, no need to add a diagnostic there when we have added
         // diagnostics to its children
         if (!allowActions && isAction(actionOrExpression) && actionOrExpression.kind != SyntaxKind.BRACED_ACTION) {
             actionOrExpression = attachErrorExpectedActionFoundDiagnostic(actionOrExpression);
@@ -3601,10 +3589,11 @@ public class BallerinaParser extends AbstractParser {
         return actionOrExpression;
     }
 
-    private STNode parseExpressionRhsInternal(SyntaxKind tokenKind, OperatorPrecedence currentPrecedenceLevel,
-                                              STNode lhsExpr, boolean isRhsExpr, boolean allowActions,
-                                              boolean isInMatchGuard, boolean isInConditionalExpr) {
-        if (isEndOfExpression(tokenKind, isRhsExpr, isInMatchGuard, lhsExpr.kind)) {
+    private STNode parseExpressionRhsInternal(OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr,
+                                              boolean isRhsExpr, boolean allowActions, boolean isInMatchGuard,
+                                              boolean isInConditionalExpr) {
+        SyntaxKind nextTokenKind = peek().kind;
+        if (isEndOfExpression(nextTokenKind, isRhsExpr, isInMatchGuard, lhsExpr.kind)) {
             return lhsExpr;
         }
 
@@ -3614,30 +3603,30 @@ public class BallerinaParser extends AbstractParser {
             return lhsExpr;
         }
 
-        if (!isValidExprRhsStart(tokenKind, lhsExpr.kind)) {
+        if (!isValidExprRhsStart(nextTokenKind, lhsExpr.kind)) {
             return recoverExpressionRhs(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
                     isInConditionalExpr);
         }
 
         // Look for >> and >>> tokens as they are not sent from lexer due to ambiguity. e.g. <map<int>> a
-        if (tokenKind == SyntaxKind.GT_TOKEN && peek(2).kind == SyntaxKind.GT_TOKEN) {
+        if (nextTokenKind == SyntaxKind.GT_TOKEN && peek(2).kind == SyntaxKind.GT_TOKEN) {
             if (peek(3).kind == SyntaxKind.GT_TOKEN) {
-                tokenKind = SyntaxKind.TRIPPLE_GT_TOKEN;
+                nextTokenKind = SyntaxKind.TRIPPLE_GT_TOKEN;
             } else {
-                tokenKind = SyntaxKind.DOUBLE_GT_TOKEN;
+                nextTokenKind = SyntaxKind.DOUBLE_GT_TOKEN;
             }
         }
 
         // If the precedence level of the operator that was being parsed is higher than the newly found (next)
         // operator, then return and finish the previous expr, because it has a higher precedence.
-        OperatorPrecedence nextOperatorPrecedence = getOpPrecedence(tokenKind);
+        OperatorPrecedence nextOperatorPrecedence = getOpPrecedence(nextTokenKind);
         if (currentPrecedenceLevel.isHigherThanOrEqual(nextOperatorPrecedence, allowActions)) {
             return lhsExpr;
         }
 
         STNode newLhsExpr;
         STNode operator;
-        switch (tokenKind) {
+        switch (nextTokenKind) {
             case OPEN_PAREN_TOKEN:
                 newLhsExpr = parseFuncCall(lhsExpr);
                 break;
@@ -3679,7 +3668,7 @@ public class BallerinaParser extends AbstractParser {
             default:
                 // Handle 'a/<b|c>...' scenarios. These have ambiguity between being a xml-step expr
                 // or a binary expr (division), with a type-cast as the denominator.
-                if (tokenKind == SyntaxKind.SLASH_TOKEN && peek(2).kind == SyntaxKind.LT_TOKEN) {
+                if (nextTokenKind == SyntaxKind.SLASH_TOKEN && peek(2).kind == SyntaxKind.LT_TOKEN) {
                     SyntaxKind expectedNodeType = getExpectedNodeKind(3, isRhsExpr, isInMatchGuard, lhsExpr.kind);
                     if (expectedNodeType == SyntaxKind.XML_STEP_EXPRESSION) {
                         newLhsExpr = createXMLStepExpression(lhsExpr);
@@ -3690,9 +3679,9 @@ public class BallerinaParser extends AbstractParser {
                     // Fall through, and continue to parse as a binary expr
                 }
 
-                if (tokenKind == SyntaxKind.DOUBLE_GT_TOKEN) {
+                if (nextTokenKind == SyntaxKind.DOUBLE_GT_TOKEN) {
                     operator = parseSignedRightShiftToken();
-                } else if (tokenKind == SyntaxKind.TRIPPLE_GT_TOKEN) {
+                } else if (nextTokenKind == SyntaxKind.TRIPPLE_GT_TOKEN) {
                     operator = parseUnsignedRightShiftToken();
                 } else {
                     operator = parseBinaryOperator();
@@ -3717,8 +3706,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Then continue the operators with the same precedence level.
-        return parseExpressionRhsInternal(peek().kind, currentPrecedenceLevel, newLhsExpr, isRhsExpr, allowActions,
-                isInMatchGuard, isInConditionalExpr);
+        return parseExpressionRhsInternal(currentPrecedenceLevel, newLhsExpr, isRhsExpr, allowActions, isInMatchGuard,
+                isInConditionalExpr);
     }
 
     private STNode recoverExpressionRhs(OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr, boolean isRhsExpr,
@@ -3731,8 +3720,8 @@ public class BallerinaParser extends AbstractParser {
         // parsed while recovering. so we done need to parse the remaining of this rule again.
         // Proceed only if the recovery action was an insertion.
         if (solution.action == Action.REMOVE) {
-            return parseExpressionRhs(solution.tokenKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions,
-                    isInMatchGuard, isInConditionalExpr);
+            return parseExpressionRhs(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
+                    isInConditionalExpr);
         }
 
         // If the parser recovered by inserting a token, then try to re-parse the same rule with the
@@ -3741,11 +3730,12 @@ public class BallerinaParser extends AbstractParser {
             // We come here if the operator is missing. Treat this as injecting an operator
             // that matches to the current operator precedence level, and continue.
             SyntaxKind binaryOpKind = getBinaryOperatorKindToInsert(currentPrecedenceLevel);
-            return parseExpressionRhsInternal(binaryOpKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions,
-                    isInMatchGuard, isInConditionalExpr);
+            insertToken(binaryOpKind);
+            return parseExpressionRhsInternal(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
+                    isInConditionalExpr);
         } else {
-            return parseExpressionRhsInternal(solution.tokenKind, currentPrecedenceLevel, lhsExpr, isRhsExpr,
-                    allowActions, isInMatchGuard, isInConditionalExpr);
+            return parseExpressionRhsInternal(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
+                    isInConditionalExpr);
         }
     }
 
@@ -10092,7 +10082,9 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
             case SEMICOLON_TOKEN:
+            case OPEN_BRACE_TOKEN:
                 return true;
+            case PIPE_TOKEN:
             default:
                 return false;
         }
@@ -12427,8 +12419,7 @@ public class BallerinaParser extends AbstractParser {
                 // If the next token is part of a valid expression, then still parse it
                 // as a statement that starts with an expression.
                 if (isValidExprRhsStart(nextToken.kind, typeOrExpr.kind)) {
-                    return parseExpressionRhs(nextToken.kind, DEFAULT_OP_PRECEDENCE, typeOrExpr, false, false, false,
-                            false);
+                    return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, typeOrExpr, false, false, false, false);
                 }
 
                 recover(peek(), ParserRuleContext.TYPE_DESC_OR_EXPR_RHS, typeOrExpr);
