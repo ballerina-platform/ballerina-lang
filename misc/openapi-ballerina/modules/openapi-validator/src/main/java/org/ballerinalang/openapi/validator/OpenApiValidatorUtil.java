@@ -88,8 +88,6 @@ public class OpenApiValidatorUtil {
                         return;
                     }
 
-//                    BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().get(0);
-
                 } else {
                     moduleName = argList.get(0);
 

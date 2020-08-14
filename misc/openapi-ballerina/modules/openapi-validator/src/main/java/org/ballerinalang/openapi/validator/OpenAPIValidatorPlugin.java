@@ -66,7 +66,6 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
         List<String> operations = new ArrayList<>();
         List<String> excludeTags = new ArrayList<>();
         List<String> excludeOperations = new ArrayList<>();
-//        this.openAPIComponentSummary = new OpenAPIComponentSummary();
         String contractURI = null;
         Boolean failOnErrors = true;
         Diagnostic.Kind kind;

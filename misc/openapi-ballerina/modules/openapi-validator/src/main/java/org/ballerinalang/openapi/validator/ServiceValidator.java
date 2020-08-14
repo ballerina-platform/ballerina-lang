@@ -49,9 +49,9 @@ public class ServiceValidator {
     /**
      * Validation with given resource and openApi contract file.
      * @param openApi       OpenApi Object
-     * @param serviceNode   serviceNode of ballerina service
-     * @param kind
-     * @param dLog
+     * @param serviceNode   ServiceNode of ballerina service
+     * @param kind          Message type
+     * @param dLog          DiagnosticLog
      * @throws OpenApiValidatorException
      */
     public static void validateResource(OpenAPI openApi,
@@ -107,7 +107,7 @@ public class ServiceValidator {
             }
         }
 
-//      Modified the Resource Path that need to validate
+//      Modified the ResourcePathSummary list that need to validate
         List<ResourcePathSummary> resourcePathSummaryList =
                 MatchResourcewithOperationId.summarizeResources(serviceNode);
 
@@ -252,11 +252,11 @@ public class ServiceValidator {
 
     /**
      *  This for generate Dlog message with relevant type of errors.
-     * @param kind
-     * @param dLog
-     * @param resourcePathSummary
-     * @param method
-     * @param postErrors
+     * @param kind                  message type ned to display
+     * @param dLog                  diagnosticLog
+     * @param resourcePathSummary   current validate ResourcePath Object
+     * @param method                validate method
+     * @param postErrors            list of validationErrors
      */
     private static void generateDlogMessage(Diagnostic.Kind kind, DiagnosticLog dLog,
                                             ResourcePathSummary resourcePathSummary,
@@ -299,11 +299,11 @@ public class ServiceValidator {
 
     /**
      *  This for finding out the kind of TypeMisMatching.
-     * @param kind  Dlog kind
-     * @param dLog  Dlog
-     * @param resourcePathSummary
-     * @param method
-     * @param postErr
+     * @param kind                  message type to need to display
+     * @param dLog                  Dlog
+     * @param resourcePathSummary   current validating resourcePath
+     * @param method                current validating method
+     * @param postErr               TypeMisMatchError type validation error
      */
     private static void generateTypeMisMatchDlog(Diagnostic.Kind kind, DiagnosticLog dLog,
                                                  ResourcePathSummary resourcePathSummary,
@@ -335,8 +335,8 @@ public class ServiceValidator {
     /**
      * Parse and get the {@link OpenAPI} for the given OpenAPI contract.
      *
-     * @param definitionURI URI for the OpenAPI contract
-     * @return {@link OpenAPI} OpenAPI model
+     * @param definitionURI     URI for the OpenAPI contract
+     * @return {@link OpenAPI}  OpenAPI model
      * @throws OpenApiValidatorException in case of exception
      */
     public static OpenAPI parseOpenAPIFile(String definitionURI) throws OpenApiValidatorException {

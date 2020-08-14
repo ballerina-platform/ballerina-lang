@@ -44,7 +44,7 @@ import java.util.Map;
 public class MatchResourcewithOperationId {
     /**
      * Filter all the operations according to the given filters.
-     * @param openApi       Openapi Object
+     * @param openApi       OpenApi Object
      * @param filters       Filter Object
      * @return              List of OpenApiPathSummary
      */
@@ -59,8 +59,9 @@ public class MatchResourcewithOperationId {
         List<OpenAPIPathSummary> openAPIPathSummaries = MatchResourcewithOperationId.summarizeOpenAPI(openApi);
 
 
-//        check based on the method and path filters
-
+        /*
+         *  Check based on the method and path filters
+         */
         Iterator<OpenAPIPathSummary> openAPIIter = openAPIPathSummaries.iterator();
         while (openAPIIter.hasNext()) {
             OpenAPIPathSummary openAPIPathSummary = openAPIIter.next();
@@ -77,15 +78,15 @@ public class MatchResourcewithOperationId {
                             openAPIPathSummary.getOperations().entrySet().iterator();
                     while (operations.hasNext()) {
                         Map.Entry<String, Operation> operationMap = operations.next();
-//                        check operationId is null scenario.
+//                        Check operationId is null scenario.
                         if ((filters.getOperation().contains(operationMap.getValue().getOperationId())) ||
                                 operationMap.getValue().getOperationId() == null) {
-//                                    check tag is available if it is null then remove other wise else-if not include
+//                                    Check tag is available if it is null then remove other wise else-if not include
 //                                    tag then remove operations.
                             if (operationMap.getValue().getTags() == null) {
                                 operations.remove();
                             } else if (Collections.disjoint(filters.getTag(), operationMap.getValue().getTags())) {
-//                                        remove operation
+//                                        Remove operation
                                 operations.remove();
                             }
                         } else {
@@ -98,7 +99,7 @@ public class MatchResourcewithOperationId {
                     while (operationIter.hasNext()) {
                         Map.Entry<String, Operation> operationMap = operationIter.next();
                         if (filters.getOperation().contains(operationMap.getValue().getOperationId())) {
-//                                    check tag is available
+//                                    Check tag is available
                             if (operationMap.getValue().getTags() != null) {
                                 if (!Collections.disjoint(filters.getExcludeTag(), operationMap.getValue().getTags())) {
                                     operationIter.remove();
@@ -147,8 +148,8 @@ public class MatchResourcewithOperationId {
                     while (operations.hasNext()) {
                         Map.Entry<String, Operation> operationMap = operations.next();
                         if (!filters.getExcludeOperation().contains(operationMap.getValue().getOperationId())) {
-//                                    check tag is available if it is null then remove other wise else-if not include
-//                                    tag then remove operations.
+//                                    Check tag is available if it is null and not included in list
+//                                    then remove operations.
                             if (operationMap.getValue().getTags() == null) {
                                 operations.remove();
                             } else if (Collections.disjoint(filters.getTag(), operationMap.getValue().getTags())) {
@@ -212,7 +213,7 @@ public class MatchResourcewithOperationId {
 
     /**
      * Checking the available of resource function in openApi contract.
-     * @param openAPI         openApi contract object
+     * @param openAPI           openApi contract object
      * @param serviceNode       resource service node
      * @return                  validation Error list with ResourceValidationError type
      */
@@ -262,7 +263,7 @@ public class MatchResourcewithOperationId {
 
     /**
      * Checking the documented services are available at the resource file.
-     * @param openAPISummaries           openApi contract object
+     * @param openAPISummaries  openApi contract object
      * @param serviceNode       resource file service
      * @return                  validation error list type with OpenAPIServiceValidationError
      */
@@ -344,7 +345,6 @@ public class MatchResourcewithOperationId {
                     String body = null;
 
                     for (BLangRecordLiteral.RecordField field : recordLiteral.getFields()) {
-
                         BLangExpression keyExpr;
                         BLangExpression valueExpr;
 
@@ -509,7 +509,7 @@ public class MatchResourcewithOperationId {
     }
 
     /**
-     * remove operations based on the missing errors.
+     * Remove operations based on the missing errors.
      * @param openAPISummaries      List of OpenApiPathSummary
      * @param missingPathInResource Error List of missing operation
      * @return Filtered List with OpenAPiPathSummary

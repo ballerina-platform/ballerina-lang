@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This model for handling the service details.
+ * Class for containing the service details.
  */
 public class ResourceMethod {
     private Diagnostic.DiagnosticPosition resourcePosition;

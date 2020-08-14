@@ -51,8 +51,8 @@ public  class BTypeToJsonValidatorUtil {
 
     /**
      * Validate given schema with bVarSymbol.
-     * @param schema
-     * @param bVarSymbol
+     * @param schema        openAPi schema object
+     * @param bVarSymbol    bVarSymbol with given parameter
      * @return  List of ValidationErrors
      * @throws OpenApiValidatorException
      */
@@ -66,7 +66,7 @@ public  class BTypeToJsonValidatorUtil {
         resourceType = bVarSymbol.getType();
 
         /**
-         *  Here validate the BvarType against to schema
+         *  Here validate the BVarType against to schema
          */
 
         if (schema != null) {
@@ -209,7 +209,7 @@ public  class BTypeToJsonValidatorUtil {
                                         iterator.remove();
                                         break;
                                     } else {
-//                                        check the given error fields are same as the given schema fields
+//                                        Check the given error fields are same as the given schema fields
                                         if (validationErrorListForRecords.stream().
                                                 allMatch(item -> item instanceof TypeMismatch)) {
                                             OneOfTypeValidation oneOfTypeValidation =
@@ -340,10 +340,6 @@ public  class BTypeToJsonValidatorUtil {
                                         new OneOfTypeValidation("Ballerina records",
                                                 Constants.Type.RECORD, validationErrorsBa);
                                 validationErrors.add(oneOfTypeValidation);
-//      Scenario-01         (record)   cat - place02, mealType          | (schema) cat - place, mealType
-//      Scenario-02         (record)   cat - place02, mealType, canFly  | (schema) cat - place, mealType
-//      Scenario-03         (record)   cat - place02, mealType          | (schema) cat - place, mealType , mealTime
-
                             }
                         }
                     }
@@ -363,9 +359,9 @@ public  class BTypeToJsonValidatorUtil {
     /**
      * Validation with BRecordType parameter with Object schema.
      *
-     * @param validationErrors contain the validation errors
-     * @param properties extract properties with object schema
-     * @param recordType recordType
+     * @param validationErrors  contain the validation errors
+     * @param properties        extract properties with object schema
+     * @param recordType        recordType
      * @return ValidationError type List
      * @throws OpenApiValidatorException
      */
@@ -501,7 +497,7 @@ public  class BTypeToJsonValidatorUtil {
 
     /**
      * Method for convert string type to constant enum type.
-     * @param type input type
+     * @param type  input type
      * @return enum type
      */
 
@@ -544,7 +540,7 @@ public  class BTypeToJsonValidatorUtil {
 
     /**
      * Method for convert openApi type to ballerina type.
-     * @param type OpenApi parameter types
+     * @param type  OpenApi parameter types
      * @return ballerina type
      */
 
@@ -578,7 +574,7 @@ public  class BTypeToJsonValidatorUtil {
 
     /**
      * Convert enum type to string type.
-     * @param type
+     * @param type  type of parameter
      * @return enum type
      */
     public static String convertEnumTypetoString(Constants.Type type) {
@@ -617,7 +613,7 @@ public  class BTypeToJsonValidatorUtil {
 
     /**
      * Function for extract the filed names in record.
-     * @param bRecordType record type variable
+     * @param bRecordType   record type variable
      * @return string type list with field name
      */
     public static List<String> getRecordFields(BRecordType bRecordType) {
@@ -663,30 +659,30 @@ public  class BTypeToJsonValidatorUtil {
 
     /**
      * Extract parameter names in openApi schema.
-     * @param schema input schema
+     * @param schema    input openApi schema
      * @return string type list with parameter names
      */
     public static List<String> getSchemaFields(Schema schema) {
-        List<String> jsonFeilds = new ArrayList<>();
+        List<String> jsonFields = new ArrayList<>();
         if (schema instanceof ComposedSchema) {
             ComposedSchema composedSchema = (ComposedSchema) schema;
             if (composedSchema.getOneOf() != null) {
                 for (Schema schema1 : composedSchema.getOneOf()) {
                     List<String> oneOfSchema1 = getSchemaFields(schema1);
-                    jsonFeilds.addAll(oneOfSchema1);
+                    jsonFields.addAll(oneOfSchema1);
                 }
             }
 
             if (composedSchema.getAnyOf() != null) {
                 for (Schema schema1 : composedSchema.getOneOf()) {
                     List<String> anySchema1 = getSchemaFields(schema1);
-                    jsonFeilds.addAll(anySchema1);
+                    jsonFields.addAll(anySchema1);
                 }
             }
             if (composedSchema.getAllOf() != null) {
                 for (Schema schema1 : composedSchema.getOneOf()) {
                     List<String> allSchema1 = getSchemaFields(schema1);
-                    jsonFeilds.addAll(allSchema1);
+                    jsonFields.addAll(allSchema1);
                 }
             }
 
@@ -700,7 +696,7 @@ public  class BTypeToJsonValidatorUtil {
                                 (ArraySchema) traversArraySchemaType;
                     } else {
                         List<String> nestedSchema = getSchemaFields(traversArraySchemaType);
-                        jsonFeilds.addAll(nestedSchema);
+                        jsonFields.addAll(nestedSchema);
                     }
                 }
             }
@@ -711,14 +707,14 @@ public  class BTypeToJsonValidatorUtil {
                 if (entrySchema instanceof ObjectSchema) {
                     ObjectSchema objectSchema = (ObjectSchema) entrySchema;
                     List<String> nestedObjectSchema = getSchemaFields(objectSchema);
-                    jsonFeilds.addAll(nestedObjectSchema);
+                    jsonFields.addAll(nestedObjectSchema);
                 } else {
-                    jsonFeilds.add(schemaEntry.getKey());
+                    jsonFields.add(schemaEntry.getKey());
                 }
             }
         }
 
-        return jsonFeilds;
+        return jsonFields;
     }
 
 //    Get record name
