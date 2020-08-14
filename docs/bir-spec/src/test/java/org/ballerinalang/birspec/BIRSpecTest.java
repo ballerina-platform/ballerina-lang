@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 /**
  * Test cases to verify BIR binary against the spec.
- *
  */
 public class BIRSpecTest {
 
