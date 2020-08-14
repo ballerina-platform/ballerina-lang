@@ -42,7 +42,7 @@ const string NOTIFY_RESULT_FAILED_EOT_STR = "failed-eot";
 const string NOTIFY_RESULT_COMMITTED_STR = "committed";
 const string NOTIFY_RESULT_ABORTED_STR = "aborted";
 
-public const string OUTCOME_COMMITTED = "committed";
+const string OUTCOME_COMMITTED = "committed";
 const string OUTCOME_ABORTED = "aborted";
 const string OUTCOME_MIXED = "mixed";
 const string OUTCOME_HAZARD = "hazard";
