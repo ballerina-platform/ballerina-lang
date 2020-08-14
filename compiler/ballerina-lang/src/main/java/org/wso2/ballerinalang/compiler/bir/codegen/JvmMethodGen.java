@@ -1479,6 +1479,8 @@ public class JvmMethodGen {
             return;
         }
 
+        this.visitedLables.add(label);
+
         generateDiagnosticPos(pos, mv, label);
     }
 
@@ -1960,7 +1962,10 @@ public class JvmMethodGen {
                     continue;
                 } else {
                     insKind = inst.getKind();
-                    if (insKind == InstructionKind.MOVE || insKind == InstructionKind.CONST_LOAD) {
+                    if (insKind == InstructionKind.MOVE || insKind == InstructionKind.CONST_LOAD
+                            || insKind == InstructionKind.TYPE_CAST || insKind == InstructionKind.NEW_ARRAY
+                            || insKind == InstructionKind.NEW_STRUCTURE) {
+
                         generateLabelForLocalVariables(inst, labelGen, funcName, mv);
                     } else {
                         generateDiagnosticPos(((BIRNode) inst).pos, mv);
@@ -2017,16 +2022,39 @@ public class JvmMethodGen {
         if (insKind == InstructionKind.MOVE) {
             Move moveIns = (Move) inst;
             lhsVar = moveIns.lhsOp.variableDcl;
-        } else {
+        } else if (insKind == InstructionKind.CONST_LOAD){
             ConstantLoad cLoadIns = (ConstantLoad) inst;
             lhsVar = cLoadIns.lhsOp.variableDcl;
+        } else if (insKind == InstructionKind.TYPE_CAST){
+            TypeCast typeCast = (TypeCast) inst;
+            lhsVar = typeCast.lhsOp.variableDcl;
+        } else if (insKind == InstructionKind.NEW_ARRAY) {
+            NewArray newArray = (NewArray) inst;
+            lhsVar = newArray.lhsOp.variableDcl;
+        } else {
+            NewStructure newStructure = (NewStructure) inst;
+            lhsVar = newStructure.lhsOp.variableDcl;
+        }
+
+        if (lhsVar.kind != VarKind.LOCAL) {
+            generateDiagnosticPos(((BIRNode) inst).pos, mv);
+            return;
+        }
+        // TODO: Remove this. Testing purpose.
+        String TEST = System.getenv("TEST");
+        if (lhsVar.metaVarName.equals("tuple") && TEST != null && TEST.equals("1")) {
+            generateDiagnosticPos(((BIRNode) inst).pos, mv);
+            return;
         }
 
         if (lhsVar.startBB != null && lhsVar.name != null) {
             Label label = labelGen
                     .getLabel(funcName + lhsVar.startBB.id.value + "ins" + lhsVar.name.value + lhsVar.insOffset);
             generateDiagnosticPosForUnvisitedLables(label, ((BIRNode) inst).pos, mv);
+            return;
         }
+
+        generateDiagnosticPos(((BIRNode) inst).pos, mv);
     }
 
     private void generateInstructions(JvmInstructionGen instGen, int localVarOffset,
