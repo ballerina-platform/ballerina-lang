@@ -451,9 +451,14 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         Range newTextRange = new Range(startPos, endPosWithSemiColon);
 
         List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat(' ', bLangNode.pos.sCol - 1);
+        String spaces = StringUtils.repeat('\t', bLangNode.pos.sCol - 1);
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
         String content = CommandUtil.getContentOfRange(docManager, uri, new Range(startPos, endPos));
+        // Remove last line feed
+        while (content.endsWith("\n")) {
+            content = content.substring(0, content.length() - 1);
+        }
+
         boolean hasError = unionType.getMemberTypes().stream().anyMatch(s -> s instanceof BErrorType);
 
         List<BType> members = new ArrayList<>((unionType).getMemberTypes());
@@ -464,16 +469,17 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         }
         // Check is binary union type with error type
         if ((unionType.getMemberTypes().size() == 2 || transitiveBinaryUnion) && hasError) {
+            String finalContent = content;
             members.forEach(bType -> {
                 if (bType instanceof BNilType) {
                     // if (foo() is error) {...}
-                    String newText = String.format("if (%s is error) {%s}", content, padding);
+                    String newText = String.format("if (%s is error) {%s}", finalContent, padding);
                     edits.add(new TextEdit(newTextRange, newText));
                 } else {
                     // if (foo() is int) {...} else {...}
                     String type = CommonUtil.getBTypeName(bType, context, true);
-                    String newText = String.format("if (%s is %s) {%s} else {%s}",
-                                                   content, type, padding, padding);
+                    String newText = String.format("if (%s is %s) {%s} else {%s}", finalContent, type, padding,
+                                                   padding);
                     edits.add(new TextEdit(newTextRange, newText));
                 }
             });
