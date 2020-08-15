@@ -4021,11 +4021,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             originalValue = textValue;
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } else if (type == SyntaxKind.NIL_LITERAL) {
-            if (literal instanceof BasicLiteralNode) { // node type of null is a basicLiteralNode
-                originalValue = "null";
-            } else {
-                originalValue = "()";
-            }
+            originalValue = "()";
+            typeTag = TypeTags.NIL;
+            value = null;
+            bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        }  else if (type == SyntaxKind.NULL_LITERAL) {
+            originalValue = "null";
             typeTag = TypeTags.NIL;
             value = null;
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
@@ -4525,6 +4526,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case NUMERIC_LITERAL:
             case BOOLEAN_LITERAL:
             case NIL_LITERAL:
+            case NULL_LITERAL:
                 return true;
             default:
                 return false;

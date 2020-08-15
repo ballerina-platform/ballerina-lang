@@ -1,5 +1,5 @@
 {
-  "kind": "NIL_LITERAL",
+  "kind": "NULL_LITERAL",
   "children": [
     {
       "kind": "NULL_KEYWORD"

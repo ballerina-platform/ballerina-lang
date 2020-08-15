@@ -851,6 +851,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_TEST_EXPRESSION;
             case "NIL_LITERAL":
                 return SyntaxKind.NIL_LITERAL;
+            case "NULL_LITERAL":
+                return SyntaxKind.NULL_LITERAL;
             case "SIMPLE_NAME_REFERENCE":
                 return SyntaxKind.SIMPLE_NAME_REFERENCE;
             case "TRAP_EXPRESSION":

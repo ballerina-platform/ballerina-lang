@@ -25,7 +25,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STAmbiguousCollectionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STAnnotAccessExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.internal.parser.tree.STAsyncSendActionNode;
-import io.ballerinalang.compiler.internal.parser.tree.STBasicLiteralNode;
 import io.ballerinalang.compiler.internal.parser.tree.STBinaryExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STBracedExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STConditionalExpressionNode;
@@ -3881,7 +3880,6 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
             case IDENTIFIER_TOKEN:
                 // Can be a singleton type or expression.
-            case NIL_LITERAL:
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case HEX_INTEGER_LITERAL_TOKEN:
             case STRING_LITERAL_TOKEN:
@@ -5156,7 +5154,7 @@ public class BallerinaParser extends AbstractParser {
         SyntaxKind nodeKind;
         switch (literalToken.kind) {
             case NULL_KEYWORD:
-                nodeKind = SyntaxKind.NIL_LITERAL;
+                nodeKind = SyntaxKind.NULL_LITERAL;
                 break;
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
@@ -13818,7 +13816,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
 
             // Can be a singleton type or expression.
-            case NIL_LITERAL:
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case HEX_INTEGER_LITERAL_TOKEN:
             case STRING_LITERAL_TOKEN:
@@ -14035,7 +14032,6 @@ public class BallerinaParser extends AbstractParser {
                 typeOrExpr = parseTypedDescOrExprStartsWithOpenBracket();
                 break;
             // Can be a singleton type or expression.
-            case NIL_LITERAL:
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case HEX_INTEGER_LITERAL_TOKEN:
             case STRING_LITERAL_TOKEN:
@@ -14066,6 +14062,7 @@ public class BallerinaParser extends AbstractParser {
             case NUMERIC_LITERAL:
             case STRING_LITERAL_TOKEN:
             case NIL_LITERAL:
+            case NULL_LITERAL:
             case BOOLEAN_LITERAL:
                 return true;
             default:
@@ -14238,6 +14235,7 @@ public class BallerinaParser extends AbstractParser {
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
             case NIL_LITERAL:
+            case NULL_LITERAL:
             case NUMERIC_LITERAL:
             case STRING_LITERAL:
             case BOOLEAN_LITERAL:
@@ -14278,6 +14276,7 @@ public class BallerinaParser extends AbstractParser {
     private boolean isAllBasicLiterals(STNode node) {
         switch (node.kind) {
             case NIL_LITERAL:
+            case NULL_LITERAL:
             case NUMERIC_LITERAL:
             case STRING_LITERAL:
             case BOOLEAN_LITERAL:
@@ -17116,6 +17115,7 @@ public class BallerinaParser extends AbstractParser {
             case NUMERIC_LITERAL:
             case BOOLEAN_LITERAL:
             case STRING_LITERAL:
+            case NULL_LITERAL:
                 return STNodeFactory.createSingletonTypeDescriptorNode(expression);
             case TYPE_REFERENCE_TYPE_DESC:
                 // TODO: this is a temporary workaround
@@ -17126,10 +17126,6 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createParenthesisedTypeDescriptorNode(bracedExpr.openParen, typeDesc,
                         bracedExpr.closeParen);
             case NIL_LITERAL:
-                if (expression instanceof STBasicLiteralNode) {
-                    //case of null keyword
-                    return STNodeFactory.createSingletonTypeDescriptorNode(expression);
-                }
                 STNilLiteralNode nilLiteral = (STNilLiteralNode) expression;
                 return STNodeFactory.createNilTypeDescriptorNode(nilLiteral.openParenToken, nilLiteral.closeParenToken);
             case BRACKETED_LIST:

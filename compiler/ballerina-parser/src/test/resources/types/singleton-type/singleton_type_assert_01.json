@@ -484,7 +484,7 @@
                       "kind": "SINGLETON_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "NIL_LITERAL",
+                          "kind": "NULL_LITERAL",
                           "children": [
                             {
                               "kind": "NULL_KEYWORD",
