@@ -19,15 +19,15 @@
 package org.ballerinalang.stdlib.email.util;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.mime.nativeimpl.EntityHeaders;
 import org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityHeaderHandler;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.slf4j.Logger;
@@ -214,16 +214,17 @@ public class SmtpUtil {
 
     private static void addHeadersToJavaMailBodyPart(ObjectValue mimeEntity, MimeBodyPart attachmentBodyPart)
             throws MessagingException {
-        ArrayValue headerNamesArrayValue = EntityHeaders.getHeaderNames(mimeEntity,
-                StringUtils.fromString(MimeConstants.LEADING_HEADER));
-        if (headerNamesArrayValue.size() > 0) {
-            for (int i = 0; i < headerNamesArrayValue.size(); i++) {
-                BString headerName = (BString) headerNamesArrayValue.get(i);
-                BString headerValue = EntityHeaders.getHeader(mimeEntity, headerName,
-                        StringUtils.fromString(MimeConstants.LEADING_HEADER));
-                if (isNotEmpty(headerName.getValue())) {
+
+        MapValue<BString, Object> entityHeaders = EntityHeaderHandler.getEntityHeaderMap(mimeEntity);
+
+        for (BString entryKey : entityHeaders.getKeys()) {
+            ArrayValueImpl entryValues = (ArrayValueImpl) entityHeaders.get(entryKey);
+            if (entryValues.size() > 0) {
+                String headerName = entryKey.getValue();
+                String headerValue = entryValues.getBString(0).getValue();
+                if (isNotEmpty(headerName)) {
                     log.debug("Added a MIME body part header " + headerName + " with value " + headerValue);
-                    attachmentBodyPart.setHeader(headerName.getValue(), headerValue.getValue());
+                    attachmentBodyPart.setHeader(headerName, headerValue);
                 }
             }
         }
