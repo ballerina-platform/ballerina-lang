@@ -482,7 +482,8 @@ public class Desugar extends BLangNodeVisitor {
             return generatedInitFunc;
         }
 
-        return wireUpGeneratedInitFunction(generatedInitFunc, (BObjectTypeSymbol) objectTypeNode.symbol, objectTypeNode.initFunction);
+        return wireUpGeneratedInitFunction(generatedInitFunc, 
+                (BObjectTypeSymbol) objectTypeNode.symbol, objectTypeNode.initFunction);
     }
 
     private BLangFunction createGeneratedInitializerFunction(BLangClassDefinition classDefinition, SymbolEnv env) {
@@ -737,6 +738,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.constants = rewrite(pkgNode.constants, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
+        desugarClassDefinitions(pkgNode.topLevelNodes);
 
         pkgNode.functions = rewrite(pkgNode.functions, env);
 
@@ -760,6 +762,14 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
+    }
+
+    private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {
+        for (TopLevelNode topLevelNode : topLevelNodes) {
+            if (topLevelNode.getKind() == NodeKind.CLASS_DEFN) {
+                ((BLangClassDefinition) topLevelNode).accept(this);
+            }
+        }
     }
 
     @Override
@@ -818,7 +828,8 @@ public class Desugar extends BLangNodeVisitor {
 
         if (objectTypeNode.initFunction != null) {
             ((BLangReturn) generatedInitFnBody.stmts.get(i)).expr =
-                    createUserDefinedInitInvocation(objectTypeNode);
+                    createUserDefinedInitInvocation(objectTypeNode.pos,
+                            (BObjectTypeSymbol) objectTypeNode.symbol, objectTypeNode.generatedInitFunction);
         }
 
         // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
@@ -832,27 +843,81 @@ public class Desugar extends BLangNodeVisitor {
         result = objectTypeNode;
     }
 
-    private BLangInvocation createUserDefinedInitInvocation(BLangObjectTypeNode objectTypeNode) {
-        ArrayList<BLangExpression> paramRefs = new ArrayList<>();
-        for (BLangSimpleVariable var : objectTypeNode.generatedInitFunction.requiredParams) {
-            paramRefs.add(ASTBuilderUtil.createVariableRef(objectTypeNode.pos, var.symbol));
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        // Merge the fields defined within the object and the fields that
+        // get inherited via the type references.
+        classDefinition.fields.addAll(classDefinition.referencedFields);
+
+        if (classDefinition.flagSet.contains(Flag.ABSTRACT)) {
+            result = classDefinition;
+            return;
         }
 
-        BLangInvocation invocation = ASTBuilderUtil.createInvocationExprMethod(objectTypeNode.pos,
-                ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc.symbol,
+        for (BLangSimpleVariable bLangSimpleVariable : classDefinition.fields) {
+            bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
+        }
+
+        // Add object level variables to the init function.
+        Map<BSymbol, BLangStatement> initFuncStmts = classDefinition.generatedInitFunction.initFunctionStmts;
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            // skip if the field is already have an value set by the constructor.
+            if (!initFuncStmts.containsKey(field.symbol) && field.expr != null) {
+                initFuncStmts.put(field.symbol,
+                        createStructFieldUpdate(classDefinition.generatedInitFunction, field,
+                                classDefinition.generatedInitFunction.receiver.symbol));
+            }
+        }
+
+        // Adding init statements to the init function.
+        BLangStatement[] initStmts = initFuncStmts.values().toArray(new BLangStatement[0]);
+        BLangBlockFunctionBody generatedInitFnBody =
+                (BLangBlockFunctionBody) classDefinition.generatedInitFunction.body;
+        int i;
+        for (i = 0; i < initStmts.length; i++) {
+            generatedInitFnBody.stmts.add(i, initStmts[i]);
+        }
+
+        if (classDefinition.initFunction != null) {
+            ((BLangReturn) generatedInitFnBody.stmts.get(i)).expr =
+                    createUserDefinedInitInvocation(classDefinition.pos,
+                            (BObjectTypeSymbol) classDefinition.symbol, classDefinition.generatedInitFunction);
+        }
+
+        // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
+        // gets defined before its first use.
+        for (BLangFunction fn : classDefinition.functions) {
+            rewrite(fn, this.env);
+        }
+        rewrite(classDefinition.generatedInitFunction, this.env);
+        rewrite(classDefinition.initFunction, this.env);
+
+        result = classDefinition;
+
+    }
+
+    private BLangInvocation createUserDefinedInitInvocation(DiagnosticPos pos, BObjectTypeSymbol objectTypeSymbol,
+                                                            BLangFunction generatedInitFunction) {
+        ArrayList<BLangExpression> paramRefs = new ArrayList<>();
+        for (BLangSimpleVariable var : generatedInitFunction.requiredParams) {
+            paramRefs.add(ASTBuilderUtil.createVariableRef(pos, var.symbol));
+        }
+
+        BLangInvocation invocation = ASTBuilderUtil.createInvocationExprMethod(pos,
+                objectTypeSymbol.initializerFunc.symbol,
                 paramRefs, Collections.emptyList(), symResolver);
-        if (objectTypeNode.generatedInitFunction.restParam != null) {
-            BLangSimpleVarRef restVarRef = ASTBuilderUtil.createVariableRef(objectTypeNode.pos,
-                    objectTypeNode.generatedInitFunction.restParam.symbol);
+        if (generatedInitFunction.restParam != null) {
+            BLangSimpleVarRef restVarRef = ASTBuilderUtil.createVariableRef(pos,
+                    generatedInitFunction.restParam.symbol);
             BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
             bLangRestArgsExpression.expr = restVarRef;
-            bLangRestArgsExpression.pos = objectTypeNode.generatedInitFunction.pos;
-            bLangRestArgsExpression.type = objectTypeNode.generatedInitFunction.restParam.type;
+            bLangRestArgsExpression.pos = generatedInitFunction.pos;
+            bLangRestArgsExpression.type = generatedInitFunction.restParam.type;
             bLangRestArgsExpression.expectedType = bLangRestArgsExpression.type;
             invocation.restArgs.add(bLangRestArgsExpression);
         }
         invocation.exprSymbol =
-                ((BObjectTypeSymbol) objectTypeNode.symbol).generatedInitializerFunc.symbol.receiverSymbol;
+                objectTypeSymbol.generatedInitializerFunc.symbol.receiverSymbol;
 
         return rewriteExpr(invocation);
     }
