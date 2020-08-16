@@ -24,6 +24,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -31,21 +32,25 @@ import org.testng.annotations.Test;
  */
 public class ClassTest {
 
+    private CompileResult compileResult;
+
+    @BeforeClass
+    public void setup() {
+        compileResult = BCompileUtil.compile("test-src/klass/simple_class.bal");
+    }
+
     @Test(description = "Test Basic object as struct")
     public void testBasicStructAsObject() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/klass/simple_class.bal");
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleObjectAsStruct");
+        BRunUtil.invoke(compileResult, "testSimpleObjectAsStruct");
+    }
 
-        Assert.assertEquals(returns.length, 4);
+    @Test(description = "Test Basic object as struct")
+    public void testBasicStructAsObjectObjectInitExprWithoutName() {
+        BRunUtil.invoke(compileResult, "testSimpleObjectAsStructWithNew");
+    }
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertEquals(returns[1].stringValue(), "sample name");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
-        Assert.assertEquals(returns[3].stringValue(), "february");
+    @Test(description = "Test Basic object as struct")
+    public void testTypeRef() {
+        BRunUtil.invoke(compileResult, "testTypeRefInClass");
     }
 }

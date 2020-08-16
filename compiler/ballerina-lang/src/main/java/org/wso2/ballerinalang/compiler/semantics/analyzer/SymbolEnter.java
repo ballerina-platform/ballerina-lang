@@ -188,7 +188,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final BLangDiagnosticLogHelper dlog;
     private final Types types;
     private final SourceDirectory sourceDirectory;
-    private List<TypeDefinition> unresolvedTypes;
+    private List<BLangNode> unresolvedTypes;
     private List<BLangClassDefinition> unresolvedClasses;
     private HashSet<LocationData> unknownTypeRefs;
     private List<PackageID> importedPackages;
@@ -334,12 +334,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Treat constants and type definitions in the same manner, since constants can be used as
         // types. Also, there can be references between constant and type definitions in both ways.
         // Thus visit them according to the precedence.
-        List<TypeDefinition> typDefs = new ArrayList<>();
+        List<BLangNode> typDefs = new ArrayList<>();
         pkgNode.constants.forEach(constant -> typDefs.add(constant));
         pkgNode.typeDefinitions.forEach(typDef -> typDefs.add(typDef));
-        defineTypeNodes(typDefs, pkgEnv);
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
-        defineClasses(classDefinitions, pkgEnv);
+        classDefinitions.forEach(classDefn -> typDefs.add(classDefn));
+        defineTypeNodes(typDefs, pkgEnv);
 
         for (BLangSimpleVariable variable : pkgNode.globalVars) {
             if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA && variable.isDeclaredWithVar) {
@@ -353,18 +353,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Sort type definitions with precedence, before defining their members.
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
+        typDefs.sort(getTypePrecedenceComparator());
 
         // Define error details
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def fields (if any)
-        defineFields(pkgNode.typeDefinitions, pkgEnv);
+        defineFields(typDefs, pkgEnv);
 
         // Define type def members (if any)
-        defineMembers(pkgNode.typeDefinitions, pkgEnv);
-
-        // Define class constructs (fields and members)
-        defineClassConstructs(classDefinitions, pkgEnv);
+        defineMembers(typDefs, pkgEnv);
 
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
@@ -390,32 +388,25 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .forEach(varSymbol -> varSymbol.tag = SymTag.ENDPOINT);
     }
 
-    private void defineClassConstructs(List<BLangClassDefinition> classDefinitions, SymbolEnv env) {
-        for (BLangClassDefinition classDefinition : classDefinitions) {
-            defineClassConstructs(env, classDefinition);
-        }
-    }
-
-    private void defineClassConstructs(SymbolEnv env, BLangClassDefinition classDefinition) {
-        SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
-        BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
-        BObjectType objType = (BObjectType) tSymbol.type;
-
-        for (BLangSimpleVariable field : classDefinition.fields) {
-            defineNode(field, typeDefEnv);
-            if (field.symbol.type == symTable.semanticError) {
-                continue;
+    private Comparator<BLangNode> getTypePrecedenceComparator() {
+        return new Comparator<BLangNode>() {
+            @Override
+            public int compare(BLangNode l, BLangNode r) {
+                if (l.getKind() == NodeKind.CONSTANT || r.getKind() == NodeKind.CONSTANT) {
+                    return 0;
+                }
+                int lp = l.getKind() == NodeKind.CLASS_DEFN
+                        ? ((BLangClassDefinition) l).precedence
+                        : ((BLangTypeDefinition) l).precedence;
+                int rp = r.getKind() == NodeKind.CLASS_DEFN
+                        ? ((BLangClassDefinition) r).precedence
+                        : ((BLangTypeDefinition) r).precedence;
+                return lp - rp;
             }
-            objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos, field.symbol));
-        }
-
-        // todo: check for class fields and object fields
-        defineReferencedClassFields(classDefinition, typeDefEnv, objType);
-
-        defineReferencedClassMembers(env, classDefinition);
+        };
     }
 
-    private void defineReferencedClassMembers(SymbolEnv env, BLangClassDefinition classDefinition) {
+    private void defineMembersOfClassDef(SymbolEnv env, BLangClassDefinition classDefinition) {
         BObjectType objectType = (BObjectType) classDefinition.symbol.type;
 
         if (objectType.mutableType != null) {
@@ -441,7 +432,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // resolved by the time we reach here. It is achieved by ordering the typeDefs
         // according to the precedence.
         for (BLangType typeRef : classDefinition.typeRefs) {
-            List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
+            BType type = typeRef.type;
+            if (type == null || type == symTable.semanticError) {
+                return;
+            }
+            List<BAttachedFunction> functions = ((BObjectTypeSymbol) type.tsymbol).attachedFuncs;
             for (BAttachedFunction function : functions) {
                 defineReferencedFunction(classDefinition.pos, classDefinition.flagSet, objMethodsEnv,
                         typeRef, function, includedFunctionNames, classDefinition.symbol, classDefinition.functions);
@@ -449,7 +444,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineReferencedClassFields(BLangClassDefinition classDefinition, SymbolEnv typeDefEnv, BObjectType objType) {
+    private void defineReferencedClassFields(BLangClassDefinition classDefinition, SymbolEnv typeDefEnv,
+                                             BObjectType objType) {
         Set<BSymbol> referencedTypes = new HashSet<>();
         List<BLangType> invalidTypeRefs = new ArrayList<>();
         // Get the inherited fields from the type references
@@ -544,37 +540,37 @@ public class SymbolEnter extends BLangNodeVisitor {
         return classDefinitions;
     }
 
-    private void defineClasses(List<BLangClassDefinition> classDefinitions, SymbolEnv pkgEnv) {
-        for (BLangClassDefinition classDefinition : classDefinitions) {
-            EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
-            boolean isReadOnly = flags.contains(Flag.READONLY);
-            if (isReadOnly) {
-                flags.add(Flag.READONLY);
-            }
-
-            BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
-                    names.fromIdNode(classDefinition.name),
-                    pkgEnv.enclPkg.symbol.pkgID, null, pkgEnv.scope.owner);
-            tSymbol.scope = new Scope(tSymbol);
-
-            BObjectType objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
-
-            tSymbol.type = objectType;
-            classDefinition.type = objectType;
-            classDefinition.symbol = tSymbol;
-
-            // For each referenced type, check whether the types are already resolved.
-            // If not, then that type should get a higher precedence.
-            for (BLangType typeRef : classDefinition.typeRefs) {
-                BType referencedType = symResolver.resolveTypeNode(typeRef, env);
-                if (referencedType == symTable.noType && !this.unresolvedClasses.contains(classDefinition)) {
-                    this.unresolvedClasses.add(classDefinition);
-                    return;
-                }
-            }
-
-            pkgEnv.scope.define(tSymbol.name, tSymbol);
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
+        boolean isReadOnly = flags.contains(Flag.READONLY);
+        if (isReadOnly) {
+            flags.add(Flag.READONLY);
         }
+
+        BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
+                names.fromIdNode(classDefinition.name),
+                env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        tSymbol.scope = new Scope(tSymbol);
+
+        BObjectType objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
+
+        tSymbol.type = objectType;
+        classDefinition.type = objectType;
+        classDefinition.symbol = tSymbol;
+
+        // For each referenced type, check whether the types are already resolved.
+        // If not, then that type should get a higher precedence.
+        for (BLangType typeRef : classDefinition.typeRefs) {
+            BType referencedType = symResolver.resolveTypeNode(typeRef, env);
+            if (referencedType == symTable.noType && !this.unresolvedTypes.contains(classDefinition)) {
+                this.unresolvedTypes.add(classDefinition);
+                return;
+            }
+        }
+
+        classDefinition.precedence = this.typePrecedence++;
+        env.scope.define(tSymbol.name, tSymbol);
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -803,14 +799,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(xmlnsStmtNode.xmlnsDecl, env);
     }
 
-    private void defineTypeNodes(List<? extends TypeDefinition> typeDefs, SymbolEnv env) {
+    private void defineTypeNodes(List<BLangNode> typeDefs, SymbolEnv env) {
         if (typeDefs.isEmpty()) {
             return;
         }
 
         this.unresolvedTypes = new ArrayList<>();
-        for (TypeDefinition typeDef : typeDefs) {
-            defineNode((BLangNode) typeDef, env);
+        for (BLangNode typeDef : typeDefs) {
+            defineNode(typeDef, env);
         }
 
         if (typeDefs.size() <= unresolvedTypes.size()) {
@@ -819,21 +815,26 @@ public class SymbolEnter extends BLangNodeVisitor {
             // dependencies or undefined types in type node.
 
 
-            for (TypeDefinition unresolvedType : unresolvedTypes) {
-                // We need to keep track of all visited types to print cyclic dependency.
-                Stack<String> references = new Stack<>();
-                references.push(unresolvedType.getName().getValue());
-                checkErrors(unresolvedType, (BLangType) unresolvedType.getTypeNode(), references);
+            for (BLangNode unresolvedType : unresolvedTypes) {
+                if (unresolvedType.getKind() == NodeKind.TYPE_DEFINITION) {
+                    BLangTypeDefinition def = (BLangTypeDefinition) unresolvedType;
+                    // We need to keep track of all visited types to print cyclic dependency.
+                    Stack<String> references = new Stack<>();
+                    references.push(def.getName().getValue());
+                    checkErrors(unresolvedType, def.getTypeNode(), references);
+                }
             }
 
-            unresolvedTypes.forEach(type -> defineNode((BLangNode) type, env));
+            unresolvedTypes.forEach(type -> defineNode(type, env));
             return;
         }
         defineTypeNodes(unresolvedTypes, env);
     }
 
-    private void checkErrors(TypeDefinition unresolvedType, BLangType currentTypeNode, Stack<String> visitedNodes) {
-        String unresolvedTypeNodeName = unresolvedType.getName().getValue();
+    private void checkErrors(BLangNode unresolvedType, BLangType currentTypeNode, Stack<String> visitedNodes) {
+        if (unresolvedType.getKind() == NodeKind.CLASS_DEFN) {
+            // todo: Handle class defs
+        }
 
         // Check errors in the type definition.
         List<BLangType> memberTypeNodes;
@@ -874,6 +875,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                     return;
                 }
 
+                String unresolvedTypeNodeName = ((BLangTypeDefinition) unresolvedType).getName().getValue();
+
                 if (unresolvedTypeNodeName.equals(currentTypeNodeName)) {
                     // Cyclic dependency detected. We need to add the `unresolvedTypeNodeName` or the
                     // `memberTypeNodeName` to the end of the list to complete the cyclic dependency when
@@ -904,6 +907,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                     // Check whether the current type node is in the unresolved list. If it is in the list, we need to
                     // check it recursively.
                     List<TypeDefinition> typeDefinitions = unresolvedTypes.stream()
+                            .filter(node -> node.getKind() == NodeKind.TYPE_DEFINITION)
+                            .map(node -> (BLangTypeDefinition) node)
                             .filter(typeDefinition -> typeDefinition.getName().getValue().equals(currentTypeNodeName))
                             .collect(Collectors.toList());
                     if (typeDefinitions.isEmpty()) {
@@ -1737,47 +1742,69 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineFields(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
-        int originalSize = typeDefNodes.size();
-
-        for (int i = 0; i < originalSize; i++) {
-            BLangTypeDefinition typeDef = typeDefNodes.get(i);
-            NodeKind nodeKind = typeDef.typeNode.getKind();
-            if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
-                continue;
+    private void defineFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
+        for (BLangNode typeDef : typeDefNodes) {
+            if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
+                defineFieldsOfClassDef((BLangClassDefinition) typeDef, pkgEnv);
+            } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
+                defineFieldsOfObjectOrRecordTypeDef((BLangTypeDefinition) typeDef, pkgEnv);
             }
-
-            // Create typeDef type
-            BStructureType structureType = (BStructureType) typeDef.symbol.type;
-            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
-            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, typeDef.symbol.scope, pkgEnv);
-
-            // Define all the fields
-            resolveFields(structureType, structureTypeNode, typeDefEnv);
-
-            if (typeDef.symbol.kind != SymbolKind.RECORD) {
-                continue;
-            }
-
-            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
-            BRecordType recordType = (BRecordType) structureType;
-            recordType.sealed = recordTypeNode.sealed;
-            if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
-                dlog.error(recordTypeNode.restFieldType.pos, DiagnosticCode.REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS);
-                continue;
-            }
-
-            if (recordTypeNode.restFieldType == null) {
-                if (recordTypeNode.sealed) {
-                    recordType.restFieldType = symTable.noType;
-                    continue;
-                }
-                recordType.restFieldType = symTable.anydataType;
-                continue;
-            }
-
-            recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
         }
+    }
+
+    private void defineFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv env) {
+        SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
+        BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
+        BObjectType objType = (BObjectType) tSymbol.type;
+
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            defineNode(field, typeDefEnv);
+            if (field.symbol.type == symTable.semanticError) {
+                continue;
+            }
+            objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos, field.symbol));
+        }
+
+        // todo: check for class fields and object fields
+        defineReferencedClassFields(classDefinition, typeDefEnv, objType);
+    }
+
+    private void defineFieldsOfObjectOrRecordTypeDef(BLangTypeDefinition typeDef, SymbolEnv pkgEnv) {
+        NodeKind nodeKind = typeDef.typeNode.getKind();
+        if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
+            return;
+        }
+
+        // Create typeDef type
+        BStructureType structureType = (BStructureType) typeDef.symbol.type;
+        BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
+        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, typeDef.symbol.scope, pkgEnv);
+
+        // Define all the fields
+        resolveFields(structureType, structureTypeNode, typeDefEnv);
+
+        if (typeDef.symbol.kind != SymbolKind.RECORD) {
+            return;
+        }
+
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
+        BRecordType recordType = (BRecordType) structureType;
+        recordType.sealed = recordTypeNode.sealed;
+        if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
+            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticCode.REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS);
+            return;
+        }
+
+        if (recordTypeNode.restFieldType == null) {
+            if (recordTypeNode.sealed) {
+                recordType.restFieldType = symTable.noType;
+                return;
+            }
+            recordType.restFieldType = symTable.anydataType;
+            return;
+        }
+
+        recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
     }
 
     private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
@@ -1801,51 +1828,57 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineMembers(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
-        int originalSize = typeDefNodes.size();
-
-        for (int i = 0; i < originalSize; i++) {
-            BLangTypeDefinition typeDef = typeDefNodes.get(i);
-            if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-                continue;
+    private void defineMembers(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
+        for (BLangNode node : typeDefNodes) {
+            if (node.getKind() == NodeKind.CLASS_DEFN) {
+                defineMembersOfClassDef(pkgEnv, (BLangClassDefinition) node);
+            } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
+                defineMemberOfObjectOrRecordDef(pkgEnv, (BLangTypeDefinition) node);
             }
-            if (typeDef.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-                BObjectType objectType = (BObjectType) typeDef.symbol.type;
+        }
+    }
 
-                if (objectType.mutableType != null) {
-                    // If this is an object type definition defined for an immutable type.
-                    // We skip defining methods here since they would either be defined already, or would be defined
-                    // later.
+    private void defineMemberOfObjectOrRecordDef(SymbolEnv pkgEnv, BLangTypeDefinition node) {
+        BLangTypeDefinition typeDef = node;
+        if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+            return;
+        }
+        if (typeDef.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+            BObjectType objectType = (BObjectType) typeDef.symbol.type;
+
+            if (objectType.mutableType != null) {
+                // If this is an object type definition defined for an immutable type.
+                // We skip defining methods here since they would either be defined already, or would be defined
+                // later.
+                return;
+            }
+
+            BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
+            SymbolEnv objMethodsEnv =
+                    SymbolEnv.createObjectMethodsEnv(objTypeNode, (BObjectTypeSymbol) objTypeNode.symbol, pkgEnv);
+
+            // Define the functions defined within the object
+            defineObjectInitFunction(objTypeNode, objMethodsEnv);
+            objTypeNode.functions.forEach(f -> {
+                f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, objectType));
+                defineNode(f, objMethodsEnv);
+            });
+
+            Set<String> includedFunctionNames = new HashSet<>();
+            // Add the attached functions of the referenced types to this object.
+            // Here it is assumed that all the attached functions of the referred type are
+            // resolved by the time we reach here. It is achieved by ordering the typeDefs
+            // according to the precedence.
+            for (BLangType typeRef : objTypeNode.typeRefs) {
+                if (typeRef.type.tsymbol == null || typeRef.type.tsymbol.kind != SymbolKind.OBJECT) {
                     continue;
                 }
 
-                BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-                SymbolEnv objMethodsEnv =
-                        SymbolEnv.createObjectMethodsEnv(objTypeNode, (BObjectTypeSymbol) objTypeNode.symbol, pkgEnv);
-
-                // Define the functions defined within the object
-                defineObjectInitFunction(objTypeNode, objMethodsEnv);
-                objTypeNode.functions.forEach(f -> {
-                    f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, objectType));
-                    defineNode(f, objMethodsEnv);
-                });
-
-                Set<String> includedFunctionNames = new HashSet<>();
-                // Add the attached functions of the referenced types to this object.
-                // Here it is assumed that all the attached functions of the referred type are
-                // resolved by the time we reach here. It is achieved by ordering the typeDefs
-                // according to the precedence.
-                for (BLangType typeRef : objTypeNode.typeRefs) {
-                    if (typeRef.type.tsymbol == null || typeRef.type.tsymbol.kind != SymbolKind.OBJECT) {
-                        continue;
-                    }
-
-                    List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
-                    for (BAttachedFunction function : functions) {
-                        defineReferencedFunction(typeDef.pos, typeDef.flagSet, objMethodsEnv,
-                                typeRef, function, includedFunctionNames, typeDef.symbol,
-                                ((BLangObjectTypeNode) typeDef.typeNode).functions);
-                    }
+                List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
+                for (BAttachedFunction function : functions) {
+                    defineReferencedFunction(typeDef.pos, typeDef.flagSet, objMethodsEnv,
+                            typeRef, function, includedFunctionNames, typeDef.symbol,
+                            ((BLangObjectTypeNode) typeDef.typeNode).functions);
                 }
             }
         }

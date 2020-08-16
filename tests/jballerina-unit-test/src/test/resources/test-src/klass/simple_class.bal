@@ -1,20 +1,71 @@
-public function testSimpleObjectAsStruct () returns [int, string, int, string] {
+public function testSimpleObjectAsStruct () {
     Person p = new Person();
-    return [p.age, p.name, p.year, p.month];
+    assertEquality(p.age, 10);
+    assertEquality(p.name, "sample name");
+    assertEquality(p.year, 50);
+    assertEquality(p.month, "february");
 }
 
-public function testSimpleObjectAsStructWithNew () returns [int, string, int, string] {
+public function testSimpleObjectAsStructWithNew() {
     Person p = new;
-    return [p.age, p.name, p.year, p.month];
+    assertEquality(p.age, 10);
+    assertEquality(p.name, "sample name");
+    assertEquality(p.year, 50);
+    assertEquality(p.month, "february");
 }
 
-function test() {
+public function testTypeRefInClass() {
+    Student s = new Student(10, "sample name", 50, "feb");
+    assertEquality(s.age, 10);
+    assertEquality(s.name, "sample name");
+    assertEquality(s.year, 50);
+    assertEquality(s.month, "feb");
+    assertEquality(s.grade, 1);
+
+    var x = new Stu(0);
+    assertEquality(x.i, 0);
 }
 
 class Person {
     public int age = 10;
     public string name = "sample name";
-
     int year = 50;
     string month = "february";
 };
+
+class Student {
+    *Person;
+    int grade = 1;
+
+    function init(int age, string name, int year, string month)  {
+        self.age = age;
+        self.name = name;
+        self.year = year;
+        self.month = month;
+    }
+};
+
+class Stu {
+    *Per;
+
+    function init(int i) {
+        self.i = i;
+    }
+};
+
+class Per {
+    int i = 0;
+};
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error("AssertionError",
+            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
