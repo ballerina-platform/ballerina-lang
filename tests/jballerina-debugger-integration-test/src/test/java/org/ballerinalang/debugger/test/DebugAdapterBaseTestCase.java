@@ -453,11 +453,10 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
             result.setName("Result");
             result.setType(evaluateResp.getType());
             result.setValue(evaluateResp.getResult());
-            result.setNamedVariables(result.getNamedVariables());
-            result.setIndexedVariables(result.getIndexedVariables());
-            result.setVariablesReference(result.getVariablesReference());
+            result.setNamedVariables(evaluateResp.getNamedVariables());
+            result.setIndexedVariables(evaluateResp.getIndexedVariables());
+            result.setVariablesReference(evaluateResp.getVariablesReference());
             return result;
-
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching debug hit variables", e);
             throw new BallerinaTestException("Error occurred when fetching debug hit variables", e);
