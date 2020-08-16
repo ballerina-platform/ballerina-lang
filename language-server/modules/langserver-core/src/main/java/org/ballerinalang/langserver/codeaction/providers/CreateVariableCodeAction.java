@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -131,7 +132,6 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         List<CodeAction> actions = new ArrayList<>();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         String diagnosedContent = getDiagnosedContent(diagnostic, context, document);
-        List<Diagnostic> diagnostics = new ArrayList<>();
         Position position = diagnostic.getRange().getStart();
 
         try {
@@ -160,7 +160,18 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             }
             boolean isInitInvocation = hasDefaultInitFunction || hasCustomInitFunction;
 
-            actions.addAll(getCreateVariableCodeActions(context, uri, diagnostics, position, refAtCursor,
+            // Find enclosing function node
+            BLangNode bLangNode = refAtCursor.getbLangNode();
+            BLangFunction enclosedFunc = null;
+            while (!(bLangNode instanceof BLangPackage)) {
+                if (bLangNode instanceof BLangFunction) {
+                    enclosedFunc = (BLangFunction) bLangNode;
+                    break;
+                }
+                bLangNode = bLangNode.parent;
+            }
+
+            actions.addAll(getCreateVariableCodeActions(context, uri, enclosedFunc, position, refAtCursor,
                                                         hasDefaultInitFunction, hasCustomInitFunction, isAsync));
             String commandTitle;
 
@@ -200,7 +211,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
     }
 
     private static List<CodeAction> getCreateVariableCodeActions(LSContext context, String uri,
-                                                                 List<Diagnostic> diagnostics, Position position,
+                                                                 BLangFunction enclosedFunc, Position position,
                                                                  Reference referenceAtCursor,
                                                                  boolean hasDefaultInitFunction,
                                                                  boolean hasCustomInitFunction, boolean isAsync) {
@@ -230,6 +241,9 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                         type.length() > 10) ? "Tuple" : type;
                 commandTitle = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
             }
+            if (type.endsWith("|error")) {
+                addErrorTypeBasedCodeActions(uri, enclosedFunc, position, actions, importEdits, type, name);
+            }
             Position insertPos = new Position(position.getLine(), position.getCharacter());
             String edit = type + " " + name + " = ";
             List<TextEdit> edits = new ArrayList<>();
@@ -238,6 +252,39 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             actions.add(createQuickFixCodeAction(commandTitle, edits, uri));
         }
         return actions;
+    }
+
+    private static void addErrorTypeBasedCodeActions(String uri, BLangFunction enclosedFunc, Position position,
+                                                     List<CodeAction> actions, List<TextEdit> importEdits, String type,
+                                                     String name) {
+        // add code action for `check`
+        if (enclosedFunc != null) {
+            boolean hasError = false;
+            BType returnType = enclosedFunc.returnTypeNode.type;
+            if (returnType instanceof BErrorType) {
+                hasError = true;
+            } else if (returnType instanceof BUnionType) {
+                BUnionType unionType = (BUnionType) returnType;
+                hasError = unionType.getMemberTypes().stream().anyMatch(s -> s instanceof BErrorType);
+            }
+            if (hasError) {
+                String panicCmd = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", "Check");
+                String edit = type.replace("|error", "") + " " + name + " = check ";
+                List<TextEdit> edits = new ArrayList<>();
+                Position insertPos = new Position(position.getLine(), position.getCharacter());
+                edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
+                edits.addAll(importEdits);
+                actions.add(createQuickFixCodeAction(panicCmd, edits, uri));
+            }
+        }
+        // add code action for `checkpanic`
+        String panicCmd = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", "CheckPanic");
+        String edit = type.replace("|error", "") + " " + name + " = checkpanic ";
+        List<TextEdit> edits = new ArrayList<>();
+        Position insertPos = new Position(position.getLine(), position.getCharacter());
+        edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
+        edits.addAll(importEdits);
+        actions.add(createQuickFixCodeAction(panicCmd, edits, uri));
     }
 
     private static Pair<List<String>, List<String>> getPossibleTypesAndNames(LSContext context,
