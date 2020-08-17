@@ -39,30 +39,47 @@ public class ProjectFiles {
     private ProjectFiles() {
     }
 
-    public static PackageData loadPackageData(String packageDir) {
-        if (packageDir == null) {
+    public static PackageData loadPackageData(String filePath, boolean singleFileProject) {
+        // TODO: check for permissions
+        // Handle single file project
+        Path packageDirPath;
+        if (singleFileProject) {
+            try {
+                packageDirPath = Files.createTempDirectory("ballerina-project" + System.nanoTime());
+            } catch (IOException e) {
+                throw new RuntimeException("error while creating temp directory for single file execution. ", e);
+            }
+            DocumentData documentData = loadDocument(Paths.get(filePath));
+            ModuleData defaultModule = ModuleData.from(packageDirPath, Collections.singletonList(documentData),
+                    Collections.emptyList());
+            return PackageData.from(packageDirPath, defaultModule, Collections.emptyList());
+        }
+
+        // Handle build project
+
+        if (filePath == null) {
             throw new IllegalArgumentException("packageDir cannot be null");
         }
 
         // Check whether the directory exists
-        Path packageDirPath = Paths.get(packageDir).toAbsolutePath();
+        packageDirPath = Paths.get(filePath).toAbsolutePath();
         if (!Files.exists(packageDirPath)) {
             // TODO handle the error
             // TODO use a custom runtime error
-            throw new RuntimeException("directory does not exists: " + packageDir);
+            throw new RuntimeException("directory does not exists: " + filePath);
         }
 
         if (!Files.isDirectory(packageDirPath)) {
-            throw new RuntimeException("Not a directory: " + packageDir);
+            throw new RuntimeException("Not a directory: " + filePath);
         }
 
-        // Check whether this is a project: Ballerina.toml file has to be there
-        Path ballerinaTomlPath = packageDirPath.resolve("Ballerina.toml");
-        if (!Files.exists(ballerinaTomlPath)) {
-            // TODO handle the error
-            // TODO use a custom runtime error
-            throw new RuntimeException("Not a package directory: " + packageDir);
-        }
+//        // Check whether this is a project: Ballerina.toml file has to be there
+//        Path ballerinaTomlPath = packageDirPath.resolve("Ballerina.toml");
+//        if (!Files.exists(ballerinaTomlPath)) {
+//            // TODO handle the error
+//            // TODO use a custom runtime error
+//            throw new RuntimeException("Not a package directory: " + filePath);
+//        }
 
         // Load Ballerina.toml
         // Load default module

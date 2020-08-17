@@ -17,6 +17,15 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.toml.model.Manifest;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
+
+import java.nio.file.Path;
+
 /**
  * The class {code Project} provides an abstract representation of a Ballerina project.
  *
@@ -24,12 +33,38 @@ package io.ballerina.projects;
  */
 public abstract class Project {
     protected final ProjectContext context;
+    protected String packagePath;
+    protected Manifest ballerinaToml;
+    protected boolean isSingleFile;
 
     protected Project() {
         this.context = new ProjectContext();
     }
 
-    public Package currentPackage() {
+    public static Project loadProject(Path projectPath) throws Exception {
+        if (RepoUtils.isBallerinaProject(projectPath)) {
+            return new BuildProject(projectPath);
+        } else if (isFileInDefaultModule(projectPath)) {
+            return new BuildProject(projectPath.getParent());
+        } else if (isFileInOtherModules(projectPath)) {
+            return new BuildProject(projectPath.getParent().getParent().getParent());
+        } else if(RepoUtils.isBallerinaStandaloneFile(projectPath)) {
+            return new SingleFileProject(projectPath);
+        } else {
+            throw new Exception("invalid project path: " + projectPath);
+        }
+    }
+
+    public Package getPackage() {
+        final PackageConfig packageConfig = ProjectLoader.loadPackage(packagePath, isSingleFile);
+        this.context.addPackage(packageConfig);
         return this.context.currentPackage();
+    }
+
+    private static boolean isFileInDefaultModule(Path filePath) {
+        return RepoUtils.isBallerinaProject(filePath.getParent());
+    }
+    private static boolean isFileInOtherModules(Path filePath) {
+        return ProjectDirConstants.MODULES_ROOT.equals(filePath.getParent().getParent().getFileName().toString());
     }
 }

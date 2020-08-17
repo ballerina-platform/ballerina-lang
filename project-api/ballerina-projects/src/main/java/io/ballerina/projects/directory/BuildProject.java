@@ -17,9 +17,16 @@
  */
 package io.ballerina.projects.directory;
 
-import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
+import org.ballerinalang.toml.model.LockFile;
+import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.wso2.ballerinalang.util.RepoUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created from the project directory.
@@ -27,18 +34,43 @@ import io.ballerina.projects.Project;
  * @since 2.0.0
  */
 public class BuildProject extends Project {
-    // TODO Move projects.build package to a different Gradle module.
-    public static BuildProject newInstance() {
-        return new BuildProject();
-    }
+    // TODO: check if this can extend the SingleFileProject (DefaultProject)
+    private LockFile lockFile; // related to build command?
 
-    private BuildProject() {
+    public BuildProject(Path projectPath) throws Exception {
         super();
+        if (!RepoUtils.isBallerinaProject(projectPath)) {
+            throw new Exception("invalid Ballerina source path:" + projectPath);
+        }
+        validateProject(ProjectFiles.loadPackageData(projectPath.toString(), false));
+        packagePath = projectPath.toString();
+        //TODO: replace with the new toml processor
+        ballerinaToml = ManifestProcessor.parseTomlContentAsStream(getTomlContent(projectPath));
     }
 
-    public Package loadPackage(String packagePath) {
-        final PackageConfig packageConfig = ProjectLoader.loadPackage(packagePath);
-        this.context.addPackage(packageConfig);
-        return this.context.currentPackage();
+    private InputStream getTomlContent(Path projectPath) {
+        Path tomlFilePath = projectPath.resolve("Ballerina.toml");
+        if (Files.exists(tomlFilePath)) {
+            try {
+                return Files.newInputStream(tomlFilePath);
+            } catch (IOException ignore) {
+            }
+        }
+        return new ByteArrayInputStream(new byte[0]);
     }
+
+    private void validateProject(PackageData packageData) throws Exception {
+        // 1) validate project name ? project dir also should be validated
+        // 2) validate package name - already done in toml parser
+        // 3) validate module names
+        for (ModuleData moduleData : packageData.otherModules()) {
+            String moduleName = moduleData.moduleDirectoryPath().getFileName().toString();
+            if (!RepoUtils.validateModuleName(moduleName)) {
+                throw new Exception("Invalid module name : '" + moduleName + "' :\n" +
+                        "Module name can only contain alphanumerics, underscores and periods " +
+                        "and the maximum length is 256 characters");
+            }
+        }
+    }
+
 }

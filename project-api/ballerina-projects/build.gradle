@@ -20,7 +20,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
-    testImplementation 'org.testng:testng'
+    testCompile 'org.testng:testng'
 }
 
 description = 'Ballerina - Projects'

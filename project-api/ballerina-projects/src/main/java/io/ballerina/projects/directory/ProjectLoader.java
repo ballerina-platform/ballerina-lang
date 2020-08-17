@@ -33,9 +33,9 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-class ProjectLoader {
-    public static PackageConfig loadPackage(String packageDir) {
-        final PackageData packageData = ProjectFiles.loadPackageData(packageDir);
+public class ProjectLoader {
+    public static PackageConfig loadPackage(String packageDir, boolean isSingleFile) {
+        final PackageData packageData = ProjectFiles.loadPackageData(packageDir, isSingleFile);
         return createPackageConfig(packageData);
     }
 
