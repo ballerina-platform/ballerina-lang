@@ -39,7 +39,7 @@ public class OperationHandleVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "get");
         operation = api.getPaths().get("/pets/{petId}").getGet();
-        validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
+        validationErrors = ResourceValidator.validateOperationAgainstResource(operation, resourceMethod);
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
@@ -51,7 +51,7 @@ public class OperationHandleVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "get");
         operation = api.getPaths().get("/pets/{petId}").getGet();
-        validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
+        validationErrors = ResourceValidator.validateOperationAgainstResource(operation, resourceMethod);
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
@@ -63,7 +63,7 @@ public class OperationHandleVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "get");
         operation = api.getPaths().get("/pets/{petId}").getGet();
-        validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
+        validationErrors = ResourceValidator.validateOperationAgainstResource(operation, resourceMethod);
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
@@ -75,7 +75,7 @@ public class OperationHandleVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "post");
         operation = api.getPaths().get("/pets/{petId}").getPost();
-        validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
+        validationErrors = ResourceValidator.validateOperationAgainstResource(operation, resourceMethod);
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
@@ -87,7 +87,7 @@ public class OperationHandleVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "post");
         operation = api.getPaths().get("/user").getPost();
-        validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
+        validationErrors = ResourceValidator.validateOperationAgainstResource(operation, resourceMethod);
         Assert.assertTrue(validationErrors.isEmpty());
     }
 }

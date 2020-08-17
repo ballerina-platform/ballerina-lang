@@ -171,7 +171,7 @@ public class ServiceValidator {
                             for (Map.Entry<String, Operation> operation: openApiPath.getOperations().entrySet()) {
                                 if (method.getKey().equals(operation.getKey())) {
                                     List<ValidationError> postErrors =
-                                            ResourceValidator.validateWhatMissingResource(operation.getValue(),
+                                            ResourceValidator.validateResourceAgainstOperation(operation.getValue(),
                                                     method.getValue());
                                     generateDlogMessage(kind, dLog, resourcePathSummary, method, postErrors);
                                 }
@@ -193,7 +193,7 @@ public class ServiceValidator {
                                 for (Map.Entry<String, ResourceMethod> method: methods.entrySet()) {
                                     if (operation.getKey().equals(method.getKey())) {
                                         List<ValidationError> errorList =
-                                                ResourceValidator.validateWhatMissingService(operation.getValue(),
+                                                ResourceValidator.validateOperationAgainstResource(operation.getValue(),
                                                         method.getValue());
                                         if (!errorList.isEmpty()) {
                                             for (ValidationError error: errorList) {
