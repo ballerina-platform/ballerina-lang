@@ -49,7 +49,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 /**
- * This class tests for http 1.1 when KeepAlivConfig is set to NEVER.
+ * This class tests for http 1.1 when KeepAliveConfig is set to NEVER.
  */
 public class HttpOnePointKeepAliveNeverTestCase {
 
@@ -94,7 +94,7 @@ public class HttpOnePointKeepAliveNeverTestCase {
             assertTrue(httpClient.waitForChannelClose());
             assertEquals(TestUtil.largeEntity, TestUtil.getEntityBodyFrom(httpResponse));
             assertEquals(Constants.CONNECTION_CLOSE, httpResponse.headers().get(HttpHeaderNames.CONNECTION));
-            assertNotNull(httpResponse.headers().get(HttpHeaderNames.CONTENT_LENGTH));
+            assertNotNull(httpResponse.headers().get(HttpHeaderNames.TRANSFER_ENCODING));
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running http1point1KeepAliveRequest test", e);
         }

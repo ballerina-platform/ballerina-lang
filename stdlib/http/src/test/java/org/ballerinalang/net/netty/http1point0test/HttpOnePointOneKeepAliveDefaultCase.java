@@ -90,7 +90,7 @@ public class HttpOnePointOneKeepAliveDefaultCase {
 
             assertFalse(httpClient.waitForChannelClose());
             assertEquals(TestUtil.largeEntity, TestUtil.getEntityBodyFrom(httpResponse));
-            assertNotNull(httpResponse.headers().get(HttpHeaderNames.CONTENT_LENGTH));
+            assertNotNull(httpResponse.headers().get(HttpHeaderNames.TRANSFER_ENCODING));
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running http1point1DefaultRequest test", e);
         }
