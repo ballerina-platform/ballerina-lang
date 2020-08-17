@@ -816,12 +816,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
 
             for (BLangNode unresolvedType : unresolvedTypes) {
-                if (unresolvedType.getKind() == NodeKind.TYPE_DEFINITION) {
-                    BLangTypeDefinition def = (BLangTypeDefinition) unresolvedType;
+                Stack<String> references = new Stack<>();
+                if (unresolvedType.getKind() == NodeKind.TYPE_DEFINITION
+                        || unresolvedType.getKind() == NodeKind.CONSTANT) {
+                    TypeDefinition def = (TypeDefinition) unresolvedType;
                     // We need to keep track of all visited types to print cyclic dependency.
-                    Stack<String> references = new Stack<>();
                     references.push(def.getName().getValue());
-                    checkErrors(unresolvedType, def.getTypeNode(), references);
+                    checkErrors(unresolvedType, (BLangNode) def.getTypeNode(), references);
+                } else if (unresolvedType.getKind() == NodeKind.CLASS_DEFN) {
+                    BLangClassDefinition classDefinition = (BLangClassDefinition) unresolvedType;
+                    references.push(classDefinition.getName().getValue());
+                    checkErrors(unresolvedType, classDefinition, references);
                 }
             }
 
@@ -831,106 +836,41 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineTypeNodes(unresolvedTypes, env);
     }
 
-    private void checkErrors(BLangNode unresolvedType, BLangType currentTypeNode, Stack<String> visitedNodes) {
-        if (unresolvedType.getKind() == NodeKind.CLASS_DEFN) {
-            // todo: Handle class defs
-        }
-
+    private void checkErrors(BLangNode unresolvedType, BLangNode currentTypeOrClassNode, Stack<String> visitedNodes) {
         // Check errors in the type definition.
         List<BLangType> memberTypeNodes;
-        switch (currentTypeNode.getKind()) {
+        switch (currentTypeOrClassNode.getKind()) {
             case ARRAY_TYPE:
-                checkErrors(unresolvedType, ((BLangArrayType) currentTypeNode).elemtype, visitedNodes);
+                checkErrors(unresolvedType, ((BLangArrayType) currentTypeOrClassNode).elemtype, visitedNodes);
                 break;
             case UNION_TYPE_NODE:
                 // If the current type node is a union type node, we need to check all member nodes.
-                memberTypeNodes = ((BLangUnionTypeNode) currentTypeNode).memberTypeNodes;
+                memberTypeNodes = ((BLangUnionTypeNode) currentTypeOrClassNode).memberTypeNodes;
                 // Recursively check all members.
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(unresolvedType, memberTypeNode, visitedNodes);
                 }
                 break;
             case INTERSECTION_TYPE_NODE:
-                memberTypeNodes = ((BLangIntersectionTypeNode) currentTypeNode).constituentTypeNodes;
+                memberTypeNodes = ((BLangIntersectionTypeNode) currentTypeOrClassNode).constituentTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(unresolvedType, memberTypeNode, visitedNodes);
                 }
                 break;
             case TUPLE_TYPE_NODE:
-                memberTypeNodes = ((BLangTupleTypeNode) currentTypeNode).memberTypeNodes;
+                memberTypeNodes = ((BLangTupleTypeNode) currentTypeOrClassNode).memberTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(unresolvedType, memberTypeNode, visitedNodes);
                 }
                 break;
             case CONSTRAINED_TYPE:
-                checkErrors(unresolvedType, ((BLangConstrainedType) currentTypeNode).constraint, visitedNodes);
+                checkErrors(unresolvedType, ((BLangConstrainedType) currentTypeOrClassNode).constraint, visitedNodes);
                 break;
             case TABLE_TYPE:
-                checkErrors(unresolvedType, ((BLangTableTypeNode) currentTypeNode).constraint, visitedNodes);
+                checkErrors(unresolvedType, ((BLangTableTypeNode) currentTypeOrClassNode).constraint, visitedNodes);
                 break;
             case USER_DEFINED_TYPE:
-                String currentTypeNodeName = ((BLangUserDefinedType) currentTypeNode).typeName.value;
-                // Skip all types defined as anonymous types.
-                if (currentTypeNodeName.startsWith("$")) {
-                    return;
-                }
-
-                String unresolvedTypeNodeName = ((BLangTypeDefinition) unresolvedType).getName().getValue();
-
-                if (unresolvedTypeNodeName.equals(currentTypeNodeName)) {
-                    // Cyclic dependency detected. We need to add the `unresolvedTypeNodeName` or the
-                    // `memberTypeNodeName` to the end of the list to complete the cyclic dependency when
-                    // printing the error.
-                    visitedNodes.push(currentTypeNodeName);
-                    dlog.error((DiagnosticPos) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
-                            visitedNodes);
-                    // We need to remove the last occurrence since we use this list in a recursive call.
-                    // Otherwise, unwanted types will get printed in the cyclic dependency error.
-                    visitedNodes.pop();
-                } else if (visitedNodes.contains(currentTypeNodeName)) {
-                    // Cyclic dependency detected. But in here, all the types in the list might not be necessary for the
-                    // cyclic dependency error message.
-                    //
-                    // Eg - A -> B -> C -> B // Last B is what we are currently checking
-                    //
-                    // In such case, we create a new list with relevant type names.
-                    int i = visitedNodes.indexOf(currentTypeNodeName);
-                    List<String> dependencyList = new ArrayList<>(visitedNodes.size() - i);
-                    for (; i < visitedNodes.size(); i++) {
-                        dependencyList.add(visitedNodes.get(i));
-                    }
-                    // Add the `currentTypeNodeName` to complete the cycle.
-                    dependencyList.add(currentTypeNodeName);
-                    dlog.error((DiagnosticPos) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
-                            dependencyList);
-                } else {
-                    // Check whether the current type node is in the unresolved list. If it is in the list, we need to
-                    // check it recursively.
-                    List<TypeDefinition> typeDefinitions = unresolvedTypes.stream()
-                            .filter(node -> node.getKind() == NodeKind.TYPE_DEFINITION)
-                            .map(node -> (BLangTypeDefinition) node)
-                            .filter(typeDefinition -> typeDefinition.getName().getValue().equals(currentTypeNodeName))
-                            .collect(Collectors.toList());
-                    if (typeDefinitions.isEmpty()) {
-                        // If a type is declared, it should either get defined successfully or added to the unresolved
-                        // types list. If a type is not in either one of them, that means it is an undefined type.
-                        LocationData locationData = new LocationData(currentTypeNodeName, currentTypeNode.pos.sLine,
-                                currentTypeNode.pos.sCol);
-                        if (unknownTypeRefs.add(locationData)) {
-                            dlog.error(currentTypeNode.pos, DiagnosticCode.UNKNOWN_TYPE, currentTypeNodeName);
-                        }
-                    } else {
-                        for (TypeDefinition typeDefinition : typeDefinitions) {
-                            String typeName = typeDefinition.getName().getValue();
-                            // Add the node name to the list.
-                            visitedNodes.push(typeName);
-                            // Recursively check for errors.
-                            checkErrors(unresolvedType, (BLangType) typeDefinition.getTypeNode(), visitedNodes);
-                            // We need to remove the added type node here since we have finished checking errors.
-                            visitedNodes.pop();
-                        }
-                    }
-                }
+                checkErrorsOfUserDefinedType(unresolvedType, currentTypeOrClassNode, visitedNodes);
                 break;
             case BUILT_IN_REF_TYPE:
                 // Eg - `xml`. This is not needed to be checked because no types are available in the `xml`.
@@ -941,18 +881,100 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // Do nothing.
                 break;
             case RECORD_TYPE:
-                for (TypeNode typeNode : ((BLangRecordTypeNode) currentTypeNode).getTypeReferences()) {
+                for (TypeNode typeNode : ((BLangRecordTypeNode) currentTypeOrClassNode).getTypeReferences()) {
                     checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes);
                 }
                 break;
             case OBJECT_TYPE:
-                for (TypeNode typeNode : ((BLangObjectTypeNode) currentTypeNode).getTypeReferences()) {
+                for (TypeNode typeNode : ((BLangObjectTypeNode) currentTypeOrClassNode).getTypeReferences()) {
+                    checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes);
+                }
+                break;
+            case CLASS_DEFN:
+                for (TypeNode typeNode : ((BLangClassDefinition) currentTypeOrClassNode).typeRefs) {
                     checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes);
                 }
                 break;
             default:
-                throw new RuntimeException("unhandled type kind: " + currentTypeNode.getKind());
+                throw new RuntimeException("unhandled type kind: " + currentTypeOrClassNode.getKind());
         }
+    }
+
+    private void checkErrorsOfUserDefinedType(BLangNode unresolvedType, BLangNode currentTypeOrClassNode, Stack<String> visitedNodes) {
+        String currentTypeNodeName = ((BLangUserDefinedType) currentTypeOrClassNode).typeName.value;
+        // Skip all types defined as anonymous types.
+        if (currentTypeNodeName.startsWith("$")) {
+            return;
+        }
+
+        String unresolvedTypeNodeName = ((TypeDefinition) unresolvedType).getName().getValue();
+
+        if (unresolvedTypeNodeName.equals(currentTypeNodeName)) {
+            // Cyclic dependency detected. We need to add the `unresolvedTypeNodeName` or the
+            // `memberTypeNodeName` to the end of the list to complete the cyclic dependency when
+            // printing the error.
+            visitedNodes.push(currentTypeNodeName);
+            dlog.error((DiagnosticPos) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
+                    visitedNodes);
+            // We need to remove the last occurrence since we use this list in a recursive call.
+            // Otherwise, unwanted types will get printed in the cyclic dependency error.
+            visitedNodes.pop();
+        } else if (visitedNodes.contains(currentTypeNodeName)) {
+            // Cyclic dependency detected. But in here, all the types in the list might not be necessary for the
+            // cyclic dependency error message.
+            //
+            // Eg - A -> B -> C -> B // Last B is what we are currently checking
+            //
+            // In such case, we create a new list with relevant type names.
+            int i = visitedNodes.indexOf(currentTypeNodeName);
+            List<String> dependencyList = new ArrayList<>(visitedNodes.size() - i);
+            for (; i < visitedNodes.size(); i++) {
+                dependencyList.add(visitedNodes.get(i));
+            }
+            // Add the `currentTypeNodeName` to complete the cycle.
+            dependencyList.add(currentTypeNodeName);
+            dlog.error((DiagnosticPos) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
+                    dependencyList);
+        } else {
+            // Check whether the current type node is in the unresolved list. If it is in the list, we need to
+            // check it recursively.
+            List<BLangNode> typeDefinitions = unresolvedTypes.stream()
+                    .filter(node -> getTypeOrClassName(node).equals(currentTypeNodeName))
+                    .collect(Collectors.toList());
+            if (typeDefinitions.isEmpty()) {
+                // If a type is declared, it should either get defined successfully or added to the unresolved
+                // types list. If a type is not in either one of them, that means it is an undefined type.
+                LocationData locationData = new LocationData(currentTypeNodeName, currentTypeOrClassNode.pos.sLine,
+                        currentTypeOrClassNode.pos.sCol);
+                if (unknownTypeRefs.add(locationData)) {
+                    dlog.error(currentTypeOrClassNode.pos, DiagnosticCode.UNKNOWN_TYPE, currentTypeNodeName);
+                }
+            } else {
+                for (BLangNode typeDefinition : typeDefinitions) {
+                    if (typeDefinition.getKind() == NodeKind.TYPE_DEFINITION) {
+                        BLangTypeDefinition typeDef = (BLangTypeDefinition) typeDefinition;
+                        String typeName = typeDef.getName().getValue();
+                        // Add the node name to the list.
+                        visitedNodes.push(typeName);
+                        // Recursively check for errors.
+                        checkErrors(unresolvedType, (BLangType) typeDef.getTypeNode(), visitedNodes);
+                        // We need to remove the added type node here since we have finished checking errors.
+                        visitedNodes.pop();
+                    } else {
+                        BLangClassDefinition classDefinition = (BLangClassDefinition) typeDefinition;
+                        visitedNodes.push(classDefinition.getName().getValue());
+                        checkErrors(unresolvedType, classDefinition, visitedNodes);
+                        visitedNodes.pop();
+                    }
+                }
+            }
+        }
+    }
+
+    private String getTypeOrClassName(BLangNode node) {
+        return node instanceof TypeDefinition
+                ? ((TypeDefinition) node).getName().getValue()
+                : ((BLangClassDefinition) node).getName().getValue();
     }
 
     public boolean isUnknownTypeRef(BLangUserDefinedType bLangUserDefinedType) {
