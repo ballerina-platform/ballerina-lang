@@ -22,6 +22,7 @@ import com.google.gson.JsonSyntaxException;
 import com.moandjiezana.toml.Toml;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.BuildOptions;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,10 +44,10 @@ public class BallerinaTomlProcessor {
     private BallerinaTomlProcessor() {}
 
     /**
-     * Get the char stream of the content from file.
+     * Parse `ballerina.toml` file in to `BallerinaToml` object.
      *
      * @param tomlPath path of the toml file
-     * @return manifest object
+     * @return `BallerinaToml` object
      * @throws IOException   exception if the file cannot be found
      * @throws TomlException exception when parsing toml
      */
@@ -58,10 +59,10 @@ public class BallerinaTomlProcessor {
     }
 
     /**
-     * Get the char stream from input stream.
+     * Parse `ballerina.toml` file stream in to `BallerinaToml` object.
      *
      * @param inputStream input stream of the toml file content
-     * @return manifest object
+     * @return `BallerinaToml` object
      * @throws TomlException exception when parsing toml
      */
     private static BallerinaToml parse(InputStream inputStream) throws TomlException {
@@ -106,19 +107,32 @@ public class BallerinaTomlProcessor {
      * @param ballerinaToml The BallerinaToml
      * @throws TomlException When the package block is invalid
      */
-    private static void validateBallerinaTomlPackage(BallerinaToml ballerinaToml) throws TomlException {
-        if (null == ballerinaToml.getPackage().getOrg() || "".equals(ballerinaToml.getPackage().getOrg())) {
+    public static void validateBallerinaTomlPackage(BallerinaToml ballerinaToml) throws TomlException {
+        // check org exists
+        String org = ballerinaToml.getPackage().getOrg();
+        if (null == org || "".equals(org)) {
             throw new TomlException("invalid Ballerina.toml file: cannot find 'org' under [package]");
         }
 
+        // check org is valid identifier
+        boolean isValidOrg = RepoUtils.validateOrg(org);
+        if (!isValidOrg) {
+            throw new TomlException("invalid Ballerina.toml file: Invalid 'org' under [package]: '" + org + "' :\n"
+                    + "'org' can only contain alphanumerics, underscores and periods "
+                    + "and the maximum length is 256 characters");
+        }
+
+        // check name exists
         if (null == ballerinaToml.getPackage().getName() || "".equals(ballerinaToml.getPackage().getName())) {
             throw new TomlException("invalid Ballerina.toml file: cannot find 'name' under [package]");
         }
 
+        // check version exists
         if (null == ballerinaToml.getPackage().getVersion() || "".equals(ballerinaToml.getPackage().getVersion())) {
             throw new TomlException("invalid Ballerina.toml file: cannot find 'version' under [package]");
         }
 
+        // check version is compatible with semver
         final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
         Matcher semverMatcher = semVerPattern.matcher(ballerinaToml.getPackage().getVersion());
         if (!semverMatcher.matches()) {
