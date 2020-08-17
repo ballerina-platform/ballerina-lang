@@ -39,6 +39,7 @@ public class BaseTestCase {
     protected static Path singleFilesProjectPath;
     static Path basicTestsProjectPath;
     static Path mockProjectPath;
+    static Path mockProjectPath2;
     static Path serviceProjectBuildPath;
     static Path reportTestProjectPath;
 
@@ -62,6 +63,11 @@ public class BaseTestCase {
                 Paths.get("src", "test", "resources", "project-based-tests/mock-tests").toAbsolutePath();
         mockProjectPath = tempProjectDirectory.resolve("mock-tests");
         FileUtils.copyFolder(originalMockProj, mockProjectPath);
+
+        Path originalMockProj2 =
+                Paths.get("src", "test", "resources", "project-based-tests/mocking-tests").toAbsolutePath();
+        mockProjectPath2 = tempProjectDirectory.resolve("mocking-tests");
+        FileUtils.copyFolder(originalMockProj2, mockProjectPath2);
 
         Path serviceProjectPath =
                 Paths.get("src", "test", "resources", "project-based-tests/services-tests").toAbsolutePath();

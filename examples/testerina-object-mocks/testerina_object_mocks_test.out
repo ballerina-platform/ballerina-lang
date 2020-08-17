@@ -1,0 +1,34 @@
+# To run this sample, create a Ballerina project and a module inside it.
+# Replace the content of the `main_test.bal` file residing inside the tests/ directory
+under the created module, and execute the `ballerina test` command  below from the project root directory.
+ballerina test bbe_mocking
+Compiling source
+        ballerinatest/bbe_mocking:0.1.0
+
+Creating balos
+        target/balo/bbe_mocking-2020r1-any-0.1.0.balo
+
+Running Tests
+        ballerinatest/bbe_mocking:0.1.0
+Executing the 1st GET request
+Status code: 500
+Executing the 1st GET request
+Status code: 200
+Executing the 2nd GET request
+Status code: 200
+Executing the 1st GET request
+Status code: 200
+Executing the 2nd GET request
+Status code: 401
+Executing the 1st GET request
+Status code: 403
+Executing the 1st GET request
+Status code: 404
+
+        [pass] testGetClientUrl
+        [pass] testSendNotification
+        [pass] testPerformGet
+
+        3 passing
+        0 failing
+        0 skipped

@@ -32,29 +32,22 @@ public const CACHE_ERROR = "{ballerina/cache}Error";
 # operations.
 public type Error error<CACHE_ERROR, Detail>;
 
-# Prepare the `error` as a `cache:Error` after printing an error log.
-#
-# + message - Error message
-# + err - `error` instance
-# + return - Prepared `Error` instance
-function prepareError(string message, error? err = ()) returns Error {
-    log:printError(message, err);
-    Error cacheError;
-    if (err is error) {
-        cacheError = error(CACHE_ERROR, message = message, cause = err);
-    } else {
-        cacheError = error(CACHE_ERROR, message = message);
-    }
-    return cacheError;
-}
+const string LOG_LEVEL_DEBUG = "DEBUG";
+const string LOG_LEVEL_ERROR = "ERROR";
+type LOG_LEVEL LOG_LEVEL_DEBUG|LOG_LEVEL_ERROR;
 
-# Prepare the `error` as a `cache:Error` after printing a debug log.
+# Prepare the `error` as a `cache:Error` after printing an log with provided log level.
 #
 # + message - Error message
 # + err - `error` instance
+# + logLevel - Log level of the error message
 # + return - Prepared `Error` instance
-function prepareErrorWithDebugLog(string message, error? err = ()) returns Error {
-    log:printDebug(message);
+function prepareError(string message, error? err = (), LOG_LEVEL logLevel = LOG_LEVEL_ERROR) returns Error {
+    if (logLevel == LOG_LEVEL_ERROR) {
+        log:printError(message, err);
+    } else if (logLevel == LOG_LEVEL_DEBUG) {
+        log:printDebug(message);
+    }
     Error cacheError;
     if (err is error) {
         cacheError = error(CACHE_ERROR, message = message, cause = err);

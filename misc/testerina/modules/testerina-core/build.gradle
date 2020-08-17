@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 /*
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -48,6 +50,7 @@ dependencies {
     implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-cache')
+    implementation project(':ballerina-java')
     implementation 'info.picocli:picocli'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.testng:testng'
@@ -63,13 +66,23 @@ dependencies {
     baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-reflect')
 }
 
+jar.archiveName("${project.name}-${project.version}.jar")
+
+task updateVersion {
+    ant.replaceregexp(
+            file: "${projectDir}/src/main/ballerina/Ballerina.toml",
+            match: "${project.name}-(.*).jar",
+            replace: "${project.name}-${project.version}.jar"
+    )
+}
 createBalo {
+    dependsOn "updateVersion"
     jvmTarget = 'true'
 }
 
 description = 'Ballerina - Testerina - Core'
-
