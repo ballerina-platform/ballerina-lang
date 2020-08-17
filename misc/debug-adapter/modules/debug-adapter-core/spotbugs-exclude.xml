@@ -28,14 +28,6 @@
             </And>
             <And>
                 <Bug pattern="REC_CATCH_EXCEPTION"/>
-                <Or>
-                    <Package name="org.ballerinalang.debugadapter.variable.types*"/>
-                    <Class name="org.ballerinalang.debugadapter.variable.VariableUtils"/>
-                    <And>
-                        <Class name="org.ballerinalang.debugadapter.evaluation.DebugExpressionParser"/>
-                        <Method name="validateAndParse"/>
-                    </And>
-                </Or>
             </And>
         </Or>
     </Match>

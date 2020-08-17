@@ -345,3 +345,27 @@ function testQueryExprWithAmbigousTypeForString() {
                 from var person in personList
                 select person.firstName;
 }
+
+type EmployeeEntity record {
+    int id;
+    string fname;
+    string lname;
+    int age;
+};
+
+type Employee record {|
+    string fname;
+    string lname;
+    int age;
+|};
+
+function testVariableShadowingWithQueryExpressions() {
+    string fname = "";
+    EmployeeEntity[] entities = [
+            {id: 1232, fname: "Sameera", lname: "Jayasoma", age: 30},
+            {id: 1232, fname: "Asanthi", lname: "Kulasinghe", age: 30},
+            {id: 1232, fname: "Khiana", lname: "Jayasoma", age: 2}
+        ];
+
+    Employee[] records = from var {fname, lname, age} in entities select {fname, lname, age};
+}
