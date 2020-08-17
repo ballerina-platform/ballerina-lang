@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -60,46 +60,41 @@ public class ServiceValidator {
                                         Diagnostic.Kind kind,
                                         DiagnosticLog dLog) throws OpenApiValidatorException {
 
-//        Filter openApi operation according to given filters
+        //  Filter openApi operation according to given filters
         List<OpenAPIPathSummary> openAPIPathSummaries = MatchResourcewithOperationId.filterOpenapi(openApi, filters);
 
-//        Check all the filtered operations are available at the service file
+        //  Check all the filtered operations are available at the service file
         List<OpenapiServiceValidationError> openApiMissingServiceMethod =
                 MatchResourcewithOperationId.checkServiceAvailable(openAPIPathSummaries, serviceNode);
 
-//        Generate errors for missing resource in service file
+        //  Generate errors for missing resource in service file
         if (!openApiMissingServiceMethod.isEmpty()) {
             for (OpenapiServiceValidationError openApiMissingError: openApiMissingServiceMethod) {
-//              Handle missing Path
                 if (openApiMissingError.getServiceOperation() == null) {
                     dLog.logDiagnostic(kind, serviceNode.getPosition(),
                             ErrorMessages.unimplementedOpenAPIPath(openApiMissingError.getServicePath()));
                 } else {
-//              Handle missing operation
                     dLog.logDiagnostic(kind, serviceNode.getPosition(),
                             ErrorMessages.unimplementedOpenAPIOperationsForPath(openApiMissingError.
                                             getServiceOperation(),
                                     openApiMissingError.getServicePath()));
                 }
             }
-//          Remove undocumentedPath and get clean operation list
+            // Remove undocumentedPath and get clean operation list
             MatchResourcewithOperationId.removeUndocumentedPath(openAPIPathSummaries,
                     openApiMissingServiceMethod);
-
         }
-
-//      Check all the services are available at operations
+        // Check all the services are available at operations
         List<ResourceValidationError> resourceMissingPathMethod =
                 MatchResourcewithOperationId.checkOperationIsAvailable(openApi, serviceNode);
-
         if (!resourceMissingPathMethod.isEmpty()) {
             for (ResourceValidationError resourceValidationError: resourceMissingPathMethod) {
-//              Handling the Missing path in openApi contract
+                // Handling the Missing path in openApi contract
                 if (resourceValidationError.getresourceMethod() == null) {
                     dLog.logDiagnostic(kind, resourceValidationError.getPosition(),
                             ErrorMessages.undocumentedResourcePath(resourceValidationError.getResourcePath()));
                 } else {
-//              Handle undocumented method in contract
+                    // Handle undocumented method in contract
                     dLog.logDiagnostic(kind, resourceValidationError.getPosition(),
                             ErrorMessages.undocumentedResourceMethods(resourceValidationError.getresourceMethod(),
                                     resourceValidationError.getResourcePath()));
@@ -107,10 +102,9 @@ public class ServiceValidator {
             }
         }
 
-//      Modified the ResourcePathSummary list that need to validate
+        // Create the ResourcePathSummary list that use to validate
         List<ResourcePathSummary> resourcePathSummaryList =
                 MatchResourcewithOperationId.summarizeResources(serviceNode);
-
         if (!resourcePathSummaryList.isEmpty()) {
             Iterator<ResourcePathSummary> resourcePSIterator = resourcePathSummaryList.iterator();
             while (resourcePSIterator.hasNext()) {
@@ -131,7 +125,7 @@ public class ServiceValidator {
                 }
             }
         }
-//      Modified the OpenAPIPathSummary list removing undocumented paths and operations.
+        //  Create the OpenAPIPathSummary list removing undocumented paths and operations.
         if (!openAPIPathSummaries.isEmpty()) {
             Iterator<ResourcePathSummary> resourcePathSummaryIterator = resourcePathSummaryList.iterator();
             while (resourcePathSummaryIterator.hasNext()) {
@@ -167,8 +161,7 @@ public class ServiceValidator {
                 }
             }
         }
-
-//        Validate service file (-->) with openApi  contract operations
+        // Validate service file against to openApi  contract operations
         for (ResourcePathSummary resourcePathSummary : resourcePathSummaryList) {
             for (OpenAPIPathSummary openApiPath : openAPIPathSummaries) {
                 if (resourcePathSummary.getPath().equals(openApiPath.getPath())) {
@@ -188,7 +181,7 @@ public class ServiceValidator {
                 }
             }
         }
-//      Validate openApi operations with to (-->) services in ballerina file
+        // Validate openApi operations against services in ballerina file
         for (OpenAPIPathSummary openAPIPathSummary: openAPIPathSummaries) {
             for (ResourcePathSummary resourcePathSummary: resourcePathSummaryList) {
                 if (openAPIPathSummary.getPath().equals(resourcePathSummary.getPath())) {
@@ -349,16 +342,13 @@ public class ServiceValidator {
         if (!Files.exists(contractPath)) {
             throw new OpenApiValidatorException(ErrorMessages.invalidFilePath(definitionURI));
         }
-
         if (!(definitionURI.endsWith(".yaml") || definitionURI.endsWith(".json"))) {
             throw new OpenApiValidatorException(ErrorMessages.invalidFile());
         }
-
         OpenAPI api = new OpenAPIV3Parser().read(definitionURI, null, parseOptions);
         if (api == null) {
             throw new OpenApiValidatorException(ErrorMessages.parserException(definitionURI));
         }
-
         return api;
     }
 }

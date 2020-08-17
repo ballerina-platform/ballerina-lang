@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -64,7 +64,7 @@ public  class BTypeToJsonValidatorUtil {
         Boolean isExitType = false;
         BType resourceType;
         resourceType = bVarSymbol.getType();
-//           Here validate the BVarType against to schema
+        // Validate the BVarType against to schema
         if (schema != null) {
             if ((bVarSymbol.type instanceof BRecordType) || ((schema instanceof ObjectSchema))) {
                 if (schema.getProperties() != null) {
@@ -73,7 +73,7 @@ public  class BTypeToJsonValidatorUtil {
                 if (schema instanceof ObjectSchema) {
                     properties = ((ObjectSchema) schema).getProperties();
                 }
-//          Check the Item type has array type
+                // Check the Item type has array type
                 BRecordType recordType = null;
                 if (resourceType instanceof BArrayType) {
                     BArrayType bArrayTypeBVarSymbol = (BArrayType) resourceType;
@@ -86,14 +86,14 @@ public  class BTypeToJsonValidatorUtil {
                 } else if (resourceType instanceof BRecordType) {
                     recordType = (BRecordType) resourceType;
                 }
-//          Validate errors in records
+                // Validate errors in records
                 List<ValidationError> recordValidationErrors = new ArrayList<>();
                 if (recordType != null) {
                     recordValidationErrors = validateRecord(recordValidationErrors, properties, recordType);
                     validationErrors.addAll(recordValidationErrors);
                 }
                 isExitType = true;
-//          Array type validation
+            //  Array type validation
             } else if (resourceType.getKind().typeName().equals("[]")
                     && schema.getType().equals("array")) {
                 BArrayType bArrayType = null;
@@ -106,7 +106,7 @@ public  class BTypeToJsonValidatorUtil {
                 }
                 BArrayType traversNestedArray = bArrayType;
                 ArraySchema traversSchemaNestedArray = arraySchema;
-//              Handle nested array type
+                // Handle nested array type
                 if (bArrayType != null) {
                     BType bArrayTypeEtype = bArrayType.eType;
                     Schema arraySchemaItems = arraySchema.getItems();
@@ -128,7 +128,7 @@ public  class BTypeToJsonValidatorUtil {
                             }
                         }
                     }
-//                        Handle record type array
+                    //   Handle record type array
                     if ((traversNestedArray.eType instanceof BRecordType) &&
                             traversSchemaNestedArray.
                                     getItems() != null) {
@@ -167,7 +167,7 @@ public  class BTypeToJsonValidatorUtil {
                 isExitType = true;
 
             } else if (resourceType instanceof BUnionType) {
-//                Handle OneOf type
+                // Handle OneOf type
                 BUnionType bUnionType = (BUnionType) resourceType;
                 if (schema instanceof ComposedSchema) {
                     ComposedSchema composedSchema = (ComposedSchema) schema;
@@ -181,7 +181,7 @@ public  class BTypeToJsonValidatorUtil {
                         memberList.addAll(memberList01);
                         oneOflist.addAll(oneOflist01);
 
-//                  Schema against to ballerina records
+                        //  Schema against to ballerina records
                         Iterator<Schema> iterator = oneOflist.iterator();
                         while (iterator.hasNext()) {
                             List<ValidationError> misFieldBallerina = new ArrayList<>();
@@ -191,7 +191,7 @@ public  class BTypeToJsonValidatorUtil {
                                 isExitType = true;
                                 BType member = memberIterator.next();
                                 if (member instanceof BRecordType) {
-//                                    Record validation
+                                    //  Record validation
                                     List<ValidationError> validationErrorListForRecords = new ArrayList<>();
                                     validationErrorListForRecords = validateRecord(validationErrorListForRecords,
                                             schema1.getProperties(),
@@ -202,7 +202,7 @@ public  class BTypeToJsonValidatorUtil {
                                         iterator.remove();
                                         break;
                                     } else {
-//                                        Check the given error fields are same as the given schema fields
+                                        //  Check the given error fields are same as the given schema fields
                                         if (validationErrorListForRecords.stream().
                                                 allMatch(item -> item instanceof TypeMismatch)) {
                                             OneOfTypeValidation oneOfTypeValidation =
@@ -217,7 +217,7 @@ public  class BTypeToJsonValidatorUtil {
                                         }
                                     }
                                 } else if (!(member instanceof BAnyType)) {
-//                                    Handle primitive data type
+                                    //  Handle primitive data type
                                     isExitType =
                                             member.tsymbol.type.toString().
                                                     equals(convertOpenAPITypeToBallerina(schema1.getType()));
@@ -225,11 +225,11 @@ public  class BTypeToJsonValidatorUtil {
                                         break;
                                     }
                                 } else {
-//                                    Remove any type value from parameter list
+                                    //  Remove any type value from parameter list
                                     memberIterator.remove();
                                 }
                             }
-//                      Handle Schema that not in ballerina resource
+                            //  Handle Schema that not in ballerina resource
                             if (!misFieldBallerina.isEmpty()) {
                                 if (misFieldBallerina.stream().
                                         allMatch(item -> item instanceof MissingFieldInBallerinaType)) {
@@ -239,7 +239,6 @@ public  class BTypeToJsonValidatorUtil {
                                         validationErrors.add(oneOfTypeValidation);
                                 }
                             }
-
                             if (!isExitType) {
                                 TypeMismatch typeMismatch = new TypeMismatch(bVarSymbol.name.toString(),
                                         convertTypeToEnum(schema1.getType()), null);
@@ -263,11 +262,11 @@ public  class BTypeToJsonValidatorUtil {
                                 }
                             }
                         }
-//                       Handle Record against the schema
+                        //  Handle Record against the schema
                         if (!(memberList.isEmpty())) {
                             List<ValidationError> validationErrorsBa =  new ArrayList<>();
                             for (BType member: memberList) {
-//                            Handle record type
+                                //  Handle record type
                                 if (member instanceof BRecordType) {
                                     isExitType = true;
                                     if (!(oneOflist.isEmpty())) {
@@ -305,7 +304,7 @@ public  class BTypeToJsonValidatorUtil {
                                                 , Constants.Type.RECORD, validationErrorslist1);
                                         validationErrors.add(oneOfTypeValidation);
                                     }
-//                                Handle primitive type
+                                    //  Handle primitive type
                                 } else if (!(member instanceof BAnyType)) {
                                     for (Schema schema2: oneOflist) {
                                         isExitType =
@@ -325,7 +324,7 @@ public  class BTypeToJsonValidatorUtil {
                                     isExitType = true;
                                 }
                             }
-//                            Missing fields in ballerina errors checking
+                            //   Missing fields in ballerina errors checking
                             if (!(validationErrorsBa.isEmpty())) {
                                 OneOfTypeValidation oneOfTypeValidation =
                                         new OneOfTypeValidation("Ballerina records",
@@ -359,7 +358,7 @@ public  class BTypeToJsonValidatorUtil {
     private static List<ValidationError> validateRecord(List<ValidationError> validationErrors,
                                                         Map<String, Schema> properties,
                                                         BRecordType recordType) throws OpenApiValidatorException {
-//      BType record against the schema
+        //  BType record against the schema
         for (Map.Entry<String, BField> field : recordType.fields.entrySet()) {
             boolean isExist = false;
             for (Map.Entry<String, Schema> entry : properties.entrySet()) {
@@ -379,14 +378,14 @@ public  class BTypeToJsonValidatorUtil {
                             validationErrors.add(validationError);
 
                         } else if (entry.getValue() instanceof ObjectSchema) {
-//                         Handle the nested record type
+                            //  Handle the nested record type
                             Schema schemaObject = entry.getValue();
                             if (field.getValue().type instanceof BRecordType) {
                                 List<ValidationError> nestedRecordValidation = BTypeToJsonValidatorUtil
                                         .validate(schemaObject, field.getValue().symbol);
                                 validationErrors.addAll(nestedRecordValidation);
                             } else {
-//                                    Type mismatch handle
+                                //   Type mismatch handle
                                 TypeMismatch validationError = new TypeMismatch(
                                         field.getValue().name.getValue(),
                                         convertTypeToEnum("object"),
@@ -395,7 +394,7 @@ public  class BTypeToJsonValidatorUtil {
                                 validationErrors.add(validationError);
                             }
                         } else {
-//                          Handle array type mismatching.
+                            //  Handle array type mismatching.
                             if (field.getValue().getType().getKind().typeName().equals("[]")) {
                                 BArrayType bArrayType = null;
                                 Schema entrySchema = entry.getValue();
@@ -409,7 +408,7 @@ public  class BTypeToJsonValidatorUtil {
                                 if (bArrayType != null) {
                                     BArrayType traversNestedArray = bArrayType;
                                     ArraySchema traversSchemaNestedArray = arraySchema;
-//                               Handle nested array type
+                                    //  Handle nested array type
                                     if ((bArrayType.eType instanceof BArrayType) &&
                                             (arraySchema.getItems() instanceof ArraySchema)) {
                                         Schema traversSchemaNestedArraySchemaType = arraySchema.getItems();
@@ -431,7 +430,7 @@ public  class BTypeToJsonValidatorUtil {
                                             }
                                         }
                                     }
-//                                  Handle record type in item array
+                                    //  Handle record type in item array
                                     if ((traversNestedArray.eType instanceof BRecordType) &&
                                             traversSchemaNestedArray.
                                                     getItems() != null) {
@@ -469,7 +468,7 @@ public  class BTypeToJsonValidatorUtil {
                 validationErrors.add(validationError);
             }
         }
-//            Find missing fields in BallerinaType
+        // Find missing fields in BallerinaType
         for (Map.Entry<String, Schema> entry : properties.entrySet()) {
             boolean isExist = false;
             for (Map.Entry<String, BField> field : recordType.fields.entrySet()) {

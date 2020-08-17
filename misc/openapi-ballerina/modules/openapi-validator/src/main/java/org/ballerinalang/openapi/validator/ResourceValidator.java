@@ -53,7 +53,7 @@ public class ResourceValidator {
         if (!resourceMethod.getParamNames().isEmpty()) {
             for (ResourceParameter resourceParameter: resourceMethod.getParamNames()) {
                 Boolean isParameterExit = false;
-                //  Request body handling
+                //  Handle the requestBody parameter
                 if ((resourceMethod.getBody() != null) && (resourceMethod.getBody().equals(resourceParameter.getName()))
                         && (operation.getRequestBody() != null)) {
                     if (operation.getRequestBody() != null) {
@@ -65,7 +65,6 @@ public class ResourceValidator {
                                     List<ValidationError> requestBValidationError  =
                                             BTypeToJsonValidatorUtil.validate(requestBodyOperation.getValue(),
                                                     resourceParameter.getParameter().symbol);
-
                                     if (requestBValidationError.isEmpty()) {
                                         isParameterExit = true;
                                         break;
@@ -84,7 +83,7 @@ public class ResourceValidator {
                             }
                         }
                     }
-//                    Handle Path parameter
+                //  Handle Path parameter
                 } else if (operation.getParameters() != null) {
                     for (Parameter parameter : operation.getParameters()) {
                         if (resourceParameter.getName().equals(parameter.getName())) {
@@ -111,7 +110,11 @@ public class ResourceValidator {
         return validationErrors;
     }
 
-//    Get the requestBody parameter from operation
+    /**
+     * Get the requestBody parameter from operation
+     * @param operation     openApi operation object
+     * @return Map with parameters
+     */
     public static Map<String, Schema> getOperationRequestBody(Operation operation) {
         Map<String, Schema> requestBodySchemas = new HashMap<>();
         Content content = operation.getRequestBody().getContent();
@@ -131,19 +134,19 @@ public class ResourceValidator {
     public static List<ValidationError> validateWhatMissingService(Operation operation, ResourceMethod resourceMethod)
             throws OpenApiValidatorException {
         List<ValidationError> validationErrorList = new ArrayList<>();
-//        Handle path , query parameters
+        // Handle path , query parameters
         if (operation.getParameters() != null) {
             List<Parameter> operationParam = operation.getParameters();
             for (Parameter param : operationParam) {
                 Boolean isOParamExit = false;
-//                Temporary solution for skipping the query parameter, this if condition can be removed when openApi
-//                tool available with query parameter
+                // Temporary solution for skipping the query parameter, this if condition can be removed when openApi
+                // tool available with query parameter
                 if (param instanceof QueryParameter) {
                     isOParamExit = true;
                 }
                 if (!resourceMethod.getParamNames().isEmpty()) {
                     for (ResourceParameter resourceParam: resourceMethod.getParamNames()) {
-//                        Check whether it is path parameter
+                        //  Check whether it is path parameter
                         if (param instanceof PathParameter) {
                             if (param.getName().equals(resourceParam.getName())) {
                                 isOParamExit = true;
@@ -165,7 +168,7 @@ public class ResourceValidator {
                 }
             }
         }
-//        Handle the requestBody
+        //  Handle the requestBody
         if (operation.getRequestBody() != null) {
             List<ResourceParameter> resourceParam = resourceMethod.getParamNames();
             Map<String, Schema> requestBodySchemas = ResourceValidator.getOperationRequestBody(operation);
