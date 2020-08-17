@@ -46,8 +46,7 @@ public class ResourceValidator {
      * @return                  list of validationErrors
      * @throws OpenApiValidatorException
      */
-//    validateResourceAgainstOperation
-    public static List<ValidationError> validateWhatMissingResource(Operation operation, ResourceMethod resourceMethod)
+    public static List<ValidationError> validateResourceAgainstOperation(Operation operation, ResourceMethod resourceMethod)
             throws OpenApiValidatorException {
         List<ValidationError> validationErrors = new ArrayList<>();
         if (!resourceMethod.getParamNames().isEmpty()) {
@@ -131,7 +130,7 @@ public class ResourceValidator {
      * @return                  list of ValidationErrors
      * @throws OpenApiValidatorException
      */
-    public static List<ValidationError> validateWhatMissingService(Operation operation, ResourceMethod resourceMethod)
+    public static List<ValidationError> validateOperationAgainstResource(Operation operation, ResourceMethod resourceMethod)
             throws OpenApiValidatorException {
         List<ValidationError> validationErrorList = new ArrayList<>();
         // Handle path , query parameters

@@ -42,7 +42,7 @@ import java.util.List;
 
 /**
  * Test for resource validate with operation model in MatchResourcewithOperationId function checkOperationIsAvailable
- * and resource Validator validateWhatMissingResource function.
+ * and resource Validator validateResourceAgainstOperation function.
  */
 public class ResourceHandleIVTests {
     private static final Path RES_DIR = Paths.get("src/test/resources/project-based-tests/src/resourceHandle/")
@@ -102,7 +102,7 @@ public class ResourceHandleIVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "get");
         operation = api.getPaths().get("/pets/{petId}").getGet();
-        resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
+        resourceValidationErrors = ResourceValidator.validateResourceAgainstOperation(operation, resourceMethod);
         Assert.assertEquals(resourceValidationErrors.get(0).getFieldName(), "petId");
     }
 
@@ -114,7 +114,7 @@ public class ResourceHandleIVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "post");
         operation = api.getPaths().get("/pets/{petId}").getPost();
-        resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
+        resourceValidationErrors = ResourceValidator.validateResourceAgainstOperation(operation, resourceMethod);
         Assert.assertTrue(resourceValidationErrors.get(0) instanceof TypeMismatch);
         Assert.assertEquals(resourceValidationErrors.get(0).getFieldName(), "name");
     }
@@ -127,7 +127,7 @@ public class ResourceHandleIVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "post");
         operation = api.getPaths().get("/pets/{petId}").getPost();
-        resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
+        resourceValidationErrors = ResourceValidator.validateResourceAgainstOperation(operation, resourceMethod);
         Assert.assertTrue(resourceValidationErrors.get(0) instanceof MissingFieldInJsonSchema);
         Assert.assertEquals(resourceValidationErrors.get(0).getFieldName(), "place");
     }
@@ -140,7 +140,7 @@ public class ResourceHandleIVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "post");
         operation = api.getPaths().get("/pets/{petId}").getPost();
-        resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
+        resourceValidationErrors = ResourceValidator.validateResourceAgainstOperation(operation, resourceMethod);
         Assert.assertTrue(resourceValidationErrors.get(0) instanceof TypeMismatch);
         Assert.assertEquals(resourceValidationErrors.get(0).getFieldName(), "name");
     }
@@ -154,7 +154,7 @@ public class ResourceHandleIVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "post");
         operation = api.getPaths().get("/pets/{petId}").getPost();
-        resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
+        resourceValidationErrors = ResourceValidator.validateResourceAgainstOperation(operation, resourceMethod);
         Assert.assertTrue(resourceValidationErrors.get(0) instanceof TypeMismatch);
         Assert.assertEquals(resourceValidationErrors.get(0).getFieldName(), "body");
     }
@@ -168,7 +168,7 @@ public class ResourceHandleIVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "post");
         operation = api.getPaths().get("/pets/{petId}").getPost();
-        resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
+        resourceValidationErrors = ResourceValidator.validateResourceAgainstOperation(operation, resourceMethod);
         Assert.assertTrue(resourceValidationErrors.get(0) instanceof OneOfTypeValidation);
         Assert.assertEquals(resourceValidationErrors.get(0).getFieldName(), "Dog");
         Assert.assertEquals(((OneOfTypeValidation) resourceValidationErrors.get(0))
@@ -185,7 +185,7 @@ public class ResourceHandleIVTests {
 //        extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
 //        resourceMethod = ValidatorTest.getFunction(extractBLangservice, "post");
 //        operation = api.getPaths().get("/pets").getPost();
-//        resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
+//        resourceValidationErrors = ResourceValidator.validateResourceAgainstOperation(operation, resourceMethod);
 //        Assert.assertTrue(resourceValidationErrors.get(0) instanceof OneOfTypeValidation);
 //        Assert.assertEquals(resourceValidationErrors.get(0).getFieldName(), "Dog");
 //        Assert.assertEquals(((OneOfTypeValidation) resourceValidationErrors.get(0))
@@ -202,7 +202,7 @@ public class ResourceHandleIVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "post");
         operation = api.getPaths().get("/pets/{petId}").getPost();
-        resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
+        resourceValidationErrors = ResourceValidator.validateResourceAgainstOperation(operation, resourceMethod);
         Assert.assertTrue(resourceValidationErrors.get(0) instanceof TypeMismatch);
         Assert.assertEquals(resourceValidationErrors.get(0).getFieldName(), "name");
     }

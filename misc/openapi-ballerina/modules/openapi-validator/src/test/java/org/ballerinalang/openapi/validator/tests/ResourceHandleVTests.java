@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Valid test for resource validation in validateWhatMissingResource function.
+ * Valid test for resource validation in validateResourceAgainstOperation function.
  */
 public class ResourceHandleVTests {
     private static final Path RES_DIR = Paths.get("src/test/resources/project-based-tests/src/resourceHandle/")
@@ -91,7 +91,7 @@ public class ResourceHandleVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "get");
         operation = api.getPaths().get("/pets/{petId}").getGet();
-        resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
+        resourceValidationErrors = ResourceValidator.validateResourceAgainstOperation(operation, resourceMethod);
         Assert.assertTrue(resourceValidationErrors.isEmpty());
     }
 
@@ -103,7 +103,7 @@ public class ResourceHandleVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "post");
         operation = api.getPaths().get("/user").getPost();
-        resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
+        resourceValidationErrors = ResourceValidator.validateResourceAgainstOperation(operation, resourceMethod);
         Assert.assertTrue(resourceValidationErrors.isEmpty());
     }
 }
