@@ -55,10 +55,8 @@ public class IVPrimitiveUtilTests {
         extractSchema = ValidatorTest.getSchema(api, "/user/{userId}");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue(validationErrors.get(0) instanceof TypeMismatch);
         Assert.assertEquals(validationErrors.get(0).getFieldName(), "userId");
-
     }
 
     @Test(description = "Type mismatch with array")
@@ -69,12 +67,10 @@ public class IVPrimitiveUtilTests {
         extractSchema = ValidatorTest.getSchema(api, "/user/{userId}");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue(validationErrors.get(0) instanceof TypeMismatch);
         Assert.assertEquals(validationErrors.get(0).getFieldName(), "userId");
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeJsonSchema(), Constants.Type.STRING);
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeBallerinaType(), Constants.Type.INT);
-
     }
 
     @Test(description = "Type mismatch with array")
@@ -85,7 +81,6 @@ public class IVPrimitiveUtilTests {
         extractSchema = ValidatorTest.getSchema(api, "/user/{userId}");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue(validationErrors.get(0) instanceof TypeMismatch);
         Assert.assertEquals(validationErrors.get(0).getFieldName(), "userId");
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeJsonSchema(), Constants.Type.STRING);
@@ -100,7 +95,6 @@ public class IVPrimitiveUtilTests {
         extractSchema = ValidatorTest.getSchema(api, "/user/{category}");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue(validationErrors.get(0) instanceof TypeMismatch);
         Assert.assertEquals(validationErrors.get(0).getFieldName(), "id");
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeJsonSchema(), Constants.Type.INTEGER);

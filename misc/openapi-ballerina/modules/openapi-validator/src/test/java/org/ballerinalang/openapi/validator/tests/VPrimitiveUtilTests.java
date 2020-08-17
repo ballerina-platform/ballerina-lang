@@ -54,7 +54,6 @@ public class VPrimitiveUtilTests {
         extractSchema = ValidatorTest.getSchema(api, "/user/{userId}");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
@@ -66,7 +65,6 @@ public class VPrimitiveUtilTests {
         extractSchema = ValidatorTest.getSchema(api, "/user/{userId}");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
@@ -78,7 +76,6 @@ public class VPrimitiveUtilTests {
         extractSchema = ValidatorTest.getSchema(api, "/user/{userId}");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue(validationErrors.isEmpty());
     }
 }

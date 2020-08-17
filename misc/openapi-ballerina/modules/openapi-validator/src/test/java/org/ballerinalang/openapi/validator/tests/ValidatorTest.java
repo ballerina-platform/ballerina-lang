@@ -39,16 +39,19 @@ import java.util.List;
 public class ValidatorTest {
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
 
-//    Return bLangPackage for given .bal file
+    /**
+     * Return bLangPackage for given .bal file
+     * @param fileName      String type Of file name
+     * @return BlangPackage
+     * @throws UnsupportedEncodingException
+     */
     public static BLangPackage getBlangPackage(String fileName) throws UnsupportedEncodingException {
-
         Path sourceRoot = RES_DIR.resolve("project-based-tests/src");
         String balfile = sourceRoot.resolve(fileName).toString();
         Path balFpath = Paths.get(balfile);
         Path programDir = balFpath.toAbsolutePath().getParent();
         String filename = balFpath.toAbsolutePath().getFileName().toString();
         BLangPackage bLangPackage = OpenApiValidatorUtil.compileFile(programDir, filename);
-
         return bLangPackage;
     }
 
@@ -64,12 +67,12 @@ public class ValidatorTest {
         return  api.getPaths().get(path).getGet().getParameters().get(0).getSchema();
     }
 
-    // get the service node from bLangPackage
+    // Get the service node from bLangPackage
     public static BLangService getServiceNode(BLangPackage bLangPackage) {
         return bLangPackage.getServices().get(0);
     }
 
-    // get the Function Node
+    // Get the Function Node
     public static ResourceMethod getFunction(BLangService bLangService, String method) {
 
         List<ResourcePathSummary> resourcePathSummaryList =

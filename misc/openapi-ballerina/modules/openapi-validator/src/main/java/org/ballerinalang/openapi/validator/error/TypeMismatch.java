@@ -43,6 +43,7 @@ public class TypeMismatch extends ValidationError {
         this.typeBallerinaType = typeBallerinaType;
         this.recordName = recordName;
     }
+
     public void setFieldName(String fieldName) {
         this.fieldName = fieldName;
     }

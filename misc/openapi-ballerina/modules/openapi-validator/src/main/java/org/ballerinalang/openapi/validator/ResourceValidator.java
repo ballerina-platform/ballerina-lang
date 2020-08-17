@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,13 +46,14 @@ public class ResourceValidator {
      * @return                  list of validationErrors
      * @throws OpenApiValidatorException
      */
+//    validateResourceAgainstOperation
     public static List<ValidationError> validateWhatMissingResource(Operation operation, ResourceMethod resourceMethod)
             throws OpenApiValidatorException {
         List<ValidationError> validationErrors = new ArrayList<>();
         if (!resourceMethod.getParamNames().isEmpty()) {
             for (ResourceParameter resourceParameter: resourceMethod.getParamNames()) {
                 Boolean isParameterExit = false;
-//                            Request body handling
+                //  Request body handling
                 if ((resourceMethod.getBody() != null) && (resourceMethod.getBody().equals(resourceParameter.getName()))
                         && (operation.getRequestBody() != null)) {
                     if (operation.getRequestBody() != null) {
@@ -60,7 +61,6 @@ public class ResourceValidator {
                         if (requestBody.getContent() != null) {
                             Map<String, Schema> requestBodySchemas = getOperationRequestBody(operation);
                             if (!requestBodySchemas.isEmpty()) {
-
                                 for (Map.Entry<String, Schema> requestBodyOperation: requestBodySchemas.entrySet()) {
                                     List<ValidationError> requestBValidationError  =
                                             BTypeToJsonValidatorUtil.validate(requestBodyOperation.getValue(),
@@ -113,7 +113,6 @@ public class ResourceValidator {
 
 //    Get the requestBody parameter from operation
     public static Map<String, Schema> getOperationRequestBody(Operation operation) {
-
         Map<String, Schema> requestBodySchemas = new HashMap<>();
         Content content = operation.getRequestBody().getContent();
         for (Map.Entry<String, MediaType> mediaTypeEntry : content.entrySet()) {
@@ -129,7 +128,6 @@ public class ResourceValidator {
      * @return                  list of ValidationErrors
      * @throws OpenApiValidatorException
      */
-
     public static List<ValidationError> validateWhatMissingService(Operation operation, ResourceMethod resourceMethod)
             throws OpenApiValidatorException {
         List<ValidationError> validationErrorList = new ArrayList<>();
@@ -169,7 +167,6 @@ public class ResourceValidator {
         }
 //        Handle the requestBody
         if (operation.getRequestBody() != null) {
-
             List<ResourceParameter> resourceParam = resourceMethod.getParamNames();
             Map<String, Schema> requestBodySchemas = ResourceValidator.getOperationRequestBody(operation);
             for (Map.Entry<String, Schema> operationRB: requestBodySchemas.entrySet()) {
@@ -211,5 +208,4 @@ public class ResourceValidator {
         }
         return validationErrorList;
     }
-
 }

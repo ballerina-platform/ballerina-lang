@@ -59,8 +59,8 @@ public class ResourceHandleVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         validationErrors = MatchResourcewithOperationId.checkOperationIsAvailable(api, extractBLangservice);
         Assert.assertTrue(validationErrors.isEmpty());
-
     }
+
     @Test(description = "Test for checking whether resource path methods are documented in openapi contract")
     public void testResourcePathMethods() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstore.yaml");
@@ -69,8 +69,8 @@ public class ResourceHandleVTests {
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         validationErrors = MatchResourcewithOperationId.checkOperationIsAvailable(api, extractBLangservice);
         Assert.assertTrue(validationErrors.isEmpty());
-
     }
+
     @Test(description = "Test for checking whether openapi service paths are documented in ballerina resource")
     public void testServicePath() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/servicePetstore.yaml");
@@ -81,7 +81,6 @@ public class ResourceHandleVTests {
                 MatchResourcewithOperationId.checkServiceAvailable(MatchResourcewithOperationId.summarizeOpenAPI(api),
                         extractBLangservice);
         Assert.assertTrue(serviceValidationErrors.isEmpty());
-
     }
 
     @Test(description = "Test resource function node with openapi operation ")
@@ -94,7 +93,6 @@ public class ResourceHandleVTests {
         operation = api.getPaths().get("/pets/{petId}").getGet();
         resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
         Assert.assertTrue(resourceValidationErrors.isEmpty());
-
     }
 
     @Test(description = "Test resource function node with openapi operation ")
@@ -107,6 +105,5 @@ public class ResourceHandleVTests {
         operation = api.getPaths().get("/user").getPost();
         resourceValidationErrors = ResourceValidator.validateWhatMissingResource(operation, resourceMethod);
         Assert.assertTrue(resourceValidationErrors.isEmpty());
-
     }
 }

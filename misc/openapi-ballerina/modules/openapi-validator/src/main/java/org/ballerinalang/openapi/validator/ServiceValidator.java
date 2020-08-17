@@ -211,8 +211,8 @@ public class ServiceValidator {
                                                                     ((MissingFieldInBallerinaType) error)
                                                                             .getRecordName(), operation.getKey(),
                                                                     openAPIPathSummary.getPath()));
-
-                                                } else if (error instanceof OneOfTypeValidation) {
+                                                } else if ((error instanceof OneOfTypeValidation)) {
+//                                                    need to merge
                                                     if (!((OneOfTypeValidation) error).getBlockErrors().isEmpty()) {
                                                         List<ValidationError> oneOfErrors =
                                                                 ((OneOfTypeValidation) error).getBlockErrors();
@@ -228,15 +228,15 @@ public class ServiceValidator {
                                                             }
                                                         }
                                                     }
-
-                                                } else if (!(error instanceof TypeMismatch)) {
-                                                    if (!(error instanceof MissingFieldInJsonSchema)) {
+                                                } else if (!(error instanceof TypeMismatch) &&
+                                                        (!(error instanceof MissingFieldInJsonSchema))) {
+//                                                    if  {
                                                         dLog.logDiagnostic(kind, serviceNode.getPosition(),
                                                                 ErrorMessages.unimplementedParameterForOperation(
                                                                         error.getFieldName(),
                                                                         operation.getKey(),
                                                                         openAPIPathSummary.getPath()));
-                                                    }
+//                                                    }
                                                 }
                                             }
                                         }

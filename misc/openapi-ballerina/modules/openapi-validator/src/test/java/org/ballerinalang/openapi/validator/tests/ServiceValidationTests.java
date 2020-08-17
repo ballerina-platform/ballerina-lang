@@ -20,7 +20,7 @@ import java.util.List;
  * Test for serviceValidation.
  */
 public class ServiceValidationTests {
-    private static final Path RES_DIR = Paths.get("src/test/resources/project-based-tests/src/resourceValidation/")
+    private static final Path RES_DIR = Paths.get("src/test/resources/project-based-tests/src/serviceValidator/")
             .toAbsolutePath();
     private OpenAPI api;
     private BLangPackage bLangPackage;
@@ -116,7 +116,7 @@ public class ServiceValidationTests {
 //        ServiceValidator.validateResource(api, extractBLangservice, filters, kind, dLog);
     }
 
-    @Test(description = "test for undocumented field oneOf type record in contract")
+    @Test(description = "test for scenario 02")
     public void testOneofscenario_02() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/invalid/oneOf-scenario02.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -128,7 +128,7 @@ public class ServiceValidationTests {
 //        ServiceValidator.validateResource(api, extractBLangservice, filters, kind, dLog);
     }
 
-    @Test(description = "test for undocumented field oneOf type record in contract")
+    @Test(description = "test for scenario 03")
     public void testOneofscenario_03() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/invalid/oneOf-scenario03.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -139,4 +139,10 @@ public class ServiceValidationTests {
         filters = new Filters(tag, excludeTag, operation, excludeOperation, kind);
 //        ServiceValidator.validateResource(api, extractBLangservice, filters, kind, dLog);
     }
+    /**
+     * OneOf - Invalid Scenario examples
+     */
+    //      Scenario-01         (record)   cat - place02, mealType        | (schema) cat - place, mealType
+    //      Scenario-02         (record)   cat - place, mealType, canFly  | (schema) cat - place, mealType
+    //      Scenario-03         (record)   cat - place, mealType          | (schema) cat - place, mealType , mealTime
 }

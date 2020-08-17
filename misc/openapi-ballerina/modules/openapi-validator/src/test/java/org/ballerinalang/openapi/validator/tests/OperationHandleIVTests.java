@@ -44,7 +44,6 @@ public class OperationHandleIVTests {
         operation = api.getPaths().get("/pets/{petId}").getPost();
         validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
         Assert.assertTrue(validationErrors.get(0) instanceof TypeMismatch);
-
     }
 
     @Test(description = "Operation model has path parameters with request body ")
@@ -57,8 +56,6 @@ public class OperationHandleIVTests {
         resourceMethod = ValidatorTest.getFunction(extractBLangservice, "post");
         operation = api.getPaths().get("/pets/{petId}").getPost();
         validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
-//        Assert.assertTrue(validationErrors.get(0) instanceof TypeMismatch);
-//        Assert.assertEquals(validationErrors.get(0).getFieldName(), "appilcation/xml");
         Assert.assertEquals(validationErrors.get(0).getFieldName(), "bark");
     }
 

@@ -57,11 +57,7 @@ public class MatchResourcewithOperationId {
         boolean excludeOperationFilteringEnable = filters.getExcludeOperation().size() > 0;
 
         List<OpenAPIPathSummary> openAPIPathSummaries = MatchResourcewithOperationId.summarizeOpenAPI(openApi);
-
-
-        /*
-         *  Check based on the method and path filters
-         */
+        // Check based on the method and path filters
         Iterator<OpenAPIPathSummary> openAPIIter = openAPIPathSummaries.iterator();
         while (openAPIIter.hasNext()) {
             OpenAPIPathSummary openAPIPathSummary = openAPIIter.next();
@@ -169,7 +165,6 @@ public class MatchResourcewithOperationId {
                         }
                     }
                 }
-
                 // If exclude tag filtering available proceed to validate all the operations grouped by tags which
                 // are not included in list.
                 // Else if validate the operations group by tag filtering
@@ -186,8 +181,6 @@ public class MatchResourcewithOperationId {
                             operations.remove();
                         }
                     }
-
-
                 } else if (tagFilteringEnabled) {
                     // If tag filtering available proceed to validate all the operations grouped by given tags.
                     // Else proceed only to validate filtered operations.
@@ -210,14 +203,12 @@ public class MatchResourcewithOperationId {
         return openAPIPathSummaries;
     }
 
-
     /**
      * Checking the available of resource function in openApi contract.
      * @param openAPI           openApi contract object
      * @param serviceNode       resource service node
      * @return                  validation Error list with ResourceValidationError type
      */
-
     public static List<ResourceValidationError> checkOperationIsAvailable(OpenAPI openAPI, ServiceNode serviceNode) {
         List<ResourceValidationError> resourceValidationErrorList = new ArrayList<>();
         List<ResourcePathSummary> resourcePathSummaries = summarizeResources(serviceNode);

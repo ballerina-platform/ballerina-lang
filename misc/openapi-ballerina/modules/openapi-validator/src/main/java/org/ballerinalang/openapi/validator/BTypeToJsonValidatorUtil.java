@@ -64,14 +64,9 @@ public  class BTypeToJsonValidatorUtil {
         Boolean isExitType = false;
         BType resourceType;
         resourceType = bVarSymbol.getType();
-
-        /**
-         *  Here validate the BVarType against to schema
-         */
-
+//           Here validate the BVarType against to schema
         if (schema != null) {
-            if ((bVarSymbol.type instanceof BRecordType) ||
-                    ((schema instanceof ObjectSchema))) {
+            if ((bVarSymbol.type instanceof BRecordType) || ((schema instanceof ObjectSchema))) {
                 if (schema.getProperties() != null) {
                     properties = schema.getProperties();
                 }
@@ -98,7 +93,6 @@ public  class BTypeToJsonValidatorUtil {
                     validationErrors.addAll(recordValidationErrors);
                 }
                 isExitType = true;
-
 //          Array type validation
             } else if (resourceType.getKind().typeName().equals("[]")
                     && schema.getType().equals("array")) {
@@ -112,7 +106,6 @@ public  class BTypeToJsonValidatorUtil {
                 }
                 BArrayType traversNestedArray = bArrayType;
                 ArraySchema traversSchemaNestedArray = arraySchema;
-
 //              Handle nested array type
                 if (bArrayType != null) {
                     BType bArrayTypeEtype = bArrayType.eType;
@@ -270,9 +263,7 @@ public  class BTypeToJsonValidatorUtil {
                                 }
                             }
                         }
-
 //                       Handle Record against the schema
-
                         if (!(memberList.isEmpty())) {
                             List<ValidationError> validationErrorsBa =  new ArrayList<>();
                             for (BType member: memberList) {
@@ -500,7 +491,6 @@ public  class BTypeToJsonValidatorUtil {
      * @param type  input type
      * @return enum type
      */
-
     public static Constants.Type convertTypeToEnum(String type) {
         Constants.Type convertedType;
         switch (type) {
@@ -543,7 +533,6 @@ public  class BTypeToJsonValidatorUtil {
      * @param type  OpenApi parameter types
      * @return ballerina type
      */
-
     public static String convertOpenAPITypeToBallerina(String type) {
         String convertedType;
         switch (type) {
@@ -568,7 +557,6 @@ public  class BTypeToJsonValidatorUtil {
             default:
                 convertedType = "";
         }
-
         return convertedType;
     }
 
@@ -607,7 +595,6 @@ public  class BTypeToJsonValidatorUtil {
             default:
                 convertedType = "";
         }
-
         return convertedType;
     }
 
@@ -624,7 +611,6 @@ public  class BTypeToJsonValidatorUtil {
                 BRecordType recordField = (BRecordType) bType;
                 List<String> nestedRecordFields = getRecordFields(recordField);
                 recordFields.addAll(nestedRecordFields);
-
             } else if (bType instanceof BArrayType) {
                 BArrayType bArrayType = (BArrayType) bType;
                 if (bArrayType.eType instanceof BRecordType) {
@@ -672,7 +658,6 @@ public  class BTypeToJsonValidatorUtil {
                     jsonFields.addAll(oneOfSchema1);
                 }
             }
-
             if (composedSchema.getAnyOf() != null) {
                 for (Schema schema1 : composedSchema.getOneOf()) {
                     List<String> anySchema1 = getSchemaFields(schema1);
@@ -685,7 +670,6 @@ public  class BTypeToJsonValidatorUtil {
                     jsonFields.addAll(allSchema1);
                 }
             }
-
         } else if (schema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schema;
             if (arraySchema.getItems() != null) {
@@ -713,11 +697,12 @@ public  class BTypeToJsonValidatorUtil {
                 }
             }
         }
-
         return jsonFields;
     }
 
-//    Get record name
+    /**
+     * Get record name
+     */
     public static String getRecordName(String ref) {
         String recordName = null;
         if (ref != null) {
@@ -726,5 +711,4 @@ public  class BTypeToJsonValidatorUtil {
         }
         return recordName;
     }
-
 }

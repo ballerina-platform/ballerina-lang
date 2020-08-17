@@ -50,7 +50,7 @@ public class InvalidValidatorUtilTests {
     private BVarSymbol extractBVarSymbol;
     private List<ValidationError> validationErrors = new ArrayList<>();
 
-    @Test(description = "Test missing field in ballerinaType")
+    @Test(description = "Test missing field in Json schema")
     public void testMissingFieldInJsonSchema() throws UnsupportedEncodingException, OpenApiValidatorException {
         Path contractPath = RES_DIR.resolve("invalidTests/missingFieldInJsonSchema.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -59,10 +59,8 @@ public class InvalidValidatorUtilTests {
         extractSchema = ValidatorTest.getComponet(api, "MissingFieldInJsonSchema");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue(validationErrors.get(0)instanceof MissingFieldInJsonSchema);
         Assert.assertEquals(validationErrors.get(0).getFieldName(), "phone2");
-
     }
 
     @Test(description = "Test missing field in ballerinaType")
@@ -74,7 +72,6 @@ public class InvalidValidatorUtilTests {
         extractSchema = ValidatorTest.getComponet(api, "MissingFieldInBallerinaType");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue(validationErrors.get(1) instanceof MissingFieldInBallerinaType);
         Assert.assertEquals(validationErrors.get(1).getFieldName(), "middleName");
     }
@@ -88,7 +85,6 @@ public class InvalidValidatorUtilTests {
         extractSchema = ValidatorTest.getComponet(api, "TypeMisMatch");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue((validationErrors).get(0) instanceof TypeMismatch);
         Assert.assertEquals((validationErrors).get(0).getFieldName(), "id");
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeJsonSchema(), Constants.Type.INTEGER);
@@ -105,7 +101,6 @@ public class InvalidValidatorUtilTests {
         extractSchema = ValidatorTest.getComponet(api, "TypeMisMatchArray");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue((validationErrors).get(0) instanceof TypeMismatch);
         Assert.assertEquals((validationErrors).get(0).getFieldName(), "phone");
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeJsonSchema(), Constants.Type.STRING);
@@ -122,7 +117,6 @@ public class InvalidValidatorUtilTests {
         extractSchema = ValidatorTest.getComponet(api, "TypeMisMatchArrayType");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue((validationErrors).get(0) instanceof TypeMismatch);
         Assert.assertEquals((validationErrors).get(0).getFieldName(), "phone");
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeJsonSchema(), Constants.Type.INTEGER);
@@ -138,10 +132,8 @@ public class InvalidValidatorUtilTests {
         extractSchema = ValidatorTest.getComponet(api, "TypeMisMatchNestedArray");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue((validationErrors).get(0) instanceof TypeMismatch);
         Assert.assertEquals((validationErrors).get(0).getFieldName(), "phone");
-
     }
 
     @Test(description = "Test record field with array type of another record")
@@ -153,7 +145,6 @@ public class InvalidValidatorUtilTests {
         extractSchema = ValidatorTest.getComponet(api, "RecordTypeArray");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue((validationErrors).get(0) instanceof TypeMismatch);
         Assert.assertEquals(validationErrors.get(0).getFieldName(), "id");
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeJsonSchema(), Constants.Type.INTEGER);
@@ -169,11 +160,9 @@ public class InvalidValidatorUtilTests {
         extractSchema = ValidatorTest.getComponet(api, "NestedRecord");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertEquals(validationErrors.get(0).getFieldName(), "id");
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeJsonSchema(), Constants.Type.INTEGER);
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeBallerinaType(), Constants.Type.STRING);
-
     }
 
     @Test(description = "Test for nested 4 record")
@@ -185,11 +174,9 @@ public class InvalidValidatorUtilTests {
         extractSchema = ValidatorTest.getComponet(api, "FourNestedComponent");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertEquals(validationErrors.get(0).getFieldName(), "month");
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeJsonSchema(), Constants.Type.STRING);
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeBallerinaType(), Constants.Type.INT);
-
     }
 
     @Test(description = "Test oneOf type with primitive data type")
@@ -203,10 +190,8 @@ public class InvalidValidatorUtilTests {
                         getContent().get("application/json").getSchema();
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue(validationErrors.get(0) instanceof TypeMismatch);
         Assert.assertEquals(((TypeMismatch) validationErrors.get(0)).getTypeBallerinaType(), Constants.Type.DECIMAL);
-
     }
 
     @Test(description = "Test oneOf with record type Type mismatching")
@@ -217,15 +202,12 @@ public class InvalidValidatorUtilTests {
         ComposedSchema extractSchema =
                 (ComposedSchema) api.getPaths().get("/oneOfRequestBody").getPost().getRequestBody().getContent()
                         .get("application/json").getSchema();
-
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
         Assert.assertTrue(validationErrors.get(0) instanceof OneOfTypeValidation);
         Assert.assertEquals(((OneOfTypeValidation) validationErrors.get(0)).getFieldName(), "Cat");
         Assert.assertEquals(((OneOfTypeValidation) validationErrors.get(0)).getBlockErrors().
                 get(0).getFieldName(), "id");
-
-
     }
 
     @Test(description = "Test oneOf with record type Type mismatching")
@@ -246,7 +228,6 @@ public class InvalidValidatorUtilTests {
         Assert.assertEquals(((OneOfTypeValidation) validationErrors.get(1)).getFieldName(), "Cat");
         Assert.assertEquals(((OneOfTypeValidation) validationErrors.get(1)).getBlockErrors().get(0).getFieldName(),
                 "id");
-
     }
 
     @Test(description = "Test for missing fields in json schema when oneOf type record scenarios ")
@@ -261,11 +242,9 @@ public class InvalidValidatorUtilTests {
 
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
-
         Assert.assertTrue(validationErrors.get(0) instanceof OneOfTypeValidation);
         Assert.assertEquals(((OneOfTypeValidation) validationErrors.get(0)).getBlockErrors().get(0).getFieldName(),
                 "place");
-
     }
 
     @Test(description = "Test for missing fields in ballerina when oneOf type has")
@@ -277,12 +256,10 @@ public class InvalidValidatorUtilTests {
         ComposedSchema extractSchema =
                 (ComposedSchema) api.getPaths().get("/oneOfRequestBody").getPost().getRequestBody().getContent().
                         get("application/json").getSchema();
-
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
         validationErrors = BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol);
         Assert.assertTrue(validationErrors.stream().allMatch(item -> item instanceof OneOfTypeValidation));
         Assert.assertEquals(((OneOfTypeValidation) validationErrors.get(0)).getBlockErrors().get(0).getFieldName(),
                 "age");
     }
-
 }

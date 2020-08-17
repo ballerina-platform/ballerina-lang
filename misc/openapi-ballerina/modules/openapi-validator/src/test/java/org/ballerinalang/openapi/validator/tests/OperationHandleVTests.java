@@ -41,8 +41,8 @@ public class OperationHandleVTests {
         operation = api.getPaths().get("/pets/{petId}").getGet();
         validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
         Assert.assertTrue(validationErrors.isEmpty());
-
     }
+
     @Test(description = "Operation model has path parameters object type")
     public void testObjectTypePath() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstorePathObject.yaml");
@@ -53,7 +53,6 @@ public class OperationHandleVTests {
         operation = api.getPaths().get("/pets/{petId}").getGet();
         validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
         Assert.assertTrue(validationErrors.isEmpty());
-
     }
 
     @Test(description = "Operation model has path parameters array type")
@@ -66,7 +65,6 @@ public class OperationHandleVTests {
         operation = api.getPaths().get("/pets/{petId}").getGet();
         validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
         Assert.assertTrue(validationErrors.isEmpty());
-
     }
 
     @Test(description = "Operation model has request parameters ")
@@ -79,8 +77,8 @@ public class OperationHandleVTests {
         operation = api.getPaths().get("/pets/{petId}").getPost();
         validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
         Assert.assertTrue(validationErrors.isEmpty());
-
     }
+
     @Test(description = "Operation model has nestedArray type parameters ")
     public void testNestedArrayType() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstoreNestedArrayType.yaml");
@@ -91,6 +89,5 @@ public class OperationHandleVTests {
         operation = api.getPaths().get("/user").getPost();
         validationErrors = ResourceValidator.validateWhatMissingService(operation, resourceMethod);
         Assert.assertTrue(validationErrors.isEmpty());
-
     }
 }

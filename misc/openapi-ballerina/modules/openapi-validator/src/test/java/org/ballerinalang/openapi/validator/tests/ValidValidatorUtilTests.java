@@ -53,7 +53,6 @@ public class ValidValidatorUtilTests {
         bLangPackage = ValidatorTest.getBlangPackage("recordValidation/ballerina/validTests/validSchema.bal");
         Schema extractSchema = ValidatorTest.getComponet(api, "Valid");
         BVarSymbol extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
-
         Assert.assertTrue((BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol)).isEmpty());
     }
 
@@ -66,7 +65,6 @@ public class ValidValidatorUtilTests {
                 "recordValidation/ballerina/validTests/validTypeMisMatchArrayType.bal");
         extractSchema = ValidatorTest.getComponet(api, "ValidTypeMisMatchArray");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
-
         Assert.assertTrue((BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol)).isEmpty());
     }
 
@@ -78,7 +76,6 @@ public class ValidValidatorUtilTests {
                 "recordValidation/ballerina/validTests/validTypeMisMatchNestedArrayType.bal");
         extractSchema = ValidatorTest.getComponet(api, "ValidTypeMisMatchNestedArray");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
-
         Assert.assertTrue((BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol)).isEmpty());
     }
 
@@ -89,9 +86,7 @@ public class ValidValidatorUtilTests {
         bLangPackage = ValidatorTest.getBlangPackage("recordValidation/ballerina/validTests/recordTypeArray.bal");
         extractSchema = ValidatorTest.getComponet(api, "RecordTypeArray");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
-
         Assert.assertTrue((BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol)).isEmpty());
-
     }
 
     @Test(description = "Test oneOf with record type")
@@ -115,8 +110,6 @@ public class ValidValidatorUtilTests {
         bLangPackage = ValidatorTest.getBlangPackage("recordValidation/ballerina/validTests/nestedRecord.bal");
         extractSchema = ValidatorTest.getComponet(api, "NestedRecord");
         extractBVarSymbol = ValidatorTest.getBVarSymbol(bLangPackage);
-
         Assert.assertTrue((BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol)).isEmpty());
     }
-
 }

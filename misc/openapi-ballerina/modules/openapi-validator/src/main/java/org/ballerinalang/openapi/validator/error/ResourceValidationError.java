@@ -37,19 +37,13 @@ public class ResourceValidationError  extends ValidationError {
         this.resourceMethod = resourceMethod;
         this.resourcePath = resourcePath;
     }
-
     public Diagnostic.DiagnosticPosition getPosition() {
-
         return position;
     }
-
     public String getresourceMethod() {
-
         return resourceMethod;
     }
-
     public String getResourcePath() {
-
         return resourcePath;
     }
 }

@@ -1,26 +1,22 @@
 import ballerina/http;
 
-
-type Tag record {
-    int id;
-    string name;
-};
-type RecordTypeArray record {
+type TypeMisMatch record {
     string id;
-    string category;
-    string name;
-    string photoUrls;
-    Tag [] tags;
-    string status;
+    string username;
+    string firstName;
+    string lastName;
+    string email;
+    string password;
+    string phone;
+    int userStatus;
 };
 
 service hello on new http:Listener(9090) {
-    @http:ResourceConfig {
-        methods:["POST"],
-        path:"/pet",
-        body: "body"
-    }
+
     resource function sayHello(http:Caller caller,
-        http:Request req, RecordTypeArray body ) returns error? {
+        http:Request req, TypeMisMatch body ) returns error? {
+
+        //check caller->respond("Hello, World!");
     }
 }
+

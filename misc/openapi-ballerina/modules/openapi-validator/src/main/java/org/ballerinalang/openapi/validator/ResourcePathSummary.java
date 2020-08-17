@@ -71,6 +71,4 @@ public class ResourcePathSummary {
     void setPathPosition(Diagnostic.DiagnosticPosition pathPosition) {
         this.pathPosition = pathPosition;
     }
-
-
 }

@@ -47,31 +47,21 @@ public class OpenapiServiceValidationError extends ValidationError {
         this.tags = tags;
         this.openAPIPathSummary = openAPIPathSummary;
     }
-
-
     public Diagnostic.DiagnosticPosition getPosition() {
-
         return position;
     }
-
     public String getServiceOperation() {
-
         return serviceOperation;
     }
-
     public String getServicePath() {
-
         return servicePath;
     }
-
     public void addTag(List<String> tags) {
         this.tags.addAll(tags);
     }
-
     public List<String> getTags() {
         return tags;
     }
-
     public OpenAPIPathSummary getOpenAPIPathSummary() {
         return this.openAPIPathSummary;
     }
