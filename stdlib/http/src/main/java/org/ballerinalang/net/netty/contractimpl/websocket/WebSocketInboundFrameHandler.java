@@ -59,15 +59,14 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private final boolean secureConnection;
     private final String target;
     private final String negotiatedSubProtocol;
-    private final org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorFuture connectorFuture;
-    private final org.ballerinalang.net.netty.contractimpl.listener.WebSocketMessageQueueHandler
-            webSocketMessageQueueHandler;
+    private final WebSocketConnectorFuture connectorFuture;
+    private final WebSocketMessageQueueHandler webSocketMessageQueueHandler;
     private boolean caughtException;
     private boolean closeFrameReceived;
     private boolean closeInitialized;
     private DefaultWebSocketConnection webSocketConnection;
     private ChannelPromise closePromise;
-    private org.ballerinalang.net.netty.contract.websocket.WebSocketFrameType continuationFrameType;
+    private WebSocketFrameType continuationFrameType;
 
     public WebSocketInboundFrameHandler(boolean isServer, boolean secureConnection, String target,
                                         String negotiatedSubProtocol, WebSocketConnectorFuture connectorFuture,
@@ -122,24 +121,21 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws
-                                                                          org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws WebSocketConnectorException {
         if (evt instanceof IdleStateEvent) {
             notifyIdleTimeout();
         }
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws
-                                                           org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    public void channelInactive(ChannelHandlerContext ctx) throws WebSocketConnectorException {
         if (!caughtException && webSocketConnection != null && !closeFrameReceived && closePromise == null &&
                 !closeInitialized) {
             // Notify abnormal closure.
             DefaultWebSocketMessage webSocketCloseMessage =
-                    new org.ballerinalang.net.netty.contractimpl.websocket.message.DefaultWebSocketCloseMessage(
-                            org.ballerinalang.net.netty.contract.Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
+                    new DefaultWebSocketCloseMessage(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
             setupCommonProperties(webSocketCloseMessage);
-            connectorFuture.notifyWebSocketListener((org.ballerinalang.net.netty.contract.websocket.WebSocketCloseMessage) webSocketCloseMessage);
+            connectorFuture.notifyWebSocketListener((WebSocketCloseMessage) webSocketCloseMessage);
             return;
         }
 
@@ -157,13 +153,13 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) msg;
             if (!textFrame.isFinalFragment()) {
-                continuationFrameType = org.ballerinalang.net.netty.contract.websocket.WebSocketFrameType.TEXT;
+                continuationFrameType = WebSocketFrameType.TEXT;
             }
             notifyTextMessage(textFrame, textFrame.text(), textFrame.isFinalFragment());
         } else if (msg instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) msg;
             if (!binaryFrame.isFinalFragment()) {
-                continuationFrameType = org.ballerinalang.net.netty.contract.websocket.WebSocketFrameType.BINARY;
+                continuationFrameType = WebSocketFrameType.BINARY;
             }
             notifyBinaryMessage(binaryFrame, binaryFrame.content(), binaryFrame.isFinalFragment());
         } else if (msg instanceof CloseWebSocketFrame) {
@@ -175,7 +171,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             notifyPongMessage((PongWebSocketFrame) msg);
         } else if (msg instanceof ContinuationWebSocketFrame) {
             ContinuationWebSocketFrame frame = (ContinuationWebSocketFrame) msg;
-            if (continuationFrameType == org.ballerinalang.net.netty.contract.websocket.WebSocketFrameType.TEXT) {
+            if (continuationFrameType == WebSocketFrameType.TEXT) {
                 notifyTextMessage(frame, frame.text(), frame.isFinalFragment());
             } else if (continuationFrameType == WebSocketFrameType.BINARY) {
                 notifyBinaryMessage(frame, frame.content(), frame.isFinalFragment());
@@ -188,8 +184,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws
-                                                                            org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws WebSocketConnectorException {
         caughtException = true;
         if (!(cause instanceof CorruptedFrameException)) {
             ChannelFuture closeFrameFuture = ctx.channel().writeAndFlush(new CloseWebSocketFrame(
@@ -202,22 +197,21 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void notifyTextMessage(WebSocketFrame frame, String text, boolean finalFragment)
-            throws org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+            throws WebSocketConnectorException {
         DefaultWebSocketMessage webSocketTextMessage = WebSocketUtil.getWebSocketMessage(frame, text, finalFragment);
         setupCommonProperties(webSocketTextMessage);
         connectorFuture.notifyWebSocketListener((WebSocketTextMessage) webSocketTextMessage);
     }
 
     private void notifyBinaryMessage(WebSocketFrame frame, ByteBuf content, boolean finalFragment)
-            throws org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+            throws WebSocketConnectorException {
         DefaultWebSocketMessage webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content,
                 finalFragment);
         setupCommonProperties(webSocketBinaryMessage);
         connectorFuture.notifyWebSocketListener((WebSocketBinaryMessage) webSocketBinaryMessage);
     }
 
-    private void notifyCloseMessage(CloseWebSocketFrame closeWebSocketFrame) throws
-                                                                             org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    private void notifyCloseMessage(CloseWebSocketFrame closeWebSocketFrame) throws WebSocketConnectorException {
         String reasonText = closeWebSocketFrame.reasonText();
         int statusCode = closeWebSocketFrame.statusCode();
         if (statusCode == -1) {
@@ -241,18 +235,16 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
         closeWebSocketFrame.release();
     }
 
-    private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame) throws
-                                                                          org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
-        org.ballerinalang.net.netty.contract.websocket.WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
-                getWebSocketControlMessage(pingWebSocketFrame, org.ballerinalang.net.netty.contract.websocket.WebSocketControlSignal.PING);
+    private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame) throws WebSocketConnectorException {
+        WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
+                getWebSocketControlMessage(pingWebSocketFrame, WebSocketControlSignal.PING);
         setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage);
         connectorFuture.notifyWebSocketListener(webSocketControlMessage);
     }
 
-    private void notifyPongMessage(PongWebSocketFrame pongWebSocketFrame) throws
-                                                                          org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
-        org.ballerinalang.net.netty.contract.websocket.WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
-                getWebSocketControlMessage(pongWebSocketFrame, org.ballerinalang.net.netty.contract.websocket.WebSocketControlSignal.PONG);
+    private void notifyPongMessage(PongWebSocketFrame pongWebSocketFrame) throws WebSocketConnectorException {
+        WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
+                getWebSocketControlMessage(pongWebSocketFrame, WebSocketControlSignal.PONG);
         setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage);
         connectorFuture.notifyWebSocketListener(webSocketControlMessage);
     }

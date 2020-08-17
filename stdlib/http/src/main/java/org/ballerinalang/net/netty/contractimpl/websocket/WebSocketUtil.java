@@ -41,8 +41,8 @@ public class WebSocketUtil {
         return ctx.channel().id().asLongText();
     }
 
-    public static org.ballerinalang.net.netty.contract.websocket.WebSocketControlMessage getWebSocketControlMessage(WebSocketFrame webSocketFrame,
-                                                                                                                    WebSocketControlSignal controlSignal) {
+    public static WebSocketControlMessage getWebSocketControlMessage(WebSocketFrame webSocketFrame,
+                                                                     WebSocketControlSignal controlSignal) {
         ByteBuf content = webSocketFrame.content();
         ByteBuffer clonedContent = getClonedByteBuf(content);
         WebSocketControlMessage webSocketControlMessage = new DefaultWebSocketControlMessage(controlSignal,

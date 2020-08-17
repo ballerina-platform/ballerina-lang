@@ -27,16 +27,16 @@ import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
-import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.contract.websocket.ServerHandshakeFuture;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketBinaryMessage;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketCloseMessage;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorListener;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketControlMessage;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketHandshaker;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketMessage;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketTextMessage;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 
 import java.net.URI;
 

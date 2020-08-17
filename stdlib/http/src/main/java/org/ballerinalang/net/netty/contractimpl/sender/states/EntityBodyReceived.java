@@ -37,27 +37,26 @@ public class EntityBodyReceived implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntityBodyReceived.class);
 
-    private final org.ballerinalang.net.netty.contractimpl.common.states.SenderReqRespStateManager
-            senderReqRespStateManager;
+    private final SenderReqRespStateManager senderReqRespStateManager;
 
     EntityBodyReceived(SenderReqRespStateManager senderReqRespStateManager) {
         this.senderReqRespStateManager =  senderReqRespStateManager;
     }
 
     @Override
-    public void writeOutboundRequestHeaders(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
         LOG.warn("writeOutboundRequestHeaders {}", StateUtil.ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void writeOutboundRequestEntity(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         // This method might get called when inbound response is received but outbound request is not yet completed.
         // In that instance, remote host doesn't require request content anymore, Therefore contents are released.
         httpContent.release();
     }
 
     @Override
-    public void readInboundResponseHeaders(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, HttpResponse httpInboundResponse) {
+    public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
         LOG.warn("readInboundResponseHeaders {}", StateUtil.ILLEGAL_STATE_ERROR);
     }
 
@@ -68,13 +67,13 @@ public class EntityBodyReceived implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, org.ballerinalang.net.netty.contract.HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
         LOG.debug("Closing the channel once response is received");
     }
 
     @Override
-    public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
-                                                   HttpResponseFuture httpResponseFuture, String channelID) {
+    public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture,
+                                                   String channelID) {
         senderReqRespStateManager.nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
         senderReqRespStateManager.nettyTargetChannel.close();
         LOG.debug("Closing the channel once response is received");

@@ -18,6 +18,10 @@
  */
 package org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.ocsp;
 
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.Constants;
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.RevocationStatus;
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.RevocationVerifier;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DEROctetString;
@@ -45,10 +49,6 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.Constants;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.RevocationStatus;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.RevocationVerifier;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;

@@ -46,16 +46,16 @@ public class ForwardedHeaderUpdater {
     private final String xForwardedByHeader;
     private final String xForwardedHostHeader;
     private final String xForwardedProtoHeader;
-    private final org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest;
+    private final HttpCarbonMessage httpOutboundRequest;
 
     public ForwardedHeaderUpdater(HttpCarbonMessage httpOutboundRequest, String localAddress) {
         this.httpOutboundRequest = httpOutboundRequest;
         this.localAddress = localAddress;
-        this.forwardedHeader = httpOutboundRequest.getHeader(org.ballerinalang.net.netty.contract.Constants.FORWARDED);
-        this.xForwardedForHeader = httpOutboundRequest.getHeader(org.ballerinalang.net.netty.contract.Constants.X_FORWARDED_FOR);
-        this.xForwardedByHeader = httpOutboundRequest.getHeader(org.ballerinalang.net.netty.contract.Constants.X_FORWARDED_BY);
-        this.xForwardedHostHeader = httpOutboundRequest.getHeader(org.ballerinalang.net.netty.contract.Constants.X_FORWARDED_HOST);
-        this.xForwardedProtoHeader = httpOutboundRequest.getHeader(org.ballerinalang.net.netty.contract.Constants.X_FORWARDED_PROTO);
+        this.forwardedHeader = httpOutboundRequest.getHeader(Constants.FORWARDED);
+        this.xForwardedForHeader = httpOutboundRequest.getHeader(Constants.X_FORWARDED_FOR);
+        this.xForwardedByHeader = httpOutboundRequest.getHeader(Constants.X_FORWARDED_BY);
+        this.xForwardedHostHeader = httpOutboundRequest.getHeader(Constants.X_FORWARDED_HOST);
+        this.xForwardedProtoHeader = httpOutboundRequest.getHeader(Constants.X_FORWARDED_PROTO);
     }
 
     /**
@@ -89,21 +89,21 @@ public class ForwardedHeaderUpdater {
         StringBuilder headerValue = new StringBuilder();
         if (forwardedHeader == null) {
             Object remoteAddressProperty = httpOutboundRequest.getProperty(
-                    org.ballerinalang.net.netty.contract.Constants.REMOTE_ADDRESS);
+                    Constants.REMOTE_ADDRESS);
             if (remoteAddressProperty != null) {
                 String remoteAddress = ((InetSocketAddress) remoteAddressProperty).getAddress().getHostAddress();
                 headerValue.append(FOR).append(resolveIP(remoteAddress)).append(SEMI_COLON).append(" ");
             }
             headerValue.append(BY).append(resolveIP(localAddress));
-            Object hostHeader = httpOutboundRequest.getProperty(org.ballerinalang.net.netty.contract.Constants.ORIGIN_HOST);
+            Object hostHeader = httpOutboundRequest.getProperty(Constants.ORIGIN_HOST);
             if (hostHeader != null) {
                 headerValue.append(SEMI_COLON + " " + HOST).append(hostHeader.toString());
             }
-            Object protocolHeader = httpOutboundRequest.getProperty(org.ballerinalang.net.netty.contract.Constants.PROTOCOL);
+            Object protocolHeader = httpOutboundRequest.getProperty(Constants.PROTOCOL);
             if (protocolHeader != null) {
                 headerValue.append(SEMI_COLON + " " + PROTO).append(protocolHeader.toString());
             }
-            httpOutboundRequest.setHeader(org.ballerinalang.net.netty.contract.Constants.FORWARDED, headerValue.toString());
+            httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
             return;
         }
         String[] parts = forwardedHeader.split(SEMI_COLON);
@@ -137,7 +137,7 @@ public class ForwardedHeaderUpdater {
         if (previousProtoValue != null) {
             headerValue.append(SEMI_COLON + " " + PROTO).append(previousProtoValue);
         }
-        httpOutboundRequest.setHeader(org.ballerinalang.net.netty.contract.Constants.FORWARDED, headerValue.toString());
+        httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
     }
 
     /**
@@ -158,22 +158,22 @@ public class ForwardedHeaderUpdater {
                 headerValue.append(FOR).append(resolveIP(part.trim())).append(COMMA).append(" ");
             }
             headerValue.replace(headerValue.length() - 2, headerValue.length(), SEMI_COLON + " ");
-            httpOutboundRequest.removeHeader(org.ballerinalang.net.netty.contract.Constants.X_FORWARDED_FOR);
+            httpOutboundRequest.removeHeader(Constants.X_FORWARDED_FOR);
         }
         if (xForwardedByHeader != null) {
             headerValue.append(FOR).append(resolveIP(xForwardedByHeader.trim())).append(SEMI_COLON).append(" ");
-            httpOutboundRequest.removeHeader(org.ballerinalang.net.netty.contract.Constants.X_FORWARDED_BY);
+            httpOutboundRequest.removeHeader(Constants.X_FORWARDED_BY);
         }
         headerValue.append(BY).append(resolveIP(localAddress));
         if (xForwardedHostHeader != null) {
             headerValue.append(SEMI_COLON + " " + HOST).append(xForwardedHostHeader);
-            httpOutboundRequest.removeHeader(org.ballerinalang.net.netty.contract.Constants.X_FORWARDED_HOST);
+            httpOutboundRequest.removeHeader(Constants.X_FORWARDED_HOST);
         }
         if (xForwardedProtoHeader != null) {
             headerValue.append(SEMI_COLON + " " + PROTO).append(xForwardedProtoHeader);
-            httpOutboundRequest.removeHeader(org.ballerinalang.net.netty.contract.Constants.X_FORWARDED_PROTO);
+            httpOutboundRequest.removeHeader(Constants.X_FORWARDED_PROTO);
         }
-        httpOutboundRequest.setHeader(org.ballerinalang.net.netty.contract.Constants.FORWARDED, headerValue.toString());
+        httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
     }
 
     /**
@@ -181,10 +181,10 @@ public class ForwardedHeaderUpdater {
      */
     public void setDefactoForwardedHeaders() {
         if (xForwardedForHeader != null && xForwardedByHeader != null) {
-            httpOutboundRequest.setHeader(org.ballerinalang.net.netty.contract.Constants.X_FORWARDED_FOR,
+            httpOutboundRequest.setHeader(Constants.X_FORWARDED_FOR,
                                           xForwardedForHeader.trim() + COMMA + " " + xForwardedByHeader.trim());
         } else if (xForwardedByHeader != null) {
-            httpOutboundRequest.setHeader(org.ballerinalang.net.netty.contract.Constants.X_FORWARDED_FOR, xForwardedByHeader.trim());
+            httpOutboundRequest.setHeader(Constants.X_FORWARDED_FOR, xForwardedByHeader.trim());
         }
         httpOutboundRequest.setHeader(Constants.X_FORWARDED_BY, localAddress);
     }

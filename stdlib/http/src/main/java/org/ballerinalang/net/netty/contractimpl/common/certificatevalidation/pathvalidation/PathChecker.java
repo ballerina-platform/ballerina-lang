@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.pathvalidation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.RevocationStatus;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.RevocationVerifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.Certificate;

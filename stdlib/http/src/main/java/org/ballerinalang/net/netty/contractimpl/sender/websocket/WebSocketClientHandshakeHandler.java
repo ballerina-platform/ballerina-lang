@@ -46,18 +46,19 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
     private static final Logger LOG = LoggerFactory.getLogger(WebSocketClientHandshakeHandler.class);
 
     private final WebSocketClientHandshaker handshaker;
-    private final org.ballerinalang.net.netty.contractimpl.listener.WebSocketMessageQueueHandler
-            webSocketMessageQueueHandler;
+    private final WebSocketMessageQueueHandler webSocketMessageQueueHandler;
     private final boolean secure;
     private final boolean autoRead;
     private final String requestedUri;
-    private final org.ballerinalang.net.netty.contractimpl.websocket.DefaultClientHandshakeFuture handshakeFuture;
-    private final org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorFuture connectorFuture;
-    private org.ballerinalang.net.netty.message.HttpCarbonResponse httpCarbonResponse;
+    private final DefaultClientHandshakeFuture handshakeFuture;
+    private final WebSocketConnectorFuture connectorFuture;
+    private HttpCarbonResponse httpCarbonResponse;
 
     public WebSocketClientHandshakeHandler(WebSocketClientHandshaker handshaker,
-                                           DefaultClientHandshakeFuture handshakeFuture, WebSocketMessageQueueHandler webSocketMessageQueueHandler,
-                                           boolean secure, boolean autoRead, String requestedUri, WebSocketConnectorFuture connectorFuture) {
+                                           DefaultClientHandshakeFuture handshakeFuture,
+                                           WebSocketMessageQueueHandler webSocketMessageQueueHandler,
+                                           boolean secure, boolean autoRead, String requestedUri,
+                                           WebSocketConnectorFuture connectorFuture) {
         this.handshaker = handshaker;
         this.webSocketMessageQueueHandler = webSocketMessageQueueHandler;
         this.secure = secure;
@@ -67,7 +68,7 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
         this.handshakeFuture = handshakeFuture;
     }
 
-    public org.ballerinalang.net.netty.message.HttpCarbonResponse getHttpCarbonResponse() {
+    public HttpCarbonResponse getHttpCarbonResponse() {
         return httpCarbonResponse;
     }
 
@@ -95,11 +96,10 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
                                            new WebSocket13FrameDecoder(false, false, handshaker.maxFramePayloadLength(),
                                                                        false));
             }
-            org.ballerinalang.net.netty.contractimpl.websocket.WebSocketInboundFrameHandler
-                    inboundFrameHandler = new WebSocketInboundFrameHandler(
-                    false, secure, requestedUri, handshaker.actualSubprotocol(), connectorFuture,
-                    webSocketMessageQueueHandler);
-            channel.pipeline().addLast(org.ballerinalang.net.netty.contract.Constants.WEBSOCKET_FRAME_HANDLER, inboundFrameHandler);
+            WebSocketInboundFrameHandler inboundFrameHandler =
+                    new WebSocketInboundFrameHandler(false, secure, requestedUri, handshaker.actualSubprotocol(),
+                                                     connectorFuture, webSocketMessageQueueHandler);
+            channel.pipeline().addLast(Constants.WEBSOCKET_FRAME_HANDLER, inboundFrameHandler);
             channel.pipeline().remove(this);
             DefaultWebSocketConnection webSocketConnection = inboundFrameHandler.getWebSocketConnection();
             if (autoRead) {
@@ -121,9 +121,9 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
         handshakeFuture.notifyError(cause, httpCarbonResponse);
     }
 
-    private org.ballerinalang.net.netty.message.HttpCarbonResponse setUpCarbonMessage(ChannelHandlerContext ctx, HttpResponse msg) {
-        org.ballerinalang.net.netty.message.HttpCarbonResponse carbonResponse = new HttpCarbonResponse(msg, new DefaultListener(ctx));
-        carbonResponse.setProperty(org.ballerinalang.net.netty.contract.Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
+    private HttpCarbonResponse setUpCarbonMessage(ChannelHandlerContext ctx, HttpResponse msg) {
+        HttpCarbonResponse carbonResponse = new HttpCarbonResponse(msg, new DefaultListener(ctx));
+        carbonResponse.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         carbonResponse.setHttpStatusCode(msg.status().code());
         return carbonResponse;
     }

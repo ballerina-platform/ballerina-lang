@@ -77,8 +77,8 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 LOG.error("Failed to send the request : {}", ex.getMessage(), ex);
                 http2Content.getOutboundMsgHolder().getResponseFuture().notifyHttpListener(ex);
             }
-        } else if (msg instanceof org.ballerinalang.net.netty.message.Http2Reset) {
-            org.ballerinalang.net.netty.message.Http2Reset resetMsg = (org.ballerinalang.net.netty.message.Http2Reset) msg;
+        } else if (msg instanceof Http2Reset) {
+            Http2Reset resetMsg = (Http2Reset) msg;
             resetStream(ctx, resetMsg.getStreamId(), resetMsg.getError());
         } else {
             ctx.write(msg, promise); // let other types of objects to pass this handler
@@ -139,9 +139,9 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
      */
     public class Http2RequestWriter {
 
-        org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest;
+        HttpCarbonMessage httpOutboundRequest;
         OutboundMsgHolder outboundMsgHolder;
-        org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext http2MessageStateContext;
+        Http2MessageStateContext http2MessageStateContext;
         int streamId;
 
         Http2RequestWriter(OutboundMsgHolder outboundMsgHolder) {
@@ -149,7 +149,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             this.httpOutboundRequest = outboundMsgHolder.getRequest();
             http2MessageStateContext = httpOutboundRequest.getHttp2MessageStateContext();
             if (http2MessageStateContext == null) {
-                http2MessageStateContext = new org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext();
+                http2MessageStateContext = new Http2MessageStateContext();
                 httpOutboundRequest.setHttp2MessageStateContext(http2MessageStateContext);
             }
         }
@@ -171,11 +171,11 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             }
         }
 
-        public org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext getHttp2MessageStateContext() {
+        public Http2MessageStateContext getHttp2MessageStateContext() {
             return http2MessageStateContext;
         }
 
-        public org.ballerinalang.net.netty.message.HttpCarbonMessage getHttpOutboundRequest() {
+        public HttpCarbonMessage getHttpOutboundRequest() {
             return httpOutboundRequest;
         }
 
@@ -194,14 +194,14 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        if (msg instanceof org.ballerinalang.net.netty.message.Http2HeadersFrame) {
-            onHeaderRead(ctx, (org.ballerinalang.net.netty.message.Http2HeadersFrame) msg);
-        } else if (msg instanceof org.ballerinalang.net.netty.message.Http2DataFrame) {
-            onDataRead(ctx, (org.ballerinalang.net.netty.message.Http2DataFrame) msg);
-        } else if (msg instanceof org.ballerinalang.net.netty.message.Http2PushPromise) {
-            onPushPromiseRead(ctx, (org.ballerinalang.net.netty.message.Http2PushPromise) msg);
-        } else if (msg instanceof org.ballerinalang.net.netty.message.Http2Reset) {
-            onResetRead((org.ballerinalang.net.netty.message.Http2Reset) msg);
+        if (msg instanceof Http2HeadersFrame) {
+            onHeaderRead(ctx, (Http2HeadersFrame) msg);
+        } else if (msg instanceof Http2DataFrame) {
+            onDataRead(ctx, (Http2DataFrame) msg);
+        } else if (msg instanceof Http2PushPromise) {
+            onPushPromiseRead(ctx, (Http2PushPromise) msg);
+        } else if (msg instanceof Http2Reset) {
+            onResetRead((Http2Reset) msg);
         }
     }
 
@@ -222,7 +222,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             LOG.warn("Received an unexpected 100-continue response");
             return;
         }
-        org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
+        Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
         try {
             http2MessageStateContext.getSenderState()
                     .readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder, serverPush,
@@ -249,7 +249,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 return;
             }
         }
-        org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext http2MessageStateContext = getHttp2MessageContext(outboundMsgHolder);
+        Http2MessageStateContext http2MessageStateContext = getHttp2MessageContext(outboundMsgHolder);
         http2MessageStateContext.getSenderState().readInboundResponseBody(ctx, http2DataFrame,
                 outboundMsgHolder, serverPush, http2MessageStateContext);
     }
@@ -257,7 +257,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     private void onPushPromiseRead(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise) {
         int streamId = http2PushPromise.getStreamId();
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
-        org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
+        Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
         http2MessageStateContext.getSenderState().readInboundPromise(ctx, http2PushPromise, outboundMsgHolder);
     }
 
@@ -270,11 +270,11 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         }
     }
 
-    private org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext initHttp2MessageContext(OutboundMsgHolder outboundMsgHolder) {
-        org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext http2MessageStateContext = getHttp2MessageContext(outboundMsgHolder);
+    private Http2MessageStateContext initHttp2MessageContext(OutboundMsgHolder outboundMsgHolder) {
+        Http2MessageStateContext http2MessageStateContext = getHttp2MessageContext(outboundMsgHolder);
         if (http2MessageStateContext == null) {
-            http2MessageStateContext = new org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext();
-            http2MessageStateContext.setSenderState(new org.ballerinalang.net.netty.contractimpl.sender.states.http2.RequestCompleted(this, null));
+            http2MessageStateContext = new Http2MessageStateContext();
+            http2MessageStateContext.setSenderState(new RequestCompleted(this, null));
             outboundMsgHolder.getRequest().setHttp2MessageStateContext(http2MessageStateContext);
         } else if (http2MessageStateContext.getSenderState() == null) {
             http2MessageStateContext.setSenderState(new RequestCompleted(this, null));

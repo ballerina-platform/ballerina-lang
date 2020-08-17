@@ -27,12 +27,12 @@ import org.ballerinalang.net.netty.contractimpl.sender.ConnectionAvailabilityFut
 import org.ballerinalang.net.netty.contractimpl.sender.HttpClientChannelInitializer;
 import org.ballerinalang.net.netty.contractimpl.sender.TargetHandler;
 import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
+import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.ballerinalang.net.netty.internal.HandlerExecutor;
 import org.ballerinalang.net.netty.internal.HttpTransportContextHolder;
 import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientChannel;
 
 import java.util.Locale;
 
@@ -48,34 +48,32 @@ public class TargetChannel {
 
     private boolean requestHeaderWritten = false;
     private Channel channel;
-    private org.ballerinalang.net.netty.contractimpl.sender.HttpClientChannelInitializer httpClientChannelInitializer;
+    private HttpClientChannelInitializer httpClientChannelInitializer;
     private ChannelInboundHandlerAdapter correlatedSource;
-    private org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager connectionManager;
+    private ConnectionManager connectionManager;
     private TargetHandler targetHandler;
 
     private Http2ClientChannel http2ClientChannel;
-    private final org.ballerinalang.net.netty.contractimpl.common.HttpRoute httpRoute;
+    private final HttpRoute httpRoute;
     private final ChannelFuture channelFuture;
     private final HandlerExecutor handlerExecutor;
-    private final org.ballerinalang.net.netty.contractimpl.sender.ConnectionAvailabilityFuture
-            connectionAvailabilityFuture;
+    private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
 
     public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
-                         org.ballerinalang.net.netty.contractimpl.common.HttpRoute httpRoute, org.ballerinalang.net.netty.contractimpl.sender.ConnectionAvailabilityFuture connectionAvailabilityFuture) {
+                         HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
         this.httpClientChannelInitializer = httpClientChannelInitializer;
         this.channelFuture = channelFuture;
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.httpRoute = httpRoute;
         if (httpClientChannelInitializer != null) {
-            http2ClientChannel =
-                    new Http2ClientChannel(httpClientChannelInitializer.getHttp2ConnectionManager(),
-                                           httpClientChannelInitializer.getConnection(),
-                                           httpRoute, channelFuture.channel());
+            http2ClientChannel = new Http2ClientChannel(httpClientChannelInitializer.getHttp2ConnectionManager(),
+                                                        httpClientChannelInitializer.getConnection(),
+                                                        httpRoute, channelFuture.channel());
         }
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
     }
 
-    public void configTargetHandler(org.ballerinalang.net.netty.message.HttpCarbonMessage httpCarbonMessage, HttpResponseFuture httpInboundResponseFuture) {
+    public void configTargetHandler(HttpCarbonMessage httpCarbonMessage, HttpResponseFuture httpInboundResponseFuture) {
         targetHandler = httpClientChannelInitializer.getTargetHandler();
         targetHandler.setHttpResponseFuture(httpInboundResponseFuture);
         targetHandler.setOutboundRequestMsg(httpCarbonMessage);
@@ -88,9 +86,8 @@ public class TargetChannel {
             handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);
         }
 
-        BackPressureHandler backpressureHandler = org.ballerinalang.net.netty.contractimpl.common.Util
-                .getBackPressureHandler(targetHandler.getContext());
-        org.ballerinalang.net.netty.contractimpl.common.Util.setBackPressureListener(httpOutboundRequest, backpressureHandler, httpOutboundRequest.getSourceContext());
+        BackPressureHandler backpressureHandler = Util.getBackPressureHandler(targetHandler.getContext());
+        Util.setBackPressureListener(httpOutboundRequest, backpressureHandler, httpOutboundRequest.getSourceContext());
 
         resetTargetChannelState();
 

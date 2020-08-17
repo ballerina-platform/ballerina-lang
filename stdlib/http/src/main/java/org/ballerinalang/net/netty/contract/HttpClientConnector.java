@@ -37,7 +37,7 @@ public interface HttpClientConnector {
     /**
      * Send httpMessages to the back-end in asynchronous manner.
      *
-     * @param httpCarbonMessage {@link org.ballerinalang.net.netty.message.HttpCarbonMessage} which should be sent to the remote server.
+     * @param httpCarbonMessage {@link HttpCarbonMessage} which should be sent to the remote server.
      * @return the status of the asynchronous send action.
      */
     HttpResponseFuture send(HttpCarbonMessage httpCarbonMessage);
@@ -50,23 +50,23 @@ public interface HttpClientConnector {
     boolean close();
 
     /**
-     * Fetches the response related to the {@link org.ballerinalang.net.netty.message.ResponseHandle} in asynchronous manner.
+     * Fetches the response related to the {@link ResponseHandle} in asynchronous manner.
      *
      * @param responseHandle the Response Handle which represent the asynchronous service invocation
      * @return the status of the asynchronous response fetch action
      */
-    HttpResponseFuture getResponse(org.ballerinalang.net.netty.message.ResponseHandle responseHandle);
+    HttpResponseFuture getResponse(ResponseHandle responseHandle);
 
     /**
-     * Gets the next available {@link org.ballerinalang.net.netty.message.Http2PushPromise} related to the {@link org.ballerinalang.net.netty.message.ResponseHandle} in asynchronous manner.
+     * Gets the next available {@link Http2PushPromise} related to the {@link ResponseHandle} in asynchronous manner.
      *
      * @param responseHandle the Response Handle which represent the asynchronous service invocation
      * @return the status of the asynchronous push promise fetch action
      */
-    HttpResponseFuture getNextPushPromise(org.ballerinalang.net.netty.message.ResponseHandle responseHandle);
+    HttpResponseFuture getNextPushPromise(ResponseHandle responseHandle);
 
     /**
-     * Checks whether a {@link org.ballerinalang.net.netty.message.Http2PushPromise} exists in asynchronous manner.
+     * Checks whether a {@link Http2PushPromise} exists in asynchronous manner.
      *
      * @param responseHandle the Response Handle which represent the asynchronous service invocation
      * @return the status of the asynchronous push promise check action
@@ -84,7 +84,7 @@ public interface HttpClientConnector {
      *
      * @param pushPromise    push promise related to the server push which is need to be rejected
      */
-    void rejectPushResponse(org.ballerinalang.net.netty.message.Http2PushPromise pushPromise);
+    void rejectPushResponse(Http2PushPromise pushPromise);
 
     /**
      * Gets the push response in asynchronous manner.

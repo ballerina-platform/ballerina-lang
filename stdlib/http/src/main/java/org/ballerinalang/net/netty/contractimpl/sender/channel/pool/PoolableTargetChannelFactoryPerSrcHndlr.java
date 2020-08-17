@@ -19,9 +19,9 @@ package org.ballerinalang.net.netty.contractimpl.sender.channel.pool;
 import io.netty.channel.EventLoopGroup;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.ballerinalang.net.netty.contractimpl.sender.channel.TargetChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.sender.channel.TargetChannel;
 
 /**
  * A class which creates a TargetChannel pool for each route.

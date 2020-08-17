@@ -27,12 +27,12 @@ import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionManager;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
+import org.ballerinalang.net.netty.contract.websocket.ServerHandshakeFuture;
+import org.ballerinalang.net.netty.contract.websocket.ServerHandshakeListener;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketHandshaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 /**
  * {@code AcceptWebSocketUpgrade} is the AcceptWebSocketUpgrade action implementation of the HTTP Connector.

@@ -20,7 +20,7 @@ package org.ballerinalang.net.http.websocket.client.listener;
 
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
-import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
+import org.ballerinalang.net.netty.contract.websocket.ClientHandshakeListener;
 
 /**
  * Interface for the client handshake listener.

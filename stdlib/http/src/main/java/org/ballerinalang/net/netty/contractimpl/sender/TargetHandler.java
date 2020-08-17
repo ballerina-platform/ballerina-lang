@@ -29,18 +29,18 @@ import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contract.config.KeepAliveConfig;
 import org.ballerinalang.net.netty.contractimpl.common.Util;
+import org.ballerinalang.net.netty.contractimpl.common.states.SenderReqRespStateManager;
+import org.ballerinalang.net.netty.contractimpl.sender.channel.TargetChannel;
 import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
+import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientChannel;
+import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientTimeoutHandler;
+import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.ballerinalang.net.netty.internal.HandlerExecutor;
 import org.ballerinalang.net.netty.internal.HttpTransportContextHolder;
 import org.ballerinalang.net.netty.message.ClientRemoteFlowControlListener;
 import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.states.SenderReqRespStateManager;
-import org.ballerinalang.net.netty.contractimpl.sender.channel.TargetChannel;
-import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientChannel;
-import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientTimeoutHandler;
-import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2TargetHandler;
 
 import static org.ballerinalang.net.netty.contractimpl.common.states.Http2StateUtil.initHttp2MessageContext;
 
@@ -51,14 +51,14 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(TargetHandler.class);
 
-    private org.ballerinalang.net.netty.contract.HttpResponseFuture httpResponseFuture;
-    private org.ballerinalang.net.netty.message.HttpCarbonMessage inboundResponseMsg;
-    private org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager connectionManager;
+    private HttpResponseFuture httpResponseFuture;
+    private HttpCarbonMessage inboundResponseMsg;
+    private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
     private Http2TargetHandler http2TargetHandler;
-    private org.ballerinalang.net.netty.message.HttpCarbonMessage outboundRequestMsg;
+    private HttpCarbonMessage outboundRequestMsg;
     private HandlerExecutor handlerExecutor;
-    private org.ballerinalang.net.netty.contract.config.KeepAliveConfig keepAliveConfig;
+    private KeepAliveConfig keepAliveConfig;
     private boolean idleTimeoutTriggered;
     private ChannelHandlerContext context;
 
@@ -165,12 +165,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private void executePostUpgradeActions(ChannelHandlerContext ctx) {
         ctx.pipeline().remove(this);
-        ctx.pipeline().addLast(org.ballerinalang.net.netty.contract.Constants.HTTP2_TARGET_HANDLER, http2TargetHandler);
+        ctx.pipeline().addLast(Constants.HTTP2_TARGET_HANDLER, http2TargetHandler);
         Http2ClientChannel http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
 
         // Remove Http specific handlers
-        Util.safelyRemoveHandlers(targetChannel.getChannel().pipeline(), org.ballerinalang.net.netty.contract.Constants.IDLE_STATE_HANDLER,
-                                  org.ballerinalang.net.netty.contract.Constants.HTTP_TRACE_LOG_HANDLER);
+        Util.safelyRemoveHandlers(targetChannel.getChannel().pipeline(), Constants.IDLE_STATE_HANDLER,
+                                  Constants.HTTP_TRACE_LOG_HANDLER);
         initHttp2MessageContext(outboundRequestMsg, http2TargetHandler);
         http2ClientChannel.addDataEventListener(
                 Constants.IDLE_STATE_HANDLER,
@@ -201,16 +201,15 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    public void setHttpResponseFuture(org.ballerinalang.net.netty.contract.HttpResponseFuture httpResponseFuture) {
+    public void setHttpResponseFuture(HttpResponseFuture httpResponseFuture) {
         this.httpResponseFuture = httpResponseFuture;
     }
 
-    public void setConnectionManager(
-            org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager connectionManager) {
+    public void setConnectionManager(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
 
-    public void setOutboundRequestMsg(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundRequestMsg) {
+    public void setOutboundRequestMsg(HttpCarbonMessage outboundRequestMsg) {
         this.outboundRequestMsg = outboundRequestMsg;
     }
 
@@ -218,7 +217,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.targetChannel = targetChannel;
     }
 
-    public void setKeepAliveConfig(org.ballerinalang.net.netty.contract.config.KeepAliveConfig keepAliveConfig) {
+    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
         this.keepAliveConfig = keepAliveConfig;
     }
 
@@ -230,7 +229,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.http2TargetHandler = http2TargetHandler;
     }
 
-    public org.ballerinalang.net.netty.message.HttpCarbonMessage getInboundResponseMsg() {
+    public HttpCarbonMessage getInboundResponseMsg() {
         return inboundResponseMsg;
     }
 

@@ -18,8 +18,8 @@ package org.ballerinalang.net.netty.contract;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.EventExecutorGroup;
 import org.ballerinalang.net.netty.contractimpl.DefaultHttpClientConnector;
-import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 import org.ballerinalang.net.netty.contractimpl.sender.channel.TargetChannel;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 
 import java.util.Queue;
 

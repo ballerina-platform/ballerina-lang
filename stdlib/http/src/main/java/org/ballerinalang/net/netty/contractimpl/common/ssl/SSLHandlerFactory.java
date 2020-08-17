@@ -42,6 +42,7 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SNIHostName;
@@ -242,7 +243,7 @@ public class SSLHandlerFactory {
 
     /**
      * This method will provide netty ssl context which supports HTTP2 over TLS using
-     * Application Layer Protocol Negotiation (ALPN)
+     * Application Layer Protocol Negotiation (ALPN).
      *
      * @param sslConfig ssl configurations
      * @return instance of {@link SslContext}

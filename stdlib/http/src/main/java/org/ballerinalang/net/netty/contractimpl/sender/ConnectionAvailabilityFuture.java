@@ -22,6 +22,7 @@ package org.ballerinalang.net.netty.contractimpl.sender;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException;
 import org.ballerinalang.net.netty.contract.exceptions.ConnectionTimedOutException;
 import org.ballerinalang.net.netty.contract.exceptions.InvalidProtocolException;
@@ -83,9 +84,9 @@ public class ConnectionAvailabilityFuture {
     void notifySuccess(String protocol) {
         this.protocol = protocol;
         if (listener != null) {
-            if (forceHttp2 && !(protocol.equalsIgnoreCase(org.ballerinalang.net.netty.contract.Constants.HTTP2_CLEARTEXT_PROTOCOL) ||
-                    protocol.equalsIgnoreCase(org.ballerinalang.net.netty.contract.Constants.HTTP2_TLS_PROTOCOL))) {
-                org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException connectorException =
+            if (forceHttp2 && !(protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL) ||
+                    protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL))) {
+                ClientConnectorException connectorException =
                         new InvalidProtocolException("Protocol must be HTTP/2",
                                                      HttpResponseStatus.HTTP_VERSION_NOT_SUPPORTED.code());
                 listener.onFailure(connectorException);
@@ -109,9 +110,9 @@ public class ConnectionAvailabilityFuture {
             notifySuccess(protocol);
         } else if (!isSSLEnabled && socketAvailable) {
             if (forceHttp2) {
-                notifySuccess(org.ballerinalang.net.netty.contract.Constants.HTTP2_CLEARTEXT_PROTOCOL);
+                notifySuccess(Constants.HTTP2_CLEARTEXT_PROTOCOL);
             } else {
-                notifySuccess(org.ballerinalang.net.netty.contract.Constants.HTTP_SCHEME);
+                notifySuccess(Constants.HTTP_SCHEME);
             }
         } else if (isFailure) {
             notifyFailure(throwable);
@@ -123,15 +124,15 @@ public class ConnectionAvailabilityFuture {
         if (channelFuture.channel().remoteAddress() != null) {
             socketAddress = channelFuture.channel().remoteAddress().toString();
         }
-        org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException connectorException =
+        ClientConnectorException connectorException =
                 createSpecificExceptionFromGeneric(channelFuture, cause, socketAddress);
 
         listener.onFailure(connectorException);
     }
 
-    private org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException createSpecificExceptionFromGeneric(ChannelFuture channelFuture, Throwable cause,
-                                                                                                                        String socketAddress) {
-        org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException connectorException;
+    private ClientConnectorException createSpecificExceptionFromGeneric(ChannelFuture channelFuture, Throwable cause,
+                                                                        String socketAddress) {
+        ClientConnectorException connectorException;
         if (isRequestCancelled(channelFuture)) {
             connectorException = new RequestCancelledException("Request cancelled: " + socketAddress,
                                                                HttpResponseStatus.BAD_GATEWAY.code());
@@ -140,14 +141,14 @@ public class ConnectionAvailabilityFuture {
                                                                  HttpResponseStatus.BAD_GATEWAY.code());
         } else if (isSslException(cause)) {
             connectorException = new SslException(
-                    org.ballerinalang.net.netty.contract.Constants.SSL_CONNECTION_ERROR + org.ballerinalang.net.netty.contract.Constants.COLON + cause.getMessage()
+                    Constants.SSL_CONNECTION_ERROR + Constants.COLON + cause.getMessage()
                                                           + " " + socketAddress, HttpResponseStatus.BAD_GATEWAY.code());
         } else if (cause instanceof UnknownHostException) {
             connectorException = new UnresolvedHostException(
-                    org.ballerinalang.net.netty.contract.Constants.ERROR_COULD_NOT_RESOLVE_HOST + org.ballerinalang.net.netty.contract.Constants.COLON +
+                    Constants.ERROR_COULD_NOT_RESOLVE_HOST + Constants.COLON +
                     cause.getMessage(), HttpResponseStatus.BAD_GATEWAY.code());
         } else if (cause instanceof ClosedChannelException) {
-            connectorException = new org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException("Remote host: " + socketAddress
+            connectorException = new ClientConnectorException("Remote host: " + socketAddress
                     + " closed the connection while SSL handshake", HttpResponseStatus.BAD_GATEWAY.code());
         } else {
             connectorException = handleInGenericWay(channelFuture);
@@ -163,11 +164,11 @@ public class ConnectionAvailabilityFuture {
         return channelFuture.isDone() && channelFuture.isCancelled();
     }
 
-    private org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException handleInGenericWay(ChannelFuture channelFuture) {
-        org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException connectorException;
+    private ClientConnectorException handleInGenericWay(ChannelFuture channelFuture) {
+        ClientConnectorException connectorException;
         if (channelFuture.cause() != null) {
-            connectorException = new org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException(channelFuture.cause().getMessage(),
-                                                                                                              HttpResponseStatus.BAD_GATEWAY.code());
+            connectorException = new ClientConnectorException(channelFuture.cause().getMessage(),
+                                                              HttpResponseStatus.BAD_GATEWAY.code());
         } else {
             connectorException = new ClientConnectorException("Generic client error",
                                                               HttpResponseStatus.BAD_GATEWAY.code());
@@ -176,8 +177,8 @@ public class ConnectionAvailabilityFuture {
     }
 
     private boolean isSslException(Throwable cause) {
-        return cause.toString().contains(org.ballerinalang.net.netty.contract.Constants.SSL) || cause.toString().contains(
-                org.ballerinalang.net.netty.contract.Constants.SECURITY);
+        return cause.toString().contains(Constants.SSL) || cause.toString().contains(
+                Constants.SECURITY);
     }
 
     private boolean isConnectionTimeout(ChannelFuture channelFuture) {

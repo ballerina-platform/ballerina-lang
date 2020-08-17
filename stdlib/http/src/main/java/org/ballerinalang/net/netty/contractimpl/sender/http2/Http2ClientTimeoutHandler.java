@@ -28,6 +28,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.exceptions.EndpointTimeOutException;
 import org.ballerinalang.net.netty.contractimpl.common.Util;
 import org.slf4j.Logger;
@@ -225,13 +226,13 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
         }
 
         private String getErrorMessage(boolean primary) {
-            return primary ? org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY :
-                    org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_PUSH_RESPONSE_BODY;
+            return primary ? Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY :
+                    Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_PUSH_RESPONSE_BODY;
         }
 
         private void closeStream(int streamId, ChannelHandlerContext ctx) {
             Http2TargetHandler clientOutboundHandler =
-                    (Http2TargetHandler) ctx.pipeline().get(org.ballerinalang.net.netty.contract.Constants.HTTP2_TARGET_HANDLER);
+                    (Http2TargetHandler) ctx.pipeline().get(Constants.HTTP2_TARGET_HANDLER);
             clientOutboundHandler.resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
         }
 
@@ -241,14 +242,14 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
                     msgHolder.getRequest().getHttp2MessageStateContext().getSenderState()
                             .handleStreamTimeout(msgHolder, false, ctx, streamId);
                 } catch (Http2Exception e) {
-                    msgHolder.getResponseFuture().notifyHttpListener(new org.ballerinalang.net.netty.contract.exceptions.EndpointTimeOutException(
-                            org.ballerinalang.net.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
+                    msgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+                            Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
                             HttpResponseStatus.GATEWAY_TIMEOUT.code()));
                 }
 
             } else {
                 msgHolder.getResponseFuture().notifyPushResponse(streamId, new EndpointTimeOutException(
-                        org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE,
+                        Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE,
                         HttpResponseStatus.GATEWAY_TIMEOUT.code()));
             }
         }

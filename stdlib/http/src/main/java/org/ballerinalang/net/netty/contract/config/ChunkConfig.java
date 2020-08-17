@@ -20,7 +20,7 @@
 package org.ballerinalang.net.netty.contract.config;
 
 /**
- * Contains value for configuring content encoding
+ * Contains value for configuring content encoding.
  */
 public enum ChunkConfig {
     ALWAYS,

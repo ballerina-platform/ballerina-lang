@@ -24,8 +24,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2Exception;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
 import org.ballerinalang.net.netty.contractimpl.Http2OutboundRespListener;
@@ -36,6 +34,8 @@ import org.ballerinalang.net.netty.message.Http2DataFrame;
 import org.ballerinalang.net.netty.message.Http2HeadersFrame;
 import org.ballerinalang.net.netty.message.Http2PushPromise;
 import org.ballerinalang.net.netty.message.HttpCarbonMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;

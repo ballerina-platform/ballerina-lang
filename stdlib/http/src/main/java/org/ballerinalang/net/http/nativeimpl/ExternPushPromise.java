@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HttpUtil;
-import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.ballerinalang.net.netty.message.Http2PushPromise;
 
 import java.util.Set;
 import java.util.TreeSet;

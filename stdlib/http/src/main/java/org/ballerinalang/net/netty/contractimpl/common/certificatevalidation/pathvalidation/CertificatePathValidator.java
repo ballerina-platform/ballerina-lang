@@ -18,12 +18,12 @@
 
 package org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.pathvalidation;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.Constants;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.RevocationVerifier;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.Security;
 import java.security.cert.CertPath;
@@ -74,7 +74,7 @@ public class CertificatePathValidator {
     }
 
     /**
-     * Certificate Path Validation process
+     * Certificate Path Validation process.
      *
      * @throws CertificateVerificationException if validation process fails.
      */

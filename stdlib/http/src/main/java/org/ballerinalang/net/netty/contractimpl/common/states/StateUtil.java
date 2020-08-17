@@ -67,8 +67,8 @@ public class StateUtil {
     }
 
     public static boolean checkChunkingCompatibility(String httpVersion, ChunkConfig chunkConfig) {
-        return org.ballerinalang.net.netty.contractimpl.common.Util.isVersionCompatibleForChunking(httpVersion) || Util
-                .shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion);
+        return Util.isVersionCompatibleForChunking(httpVersion) ||
+                Util.shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion);
     }
 
     public static void notifyIfHeaderWriteFailure(HttpResponseFuture httpResponseStatusFuture,
@@ -88,7 +88,7 @@ public class StateUtil {
                                                            ByteBuf content, int length, float httpVersion,
                                                            String serverName) {
         HttpResponse outboundResponse;
-        if (httpVersion == org.ballerinalang.net.netty.contract.Constants.HTTP_1_0) {
+        if (httpVersion == Constants.HTTP_1_0) {
             outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, status, content);
         } else {
             outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content);
@@ -96,15 +96,14 @@ public class StateUtil {
 
         outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, length);
         if (length != 0) {
-            outboundResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, org.ballerinalang.net.netty.contract.Constants.TEXT_PLAIN);
+            outboundResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, Constants.TEXT_PLAIN);
         }
         outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
         outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), serverName);
         return ctx.channel().writeAndFlush(outboundResponse);
     }
 
-    public static void handleIncompleteInboundMessage(
-            org.ballerinalang.net.netty.message.HttpCarbonMessage inboundRequestMsg, String errorMessage) {
+    public static void handleIncompleteInboundMessage(HttpCarbonMessage inboundRequestMsg, String errorMessage) {
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         DecoderException exception = new DecoderException(errorMessage);
         lastHttpContent.setDecoderResult(DecoderResult.failure(exception));
@@ -117,7 +116,7 @@ public class StateUtil {
 
     public static void respondToIncompleteRequest(Channel channel, HttpOutboundRespListener outboundResponseListener,
                                                   ListenerReqRespStateManager listenerReqRespStateManager,
-                                                  org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                                  HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
                                                   String errorMsg) {
         // Response is processing, but inbound request is not completed yet. So removing the read interest
         channel.config().setAutoRead(false);
@@ -133,11 +132,10 @@ public class StateUtil {
     }
 
     // This method will create and add the trailer header by looking at the trailers lies in HttpCarbonMessage
-    // httpTrailerHeaders attribute. It does not consider seperately injected trailers to the LastHttpContent through
+    // httpTrailerHeaders attribute. It does not consider separately injected trailers to the LastHttpContent through
     // netty's API. Dev should use HttpCarbonMessage.getTrailerHeaders() API to manipulate trailer. Otherwise header
     // should be manually added to avoid any trailer miss.
-    public static void addTrailerHeaderIfPresent(
-            org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg) {
+    public static void addTrailerHeaderIfPresent(HttpCarbonMessage outboundResponseMsg) {
         if (outboundResponseMsg.getTrailerHeaders().isEmpty()) {
             return;
         }
@@ -150,9 +148,9 @@ public class StateUtil {
     }
 
     /**
-     * Populate inboound trailer of the response content to the HttpCarbonMessage and clear the trailer from the
+     * Populate inbound trailer of the response content to the HttpCarbonMessage and clear the trailer from the
      * HttpContent. Make sure dev adds the LHC to the content queue after this method invocation, to avoid concurrent
-     * issues when accesssing trailers. Standard is to access to using HCM API.
+     * issues when accessing trailers. Standard is to access to using HCM API.
      *
      * @param trailers    Represent the inbound trailing header
      * @param responseMsg Represent the newly created response message

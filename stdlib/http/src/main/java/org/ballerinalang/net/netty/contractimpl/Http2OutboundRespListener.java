@@ -29,6 +29,10 @@ import io.netty.handler.codec.http2.Http2Exception;
 import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.HttpConnectorListener;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
+import org.ballerinalang.net.netty.contract.exceptions.ServerConnectorException;
+import org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.ballerinalang.net.netty.contractimpl.listener.HttpServerChannelInitializer;
+import org.ballerinalang.net.netty.contractimpl.listener.http2.Http2ServerChannel;
 import org.ballerinalang.net.netty.contractimpl.listener.states.http2.EntityBodyReceived;
 import org.ballerinalang.net.netty.contractimpl.listener.states.http2.SendingHeaders;
 import org.ballerinalang.net.netty.message.BackPressureObservable;
@@ -44,10 +48,6 @@ import org.ballerinalang.net.netty.message.PassthroughBackPressureListener;
 import org.ballerinalang.net.netty.message.ServerRemoteFlowControlListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contract.exceptions.ServerConnectorException;
-import org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext;
-import org.ballerinalang.net.netty.contractimpl.listener.HttpServerChannelInitializer;
-import org.ballerinalang.net.netty.contractimpl.listener.http2.Http2ServerChannel;
 
 import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -63,8 +63,8 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private static final Logger LOG = LoggerFactory.getLogger(Http2OutboundRespListener.class);
 
     private Http2MessageStateContext http2MessageStateContext;
-    private org.ballerinalang.net.netty.message.HttpCarbonMessage inboundRequestMsg;
-    private org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg;
+    private HttpCarbonMessage inboundRequestMsg;
+    private HttpCarbonMessage outboundResponseMsg;
     private ChannelHandlerContext ctx;
     private Http2ConnectionEncoder encoder;
     private int originalStreamId;   // stream id of the request received from the client
@@ -74,12 +74,12 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private HttpServerChannelInitializer serverChannelInitializer;
     private Calendar inboundRequestArrivalTime;
     private String remoteAddress = "-";
-    private org.ballerinalang.net.netty.message.ServerRemoteFlowControlListener remoteFlowControlListener;
+    private ServerRemoteFlowControlListener remoteFlowControlListener;
     private ResponseWriter defaultResponseWriter;
     private Http2ServerChannel http2ServerChannel;
 
     public Http2OutboundRespListener(HttpServerChannelInitializer serverChannelInitializer,
-                                     org.ballerinalang.net.netty.message.HttpCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
+                                     HttpCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
                                      Http2Connection conn, Http2ConnectionEncoder encoder, int streamId,
                                      String serverName, String remoteAddress,
                                      ServerRemoteFlowControlListener remoteFlowControlListener,
@@ -102,7 +102,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg) {
+    public void onMessage(HttpCarbonMessage outboundResponseMsg) {
         this.outboundResponseMsg = outboundResponseMsg;
         writeMessage(outboundResponseMsg, originalStreamId, true);
     }
@@ -113,12 +113,12 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onPushPromise(org.ballerinalang.net.netty.message.Http2PushPromise pushPromise) {
+    public void onPushPromise(Http2PushPromise pushPromise) {
         writePromise(pushPromise);
     }
 
     @Override
-    public void onPushResponse(int promiseId, org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg) {
+    public void onPushResponse(int promiseId, HttpCarbonMessage outboundResponseMsg) {
         //TODO:Add HTTP/2 server timeout handler for the push response stream
         if (isValidStreamId(promiseId, conn)) {
             //TODO:Call dataEventListener.onStreamInit with the promiseId
@@ -144,7 +144,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         });
     }
 
-    private void writeMessage(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg, int streamId, boolean backOffEnabled) {
+    private void writeMessage(HttpCarbonMessage outboundResponseMsg, int streamId, boolean backOffEnabled) {
         ResponseWriter writer = new ResponseWriter(streamId);
         if (backOffEnabled) {
             remoteFlowControlListener.addResponseWriter(writer);
@@ -165,7 +165,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         });
     }
 
-    private void setContentEncoding(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg) {
+    private void setContentEncoding(HttpCarbonMessage outboundResponseMsg) {
         String contentEncoding = outboundResponseMsg.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString());
         //This means compression AUTO case; With NEVER(identity) and ALWAYS, content-encoding will always have a value.
         if (contentEncoding == null) {
@@ -236,14 +236,14 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     public class ResponseWriter {
         private int streamId;
         private AtomicBoolean streamWritable = new AtomicBoolean(true);
-        private final org.ballerinalang.net.netty.message.BackPressureObservable
+        private final BackPressureObservable
                 backPressureObservable = new DefaultBackPressureObservable();
 
         ResponseWriter(int streamId) {
             this.streamId = streamId;
         }
 
-        private void writeOutboundResponse(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
+        private void writeOutboundResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
             throws Http2Exception {
             if (http2MessageStateContext == null) {
                 http2MessageStateContext = new Http2MessageStateContext();
@@ -272,7 +272,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         }
     }
 
-    private void setBackPressureListener(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg, ResponseWriter writer) {
+    private void setBackPressureListener(HttpCarbonMessage outboundResponseMsg, ResponseWriter writer) {
         if (outboundResponseMsg.isPassthrough()) {
             setPassthroughBackOffListener(outboundResponseMsg, writer);
         } else {
@@ -286,9 +286,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
      * @param outboundResponseMsg outbound response message
      * @param writer              HTTP/2 response writer
      */
-    private void setPassthroughBackOffListener(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg, ResponseWriter writer) {
+    private void setPassthroughBackOffListener(HttpCarbonMessage outboundResponseMsg, ResponseWriter writer) {
         Listener inboundListener = outboundResponseMsg.getListener();
-        if (inboundListener instanceof org.ballerinalang.net.netty.message.Http2InboundContentListener) {
+        if (inboundListener instanceof Http2InboundContentListener) {
             writer.getBackPressureObservable().setListener(
                 new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
         } else if (inboundListener instanceof DefaultListener) {
@@ -330,7 +330,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         return serverChannelInitializer;
     }
 
-    public org.ballerinalang.net.netty.message.HttpCarbonMessage getInboundRequestMsg() {
+    public HttpCarbonMessage getInboundRequestMsg() {
         return inboundRequestMsg;
     }
 

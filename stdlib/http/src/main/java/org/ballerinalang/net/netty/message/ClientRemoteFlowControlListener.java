@@ -21,10 +21,10 @@ package org.ballerinalang.net.netty.message;
 
 import io.netty.handler.codec.http2.Http2RemoteFlowController;
 import io.netty.handler.codec.http2.Http2Stream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.ballerinalang.net.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Http/2 remote flow control listener for client. Each HTTP/2 connection has a single remote flow control listener.

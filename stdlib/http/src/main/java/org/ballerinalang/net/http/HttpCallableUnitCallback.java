@@ -18,7 +18,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 
 /**
  * {@code HttpCallableUnitCallback} is the responsible for acting on notifications received from Ballerina side.

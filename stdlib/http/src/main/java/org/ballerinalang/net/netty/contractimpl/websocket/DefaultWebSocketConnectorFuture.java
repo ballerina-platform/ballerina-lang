@@ -29,11 +29,11 @@ import org.ballerinalang.net.netty.contract.websocket.WebSocketHandshaker;
 import org.ballerinalang.net.netty.contract.websocket.WebSocketTextMessage;
 
 /**
- * Default implementation of {@link org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorFuture}.
+ * Default implementation of {@link WebSocketConnectorFuture}.
  */
 public class DefaultWebSocketConnectorFuture implements WebSocketConnectorFuture {
 
-    private org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorListener wsConnectorListener;
+    private WebSocketConnectorListener wsConnectorListener;
 
     @Override
     public void setWebSocketConnectorListener(WebSocketConnectorListener wsConnectorListener) {
@@ -41,65 +41,55 @@ public class DefaultWebSocketConnectorFuture implements WebSocketConnectorFuture
     }
 
     @Override
-    public void notifyWebSocketListener(WebSocketHandshaker webSocketHandshaker) throws
-                                                                                 org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketHandshaker webSocketHandshaker) throws WebSocketConnectorException {
         checkConnectorState();
         wsConnectorListener.onHandshake(webSocketHandshaker);
     }
 
     @Override
-    public void notifyWebSocketListener(WebSocketTextMessage textMessage) throws
-                                                                          org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketTextMessage textMessage) throws WebSocketConnectorException {
         checkConnectorState();
         wsConnectorListener.onMessage(textMessage);
     }
 
     @Override
-    public void notifyWebSocketListener(WebSocketBinaryMessage binaryMessage) throws
-                                                                              org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketBinaryMessage binaryMessage) throws WebSocketConnectorException {
         checkConnectorState();
         wsConnectorListener.onMessage(binaryMessage);
     }
 
     @Override
-    public void notifyWebSocketListener(
-            org.ballerinalang.net.netty.contract.websocket.WebSocketControlMessage controlMessage) throws
-                                                                                                   org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketControlMessage controlMessage) throws WebSocketConnectorException {
         checkConnectorState();
         wsConnectorListener.onMessage(controlMessage);
     }
 
     @Override
-    public void notifyWebSocketListener(WebSocketCloseMessage closeMessage) throws
-                                                                            org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketCloseMessage closeMessage) throws WebSocketConnectorException {
         checkConnectorState();
         wsConnectorListener.onMessage(closeMessage);
     }
 
     @Override
-    public void notifyWebSocketListener(
-            org.ballerinalang.net.netty.contract.websocket.WebSocketConnection webSocketConnection, Throwable throwable)
-            throws org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketConnection webSocketConnection, Throwable throwable)
+            throws WebSocketConnectorException {
         checkConnectorState();
         wsConnectorListener.onError(webSocketConnection, throwable);
     }
 
     @Override
-    public void notifyWebSocketIdleTimeout(WebSocketControlMessage controlMessage) throws
-                                                                                   org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    public void notifyWebSocketIdleTimeout(WebSocketControlMessage controlMessage) throws WebSocketConnectorException {
         checkConnectorState();
         wsConnectorListener.onIdleTimeout(controlMessage);
     }
 
     @Override
-    public void notifyWebSocketListener(WebSocketConnection webSocketConnection) throws
-                                                                                 org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketConnection webSocketConnection) throws WebSocketConnectorException {
         checkConnectorState();
         wsConnectorListener.onClose(webSocketConnection);
     }
 
-    private void checkConnectorState() throws
-                                       org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException {
+    private void checkConnectorState() throws WebSocketConnectorException {
         if (wsConnectorListener == null) {
             throw new WebSocketConnectorException("WebSocket connector listener is not set");
         }

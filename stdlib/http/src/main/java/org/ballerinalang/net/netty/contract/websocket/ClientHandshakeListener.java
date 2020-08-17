@@ -32,7 +32,7 @@ public interface ClientHandshakeListener {
      * @param webSocketConnection {@link WebSocketConnection} for the successful handshake.
      * @param response The response message for the handshake request.
      */
-    void onSuccess(WebSocketConnection webSocketConnection, org.ballerinalang.net.netty.message.HttpCarbonResponse response);
+    void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response);
 
     /**
      * Notify error on handshake.

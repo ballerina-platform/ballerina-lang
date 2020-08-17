@@ -52,12 +52,19 @@ import io.netty.util.CharsetUtil;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contract.config.ChunkConfig;
 import org.ballerinalang.net.netty.contract.config.ForwardedExtensionConfig;
+import org.ballerinalang.net.netty.contract.config.KeepAliveConfig;
 import org.ballerinalang.net.netty.contract.config.ProxyServerConfiguration;
 import org.ballerinalang.net.netty.contract.config.SenderConfiguration;
 import org.ballerinalang.net.netty.contract.exceptions.ConfigurationException;
 import org.ballerinalang.net.netty.contractimpl.Http2OutboundRespListener;
+import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLConfig;
+import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLHandlerFactory;
 import org.ballerinalang.net.netty.contractimpl.listener.HttpTraceLoggingHandler;
 import org.ballerinalang.net.netty.contractimpl.listener.SourceHandler;
+import org.ballerinalang.net.netty.contractimpl.listener.http2.Http2SourceHandler;
+import org.ballerinalang.net.netty.contractimpl.sender.CertificateValidationHandler;
+import org.ballerinalang.net.netty.contractimpl.sender.ForwardedHeaderUpdater;
+import org.ballerinalang.net.netty.contractimpl.sender.OCSPStaplingHandler;
 import org.ballerinalang.net.netty.message.DefaultBackPressureListener;
 import org.ballerinalang.net.netty.message.DefaultListener;
 import org.ballerinalang.net.netty.message.Http2InboundContentListener;
@@ -70,12 +77,6 @@ import org.ballerinalang.net.netty.message.PassthroughBackPressureListener;
 import org.ballerinalang.net.netty.message.PooledDataStreamerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLConfig;
-import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLHandlerFactory;
-import org.ballerinalang.net.netty.contractimpl.listener.http2.Http2SourceHandler;
-import org.ballerinalang.net.netty.contractimpl.sender.CertificateValidationHandler;
-import org.ballerinalang.net.netty.contractimpl.sender.ForwardedHeaderUpdater;
-import org.ballerinalang.net.netty.contractimpl.sender.OCSPStaplingHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -93,12 +94,70 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.TRAILER;
+import static org.ballerinalang.net.netty.contract.Constants.BACK_PRESSURE_HANDLER;
+import static org.ballerinalang.net.netty.contract.Constants.BASE_64_ENCODED_CERT;
+import static org.ballerinalang.net.netty.contract.Constants.BASE_64_ENCODED_CERT_ATTRIBUTE;
+import static org.ballerinalang.net.netty.contract.Constants.CHNL_HNDLR_CTX;
+import static org.ballerinalang.net.netty.contract.Constants.CHUNKED;
+import static org.ballerinalang.net.netty.contract.Constants.COLON;
+import static org.ballerinalang.net.netty.contract.Constants.CONNECTION_CLOSE;
+import static org.ballerinalang.net.netty.contract.Constants.CONNECTION_KEEP_ALIVE;
+import static org.ballerinalang.net.netty.contract.Constants.DEFAULT_BASE_PATH;
+import static org.ballerinalang.net.netty.contract.Constants.DEFAULT_VERSION_HTTP_1_1;
+import static org.ballerinalang.net.netty.contract.Constants.DIRECTION;
+import static org.ballerinalang.net.netty.contract.Constants.DIRECTION_RESPONSE;
+import static org.ballerinalang.net.netty.contract.Constants.EXECUTOR_WORKER_POOL;
+import static org.ballerinalang.net.netty.contract.Constants.HEADER_VAL_100_CONTINUE;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP2_AUTHORITY;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP2_METHOD;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP2_PATH;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP2_SCHEME;
+import static org.ballerinalang.net.netty.contract.Constants.HTTPS_SCHEME;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_1_0;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_1_1;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_CERT_VALIDATION_HANDLER;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_GET_METHOD;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_HOST;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_PORT;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_POST_METHOD;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_REASON_PHRASE;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_SCHEME;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_TRACE_LOG_HANDLER;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_VERSION_2_0;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_VERSION_PREFIX;
+import static org.ballerinalang.net.netty.contract.Constants.IS_PROXY_ENABLED;
+import static org.ballerinalang.net.netty.contract.Constants.IS_SECURED_CONNECTION;
+import static org.ballerinalang.net.netty.contract.Constants.LISTENER_INTERFACE_ID;
+import static org.ballerinalang.net.netty.contract.Constants.LISTENER_PORT;
+import static org.ballerinalang.net.netty.contract.Constants.LOCAL_ADDRESS;
+import static org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_DISABLED;
+import static org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_FAILED;
+import static org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_HANDSHAKE_RESULT;
+import static org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_PASSED;
+import static org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_RESULT_ATTRIBUTE;
+import static org.ballerinalang.net.netty.contract.Constants.NO_ENTITY_BODY;
+import static org.ballerinalang.net.netty.contract.Constants.OK_200;
+import static org.ballerinalang.net.netty.contract.Constants.ORIGINAL_CHANNEL_START_TIME;
+import static org.ballerinalang.net.netty.contract.Constants.ORIGINAL_CHANNEL_TIMEOUT;
+import static org.ballerinalang.net.netty.contract.Constants.ORIGINAL_REQUEST;
+import static org.ballerinalang.net.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
+import static org.ballerinalang.net.netty.contract.Constants.PROTOCOL;
+import static org.ballerinalang.net.netty.contract.Constants.REDIRECT_COUNT;
+import static org.ballerinalang.net.netty.contract.Constants.REMOTE_ADDRESS;
+import static org.ballerinalang.net.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.ballerinalang.net.netty.contract.Constants.RESOLVED_REQUESTED_URI_ATTR;
+import static org.ballerinalang.net.netty.contract.Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL;
+import static org.ballerinalang.net.netty.contract.Constants.SRC_HANDLER;
+import static org.ballerinalang.net.netty.contract.Constants.SSL_HANDLER;
+import static org.ballerinalang.net.netty.contract.Constants.TO;
+import static org.ballerinalang.net.netty.contract.Constants.URL_AUTHORITY;
 
 /**
  * Includes utility methods for creating http requests and responses and their related properties.
@@ -111,7 +170,7 @@ public class Util {
 
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
-    private static String getStringValue(org.ballerinalang.net.netty.message.HttpCarbonMessage msg, String key, String defaultValue) {
+    private static String getStringValue(HttpCarbonMessage msg, String key, String defaultValue) {
         String value = (String) msg.getProperty(key);
         if (value == null) {
             return defaultValue;
@@ -120,21 +179,21 @@ public class Util {
         return value;
     }
 
-    private static int getIntValue(org.ballerinalang.net.netty.message.HttpCarbonMessage msg) {
+    private static int getIntValue(HttpCarbonMessage msg) {
         Integer value = msg.getHttpStatusCode();
         if (value == null) {
-            return org.ballerinalang.net.netty.contract.Constants.OK_200;
+            return OK_200;
         }
         return value;
     }
 
     @SuppressWarnings("unchecked")
     public static HttpResponse createHttpResponse(
-            org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
+            HttpCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
             String serverName, boolean keepAlive) {
 
         HttpVersion httpVersion = new HttpVersion(
-                org.ballerinalang.net.netty.contract.Constants.HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
+                HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
         HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
         HttpResponse outboundNettyResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus);
 
@@ -145,11 +204,11 @@ public class Util {
     }
 
     public static HttpResponse createFullHttpResponse(
-            org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg,
+            HttpCarbonMessage outboundResponseMsg,
             String inboundReqHttpVersion, String serverName, boolean keepAlive, ByteBuf fullContent) {
 
         HttpVersion httpVersion = new HttpVersion(
-                org.ballerinalang.net.netty.contract.Constants.HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
+                HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
         HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
         HttpResponse outboundNettyResponse =
                 new DefaultFullHttpResponse(httpVersion, httpResponseStatus, fullContent);
@@ -160,13 +219,13 @@ public class Util {
         return outboundNettyResponse;
     }
 
-    private static void setOutboundRespHeaders(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
+    private static void setOutboundRespHeaders(HttpCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
                                                String serverName, boolean keepAlive,
                                                HttpResponse outboundNettyResponse) {
-        if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= org.ballerinalang.net.netty.contract.Constants.HTTP_1_1)) {
-            outboundResponseMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), org.ballerinalang.net.netty.contract.Constants.CONNECTION_CLOSE);
-        } else if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < org.ballerinalang.net.netty.contract.Constants.HTTP_1_1)) {
-            outboundResponseMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), org.ballerinalang.net.netty.contract.Constants.CONNECTION_KEEP_ALIVE);
+        if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= HTTP_1_1)) {
+            outboundResponseMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), CONNECTION_CLOSE);
+        } else if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < HTTP_1_1)) {
+            outboundResponseMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), CONNECTION_KEEP_ALIVE);
         } else {
             outboundResponseMsg.removeHeader(HttpHeaderNames.CONNECTION.toString());
         }
@@ -183,20 +242,20 @@ public class Util {
         outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
     }
 
-    public static HttpResponseStatus getHttpResponseStatus(org.ballerinalang.net.netty.message.HttpCarbonMessage msg) {
+    public static HttpResponseStatus getHttpResponseStatus(HttpCarbonMessage msg) {
         int statusCode = Util.getIntValue(msg);
-        String reasonPhrase = Util.getStringValue(msg, org.ballerinalang.net.netty.contract.Constants.HTTP_REASON_PHRASE,
+        String reasonPhrase = Util.getStringValue(msg, HTTP_REASON_PHRASE,
                                                   HttpResponseStatus.valueOf(statusCode).reasonPhrase());
         return new HttpResponseStatus(statusCode, reasonPhrase);
     }
 
     @SuppressWarnings("unchecked")
-    public static HttpRequest createHttpRequest(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundRequestMsg) {
+    public static HttpRequest createHttpRequest(HttpCarbonMessage outboundRequestMsg) {
         HttpMethod httpMethod = getHttpMethod(outboundRequestMsg);
         HttpVersion httpVersion = getHttpVersion(outboundRequestMsg);
         String requestPath = getRequestPath(outboundRequestMsg);
         HttpRequest outboundNettyRequest = new DefaultHttpRequest(httpVersion, httpMethod,
-                (String) outboundRequestMsg.getProperty(org.ballerinalang.net.netty.contract.Constants.TO));
+                (String) outboundRequestMsg.getProperty(TO));
         outboundNettyRequest.setMethod(httpMethod);
         outboundNettyRequest.setProtocolVersion(httpVersion);
         outboundNettyRequest.setUri(requestPath);
@@ -205,50 +264,50 @@ public class Util {
         return outboundNettyRequest;
     }
 
-    private static String getRequestPath(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundRequestMsg) {
-        if (outboundRequestMsg.getProperty(org.ballerinalang.net.netty.contract.Constants.TO) == null) {
-            outboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.TO, "");
+    private static String getRequestPath(HttpCarbonMessage outboundRequestMsg) {
+        if (outboundRequestMsg.getProperty(TO) == null) {
+            outboundRequestMsg.setProperty(TO, "");
         }
         // Return absolute url if proxy is enabled
-        if (outboundRequestMsg.getProperty(org.ballerinalang.net.netty.contract.Constants.IS_PROXY_ENABLED) != null && (boolean) outboundRequestMsg
-                .getProperty(org.ballerinalang.net.netty.contract.Constants.IS_PROXY_ENABLED) && outboundRequestMsg.getProperty(
-                org.ballerinalang.net.netty.contract.Constants.PROTOCOL).equals(
-                org.ballerinalang.net.netty.contract.Constants.HTTP_SCHEME)) {
+        if (outboundRequestMsg.getProperty(IS_PROXY_ENABLED) != null && (boolean) outboundRequestMsg
+                .getProperty(IS_PROXY_ENABLED) && outboundRequestMsg.getProperty(
+                PROTOCOL).equals(
+                HTTP_SCHEME)) {
             return outboundRequestMsg.getProperty(
-                    org.ballerinalang.net.netty.contract.Constants.PROTOCOL) + org.ballerinalang.net.netty.contract.Constants.URL_AUTHORITY
+                    PROTOCOL) + URL_AUTHORITY
                     + outboundRequestMsg.getProperty(
-                    org.ballerinalang.net.netty.contract.Constants.HTTP_HOST) + org.ballerinalang.net.netty.contract.Constants.COLON
-                    + outboundRequestMsg.getProperty(org.ballerinalang.net.netty.contract.Constants.HTTP_PORT)
-                    + outboundRequestMsg.getProperty(org.ballerinalang.net.netty.contract.Constants.TO);
+                    HTTP_HOST) + COLON
+                    + outboundRequestMsg.getProperty(HTTP_PORT)
+                    + outboundRequestMsg.getProperty(TO);
         }
-        return (String) outboundRequestMsg.getProperty(org.ballerinalang.net.netty.contract.Constants.TO);
+        return (String) outboundRequestMsg.getProperty(TO);
     }
 
-    private static HttpVersion getHttpVersion(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundRequestMsg) {
+    private static HttpVersion getHttpVersion(HttpCarbonMessage outboundRequestMsg) {
         HttpVersion httpVersion;
         if (null != outboundRequestMsg.getHttpVersion()) {
-            httpVersion = new HttpVersion(org.ballerinalang.net.netty.contract.Constants.HTTP_VERSION_PREFIX
+            httpVersion = new HttpVersion(HTTP_VERSION_PREFIX
                     + outboundRequestMsg.getHttpVersion(), true);
         } else {
-            httpVersion = new HttpVersion(org.ballerinalang.net.netty.contract.Constants.DEFAULT_VERSION_HTTP_1_1, true);
+            httpVersion = new HttpVersion(DEFAULT_VERSION_HTTP_1_1, true);
         }
         return httpVersion;
     }
 
-    private static HttpMethod getHttpMethod(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundRequestMsg) {
+    private static HttpMethod getHttpMethod(HttpCarbonMessage outboundRequestMsg) {
         HttpMethod httpMethod;
         if (null != outboundRequestMsg.getHttpMethod()) {
             httpMethod = new HttpMethod(outboundRequestMsg.getHttpMethod());
         } else {
-            httpMethod = new HttpMethod(org.ballerinalang.net.netty.contract.Constants.HTTP_POST_METHOD);
+            httpMethod = new HttpMethod(HTTP_POST_METHOD);
         }
         return httpMethod;
     }
 
-    public static void setupChunkedRequest(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+    public static void setupChunkedRequest(HttpCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         if (httpOutboundRequest.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
-            httpOutboundRequest.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), org.ballerinalang.net.netty.contract.Constants.CHUNKED);
+            httpOutboundRequest.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), CHUNKED);
         }
     }
 
@@ -262,18 +321,18 @@ public class Util {
      */
     public static HttpRequest createHttpRequestFromHttp2Headers(Http2Headers http2Headers, int streamId)
             throws Http2Exception {
-        String method = org.ballerinalang.net.netty.contract.Constants.HTTP_GET_METHOD;
+        String method = HTTP_GET_METHOD;
         if (http2Headers.method() != null) {
-            method = http2Headers.getAndRemove(org.ballerinalang.net.netty.contract.Constants.HTTP2_METHOD).toString();
+            method = http2Headers.getAndRemove(HTTP2_METHOD).toString();
         }
-        String path = org.ballerinalang.net.netty.contract.Constants.DEFAULT_BASE_PATH;
+        String path = DEFAULT_BASE_PATH;
         if (http2Headers.path() != null) {
-            path = http2Headers.getAndRemove(org.ballerinalang.net.netty.contract.Constants.HTTP2_PATH).toString();
+            path = http2Headers.getAndRemove(HTTP2_PATH).toString();
         }
         // Remove PseudoHeaderNames from headers
-        http2Headers.getAndRemove(org.ballerinalang.net.netty.contract.Constants.HTTP2_AUTHORITY);
-        http2Headers.getAndRemove(org.ballerinalang.net.netty.contract.Constants.HTTP2_SCHEME);
-        HttpVersion version = new HttpVersion(org.ballerinalang.net.netty.contract.Constants.HTTP_VERSION_2_0, true);
+        http2Headers.getAndRemove(HTTP2_AUTHORITY);
+        http2Headers.getAndRemove(HTTP2_SCHEME);
+        HttpVersion version = new HttpVersion(HTTP_VERSION_2_0, true);
 
         // Construct new HTTP Carbon Request
         HttpRequest httpRequest = new DefaultHttpRequest(version, HttpMethod.valueOf(method), path);
@@ -288,19 +347,19 @@ public class Util {
     }
 
     public static void setupContentLengthRequest(
-            org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest, long contentLength) {
+            HttpCarbonMessage httpOutboundRequest, long contentLength) {
         removeContentLengthAndTransferEncodingHeaders(httpOutboundRequest);
         httpOutboundRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(contentLength));
     }
 
     public static boolean checkContentLengthAndTransferEncodingHeaderAllowance(
-            org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+            HttpCarbonMessage httpOutboundRequest) {
         HttpMethod method = getHttpMethod(httpOutboundRequest);
-        if (httpOutboundRequest.getProperty(org.ballerinalang.net.netty.contract.Constants.NO_ENTITY_BODY) == null) {
+        if (httpOutboundRequest.getProperty(NO_ENTITY_BODY) == null) {
             return true;
         }
         boolean nonEntityBodyRequest = (boolean) httpOutboundRequest.getProperty(
-                org.ballerinalang.net.netty.contract.Constants.NO_ENTITY_BODY);
+                NO_ENTITY_BODY);
         if (nonEntityBodyRequest && (HttpMethod.GET.equals(method)
                 || HttpMethod.HEAD.equals(method) || HttpMethod.OPTIONS.equals(method))) {
             removeContentLengthAndTransferEncodingHeaders(httpOutboundRequest);
@@ -310,7 +369,7 @@ public class Util {
     }
 
     private static void removeContentLengthAndTransferEncodingHeaders(
-            org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+            HttpCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
         httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
     }
@@ -322,7 +381,7 @@ public class Util {
      * @return  boolean value of status.
      */
     public static boolean isVersionCompatibleForChunking(String httpVersion) {
-        return Float.valueOf(httpVersion) >= org.ballerinalang.net.netty.contract.Constants.HTTP_1_1;
+        return Float.valueOf(httpVersion) >= HTTP_1_1;
     }
 
     /**
@@ -332,9 +391,8 @@ public class Util {
      * @param httpVersion http version string.
      * @return true if chunking should be enforced else false.
      */
-    public static boolean shouldEnforceChunkingforHttpOneZero(
-            org.ballerinalang.net.netty.contract.config.ChunkConfig chunkConfig, String httpVersion) {
-        return chunkConfig == ChunkConfig.ALWAYS && Float.valueOf(httpVersion) >= org.ballerinalang.net.netty.contract.Constants.HTTP_1_0;
+    public static boolean shouldEnforceChunkingforHttpOneZero(ChunkConfig chunkConfig, String httpVersion) {
+        return chunkConfig == ChunkConfig.ALWAYS && Float.valueOf(httpVersion) >= HTTP_1_0;
     }
 
     /**
@@ -380,9 +438,9 @@ public class Util {
             }
             sslHandler = new SslHandler(sslEngine);
             setSslHandshakeTimeOut(sslConfig, sslHandler);
-            pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.SSL_HANDLER, sslHandler);
+            pipeline.addLast(SSL_HANDLER, sslHandler);
             if (sslConfig.isValidateCertEnabled()) {
-                pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.HTTP_CERT_VALIDATION_HANDLER, new CertificateValidationHandler(
+                pipeline.addLast(HTTP_CERT_VALIDATION_HANDLER, new CertificateValidationHandler(
                         sslEngine, sslConfig.getCacheValidityPeriod(), sslConfig.getCacheSize()));
             }
         }
@@ -623,12 +681,12 @@ public class Util {
      * @param ctx Channel handler context
      */
     public static void resetChannelAttributes(ChannelHandlerContext ctx) {
-        ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(null);
-        ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.ORIGINAL_REQUEST).set(null);
-        ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.REDIRECT_COUNT).set(null);
-        ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.RESOLVED_REQUESTED_URI_ATTR).set(null);
-        ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.ORIGINAL_CHANNEL_START_TIME).set(null);
-        ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.ORIGINAL_CHANNEL_TIMEOUT).set(null);
+        ctx.channel().attr(RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(null);
+        ctx.channel().attr(ORIGINAL_REQUEST).set(null);
+        ctx.channel().attr(REDIRECT_COUNT).set(null);
+        ctx.channel().attr(RESOLVED_REQUESTED_URI_ATTR).set(null);
+        ctx.channel().attr(ORIGINAL_CHANNEL_START_TIME).set(null);
+        ctx.channel().attr(ORIGINAL_CHANNEL_TIMEOUT).set(null);
     }
 
     /**
@@ -654,7 +712,7 @@ public class Util {
             HttpVersion httpVersion, String serverName) {
         HttpResponse outboundResponse = new DefaultHttpResponse(httpVersion, status);
         outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
-        outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), org.ballerinalang.net.netty.contract.Constants.CONNECTION_CLOSE);
+        outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), CONNECTION_CLOSE);
         outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), serverName);
         ChannelFuture outboundRespFuture = ctx.channel().writeAndFlush(outboundResponse);
         outboundRespFuture.addListener(
@@ -669,15 +727,15 @@ public class Util {
      * @param outboundRespStatusFuture the future of outbound response write operation
      * @param channelFuture            the channel future related to response write operation
      */
-    public static void checkForResponseWriteStatus(
-            org.ballerinalang.net.netty.message.HttpCarbonMessage inboundRequestMsg,
-            org.ballerinalang.net.netty.contract.HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
+    public static void checkForResponseWriteStatus(HttpCarbonMessage inboundRequestMsg,
+                                                   HttpResponseFuture outboundRespStatusFuture,
+                                                   ChannelFuture channelFuture) {
         channelFuture.addListener(writeOperationPromise -> {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null) {
                 if (throwable instanceof ClosedChannelException) {
                     throwable = new IOException(
-                            org.ballerinalang.net.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
+                            REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
                 }
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             } else {
@@ -701,13 +759,13 @@ public class Util {
             if (throwable != null) {
                 if (throwable instanceof ClosedChannelException) {
                     throwable = new IOException(
-                            org.ballerinalang.net.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
+                            REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
                 }
 
                 if (http2OutboundRespListener.getOutboundResponseMsg() != null) {
                     http2OutboundRespListener.getOutboundResponseMsg().setIoException(
                             new IOException(
-                                    org.ballerinalang.net.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS));
+                                    REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS));
                 }
 
                 if (LOG.isDebugEnabled()) {
@@ -727,10 +785,9 @@ public class Util {
      * @param ctx Channel handler context
      * @return HttpCarbonMessage
      */
-    public static org.ballerinalang.net.netty.message.HttpCarbonMessage createHTTPCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx) {
-        org.ballerinalang.net.netty.message.Listener
-                contentListener = new org.ballerinalang.net.netty.message.DefaultListener(ctx);
-        return new org.ballerinalang.net.netty.message.HttpCarbonMessage(httpMessage, contentListener);
+    public static HttpCarbonMessage createHTTPCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx) {
+        Listener contentListener = new DefaultListener(ctx);
+        return new HttpCarbonMessage(httpMessage, contentListener);
     }
 
     /**
@@ -756,15 +813,14 @@ public class Util {
      * @param sourceHandler instance which handled the particular request
      * @return HttpCarbon message
      */
-    public static org.ballerinalang.net.netty.message.HttpCarbonMessage createInboundReqCarbonMsg(HttpRequest httpRequestHeaders,
-                                                                                                  ChannelHandlerContext ctx, org.ballerinalang.net.netty.contractimpl.listener.SourceHandler sourceHandler) {
+    public static HttpCarbonMessage createInboundReqCarbonMsg(HttpRequest httpRequestHeaders,
+                                                              ChannelHandlerContext ctx, SourceHandler sourceHandler) {
 
-        org.ballerinalang.net.netty.message.HttpCarbonMessage inboundRequestMsg =
-                new HttpCarbonRequest(httpRequestHeaders, new org.ballerinalang.net.netty.message.DefaultListener(ctx));
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY, new org.ballerinalang.net.netty.message.PooledDataStreamerFactory(ctx.alloc()));
+        HttpCarbonMessage inboundRequestMsg = new HttpCarbonRequest(httpRequestHeaders, new DefaultListener(ctx));
+        inboundRequestMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
 
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.CHNL_HNDLR_CTX, ctx);
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.SRC_HANDLER, sourceHandler);
+        inboundRequestMsg.setProperty(CHNL_HNDLR_CTX, ctx);
+        inboundRequestMsg.setProperty(SRC_HANDLER, sourceHandler);
         HttpVersion protocolVersion = httpRequestHeaders.protocolVersion();
         inboundRequestMsg.setHttpVersion(protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
         inboundRequestMsg.setHttpMethod(httpRequestHeaders.method().name());
@@ -774,25 +830,25 @@ public class Util {
         if (ctx.channel().localAddress() instanceof InetSocketAddress) {
             localAddress = (InetSocketAddress) ctx.channel().localAddress();
         }
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.LISTENER_INTERFACE_ID, sourceHandler.getInterfaceId());
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.PROTOCOL, org.ballerinalang.net.netty.contract.Constants.HTTP_SCHEME);
+        inboundRequestMsg.setProperty(LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
+        inboundRequestMsg.setProperty(LISTENER_INTERFACE_ID, sourceHandler.getInterfaceId());
+        inboundRequestMsg.setProperty(PROTOCOL, HTTP_SCHEME);
 
         boolean isSecuredConnection = false;
-        if (ctx.channel().pipeline().get(org.ballerinalang.net.netty.contract.Constants.SSL_HANDLER) != null) {
+        if (ctx.channel().pipeline().get(SSL_HANDLER) != null) {
             isSecuredConnection = true;
         }
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.IS_SECURED_CONNECTION,
+        inboundRequestMsg.setProperty(IS_SECURED_CONNECTION,
                                       isSecuredConnection);
 
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.REMOTE_ADDRESS, sourceHandler.getRemoteAddress());
+        inboundRequestMsg.setProperty(LOCAL_ADDRESS, ctx.channel().localAddress());
+        inboundRequestMsg.setProperty(REMOTE_ADDRESS, sourceHandler.getRemoteAddress());
         inboundRequestMsg.setRequestUrl(httpRequestHeaders.uri());
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.TO, httpRequestHeaders.uri());
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_HANDSHAKE_RESULT,
-                                      ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).get());
-        inboundRequestMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.BASE_64_ENCODED_CERT,
-                                      ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.BASE_64_ENCODED_CERT_ATTRIBUTE).get());
+        inboundRequestMsg.setProperty(TO, httpRequestHeaders.uri());
+        inboundRequestMsg.setProperty(MUTUAL_SSL_HANDSHAKE_RESULT,
+                                      ctx.channel().attr(MUTUAL_SSL_RESULT_ATTRIBUTE).get());
+        inboundRequestMsg.setProperty(BASE_64_ENCODED_CERT,
+                                      ctx.channel().attr(BASE_64_ENCODED_CERT_ATTRIBUTE).get());
 
         return inboundRequestMsg;
     }
@@ -804,21 +860,20 @@ public class Util {
      * @param outboundRequestMsg is the correlated outbound request message
      * @return HttpCarbon message
      */
-    public static org.ballerinalang.net.netty.message.HttpCarbonMessage createInboundRespCarbonMsg(ChannelHandlerContext ctx,
-                                                                                                   HttpResponse httpResponseHeaders,
-                                                                                                   org.ballerinalang.net.netty.message.HttpCarbonMessage outboundRequestMsg) {
-        org.ballerinalang.net.netty.message.HttpCarbonMessage
-                inboundResponseMsg = new HttpCarbonResponse(httpResponseHeaders, new org.ballerinalang.net.netty.message.DefaultListener(ctx));
-        inboundResponseMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY,
+    public static HttpCarbonMessage createInboundRespCarbonMsg(ChannelHandlerContext ctx,
+                                                               HttpResponse httpResponseHeaders,
+                                                               HttpCarbonMessage outboundRequestMsg) {
+        HttpCarbonMessage inboundResponseMsg = new HttpCarbonResponse(httpResponseHeaders, new DefaultListener(ctx));
+        inboundResponseMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY,
                                        new PooledDataStreamerFactory(ctx.alloc()));
 
-        inboundResponseMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.DIRECTION, org.ballerinalang.net.netty.contract.Constants.DIRECTION_RESPONSE);
+        inboundResponseMsg.setProperty(DIRECTION, DIRECTION_RESPONSE);
         inboundResponseMsg.setHttpStatusCode(httpResponseHeaders.status().code());
 
         //copy required properties for service chaining from incoming carbon message to the response carbon message
         //copy shared worker pool
-        inboundResponseMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.EXECUTOR_WORKER_POOL, outboundRequestMsg
-                .getProperty(org.ballerinalang.net.netty.contract.Constants.EXECUTOR_WORKER_POOL));
+        inboundResponseMsg.setProperty(EXECUTOR_WORKER_POOL, outboundRequestMsg
+                .getProperty(EXECUTOR_WORKER_POOL));
 
         return inboundResponseMsg;
     }
@@ -828,13 +883,13 @@ public class Util {
      * @param keepAliveConfig of the connection
      * @param outboundRequestMsg of this particular transaction
      * @return true if the connection should be kept alive
-     * @throws org.ballerinalang.net.netty.contract.exceptions.ConfigurationException for invalid configurations
+     * @throws ConfigurationException for invalid configurations
      */
-    public static boolean isKeepAlive(org.ballerinalang.net.netty.contract.config.KeepAliveConfig keepAliveConfig, org.ballerinalang.net.netty.message.HttpCarbonMessage outboundRequestMsg)
-            throws org.ballerinalang.net.netty.contract.exceptions.ConfigurationException {
+    public static boolean isKeepAlive(KeepAliveConfig keepAliveConfig, HttpCarbonMessage outboundRequestMsg)
+            throws ConfigurationException {
         switch (keepAliveConfig) {
         case AUTO:
-            return Float.valueOf(outboundRequestMsg.getHttpVersion()) > org.ballerinalang.net.netty.contract.Constants.HTTP_1_0;
+            return Float.valueOf(outboundRequestMsg.getHttpVersion()) > HTTP_1_0;
         case ALWAYS:
             return true;
         case NEVER:
@@ -852,8 +907,8 @@ public class Util {
      * @param inboundRequestMsg in question
      * @return true if the request expects 100-continue response
      */
-    public static boolean is100ContinueRequest(org.ballerinalang.net.netty.message.HttpCarbonMessage inboundRequestMsg) {
-        return org.ballerinalang.net.netty.contract.Constants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
+    public static boolean is100ContinueRequest(HttpCarbonMessage inboundRequestMsg) {
+        return HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
                 inboundRequestMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
     }
 
@@ -865,19 +920,18 @@ public class Util {
      * @param httpVersion             Represents HTTP version
      * @return A boolean indicating whether to keep the connection open or not
      */
-    public static boolean isKeepAliveConnection(
-            org.ballerinalang.net.netty.contract.config.KeepAliveConfig keepAliveConfig, String requestConnectionHeader,
-            String httpVersion) {
-        if (keepAliveConfig == null || keepAliveConfig == org.ballerinalang.net.netty.contract.config.KeepAliveConfig.AUTO) {
-            if (Float.valueOf(httpVersion) <= org.ballerinalang.net.netty.contract.Constants.HTTP_1_0) {
+    public static boolean isKeepAliveConnection(KeepAliveConfig keepAliveConfig, String requestConnectionHeader,
+                                                String httpVersion) {
+        if (keepAliveConfig == null || keepAliveConfig == KeepAliveConfig.AUTO) {
+            if (Float.valueOf(httpVersion) <= HTTP_1_0) {
                 return requestConnectionHeader != null && requestConnectionHeader
-                        .equalsIgnoreCase(org.ballerinalang.net.netty.contract.Constants.CONNECTION_KEEP_ALIVE);
+                        .equalsIgnoreCase(CONNECTION_KEEP_ALIVE);
             } else {
                 return requestConnectionHeader == null || !requestConnectionHeader
-                        .equalsIgnoreCase(org.ballerinalang.net.netty.contract.Constants.CONNECTION_CLOSE);
+                        .equalsIgnoreCase(CONNECTION_CLOSE);
             }
         } else {
-            return keepAliveConfig == org.ballerinalang.net.netty.contract.config.KeepAliveConfig.ALWAYS;
+            return keepAliveConfig == KeepAliveConfig.ALWAYS;
         }
     }
 
@@ -888,7 +942,7 @@ public class Util {
      */
     public static void setHostNameVerfication(SSLEngine sslEngine) {
         SSLParameters sslParams = sslEngine.getSSLParameters();
-        sslParams.setEndpointIdentificationAlgorithm(org.ballerinalang.net.netty.contract.Constants.HTTPS_SCHEME);
+        sslParams.setEndpointIdentificationAlgorithm(HTTPS_SCHEME);
         sslEngine.setSSLParameters(sslParams);
     }
 
@@ -901,7 +955,7 @@ public class Util {
      * @return The {@link BackPressureHandler} in the pipeline.
      */
     public static BackPressureHandler getBackPressureHandler(ChannelHandlerContext channelContext) {
-        return (BackPressureHandler) channelContext.pipeline().get(org.ballerinalang.net.netty.contract.Constants.BACK_PRESSURE_HANDLER);
+        return (BackPressureHandler) channelContext.pipeline().get(BACK_PRESSURE_HANDLER);
 
     }
 
@@ -912,14 +966,13 @@ public class Util {
      * @param backpressureHandler the handler that checks the writability
      * @param ctx                 represents channel handler context
      */
-    public static void setBackPressureListener(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundMessage,
+    public static void setBackPressureListener(HttpCarbonMessage outboundMessage,
                                                BackPressureHandler backpressureHandler, ChannelHandlerContext ctx) {
         if (backpressureHandler != null) {
             if (outboundMessage.isPassthrough()) {
                 setPassthroughBackOffListener(outboundMessage, backpressureHandler, ctx);
             } else {
-                backpressureHandler.getBackPressureObservable().setListener(
-                    new DefaultBackPressureListener());
+                backpressureHandler.getBackPressureObservable().setListener(new DefaultBackPressureListener());
             }
         }
     }
@@ -933,14 +986,13 @@ public class Util {
      * @param backpressureHandler the handler that checks the writability
      * @param ctx                 represents channel handler context
      */
-    private static void setPassthroughBackOffListener(
-            org.ballerinalang.net.netty.message.HttpCarbonMessage outboundMessage,
-            BackPressureHandler backpressureHandler,
-            ChannelHandlerContext ctx) {
+    private static void setPassthroughBackOffListener(HttpCarbonMessage outboundMessage,
+                                                      BackPressureHandler backpressureHandler,
+                                                      ChannelHandlerContext ctx) {
         Listener inboundListener = outboundMessage.getListener();
-        if (inboundListener instanceof org.ballerinalang.net.netty.message.Http2InboundContentListener) {
+        if (inboundListener instanceof Http2InboundContentListener) {
             backpressureHandler.getBackPressureObservable().setListener(
-                new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
+                    new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
         } else if (inboundListener instanceof DefaultListener && ctx != null) {
             backpressureHandler.getBackPressureObservable().setListener(new PassthroughBackPressureListener(ctx));
         }
@@ -981,12 +1033,10 @@ public class Util {
     }
 
     public static void setCorrelationIdForLogging(ChannelPipeline pipeline, ChannelInboundHandlerAdapter srcHandler) {
-        if (srcHandler != null && pipeline.get(org.ballerinalang.net.netty.contract.Constants.HTTP_TRACE_LOG_HANDLER) != null) {
-            org.ballerinalang.net.netty.contractimpl.listener.HttpTraceLoggingHandler
-                    loggingHandler = (HttpTraceLoggingHandler)
-                    pipeline.get(org.ballerinalang.net.netty.contract.Constants.HTTP_TRACE_LOG_HANDLER);
-            if (srcHandler instanceof org.ballerinalang.net.netty.contractimpl.listener.SourceHandler) {
-                org.ballerinalang.net.netty.contractimpl.listener.SourceHandler h1SourceHandler = (SourceHandler) srcHandler;
+        if (srcHandler != null && pipeline.get(HTTP_TRACE_LOG_HANDLER) != null) {
+            HttpTraceLoggingHandler loggingHandler = (HttpTraceLoggingHandler) pipeline.get(HTTP_TRACE_LOG_HANDLER);
+            if (srcHandler instanceof SourceHandler) {
+                SourceHandler h1SourceHandler = (SourceHandler) srcHandler;
                 loggingHandler.setCorrelatedSourceId(
                         h1SourceHandler.getInboundChannelContext().channel().id().asShortText());
             } else if (srcHandler instanceof Http2SourceHandler) {
@@ -998,29 +1048,28 @@ public class Util {
     }
 
     public static void handleOutboundConnectionHeader(SenderConfiguration senderConfiguration,
-                                                      org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+                                                      HttpCarbonMessage httpOutboundRequest) {
         switch (senderConfiguration.getKeepAliveConfig()) {
             case AUTO:
-                if (Float.valueOf(senderConfiguration.getHttpVersion()) >= org.ballerinalang.net.netty.contract.Constants.HTTP_1_1) {
-                    httpOutboundRequest
-                            .setHeader(HttpHeaderNames.CONNECTION.toString(), org.ballerinalang.net.netty.contract.Constants.CONNECTION_KEEP_ALIVE);
+                if (Float.valueOf(senderConfiguration.getHttpVersion()) >= HTTP_1_1) {
+                    httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), CONNECTION_KEEP_ALIVE);
                 } else {
-                    httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), org.ballerinalang.net.netty.contract.Constants.CONNECTION_CLOSE);
+                    httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), CONNECTION_CLOSE);
                 }
                 break;
             case ALWAYS:
-                httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), org.ballerinalang.net.netty.contract.Constants.CONNECTION_KEEP_ALIVE);
+                httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), CONNECTION_KEEP_ALIVE);
                 break;
             case NEVER:
-                httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), org.ballerinalang.net.netty.contract.Constants.CONNECTION_CLOSE);
+                httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), CONNECTION_CLOSE);
                 break;
             default:
                 //Do nothing
                 break;
         }
         // Add proxy-authorization header if proxy is enabled and scheme is http
-        org.ballerinalang.net.netty.contract.config.ProxyServerConfiguration proxyConfig = senderConfiguration.getProxyServerConfiguration();
-        if (senderConfiguration.getScheme().equals(org.ballerinalang.net.netty.contract.Constants.HTTP_SCHEME) &&
+        ProxyServerConfiguration proxyConfig = senderConfiguration.getProxyServerConfiguration();
+        if (senderConfiguration.getScheme().equals(HTTP_SCHEME) &&
                 proxyConfig != null && proxyConfig.getProxyUsername() != null &&
                 proxyConfig.getProxyPassword() != null) {
             setProxyAuthorizationHeader(proxyConfig, httpOutboundRequest);
@@ -1028,9 +1077,9 @@ public class Util {
     }
 
     private static void setProxyAuthorizationHeader(ProxyServerConfiguration proxyConfig,
-                                                    org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+                                                    HttpCarbonMessage httpOutboundRequest) {
         ByteBuf authz = Unpooled.copiedBuffer(
-                proxyConfig.getProxyUsername() + org.ballerinalang.net.netty.contract.Constants.COLON + proxyConfig.getProxyPassword(), CharsetUtil.UTF_8);
+                proxyConfig.getProxyUsername() + COLON + proxyConfig.getProxyPassword(), CharsetUtil.UTF_8);
         ByteBuf authzBase64 = Base64.encode(authz, false);
         CharSequence authorization = new AsciiString("Basic " + authzBase64.toString(CharsetUtil.US_ASCII));
         httpOutboundRequest.setHeader(HttpHeaderNames.PROXY_AUTHORIZATION.toString(), authorization);
@@ -1038,10 +1087,9 @@ public class Util {
         authzBase64.release();
     }
 
-    public static void setForwardedExtension(
-            org.ballerinalang.net.netty.contract.config.ForwardedExtensionConfig forwardedConfig,
-            String localAddress, HttpCarbonMessage httpOutboundRequest) {
-        if (forwardedConfig == org.ballerinalang.net.netty.contract.config.ForwardedExtensionConfig.DISABLE) {
+    public static void setForwardedExtension(ForwardedExtensionConfig forwardedConfig, String localAddress,
+                                             HttpCarbonMessage httpOutboundRequest) {
+        if (forwardedConfig == ForwardedExtensionConfig.DISABLE) {
             return;
         }
 
@@ -1072,18 +1120,14 @@ public class Util {
                 X509Certificate endUserCert = (X509Certificate) certs[0];
                 endUserCert.checkValidity(new Date());
                 String base64EncodedCert = java.util.Base64.getEncoder().encodeToString(endUserCert.getEncoded());
-                ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(
-                        org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_PASSED);
-                ctx.channel().attr(
-                        org.ballerinalang.net.netty.contract.Constants.BASE_64_ENCODED_CERT_ATTRIBUTE).set(base64EncodedCert);
+                ctx.channel().attr(MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_PASSED);
+                ctx.channel().attr(BASE_64_ENCODED_CERT_ATTRIBUTE).set(base64EncodedCert);
             } catch (SSLPeerUnverifiedException | CertificateExpiredException | CertificateNotYetValidException
-                        | CertificateEncodingException e) {
-                ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(
-                        org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_FAILED);
+                    | CertificateEncodingException e) {
+                ctx.channel().attr(MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_FAILED);
             }
         } else {
-            ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(
-                    org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_DISABLED);
+            ctx.channel().attr(MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_DISABLED);
         }
     }
 }

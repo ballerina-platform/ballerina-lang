@@ -26,12 +26,11 @@ import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
 /**
  * Implementation of WebSocket handshake future.
  */
-public class DefaultServerHandshakeFuture implements
-                                          org.ballerinalang.net.netty.contract.websocket.ServerHandshakeFuture {
+public class DefaultServerHandshakeFuture implements ServerHandshakeFuture {
 
     private Throwable throwable = null;
-    private org.ballerinalang.net.netty.contract.websocket.WebSocketConnection webSocketConnection = null;
-    private org.ballerinalang.net.netty.contract.websocket.ServerHandshakeListener serverHandshakeListener;
+    private WebSocketConnection webSocketConnection = null;
+    private ServerHandshakeListener serverHandshakeListener;
 
     @Override
     public ServerHandshakeFuture setHandshakeListener(ServerHandshakeListener serverHandshakeListener) {
@@ -62,6 +61,4 @@ public class DefaultServerHandshakeFuture implements
         }
         serverHandshakeListener.onError(throwable);
     }
-
-
 }

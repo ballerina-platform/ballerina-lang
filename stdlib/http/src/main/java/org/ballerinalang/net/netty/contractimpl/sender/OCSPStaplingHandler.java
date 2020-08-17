@@ -21,6 +21,7 @@ package org.ballerinalang.net.netty.contractimpl.sender;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
 import io.netty.handler.ssl.ocsp.OcspClientHandler;
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.RevocationVerificationManager;
 import org.bouncycastle.asn1.ocsp.OCSPResponseStatus;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.CertificateStatus;
@@ -28,16 +29,14 @@ import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.cert.ocsp.SingleResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.RevocationVerificationManager;
 
 import java.math.BigInteger;
+
 import javax.net.ssl.SSLSession;
 import javax.security.cert.X509Certificate;
 
-import static org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.Constants
-        .CACHE_DEFAULT_ALLOCATED_SIZE;
-import static org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.Constants
-        .CACHE_DEFAULT_DELAY_MINS;
+import static org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.Constants.CACHE_DEFAULT_ALLOCATED_SIZE;
+import static org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.Constants.CACHE_DEFAULT_DELAY_MINS;
 
 /**
  * A handler for OCSP stapling.

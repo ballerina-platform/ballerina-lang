@@ -22,6 +22,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http2.Http2CodecUtil;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.ballerinalang.net.netty.contractimpl.common.states.StateUtil;
@@ -38,26 +39,25 @@ public class ReceivingHeaders implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingHeaders.class);
 
-    private final org.ballerinalang.net.netty.contractimpl.common.states.SenderReqRespStateManager
-            senderReqRespStateManager;
-    private org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler;
+    private final SenderReqRespStateManager senderReqRespStateManager;
+    private TargetHandler targetHandler;
 
     ReceivingHeaders(SenderReqRespStateManager senderReqRespStateManager) {
         this.senderReqRespStateManager = senderReqRespStateManager;
     }
 
     @Override
-    public void writeOutboundRequestHeaders(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
         LOG.warn("writeOutboundRequestHeaders {}", StateUtil.ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void writeOutboundRequestEntity(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         LOG.warn("writeOutboundRequestEntity {}", StateUtil.ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void readInboundResponseHeaders(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, HttpResponse httpInboundResponse) {
+    public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
         this.targetHandler = targetHandler;
         OutboundMsgHolder msgHolder = targetHandler.getHttp2TargetHandler()
                 .getHttp2ClientChannel().getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID);
@@ -66,7 +66,7 @@ public class ReceivingHeaders implements SenderState {
             msgHolder.markNoPromisesReceived();
         }
         if (targetHandler.getHttpResponseFuture() != null) {
-            org.ballerinalang.net.netty.message.HttpCarbonMessage inboundResponseMsg = targetHandler.getInboundResponseMsg();
+            HttpCarbonMessage inboundResponseMsg = targetHandler.getInboundResponseMsg();
             inboundResponseMsg.setTargetContext(targetHandler.getContext());
             targetHandler.getHttpResponseFuture().notifyHttpListener(inboundResponseMsg);
         } else {
@@ -86,17 +86,18 @@ public class ReceivingHeaders implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, org.ballerinalang.net.netty.contract.HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
         StateUtil.handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
-                                                 org.ballerinalang.net.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
+                                                 Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
                                                    HttpResponseFuture httpResponseFuture, String channelID) {
-        senderReqRespStateManager.nettyTargetChannel.pipeline().remove(org.ballerinalang.net.netty.contract.Constants.IDLE_STATE_HANDLER);
+        senderReqRespStateManager.nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
         senderReqRespStateManager.nettyTargetChannel.close();
-        StateUtil.handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
-                                                 org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
+        StateUtil.handleIncompleteInboundMessage(
+                targetHandler.getInboundResponseMsg(),
+                Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
     }
 }

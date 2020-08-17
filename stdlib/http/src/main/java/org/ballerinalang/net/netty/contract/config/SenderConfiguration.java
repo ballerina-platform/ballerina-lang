@@ -46,17 +46,17 @@ public class SenderConfiguration extends SslConfiguration {
     private boolean forceHttp2 = false;
     private String httpVersion = "1.1";
     private ProxyServerConfiguration proxyServerConfiguration;
-    private org.ballerinalang.net.netty.contractimpl.sender.channel.pool.PoolConfiguration poolConfiguration;
+    private PoolConfiguration poolConfiguration;
 
     private ForwardedExtensionConfig forwardedExtensionConfig = ForwardedExtensionConfig.DISABLE;
 
     public SenderConfiguration() {
-        this.poolConfiguration = new org.ballerinalang.net.netty.contractimpl.sender.channel.pool.PoolConfiguration();
+        this.poolConfiguration = new PoolConfiguration();
     }
 
     public SenderConfiguration(String id) {
         this.id = id;
-        this.poolConfiguration = new org.ballerinalang.net.netty.contractimpl.sender.channel.pool.PoolConfiguration();
+        this.poolConfiguration = new PoolConfiguration();
     }
 
     public String getId() {
@@ -128,7 +128,7 @@ public class SenderConfiguration extends SslConfiguration {
         this.forceHttp2 = forceHttp2;
     }
 
-    public org.ballerinalang.net.netty.contractimpl.sender.channel.pool.PoolConfiguration getPoolConfiguration() {
+    public PoolConfiguration getPoolConfiguration() {
         return poolConfiguration;
     }
 

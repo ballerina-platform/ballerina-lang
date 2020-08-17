@@ -52,6 +52,7 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -66,7 +67,7 @@ public class WebSocketClient {
     private WebSocketClientHandshakeHandler clientHandshakeHandler;
 
 
-    private final org.ballerinalang.net.netty.contract.websocket.WebSocketClientConnectorConfig connectorConfig;
+    private final WebSocketClientConnectorConfig connectorConfig;
     private final EventLoopGroup wsClientEventLoopGroup;
 
     /**
@@ -84,13 +85,12 @@ public class WebSocketClient {
      * @return handshake future for connection.
      */
     public ClientHandshakeFuture handshake() {
-        final org.ballerinalang.net.netty.contractimpl.websocket.DefaultClientHandshakeFuture
-                handshakeFuture = new org.ballerinalang.net.netty.contractimpl.websocket.DefaultClientHandshakeFuture();
+        final DefaultClientHandshakeFuture handshakeFuture = new DefaultClientHandshakeFuture();
         try {
             URI uri = new URI(connectorConfig.getRemoteAddress());
 
             String scheme = uri.getScheme();
-            if (!org.ballerinalang.net.netty.contract.Constants.WS_SCHEME.equalsIgnoreCase(scheme) && !org.ballerinalang.net.netty.contract.Constants.WSS_SCHEME.equalsIgnoreCase(scheme)) {
+            if (!Constants.WS_SCHEME.equalsIgnoreCase(scheme) && !Constants.WSS_SCHEME.equalsIgnoreCase(scheme)) {
                 LOG.error("Only WS(S) is supported.");
                 throw new URISyntaxException(connectorConfig.getRemoteAddress(),
                                              "WebSocket client supports only WS(S) scheme");
@@ -98,11 +98,11 @@ public class WebSocketClient {
 
             final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
             final int port = getPort(uri);
-            final boolean ssl = org.ballerinalang.net.netty.contract.Constants.WSS_SCHEME.equalsIgnoreCase(scheme);
+            final boolean ssl = Constants.WSS_SCHEME.equalsIgnoreCase(scheme);
             WebSocketClientHandshaker webSocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                     uri, WebSocketVersion.V13, connectorConfig.getSubProtocolsStr(), true, connectorConfig.getHeaders(),
                     connectorConfig.getMaxFrameSize());
-            org.ballerinalang.net.netty.contractimpl.listener.WebSocketMessageQueueHandler webSocketMessageQueueHandler = new WebSocketMessageQueueHandler();
+            WebSocketMessageQueueHandler webSocketMessageQueueHandler = new WebSocketMessageQueueHandler();
             clientHandshakeHandler = new WebSocketClientHandshakeHandler(
                     webSocketHandshaker, handshakeFuture, webSocketMessageQueueHandler, ssl,
                     connectorConfig.isAutoRead(), connectorConfig.getRemoteAddress(), handshakeFuture);
@@ -120,7 +120,7 @@ public class WebSocketClient {
     }
 
     private void handleHandshakeError(
-            org.ballerinalang.net.netty.contractimpl.websocket.DefaultClientHandshakeFuture handshakeFuture, Throwable throwable) {
+            DefaultClientHandshakeFuture handshakeFuture, Throwable throwable) {
         if (clientHandshakeHandler != null) {
             handshakeFuture.notifyError(throwable, clientHandshakeHandler.getHttpCarbonResponse());
         } else {
@@ -128,7 +128,7 @@ public class WebSocketClient {
         }
     }
 
-    private Bootstrap initClientBootstrap(String host, int port, org.ballerinalang.net.netty.contractimpl.websocket.DefaultClientHandshakeFuture handshakeFuture) {
+    private Bootstrap initClientBootstrap(String host, int port, DefaultClientHandshakeFuture handshakeFuture) {
         Bootstrap clientBootstrap = new Bootstrap();
         SSLConfig sslConfig = connectorConfig.getClientSSLConfig();
         clientBootstrap.group(wsClientEventLoopGroup).channel(NioSocketChannel.class).handler(
@@ -138,8 +138,9 @@ public class WebSocketClient {
                         if (sslConfig != null) {
                             SSLEngine sslEngine = Util
                                     .configureHttpPipelineForSSL(socketChannel, host, port, sslConfig);
-                            socketChannel.pipeline().addLast(org.ballerinalang.net.netty.contract.Constants.SSL_COMPLETION_HANDLER,
-                                                             new WebSocketClientSSLHandshakeCompletionHandler(handshakeFuture, sslEngine));
+                            socketChannel.pipeline().addLast(Constants.SSL_COMPLETION_HANDLER,
+                                                             new WebSocketClientSSLHandshakeCompletionHandler(
+                                                                     handshakeFuture, sslEngine));
                         } else {
                             configureHandshakePipeline(socketChannel.pipeline());
                         }
@@ -160,7 +161,7 @@ public class WebSocketClient {
             pipeline.addLast(
                     new IdleStateHandler(0, 0, connectorConfig.getIdleTimeoutInMillis(), TimeUnit.MILLISECONDS));
         }
-        pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER, clientHandshakeHandler);
+        pipeline.addLast(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER, clientHandshakeHandler);
     }
 
     private int getPort(URI uri) {
@@ -168,7 +169,7 @@ public class WebSocketClient {
         int port = uri.getPort();
         if (port == -1) {
             switch (scheme) {
-            case org.ballerinalang.net.netty.contract.Constants.WS_SCHEME:
+            case Constants.WS_SCHEME:
                 return 80;
             case Constants.WSS_SCHEME:
                 return 443;
@@ -184,7 +185,7 @@ public class WebSocketClient {
      * handler to identify the SSL handshake completion.
      */
     private class WebSocketClientSSLHandshakeCompletionHandler extends ChannelInboundHandlerAdapter {
-        private final org.ballerinalang.net.netty.contractimpl.websocket.DefaultClientHandshakeFuture
+        private final DefaultClientHandshakeFuture
                 clientHandshakeFuture;
         private SSLEngine sslEngine;
 

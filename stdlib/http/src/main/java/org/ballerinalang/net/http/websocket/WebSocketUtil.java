@@ -51,14 +51,14 @@ import org.ballerinalang.net.http.websocket.observability.WebSocketObservability
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionManager;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
+import org.ballerinalang.net.netty.contract.HttpWsConnectorFactory;
+import org.ballerinalang.net.netty.contract.websocket.ClientHandshakeFuture;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketClientConnector;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketClientConnectorConfig;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;

@@ -78,9 +78,9 @@ public class HttpAccessLoggingHandler extends LoggingHandler {
             calendar = Calendar.getInstance();
             // maybe this request was proxied or load balanced.
             // try and get the real originating IP
-            if (httpRequest.headers().contains(org.ballerinalang.net.netty.contract.Constants.HTTP_X_FORWARDED_FOR)) {
+            if (httpRequest.headers().contains(Constants.HTTP_X_FORWARDED_FOR)) {
                 // can contain multiple IPs for proxy chains. the first ip is our client.
-                String proxyChain = httpRequest.headers().get(org.ballerinalang.net.netty.contract.Constants.HTTP_X_FORWARDED_FOR);
+                String proxyChain = httpRequest.headers().get(Constants.HTTP_X_FORWARDED_FOR);
                 int firstComma = proxyChain.indexOf(',');
                 if (firstComma != -1) {
                     inetAddress = proxyChain.substring(0, proxyChain.indexOf(','));

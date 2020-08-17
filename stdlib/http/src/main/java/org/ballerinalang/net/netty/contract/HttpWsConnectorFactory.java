@@ -19,12 +19,12 @@
 
 package org.ballerinalang.net.netty.contract;
 
-import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.ballerinalang.net.netty.contract.config.ListenerConfiguration;
 import org.ballerinalang.net.netty.contract.config.SenderConfiguration;
 import org.ballerinalang.net.netty.contract.config.ServerBootstrapConfiguration;
 import org.ballerinalang.net.netty.contract.websocket.WebSocketClientConnector;
 import org.ballerinalang.net.netty.contract.websocket.WebSocketClientConnectorConfig;
+import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
 
 import java.util.Map;
 

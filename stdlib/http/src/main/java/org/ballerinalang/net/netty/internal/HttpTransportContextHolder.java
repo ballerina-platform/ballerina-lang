@@ -19,8 +19,8 @@
 package org.ballerinalang.net.netty.internal;
 
 import io.netty.channel.EventLoopGroup;
-import org.osgi.framework.BundleContext;
 import org.ballerinalang.net.netty.contract.config.ListenerConfiguration;
+import org.osgi.framework.BundleContext;
 
 import java.util.HashMap;
 import java.util.Map;

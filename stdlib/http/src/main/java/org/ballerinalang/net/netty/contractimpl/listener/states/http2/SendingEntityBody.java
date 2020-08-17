@@ -36,8 +36,6 @@ import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.internal.logging.InternalLogLevel;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
 import org.ballerinalang.net.netty.contract.exceptions.ServerConnectorException;
@@ -52,6 +50,8 @@ import org.ballerinalang.net.netty.message.Http2DataFrame;
 import org.ballerinalang.net.netty.message.Http2HeadersFrame;
 import org.ballerinalang.net.netty.message.Http2PushPromise;
 import org.ballerinalang.net.netty.message.HttpCarbonMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Calendar;

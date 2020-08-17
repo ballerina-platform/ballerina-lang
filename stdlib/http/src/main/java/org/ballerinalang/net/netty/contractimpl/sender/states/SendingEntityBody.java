@@ -23,6 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException;
 import org.ballerinalang.net.netty.contract.exceptions.EndpointTimeOutException;
@@ -46,26 +47,25 @@ public class SendingEntityBody implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
 
-    private final org.ballerinalang.net.netty.contractimpl.common.states.SenderReqRespStateManager
-            senderReqRespStateManager;
+    private final SenderReqRespStateManager senderReqRespStateManager;
 
     private final HandlerExecutor handlerExecutor;
-    private final org.ballerinalang.net.netty.contract.HttpResponseFuture httpInboundResponseFuture;
+    private final HttpResponseFuture httpInboundResponseFuture;
 
     SendingEntityBody(SenderReqRespStateManager senderReqRespStateManager,
-                      org.ballerinalang.net.netty.contract.HttpResponseFuture httpInboundResponseFuture) {
+                      HttpResponseFuture httpInboundResponseFuture) {
         this.senderReqRespStateManager = senderReqRespStateManager;
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.httpInboundResponseFuture = httpInboundResponseFuture;
     }
 
     @Override
-    public void writeOutboundRequestHeaders(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
         LOG.warn("writeOutboundRequestHeaders {}", StateUtil.ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void writeOutboundRequestEntity(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         if (Util.isLastHttpContent(httpContent)) {
             writeOutboundRequestBody(httpContent);
 
@@ -78,12 +78,13 @@ public class SendingEntityBody implements SenderState {
     }
 
     @Override
-    public void readInboundResponseHeaders(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, HttpResponse httpInboundResponse) {
+    public void readInboundResponseHeaders(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler,
+                                           HttpResponse httpInboundResponse) {
         // If this method is called, it is an application error. Inbound response is receiving before the completion
         // of request body write.
         if (httpInboundResponse.status().code() != HttpResponseStatus.CONTINUE.code()) {
             targetHandler.getOutboundRequestMsg().setIoException(new IOException(
-                    org.ballerinalang.net.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED));
+                    Constants.INBOUND_RESPONSE_ALREADY_RECEIVED));
             senderReqRespStateManager.state = new ReceivingHeaders(senderReqRespStateManager);
             senderReqRespStateManager.readInboundResponseHeaders(targetHandler, httpInboundResponse);
         }
@@ -96,30 +97,31 @@ public class SendingEntityBody implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, org.ballerinalang.net.netty.contract.HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler,
+                                           HttpResponseFuture httpResponseFuture) {
         targetHandler.getOutboundRequestMsg()
                 .setIoException(new IOException(
-                        org.ballerinalang.net.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
+                        Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
         httpResponseFuture.notifyHttpListener(
-                        new ClientConnectorException(senderReqRespStateManager.nettyTargetChannel.id().asShortText(),
-                                                     org.ballerinalang.net.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
-        LOG.error("Error in HTTP client: {}", org.ballerinalang.net.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
+                new ClientConnectorException(senderReqRespStateManager.nettyTargetChannel.id().asShortText(),
+                                             Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
+        LOG.error("Error in HTTP client: {}", Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
                                                    HttpResponseFuture httpResponseFuture, String channelID) {
 
-        senderReqRespStateManager.nettyTargetChannel.pipeline().remove(org.ballerinalang.net.netty.contract.Constants.IDLE_STATE_HANDLER);
+        senderReqRespStateManager.nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
         senderReqRespStateManager.nettyTargetChannel.close();
-        targetHandler.getOutboundRequestMsg()
-                .setIoException(new IOException(
-                        org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
+        targetHandler.getOutboundRequestMsg().setIoException(new IOException(
+                Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
         httpResponseFuture.notifyHttpListener(
-                new EndpointTimeOutException(channelID, org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
+                new EndpointTimeOutException(channelID,
+                                             Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
                                              HttpResponseStatus.INTERNAL_SERVER_ERROR.code()));
 
-        LOG.error("Error in HTTP client: {}", org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
+        LOG.error("Error in HTTP client: {}", Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
     }
 
     private void writeOutboundRequestBody(HttpContent lastHttpContent) {
@@ -134,7 +136,7 @@ public class SendingEntityBody implements SenderState {
             if (throwable != null) {
                 if (throwable instanceof ClosedChannelException) {
                     throwable = new IOException(
-                            org.ballerinalang.net.netty.contract.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED);
+                            Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED);
                 }
                 httpInboundResponseFuture.notifyHttpListener(throwable);
             } else {

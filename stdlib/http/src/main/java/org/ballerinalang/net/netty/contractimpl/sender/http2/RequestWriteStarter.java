@@ -67,7 +67,7 @@ public class RequestWriteStarter {
      */
     private void setPassthroughBackOffListener() {
         Listener inboundListener = outboundMsgHolder.getRequest().getListener();
-        if (inboundListener instanceof org.ballerinalang.net.netty.message.Http2InboundContentListener) {
+        if (inboundListener instanceof Http2InboundContentListener) {
             outboundMsgHolder.getBackPressureObservable().setListener(
                 new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
         } else if (inboundListener instanceof DefaultListener) {

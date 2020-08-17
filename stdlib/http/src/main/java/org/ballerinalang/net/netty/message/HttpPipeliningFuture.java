@@ -19,9 +19,9 @@
 package org.ballerinalang.net.netty.message;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.ballerinalang.net.netty.contractimpl.HttpPipeliningListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.HttpPipeliningListener;
 
 /**
  * Defines pipelining listener to be called in future.

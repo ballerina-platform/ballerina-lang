@@ -21,14 +21,14 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import org.apache.commons.pool.PoolableObjectFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.net.netty.contract.config.SenderConfiguration;
 import org.ballerinalang.net.netty.contractimpl.common.HttpRoute;
 import org.ballerinalang.net.netty.contractimpl.sender.ConnectionAvailabilityFuture;
 import org.ballerinalang.net.netty.contractimpl.sender.HttpClientChannelInitializer;
 import org.ballerinalang.net.netty.contractimpl.sender.channel.BootstrapConfiguration;
 import org.ballerinalang.net.netty.contractimpl.sender.channel.TargetChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 

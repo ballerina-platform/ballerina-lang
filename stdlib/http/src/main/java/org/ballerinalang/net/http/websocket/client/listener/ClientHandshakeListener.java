@@ -22,8 +22,8 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
-import org.wso2.transport.http.netty.message.HttpCarbonResponse;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
+import org.ballerinalang.net.netty.message.HttpCarbonResponse;
 
 /**
  * Handshake listener of the WebSocket client.

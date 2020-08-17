@@ -23,13 +23,13 @@ import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
 import org.ballerinalang.net.netty.contract.websocket.WebSocketMessage;
 
 /**
- * Implementation of {@link org.ballerinalang.net.netty.contract.websocket.WebSocketMessage}.
+ * Implementation of {@link WebSocketMessage}.
  */
 public class DefaultWebSocketMessage implements WebSocketMessage {
 
     protected String target;
     protected boolean isServerMessage;
-    protected org.ballerinalang.net.netty.contract.websocket.WebSocketConnection webSocketConnection;
+    protected WebSocketConnection webSocketConnection;
 
     public void setTarget(String target) {
         this.target = target;
@@ -49,8 +49,7 @@ public class DefaultWebSocketMessage implements WebSocketMessage {
         return isServerMessage;
     }
 
-    public void setWebSocketConnection(
-            org.ballerinalang.net.netty.contract.websocket.WebSocketConnection webSocketConnection) {
+    public void setWebSocketConnection(WebSocketConnection webSocketConnection) {
         this.webSocketConnection = webSocketConnection;
     }
 

@@ -34,15 +34,16 @@ import org.ballerinalang.net.netty.contract.config.RequestSizeValidationConfig;
 import org.ballerinalang.net.netty.contract.config.ServerBootstrapConfiguration;
 import org.ballerinalang.net.netty.contract.exceptions.ServerConnectorException;
 import org.ballerinalang.net.netty.contractimpl.HttpWsServerConnectorFuture;
+import org.ballerinalang.net.netty.contractimpl.common.Util;
+import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLConfig;
+import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLHandlerFactory;
 import org.ballerinalang.net.netty.internal.HandlerExecutor;
 import org.ballerinalang.net.netty.internal.HttpTransportContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.Util;
-import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLConfig;
-import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLHandlerFactory;
 
 import java.net.InetSocketAddress;
+
 import javax.net.ssl.SSLContext;
 
 /**
@@ -70,7 +71,7 @@ public class ServerConnectorBootstrap {
         this.allChannels = allChannels;
     }
 
-    public org.ballerinalang.net.netty.contract.ServerConnector getServerConnector(String host, int port) {
+    public ServerConnector getServerConnector(String host, int port) {
         String serverConnectorId = Util.createServerConnectorID(host, port);
         return new HttpServerConnector(serverConnectorId, host, port);
     }
@@ -193,7 +194,7 @@ public class ServerConnectorBootstrap {
        private final Logger log = LoggerFactory.getLogger(HttpServerConnector.class);
 
         private ChannelFuture channelFuture;
-        private org.ballerinalang.net.netty.contract.ServerConnectorFuture serverConnectorFuture;
+        private ServerConnectorFuture serverConnectorFuture;
         private String host;
         private int port;
         private String connectorID;

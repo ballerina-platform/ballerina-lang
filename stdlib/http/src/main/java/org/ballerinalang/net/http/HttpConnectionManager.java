@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.net.http;
 
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
-import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
-import org.wso2.transport.http.netty.contract.config.TransportProperty;
-import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
-import org.wso2.transport.http.netty.message.HttpConnectorUtil;
+import org.ballerinalang.net.netty.contract.HttpWsConnectorFactory;
+import org.ballerinalang.net.netty.contract.ServerConnector;
+import org.ballerinalang.net.netty.contract.config.ListenerConfiguration;
+import org.ballerinalang.net.netty.contract.config.SenderConfiguration;
+import org.ballerinalang.net.netty.contract.config.ServerBootstrapConfiguration;
+import org.ballerinalang.net.netty.contract.config.TransportProperty;
+import org.ballerinalang.net.netty.contract.config.TransportsConfiguration;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketClientConnector;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketClientConnectorConfig;
+import org.ballerinalang.net.netty.message.HttpConnectorUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;

@@ -25,9 +25,9 @@ import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
 import org.ballerinalang.net.netty.contractimpl.common.Util;
+import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2DataEventListener;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,7 +44,7 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
     private long idleTimeNanos;
     private Http2ServerChannel http2ServerChannel;
     private Map<Integer, ScheduledFuture<?>> timerTasks;
-    private org.ballerinalang.net.netty.contract.ServerConnectorFuture serverConnectorFuture;
+    private ServerConnectorFuture serverConnectorFuture;
 
     Http2ServerTimeoutHandler(long idleTimeMills, Http2ServerChannel serverChannel,
                               ServerConnectorFuture serverConnectorFuture) {
@@ -59,8 +59,8 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
         InboundMessageHolder inboundMsgHolder = http2ServerChannel.getInboundMessage(streamId);
         if (inboundMsgHolder != null) {
             inboundMsgHolder.setLastReadWriteTime(Util.ticksInNanos());
-            timerTasks.put(streamId,
-                           Util.schedule(ctx, new Http2ServerTimeoutHandler.IdleTimeoutTask(ctx, streamId), idleTimeNanos));
+            timerTasks.put(streamId, Util.schedule(ctx, new Http2ServerTimeoutHandler.IdleTimeoutTask(ctx, streamId),
+                                                   idleTimeNanos));
         }
         return true;
     }

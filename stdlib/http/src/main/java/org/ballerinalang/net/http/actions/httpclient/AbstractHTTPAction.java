@@ -43,17 +43,17 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.ValueCreatorUtils;
+import org.ballerinalang.net.netty.contract.Constants;
+import org.ballerinalang.net.netty.contract.HttpClientConnector;
+import org.ballerinalang.net.netty.contract.HttpClientConnectorListener;
+import org.ballerinalang.net.netty.contract.HttpResponseFuture;
+import org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.message.HttpMessageDataStreamer;
+import org.ballerinalang.net.netty.message.PooledDataStreamerFactory;
+import org.ballerinalang.net.netty.message.ResponseHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.Constants;
-import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
-import org.wso2.transport.http.netty.message.ResponseHandle;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -66,8 +66,8 @@ import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.net.http.HttpUtil.getCompressionState;
-import static org.wso2.transport.http.netty.contract.Constants.ENCODING_DEFLATE;
-import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
+import static org.ballerinalang.net.netty.contract.Constants.ENCODING_DEFLATE;
+import static org.ballerinalang.net.netty.contract.Constants.ENCODING_GZIP;
 
 /**
  * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.

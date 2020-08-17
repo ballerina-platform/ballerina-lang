@@ -43,7 +43,7 @@ public interface HttpResponseFuture {
      *
      * @param httpMessage the entity which contains the data related to the event
      */
-    void notifyHttpListener(org.ballerinalang.net.netty.message.HttpCarbonMessage httpMessage);
+    void notifyHttpListener(HttpCarbonMessage httpMessage);
 
     /**
      * Notifies the listener when there is an event.

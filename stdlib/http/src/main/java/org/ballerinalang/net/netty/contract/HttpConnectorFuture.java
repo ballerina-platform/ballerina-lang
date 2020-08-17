@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.netty.contract;
 
+import org.ballerinalang.net.netty.contract.exceptions.ServerConnectorException;
 import org.ballerinalang.net.netty.message.Http2PushPromise;
 import org.ballerinalang.net.netty.message.HttpCarbonMessage;
-import org.ballerinalang.net.netty.contract.exceptions.ServerConnectorException;
 
 /**
  * Connector Future for HTTP events.
@@ -40,20 +40,20 @@ public interface HttpConnectorFuture {
      * @param httpMessage HTTP message.
      * @throws ServerConnectorException if any error occurred during the notification.
      */
-    void notifyHttpListener(org.ballerinalang.net.netty.message.HttpCarbonMessage httpMessage) throws ServerConnectorException;
+    void notifyHttpListener(HttpCarbonMessage httpMessage) throws ServerConnectorException;
 
     /**
      * Notifies HTTP Server Push messages to the listener.
      *
-     * @param httpMessage the {@link org.ballerinalang.net.netty.message.HttpCarbonMessage} receive as the push response
-     * @param pushPromise the related {@link org.ballerinalang.net.netty.message.Http2PushPromise}
+     * @param httpMessage the {@link HttpCarbonMessage} receive as the push response
+     * @param pushPromise the related {@link Http2PushPromise}
      * @throws ServerConnectorException if any error occurred during the notification
      */
-    void notifyHttpListener(HttpCarbonMessage httpMessage, org.ballerinalang.net.netty.message.Http2PushPromise pushPromise)
+    void notifyHttpListener(HttpCarbonMessage httpMessage, Http2PushPromise pushPromise)
             throws ServerConnectorException;
 
     /**
-     * Notifies {@link org.ballerinalang.net.netty.message.Http2PushPromise} to the listener.
+     * Notifies {@link Http2PushPromise} to the listener.
      *
      * @param pushPromise the push promise message
      * @throws ServerConnectorException in case of failure

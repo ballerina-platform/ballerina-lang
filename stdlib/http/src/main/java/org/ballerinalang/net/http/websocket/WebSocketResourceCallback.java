@@ -23,7 +23,7 @@ import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
 
 /**
  * Callback impl for web socket.

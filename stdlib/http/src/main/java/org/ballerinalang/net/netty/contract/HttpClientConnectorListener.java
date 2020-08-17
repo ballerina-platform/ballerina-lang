@@ -49,7 +49,7 @@ public interface HttpClientConnectorListener extends HttpConnectorListener {
     }
 
     /**
-     * Gets notified for events related to {@link org.ballerinalang.net.netty.message.ResponseHandle}.
+     * Gets notified for events related to {@link ResponseHandle}.
      *
      * @param responseHandle the Response Handle
      */

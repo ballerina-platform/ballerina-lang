@@ -28,9 +28,9 @@ import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.client.listener.ClientConnectorListener;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
+import org.ballerinalang.net.netty.contract.HttpWsConnectorFactory;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketClientConnector;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketClientConnectorConfig;
 
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;

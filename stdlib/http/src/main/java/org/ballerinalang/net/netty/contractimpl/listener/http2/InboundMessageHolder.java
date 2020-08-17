@@ -25,11 +25,11 @@ import org.ballerinalang.net.netty.message.HttpCarbonMessage;
  * Message holder for inbound request and push response. Keeps track of the last read or write execution time.
  */
 public class InboundMessageHolder {
-    private org.ballerinalang.net.netty.message.HttpCarbonMessage inboundMsg;
+    private HttpCarbonMessage inboundMsg;
     private long lastReadWriteTime;
     private org.ballerinalang.net.netty.contractimpl.Http2OutboundRespListener http2OutboundRespListener;
 
-    public InboundMessageHolder(org.ballerinalang.net.netty.message.HttpCarbonMessage inboundMsgOrPushResponse) {
+    public InboundMessageHolder(HttpCarbonMessage inboundMsgOrPushResponse) {
         this.inboundMsg = inboundMsgOrPushResponse;
     }
 

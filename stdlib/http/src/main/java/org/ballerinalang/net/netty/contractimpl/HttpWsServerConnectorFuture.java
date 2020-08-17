@@ -22,12 +22,12 @@ package org.ballerinalang.net.netty.contractimpl;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.group.ChannelGroup;
 import org.ballerinalang.net.netty.contract.HttpConnectorListener;
-import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
-import org.ballerinalang.net.netty.message.Http2PushPromise;
-import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 import org.ballerinalang.net.netty.contract.PortBindingEventListener;
+import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
 import org.ballerinalang.net.netty.contract.exceptions.ServerConnectorException;
 import org.ballerinalang.net.netty.contractimpl.websocket.DefaultWebSocketConnectorFuture;
+import org.ballerinalang.net.netty.message.Http2PushPromise;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 
 /**
  * Server connector future implementation.
@@ -35,7 +35,7 @@ import org.ballerinalang.net.netty.contractimpl.websocket.DefaultWebSocketConnec
 public class HttpWsServerConnectorFuture extends DefaultWebSocketConnectorFuture implements ServerConnectorFuture {
 
     private static final String HTTP_CONNECTOR_LISTENER_IS_NOT_SET = "HTTP connector listener is not set";
-    private org.ballerinalang.net.netty.contract.HttpConnectorListener httpConnectorListener;
+    private HttpConnectorListener httpConnectorListener;
     private PortBindingEventListener portBindingEventListener;
 
     private ChannelFuture nettyBindFuture;
@@ -65,7 +65,7 @@ public class HttpWsServerConnectorFuture extends DefaultWebSocketConnectorFuture
     }
 
     @Override
-    public void notifyHttpListener(org.ballerinalang.net.netty.message.HttpCarbonMessage httpMessage) throws ServerConnectorException {
+    public void notifyHttpListener(HttpCarbonMessage httpMessage) throws ServerConnectorException {
         if (httpConnectorListener == null) {
             throw new ServerConnectorException(HTTP_CONNECTOR_LISTENER_IS_NOT_SET);
         }
@@ -73,7 +73,7 @@ public class HttpWsServerConnectorFuture extends DefaultWebSocketConnectorFuture
     }
 
     @Override
-    public void notifyHttpListener(HttpCarbonMessage httpMessage, org.ballerinalang.net.netty.message.Http2PushPromise pushPromise)
+    public void notifyHttpListener(HttpCarbonMessage httpMessage, Http2PushPromise pushPromise)
             throws ServerConnectorException {
         if (httpConnectorListener == null) {
             throw new ServerConnectorException(HTTP_CONNECTOR_LISTENER_IS_NOT_SET);

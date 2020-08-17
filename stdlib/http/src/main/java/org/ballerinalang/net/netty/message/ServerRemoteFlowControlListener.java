@@ -21,9 +21,9 @@ package org.ballerinalang.net.netty.message;
 
 import io.netty.handler.codec.http2.Http2RemoteFlowController;
 import io.netty.handler.codec.http2.Http2Stream;
+import org.ballerinalang.net.netty.contractimpl.Http2OutboundRespListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.Http2OutboundRespListener;
 
 import java.util.concurrent.ConcurrentHashMap;
 

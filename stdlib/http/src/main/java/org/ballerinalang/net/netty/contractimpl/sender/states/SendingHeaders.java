@@ -26,8 +26,10 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contract.config.ChunkConfig;
+import org.ballerinalang.net.netty.contractimpl.common.Util;
 import org.ballerinalang.net.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.ballerinalang.net.netty.contractimpl.common.states.StateUtil;
 import org.ballerinalang.net.netty.contractimpl.sender.TargetHandler;
@@ -49,18 +51,17 @@ public class SendingHeaders implements SenderState {
     private static final Logger LOG = LoggerFactory.getLogger(SendingHeaders.class);
 
     private final String httpVersion;
-    private final org.ballerinalang.net.netty.contract.config.ChunkConfig chunkConfig;
-    private final org.ballerinalang.net.netty.contractimpl.sender.channel.TargetChannel targetChannel;
-    private final org.ballerinalang.net.netty.contractimpl.common.states.SenderReqRespStateManager
-            senderReqRespStateManager;
-    private final org.ballerinalang.net.netty.contract.HttpResponseFuture httpInboundResponseFuture;
+    private final ChunkConfig chunkConfig;
+    private final TargetChannel targetChannel;
+    private final SenderReqRespStateManager senderReqRespStateManager;
+    private final HttpResponseFuture httpInboundResponseFuture;
 
     private long contentLength = 0;
     private List<HttpContent> contentList = new ArrayList<>();
 
     public SendingHeaders(SenderReqRespStateManager senderReqRespStateManager,
-                          org.ballerinalang.net.netty.contractimpl.sender.channel.TargetChannel targetChannel, String httpVersion,
-                          org.ballerinalang.net.netty.contract.config.ChunkConfig chunkConfig, org.ballerinalang.net.netty.contract.HttpResponseFuture httpInboundResponseFuture) {
+                          TargetChannel targetChannel, String httpVersion,
+                          ChunkConfig chunkConfig, HttpResponseFuture httpInboundResponseFuture) {
         this.senderReqRespStateManager = senderReqRespStateManager;
         this.targetChannel = targetChannel;
         this.httpVersion = httpVersion;
@@ -72,40 +73,39 @@ public class SendingHeaders implements SenderState {
     private void configIdleTimeoutTrigger(int socketIdleTimeout) {
         ChannelPipeline pipeline = senderReqRespStateManager.nettyTargetChannel.pipeline();
         IdleStateHandler idleStateHandler = new IdleStateHandler(0, 0, socketIdleTimeout, TimeUnit.MILLISECONDS);
-        if (pipeline.get(org.ballerinalang.net.netty.contract.Constants.TARGET_HANDLER) == null) {
-            pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.IDLE_STATE_HANDLER, idleStateHandler);
+        if (pipeline.get(Constants.TARGET_HANDLER) == null) {
+            pipeline.addLast(Constants.IDLE_STATE_HANDLER, idleStateHandler);
         } else {
-            pipeline.addBefore(org.ballerinalang.net.netty.contract.Constants.TARGET_HANDLER,
-                               org.ballerinalang.net.netty.contract.Constants.IDLE_STATE_HANDLER, idleStateHandler);
+            pipeline.addBefore(Constants.TARGET_HANDLER,
+                               Constants.IDLE_STATE_HANDLER, idleStateHandler);
         }
     }
 
     @Override
-    public void writeOutboundRequestHeaders(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
         // We don't really do anything here because we only start sending headers when there is some content
         // to be written.
     }
 
     @Override
-    public void writeOutboundRequestEntity(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest,
+    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest,
                                            HttpContent httpContent) {
-        if (org.ballerinalang.net.netty.contractimpl.common.Util.isLastHttpContent(httpContent)) {
-            if (org.ballerinalang.net.netty.contractimpl.common.Util
-                    .checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest)) {
-                if (chunkConfig == org.ballerinalang.net.netty.contract.config.ChunkConfig.ALWAYS && StateUtil
+        if (Util.isLastHttpContent(httpContent)) {
+            if (Util.checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest)) {
+                if (chunkConfig == ChunkConfig.ALWAYS && StateUtil
                         .checkChunkingCompatibility(httpVersion, chunkConfig)) {
-                    org.ballerinalang.net.netty.contractimpl.common.Util.setupChunkedRequest(httpOutboundRequest);
+                    Util.setupChunkedRequest(httpOutboundRequest);
                 } else {
                     contentLength += httpContent.content().readableBytes();
-                    org.ballerinalang.net.netty.contractimpl.common.Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
+                    Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
                 }
             }
             writeRequestHeaders(httpOutboundRequest, httpInboundResponseFuture, httpVersion, targetChannel);
             writeRequestBody(httpOutboundRequest, httpContent);
         } else {
-            if ((chunkConfig == org.ballerinalang.net.netty.contract.config.ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) &&
+            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) &&
                     StateUtil.checkChunkingCompatibility(httpVersion, chunkConfig)) {
-                org.ballerinalang.net.netty.contractimpl.common.Util.setupChunkedRequest(httpOutboundRequest);
+                Util.setupChunkedRequest(httpOutboundRequest);
                 writeRequestHeaders(httpOutboundRequest, httpInboundResponseFuture, httpVersion, targetChannel);
                 writeRequestBody(httpOutboundRequest, httpContent);
                 return;
@@ -114,37 +114,36 @@ public class SendingHeaders implements SenderState {
         }
     }
 
-    private void writeRequestHeaders(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest,
-                                     org.ballerinalang.net.netty.contract.HttpResponseFuture httpInboundResponseFuture, String httpVersion,
+    private void writeRequestHeaders(HttpCarbonMessage httpOutboundRequest,
+                                     HttpResponseFuture httpInboundResponseFuture, String httpVersion,
                                      TargetChannel targetChannel) {
         setHttpVersionProperty(httpOutboundRequest, httpVersion);
-        HttpRequest httpRequest = org.ballerinalang.net.netty.contractimpl.common.Util
-                .createHttpRequest(httpOutboundRequest);
+        HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
         targetChannel.setRequestHeaderWritten(true);
         ChannelFuture outboundHeaderFuture = senderReqRespStateManager.nettyTargetChannel.write(httpRequest);
         StateUtil.notifyIfHeaderWriteFailure(httpInboundResponseFuture, outboundHeaderFuture,
-                                             org.ballerinalang.net.netty.contract.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED);
+                                             Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED);
     }
 
-    private void setHttpVersionProperty(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest, String httpVersion) {
-        if (org.ballerinalang.net.netty.contract.Constants.HTTP_2_0.equals(httpVersion)) {
+    private void setHttpVersionProperty(HttpCarbonMessage httpOutboundRequest, String httpVersion) {
+        if (Constants.HTTP_2_0.equals(httpVersion)) {
             // Upgrade request of HTTP/2 should be a HTTP/1.1 request
-            httpOutboundRequest.setHttpVersion(String.valueOf(org.ballerinalang.net.netty.contract.Constants.HTTP_1_1));
+            httpOutboundRequest.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
         } else {
             httpOutboundRequest.setHttpVersion(httpVersion);
         }
     }
 
-    private void writeRequestBody(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    private void writeRequestBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         String expectHeader = httpOutboundRequest.getHeader(HttpHeaderNames.EXPECT.toString());
         if (expectHeader != null && expectHeader.equalsIgnoreCase(
-                org.ballerinalang.net.netty.contract.Constants.HEADER_VAL_100_CONTINUE)) {
-            senderReqRespStateManager.state =
-                    new Sending100Continue(senderReqRespStateManager, httpInboundResponseFuture);
+                Constants.HEADER_VAL_100_CONTINUE)) {
+            senderReqRespStateManager.state = new Sending100Continue(senderReqRespStateManager,
+                                                                     httpInboundResponseFuture);
             senderReqRespStateManager.nettyTargetChannel.flush();
         } else {
-            senderReqRespStateManager.state =
-                    new SendingEntityBody(senderReqRespStateManager, httpInboundResponseFuture);
+            senderReqRespStateManager.state = new SendingEntityBody(senderReqRespStateManager,
+                                                                    httpInboundResponseFuture);
         }
 
         for (HttpContent cachedHttpContent : contentList) {
@@ -159,11 +158,11 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void readInboundResponseHeaders(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, HttpResponse httpInboundResponse) {
+    public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
         // If this method is called, it is an application error. Inbound response is receiving before the completion
         // of request header write.
         targetHandler.getOutboundRequestMsg().setIoException(new IOException(
-                org.ballerinalang.net.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED));
+                Constants.INBOUND_RESPONSE_ALREADY_RECEIVED));
         senderReqRespStateManager.state = new ReceivingHeaders(senderReqRespStateManager);
         senderReqRespStateManager.readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
@@ -175,18 +174,17 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, org.ballerinalang.net.netty.contract.HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
         // HttpResponseFuture will be notified asynchronously via writeOutboundRequestHeaders method.
-        LOG.error(
-                org.ballerinalang.net.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
+        LOG.error(Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
     }
 
     @Override
-    public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
-                                                   HttpResponseFuture httpResponseFuture, String channelID) {
+    public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture,
+                                                   String channelID) {
         // HttpResponseFuture will be notified asynchronously via writeOutboundRequestHeaders method.
-        senderReqRespStateManager.nettyTargetChannel.pipeline().remove(org.ballerinalang.net.netty.contract.Constants.IDLE_STATE_HANDLER);
+        senderReqRespStateManager.nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
         senderReqRespStateManager.nettyTargetChannel.close();
-        LOG.error("Error in HTTP client: {}", org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
+        LOG.error("Error in HTTP client: {}", Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
     }
 }

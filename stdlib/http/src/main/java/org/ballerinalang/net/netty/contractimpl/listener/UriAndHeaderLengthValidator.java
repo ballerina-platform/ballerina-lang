@@ -25,9 +25,9 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.ballerinalang.net.netty.contract.Constants;
+import org.ballerinalang.net.netty.contractimpl.common.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.Util;
 
 /**
  * Responsible for validating the request before sending it to the application.
@@ -49,7 +49,7 @@ public class UriAndHeaderLengthValidator extends ChannelInboundHandlerAdapter {
                 HttpRequest inboundRequest = (HttpRequest) msg;
                 Throwable cause = inboundRequest.decoderResult().cause();
                 if (cause instanceof TooLongFrameException) {
-                    if (cause.getMessage().contains(org.ballerinalang.net.netty.contract.Constants.REQUEST_HEADER_TOO_LARGE)) {
+                    if (cause.getMessage().contains(Constants.REQUEST_HEADER_TOO_LARGE)) {
                         Util.sendAndCloseNoEntityBodyResp(ctx, HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE,
                                 HttpVersion.HTTP_1_0, serverName);
                         LOG.warn("Inbound request Entity exceeds the max entity size allowed for a request");

@@ -24,14 +24,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2CodecUtil;
-import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
-import org.ballerinalang.net.netty.message.ClientRemoteFlowControlListener;
-import org.ballerinalang.net.netty.message.Http2PushPromise;
-import org.ballerinalang.net.netty.message.Http2Reset;
-import org.ballerinalang.net.netty.message.HttpCarbonMessage;
-import org.ballerinalang.net.netty.message.ResponseHandle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.HttpClientConnector;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
@@ -48,12 +40,20 @@ import org.ballerinalang.net.netty.contractimpl.listener.http2.Http2SourceHandle
 import org.ballerinalang.net.netty.contractimpl.sender.ConnectionAvailabilityListener;
 import org.ballerinalang.net.netty.contractimpl.sender.channel.BootstrapConfiguration;
 import org.ballerinalang.net.netty.contractimpl.sender.channel.TargetChannel;
+import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientTimeoutHandler;
 import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ConnectionManager;
 import org.ballerinalang.net.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.ballerinalang.net.netty.contractimpl.sender.http2.RequestWriteStarter;
 import org.ballerinalang.net.netty.contractimpl.sender.states.SendingHeaders;
+import org.ballerinalang.net.netty.message.ClientRemoteFlowControlListener;
+import org.ballerinalang.net.netty.message.Http2PushPromise;
+import org.ballerinalang.net.netty.message.Http2Reset;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.message.ResponseHandle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -99,23 +99,23 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     }
 
     @Override
-    public HttpResponseFuture getResponse(org.ballerinalang.net.netty.message.ResponseHandle responseHandle) {
+    public HttpResponseFuture getResponse(ResponseHandle responseHandle) {
         return responseHandle.getOutboundMsgHolder().getResponseFuture();
     }
 
     @Override
-    public HttpResponseFuture getNextPushPromise(org.ballerinalang.net.netty.message.ResponseHandle responseHandle) {
+    public HttpResponseFuture getNextPushPromise(ResponseHandle responseHandle) {
         return responseHandle.getOutboundMsgHolder().getResponseFuture();
     }
 
     @Override
-    public HttpResponseFuture hasPushPromise(org.ballerinalang.net.netty.message.ResponseHandle responseHandle) {
+    public HttpResponseFuture hasPushPromise(ResponseHandle responseHandle) {
         return responseHandle.getOutboundMsgHolder().getResponseFuture();
     }
 
     @Override
-    public void rejectPushResponse(org.ballerinalang.net.netty.message.Http2PushPromise pushPromise) {
-        org.ballerinalang.net.netty.message.Http2Reset http2Reset = new Http2Reset(pushPromise.getPromisedStreamId());
+    public void rejectPushResponse(Http2PushPromise pushPromise) {
+        Http2Reset http2Reset = new Http2Reset(pushPromise.getPromisedStreamId());
         OutboundMsgHolder outboundMsgHolder = pushPromise.getOutboundMsgHolder();
         pushPromise.reject();
         outboundMsgHolder.getHttp2ClientChannel().getChannel().write(http2Reset);
@@ -139,12 +139,12 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     }
 
     @Override
-    public HttpResponseFuture send(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+    public HttpResponseFuture send(HttpCarbonMessage httpOutboundRequest) {
         OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest);
         return send(outboundMsgHolder, httpOutboundRequest);
     }
 
-    public HttpResponseFuture send(OutboundMsgHolder outboundMsgHolder, org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+    public HttpResponseFuture send(OutboundMsgHolder outboundMsgHolder, HttpCarbonMessage httpOutboundRequest) {
         final HttpResponseFuture httpResponseFuture;
 
         Object sourceHandlerObject = httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
@@ -187,7 +187,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     setHttp2ForwardedExtension(outboundMsgHolder);
                     new RequestWriteStarter(outboundMsgHolder, activeHttp2ClientChannel).startWritingContent();
                     httpResponseFuture = outboundMsgHolder.getResponseFuture();
-                    httpResponseFuture.notifyResponseHandle(new org.ballerinalang.net.netty.message.ResponseHandle(outboundMsgHolder));
+                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                     return httpResponseFuture;
                 }
             }
@@ -257,7 +257,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                             new Http2ClientTimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
                     setHttp2ForwardedExtension(outboundMsgHolder);
                     new RequestWriteStarter(outboundMsgHolder, freshHttp2ClientChannel).startWritingContent();
-                    httpResponseFuture.notifyResponseHandle(new org.ballerinalang.net.netty.message.ResponseHandle(outboundMsgHolder));
+                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                 }
 
                 private void prepareTargetChannelForHttp(ChannelFuture channelFuture) {
@@ -322,14 +322,14 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         return errorResponseFuture;
     }
 
-    private HttpRoute getTargetRoute(String scheme, org.ballerinalang.net.netty.message.HttpCarbonMessage httpCarbonMessage) {
+    private HttpRoute getTargetRoute(String scheme, HttpCarbonMessage httpCarbonMessage) {
         String host = fetchHost(httpCarbonMessage);
         int port = fetchPort(httpCarbonMessage);
 
         return new HttpRoute(scheme, host, port);
     }
 
-    private int fetchPort(org.ballerinalang.net.netty.message.HttpCarbonMessage httpCarbonMessage) {
+    private int fetchPort(HttpCarbonMessage httpCarbonMessage) {
         int port;
         Object intProperty = httpCarbonMessage.getProperty(Constants.HTTP_PORT);
         if (intProperty instanceof Integer) {

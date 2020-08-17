@@ -29,8 +29,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.concurrent.EventExecutorGroup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
@@ -40,6 +38,8 @@ import org.ballerinalang.net.netty.contractimpl.listener.SourceHandler;
 import org.ballerinalang.net.netty.internal.HandlerExecutor;
 import org.ballerinalang.net.netty.internal.HttpTransportContextHolder;
 import org.ballerinalang.net.netty.message.HttpCarbonMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -241,7 +241,7 @@ public class SendingEntityBody implements ListenerState {
                 //IMPORTANT:Next sequence number should never be incremented for interim 100 continue response
                 //because the body of the request is yet to come. Only when the actual response is sent out, this
                 //next sequence number should be updated.
-                nextSequenceNumber++;
+                nextSequenceNumber += 1;
                 sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(nextSequenceNumber);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Current sequence id of the response : {}", outboundResponseMsg.getSequenceId());

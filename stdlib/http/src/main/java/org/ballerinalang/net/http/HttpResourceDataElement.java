@@ -20,10 +20,10 @@ package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.net.uri.parser.DataReturnAgent;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;

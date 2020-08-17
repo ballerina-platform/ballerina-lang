@@ -20,10 +20,10 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.DataContext;
-import org.wso2.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.ballerinalang.net.netty.contract.HttpConnectorListener;
+import org.ballerinalang.net.netty.contract.HttpResponseFuture;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.message.HttpMessageDataStreamer;
 
 import java.io.OutputStream;
 

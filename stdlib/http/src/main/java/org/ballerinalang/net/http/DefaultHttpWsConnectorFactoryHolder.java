@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http;
 
-import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.ballerinalang.net.netty.contractimpl.DefaultHttpWsConnectorFactory;
 
 /**
  * This class is to provide a static instance of the DefaultHttpWsConnectorFactory which will be shared when creating

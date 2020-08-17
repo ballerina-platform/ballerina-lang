@@ -34,7 +34,7 @@ public class Http2ConnectionManager {
 
     private final ConcurrentHashMap<EventLoop, EventLoopPool> eventLoopPools = new ConcurrentHashMap<>();
     private final Deque<EventLoop> eventLoops = new ArrayDeque<>(); //When source handler is not present
-    private org.ballerinalang.net.netty.contractimpl.sender.channel.pool.PoolConfiguration poolConfiguration;
+    private PoolConfiguration poolConfiguration;
 
     public Http2ConnectionManager(PoolConfiguration poolConfiguration) {
         this.poolConfiguration = poolConfiguration;
@@ -47,7 +47,7 @@ public class Http2ConnectionManager {
      * @param httpRoute          http route
      * @param http2ClientChannel newly created http/2 client channel
      */
-    public void addHttp2ClientChannel(EventLoop eventLoop, org.ballerinalang.net.netty.contractimpl.common.HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
+    public void addHttp2ClientChannel(EventLoop eventLoop, HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
         if (!eventLoops.contains(eventLoop)) {
             eventLoops.add(eventLoop);
         }
@@ -108,7 +108,7 @@ public class Http2ConnectionManager {
      * @param httpRoute       the http route
      * @return Http2ClientChannel
      */
-    public Http2ClientChannel borrowChannel(Http2SourceHandler http2SrcHandler, org.ballerinalang.net.netty.contractimpl.common.HttpRoute httpRoute) {
+    public Http2ClientChannel borrowChannel(Http2SourceHandler http2SrcHandler, HttpRoute httpRoute) {
         EventLoopPool eventLoopPool;
         String key = generateKey(httpRoute);
         EventLoopPool.PerRouteConnectionPool perRouteConnectionPool;
@@ -138,7 +138,7 @@ public class Http2ConnectionManager {
      * @param httpRoute          the http route
      * @param http2ClientChannel represents the http/2 client channel
      */
-    void returnClientChannel(org.ballerinalang.net.netty.contractimpl.common.HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
+    void returnClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
         EventLoopPool.PerRouteConnectionPool perRouteConnectionPool = fetchPerRoutePool(httpRoute,
                                                                                         http2ClientChannel.getChannel()
                                                                                             .eventLoop());
@@ -153,7 +153,7 @@ public class Http2ConnectionManager {
      * @param httpRoute          the http route
      * @param http2ClientChannel represents the http/2 client channel to be removed
      */
-    void removeClientChannel(org.ballerinalang.net.netty.contractimpl.common.HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
+    void removeClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
         EventLoopPool.PerRouteConnectionPool perRouteConnectionPool = fetchPerRoutePool(httpRoute,
                                                                                         http2ClientChannel.getChannel()
                                                                                             .eventLoop());
@@ -162,9 +162,7 @@ public class Http2ConnectionManager {
         }
     }
 
-    private EventLoopPool.PerRouteConnectionPool fetchPerRoutePool(
-            org.ballerinalang.net.netty.contractimpl.common.HttpRoute httpRoute,
-            EventLoop eventLoop) {
+    private EventLoopPool.PerRouteConnectionPool fetchPerRoutePool(HttpRoute httpRoute, EventLoop eventLoop) {
         String key = generateKey(httpRoute);
         return eventLoopPools.get(eventLoop).fetchPerRoutePool(key);
     }

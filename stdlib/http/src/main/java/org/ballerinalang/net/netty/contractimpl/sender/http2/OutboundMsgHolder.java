@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class OutboundMsgHolder {
 
     // Outbound request HttpCarbonMessage
-    private org.ballerinalang.net.netty.message.HttpCarbonMessage requestCarbonMessage;
+    private HttpCarbonMessage requestCarbonMessage;
     private BlockingQueue<org.ballerinalang.net.netty.message.Http2PushPromise> promises;
     private ConcurrentHashMap<Integer, org.ballerinalang.net.netty.message.HttpCarbonResponse> pushResponsesMap;
     private org.ballerinalang.net.netty.message.HttpCarbonResponse response;
@@ -54,7 +54,7 @@ public class OutboundMsgHolder {
     private final org.ballerinalang.net.netty.message.BackPressureObservable
             backPressureObservable = new DefaultBackPressureObservable();
 
-    public OutboundMsgHolder(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+    public OutboundMsgHolder(HttpCarbonMessage httpOutboundRequest) {
         this.requestCarbonMessage = httpOutboundRequest;
         promises = new LinkedBlockingQueue<>();
         pushResponsesMap = new ConcurrentHashMap<>();

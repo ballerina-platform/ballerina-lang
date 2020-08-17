@@ -21,6 +21,12 @@ package org.ballerinalang.net.netty.contractimpl;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.ballerinalang.net.netty.contract.HttpConnectorListener;
+import org.ballerinalang.net.netty.contract.config.ChunkConfig;
+import org.ballerinalang.net.netty.contract.config.KeepAliveConfig;
+import org.ballerinalang.net.netty.contractimpl.common.BackPressureHandler;
+import org.ballerinalang.net.netty.contractimpl.common.Util;
+import org.ballerinalang.net.netty.contractimpl.listener.RequestDataHolder;
+import org.ballerinalang.net.netty.contractimpl.listener.SourceHandler;
 import org.ballerinalang.net.netty.contractimpl.listener.states.ListenerReqRespStateManager;
 import org.ballerinalang.net.netty.internal.HandlerExecutor;
 import org.ballerinalang.net.netty.internal.HttpTransportContextHolder;
@@ -28,12 +34,6 @@ import org.ballerinalang.net.netty.message.Http2PushPromise;
 import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contract.config.ChunkConfig;
-import org.ballerinalang.net.netty.contract.config.KeepAliveConfig;
-import org.ballerinalang.net.netty.contractimpl.common.BackPressureHandler;
-import org.ballerinalang.net.netty.contractimpl.common.Util;
-import org.ballerinalang.net.netty.contractimpl.listener.RequestDataHolder;
-import org.ballerinalang.net.netty.contractimpl.listener.SourceHandler;
 
 import java.util.Locale;
 
@@ -51,12 +51,12 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
     private HandlerExecutor handlerExecutor;
-    private org.ballerinalang.net.netty.message.HttpCarbonMessage inboundRequestMsg;
+    private HttpCarbonMessage inboundRequestMsg;
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
     private String serverName;
 
-    public HttpOutboundRespListener(org.ballerinalang.net.netty.message.HttpCarbonMessage requestMsg, SourceHandler sourceHandler) {
+    public HttpOutboundRespListener(HttpCarbonMessage requestMsg, SourceHandler sourceHandler) {
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.inboundRequestMsg = requestMsg;
         this.sourceHandler = sourceHandler;
@@ -69,7 +69,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundResponseMsg) {
+    public void onMessage(HttpCarbonMessage outboundResponseMsg) {
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
         }
@@ -99,7 +99,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onPushResponse(int promiseId, org.ballerinalang.net.netty.message.HttpCarbonMessage httpMessage) {
+    public void onPushResponse(int promiseId, HttpCarbonMessage httpMessage) {
         inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(new UnsupportedOperationException(
                 "Sending Server Push messages is not supported for HTTP/1.x connections"));
     }

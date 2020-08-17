@@ -21,7 +21,7 @@ package org.ballerinalang.net.http.websocket.server;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
 
 /**
  * This class has WebSocket connection info for both the client and the server. Includes details

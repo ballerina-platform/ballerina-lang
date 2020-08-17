@@ -25,8 +25,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
 import org.ballerinalang.net.netty.contract.config.ChunkConfig;
@@ -34,13 +32,14 @@ import org.ballerinalang.net.netty.contract.exceptions.ServerConnectorException;
 import org.ballerinalang.net.netty.contractimpl.HttpOutboundRespListener;
 import org.ballerinalang.net.netty.contractimpl.listener.SourceHandler;
 import org.ballerinalang.net.netty.message.HttpCarbonMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 
 import static org.ballerinalang.net.netty.contract.Constants.CHUNKING_CONFIG;
-import static org.ballerinalang.net.netty.contract.Constants
-        .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE;
+import static org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 import static org.ballerinalang.net.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.ballerinalang.net.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 import static org.ballerinalang.net.netty.contract.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;

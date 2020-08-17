@@ -30,9 +30,9 @@ import org.ballerinalang.net.netty.message.HttpCarbonResponse;
 public class DefaultClientHandshakeFuture extends DefaultWebSocketConnectorFuture implements ClientHandshakeFuture {
 
     private Throwable throwable = null;
-    private org.ballerinalang.net.netty.contract.websocket.WebSocketConnection webSocketConnection = null;
-    private org.ballerinalang.net.netty.contract.websocket.ClientHandshakeListener clientHandshakeListener;
-    private org.ballerinalang.net.netty.message.HttpCarbonResponse response;
+    private WebSocketConnection webSocketConnection = null;
+    private ClientHandshakeListener clientHandshakeListener;
+    private HttpCarbonResponse response;
 
     @Override
     public void setClientHandshakeListener(ClientHandshakeListener clientHandshakeListener) {
@@ -45,7 +45,7 @@ public class DefaultClientHandshakeFuture extends DefaultWebSocketConnectorFutur
     }
 
     @Override
-    public void notifySuccess(WebSocketConnection webSocketConnection, org.ballerinalang.net.netty.message.HttpCarbonResponse response) {
+    public void notifySuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
         this.webSocketConnection = webSocketConnection;
         this.response = response;
         if (clientHandshakeListener == null || throwable != null) {

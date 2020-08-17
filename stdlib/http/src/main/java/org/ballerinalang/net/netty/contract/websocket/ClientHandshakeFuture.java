@@ -37,15 +37,15 @@ public interface ClientHandshakeFuture extends WebSocketConnectorFuture {
      * Notify the success of the WebSocket handshake.
      *
      * @param webSocketConnection {@link WebSocketConnection} for the successful connection.
-     * @param response            {@link org.ballerinalang.net.netty.message.HttpCarbonResponse} received from server.
+     * @param response            {@link HttpCarbonResponse} received from server.
      */
-    void notifySuccess(WebSocketConnection webSocketConnection, org.ballerinalang.net.netty.message.HttpCarbonResponse response);
+    void notifySuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response);
 
     /**
      * Notify any error occurred during the handshake.
      *
      * @param throwable error occurred during handshake.
-     * @param response  {@link org.ballerinalang.net.netty.message.HttpCarbonResponse} received from server or null if error occurred before response is
+     * @param response  {@link HttpCarbonResponse} received from server or null if error occurred before response is
      *                                            received.
      */
     void notifyError(Throwable throwable, HttpCarbonResponse response);

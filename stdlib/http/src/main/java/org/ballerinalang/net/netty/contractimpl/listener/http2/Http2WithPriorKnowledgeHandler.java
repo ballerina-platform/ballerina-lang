@@ -42,8 +42,8 @@ public class Http2WithPriorKnowledgeHandler extends ChannelInboundHandlerAdapter
 
     private String interfaceId;
     private String serverName;
-    private org.ballerinalang.net.netty.contract.ServerConnectorFuture serverConnectorFuture;
-    private org.ballerinalang.net.netty.contractimpl.listener.HttpServerChannelInitializer serverChannelInitializer;
+    private ServerConnectorFuture serverConnectorFuture;
+    private HttpServerChannelInitializer serverChannelInitializer;
 
     public Http2WithPriorKnowledgeHandler(String interfaceId, String serverName,
                                           ServerConnectorFuture serverConnectorFuture,
@@ -62,17 +62,16 @@ public class Http2WithPriorKnowledgeHandler extends ChannelInboundHandlerAdapter
             int bytesRead = min(inputData.readableBytes(), clientPrefaceString.readableBytes());
             ChannelPipeline pipeline = ctx.pipeline();
             if (ByteBufUtil.equals(inputData, inputData.readerIndex(), clientPrefaceString,
-                    clientPrefaceString.readerIndex(), bytesRead)) {
+                                   clientPrefaceString.readerIndex(), bytesRead)) {
                 // HTTP/2 request received without an upgrade
-                Util.safelyRemoveHandlers(pipeline, org.ballerinalang.net.netty.contract.Constants.HTTP_SERVER_CODEC);
-                pipeline.addBefore(
-                        org.ballerinalang.net.netty.contract.Constants.HTTP2_UPGRADE_HANDLER,
-                        org.ballerinalang.net.netty.contract.Constants.HTTP2_SOURCE_CONNECTION_HANDLER,
-                        new Http2SourceConnectionHandlerBuilder(
-                                interfaceId, serverConnectorFuture, serverName, serverChannelInitializer).build());
+                Util.safelyRemoveHandlers(pipeline, Constants.HTTP_SERVER_CODEC);
+                pipeline.addBefore(Constants.HTTP2_UPGRADE_HANDLER, Constants.HTTP2_SOURCE_CONNECTION_HANDLER,
+                                   new Http2SourceConnectionHandlerBuilder(
+                                           interfaceId, serverConnectorFuture, serverName, serverChannelInitializer)
+                                           .build());
 
-                Util.safelyRemoveHandlers(pipeline, org.ballerinalang.net.netty.contract.Constants.HTTP2_UPGRADE_HANDLER,
-                                          org.ballerinalang.net.netty.contract.Constants.HTTP_COMPRESSOR, Constants.HTTP_TRACE_LOG_HANDLER);
+                Util.safelyRemoveHandlers(pipeline, Constants.HTTP2_UPGRADE_HANDLER, Constants.HTTP_COMPRESSOR,
+                                          Constants.HTTP_TRACE_LOG_HANDLER);
             }
             pipeline.remove(this);
             ctx.fireChannelRead(msg);

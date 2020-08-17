@@ -26,11 +26,11 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
-import org.wso2.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.message.Http2PushPromise;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.ballerinalang.net.netty.contract.HttpConnectorListener;
+import org.ballerinalang.net.netty.contract.HttpResponseFuture;
+import org.ballerinalang.net.netty.message.Http2PushPromise;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.message.HttpMessageDataStreamer;
 
 import java.io.OutputStream;
 

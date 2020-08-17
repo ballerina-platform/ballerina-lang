@@ -24,8 +24,8 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contractimpl.sender.TargetHandler;
-import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 import org.ballerinalang.net.netty.contractimpl.sender.states.SenderState;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 
 /**
  * Context class to manipulate current state of the message.
@@ -42,15 +42,15 @@ public class SenderReqRespStateManager {
         this.socketTimeout = socketTimeout;
     }
 
-    public void writeOutboundRequestHeaders(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
         state.writeOutboundRequestHeaders(httpOutboundRequest);
     }
 
-    public void writeOutboundRequestEntity(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         state.writeOutboundRequestEntity(httpOutboundRequest, httpContent);
     }
 
-    public void readInboundResponseHeaders(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, HttpResponse httpInboundResponse) {
+    public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
         state.readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
@@ -59,13 +59,13 @@ public class SenderReqRespStateManager {
         state.readInboundResponseEntityBody(ctx, httpContent, inboundResponseMsg);
     }
 
-    public void handleAbruptChannelClosure(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, org.ballerinalang.net.netty.contract.HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
         nettyTargetChannel.close();
         state.handleAbruptChannelClosure(targetHandler, httpResponseFuture);
     }
 
-    public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
-                                                   HttpResponseFuture httpResponseFuture, String channelID) {
+    public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture,
+                                                   String channelID) {
         state.handleIdleTimeoutConnectionClosure(targetHandler, httpResponseFuture, channelID);
     }
 }

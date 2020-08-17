@@ -23,13 +23,13 @@ import org.ballerinalang.net.http.HttpResourceArguments;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketHandshaker;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketMessage;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

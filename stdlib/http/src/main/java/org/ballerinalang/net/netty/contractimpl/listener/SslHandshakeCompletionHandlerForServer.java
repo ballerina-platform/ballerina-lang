@@ -24,9 +24,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import org.ballerinalang.net.netty.contract.Constants;
+import org.ballerinalang.net.netty.contractimpl.common.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.Util;
 
 import javax.net.ssl.SSLEngine;
 

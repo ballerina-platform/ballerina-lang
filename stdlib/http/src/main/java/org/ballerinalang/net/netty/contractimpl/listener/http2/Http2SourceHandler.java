@@ -31,12 +31,14 @@ import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2RemoteFlowController;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
 import org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.ballerinalang.net.netty.contractimpl.common.states.Http2StateUtil;
 import org.ballerinalang.net.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.ballerinalang.net.netty.contractimpl.listener.states.http2.EntityBodyReceived;
 import org.ballerinalang.net.netty.contractimpl.listener.states.http2.ReceivingHeaders;
+import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.ballerinalang.net.netty.message.Http2DataFrame;
 import org.ballerinalang.net.netty.message.Http2HeadersFrame;
 import org.ballerinalang.net.netty.message.HttpCarbonMessage;
@@ -44,7 +46,6 @@ import org.ballerinalang.net.netty.message.HttpCarbonRequest;
 import org.ballerinalang.net.netty.message.ServerRemoteFlowControlListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2DataEventListener;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -54,7 +55,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * {@code HTTP2SourceHandler} read the HTTP/2 binary frames sent from client through the channel.
  * <p>
- * This is also responsible for building the {@link org.ballerinalang.net.netty.message.HttpCarbonRequest} and forward to the listener
+ * This is also responsible for building the {@link HttpCarbonRequest} and forward to the listener
  * interested in request messages.
  */
 public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
@@ -62,21 +63,20 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     private Http2ServerChannel http2ServerChannel = new Http2ServerChannel();
     private ChannelHandlerContext ctx;
-    private org.ballerinalang.net.netty.contract.ServerConnectorFuture serverConnectorFuture;
-    private org.ballerinalang.net.netty.contractimpl.listener.HttpServerChannelInitializer serverChannelInitializer;
+    private ServerConnectorFuture serverConnectorFuture;
+    private HttpServerChannelInitializer serverChannelInitializer;
     private Http2ConnectionEncoder encoder;
     private Http2Connection conn;
     private String interfaceId;
     private String serverName;
     private String remoteHost;
     private Map<String, GenericObjectPool> targetChannelPool; //Keeps only h1 target channels
-    private org.ballerinalang.net.netty.message.ServerRemoteFlowControlListener serverRemoteFlowControlListener;
+    private ServerRemoteFlowControlListener serverRemoteFlowControlListener;
     private SocketAddress remoteAddress;
 
-    Http2SourceHandler(
-            org.ballerinalang.net.netty.contractimpl.listener.HttpServerChannelInitializer serverChannelInitializer, Http2ConnectionEncoder encoder,
-            String interfaceId, Http2Connection conn, org.ballerinalang.net.netty.contract.ServerConnectorFuture serverConnectorFuture,
-            String serverName) {
+    Http2SourceHandler(HttpServerChannelInitializer serverChannelInitializer, Http2ConnectionEncoder encoder,
+                       String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
+                       String serverName) {
         this.serverChannelInitializer = serverChannelInitializer;
         this.encoder = encoder;
         this.interfaceId = interfaceId;
@@ -90,16 +90,15 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     private void setDataEventListeners() {
         long serverTimeout = serverChannelInitializer.getSocketIdleTimeout() <= 0 ?
-                org.ballerinalang.net.netty.contract.Constants.ENDPOINT_TIMEOUT :
-                serverChannelInitializer.getSocketIdleTimeout();
-        http2ServerChannel.addDataEventListener(org.ballerinalang.net.netty.contract.Constants.IDLE_STATE_HANDLER,
+                Constants.ENDPOINT_TIMEOUT : serverChannelInitializer.getSocketIdleTimeout();
+        http2ServerChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
                                                 new Http2ServerTimeoutHandler(serverTimeout, http2ServerChannel,
                                                                               serverConnectorFuture));
     }
 
     private void setRemoteFlowController() {
         Http2RemoteFlowController remoteFlowController = this.conn.remote().flowController();
-        serverRemoteFlowControlListener = new org.ballerinalang.net.netty.message.ServerRemoteFlowControlListener(remoteFlowController);
+        serverRemoteFlowControlListener = new ServerRemoteFlowControlListener(remoteFlowController);
         remoteFlowController.listener(serverRemoteFlowControlListener);
     }
 
@@ -131,39 +130,37 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
             // Construct new HTTP Request
             HttpRequest httpRequest = new DefaultHttpRequest(
-                    new HttpVersion(org.ballerinalang.net.netty.contract.Constants.HTTP_VERSION_2_0, true), upgradedRequest.method(),
+                    new HttpVersion(Constants.HTTP_VERSION_2_0, true), upgradedRequest.method(),
                     upgradedRequest.uri(), upgradedRequest.headers());
 
             HttpCarbonRequest requestCarbonMessage = Http2StateUtil.setupCarbonRequest(httpRequest, this,
-                                                                                       org.ballerinalang.net.netty.contract.Constants.STREAM_ID_ONE);
+                                                                                       Constants.STREAM_ID_ONE);
             requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
             requestCarbonMessage.setLastHttpContentArrived();
             InboundMessageHolder inboundMsgHolder = new InboundMessageHolder(requestCarbonMessage);
             if (requestCarbonMessage.getHttp2MessageStateContext() == null) {
-                org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext http2MessageStateContext = new org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext();
+                Http2MessageStateContext http2MessageStateContext = new Http2MessageStateContext();
                 http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
                 requestCarbonMessage.setHttp2MessageStateContext(http2MessageStateContext);
             }
-            http2ServerChannel.getStreamIdRequestMap().put(org.ballerinalang.net.netty.contract.Constants.STREAM_ID_ONE, inboundMsgHolder);
+            http2ServerChannel.getStreamIdRequestMap().put(Constants.STREAM_ID_ONE, inboundMsgHolder);
             http2ServerChannel.getDataEventListeners()
-                    .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, org.ballerinalang.net.netty.contract.Constants.STREAM_ID_ONE));
-            Http2StateUtil.notifyRequestListener(this, inboundMsgHolder, org.ballerinalang.net.netty.contract.Constants.STREAM_ID_ONE);
+                    .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, Constants.STREAM_ID_ONE));
+            Http2StateUtil.notifyRequestListener(this, inboundMsgHolder, Constants.STREAM_ID_ONE);
         }
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Http2Exception {
-        if (msg instanceof org.ballerinalang.net.netty.message.Http2HeadersFrame) {
-            org.ballerinalang.net.netty.message.Http2HeadersFrame headersFrame = (Http2HeadersFrame) msg;
-            org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext http2MessageStateContext = new Http2MessageStateContext();
+        if (msg instanceof Http2HeadersFrame) {
+            Http2HeadersFrame headersFrame = (Http2HeadersFrame) msg;
+            Http2MessageStateContext http2MessageStateContext = new Http2MessageStateContext();
             http2MessageStateContext.setListenerState(new ReceivingHeaders(this, http2MessageStateContext));
             http2MessageStateContext.getListenerState().readInboundRequestHeaders(ctx, headersFrame);
-        } else if (msg instanceof org.ballerinalang.net.netty.message.Http2DataFrame) {
-            org.ballerinalang.net.netty.message.Http2DataFrame dataFrame = (Http2DataFrame) msg;
+        } else if (msg instanceof Http2DataFrame) {
+            Http2DataFrame dataFrame = (Http2DataFrame) msg;
             int streamId = dataFrame.getStreamId();
-            org.ballerinalang.net.netty.message.HttpCarbonMessage
-                    sourceReqCMsg = http2ServerChannel.getInboundMessage(streamId)
-                    .getInboundMsg();
+            HttpCarbonMessage sourceReqCMsg = http2ServerChannel.getInboundMessage(streamId).getInboundMsg();
             // CarbonMessage can be already removed from the map once the LastHttpContent is added because of receiving
             // a data frame when the outbound response is started to send. So, the data frames received after that
             // should be released.

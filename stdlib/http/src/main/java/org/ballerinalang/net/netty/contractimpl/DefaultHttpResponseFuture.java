@@ -19,12 +19,12 @@
 
 package org.ballerinalang.net.netty.contractimpl;
 
-import org.ballerinalang.net.netty.contract.HttpConnectorListener;
-import org.ballerinalang.net.netty.message.HttpCarbonMessage;
-import org.ballerinalang.net.netty.message.ResponseHandle;
 import org.ballerinalang.net.netty.contract.HttpClientConnectorListener;
+import org.ballerinalang.net.netty.contract.HttpConnectorListener;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.message.ResponseHandle;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
@@ -40,10 +40,10 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     private HttpClientConnectorListener responseHandleListener;
     private HttpClientConnectorListener promiseAvailabilityListener;
     private org.ballerinalang.net.netty.contract.HttpConnectorListener pushPromiseListener;
-    private ConcurrentHashMap<Integer, org.ballerinalang.net.netty.contract.HttpConnectorListener> pushResponseListeners;
+    private ConcurrentHashMap<Integer, HttpConnectorListener> pushResponseListeners;
     private ConcurrentHashMap<Integer, Throwable> pushResponseListenerErrors;
 
-    private org.ballerinalang.net.netty.message.HttpCarbonMessage httpCarbonMessage;
+    private HttpCarbonMessage httpCarbonMessage;
     private org.ballerinalang.net.netty.message.ResponseHandle responseHandle;
     private OutboundMsgHolder outboundMsgHolder;
 
@@ -74,7 +74,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     @Override
-    public void setHttpConnectorListener(org.ballerinalang.net.netty.contract.HttpConnectorListener connectorListener) {
+    public void setHttpConnectorListener(HttpConnectorListener connectorListener) {
         responseLock.lock();
         try {
             this.httpConnectorListener = connectorListener;
@@ -97,7 +97,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     @Override
-    public void notifyHttpListener(org.ballerinalang.net.netty.message.HttpCarbonMessage httpCarbonMessage) {
+    public void notifyHttpListener(HttpCarbonMessage httpCarbonMessage) {
         responseLock.lock();
         try {
             this.httpCarbonMessage = httpCarbonMessage;
@@ -105,7 +105,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
                 executionWaitSem.release();
             }
             if (httpConnectorListener != null) {
-                org.ballerinalang.net.netty.contract.HttpConnectorListener listener = httpConnectorListener;
+                HttpConnectorListener listener = httpConnectorListener;
                 removeHttpListener();
                 listener.onMessage(httpCarbonMessage);
             }
@@ -124,7 +124,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
                 executionWaitSem.release();
             }
             if (httpConnectorListener != null) {
-                org.ballerinalang.net.netty.contract.HttpConnectorListener listener = httpConnectorListener;
+                HttpConnectorListener listener = httpConnectorListener;
                 removeHttpListener();
                 listener.onError(throwable);
             } else if (responseHandleListener != null) {
@@ -256,7 +256,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     @Override
-    public void setPushPromiseListener(org.ballerinalang.net.netty.contract.HttpConnectorListener pushPromiseListener) {
+    public void setPushPromiseListener(HttpConnectorListener pushPromiseListener) {
         promiseLock.lock();
         try {
             this.pushPromiseListener = pushPromiseListener;
@@ -278,7 +278,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
         promiseLock.lock();
         try {
             if (pushPromiseListener != null) {
-                org.ballerinalang.net.netty.contract.HttpConnectorListener listener = pushPromiseListener;
+                HttpConnectorListener listener = pushPromiseListener;
                 removePushPromiseListener();
                 listener.onPushPromise(outboundMsgHolder.getNextPromise());
             }
@@ -288,12 +288,11 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     @Override
-    public void setPushResponseListener(org.ballerinalang.net.netty.contract.HttpConnectorListener pushResponseListener, int promiseId) {
+    public void setPushResponseListener(HttpConnectorListener pushResponseListener, int promiseId) {
         pushResponseLock.lock();
         try {
             pushResponseListeners.put(promiseId, pushResponseListener);
-            org.ballerinalang.net.netty.message.HttpCarbonMessage
-                    pushResponse = outboundMsgHolder.getPushResponse(promiseId);
+            HttpCarbonMessage pushResponse = outboundMsgHolder.getPushResponse(promiseId);
             if (pushResponse != null) {
                 notifyPushResponse(promiseId, pushResponse);
             }
@@ -314,7 +313,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     public void notifyPushResponse(int streamId, HttpCarbonMessage pushResponse) {
         pushResponseLock.lock();
         try {
-            org.ballerinalang.net.netty.contract.HttpConnectorListener listener = pushResponseListeners.get(streamId);
+            HttpConnectorListener listener = pushResponseListeners.get(streamId);
             if (listener != null) {
                 pushResponseListeners.remove(streamId);
                 listener.onPushResponse(streamId, pushResponse);

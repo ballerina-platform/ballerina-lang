@@ -24,7 +24,7 @@ import io.netty.handler.codec.http.HttpContent;
 import java.nio.ByteBuffer;
 
 /**
- * Collects entity of the request/response
+ * Collects entity of the request/response.
  */
 public interface EntityCollector {
 
@@ -59,7 +59,7 @@ public interface EntityCollector {
     boolean isEmpty();
 
     /**
-     * Get the full message length
+     * Get the full message length.
      * @return message length
      */
     long getFullMessageLength();
@@ -81,7 +81,7 @@ public interface EntityCollector {
     void completeMessage();
 
     /**
-     * This is need to release content before GC
+     * This is need to release content before GC.
      */
     void waitAndReleaseAllEntities();
 }

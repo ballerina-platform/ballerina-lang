@@ -58,21 +58,21 @@ public interface MessagingHandler {
      *
      * @param carbonMessage newly created carbon message.
      */
-    void invokeAtSourceRequestReceiving(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage);
+    void invokeAtSourceRequestReceiving(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when source request is started sending to the message processor.
      *
      * @param carbonMessage client request (i.e headers, property and message body)
      */
-    void invokeAtSourceRequestSending(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage);
+    void invokeAtSourceRequestSending(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when the request is received again to the transport level after being processed at message processor.
      *
      * @param carbonMessage processed (or mediated) request (i.e headers, properties and message body)
      */
-    void invokeAtTargetRequestReceiving(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage);
+    void invokeAtTargetRequestReceiving(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when the request is started sending to the backend.
@@ -82,28 +82,28 @@ public interface MessagingHandler {
      *                      manipulating them won't change the request send to the back end (because the headers are
      *                      already been send to the backend)
      */
-    void invokeAtTargetRequestSending(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage);
+    void invokeAtTargetRequestSending(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when target response is started receiving at target handler.
      *
      * @param carbonMessage newly created carbon message.
      */
-    void invokeAtTargetResponseReceiving(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage);
+    void invokeAtTargetResponseReceiving(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when target response is started sending to the message processor.
      *
      * @param carbonMessage target response (i.e headers, property and message body)
      */
-    void invokeAtTargetResponseSending(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage);
+    void invokeAtTargetResponseSending(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when the response is received again to the transport level after being processed at message processor.
      *
      * @param carbonMessage processed (or mediated) response (i.e headers, properties and message body)
      */
-    void invokeAtSourceResponseReceiving(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage);
+    void invokeAtSourceResponseReceiving(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when the response is started sending to the client.

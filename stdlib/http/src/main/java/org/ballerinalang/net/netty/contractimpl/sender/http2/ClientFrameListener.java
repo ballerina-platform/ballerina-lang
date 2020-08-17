@@ -57,7 +57,7 @@ public class ClientFrameListener extends Http2EventAdapter {
             }
         }
 
-        org.ballerinalang.net.netty.message.Http2DataFrame dataFrame = new Http2DataFrame(streamId, data, endOfStream);
+        Http2DataFrame dataFrame = new Http2DataFrame(streamId, data, endOfStream);
         ctx.fireChannelRead(dataFrame);
         return Constants.ZERO_READABLE_BYTES;
     }
@@ -81,7 +81,7 @@ public class ClientFrameListener extends Http2EventAdapter {
                 return;
             }
         }
-        org.ballerinalang.net.netty.message.Http2HeadersFrame http2HeadersFrame = new Http2HeadersFrame(streamId, headers, endStream);
+        Http2HeadersFrame http2HeadersFrame = new Http2HeadersFrame(streamId, headers, endStream);
         ctx.fireChannelRead(http2HeadersFrame);
     }
 
@@ -96,7 +96,7 @@ public class ClientFrameListener extends Http2EventAdapter {
     @Override
     public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) {
         LOG.warn("RST received on channel: {} for streamId: {} errorCode: {}", http2ClientChannel, streamId, errorCode);
-        org.ballerinalang.net.netty.message.Http2Reset http2Reset = new Http2Reset(streamId, Http2Error.valueOf(errorCode));
+        Http2Reset http2Reset = new Http2Reset(streamId, Http2Error.valueOf(errorCode));
         ctx.fireChannelRead(http2Reset);
     }
 
@@ -113,8 +113,7 @@ public class ClientFrameListener extends Http2EventAdapter {
             }
         }
 
-        org.ballerinalang.net.netty.message.Http2PushPromise pushPromise = new Http2PushPromise(
-                Util.createHttpRequestFromHttp2Headers(headers, streamId));
+        Http2PushPromise pushPromise = new Http2PushPromise(Util.createHttpRequestFromHttp2Headers(headers, streamId));
         pushPromise.setPromisedStreamId(promisedStreamId);
         pushPromise.setStreamId(streamId);
         ctx.fireChannelRead(pushPromise);

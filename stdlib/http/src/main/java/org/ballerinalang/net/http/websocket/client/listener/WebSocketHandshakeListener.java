@@ -30,8 +30,8 @@ import org.ballerinalang.net.http.websocket.client.FailoverContext;
 import org.ballerinalang.net.http.websocket.client.RetryContext;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
-import org.wso2.transport.http.netty.message.HttpCarbonResponse;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
+import org.ballerinalang.net.netty.message.HttpCarbonResponse;
 
 import java.util.concurrent.CountDownLatch;
 

@@ -22,14 +22,14 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketBinaryMessage;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketCloseMessage;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketControlMessage;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketHandshaker;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketTextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.io.IOException;
 

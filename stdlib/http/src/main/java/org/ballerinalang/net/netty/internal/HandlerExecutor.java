@@ -49,7 +49,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtSourceRequestReceiving(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage) {
+    public void executeAtSourceRequestReceiving(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtSourceRequestReceiving(carbonMessage));
         } catch (Exception e) {
@@ -57,7 +57,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtSourceRequestSending(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage) {
+    public void executeAtSourceRequestSending(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtSourceRequestSending(carbonMessage));
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtTargetRequestReceiving(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage) {
+    public void executeAtTargetRequestReceiving(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtTargetRequestReceiving(carbonMessage));
         } catch (Exception e) {
@@ -73,7 +73,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtTargetRequestSending(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage) {
+    public void executeAtTargetRequestSending(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtTargetRequestSending(carbonMessage));
         } catch (Exception e) {
@@ -81,7 +81,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtTargetResponseReceiving(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage) {
+    public void executeAtTargetResponseReceiving(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtTargetResponseReceiving(carbonMessage));
         } catch (Exception e) {
@@ -89,7 +89,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtTargetResponseSending(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage) {
+    public void executeAtTargetResponseSending(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtTargetResponseSending(carbonMessage));
         } catch (Exception e) {
@@ -97,7 +97,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtSourceResponseReceiving(org.ballerinalang.net.netty.message.HttpCarbonMessage carbonMessage) {
+    public void executeAtSourceResponseReceiving(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtSourceResponseReceiving(carbonMessage));
         } catch (Exception e) {

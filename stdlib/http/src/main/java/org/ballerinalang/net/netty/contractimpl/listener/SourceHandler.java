@@ -32,6 +32,7 @@ import io.netty.handler.ssl.SslCloseCompletionEvent;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.concurrent.EventExecutorGroup;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
 import org.ballerinalang.net.netty.contract.config.ChunkConfig;
 import org.ballerinalang.net.netty.contract.config.KeepAliveConfig;
@@ -60,14 +61,14 @@ import static org.ballerinalang.net.netty.contractimpl.common.Util.isKeepAliveCo
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(SourceHandler.class);
 
-    private org.ballerinalang.net.netty.message.HttpCarbonMessage inboundRequestMsg;
-    private final Map<Integer, org.ballerinalang.net.netty.message.HttpCarbonMessage> requestSet = new ConcurrentHashMap<>();
+    private HttpCarbonMessage inboundRequestMsg;
+    private final Map<Integer, HttpCarbonMessage> requestSet = new ConcurrentHashMap<>();
     private HandlerExecutor handlerExecutor;
     private Map<String, GenericObjectPool> targetChannelPool;
-    private org.ballerinalang.net.netty.contract.config.ChunkConfig chunkConfig;
+    private ChunkConfig chunkConfig;
 
-    private org.ballerinalang.net.netty.contract.config.KeepAliveConfig keepAliveConfig;
-    private org.ballerinalang.net.netty.contract.ServerConnectorFuture serverConnectorFuture;
+    private KeepAliveConfig keepAliveConfig;
+    private ServerConnectorFuture serverConnectorFuture;
     private String interfaceId;
     private String serverName;
     private boolean idleTimeout;
@@ -80,11 +81,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private long pipeliningLimit; //Max number of responses allowed to be queued when pipelining is enabled
     private long sequenceId = 1L; //Keep track of the request order for http 1.1 pipelining
     private final Queue holdingQueue = new PriorityQueue<>(
-            org.ballerinalang.net.netty.contract.Constants.NUMBER_OF_INITIAL_EVENTS_HELD);
+            Constants.NUMBER_OF_INITIAL_EVENTS_HELD);
     private EventExecutorGroup pipeliningGroup;
 
-    public SourceHandler(org.ballerinalang.net.netty.contract.ServerConnectorFuture serverConnectorFuture, String interfaceId, org.ballerinalang.net.netty.contract.config.ChunkConfig chunkConfig,
-                         org.ballerinalang.net.netty.contract.config.KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels, boolean
+    public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
+                         KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels, boolean
                                  pipeliningEnabled, long pipeliningLimit, EventExecutorGroup pipeliningGroup) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
@@ -159,7 +160,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                         .handleAbruptChannelClosure(serverConnectorFuture));
             } else if (connectedState) {
                 notifyErrorListenerAtConnectedState(
-                        org.ballerinalang.net.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
+                        Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
             }
         }
 
@@ -204,7 +205,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 closeChannel(ctx);
                 if (connectedState) {
                     notifyErrorListenerAtConnectedState(
-                            org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
+                            Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
                 }
             }
             String channelId = ctx.channel().id().asShortText();
@@ -262,20 +263,20 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      * Set pipeline related properties. These should be set only once per connection.
      */
     private void setPipeliningProperties() {
-        if (ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get() == null) {
+        if (ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get() == null) {
             ctx.channel().attr(
-                    org.ballerinalang.net.netty.contract.Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(pipeliningLimit);
+                    Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(pipeliningLimit);
         }
-        if (ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.RESPONSE_QUEUE).get() == null) {
-            ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.RESPONSE_QUEUE).set(holdingQueue);
+        if (ctx.channel().attr(Constants.RESPONSE_QUEUE).get() == null) {
+            ctx.channel().attr(Constants.RESPONSE_QUEUE).set(holdingQueue);
         }
-        if (ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
-            ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.NEXT_SEQUENCE_NUMBER).set(
-                    org.ballerinalang.net.netty.contract.Constants.EXPECTED_SEQUENCE_NUMBER);
+        if (ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
+            ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(
+                    Constants.EXPECTED_SEQUENCE_NUMBER);
         }
 
-        if (ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.PIPELINING_EXECUTOR).get() == null) {
-            ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.PIPELINING_EXECUTOR).set(pipeliningGroup);
+        if (ctx.channel().attr(Constants.PIPELINING_EXECUTOR).get() == null) {
+            ctx.channel().attr(Constants.PIPELINING_EXECUTOR).set(pipeliningGroup);
         }
     }
 

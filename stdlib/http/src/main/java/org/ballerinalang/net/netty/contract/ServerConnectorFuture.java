@@ -28,14 +28,14 @@ import org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorFuture;
 public interface ServerConnectorFuture extends HttpConnectorFuture, WebSocketConnectorFuture {
 
     /**
-     * Set life cycle event listener for the HTTP/WS_SCHEME connector
+     * Set life cycle event listener for the HTTP/WS_SCHEME connector.
      *
      * @param portBindingEventListener The PortBindingEventListener implementation
      */
     void setPortBindingEventListener(PortBindingEventListener portBindingEventListener);
 
     /**
-     * Notify the port binding listener of events related to connector start up
+     * Notify the port binding listener of events related to connector start up.
      *
      * @param serverConnectorId The ID of the server connected related to this port binding event
      * @param isHttps Specifies whether the server connector is using HTTPS.
@@ -43,7 +43,7 @@ public interface ServerConnectorFuture extends HttpConnectorFuture, WebSocketCon
     void notifyPortBindingEvent(String serverConnectorId, boolean isHttps);
 
     /**
-     * Notify the port binding listener of events related to connector termination
+     * Notify the port binding listener of events related to connector termination.
      *
      * @param serverConnectorId The ID of the server connected related to this port unbinding event
      * @param isHttps Specifies whether the server connector is using HTTPS.
@@ -52,7 +52,7 @@ public interface ServerConnectorFuture extends HttpConnectorFuture, WebSocketCon
     void notifyPortUnbindingEvent(String serverConnectorId, boolean isHttps) throws ServerConnectorException;
 
     /**
-     * Notify the port binding listener of exceptions thrown during connector startup
+     * Notify the port binding listener of exceptions thrown during connector startup.
      *
      * @param throwable Exception thrown during connector startup
      */

@@ -33,17 +33,17 @@ public interface SenderState {
     /**
      * Write headers of outbound request.
      *
-     * @param httpOutboundRequest {@link org.ballerinalang.net.netty.message.HttpCarbonMessage} which represents the outbound message
+     * @param httpOutboundRequest {@link HttpCarbonMessage} which represents the outbound message
      */
-    void writeOutboundRequestHeaders(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest);
+    void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest);
 
     /**
      * Write entity body of outbound request.
      *
-     * @param httpOutboundRequest {@link org.ballerinalang.net.netty.message.HttpCarbonMessage} which represents the outbound message
+     * @param httpOutboundRequest {@link HttpCarbonMessage} which represents the outbound message
      * @param httpContent         the content of the entity body
      */
-    void writeOutboundRequestEntity(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest, HttpContent httpContent);
+    void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent);
 
     /**
      * Read headers of inbound response.
@@ -51,14 +51,14 @@ public interface SenderState {
      * @param targetHandler       the target handler
      * @param httpInboundResponse {@link HttpResponse} which is received at target handler
      */
-    void readInboundResponseHeaders(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, HttpResponse httpInboundResponse);
+    void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse);
 
     /**
      * Write headers of outbound request.
      *
      * @param ctx                the channel handler context
      * @param httpContent        the initial content of the entity body
-     * @param inboundResponseMsg {@link org.ballerinalang.net.netty.message.HttpCarbonMessage} which represents the inbound message
+     * @param inboundResponseMsg {@link HttpCarbonMessage} which represents the inbound message
      * @throws Exception if an error occurs while reading response
      */
     void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
@@ -67,10 +67,10 @@ public interface SenderState {
     /**
      * Handle channel closure occurred due to abrupt connection failures.
      *
-     * @param targetHandler       the target handler
+     * @param targetHandler      the target handler
      * @param httpResponseFuture to notify the closure
      */
-    void handleAbruptChannelClosure(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, org.ballerinalang.net.netty.contract.HttpResponseFuture httpResponseFuture);
+    void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture);
 
     /**
      * Handle channel closure occurred due to idle timeout.
@@ -79,6 +79,6 @@ public interface SenderState {
      * @param httpResponseFuture to notify the closure
      * @param channelID          the channel id
      */
-    void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
-                                            HttpResponseFuture httpResponseFuture, String channelID);
+    void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture,
+                                            String channelID);
 }

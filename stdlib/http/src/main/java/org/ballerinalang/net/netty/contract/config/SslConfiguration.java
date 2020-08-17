@@ -19,10 +19,10 @@
 package org.ballerinalang.net.netty.contract.config;
 
 import org.ballerinalang.net.netty.contract.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.net.netty.contractimpl.common.Util;
 import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;

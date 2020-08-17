@@ -26,6 +26,7 @@ import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contractimpl.common.Util;
 import org.ballerinalang.net.netty.contractimpl.common.states.SenderReqRespStateManager;
+import org.ballerinalang.net.netty.contractimpl.common.states.StateUtil;
 import org.ballerinalang.net.netty.contractimpl.sender.TargetHandler;
 import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 import org.slf4j.Logger;
@@ -38,28 +39,27 @@ public class ReceivingEntityBody implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
 
-    private final org.ballerinalang.net.netty.contractimpl.common.states.SenderReqRespStateManager
-            senderReqRespStateManager;
-    private final org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler;
+    private final SenderReqRespStateManager senderReqRespStateManager;
+    private final TargetHandler targetHandler;
 
-    ReceivingEntityBody(SenderReqRespStateManager senderReqRespStateManager, org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler) {
+    ReceivingEntityBody(SenderReqRespStateManager senderReqRespStateManager, TargetHandler targetHandler) {
         this.senderReqRespStateManager = senderReqRespStateManager;
         this.targetHandler = targetHandler;
     }
 
     @Override
-    public void writeOutboundRequestHeaders(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
-        LOG.warn("writeOutboundRequestHeaders {}", org.ballerinalang.net.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR);
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
+        LOG.warn("writeOutboundRequestHeaders {}", StateUtil.ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void writeOutboundRequestEntity(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        LOG.warn("writeOutboundRequestEntity {}", org.ballerinalang.net.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR);
+    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+        LOG.warn("writeOutboundRequestEntity {}", StateUtil.ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void readInboundResponseHeaders(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        LOG.warn("readInboundResponseHeaders {}", org.ballerinalang.net.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR);
+    public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
+        LOG.warn("readInboundResponseHeaders {}", StateUtil.ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -67,12 +67,13 @@ public class ReceivingEntityBody implements SenderState {
                                               HttpCarbonMessage inboundResponseMsg) throws Exception {
 
         if (httpContent instanceof LastHttpContent) {
-            org.ballerinalang.net.netty.contractimpl.common.states.StateUtil.setInboundTrailersToNewMessage(((LastHttpContent) httpContent).trailingHeaders(),
-                                                                                                            inboundResponseMsg);
+            StateUtil.setInboundTrailersToNewMessage(((LastHttpContent) httpContent).trailingHeaders(),
+                                                     inboundResponseMsg);
             inboundResponseMsg.addHttpContent(httpContent);
             inboundResponseMsg.setLastHttpContentArrived();
             targetHandler.resetInboundMsg();
-            Util.safelyRemoveHandlers(targetHandler.getTargetChannel().getChannel().pipeline(), Constants.IDLE_STATE_HANDLER);
+            Util.safelyRemoveHandlers(targetHandler.getTargetChannel().getChannel().pipeline(),
+                                      Constants.IDLE_STATE_HANDLER);
             senderReqRespStateManager.state = new EntityBodyReceived(senderReqRespStateManager);
 
             if (!Util.isKeepAlive(targetHandler.getKeepAliveConfig(), targetHandler.getOutboundRequestMsg())) {
@@ -85,9 +86,9 @@ public class ReceivingEntityBody implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, org.ballerinalang.net.netty.contract.HttpResponseFuture httpResponseFuture) {
-        org.ballerinalang.net.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
-                                                                                                        Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY);
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
+        StateUtil.handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
+                                                 Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY);
     }
 
     @Override
@@ -95,7 +96,7 @@ public class ReceivingEntityBody implements SenderState {
                                                    HttpResponseFuture httpResponseFuture, String channelID) {
         senderReqRespStateManager.nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
         senderReqRespStateManager.nettyTargetChannel.close();
-        org.ballerinalang.net.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
-                                                                                                        Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
+        StateUtil.handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
+                                                 Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
     }
 }

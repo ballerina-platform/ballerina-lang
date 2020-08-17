@@ -25,10 +25,10 @@ import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.client.RetryContext;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
+import org.ballerinalang.net.netty.message.HttpCarbonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
-import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.io.IOException;
 

@@ -25,8 +25,8 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerListener;
-import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.ballerinalang.net.netty.contract.ServerConnector;
+import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
 
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
 

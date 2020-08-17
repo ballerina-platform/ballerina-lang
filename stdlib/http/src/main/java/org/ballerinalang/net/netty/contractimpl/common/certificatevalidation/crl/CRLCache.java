@@ -18,13 +18,13 @@
 
 package org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.crl;
 
+import org.ballerinalang.net.netty.contractimpl.common.MBeanRegistrar;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.CacheController;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.CacheManager;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.ManageableCache;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.ManageableCacheValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.MBeanRegistrar;
 
 import java.security.cert.X509CRL;
 import java.util.Date;
@@ -42,8 +42,7 @@ public class CRLCache implements ManageableCache {
     private static volatile CRLCache cache;
     private static volatile Map<String, CRLCacheValue> hashMap = new ConcurrentHashMap<>();
     private volatile Iterator<Map.Entry<String, CRLCacheValue>> iterator = hashMap.entrySet().iterator();
-    private volatile org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.CacheManager
-            cacheManager;
+    private volatile CacheManager cacheManager;
     private static CRLVerifier crlVerifier = new CRLVerifier(null);
     private static final Logger LOG = LoggerFactory.getLogger(CRLCache.class);
 
@@ -73,7 +72,7 @@ public class CRLCache implements ManageableCache {
             synchronized (CRLCache.class) {
                 if (cacheManager == null) {
                     cacheManager = new CacheManager(cache, size, delay);
-                    org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.CacheController mbean = new CacheController(cache, cacheManager);
+                    CacheController mbean = new CacheController(cache, cacheManager);
                     MBeanRegistrar.getInstance().registerMBean(mbean, "CacheController", "CRLCacheController");
                 }
             }
@@ -86,7 +85,7 @@ public class CRLCache implements ManageableCache {
      *
      * @return next cache value of the cache.
      */
-    public synchronized org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.ManageableCacheValue getNextCacheValue() {
+    public synchronized ManageableCacheValue getNextCacheValue() {
         //changes to the map are reflected on the keySet. And its iterator is weakly consistent. so will never
         //throw concurrent modification exception.
         if (iterator.hasNext()) {

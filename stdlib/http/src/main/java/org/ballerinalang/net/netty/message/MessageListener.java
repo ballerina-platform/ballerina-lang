@@ -26,7 +26,7 @@ import io.netty.handler.codec.http.HttpContent;
 public interface MessageListener {
 
     /**
-     * Get notified when there is a state change in HttpCarbonMessage payload
+     * Get notified when there is a state change in HttpCarbonMessage payload.
      * @param httpContent changed content.
      */
     void onMessage(HttpContent httpContent);

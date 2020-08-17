@@ -34,13 +34,14 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.websocketx.Utf8FrameValidator;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
 import org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorException;
+import org.ballerinalang.net.netty.contractimpl.common.Util;
 import org.ballerinalang.net.netty.contractimpl.websocket.message.DefaultWebSocketHandshaker;
 import org.ballerinalang.net.netty.message.HttpCarbonRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.Util;
 
 /**
  * WebSocket handshake handler for carbon transports.
@@ -49,7 +50,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
 
     private static final Logger LOG = LoggerFactory.getLogger(WebSocketServerHandshakeHandler.class);
 
-    private final org.ballerinalang.net.netty.contract.ServerConnectorFuture serverConnectorFuture;
+    private final ServerConnectorFuture serverConnectorFuture;
     private boolean webSocketCompressionEnabled;
     private SourceHandler sourceHandler;
 
@@ -106,22 +107,22 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
      */
     private ChannelHandlerContext modifyPipelineForUpgrade(ChannelHandlerContext ctx) {
         ChannelPipeline pipeline = ctx.pipeline();
-        if (pipeline.get(org.ballerinalang.net.netty.contract.Constants.BACK_PRESSURE_HANDLER) != null) {
-            pipeline.remove(org.ballerinalang.net.netty.contract.Constants.BACK_PRESSURE_HANDLER);
+        if (pipeline.get(Constants.BACK_PRESSURE_HANDLER) != null) {
+            pipeline.remove(Constants.BACK_PRESSURE_HANDLER);
         }
         // Retain a reference for the sourceHandler to create a carbon message
-        sourceHandler = (SourceHandler) pipeline.remove(org.ballerinalang.net.netty.contract.Constants.HTTP_SOURCE_HANDLER);
+        sourceHandler = (SourceHandler) pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
         ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
-        pipeline.addAfter(decoderCtx.name(), org.ballerinalang.net.netty.contract.Constants.HTTP_OBJECT_AGGREGATOR,
-                          new HttpObjectAggregator(org.ballerinalang.net.netty.contract.Constants.WEBSOCKET_REQUEST_SIZE));
+        pipeline.addAfter(decoderCtx.name(), Constants.HTTP_OBJECT_AGGREGATOR,
+                          new HttpObjectAggregator(Constants.WEBSOCKET_REQUEST_SIZE));
         if (webSocketCompressionEnabled) {
-            pipeline.addAfter(org.ballerinalang.net.netty.contract.Constants.HTTP_OBJECT_AGGREGATOR,
-                              org.ballerinalang.net.netty.contract.Constants.WEBSOCKET_COMPRESSION_HANDLER,
+            pipeline.addAfter(Constants.HTTP_OBJECT_AGGREGATOR,
+                              Constants.WEBSOCKET_COMPRESSION_HANDLER,
                               new WebSocketServerCompressionHandler());
-            pipeline.addAfter(org.ballerinalang.net.netty.contract.Constants.WEBSOCKET_COMPRESSION_HANDLER, Utf8FrameValidator.class.getName(),
+            pipeline.addAfter(Constants.WEBSOCKET_COMPRESSION_HANDLER, Utf8FrameValidator.class.getName(),
                               new Utf8FrameValidator());
         } else {
-            pipeline.addAfter(org.ballerinalang.net.netty.contract.Constants.HTTP_OBJECT_AGGREGATOR, Utf8FrameValidator.class.getName(),
+            pipeline.addAfter(Constants.HTTP_OBJECT_AGGREGATOR, Utf8FrameValidator.class.getName(),
                               new Utf8FrameValidator());
         }
         pipeline.addAfter(Utf8FrameValidator.class.getName(), "handshake", new HandShakeHandler());
@@ -160,12 +161,12 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
             org.ballerinalang.net.netty.contractimpl.websocket.message.DefaultWebSocketHandshaker webSocketHandshaker =
                     new DefaultWebSocketHandshaker(ctx, serverConnectorFuture, fullHttpRequest);
 
-        // Setting common properties to handshaker
+            // Setting common properties to handshaker
             webSocketHandshaker.setHttpCarbonRequest(
                     (HttpCarbonRequest) Util.createInboundReqCarbonMsg(fullHttpRequest, ctx, sourceHandler));
 
-        ctx.channel().config().setAutoRead(false);
-        serverConnectorFuture.notifyWebSocketListener(webSocketHandshaker);
-    }
+            ctx.channel().config().setAutoRead(false);
+            serverConnectorFuture.notifyWebSocketListener(webSocketHandshaker);
+        }
     }
 }

@@ -27,6 +27,9 @@ import org.ballerinalang.net.netty.contract.config.SslConfiguration;
 import java.net.URI;
 import java.util.Map;
 
+import static org.ballerinalang.net.netty.contract.Constants.HTTPS_SCHEME;
+import static org.ballerinalang.net.netty.contract.Constants.WSS_SCHEME;
+
 /**
  * Configuration for WebSocket client connector.
  */
@@ -43,8 +46,8 @@ public class WebSocketClientConnectorConfig extends SslConfiguration {
     public WebSocketClientConnectorConfig(String remoteAddress) {
         this.remoteAddress = remoteAddress;
         this.headers = new DefaultHttpHeaders();
-        this.setScheme(org.ballerinalang.net.netty.contract.Constants.WSS_SCHEME.equals(URI.create(remoteAddress).getScheme())
-                ? org.ballerinalang.net.netty.contract.Constants.HTTPS_SCHEME : Constants.HTTP_SCHEME);
+        this.setScheme(WSS_SCHEME.equals(URI.create(remoteAddress).getScheme())
+                ? HTTPS_SCHEME : Constants.HTTP_SCHEME);
     }
 
     /**

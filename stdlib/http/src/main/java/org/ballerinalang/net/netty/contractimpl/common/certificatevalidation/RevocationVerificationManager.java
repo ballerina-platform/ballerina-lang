@@ -30,11 +30,12 @@ import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+
 import javax.security.cert.CertificateEncodingException;
 
 /**
- * Manager class responsible for verifying certificates. This class will use the available verifiers according to
- * a predefined policy (First check with OCSP access end point and then move to CRL distribution point to validate).
+ * Manager class responsible for verifying certificates. This class will use the available verifiers according to a
+ * predefined policy (First check with OCSP access end point and then move to CRL distribution point to validate).
  */
 public class RevocationVerificationManager {
 
@@ -55,12 +56,12 @@ public class RevocationVerificationManager {
     }
 
     /**
-     * This method first tries to verify the given certificate chain using OCSP since OCSP verification is
-     * faster. If that fails it tries to do the verification using CRL.
+     * This method first tries to verify the given certificate chain using OCSP since OCSP verification is faster. If
+     * that fails it tries to do the verification using CRL.
      *
      * @param peerCertificates javax.security.cert.X509Certificate[] array of peer certificate chain from peer/client.
-     * @throws CertificateVerificationException Occurs when certificate fails to be validated from both OCSP and CRL.
      * @return true If the process of certificate revocation becomes successful.
+     * @throws CertificateVerificationException Occurs when certificate fails to be validated from both OCSP and CRL.
      */
     public boolean verifyRevocationStatus(javax.security.cert.X509Certificate[] peerCertificates)
             throws CertificateVerificationException {
@@ -69,17 +70,16 @@ public class RevocationVerificationManager {
 
         long start = System.currentTimeMillis();
         // If not set by the user, default cache size will be 50 and default cache delay will be 15 mins.
-        org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.ocsp.OCSPCache ocspCache = OCSPCache.getCache();
+        OCSPCache ocspCache = OCSPCache.getCache();
         ocspCache.init(cacheSize, cacheDelayMins);
-        org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.crl.CRLCache crlCache = CRLCache.getCache();
+        CRLCache crlCache = CRLCache.getCache();
         crlCache.init(cacheSize, cacheDelayMins);
 
-        RevocationVerifier[] verifiers = { new OCSPVerifier(ocspCache), new CRLVerifier(crlCache) };
+        RevocationVerifier[] verifiers = {new OCSPVerifier(ocspCache), new CRLVerifier(crlCache)};
 
         for (RevocationVerifier verifier : verifiers) {
             try {
-                org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.pathvalidation.CertificatePathValidator
-                        pathValidator = new CertificatePathValidator(convertedCertificates, verifier);
+                CertificatePathValidator pathValidator = new CertificatePathValidator(convertedCertificates, verifier);
                 pathValidator.validatePath();
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Path verification is successful. Took {} ms.", System.currentTimeMillis() - start);
@@ -95,12 +95,12 @@ public class RevocationVerificationManager {
         throw new CertificateVerificationException("Path verification failed for both OCSP and CRL");
     }
 
-    /** Convert certificates and create a certificate chain.
+    /**
+     * Convert certificates and create a certificate chain.
      *
      * @param certs array of javax.security.cert.X509Certificate[] s.
      * @return the converted array of java.security.cert.X509Certificate[] s.
-     * @throws CertificateVerificationException If an error occurs while converting certificates
-     * from java to javax
+     * @throws CertificateVerificationException If an error occurs while converting certificates from java to javax
      */
     private X509Certificate[] convert(javax.security.cert.X509Certificate[] certs)
             throws CertificateVerificationException {

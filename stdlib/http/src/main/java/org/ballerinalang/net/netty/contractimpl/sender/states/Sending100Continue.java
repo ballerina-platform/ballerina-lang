@@ -24,6 +24,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException;
 import org.ballerinalang.net.netty.contractimpl.common.Util;
@@ -46,16 +47,15 @@ public class Sending100Continue implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(Sending100Continue.class);
 
-    private final org.ballerinalang.net.netty.contractimpl.common.states.SenderReqRespStateManager
-            senderReqRespStateManager;
+    private final SenderReqRespStateManager senderReqRespStateManager;
 
-    private final org.ballerinalang.net.netty.contract.HttpResponseFuture httpInboundResponseFuture;
-    private org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler;
-    private org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest;
+    private final HttpResponseFuture httpInboundResponseFuture;
+    private TargetHandler targetHandler;
+    private HttpCarbonMessage httpOutboundRequest;
     private List<HttpContent> contentList = new ArrayList<>();
 
     Sending100Continue(SenderReqRespStateManager senderReqRespStateManager,
-                       org.ballerinalang.net.netty.contract.HttpResponseFuture httpInboundResponseFuture) {
+                       HttpResponseFuture httpInboundResponseFuture) {
         this.senderReqRespStateManager = senderReqRespStateManager;
         this.httpInboundResponseFuture = httpInboundResponseFuture;
         configIdleTimeoutTrigger(senderReqRespStateManager.socketTimeout / 5);
@@ -64,27 +64,27 @@ public class Sending100Continue implements SenderState {
     private void configIdleTimeoutTrigger(int socketIdleTimeout) {
         ChannelPipeline pipeline = senderReqRespStateManager.nettyTargetChannel.pipeline();
         IdleStateHandler idleStateHandler = new IdleStateHandler(0, 0, socketIdleTimeout, TimeUnit.MILLISECONDS);
-        Util.safelyRemoveHandlers(pipeline, org.ballerinalang.net.netty.contract.Constants.IDLE_STATE_HANDLER);
-        if (pipeline.get(org.ballerinalang.net.netty.contract.Constants.TARGET_HANDLER) == null) {
-            pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.IDLE_STATE_HANDLER, idleStateHandler);
+        Util.safelyRemoveHandlers(pipeline, Constants.IDLE_STATE_HANDLER);
+        if (pipeline.get(Constants.TARGET_HANDLER) == null) {
+            pipeline.addLast(Constants.IDLE_STATE_HANDLER, idleStateHandler);
         } else {
-            pipeline.addBefore(org.ballerinalang.net.netty.contract.Constants.TARGET_HANDLER,
-                               org.ballerinalang.net.netty.contract.Constants.IDLE_STATE_HANDLER, idleStateHandler);
+            pipeline.addBefore(Constants.TARGET_HANDLER,
+                               Constants.IDLE_STATE_HANDLER, idleStateHandler);
         }
     }
 
     @Override
-    public void writeOutboundRequestHeaders(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest) {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
         this.httpOutboundRequest = httpOutboundRequest;
     }
 
     @Override
-    public void writeOutboundRequestEntity(org.ballerinalang.net.netty.message.HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         contentList.add(httpContent);
     }
 
     @Override
-    public void readInboundResponseHeaders(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, HttpResponse httpInboundResponse) {
+    public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
         this.targetHandler = targetHandler;
         configIdleTimeoutTrigger(senderReqRespStateManager.socketTimeout);
 
@@ -116,16 +116,15 @@ public class Sending100Continue implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(org.ballerinalang.net.netty.contractimpl.sender.TargetHandler targetHandler, org.ballerinalang.net.netty.contract.HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
         for (HttpContent cachedHttpContent : contentList) {
             cachedHttpContent.release();
         }
 
-        httpResponseFuture
-                .notifyHttpListener(
-                        new ClientConnectorException(senderReqRespStateManager.nettyTargetChannel.id().asShortText(),
-                                                     org.ballerinalang.net.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_READING_100_CONTINUE_RESPONSE));
-        LOG.error("Error in HTTP client: {}", org.ballerinalang.net.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_READING_100_CONTINUE_RESPONSE);
+        httpResponseFuture.notifyHttpListener(
+                new ClientConnectorException(senderReqRespStateManager.nettyTargetChannel.id().asShortText(),
+                                             Constants.REMOTE_SERVER_CLOSED_BEFORE_READING_100_CONTINUE_RESPONSE));
+        LOG.error("Error in HTTP client: {}", Constants.REMOTE_SERVER_CLOSED_BEFORE_READING_100_CONTINUE_RESPONSE);
     }
 
     @Override

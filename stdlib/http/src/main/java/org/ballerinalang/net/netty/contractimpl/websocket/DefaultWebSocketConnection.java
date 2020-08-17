@@ -12,6 +12,7 @@ import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.websocket.WebSocketConnection;
 import org.ballerinalang.net.netty.contract.websocket.WebSocketFrameType;
 import org.ballerinalang.net.netty.contractimpl.listener.WebSocketMessageQueueHandler;
@@ -20,7 +21,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 /**
- * Default implementation of {@link org.ballerinalang.net.netty.contract.websocket.WebSocketConnection}.
+ * Default implementation of {@link WebSocketConnection}.
  */
 public class DefaultWebSocketConnection implements WebSocketConnection {
 
@@ -28,8 +29,8 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     private final WebSocketInboundFrameHandler frameHandler;
     private final boolean secure;
     private final InetSocketAddress localAddress;
-    private org.ballerinalang.net.netty.contractimpl.listener.WebSocketMessageQueueHandler webSocketMessageQueueHandler;
-    private org.ballerinalang.net.netty.contract.websocket.WebSocketFrameType continuationFrameType;
+    private WebSocketMessageQueueHandler webSocketMessageQueueHandler;
+    private WebSocketFrameType continuationFrameType;
     private boolean closeFrameSent;
     private int closeInitiatedStatusCode;
     private String id;
@@ -85,8 +86,8 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     @Override
     public void startReadingFrames() {
         ChannelPipeline pipeline = ctx.pipeline();
-        if (pipeline.get(org.ballerinalang.net.netty.contract.Constants.MESSAGE_QUEUE_HANDLER) != null) {
-            ctx.pipeline().remove(org.ballerinalang.net.netty.contract.Constants.MESSAGE_QUEUE_HANDLER);
+        if (pipeline.get(Constants.MESSAGE_QUEUE_HANDLER) != null) {
+            ctx.pipeline().remove(Constants.MESSAGE_QUEUE_HANDLER);
         }
         ctx.channel().config().setAutoRead(true);
     }
@@ -95,9 +96,8 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     public void stopReadingFrames() {
         ctx.channel().config().setAutoRead(false);
         ChannelPipeline pipeline = ctx.pipeline();
-        if (pipeline.get(org.ballerinalang.net.netty.contract.Constants.MESSAGE_QUEUE_HANDLER) == null) {
-            ctx.pipeline().addBefore(org.ballerinalang.net.netty.contract.Constants.WEBSOCKET_FRAME_HANDLER,
-                                     org.ballerinalang.net.netty.contract.Constants.MESSAGE_QUEUE_HANDLER,
+        if (pipeline.get(Constants.MESSAGE_QUEUE_HANDLER) == null) {
+            ctx.pipeline().addBefore(Constants.WEBSOCKET_FRAME_HANDLER,  Constants.MESSAGE_QUEUE_HANDLER,
                                      webSocketMessageQueueHandler);
         }
     }
@@ -109,7 +109,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture pushText(String text, boolean finalFrame) {
-        if (continuationFrameType == org.ballerinalang.net.netty.contract.websocket.WebSocketFrameType.BINARY) {
+        if (continuationFrameType == WebSocketFrameType.BINARY) {
             throw new IllegalStateException("Cannot interrupt WebSocket binary frame continuation");
         }
         if (closeFrameSent) {
@@ -122,7 +122,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
             return ctx.writeAndFlush(new ContinuationWebSocketFrame(finalFrame, 0, text));
         }
         if (!finalFrame) {
-            continuationFrameType = org.ballerinalang.net.netty.contract.websocket.WebSocketFrameType.TEXT;
+            continuationFrameType = WebSocketFrameType.TEXT;
         }
         return ctx.writeAndFlush(new TextWebSocketFrame(finalFrame, 0, text));
     }
@@ -134,7 +134,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture pushBinary(ByteBuffer data, boolean finalFrame) {
-        if (continuationFrameType == org.ballerinalang.net.netty.contract.websocket.WebSocketFrameType.TEXT) {
+        if (continuationFrameType == WebSocketFrameType.TEXT) {
             throw new IllegalStateException("Cannot interrupt WebSocket text frame continuation");
         }
         if (closeFrameSent) {

@@ -24,11 +24,11 @@ under the License.
     <!--This listener is only meant to be used for debugging purposes. 
     Hence it's disabled by default to avoid causing problems in Travis due to the volume of logs this may generate.-->
     <!--<listeners>-->
-    <!--<listener class-name="org.ballerinalang.stdlib.utils.HTTPTestSuiteListener"/>-->
+    <!--<listener class-name="org.ballerinalang.net.utils.HTTPTestSuiteListener"/>-->
     <!--</listeners>-->
 
     <listeners>
-        <listener class-name="org.ballerinalang.stdlib.utils.JBallerinaTestInitializer"/>
+        <listener class-name="org.ballerinalang.net.utils.JBallerinaTestInitializer"/>
     </listeners>
 
     <!-- Ballerina language Test Cases. -->
@@ -41,22 +41,22 @@ under the License.
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.stdlib.entity.*"/>
-            <!--<package name="org.ballerinalang.stdlib.services.basics.*"/>-->
-            <package name="org.ballerinalang.stdlib.multipart.*"/>
-            <package name="org.ballerinalang.stdlib.services.configuration.*"/>
-            <package name="org.ballerinalang.stdlib.services.cors.*"/>
-            <package name="org.ballerinalang.stdlib.services.dispatching.*"/>
-            <package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>
-            <package name="org.ballerinalang.stdlib.websocket.*"/>
-            <package name="org.ballerinalang.stdlib.cachingclient.*"/>
-            <package name="org.ballerinalang.stdlib.connectionpool.*"/>
-            <package name="org.ballerinalang.stdlib.auth.*"/>
-            <package name="org.ballerinalang.stdlib.resiliency.*"/>
+            <package name="org.ballerinalang.net.entity.*"/>
+            <!--<package name="org.ballerinalang.net.services.basics.*"/>-->
+            <package name="org.ballerinalang.net.multipart.*"/>
+            <package name="org.ballerinalang.net.services.configuration.*"/>
+            <package name="org.ballerinalang.net.services.cors.*"/>
+            <package name="org.ballerinalang.net.services.dispatching.*"/>
+            <package name="org.ballerinalang.net.services.nativeimpl.*"/>
+            <package name="org.ballerinalang.net.websocket.*"/>
+            <package name="org.ballerinalang.net.cachingclient.*"/>
+            <package name="org.ballerinalang.net.connectionpool.*"/>
+            <package name="org.ballerinalang.net.auth.*"/>
+            <package name="org.ballerinalang.net.resiliency.*"/>
         </packages>
         <classes>
-            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest"/>
-            <class name="org.ballerinalang.stdlib.services.basics.ServiceTest">
+            <class name="org.ballerinalang.net.services.basics.SignatureTest"/>
+            <class name="org.ballerinalang.net.services.basics.ServiceTest">
                 <methods>
                     <exclude name="testErrorReturn"></exclude>
                     <exclude name="testGetString"></exclude>

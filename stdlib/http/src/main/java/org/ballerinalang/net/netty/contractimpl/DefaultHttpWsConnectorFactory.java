@@ -27,10 +27,9 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.ballerinalang.net.netty.contract.HttpWsConnectorFactory;
-import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.HttpClientConnector;
+import org.ballerinalang.net.netty.contract.HttpWsConnectorFactory;
 import org.ballerinalang.net.netty.contract.ServerConnector;
 import org.ballerinalang.net.netty.contract.config.ListenerConfiguration;
 import org.ballerinalang.net.netty.contract.config.SenderConfiguration;
@@ -41,9 +40,11 @@ import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLConfig;
 import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLHandlerFactory;
 import org.ballerinalang.net.netty.contractimpl.listener.ServerConnectorBootstrap;
 import org.ballerinalang.net.netty.contractimpl.sender.channel.BootstrapConfiguration;
+import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.ballerinalang.net.netty.contractimpl.websocket.DefaultWebSocketClientConnector;
 
 import java.util.Map;
+
 import javax.net.ssl.SSLException;
 
 import static org.ballerinalang.net.netty.contract.Constants.PIPELINING_THREAD_COUNT;
@@ -142,8 +143,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
     public HttpClientConnector createHttpClientConnector(
             Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
-        org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager
-                connectionManager = new org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager(senderConfiguration.getPoolConfiguration());
+        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration());
         return new DefaultHttpClientConnector(connectionManager, senderConfiguration, bootstrapConfig, clientGroup);
     }
 

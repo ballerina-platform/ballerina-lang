@@ -18,8 +18,11 @@
 
 package org.ballerinalang.net.netty.contractimpl.listener;
 
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.Constants;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.ocsp.OCSPCache;
 import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.ocsp.OCSPVerifier;
+import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLConfig;
 import org.bouncycastle.asn1.ocsp.OCSPResponseStatus;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.CertificateStatus;
@@ -29,9 +32,6 @@ import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.cert.ocsp.SingleResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.Constants;
-import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLConfig;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,8 +75,7 @@ public class OCSPResponseBuilder {
             cacheDelayMins = cacheDelay;
         }
 
-        org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.ocsp.OCSPCache
-                ocspCache = org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.ocsp.OCSPCache.getCache();
+        OCSPCache ocspCache = OCSPCache.getCache();
         ocspCache.init(cacheSize, cacheDelayMins);
 
         if (sslConfig.getKeyStore() != null) {
@@ -100,8 +99,7 @@ public class OCSPResponseBuilder {
                 return ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber());
             } else {
                 OCSPReq request;
-                request = org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.ocsp.OCSPVerifier
-                        .generateOCSPRequest(issuer, userCertificate.getSerialNumber());
+                request = OCSPVerifier.generateOCSPRequest(issuer, userCertificate.getSerialNumber());
                 locations = getAIALocations(userCertificate);
                 return getOCSPResponse(locations, request, userCertificate, ocspCache);
             }
@@ -166,10 +164,9 @@ public class OCSPResponseBuilder {
         List<String> locations;
         //List the AIA locations from the certificate. Those are the URL's of CA s.
         try {
-            locations = org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.ocsp.OCSPVerifier
-                    .getAIALocations(userCertificate);
+            locations = OCSPVerifier.getAIALocations(userCertificate);
         } catch (CertificateVerificationException e) {
-            throw new CertificateVerificationException("Failed to find AIA locations in the cetificate", e);
+            throw new CertificateVerificationException("Failed to find AIA locations in the certificate", e);
         }
         return locations;
     }

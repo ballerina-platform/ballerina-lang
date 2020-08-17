@@ -20,7 +20,7 @@
 package org.ballerinalang.net.netty.contract.config;
 
 /**
- * Contains value for configuring keep-alive
+ * Contains value for configuring keep-alive.
  */
 public enum KeepAliveConfig {
     ALWAYS,

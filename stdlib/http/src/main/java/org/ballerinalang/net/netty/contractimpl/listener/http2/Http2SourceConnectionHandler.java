@@ -27,6 +27,7 @@ import io.netty.handler.codec.http2.Http2FrameListener;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
 import io.netty.handler.codec.http2.Http2Stream;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
 import org.ballerinalang.net.netty.contractimpl.common.Util;
 import org.ballerinalang.net.netty.contractimpl.common.http2.Http2ExceptionHandler;
@@ -46,9 +47,9 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
     private Http2FrameListener http2FrameListener;
     private Http2ConnectionEncoder encoder;
     private String interfaceId;
-    private org.ballerinalang.net.netty.contract.ServerConnectorFuture serverConnectorFuture;
+    private ServerConnectorFuture serverConnectorFuture;
     private String serverName;
-    private org.ballerinalang.net.netty.contractimpl.listener.HttpServerChannelInitializer serverChannelInitializer;
+    private HttpServerChannelInitializer serverChannelInitializer;
 
     Http2SourceConnectionHandler(HttpServerChannelInitializer serverChannelInitializer,
                                  Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
@@ -69,14 +70,14 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
         // Remove unwanted handlers after upgrade
-        Util.safelyRemoveHandlers(ctx.pipeline(), org.ballerinalang.net.netty.contract.Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER, org.ballerinalang.net.netty.contract.Constants.HTTP_COMPRESSOR,
-                                  org.ballerinalang.net.netty.contract.Constants.HTTP_TRACE_LOG_HANDLER,
-                                  org.ballerinalang.net.netty.contract.Constants.HTTP_ACCESS_LOG_HANDLER, org.ballerinalang.net.netty.contract.Constants.HTTP2_EXCEPTION_HANDLER);
+        Util.safelyRemoveHandlers(ctx.pipeline(), Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER, Constants.HTTP_COMPRESSOR,
+                                  Constants.HTTP_TRACE_LOG_HANDLER,
+                                  Constants.HTTP_ACCESS_LOG_HANDLER, Constants.HTTP2_EXCEPTION_HANDLER);
         // Add HTTP2 Source handler
         Http2SourceHandler http2SourceHandler = new Http2SourceHandler(serverChannelInitializer, encoder, interfaceId,
                 connection(), serverConnectorFuture, serverName);
-        ctx.pipeline().addLast(org.ballerinalang.net.netty.contract.Constants.HTTP2_SOURCE_HANDLER, http2SourceHandler);
-        ctx.pipeline().addLast(org.ballerinalang.net.netty.contract.Constants.HTTP2_EXCEPTION_HANDLER, new Http2ExceptionHandler(this));
+        ctx.pipeline().addLast(Constants.HTTP2_SOURCE_HANDLER, http2SourceHandler);
+        ctx.pipeline().addLast(Constants.HTTP2_EXCEPTION_HANDLER, new Http2ExceptionHandler(this));
     }
 
     @Override
@@ -84,7 +85,7 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Channel inactive event received in Http2SourceConnectionHandler");
         }
-        if (org.ballerinalang.net.netty.internal.HttpTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+        if (HttpTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HttpTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
@@ -109,7 +110,7 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
         @Override
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId,
                                   Http2Headers headers, int padding, boolean endOfStream) {
-            org.ballerinalang.net.netty.message.Http2HeadersFrame http2HeadersFrame = new Http2HeadersFrame(streamId, headers, endOfStream);
+            Http2HeadersFrame http2HeadersFrame = new Http2HeadersFrame(streamId, headers, endOfStream);
             ctx.fireChannelRead(http2HeadersFrame);
         }
 
@@ -124,9 +125,9 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
             int readableBytes = data.readableBytes();
             ByteBuf forwardedData = data.copy();
             data.skipBytes(readableBytes);
-            org.ballerinalang.net.netty.message.Http2DataFrame dataFrame = new Http2DataFrame(streamId, forwardedData, endOfStream);
+            Http2DataFrame dataFrame = new Http2DataFrame(streamId, forwardedData, endOfStream);
             ctx.fireChannelRead(dataFrame);
-            return org.ballerinalang.net.netty.contract.Constants.ZERO_READABLE_BYTES;
+            return Constants.ZERO_READABLE_BYTES;
         }
 
         @Override

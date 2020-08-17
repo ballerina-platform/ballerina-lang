@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.pipelining;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.wso2.transport.http.netty.contractimpl.HttpPipeliningListener;
+import org.ballerinalang.net.netty.contractimpl.HttpPipeliningListener;
 
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executePipeliningLogic;
 

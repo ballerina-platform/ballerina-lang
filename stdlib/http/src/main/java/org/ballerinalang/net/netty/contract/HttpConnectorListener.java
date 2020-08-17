@@ -19,8 +19,8 @@
 
 package org.ballerinalang.net.netty.contract;
 
-import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 import org.ballerinalang.net.netty.message.Http2PushPromise;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 
 /**
  * Allows to get notifications of connectors.
@@ -31,7 +31,7 @@ public interface HttpConnectorListener {
      *
      * @param httpMessage contains the state change information of the event.
      */
-    void onMessage(org.ballerinalang.net.netty.message.HttpCarbonMessage httpMessage);
+    void onMessage(HttpCarbonMessage httpMessage);
 
     /**
      * Each error event triggered by connector ends up here.

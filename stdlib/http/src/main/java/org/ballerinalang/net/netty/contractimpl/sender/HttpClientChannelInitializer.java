@@ -38,18 +38,20 @@ import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
+import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.config.KeepAliveConfig;
 import org.ballerinalang.net.netty.contract.config.ProxyServerConfiguration;
 import org.ballerinalang.net.netty.contract.config.SenderConfiguration;
 import org.ballerinalang.net.netty.contractimpl.common.BackPressureHandler;
 import org.ballerinalang.net.netty.contractimpl.common.FrameLogger;
 import org.ballerinalang.net.netty.contractimpl.common.HttpRoute;
-import org.ballerinalang.net.netty.contractimpl.listener.HttpExceptionHandler;
-import org.ballerinalang.net.netty.contractimpl.listener.HttpTraceLoggingHandler;
-import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
+import org.ballerinalang.net.netty.contractimpl.common.Util;
 import org.ballerinalang.net.netty.contractimpl.common.http2.Http2ExceptionHandler;
 import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLConfig;
 import org.ballerinalang.net.netty.contractimpl.common.ssl.SSLHandlerFactory;
+import org.ballerinalang.net.netty.contractimpl.listener.HttpExceptionHandler;
+import org.ballerinalang.net.netty.contractimpl.listener.HttpTraceLoggingHandler;
+import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.ballerinalang.net.netty.contractimpl.sender.http2.ClientFrameListener;
 import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ConnectionManager;
@@ -67,7 +69,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
 
     private TargetHandler targetHandler;
     private boolean httpTraceLogEnabled;
-    private org.ballerinalang.net.netty.contract.config.KeepAliveConfig keepAliveConfig;
+    private KeepAliveConfig keepAliveConfig;
     private ProxyServerConfiguration proxyServerConfiguration;
     private Http2ConnectionManager http2ConnectionManager;
     private boolean http2 = false;
@@ -76,13 +78,14 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private Http2TargetHandler http2TargetHandler;
     private Http2Connection connection;
     private SSLConfig sslConfig;
-    private org.ballerinalang.net.netty.contractimpl.common.HttpRoute httpRoute;
-    private org.ballerinalang.net.netty.contract.config.SenderConfiguration senderConfiguration;
+    private HttpRoute httpRoute;
+    private SenderConfiguration senderConfiguration;
     private ConnectionAvailabilityFuture connectionAvailabilityFuture;
     private SSLHandlerFactory sslHandlerFactory;
 
     public HttpClientChannelInitializer(SenderConfiguration senderConfiguration, HttpRoute httpRoute,
-                                        ConnectionManager connectionManager, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
+                                        ConnectionManager connectionManager,
+                                        ConnectionAvailabilityFuture connectionAvailabilityFuture) {
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
         this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
@@ -93,7 +96,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
 
         String httpVersion = senderConfiguration.getHttpVersion();
-        if (org.ballerinalang.net.netty.contract.Constants.HTTP_2_0.equals(httpVersion)) {
+        if (Constants.HTTP_2_0.equals(httpVersion)) {
             http2 = true;
         }
         connection = new DefaultHttp2Connection(false);
@@ -102,7 +105,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
 
         Http2ConnectionHandlerBuilder connectionHandlerBuilder = new Http2ConnectionHandlerBuilder();
         if (httpTraceLogEnabled) {
-            connectionHandlerBuilder.frameLogger(new FrameLogger(TRACE, org.ballerinalang.net.netty.contract.Constants.TRACE_LOG_UPSTREAM));
+            connectionHandlerBuilder.frameLogger(new FrameLogger(TRACE, Constants.TRACE_LOG_UPSTREAM));
         }
         http2ConnectionHandler = connectionHandlerBuilder.connection(connection).frameListener(frameListener).build();
         http2TargetHandler = new Http2TargetHandler(connection, http2ConnectionHandler.encoder());
@@ -132,16 +135,16 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         } else {
             if (sslConfig != null) {
                 connectionAvailabilityFuture.setSSLEnabled(true);
-                SSLEngine sslEngine = org.ballerinalang.net.netty.contractimpl.common.Util
+                SSLEngine sslEngine = Util
                         .configureHttpPipelineForSSL(socketChannel, httpRoute.getHost(), httpRoute.getPort(),
-                                sslConfig);
-                clientPipeline.addLast(org.ballerinalang.net.netty.contract.Constants.SSL_COMPLETION_HANDLER,
-                                       new SslHandshakeCompletionHandlerForClient(connectionAvailabilityFuture, this, targetHandler,
-                                sslEngine));
+                                                     sslConfig);
+                clientPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
+                                       new SslHandshakeCompletionHandlerForClient(
+                                               connectionAvailabilityFuture, this, targetHandler, sslEngine));
             } else {
                 configureHttpPipeline(clientPipeline, targetHandler);
             }
-            clientPipeline.addLast(org.ballerinalang.net.netty.contract.Constants.HTTP_EXCEPTION_HANDLER, new HttpExceptionHandler());
+            clientPipeline.addLast(Constants.HTTP_EXCEPTION_HANDLER, new HttpExceptionHandler());
         }
     }
 
@@ -150,12 +153,12 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         if (proxyServerConfiguration != null && sslConfig != null) {
             if (proxyServerConfiguration.getProxyUsername() != null
                     && proxyServerConfiguration.getProxyPassword() != null) {
-                clientPipeline.addLast(org.ballerinalang.net.netty.contract.Constants.PROXY_HANDLER,
+                clientPipeline.addLast(Constants.PROXY_HANDLER,
                                        new HttpProxyHandler(proxyServerConfiguration.getInetSocketAddress(),
                                 proxyServerConfiguration.getProxyUsername(),
                                 proxyServerConfiguration.getProxyPassword()));
             } else {
-                clientPipeline.addLast(org.ballerinalang.net.netty.contract.Constants.PROXY_HANDLER,
+                clientPipeline.addLast(Constants.PROXY_HANDLER,
                                        new HttpProxyHandler(proxyServerConfiguration.getInetSocketAddress()));
             }
         }
@@ -171,7 +174,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             if (referenceCountedOpenSslContext != null) {
                 SslHandler sslHandler = referenceCountedOpenSslContext.newHandler(ch.alloc());
                 ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
-                org.ballerinalang.net.netty.contractimpl.common.Util.setSslHandshakeTimeOut(sslConfig, sslHandler);
+                Util.setSslHandshakeTimeOut(sslConfig, sslHandler);
                 ch.pipeline().addLast(sslHandler);
                 ch.pipeline().addLast(new OCSPStaplingHandler(engine));
             }
@@ -182,19 +185,19 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             SSLEngine sslEngine = sslHandler.engine();
             sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
             if (sslConfig.isHostNameVerificationEnabled()) {
-                org.ballerinalang.net.netty.contractimpl.common.Util.setHostNameVerfication(sslEngine);
+                Util.setHostNameVerfication(sslEngine);
             }
-            org.ballerinalang.net.netty.contractimpl.common.Util.setSslHandshakeTimeOut(sslConfig, sslHandler);
+            Util.setSslHandshakeTimeOut(sslConfig, sslHandler);
             clientPipeline.addLast(sslHandler);
             if (sslConfig.isValidateCertEnabled()) {
-                clientPipeline.addLast(org.ballerinalang.net.netty.contract.Constants.HTTP_CERT_VALIDATION_HANDLER,
+                clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
                                        new CertificateValidationHandler(sslEngine, sslConfig.getCacheValidityPeriod(),
                                 sslConfig.getCacheSize()));
             }
         }
         clientPipeline.addLast(new Http2PipelineConfiguratorForClient(targetHandler, connectionAvailabilityFuture));
         clientPipeline
-                .addLast(org.ballerinalang.net.netty.contract.Constants.HTTP2_EXCEPTION_HANDLER, new Http2ExceptionHandler(http2ConnectionHandler));
+                .addLast(Constants.HTTP2_EXCEPTION_HANDLER, new Http2ExceptionHandler(http2ConnectionHandler));
     }
 
     public TargetHandler getTargetHandler() {
@@ -223,8 +226,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         Http2ClientUpgradeCodec upgradeCodec = new Http2ClientUpgradeCodec(http2ConnectionHandler);
         HttpClientUpgradeHandler upgradeHandler = new HttpClientUpgradeHandler(sourceCodec, upgradeCodec,
                 Integer.MAX_VALUE);
-        pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.HTTP2_UPGRADE_HANDLER, upgradeHandler);
-        pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.TARGET_HANDLER, targetHandler);
+        pipeline.addLast(Constants.HTTP2_UPGRADE_HANDLER, upgradeHandler);
+        pipeline.addLast(Constants.TARGET_HANDLER, targetHandler);
     }
 
     /**
@@ -233,11 +236,11 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
      * @param pipeline the client channel pipeline
      */
     private void configureHttp2Pipeline(ChannelPipeline pipeline) {
-        org.ballerinalang.net.netty.contractimpl.common.Util.safelyRemoveHandlers(pipeline, org.ballerinalang.net.netty.contract.Constants.HTTP2_EXCEPTION_HANDLER);
-        pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.CONNECTION_HANDLER, http2ConnectionHandler);
-        pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.HTTP2_TARGET_HANDLER, http2TargetHandler);
-        pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
-        pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.HTTP2_EXCEPTION_HANDLER, new Http2ExceptionHandler(http2ConnectionHandler));
+        Util.safelyRemoveHandlers(pipeline, Constants.HTTP2_EXCEPTION_HANDLER);
+        pipeline.addLast(Constants.CONNECTION_HANDLER, http2ConnectionHandler);
+        pipeline.addLast(Constants.HTTP2_TARGET_HANDLER, http2TargetHandler);
+        pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
+        pipeline.addLast(Constants.HTTP2_EXCEPTION_HANDLER, new Http2ExceptionHandler(http2ConnectionHandler));
     }
 
     /**
@@ -247,10 +250,10 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
      * @param targetHandler the target handler
      */
     public void configureHttpPipeline(ChannelPipeline pipeline, TargetHandler targetHandler) {
-        pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.HTTP_CLIENT_CODEC, new HttpClientCodec());
+        pipeline.addLast(Constants.HTTP_CLIENT_CODEC, new HttpClientCodec());
         addCommonHandlers(pipeline);
-        pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.BACK_PRESSURE_HANDLER, new BackPressureHandler());
-        pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.TARGET_HANDLER, targetHandler);
+        pipeline.addLast(Constants.BACK_PRESSURE_HANDLER, new BackPressureHandler());
+        pipeline.addLast(Constants.TARGET_HANDLER, targetHandler);
     }
 
     /**
@@ -259,10 +262,10 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
      * @param pipeline the client channel pipeline
      */
     private void addCommonHandlers(ChannelPipeline pipeline) {
-        pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
+        pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
         if (httpTraceLogEnabled) {
-            pipeline.addLast(org.ballerinalang.net.netty.contract.Constants.HTTP_TRACE_LOG_HANDLER,
-                             new HttpTraceLoggingHandler(org.ballerinalang.net.netty.contract.Constants.TRACE_LOG_UPSTREAM));
+            pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
+                             new HttpTraceLoggingHandler(Constants.TRACE_LOG_UPSTREAM));
         }
     }
 
@@ -310,7 +313,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
                 // handles pipeline for HTTP/1.x requests after SSL handshake
                 configureHttpPipeline(ctx.pipeline(), targetHandler);
-                connectionAvailabilityFuture.notifySuccess(org.ballerinalang.net.netty.contract.Constants.HTTP_SCHEME);
+                connectionAvailabilityFuture.notifySuccess(Constants.HTTP_SCHEME);
             } else {
                 throw new IllegalStateException("Unknown protocol: " + protocol);
             }
@@ -318,8 +321,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
 
         @Override
         protected void handshakeFailure(ChannelHandlerContext ctx, Throwable cause) {
-            if (cause.toString().contains(org.ballerinalang.net.netty.contract.Constants.SSL) || cause.toString().contains(
-                    org.ballerinalang.net.netty.contract.Constants.SECURITY)) {
+            if (cause.toString().contains(Constants.SSL) || cause.toString().contains(
+                    Constants.SECURITY)) {
                 while (cause.getCause() != null && cause.getCause() != cause) {
                     cause = cause.getCause();
                 }

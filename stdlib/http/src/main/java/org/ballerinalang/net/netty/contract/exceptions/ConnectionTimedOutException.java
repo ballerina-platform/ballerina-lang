@@ -19,7 +19,7 @@
 package org.ballerinalang.net.netty.contract.exceptions;
 
 /**
- * Exception thrown when connection timed out
+ * Exception thrown when connection timed out.
  */
 public class ConnectionTimedOutException extends ClientConnectorException {
 

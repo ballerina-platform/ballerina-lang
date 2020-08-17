@@ -41,8 +41,14 @@ import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
 import org.ballerinalang.net.netty.contract.exceptions.ServerConnectorException;
 import org.ballerinalang.net.netty.contractimpl.Http2OutboundRespListener;
 import org.ballerinalang.net.netty.contractimpl.common.Util;
+import org.ballerinalang.net.netty.contractimpl.listener.http2.Http2SourceHandler;
+import org.ballerinalang.net.netty.contractimpl.listener.http2.InboundMessageHolder;
 import org.ballerinalang.net.netty.contractimpl.listener.states.http2.Response100ContinueSent;
 import org.ballerinalang.net.netty.contractimpl.listener.states.http2.SendingHeaders;
+import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientChannel;
+import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2DataEventListener;
+import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2TargetHandler;
+import org.ballerinalang.net.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.ballerinalang.net.netty.contractimpl.sender.states.http2.RequestCompleted;
 import org.ballerinalang.net.netty.message.Http2DataFrame;
 import org.ballerinalang.net.netty.message.Http2InboundContentListener;
@@ -53,15 +59,29 @@ import org.ballerinalang.net.netty.message.HttpCarbonRequest;
 import org.ballerinalang.net.netty.message.PooledDataStreamerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.listener.http2.Http2SourceHandler;
-import org.ballerinalang.net.netty.contractimpl.listener.http2.InboundMessageHolder;
-import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2ClientChannel;
-import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2DataEventListener;
-import org.ballerinalang.net.netty.contractimpl.sender.http2.Http2TargetHandler;
-import org.ballerinalang.net.netty.contractimpl.sender.http2.OutboundMsgHolder;
 
 import java.net.InetSocketAddress;
 
+import static org.ballerinalang.net.netty.contract.Constants.BASE_64_ENCODED_CERT;
+import static org.ballerinalang.net.netty.contract.Constants.BASE_64_ENCODED_CERT_ATTRIBUTE;
+import static org.ballerinalang.net.netty.contract.Constants.CHNL_HNDLR_CTX;
+import static org.ballerinalang.net.netty.contract.Constants.HTTP_SCHEME;
+import static org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY;
+import static org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS;
+import static org.ballerinalang.net.netty.contract.Constants.INBOUND_REQUEST;
+import static org.ballerinalang.net.netty.contract.Constants.LISTENER_INTERFACE_ID;
+import static org.ballerinalang.net.netty.contract.Constants.LISTENER_PORT;
+import static org.ballerinalang.net.netty.contract.Constants.LOCAL_ADDRESS;
+import static org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_HANDSHAKE_RESULT;
+import static org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_RESULT_ATTRIBUTE;
+import static org.ballerinalang.net.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
+import static org.ballerinalang.net.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
+import static org.ballerinalang.net.netty.contract.Constants.PROTOCOL;
+import static org.ballerinalang.net.netty.contract.Constants.REMOTE_ADDRESS;
+import static org.ballerinalang.net.netty.contract.Constants.SRC_HANDLER;
+import static org.ballerinalang.net.netty.contract.Constants.TO;
+import static org.ballerinalang.net.netty.contractimpl.common.Util.addResponseWriteFailureListener;
+import static org.ballerinalang.net.netty.contractimpl.common.Util.checkForResponseWriteStatus;
 import static org.ballerinalang.net.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
@@ -82,12 +102,11 @@ public class Http2StateUtil {
      */
     public static void notifyRequestListener(Http2SourceHandler http2SourceHandler,
                                              InboundMessageHolder inboundMessageHolder, int streamId) {
-        org.ballerinalang.net.netty.message.HttpCarbonMessage httpRequestMsg = inboundMessageHolder.getInboundMsg();
+        HttpCarbonMessage httpRequestMsg = inboundMessageHolder.getInboundMsg();
         if (http2SourceHandler.getServerConnectorFuture() != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                org.ballerinalang.net.netty.contractimpl.Http2OutboundRespListener
-                        http2OutboundRespListener = new org.ballerinalang.net.netty.contractimpl.Http2OutboundRespListener(
+                Http2OutboundRespListener http2OutboundRespListener = new Http2OutboundRespListener(
                         http2SourceHandler.getServerChannelInitializer(), httpRequestMsg,
                         http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getConnection(),
                         http2SourceHandler.getEncoder(), streamId, http2SourceHandler.getServerName(),
@@ -112,14 +131,14 @@ public class Http2StateUtil {
      * @param streamId           the stream id
      * @return the CarbonRequest Message created from given HttpRequest
      */
-    public static org.ballerinalang.net.netty.message.HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, Http2SourceHandler http2SourceHandler,
+    public static HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, Http2SourceHandler http2SourceHandler,
                                                                                            int streamId) {
         ChannelHandlerContext ctx = http2SourceHandler.getChannelHandlerContext();
-        org.ballerinalang.net.netty.message.HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, new Http2InboundContentListener(
-                streamId, ctx, http2SourceHandler.getConnection(), org.ballerinalang.net.netty.contract.Constants.INBOUND_REQUEST));
-        sourceReqCMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
-        sourceReqCMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.CHNL_HNDLR_CTX, ctx);
-        sourceReqCMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.SRC_HANDLER, http2SourceHandler);
+        HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, new Http2InboundContentListener(
+                streamId, ctx, http2SourceHandler.getConnection(), INBOUND_REQUEST));
+        sourceReqCMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
+        sourceReqCMsg.setProperty(CHNL_HNDLR_CTX, ctx);
+        sourceReqCMsg.setProperty(SRC_HANDLER, http2SourceHandler);
         HttpVersion protocolVersion = httpRequest.protocolVersion();
         sourceReqCMsg.setHttpVersion(protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
         sourceReqCMsg.setHttpMethod(httpRequest.method().name());
@@ -129,19 +148,19 @@ public class Http2StateUtil {
         if (ctx.channel().localAddress() instanceof InetSocketAddress) {
             localAddress = (InetSocketAddress) ctx.channel().localAddress();
         }
-        sourceReqCMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.LOCAL_ADDRESS, localAddress);
-        sourceReqCMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.REMOTE_ADDRESS,
+        sourceReqCMsg.setProperty(LOCAL_ADDRESS, localAddress);
+        sourceReqCMsg.setProperty(REMOTE_ADDRESS,
                                   http2SourceHandler.getRemoteAddress());
-        sourceReqCMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
-        sourceReqCMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.LISTENER_INTERFACE_ID, http2SourceHandler.getInterfaceId());
-        sourceReqCMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.PROTOCOL, org.ballerinalang.net.netty.contract.Constants.HTTP_SCHEME);
-        sourceReqCMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_HANDSHAKE_RESULT,
-                                  ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).get());
-        sourceReqCMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.BASE_64_ENCODED_CERT,
-                                  ctx.channel().attr(org.ballerinalang.net.netty.contract.Constants.BASE_64_ENCODED_CERT_ATTRIBUTE).get());
+        sourceReqCMsg.setProperty(LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
+        sourceReqCMsg.setProperty(LISTENER_INTERFACE_ID, http2SourceHandler.getInterfaceId());
+        sourceReqCMsg.setProperty(PROTOCOL, HTTP_SCHEME);
+        sourceReqCMsg.setProperty(MUTUAL_SSL_HANDSHAKE_RESULT,
+                                  ctx.channel().attr(MUTUAL_SSL_RESULT_ATTRIBUTE).get());
+        sourceReqCMsg.setProperty(BASE_64_ENCODED_CERT,
+                                  ctx.channel().attr(BASE_64_ENCODED_CERT_ATTRIBUTE).get());
         String uri = httpRequest.uri();
         sourceReqCMsg.setRequestUrl(uri);
-        sourceReqCMsg.setProperty(org.ballerinalang.net.netty.contract.Constants.TO, uri);
+        sourceReqCMsg.setProperty(TO, uri);
         return sourceReqCMsg;
     }
 
@@ -158,9 +177,9 @@ public class Http2StateUtil {
      * @throws Http2Exception throws if a protocol-related error occurred
      */
     public static void writeHttp2ResponseHeaders(ChannelHandlerContext ctx, Http2ConnectionEncoder encoder,
-                                                 org.ballerinalang.net.netty.contract.HttpResponseFuture outboundRespStatusFuture, int streamId,
+                                                 HttpResponseFuture outboundRespStatusFuture, int streamId,
                                                  Http2Headers http2Headers, boolean endStream,
-                                                 org.ballerinalang.net.netty.contractimpl.Http2OutboundRespListener respListener) throws Http2Exception {
+                                                 Http2OutboundRespListener respListener) throws Http2Exception {
         for (Http2DataEventListener dataEventListener : respListener.getHttp2ServerChannel().getDataEventListeners()) {
             if (!dataEventListener.onHeadersWrite(ctx, streamId, http2Headers, endStream)) {
                 break;
@@ -173,7 +192,7 @@ public class Http2StateUtil {
             ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());
         encoder.flowController().writePendingBytes();
         ctx.flush();
-        org.ballerinalang.net.netty.contractimpl.common.Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture, respListener);
+        addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture, respListener);
     }
 
     /**
@@ -188,8 +207,8 @@ public class Http2StateUtil {
      * @param originalStreamId         the original id of the stream
      * @throws Http2Exception throws if a protocol-related error occurred
      */
-    public static void writeHttp2Promise(org.ballerinalang.net.netty.message.Http2PushPromise pushPromise, ChannelHandlerContext ctx, Http2Connection conn,
-                                         Http2ConnectionEncoder encoder, org.ballerinalang.net.netty.message.HttpCarbonMessage inboundRequestMsg,
+    public static void writeHttp2Promise(Http2PushPromise pushPromise, ChannelHandlerContext ctx, Http2Connection conn,
+                                         Http2ConnectionEncoder encoder, HttpCarbonMessage inboundRequestMsg,
                                          HttpResponseFuture outboundRespStatusFuture,
                                          int originalStreamId) throws Http2Exception {
         int promisedStreamId = getNextStreamId(conn);
@@ -198,16 +217,15 @@ public class Http2StateUtil {
         pushPromise.setStreamId(originalStreamId);
         // Construct http request
         HttpRequest httpRequest = pushPromise.getHttpRequest();
-        httpRequest.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), org.ballerinalang.net.netty.contract.Constants.HTTP_SCHEME);
+        httpRequest.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), HTTP_SCHEME);
         // A push promise is a server initiated request, hence it should contain request headers
-        Http2Headers http2Headers =
-                HttpConversionUtil.toHttp2Headers(httpRequest, true);
+        Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpRequest, true);
         // Write the push promise to the wire
-        ChannelFuture channelFuture = encoder.writePushPromise(
-                ctx, originalStreamId, promisedStreamId, http2Headers, 0, ctx.newPromise());
+        ChannelFuture channelFuture = encoder.writePushPromise(ctx, originalStreamId, promisedStreamId, http2Headers, 0,
+                                                               ctx.newPromise());
         encoder.flowController().writePendingBytes();
         ctx.flush();
-        org.ballerinalang.net.netty.contractimpl.common.Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, channelFuture);
+        checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, channelFuture);
     }
 
     /**
@@ -220,15 +238,14 @@ public class Http2StateUtil {
      * @throws Http2Exception throws if stream id is not valid for given connection
      */
     public static void validatePromisedStreamState(int originalStreamId, int streamId, Http2Connection conn,
-                                                   org.ballerinalang.net.netty.message.HttpCarbonMessage inboundRequestMsg) throws Http2Exception {
+                                                   HttpCarbonMessage inboundRequestMsg) throws Http2Exception {
         if (streamId == originalStreamId) { // Not a promised stream, no need to validate
             return;
         }
         if (!isValidStreamId(streamId, conn)) {
             inboundRequestMsg.getHttpOutboundRespStatusFuture().
-                    notifyHttpListener(new ServerConnectorException(
-                            org.ballerinalang.net.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR));
-            throw new Http2Exception(Http2Error.REFUSED_STREAM, org.ballerinalang.net.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR);
+                    notifyHttpListener(new ServerConnectorException(PROMISED_STREAM_REJECTED_ERROR));
+            throw new Http2Exception(Http2Error.REFUSED_STREAM, PROMISED_STREAM_REJECTED_ERROR);
         }
     }
 
@@ -251,8 +268,7 @@ public class Http2StateUtil {
      */
     public static void releaseDataFrame(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
         int streamId = dataFrame.getStreamId();
-        org.ballerinalang.net.netty.message.HttpCarbonMessage
-                sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId).getInboundMsg();
+        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId).getInboundMsg();
         if (sourceReqCMsg != null) {
             sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
             http2SourceHandler.getStreamIdRequestMap().remove(streamId);
@@ -301,8 +317,7 @@ public class Http2StateUtil {
             }
         }
 
-        encoder.writeHeaders(ctx, streamId, http2Headers, dependencyId, weight, false, 0, endStream,
-                             ctx.newPromise());
+        encoder.writeHeaders(ctx, streamId, http2Headers, dependencyId, weight, false, 0, endStream, ctx.newPromise());
         encoder.flowController().writePendingBytes();
         ctx.flush();
 
@@ -400,7 +415,7 @@ public class Http2StateUtil {
     }
 
     public static void sendRequestTimeoutResponse(ChannelHandlerContext ctx,
-                                                  org.ballerinalang.net.netty.contractimpl.Http2OutboundRespListener http2OutboundRespListener,
+                                                  Http2OutboundRespListener http2OutboundRespListener,
                                                   int streamId, HttpResponseStatus httpResponseStatus,
                                                   ByteBuf content, boolean handleIncompleteRequest,
                                                   boolean whileReceivingHeader) {
@@ -422,7 +437,7 @@ public class Http2StateUtil {
     }
 
     private static void handleFuture(ChannelFuture outboundRespFuture, boolean handleIncompleteRequest,
-                                     boolean whileReceivingHeader, org.ballerinalang.net.netty.message.HttpCarbonMessage inboundRequestMsg) {
+                                     boolean whileReceivingHeader, HttpCarbonMessage inboundRequestMsg) {
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = channelFuture.cause();
             if (cause != null) {
@@ -431,21 +446,21 @@ public class Http2StateUtil {
             if (handleIncompleteRequest) {
                 if (whileReceivingHeader) {
                     handleIncompleteInboundMessage(inboundRequestMsg,
-                                                   org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS);
+                                                   IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS);
                 } else {
                     handleIncompleteInboundMessage(inboundRequestMsg,
-                                                   org.ballerinalang.net.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY);
+                                                   IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY);
                 }
             }
         });
     }
 
-    public static void initHttp2MessageContext(org.ballerinalang.net.netty.message.HttpCarbonMessage outboundRequest,
+    public static void initHttp2MessageContext(HttpCarbonMessage outboundRequest,
                                                Http2TargetHandler http2TargetHandler) {
         Http2MessageStateContext http2MessageStateContext = outboundRequest.getHttp2MessageStateContext();
         if (http2MessageStateContext == null) {
             http2MessageStateContext = new Http2MessageStateContext();
-            http2MessageStateContext.setSenderState(new org.ballerinalang.net.netty.contractimpl.sender.states.http2.RequestCompleted(http2TargetHandler, null));
+            http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, null));
             outboundRequest.setHttp2MessageStateContext(http2MessageStateContext);
         } else if (http2MessageStateContext.getSenderState() == null) {
             http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, null));

@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache;
 
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.Constants;
 
 import java.util.ArrayList;
 import java.util.List;

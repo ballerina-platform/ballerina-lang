@@ -18,6 +18,12 @@
 
 package org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.ocsp;
 
+import org.ballerinalang.net.netty.contractimpl.common.MBeanRegistrar;
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.CacheController;
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.CacheManager;
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.ManageableCache;
+import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.ManageableCacheValue;
 import org.bouncycastle.asn1.ocsp.OCSPResponseStatus;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.OCSPException;
@@ -26,12 +32,6 @@ import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.cert.ocsp.SingleResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.net.netty.contractimpl.common.MBeanRegistrar;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.CacheController;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.CacheManager;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.ManageableCache;
-import org.ballerinalang.net.netty.contractimpl.common.certificatevalidation.cache.ManageableCacheValue;
 
 import java.math.BigInteger;
 import java.util.Date;

@@ -31,7 +31,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.ballerinalang.net.netty.contractimpl.listener.states.ListenerReqRespStateManager;
 import org.ballerinalang.net.netty.contract.Constants;
 import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
@@ -39,6 +38,7 @@ import org.ballerinalang.net.netty.contract.exceptions.ServerConnectorException;
 import org.ballerinalang.net.netty.contractimpl.DefaultHttpResponseFuture;
 import org.ballerinalang.net.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.ballerinalang.net.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.ballerinalang.net.netty.contractimpl.listener.states.ListenerReqRespStateManager;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -579,7 +579,7 @@ public class HttpCarbonMessage {
     }
 
     /**
-     * Returns the {@link FullHttpMessageFuture} which notifies {@link org.ballerinalang.net.netty.message.FullHttpMessageListener} when the complete
+     * Returns the {@link FullHttpMessageFuture} which notifies {@link FullHttpMessageListener} when the complete
      * content of the {@link HttpCarbonMessage} is accumulated. Should never remove content listener for HTTP/2.
      *
      * @return the default implementation of the {@link FullHttpMessageFuture}.

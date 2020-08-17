@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.websocket.client.listener;
 
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.ballerinalang.net.netty.contract.websocket.WebSocketConnectorListener;
 
 /**
  * Interface for the extended client connector listener.

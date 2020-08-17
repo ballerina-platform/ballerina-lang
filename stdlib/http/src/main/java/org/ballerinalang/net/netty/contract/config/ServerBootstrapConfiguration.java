@@ -20,6 +20,14 @@ import org.ballerinalang.net.netty.contractimpl.common.Util;
 
 import java.util.Map;
 
+import static org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_CONNECT_TIME_OUT;
+import static org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_KEEPALIVE;
+import static org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_RECEIVE_BUFFER_SIZE;
+import static org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_SEND_BUFFER_SIZE;
+import static org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_SO_BACKLOG;
+import static org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_SO_REUSE;
+import static org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_TCP_NO_DELY;
+
 /**
  * A class represents Server Bootstrap configurations.
  */
@@ -37,24 +45,24 @@ public class ServerBootstrapConfiguration {
     public ServerBootstrapConfiguration(Map<String, Object> properties) {
 
         connectTimeOut = Util.getIntProperty(
-                properties, org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_CONNECT_TIME_OUT, 15000);
+                properties, SERVER_BOOTSTRAP_CONNECT_TIME_OUT, 15000);
 
         keepAlive = Util.getBooleanProperty(
-                properties, org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_KEEPALIVE, true);
+                properties, SERVER_BOOTSTRAP_KEEPALIVE, true);
 
         receiveBufferSize = Util.getIntProperty(
-                properties, org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_RECEIVE_BUFFER_SIZE, 1048576);
+                properties, SERVER_BOOTSTRAP_RECEIVE_BUFFER_SIZE, 1048576);
 
         sendBufferSize = Util.getIntProperty(
-                properties, org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_SEND_BUFFER_SIZE, 1048576);
+                properties, SERVER_BOOTSTRAP_SEND_BUFFER_SIZE, 1048576);
 
         tcpNoDelay = Util.getBooleanProperty(
-                properties, org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_TCP_NO_DELY, true);
+                properties, SERVER_BOOTSTRAP_TCP_NO_DELY, true);
 
         socketReuse = Util.getBooleanProperty(
-                properties, org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_SO_REUSE, false);
+                properties, SERVER_BOOTSTRAP_SO_REUSE, false);
 
-        soBackLog = Util.getIntProperty(properties, org.ballerinalang.net.netty.contract.Constants.SERVER_BOOTSTRAP_SO_BACKLOG, 100);
+        soBackLog = Util.getIntProperty(properties, SERVER_BOOTSTRAP_SO_BACKLOG, 100);
 
         socketTimeOut = Util.getIntProperty(properties, Constants.SERVER_BOOTSTRAP_SO_TIMEOUT, 15);
     }
