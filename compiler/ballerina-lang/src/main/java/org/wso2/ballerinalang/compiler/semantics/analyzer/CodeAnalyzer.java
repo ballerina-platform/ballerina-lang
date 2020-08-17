@@ -795,7 +795,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(matchStatement.expr);
         matchExprType = matchStatement.expr.type;
 
-        boolean matchStmtReturns = true;
+        boolean matchStmtReturns = false;
         for (BLangMatchClause matchClause : matchStatement.matchClauses) {
             analyzeNode(matchClause, env);
             matchStmtReturns = this.matchClauseReturns && matchClause.matchGuard == null && hasLastPattern;
