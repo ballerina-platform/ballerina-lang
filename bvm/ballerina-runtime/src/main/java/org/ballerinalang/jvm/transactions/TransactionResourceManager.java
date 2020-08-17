@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.transactions;
 
+import com.atomikos.icatch.jta.UserTransactionManager;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.FPValue;
@@ -24,6 +25,14 @@ import org.ballerinalang.jvm.values.api.BArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.Synchronization;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.xa.XAResource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,11 +40,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-
-import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
 
 /**
@@ -46,9 +50,10 @@ import static javax.transaction.xa.XAResource.TMSUCCESS;
 public class TransactionResourceManager {
 
     private static TransactionResourceManager transactionResourceManager = null;
+    private  static UserTransactionManager userTransactionManager = null;
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
-    private Map<String, Xid> xidRegistry;
+    private Map<String, Transaction> xidRegistry;
 
     private Map<String, List<FPValue>> committedFuncRegistry;
     private Map<String, List<FPValue>> abortedFuncRegistry;
@@ -65,6 +70,7 @@ public class TransactionResourceManager {
         committedFuncRegistry = new HashMap<>();
         abortedFuncRegistry = new HashMap<>();
         transactionInfoMap = new HashMap<>();
+        userTransactionManager = new UserTransactionManager();
     }
 
     public static TransactionResourceManager getInstance() {
@@ -144,20 +150,20 @@ public class TransactionResourceManager {
     public boolean prepare(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
-        if (txContextList != null) {
-            for (BallerinaTransactionContext ctx : txContextList) {
-                try {
-                    XAResource xaResource = ctx.getXAResource();
-                    if (xaResource != null) {
-                        Xid xid = xidRegistry.get(combinedId);
-                        xaResource.prepare(xid);
-                    }
-                } catch (Throwable e) {
-                    log.error("error in prepare the transaction, " + combinedId + ":" + e.getMessage(), e);
-                    return false;
-                }
-            }
-        }
+//        if (txContextList != null) {
+//            for (BallerinaTransactionContext ctx : txContextList) {
+//                try {
+//                    XAResource xaResource = ctx.getXAResource();
+//                    if (xaResource != null) {
+//                        Xid xid = xidRegistry.get(combinedId);
+//                        xaResource.prepare(xid);
+//                    }
+//                } catch (Throwable e) {
+//                    log.error("error in prepare the transaction, " + combinedId + ":" + e.getMessage(), e);
+//                    return false;
+//                }
+//            }
+//        }
 
         boolean status = true;
         if (failedResourceParticipantSet.contains(transactionId) || failedLocalParticipantSet.contains(transactionId)) {
@@ -181,13 +187,25 @@ public class TransactionResourceManager {
         boolean commitSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
         if (txContextList != null) {
+            Transaction trx = xidRegistry.get(combinedId);
+            try {
+                if (trx != null) {
+                    trx.commit();
+                }
+
+            } catch (SystemException e) {
+                e.printStackTrace();
+            } catch (HeuristicMixedException e) {
+                e.printStackTrace();
+            } catch (HeuristicRollbackException e) {
+                e.printStackTrace();
+            } catch (RollbackException e) {
+                e.printStackTrace();
+            }
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
-                    if (xaResource != null) {
-                        Xid xid = xidRegistry.get(combinedId);
-                        xaResource.commit(xid, false);
-                    } else {
+                    if (xaResource == null) {
                         ctx.commit();
                     }
                 } catch (Throwable e) {
@@ -219,14 +237,22 @@ public class TransactionResourceManager {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
+
         if (txContextList != null) {
+            Transaction trx = xidRegistry.get(combinedId);
+            try {
+                if (trx != null) {
+                    trx.rollback();
+                }
+
+            } catch (SystemException e) {
+                e.printStackTrace();
+            }
+
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
-                    Xid xid = xidRegistry.get(combinedId);
-                    if (xaResource != null) {
-                        ctx.getXAResource().rollback(xid);
-                    } else {
+                    if (xaResource == null) {
                         ctx.rollback();
                     }
                 } catch (Throwable e) {
@@ -260,16 +286,33 @@ public class TransactionResourceManager {
      */
     public void beginXATransaction(String transactionId, String transactionBlockId, XAResource xaResource) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
-        Xid xid = xidRegistry.get(combinedId);
-        if (xid == null) {
-            xid = XIDGenerator.createXID();
-            xidRegistry.put(combinedId, xid);
-        }
+        Transaction trx = xidRegistry.get(combinedId);
         try {
-            xaResource.start(xid, TMNOFLAGS);
-        } catch (XAException e) {
-            throw new BallerinaException("error in starting the XA transaction: id: " + combinedId + " error:" + e
-                    .getMessage());
+            if (trx == null) {
+                userTransactionManager.begin();
+
+                trx = userTransactionManager.getTransaction();
+                trx.registerSynchronization(new Synchronization() {
+                    @Override
+                    public void beforeCompletion() {
+
+                    }
+
+                    @Override
+                    public void afterCompletion(int i) {
+
+                    }
+                });
+                xidRegistry.put(combinedId, trx);
+            }
+
+            trx.enlistResource(xaResource);
+        } catch (RollbackException e) {
+            e.printStackTrace();
+        } catch (SystemException e) {
+            e.printStackTrace();
+        } catch (NotSupportedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -281,15 +324,15 @@ public class TransactionResourceManager {
      */
     void endXATransaction(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
-        Xid xid = xidRegistry.get(combinedId);
-        if (xid != null) {
+        Transaction trx = xidRegistry.get(combinedId);
+        if (trx != null) {
             List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
             if (txContextList != null) {
                 for (BallerinaTransactionContext ctx : txContextList) {
                     try {
                         XAResource xaResource = ctx.getXAResource();
                         if (xaResource != null) {
-                            ctx.getXAResource().end(xid, TMSUCCESS);
+                            trx.delistResource(xaResource, TMSUCCESS);
                         }
                     } catch (Throwable e) {
                         throw new BallerinaException(

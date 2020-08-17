@@ -26,6 +26,9 @@ dependencies {
     implementation 'io.opentracing:opentracing-util'
     implementation 'org.awaitility:awaitility'
     implementation 'org.apache.commons:commons-lang3'
+    implementation('com.atomikos:transactions-jta:3.6.4') {
+        exclude group: 'org.hibernate', module: 'hibernate'
+    }
 
     implementation project(':ballerina-config')
     implementation project(':ballerina-logging')
