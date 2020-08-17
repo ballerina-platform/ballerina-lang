@@ -195,20 +195,12 @@ public abstract class NodeVisitor {
         visitSyntaxNode(restParameterNode);
     }
 
-    public void visit(ExpressionListItemNode expressionListItemNode) {
-        visitSyntaxNode(expressionListItemNode);
-    }
-
     public void visit(ImportOrgNameNode importOrgNameNode) {
         visitSyntaxNode(importOrgNameNode);
     }
 
     public void visit(ImportPrefixNode importPrefixNode) {
         visitSyntaxNode(importPrefixNode);
-    }
-
-    public void visit(ImportSubVersionNode importSubVersionNode) {
-        visitSyntaxNode(importSubVersionNode);
     }
 
     public void visit(ImportVersionNode importVersionNode) {
@@ -735,10 +727,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(matchGuardNode);
     }
 
-    public void visit(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        visitSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public void visit(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         visitSyntaxNode(distinctTypeDescriptorNode);
     }
@@ -801,6 +789,14 @@ public abstract class NodeVisitor {
 
     public void visit(ClassDefinitionNode classDefinitionNode) {
         visitSyntaxNode(classDefinitionNode);
+    }
+
+    public void visit(OrderByClauseNode orderByClauseNode) {
+        visitSyntaxNode(orderByClauseNode);
+    }
+
+    public void visit(OrderKeyNode orderKeyNode) {
+        visitSyntaxNode(orderKeyNode);
     }
 
     // Tokens

@@ -272,7 +272,7 @@ public class Parser {
             DiagnosticCode code;
 
             DiagnosticSeverity severity = syntaxDiagnostic.diagnosticInfo().severity();
-            if (DiagnosticSeverity.WARNING.equals(severity)) {
+            if (severity == DiagnosticSeverity.WARNING) {
                 code = DiagnosticCode.SYNTAX_WARNING;
                 dlog.warning(pos, code, syntaxDiagnostic.message());
             } else {

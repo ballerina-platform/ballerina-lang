@@ -16,12 +16,13 @@
 
 import ballerina/http;
 
+listener http:Listener cachingProxyListener = new(9244);
 http:Client cachingEP1 = new("http://localhost:9243", { cache: { isShared: true } });
 
 @http:ServiceConfig {
     basePath: "/nocache"
 }
-service cachingProxyService on new http:Listener(9244) {
+service cachingProxyService on cachingProxyListener {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
@@ -39,12 +40,13 @@ service cachingProxyService on new http:Listener(9244) {
     }
 }
 
+listener http:Listener cachingBackendListener = new(9243);
 int nocachehitcount = 0;
 
 @http:ServiceConfig {
     basePath: "/nocachebackend"
 }
-service nocacheBackend on new http:Listener(9243) {
+service nocacheBackend on cachingBackendListener {
 
     @http:ResourceConfig { path: "/" }
     resource function sayHello(http:Caller caller, http:Request req) {

@@ -105,28 +105,26 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "COMMA_TOKEN",
-                        "trailingMinutiae": [
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
                           {
-                            "kind": "WHITESPACE_MINUTIAE",
-                            "value": " "
+                            "kind": "COMMA_TOKEN"
                           }
                         ]
                       }
                     },
                     {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    },
+                    {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "POSITIONAL_ARG",
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                         "children": [
                           {
                             "kind": "DECIMAL_INTEGER_LITERAL",
-                            "children": [
-                              {
-                                "kind": "DECIMAL_INTEGER_LITERAL",
-                                "value": "10"
-                              }
-                            ]
+                            "value": "10"
                           }
                         ]
                       }

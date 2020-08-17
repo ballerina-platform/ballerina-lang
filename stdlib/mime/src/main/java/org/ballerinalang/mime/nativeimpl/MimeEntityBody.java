@@ -33,14 +33,12 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Locale;
 
-import static org.ballerinalang.mime.nativeimpl.AbstractGetPayloadHandler.getErrorMsg;
+import static org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder.getErrorMsg;
 import static org.ballerinalang.mime.util.HeaderUtil.isMultipart;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
@@ -58,7 +56,6 @@ import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_IO_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
-import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.mime.util.MimeUtil.getContentTypeWithParameters;
 import static org.ballerinalang.mime.util.MimeUtil.getNewMultipartDelimiter;
 
@@ -131,7 +128,6 @@ public class MimeEntityBody {
         ObjectValue byteChannelObj;
         try {
             byteChannelObj = BallerinaValues.createObjectValue(PROTOCOL_IO_PKG_ID, READABLE_BYTE_CHANNEL_STRUCT);
-            populateEntityWithByteChannel(entityObj);
             Channel byteChannel = EntityBodyHandler.getByteChannel(entityObj);
             if (byteChannel != null) {
                 byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
@@ -154,20 +150,6 @@ public class MimeEntityBody {
             return MimeUtil.createError(PARSER_ERROR,
                                         "Error occurred while constructing byte channel from entity body : " +
                                                 getErrorMsg(err));
-        }
-    }
-
-    private static void populateEntityWithByteChannel(ObjectValue entity) {
-        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) entity.getNativeData(TRANSPORT_MESSAGE);
-        if (httpCarbonMessage == null) {
-            return;
-        }
-        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-
-        long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
-        if (contentLength > 0) {
-            entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
-                    new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
         }
     }
 

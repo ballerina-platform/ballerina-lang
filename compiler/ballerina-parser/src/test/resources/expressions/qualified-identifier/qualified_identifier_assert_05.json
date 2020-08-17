@@ -22,19 +22,34 @@
             {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
-                "kind": "COLON_TOKEN"
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "COLON_TOKEN"
+                  }
+                ]
               }
             },
             {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
-                "kind": "COLON_TOKEN"
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "COLON_TOKEN"
+                  }
+                ]
               }
             },
             {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
-                "kind": "COLON_TOKEN"
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "COLON_TOKEN"
+                  }
+                ]
               }
             }
           ]

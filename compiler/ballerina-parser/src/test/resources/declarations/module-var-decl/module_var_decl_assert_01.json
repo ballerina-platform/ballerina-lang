@@ -12,15 +12,6 @@
           "kind": "LISTENER_DECLARATION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "LISTENER_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -85,15 +76,6 @@
         {
           "kind": "MODULE_VAR_DECL",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
@@ -167,15 +149,6 @@
           "kind": "CONST_DECLARATION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "CONST_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -246,15 +219,6 @@
         {
           "kind": "MODULE_VAR_DECL",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [

@@ -137,7 +137,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = processPipeOperator();
                 break;
             case LexerTerminals.QUESTION_MARK:
-                if (peek() == LexerTerminals.DOT) {
+                if (peek() == LexerTerminals.DOT && reader.peek(1) != LexerTerminals.DOT) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.OPTIONAL_CHAINING_TOKEN);
                 } else if (peek() == LexerTerminals.COLON) {
@@ -987,8 +987,14 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.OUTER_KEYWORD);
             case LexerTerminals.EQUALS:
                 return getSyntaxToken(SyntaxKind.EQUALS_KEYWORD);
-            case LexerTerminals.CLASS:
-                return getSyntaxToken(SyntaxKind.CLASS_KEYWORD);
+            case LexerTerminals.ORDER:
+                return getSyntaxToken(SyntaxKind.ORDER_KEYWORD);
+            case LexerTerminals.BY:
+                return getSyntaxToken(SyntaxKind.BY_KEYWORD);
+            case LexerTerminals.ASCENDING:
+                return getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
+            case LexerTerminals.DESCENDING:
+                return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             default:
                 return getIdentifierToken();
         }
@@ -1004,7 +1010,7 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         String tokenText = getLexeme();
-        STNode invalidToken = STNodeFactory.createInvalidToken(tokenText);
+        STToken invalidToken = STNodeFactory.createInvalidToken(tokenText);
         STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidToken);
         this.leadingTriviaList.add(invalidNodeMinutiae);
     }
@@ -1069,8 +1075,57 @@ public class BallerinaLexer extends AbstractLexer {
             return true;
         }
 
-        // TODO: if (UnicodeIdentifierChar) return false;
-        return false;
+        return isUnicodeIdentifierChar(c);
+    }
+
+    /**
+     * <p>
+     * Check whether a given char is a unicode identifier char.
+     * </p>
+     * <code> UnicodeIdentifierChar := ^ ( AsciiChar | UnicodeNonIdentifierChar ) </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a unicode identifier char. <code>false</code> otherwise.
+     */
+    private boolean isUnicodeIdentifierChar(int c) {
+        //check Ascii char range
+        if (0x0000 <= c && c <= 0x007F) {
+            return false;
+        }
+
+        //check unicode private use char
+        if (isUnicodePrivateUseChar(c) || isUnicodePatternWhiteSpaceChar(c)) {
+            return false;
+        }
+
+        //TODO: if (UnicodePatternSyntaxChar) return false
+        return (c != Character.MAX_VALUE);
+    }
+
+    /**
+     * <p>
+     * Check whether a given char is a unicode pattern white space char.
+     * </p>
+     * <code> UnicodePatternWhiteSpaceChar := 0x200E | 0x200F | 0x2028 | 0x2029 </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a unicode pattern white space char. <code>false</code> otherwise.
+     */
+    private boolean isUnicodePatternWhiteSpaceChar(int c) {
+        return (0x200E == c || 0x200F == c || 0x2028 == c || 0x2029 == c);
+    }
+
+    /**
+     * <p>
+     * Check whether a given char is a unicode private use char.
+     * </p>
+     * <code> UnicodePrivateUseChar := 0xE000 .. 0xF8FF | 0xF0000 .. 0xFFFFD | 0x100000 .. 0x10FFFD </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a  unicode private use char. <code>false</code> otherwise.
+     */
+    private boolean isUnicodePrivateUseChar(int c) {
+        return (0xE000 <= c && c <= 0xF8FF || 0xF0000 <= c && c <= 0xFFFFD || 0x100000 <= c && c <= 0x10FFFD);
     }
 
     /**
@@ -1288,25 +1343,22 @@ public class BallerinaLexer extends AbstractLexer {
     /**
      * Process any token that starts with '/'.
      *
-     * @return One of the tokens: <code>'/', '/<', '/*', '/**\/<' </code>
+     * @return One of the tokens: <code>'/', '/*', '/**\/<' </code>
      */
     private STToken processSlashToken() {
-        switch (peek()) { // check for the second char
-            case LexerTerminals.LT:
-                reader.advance();
-                return getSyntaxToken(SyntaxKind.SLASH_LT_TOKEN);
-            case LexerTerminals.ASTERISK:
-                reader.advance();
-                if (peek() != LexerTerminals.ASTERISK) { // check for the third char
-                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
-                } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
-                    reader.advance(3);
-                    return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
-                } else {
-                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
-                }
-            default:
-                return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+        // check for the second char
+        if (peek() != LexerTerminals.ASTERISK) {
+            return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+        }
+
+        reader.advance();
+        if (peek() != LexerTerminals.ASTERISK) {
+            return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+        } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
+            reader.advance(3);
+            return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
+        } else {
+            return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
         }
     }
 
@@ -1474,9 +1526,13 @@ public class BallerinaLexer extends AbstractLexer {
                         break;
                     }
 
+                    //Unicode pattern white space characters are not allowed
+                    if (isUnicodePatternWhiteSpaceChar(nextChar)) {
+                        break;
+                    }
+
                     reader.advance(2);
                     continue;
-                // TODO: UnicodePatternWhiteSpaceChar is also not allowed
             }
             break;
         }

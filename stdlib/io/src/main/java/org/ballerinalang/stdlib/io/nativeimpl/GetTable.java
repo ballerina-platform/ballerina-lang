@@ -144,16 +144,16 @@ public class GetTable {
     private static void populateRecord(int type, MapValueImpl<String, Object> struct, String fieldName, String value) {
         switch (type) {
             case TypeTags.INT_TAG:
-                struct.put(fieldName, value == null ? null : Long.parseLong(value));
+                struct.put(fieldName, (value == null || value.isEmpty()) ? null : Long.parseLong(value));
                 return;
             case TypeTags.FLOAT_TAG:
-                struct.put(fieldName, value == null ? null : Double.parseDouble(value));
+                struct.put(fieldName, (value == null || value.isEmpty()) ? null : Double.parseDouble(value));
                 break;
             case TypeTags.STRING_TAG:
                 struct.put(fieldName, value);
                 break;
             case TypeTags.BOOLEAN_TAG:
-                struct.put(fieldName, value == null ? null : (Boolean.parseBoolean(value)));
+                struct.put(fieldName, (value == null || value.isEmpty()) ? null : (Boolean.parseBoolean(value)));
                 break;
             default:
                 throw IOUtils.createError("type casting support only for int, float, boolean and string. "

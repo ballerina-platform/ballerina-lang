@@ -368,6 +368,7 @@ public class ParserTestUtils {
             case PARAMETER_NAME:
             case BACKTICK_CONTENT:
             case DEPRECATION_LITERAL:
+            case INVALID_TOKEN:
                 return token.text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
@@ -601,6 +602,14 @@ public class ParserTestUtils {
                 return SyntaxKind.WHERE_KEYWORD;
             case "SELECT_KEYWORD":
                 return SyntaxKind.SELECT_KEYWORD;
+            case "ORDER_KEYWORD":
+                return SyntaxKind.ORDER_KEYWORD;
+            case "BY_KEYWORD":
+                return SyntaxKind.BY_KEYWORD;
+            case "ASCENDING_KEYWORD":
+                return SyntaxKind.ASCENDING_KEYWORD;
+            case "DESCENDING_KEYWORD":
+                return SyntaxKind.DESCENDING_KEYWORD;
             case "NEW_KEYWORD":
                 return SyntaxKind.NEW_KEYWORD;
             case "START_KEYWORD":
@@ -633,6 +642,16 @@ public class ParserTestUtils {
                 return SyntaxKind.MATCH_KEYWORD;
             case "CLASS_KEYWORD":
                 return SyntaxKind.CLASS_KEYWORD;
+            case "CONFLICT_KEYWORD":
+                return SyntaxKind.CONFLICT_KEYWORD;
+            case "LIMIT_KEYWORD":
+                return SyntaxKind.LIMIT_KEYWORD;
+            case "JOIN_KEYWORD":
+                return SyntaxKind.JOIN_KEYWORD;
+            case "EQUALS_KEYWORD":
+                return SyntaxKind.EQUALS_KEYWORD;
+            case "OUTER_KEYWORD":
+                return SyntaxKind.OUTER_KEYWORD;
 
             // Documentation reference
             case "TYPE_DOC_REFERENCE_TOKEN":
@@ -1039,8 +1058,6 @@ public class ParserTestUtils {
                 return SyntaxKind.SUB_MODULE_NAME;
             case "IMPORT_VERSION":
                 return SyntaxKind.IMPORT_VERSION;
-            case "IMPORT_SUB_VERSION":
-                return SyntaxKind.IMPORT_SUB_VERSION;
             case "IMPORT_PREFIX":
                 return SyntaxKind.IMPORT_PREFIX;
             case "SPECIFIC_FIELD":
@@ -1051,8 +1068,6 @@ public class ParserTestUtils {
                 return SyntaxKind.SPREAD_FIELD;
             case "SERVICE_BODY":
                 return SyntaxKind.SERVICE_BODY;
-            case "EXPRESSION_LIST_ITEM":
-                return SyntaxKind.EXPRESSION_LIST_ITEM;
             case "ARRAY_DIMENSION":
                 return SyntaxKind.ARRAY_DIMENSION;
             case "METADATA":
@@ -1075,6 +1090,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ERROR_TYPE_PARAMS;
             case "LET_VAR_DECL":
                 return SyntaxKind.LET_VAR_DECL;
+            case "ORDER_KEY":
+                return SyntaxKind.ORDER_KEY;
             case "STREAM_TYPE_PARAMS":
                 return SyntaxKind.STREAM_TYPE_PARAMS;
             case "FUNCTION_SIGNATURE":
@@ -1091,6 +1108,8 @@ public class ParserTestUtils {
                 return SyntaxKind.QUERY_PIPELINE;
             case "SELECT_CLAUSE":
                 return SyntaxKind.SELECT_CLAUSE;
+            case "ORDER_BY_CLAUSE":
+                return SyntaxKind.ORDER_BY_CLAUSE;
             case "PARENTHESIZED_ARG_LIST":
                 return SyntaxKind.PARENTHESIZED_ARG_LIST;
             case "EXPRESSION_FUNCTION_BODY":
@@ -1151,6 +1170,14 @@ public class ParserTestUtils {
                 return SyntaxKind.FUNCTIONAL_MATCH_PATTERN;
             case "NAMED_ARG_MATCH_PATTERN":
                 return SyntaxKind.NAMED_ARG_MATCH_PATTERN;
+            case "ON_CONFLICT_CLAUSE":
+                return SyntaxKind.ON_CONFLICT_CLAUSE;
+            case "LIMIT_CLAUSE":
+                return SyntaxKind.LIMIT_CLAUSE;
+            case "JOIN_CLAUSE":
+                return SyntaxKind.JOIN_CLAUSE;
+            case "ON_CLAUSE":
+                return SyntaxKind.ON_CLAUSE;
 
             // XML template
             case "XML_ELEMENT":
@@ -1233,6 +1260,8 @@ public class ParserTestUtils {
             // Invalid Token
             case "INVALID_TOKEN":
                 return SyntaxKind.INVALID_TOKEN;
+            case "INVALID_TOKEN_MINUTIAE_NODE":
+                return SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE;
 
             // Unsupported
             default:

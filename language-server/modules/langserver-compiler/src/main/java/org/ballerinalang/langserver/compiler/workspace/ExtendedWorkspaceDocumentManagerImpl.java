@@ -18,10 +18,12 @@ package org.ballerinalang.langserver.compiler.workspace;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
@@ -66,16 +68,17 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
     @Override
     public void openFile(Path filePath, String content) throws WorkspaceDocumentException {
         // If file is already open; gracefully handle it
-        openOrUpdateFile(filePath, content);
+        openOrUpdateFile(filePath, Collections.singletonList(new TextDocumentContentChangeEvent(content)));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
+    public void updateFile(Path filePath, List<TextDocumentContentChangeEvent> changeEvent)
+            throws WorkspaceDocumentException {
         // if file is not already open; gracefully handle it
-        openOrUpdateFile(filePath, updatedContent);
+        openOrUpdateFile(filePath, changeEvent);
     }
 
     /**
@@ -94,16 +97,17 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         }
     }
 
-    private void openOrUpdateFile(Path filePath, String content) throws WorkspaceDocumentException {
+    private void openOrUpdateFile(Path filePath, List<TextDocumentContentChangeEvent> content)
+            throws WorkspaceDocumentException {
         if (isExplicitMode && isTempFile(filePath)) {
             // If explicit mode is on and temp file, handle it locally
-            tempDocument.setContent(content);
+            tempDocument.setContent(content.get(0).getText());
         } else {
             // Or else, call parent class
             if (super.isFileOpen(filePath)) {
                 super.updateFile(filePath, content);
             } else {
-                super.openFile(filePath, content);
+                super.openFile(filePath, content.get(0).getText());
             }
         }
     }

@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRender
 import org.ballerinalang.langserver.command.testgen.template.AbstractTestTemplate;
 import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -72,7 +71,7 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
         for (BLangAnnotationAttachment annotation : service.annAttachments) {
             if (annotation.expr instanceof BLangRecordLiteral) {
                 BLangRecordLiteral record = (BLangRecordLiteral) annotation.expr;
-                Optional<String> basePath = searchStringField(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH, record);
+                Optional<String> basePath = searchStringField("basePath", record);
                 tempServiceBasePath = basePath.orElse(tempServiceBasePath);
             }
         }

@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 0,
+    "character": 16
+  },
+  "source": "import_decl/source/source4.bal",
+  "items": [
+    {
+      "label": "module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "130",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

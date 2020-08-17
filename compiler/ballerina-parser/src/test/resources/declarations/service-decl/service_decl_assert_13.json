@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "SERVICE_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -50,10 +41,6 @@
             },
             {
               "kind": "ON_KEYWORD",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_EXPRESSION"
-              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -63,7 +50,23 @@
             },
             {
               "kind": "LIST",
-              "children": []
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "SERVICE_BODY",
@@ -79,14 +82,17 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "LISTENER_KEYWORD",
-                        "trailingMinutiae": [
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
                           {
-                            "kind": "WHITESPACE_MINUTIAE",
-                            "value": "  "
+                            "kind": "LISTENER_KEYWORD"
                           }
                         ]
                       }
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "  "
                     }
                   ],
                   "trailingMinutiae": [
@@ -117,15 +123,6 @@
           "kind": "SERVICE_DECLARATION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "SERVICE_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -167,42 +164,32 @@
               "kind": "LIST",
               "children": [
                 {
-                  "kind": "EXPRESSION_LIST_ITEM",
+                  "kind": "INT_TYPE_DESC",
                   "children": [
                     {
-                      "kind": "INT_TYPE_DESC",
-                      "children": [
-                        {
-                          "kind": "INT_KEYWORD"
-                        }
-                      ]
+                      "kind": "INT_KEYWORD"
                     }
                   ]
                 },
                 {
-                  "kind": "EXPRESSION_LIST_ITEM",
+                  "kind": "COMMA_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "COMMA_TOKEN",
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "ppp",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "ppp",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "  "
-                            }
-                          ]
+                          "value": "  "
                         }
                       ]
                     }

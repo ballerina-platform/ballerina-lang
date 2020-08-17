@@ -35,6 +35,9 @@ configurations {
     langserverLib {
         transitive false
     }
+    datamapperLib {
+        transitive false
+    }
     ballerinaZip {
         transitive false
     }
@@ -106,7 +109,8 @@ dependencies {
     dist project(':ballerina-choreo-extension-rt')
 
     dist project(':testerina:testerina-core')
-    dist project(':ballerina-formatter')
+    dist project(':formatter:formatter-core')
+    dist project(':formatter:formatter-cli')
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
     dist project(':language-server:language-server-compiler')
@@ -121,6 +125,8 @@ dependencies {
     dist project(':observerability-symbol-collector')
     dist project(':testerina:testerina-runtime')
     docerina project(':docerina-gradle-plugin')
+
+    datamapperLib project(':ballerinalang-data-mapper')
 
     langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
     langserverLib project(':language-server:language-server-stdio-launcher')
@@ -173,9 +179,7 @@ dependencies {
     balDoc project(path: ':ballerina-task', configuration: 'balDoc')
     balDoc project(path: ':ballerina-time', configuration: 'balDoc')
     balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-xslt', configuration: 'balDoc')
     balDoc project(path: ':ballerina-kafka', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-nats', configuration: 'balDoc')
     balDoc project(path: ':ballerina-stringutils', configuration: 'balDoc')
     balDoc project(path: ':ballerina-ldap', configuration: 'balDoc')
     balDoc project(path: ':ballerina-oauth2', configuration: 'balDoc')
@@ -355,6 +359,13 @@ def copyLangServerLibsSpec = {
     }
 }
 
+def copyDataMapperLibsSpec = {
+    path -> copySpec {
+        from configurations.datamapperLib
+        into(path + 'lib/tools/lang-server/lib')
+    }
+}
+
 def copyComposerDistributionSpec = {
     path -> copySpec {
         from(configurations.composerDistribution)
@@ -447,6 +458,7 @@ task createZip(type: Zip) {
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyLangServerLibsSpec(basePath)
+    with copyDataMapperLibsSpec(basePath)
     with copyLangServerBinSpec(basePath)
     with copyComposerDistributionSpec(basePath)
     with copyComposerFontsSpec(basePath)
@@ -471,6 +483,7 @@ task updateBalHome(type: Copy) {
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyLangServerLibsSpec(installDir)
+    with copyDataMapperLibsSpec(installDir)
     with copyLangServerBinSpec(installDir)
     with copyComposerDistributionSpec(installDir)
     with copyComposerFontsSpec(installDir)
@@ -498,6 +511,7 @@ task createDistribution(type: Copy) {
     with copyBalxSpec("")
     with copyBinSpec("")
     with copyLangServerLibsSpec("")
+    with copyDataMapperLibsSpec("")
     with copyLangServerBinSpec("")
     with copyComposerDistributionSpec("")
     with copyComposerFontsSpec("")
