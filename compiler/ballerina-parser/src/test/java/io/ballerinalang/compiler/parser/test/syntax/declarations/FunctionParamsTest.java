@@ -54,7 +54,7 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
 
     @Test
     public void testIncompleteParams() {
-        test("func-definition/func_params_source_04.bal", "func-definition/func_params_assert_04.json");
+        testFile("func-definition/func_params_source_04.bal", "func-definition/func_params_assert_04.json");
     }
 
     @Test
