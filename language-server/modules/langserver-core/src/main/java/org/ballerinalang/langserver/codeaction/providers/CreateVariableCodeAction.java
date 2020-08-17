@@ -194,7 +194,9 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                         // Add type guard code action
                         commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, symbolAtCursor.name);
                         List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, refAtCursor, unionType);
-                        actions.add(createQuickFixCodeAction(commandTitle, tEdits, uri));
+                        if (!tEdits.isEmpty()) {
+                            actions.add(createQuickFixCodeAction(commandTitle, tEdits, uri));
+                        }
                     }
                 }
                 // Add ignore return value code action
@@ -510,6 +512,10 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
         List<BType> members = new ArrayList<>((unionType).getMemberTypes());
         long errorTypesCount = unionType.getMemberTypes().stream().filter(t -> t instanceof BErrorType).count();
+        if (members.size() == 1) {
+            // Skip type guard
+            return edits;
+        }
         boolean transitiveBinaryUnion = unionType.getMemberTypes().size() - errorTypesCount == 1;
         if (transitiveBinaryUnion) {
             members.removeIf(s -> s instanceof BErrorType);
