@@ -80,7 +80,7 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "TYPE_DESC",
+                                  "kind": "SIMPLE_TYPE_DESC",
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
@@ -202,7 +202,7 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "TYPE_DESC",
+                                  "kind": "SIMPLE_TYPE_DESC",
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [

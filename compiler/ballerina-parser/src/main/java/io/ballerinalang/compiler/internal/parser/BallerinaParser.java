@@ -2543,6 +2543,9 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode createBuiltinSimpleNameReference(STNode token) {
         SyntaxKind typeKind = getTypeSyntaxKind(token.kind);
+        if (typeKind == SyntaxKind.SIMPLE_TYPE_DESC) {
+            return STNodeFactory.createBuiltinSimpleNameReferenceNode(SyntaxKind.TYPE_DESC, token);
+        }
         return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
     }
 
@@ -8834,8 +8837,8 @@ public class BallerinaParser extends AbstractParser {
             case READONLY_KEYWORD:
             case DISTINCT_KEYWORD:
                 return true;
-            case TYPE_DESC:
-                // This is a special case. TYPE_DESC is only return from
+            case SIMPLE_TYPE_DESC:
+                // This is a special case. SIMPLE_TYPE_DESC is only return from
                 // error recovery. when a type is missing. Hence we treat it as
                 // a simple type
                 return true;

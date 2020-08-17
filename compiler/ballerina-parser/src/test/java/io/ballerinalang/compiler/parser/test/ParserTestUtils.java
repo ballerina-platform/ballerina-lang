@@ -1043,6 +1043,8 @@ public class ParserTestUtils {
                 return SyntaxKind.VAR_TYPE_DESC;
             case "SERVICE_TYPE_DESC":
                 return SyntaxKind.SERVICE_TYPE_DESC;
+            case "SIMPLE_TYPE_DESC":
+                return SyntaxKind.SIMPLE_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":

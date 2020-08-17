@@ -218,7 +218,9 @@ public enum SyntaxKind {
     DEPRECATION_LITERAL(1103),
     DOCUMENTATION_STRING(1104),
 
-    INVALID_TOKEN(1190),
+    // Other
+    SIMPLE_TYPE_DESC(1190),
+    INVALID_TOKEN(1191),
 
     //-----------------------------------------------non-terminal-kinds-----------------------------------------------
 

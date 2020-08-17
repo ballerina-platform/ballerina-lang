@@ -4260,7 +4260,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ASSIGNMENT_OR_VAR_DECL_STMT:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
-                return SyntaxKind.TYPE_DESC;
+                return SyntaxKind.SIMPLE_TYPE_DESC;
             case TYPE_NAME:
             case TYPE_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
@@ -4322,7 +4322,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RECORD_FIELD_WITHOUT_METADATA:
             case PARAMETER_WITHOUT_ANNOTS:
             case TYPE_DESCRIPTOR:
-                return SyntaxKind.TYPE_DESC;
+                return SyntaxKind.SIMPLE_TYPE_DESC;
             case ARRAY_LENGTH:
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
             case HEX_INTEGER_LITERAL_TOKEN:
