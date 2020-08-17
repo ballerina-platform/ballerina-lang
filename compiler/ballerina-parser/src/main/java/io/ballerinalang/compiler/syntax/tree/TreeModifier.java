@@ -3011,6 +3011,33 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public OrderByClauseNode transform(
+            OrderByClauseNode orderByClauseNode) {
+        Token orderKeyword =
+                modifyToken(orderByClauseNode.orderKeyword());
+        Token byKeyword =
+                modifyToken(orderByClauseNode.byKeyword());
+        SeparatedNodeList<OrderKeyNode> orderKey =
+                modifySeparatedNodeList(orderByClauseNode.orderKey());
+        return orderByClauseNode.modify(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    @Override
+    public OrderKeyNode transform(
+            OrderKeyNode orderKeyNode) {
+        ExpressionNode expression =
+                modifyNode(orderKeyNode.expression());
+        Token orderDirection =
+                modifyToken(orderKeyNode.orderDirection().orElse(null));
+        return orderKeyNode.modify(
+                expression,
+                orderDirection);
+    }
+
+    @Override
     public ClassDefinitionNode transform(
             ClassDefinitionNode classDefinitionNode) {
         MetadataNode metadata =
@@ -3041,33 +3068,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 members,
                 closeBrace,
                 semicolonToken);
-    }
-
-    @Override
-    public OrderByClauseNode transform(
-            OrderByClauseNode orderByClauseNode) {
-        Token orderKeyword =
-                modifyToken(orderByClauseNode.orderKeyword());
-        Token byKeyword =
-                modifyToken(orderByClauseNode.byKeyword());
-        SeparatedNodeList<OrderKeyNode> orderKey =
-                modifySeparatedNodeList(orderByClauseNode.orderKey());
-        return orderByClauseNode.modify(
-                orderKeyword,
-                byKeyword,
-                orderKey);
-    }
-
-    @Override
-    public OrderKeyNode transform(
-            OrderKeyNode orderKeyNode) {
-        ExpressionNode expression =
-                modifyNode(orderKeyNode.expression());
-        Token orderDirection =
-                modifyToken(orderKeyNode.orderDirection().orElse(null));
-        return orderKeyNode.modify(
-                expression,
-                orderDirection);
     }
 
     // Tokens

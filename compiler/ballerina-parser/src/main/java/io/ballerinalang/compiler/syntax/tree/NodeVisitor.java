@@ -787,16 +787,16 @@ public abstract class NodeVisitor {
         visitSyntaxNode(documentationReferenceNode);
     }
 
-    public void visit(ClassDefinitionNode classDefinitionNode) {
-        visitSyntaxNode(classDefinitionNode);
-    }
-
     public void visit(OrderByClauseNode orderByClauseNode) {
         visitSyntaxNode(orderByClauseNode);
     }
 
     public void visit(OrderKeyNode orderKeyNode) {
         visitSyntaxNode(orderKeyNode);
+    }
+
+    public void visit(ClassDefinitionNode classDefinitionNode) {
+        visitSyntaxNode(classDefinitionNode);
     }
 
     // Tokens

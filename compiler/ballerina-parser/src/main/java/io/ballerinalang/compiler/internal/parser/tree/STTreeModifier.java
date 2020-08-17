@@ -2392,6 +2392,28 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STOrderByClauseNode transform(
+            STOrderByClauseNode orderByClauseNode) {
+        STNode orderKeyword = modifyNode(orderByClauseNode.orderKeyword);
+        STNode byKeyword = modifyNode(orderByClauseNode.byKeyword);
+        STNode orderKey = modifyNode(orderByClauseNode.orderKey);
+        return orderByClauseNode.modify(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    @Override
+    public STOrderKeyNode transform(
+            STOrderKeyNode orderKeyNode) {
+        STNode expression = modifyNode(orderKeyNode.expression);
+        STNode orderDirection = modifyNode(orderKeyNode.orderDirection);
+        return orderKeyNode.modify(
+                expression,
+                orderDirection);
+    }
+
+    @Override
     public STClassDefinitionNode transform(
             STClassDefinitionNode classDefinitionNode) {
         STNode metadata = modifyNode(classDefinitionNode.metadata);
@@ -2413,28 +2435,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 members,
                 closeBrace,
                 semicolonToken);
-    }
-
-    @Override
-    public STOrderByClauseNode transform(
-            STOrderByClauseNode orderByClauseNode) {
-        STNode orderKeyword = modifyNode(orderByClauseNode.orderKeyword);
-        STNode byKeyword = modifyNode(orderByClauseNode.byKeyword);
-        STNode orderKey = modifyNode(orderByClauseNode.orderKey);
-        return orderByClauseNode.modify(
-                orderKeyword,
-                byKeyword,
-                orderKey);
-    }
-
-    @Override
-    public STOrderKeyNode transform(
-            STOrderKeyNode orderKeyNode) {
-        STNode expression = modifyNode(orderKeyNode.expression);
-        STNode orderDirection = modifyNode(orderKeyNode.orderDirection);
-        return orderKeyNode.modify(
-                expression,
-                orderDirection);
     }
 
     // Tokens

@@ -2225,6 +2225,26 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 endBacktick);
     }
 
+    public static STNode createOrderByClauseNode(
+            STNode orderKeyword,
+            STNode byKeyword,
+            STNode orderKey) {
+
+        return new STOrderByClauseNode(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    public static STNode createOrderKeyNode(
+            STNode expression,
+            STNode orderDirection) {
+
+        return new STOrderKeyNode(
+                expression,
+                orderDirection);
+    }
+
     public static STNode createClassDefinitionNode(
             STNode metadata,
             STNode visibilityQualifier,
@@ -2246,26 +2266,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 members,
                 closeBrace,
                 semicolonToken);
-    }
-
-    public static STNode createOrderByClauseNode(
-            STNode orderKeyword,
-            STNode byKeyword,
-            STNode orderKey) {
-
-        return new STOrderByClauseNode(
-                orderKeyword,
-                byKeyword,
-                orderKey);
-    }
-
-    public static STNode createOrderKeyNode(
-            STNode expression,
-            STNode orderDirection) {
-
-        return new STOrderKeyNode(
-                expression,
-                orderDirection);
     }
 }
 
