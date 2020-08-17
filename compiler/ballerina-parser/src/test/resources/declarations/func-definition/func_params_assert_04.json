@@ -3,6 +3,10 @@
   "hasDiagnostics": true,
   "children": [
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_KEYWORD",
       "leadingMinutiae": [
         {
@@ -59,18 +63,18 @@
               ]
             },
             {
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
               "kind": "DEFAULTABLE_PARAM",
               "hasDiagnostics": true,
               "children": [
-                {
-                  "kind": "COMMA_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
                 {
                   "kind": "LIST",
                   "children": []
@@ -119,18 +123,18 @@
               ]
             },
             {
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": "  "
+                }
+              ]
+            },
+            {
               "kind": "REST_PARAM",
               "hasDiagnostics": true,
               "children": [
-                {
-                  "kind": "COMMA_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "  "
-                    }
-                  ]
-                },
                 {
                   "kind": "LIST",
                   "children": []

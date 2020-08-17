@@ -1213,6 +1213,14 @@
       "sortText": "120",
       "insertText": "testFunction();",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "is",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "is",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

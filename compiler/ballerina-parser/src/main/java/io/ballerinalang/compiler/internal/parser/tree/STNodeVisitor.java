@@ -185,20 +185,12 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(restParameterNode);
     }
 
-    public void visit(STExpressionListItemNode expressionListItemNode) {
-        visitSyntaxNode(expressionListItemNode);
-    }
-
     public void visit(STImportOrgNameNode importOrgNameNode) {
         visitSyntaxNode(importOrgNameNode);
     }
 
     public void visit(STImportPrefixNode importPrefixNode) {
         visitSyntaxNode(importPrefixNode);
-    }
-
-    public void visit(STImportSubVersionNode importSubVersionNode) {
-        visitSyntaxNode(importSubVersionNode);
     }
 
     public void visit(STImportVersionNode importVersionNode) {
@@ -723,10 +715,6 @@ public abstract class STNodeVisitor {
 
     public void visit(STMatchGuardNode matchGuardNode) {
         visitSyntaxNode(matchGuardNode);
-    }
-
-    public void visit(STObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        visitSyntaxNode(objectMethodDefinitionNode);
     }
 
     public void visit(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {

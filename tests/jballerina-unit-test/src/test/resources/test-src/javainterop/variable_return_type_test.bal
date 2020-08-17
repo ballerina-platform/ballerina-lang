@@ -149,6 +149,22 @@ type PersonObj object {
     }
 
     function name() returns string => self.fname + " " + self.lname;
+
+    function getObjectValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
+        class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+    } external;
+
+    function getObjectValueWithTypeDescParam(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
+        name: "getObjectValue",
+        class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
+    } external;
+
+    function getObjectValueWithParamTypes(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
+        name: "getObjectValue",
+        class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.api.BTypedesc"]
+    } external;
 };
 
 type IntStream stream<int>;
@@ -188,6 +204,20 @@ function testComplexTypes() {
 
     table<Person> newTab = echo(PersonTable, tab);
     assert(tab, newTab);
+}
+
+function testObjectExternFunctions() {
+    PersonObj pObj = new("John", "Doe");
+    string s = pObj.getObjectValue(string);
+    assert("John Doe", s);
+    s = pObj.getObjectValueWithTypeDescParam(string);
+    assert("John Doe Doe", s);
+    s = pObj.getObjectValueWithParamTypes(string);
+    assert("John Doe Doe Doe", s);
+    assert("John Doe Doe Doe", pObj.fname);
+    int a = pObj.getObjectValue(int);
+    assert(150, a);
+    assert("John Doe Doe Doe", pObj.fname);
 }
 
 function testFunctionAssignment() {

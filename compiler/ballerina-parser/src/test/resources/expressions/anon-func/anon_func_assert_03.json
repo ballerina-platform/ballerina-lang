@@ -3,6 +3,10 @@
   "hasDiagnostics": true,
   "children": [
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -796,17 +800,16 @@
                               ]
                             },
                             {
-                              "kind": "REQUIRED_PARAM",
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true,
                               "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_COMMA_TOKEN"
+                              ]
+                            },
+                            {
+                              "kind": "REQUIRED_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_COMMA_TOKEN"
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -838,17 +841,16 @@
                               ]
                             },
                             {
-                              "kind": "REST_PARAM",
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true,
                               "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_COMMA_TOKEN"
+                              ]
+                            },
+                            {
+                              "kind": "REST_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_COMMA_TOKEN"
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -951,17 +953,16 @@
                                           ]
                                         },
                                         {
-                                          "kind": "REQUIRED_PARAM",
+                                          "kind": "COMMA_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_COMMA_TOKEN"
+                                          ]
+                                        },
+                                        {
+                                          "kind": "REQUIRED_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_COMMA_TOKEN"
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []

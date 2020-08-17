@@ -41,7 +41,6 @@
         {
             "name": "FunctionDefinitionNode",
             "base": "ModuleMemberDeclarationNode",
-            "kind": "FUNCTION_DEFINITION",
             "attributes": [
                 {
                     "name": "metadata",
@@ -49,14 +48,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "visibilityQualifier",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "transactionalKeyword",
-                    "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",
@@ -210,7 +204,7 @@
                 {
                     "name": "expressions",
                     "type": "ExpressionNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "serviceBody",
@@ -883,11 +877,6 @@
             "kind": "DEFAULTABLE_PARAM",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "annotations",
                     "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
@@ -922,11 +911,6 @@
             "kind": "REQUIRED_PARAM",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "annotations",
                     "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
@@ -953,11 +937,6 @@
             "kind": "REST_PARAM",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "annotations",
                     "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
@@ -974,22 +953,6 @@
                     "name": "paramName",
                     "type": "Token",
                     "isOptional": true
-                }
-            ]
-        },
-        {
-            "name": "ExpressionListItemNode",
-            "base": "Node",
-            "kind": "EXPRESSION_LIST_ITEM",
-            "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "expression",
-                    "type": "ExpressionNode"
                 }
             ]
         },
@@ -1024,22 +987,6 @@
             ]
         },
         {
-            "name": "ImportSubVersionNode",
-            "base": "Node",
-            "kind": "IMPORT_SUB_VERSION",
-            "attributes": [
-                {
-                    "name": "leadingDot",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "versionNumber",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
             "name": "ImportVersionNode",
             "base": "Node",
             "kind": "IMPORT_VERSION",
@@ -1050,8 +997,8 @@
                 },
                 {
                     "name": "versionNumber",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
+                    "type": "Token",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 }
             ]
         },
@@ -1564,16 +1511,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "ltToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "typeNode",
-                    "type": "Node"
-                },
-                {
-                    "name": "gtToken",
-                    "type": "Token"
+                    "name": "typeParameter",
+                    "type": "TypeParameterNode"
                 }
             ]
         },
@@ -2456,7 +2395,7 @@
                 },
                 {
                     "name": "typeNode",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode"
                 },
                 {
                     "name": "gtToken",
@@ -2506,7 +2445,7 @@
                 {
                     "name": "parameters",
                     "type": "ParameterNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -2758,7 +2697,7 @@
                 },
                 {
                     "name": "intermediateClauses",
-                    "type": "Node",
+                    "type": "ClauseNode",
                     "occurrences": "MULTIPLE"
                 }
             ]
@@ -2923,9 +2862,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "visibilityQualifier",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",
@@ -3756,49 +3695,6 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
-                }
-            ]
-        },
-        {
-            "name": "ObjectMethodDefinitionNode",
-            "base": "Node",
-            "kind": "OBJECT_METHOD_DEFINITION",
-            "attributes": [
-                {
-                    "name": "metadata",
-                    "type": "MetadataNode",
-                    "isOptional": true
-                },
-                {
-                    "name": "visibilityQualifier",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "remoteKeyword",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "transactionalKeyword",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "functionKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "methodName",
-                    "type": "IdentifierToken"
-                },
-                {
-                    "name": "methodSignature",
-                    "type": "FunctionSignatureNode"
-                },
-                {
-                    "name": "functionBody",
-                    "type": "FunctionBodyNode"
                 }
             ]
         },

@@ -185,7 +185,8 @@ public class SignatureHelpTest {
                 {"signatureWithinObjectFunctions.json", "signatureWithinObjectFunctions.bal"},
                 {"signatureWithinCheckPanic.json", "signatureWithinCheckPanic.bal"},
                 {"signatureWithinAnnotation.json", "signatureWithinAnnotations.bal"},
-                {"signatureSpreadOperator.json", "signatureSpreadOperator.bal"}
+                {"signatureSpreadOperator.json", "signatureSpreadOperator.bal"},
+                {"signatureLangLib.json", "signatureLangLib.bal"}
         };
     }
 

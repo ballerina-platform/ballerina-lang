@@ -74,6 +74,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "190",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function1()",
       "kind": "Function",
       "detail": "Function",

@@ -15,11 +15,16 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "PUBLIC_KEYWORD",
-              "trailingMinutiae": [
+              "kind": "LIST",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "PUBLIC_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -81,17 +86,16 @@
                       ]
                     },
                     {
-                      "kind": "DEFAULTABLE_PARAM",
+                      "kind": "COMMA_TOKEN",
+                      "isMissing": true,
                       "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_COMMA_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "DEFAULTABLE_PARAM",
                       "children": [
-                        {
-                          "kind": "COMMA_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_COMMA_TOKEN"
-                          ]
-                        },
                         {
                           "kind": "LIST",
                           "children": [
@@ -233,17 +237,22 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "PUBLIC_KEYWORD",
-              "leadingMinutiae": [
+              "kind": "LIST",
+              "children": [
                 {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                }
-              ],
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "PUBLIC_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -306,17 +315,16 @@
                       ]
                     },
                     {
-                      "kind": "DEFAULTABLE_PARAM",
+                      "kind": "COMMA_TOKEN",
+                      "isMissing": true,
                       "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_COMMA_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "DEFAULTABLE_PARAM",
                       "children": [
-                        {
-                          "kind": "COMMA_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_COMMA_TOKEN"
-                          ]
-                        },
                         {
                           "kind": "LIST",
                           "children": [

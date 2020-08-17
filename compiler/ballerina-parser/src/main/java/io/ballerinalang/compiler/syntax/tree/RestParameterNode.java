@@ -33,24 +33,20 @@ public class RestParameterNode extends ParameterNode {
         super(internalNode, position, parent);
     }
 
-    public Optional<Token> leadingComma() {
-        return optionalChildInBucket(0);
-    }
-
     public NodeList<AnnotationNode> annotations() {
-        return new NodeList<>(childInBucket(1));
+        return new NodeList<>(childInBucket(0));
     }
 
     public Node typeName() {
-        return childInBucket(2);
+        return childInBucket(1);
     }
 
     public Token ellipsisToken() {
-        return childInBucket(3);
+        return childInBucket(2);
     }
 
     public Optional<Token> paramName() {
-        return optionalChildInBucket(4);
+        return optionalChildInBucket(3);
     }
 
     @Override
@@ -66,7 +62,6 @@ public class RestParameterNode extends ParameterNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "leadingComma",
                 "annotations",
                 "typeName",
                 "ellipsisToken",
@@ -74,13 +69,11 @@ public class RestParameterNode extends ParameterNode {
     }
 
     public RestParameterNode modify(
-            Token leadingComma,
             NodeList<AnnotationNode> annotations,
             Node typeName,
             Token ellipsisToken,
             Token paramName) {
         if (checkForReferenceEquality(
-                leadingComma,
                 annotations.underlyingListNode(),
                 typeName,
                 ellipsisToken,
@@ -89,7 +82,6 @@ public class RestParameterNode extends ParameterNode {
         }
 
         return NodeFactory.createRestParameterNode(
-                leadingComma,
                 annotations,
                 typeName,
                 ellipsisToken,
@@ -107,7 +99,6 @@ public class RestParameterNode extends ParameterNode {
      */
     public static class RestParameterNodeModifier {
         private final RestParameterNode oldNode;
-        private Token leadingComma;
         private NodeList<AnnotationNode> annotations;
         private Node typeName;
         private Token ellipsisToken;
@@ -115,18 +106,10 @@ public class RestParameterNode extends ParameterNode {
 
         public RestParameterNodeModifier(RestParameterNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma().orElse(null);
             this.annotations = oldNode.annotations();
             this.typeName = oldNode.typeName();
             this.ellipsisToken = oldNode.ellipsisToken();
             this.paramName = oldNode.paramName().orElse(null);
-        }
-
-        public RestParameterNodeModifier withLeadingComma(
-                Token leadingComma) {
-            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
-            this.leadingComma = leadingComma;
-            return this;
         }
 
         public RestParameterNodeModifier withAnnotations(
@@ -159,7 +142,6 @@ public class RestParameterNode extends ParameterNode {
 
         public RestParameterNode apply() {
             return oldNode.modify(
-                    leadingComma,
                     annotations,
                     typeName,
                     ellipsisToken,
