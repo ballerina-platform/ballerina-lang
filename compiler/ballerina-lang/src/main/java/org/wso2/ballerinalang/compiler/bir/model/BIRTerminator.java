@@ -35,8 +35,6 @@ import java.util.Set;
  */
 public abstract class BIRTerminator extends BIRAbstractInstruction implements BIRInstruction {
 
-    public InstructionKind kind;
-
     public BIRBasicBlock thenBB;
 
     public BIRTerminator(DiagnosticPos pos, InstructionKind kind) {
@@ -48,6 +46,8 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
     public InstructionKind getKind() {
         return this.kind;
     }
+
+    public abstract BIRBasicBlock[] getNextBasicBlocks();
 
     /**
      * A goto instruction.
@@ -68,6 +68,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{targetBB};
         }
     }
 
@@ -115,6 +125,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return args.toArray(new BIROperand[0]);
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{thenBB};
         }
     }
 
@@ -185,6 +205,22 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            BIROperand[] operands = new BIROperand[args.size() + 1];
+            operands[0] = fp;
+            int i = 1;
+            for (BIROperand operand : args) {
+                operands[i++] = operand;
+            }
+            return operands;
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{thenBB};
+        }
     }
 
     /**
@@ -203,6 +239,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[0];
         }
     }
 
@@ -229,6 +275,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{op};
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{trueBB, falseBB};
+        }
     }
 
     /**
@@ -253,6 +309,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{lockedBB};
         }
     }
 
@@ -279,6 +345,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{localVar};
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{lockedBB};
+        }
     }
 
     /**
@@ -302,6 +378,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{unlockBB};
+        }
     }
 
     /**
@@ -323,6 +409,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{errorOp};
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[0];
         }
     }
 
@@ -347,6 +443,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return exprList.toArray(new BIROperand[0]);
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{thenBB};
+        }
     }
 
     /**
@@ -369,6 +475,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{thenBB};
         }
     }
 
@@ -395,6 +511,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{thenBB};
         }
     }
 
@@ -426,6 +552,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{data};
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{thenBB};
+        }
     }
 
     /**
@@ -451,6 +587,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return valueExprs.toArray(new BIROperand[0]);
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{thenBB};
         }
     }
 }

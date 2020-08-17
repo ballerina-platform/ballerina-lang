@@ -35,6 +35,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityHeaderHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -42,7 +43,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.mime.FileUploadContentHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -239,9 +239,8 @@ public class MultipartUtils {
             contentHolder.setFileName(TEMP_FILE_NAME + TEMP_FILE_EXTENSION);
             contentHolder.setContentType(MimeUtil.getBaseType(bodyPart));
             contentHolder.setBodyPartFormat(MimeConstants.BodyPartForm.INPUTSTREAM);
-            String contentTransferHeaderValue = HeaderUtil.getHeaderValue(bodyPart,
-                                                                          HttpHeaderNames.CONTENT_TRANSFER_ENCODING
-                                                                                  .toString());
+            String contentTransferHeaderValue =
+                    EntityHeaderHandler.getHeaderValue(bodyPart, HttpHeaderNames.CONTENT_TRANSFER_ENCODING.toString());
             if (contentTransferHeaderValue != null) {
                 contentHolder.setContentTransferEncoding(contentTransferHeaderValue);
             }

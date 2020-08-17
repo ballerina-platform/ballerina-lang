@@ -18,8 +18,6 @@
 
 package org.ballerinalang.mime.util;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
@@ -35,7 +33,6 @@ import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,6 +40,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
+import java.util.Random;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
@@ -56,19 +54,17 @@ import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILE
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_PARA_MAP_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_SUB_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.DOUBLE_QUOTE;
 import static org.ballerinalang.mime.util.MimeConstants.FORM_DATA_PARAM;
-import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_LENGTH_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
-import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
-import static org.ballerinalang.mime.util.MimeConstants.ONE_BYTE;
 import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.PRIMARY_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
@@ -112,7 +108,7 @@ public class MimeUtil {
      */
     public static String getContentTypeWithParameters(ObjectValue entity) {
         if (entity.get(MEDIA_TYPE_FIELD) == null) {
-            return HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
+            return EntityHeaderHandler.getHeaderValue(entity, CONTENT_TYPE);
         }
         ObjectValue mediaType = (ObjectValue) entity.get(MEDIA_TYPE_FIELD);
         String primaryType = String.valueOf(mediaType.get(PRIMARY_TYPE_FIELD));
@@ -234,7 +230,7 @@ public class MimeUtil {
     public static void setMediaTypeToEntity(ObjectValue entityStruct, String contentType) {
         ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
         MimeUtil.setContentType(mediaType, entityStruct, contentType);
-        HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+        HeaderUtil.setHeaderToEntity(entityStruct, CONTENT_TYPE, contentType);
     }
 
     /**
@@ -434,7 +430,8 @@ public class MimeUtil {
      * @return a boundary string
      */
     public static String getNewMultipartDelimiter() {
-        return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
+        Random random = new Random();
+        return Long.toHexString(random.nextLong());
     }
 
     /**
@@ -546,27 +543,6 @@ public class MimeUtil {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Given a {@link HttpCarbonMessage}, returns the content length extracting from headers.
-     *
-     * @param httpCarbonMessage Represent the message
-     * @return length of the content
-     */
-    public static long extractContentLength(HttpCarbonMessage httpCarbonMessage) {
-        long contentLength = NO_CONTENT_LENGTH_FOUND;
-        String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
-        try {
-            contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
-            if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                //Read one byte to make sure the incoming stream has data
-                contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
-            }
-        } catch (NumberFormatException e) {
-            throw MimeUtil.createError(INVALID_CONTENT_LENGTH_ERROR, "Invalid content length");
-        }
-        return contentLength;
     }
 
     public static void closeOutputStream(OutputStream outputStream) throws IOException {

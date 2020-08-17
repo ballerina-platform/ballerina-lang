@@ -105,14 +105,6 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
 //                {"completionWithinInvocationArgs13.json", "function"}, // Revamp needed
 //                {"chainCompletion6.json", "function"}, // Revamp needed
 //                {"chainCompletion7.json", "function"}, // Revamp needed
-                {"externalKeywordSuggestion1.json", "function"},
-//                {"externalKeywordSuggestion2.json", "function"}, // Parser fix needed
-//                {"ifWhileConditionContextCompletion1.json", "function"}, //TODO: Fix this
-                {"ifWhileConditionContextCompletion2.json", "function"},
-//                {"ifWhileConditionContextCompletion3.json", "function"},
-//                {"ifWhileConditionContextCompletion4.json", "function"}, // LS Fix
-                {"ifWhileConditionContextCompletion5.json", "function"},
-//                {"ifWhileConditionContextCompletion6.json", "function"}, // LS Fix
                 {"newObjectCompletion1.json", "function"},
                 {"newObjectCompletion2.json", "function"},
                 {"newObjectCompletion3.json", "function"},
@@ -142,17 +134,6 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"forkJoinCompletion4.json", "function"},
 //                {"packageContentSuggestionInvalid1.json", "function"}, // Revamp needed
 //                {"errorUnionSuggestion1.json", "function"},
-//                {"returnParameterContextSuggestion1.json", "function"},
-//                {"returnParameterContextSuggestion2.json", "function"},
-//                {"returnParameterContextSuggestion3.json", "function"},
-//                {"returnParameterContextSuggestion4.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion5.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion6.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion7.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion8.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion9.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion10.json", "function"}, // Revamp needed
-//                {"returnParameterContextSuggestion11.json", "function"}, // Revamp needed
 //                {"typeDescSuggestions1.json", "function"},
 //                {"typeDescSuggestions2.json", "function"}, // Revamp needed
 //                {"delimiterBasedCompletionOverArrays.json", "function"}, // Revamp needed

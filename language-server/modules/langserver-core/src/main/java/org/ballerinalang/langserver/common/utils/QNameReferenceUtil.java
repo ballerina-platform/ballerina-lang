@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -68,5 +69,25 @@ public class QNameReferenceUtil {
     public static String getAlias(QualifiedNameReferenceNode qNameRef) {
         String alias = qNameRef.modulePrefix().text();
         return alias.startsWith("'") ? alias.substring(1) : alias;
+    }
+
+    /**
+     * Get module content, given the given a qualified name reference and a predicate to filter.
+     *
+     * @param context   Language server operation context
+     * @param qNameRef  qualified name reference
+     * @param predicate predicate to filer
+     * @return {@link List} of filtered module entries
+     */
+    public static List<Scope.ScopeEntry> getModuleContent(LSContext context,
+                                                          QualifiedNameReferenceNode qNameRef,
+                                                          Predicate<Scope.ScopeEntry> predicate) {
+        Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context,
+                QNameReferenceUtil.getAlias(qNameRef));
+        return module.map(scopeEntry -> scopeEntry.symbol.scope.entries.values().stream()
+                .filter(predicate)
+                .collect(Collectors.toList()))
+                .orElseGet(ArrayList::new);
+
     }
 }

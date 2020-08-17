@@ -144,34 +144,6 @@
       }
     },
     {
-      "label": "createLimitFunction()(_StreamFunction)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "createLimitFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "print()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "print();",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "abs()(int)",
       "kind": "Function",
       "detail": "Function",
