@@ -954,7 +954,7 @@ public class FormattingTreeModifier extends TreeModifier {
             return specificFieldNode;
         }
         int startColumn = getStartColumn(specificFieldNode, specificFieldNode.kind(), true);
-        Token fieldName = getToken(specificFieldNode.fieldName());
+        Token fieldName = getToken((Token) specificFieldNode.fieldName());
         Token readOnlyKeyword = specificFieldNode.readonlyKeyword().orElse(null);
         Token colon = getToken(specificFieldNode.colon());
 

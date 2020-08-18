@@ -165,7 +165,7 @@ public class MappingConstructorExpressionNodeContext extends
                 && evalNode.parent().kind() != SyntaxKind.ASSIGNMENT_STATEMENT
                 && evalNode.parent().kind() != SyntaxKind.ANNOTATION) {
             if (evalNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
-                fieldNames.add(((Token)((SpecificFieldNode) evalNode).fieldName()).text());
+                fieldNames.add(((Token) ((SpecificFieldNode) evalNode).fieldName()).text());
             } else if (evalNode.kind() == SyntaxKind.BLOCK_STATEMENT || evalNode.kind() == SyntaxKind.MODULE_PART) {
                 return Optional.empty();
             }
