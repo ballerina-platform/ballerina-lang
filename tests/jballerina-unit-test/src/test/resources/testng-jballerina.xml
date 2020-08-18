@@ -175,6 +175,14 @@
             </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
             <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.expressions.object.ObjectConstructorTest">
+                <methods>
+                    <!-- Not supported by the old parser -->
+                    <exclude name="testObjectCreationViaObjectConstructor"/>
+                    <exclude name="testObjectConstructorAnnotationAttachment"/>
+                    <exclude name="testObjectConstructorNegative"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>
