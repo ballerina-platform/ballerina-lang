@@ -1,0 +1,56 @@
+{
+  "root": "Node",
+  "type": "abstract",
+  "attributes": [
+    {
+      "name": "kind",
+      "type": "SyntaxKind"
+    },
+    {
+      "name": "width",
+      "type": "int"
+    }
+  ],
+  "nodes": [
+    {
+      "name": "ModulePartNode",
+      "base": "Node",
+      "kind": "MODULE_PART",
+      "attributes": [
+        {
+          "name": "members",
+          "type": "ModuleMemberDeclarationNode",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "eofToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "MetadataNode",
+      "base": "Node",
+      "kind": "METADATA",
+      "attributes": [
+        {
+          "name": "documentationString",
+          "type": "Node",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "TableNode",
+      "base": "Node",
+      "kind": "TABLE",
+      "attributes": [
+        {
+          "name": "tableName",
+          "type": "Node",
+          "isOptional": true
+        }
+      ]
+    }
+  ]
+}
