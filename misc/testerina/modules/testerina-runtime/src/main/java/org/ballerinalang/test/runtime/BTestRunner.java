@@ -417,7 +417,7 @@ public class BTestRunner {
         Path jsonCacheDir = sourceRootPath.resolve("target").resolve("caches").resolve("json_cache");
         Path rerunJson =
                 jsonCacheDir.resolve(suite.getOrgName()).resolve(suite.getPackageID()).resolve(suite.getVersion());
-        Path jsonPath = Paths.get(rerunJson.toString(), "retun_test.json");
+        Path jsonPath = Paths.get(rerunJson.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
         File jsonFile = new File(jsonPath.toString());
 
         try {

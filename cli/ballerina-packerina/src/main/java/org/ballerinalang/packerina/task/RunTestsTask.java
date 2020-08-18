@@ -63,6 +63,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOC
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DIR_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RUNTIME_JAR_PREFIX;
@@ -153,14 +154,8 @@ public class RunTestsTask implements Task {
             TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
 
             if (isRerunTestExection) {
-                try {
-                    Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
-                    singleExecTests = readFailedTestsFromFile(jsonPath);
-                } catch (NoSuchFileException e) {
-                    throw createLauncherException("No failed test cache present in target directory. ", e);
-                } catch (IOException e) {
-                    throw createLauncherException("error while running failed tests. ", e);
-                }
+                Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
+                singleExecTests = readFailedTestsFromFile(jsonPath);
             }
 
             if (isSingleTestExecution || isRerunTestExection) {
@@ -459,10 +454,18 @@ public class RunTestsTask implements Task {
         return gson.fromJson(bufferedReader, ModuleStatus.class);
     }
 
-    private List<String> readFailedTestsFromFile(Path rerunTestJsonPath) throws IOException {
+    private List<String> readFailedTestsFromFile(Path rerunTestJsonPath) {
         Gson gson = new Gson();
-        rerunTestJsonPath = Paths.get(rerunTestJsonPath.toString(), "retun_test.json");
-        BufferedReader bufferedReader = Files.newBufferedReader(rerunTestJsonPath, StandardCharsets.UTF_8);
-        return gson.fromJson(bufferedReader, ArrayList.class);
+        rerunTestJsonPath = Paths.get(rerunTestJsonPath.toString(), RERUN_TEST_JSON_FILE);
+
+        try (BufferedReader bufferedReader = Files.newBufferedReader(rerunTestJsonPath, StandardCharsets.UTF_8)) {
+            return gson.fromJson(bufferedReader, ArrayList.class);
+        } catch (NoSuchFileException e) {
+            createLauncherException("No failed test cache present in target directory. ", e);
+        } catch (IOException e) {
+            createLauncherException("error while running failed tests. ", e);
+        }
+
+        return new ArrayList<String>();
     }
 }
