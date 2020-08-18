@@ -7160,6 +7160,7 @@ public class BallerinaParser extends AbstractParser {
             case RETURN_KEYWORD:
             case SERVICE_KEYWORD:
             case FIELD_KEYWORD:
+            case CLASS_KEYWORD:
                 firstIdent = consume();
                 return parseDualAttachPointIdent(sourceKeyword, firstIdent);
             default:
@@ -7193,6 +7194,7 @@ public class BallerinaParser extends AbstractParser {
             case RETURN_KEYWORD:
             case SERVICE_KEYWORD:
             case FIELD_KEYWORD:
+            case CLASS_KEYWORD:
             default: // default case should never be reached.
                 secondIdent = STNodeFactory.createEmptyNode();
                 break;

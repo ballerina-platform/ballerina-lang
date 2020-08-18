@@ -51,6 +51,11 @@ public class ClassTest {
     }
 
     @Test(description = "Test Basic object as struct")
+    public void testUsingClassValueAsRecordField() {
+        BRunUtil.invoke(compileResult, "testUsingClassValueAsRecordField");
+    }
+
+    @Test(description = "Test Basic object as struct")
     public void testTypeRef() {
         BRunUtil.invoke(compileResult, "testTypeRefInClass");
     }

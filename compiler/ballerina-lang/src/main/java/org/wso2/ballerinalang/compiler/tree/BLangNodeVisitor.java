@@ -932,5 +932,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangClassDefinition classDefinition) { throw  new AssertionError(); }
+    public void visit(BLangClassDefinition classDefinition) {
+        throw  new AssertionError();
+    }
 }
