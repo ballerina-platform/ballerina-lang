@@ -171,8 +171,12 @@ types:
         type: function
         repeat: expr
         repeat-expr: function_count
+      - id: annotations_size
+        type: s4
   golbal_var:
     seq:
+      - id: kind
+        type: s1
       - id: name_cp_index
         type: s4
       - id: flags
@@ -194,14 +198,20 @@ types:
         type: u1
   function:
     seq:
-      - id: source_file_cp_index
-        type: s4
+      - id: position
+        type: position
       - id: name_cp_index
+        type: s4
+      - id: worker_name_cp_index
         type: s4
       - id: flags
         type: s4
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content_length
+        type: s8
+      - id: annotation_attachments
+        size: annotation_attachments_content_length
       - id: required_param_count
         type: s4
       - id: has_rest_param
@@ -215,11 +225,25 @@ types:
         size: taint_table_lenght
       - id: doc
         type: markdown
+      - id: function_body_length
+        type: s8
+      - id: function_body
+        size: function_body_length
   taint_table:
     seq:
       - id: row_count
         type: s2
       - id: column_count
         type: s2
-       
-        
+  position:
+    seq:
+      - id: s_line
+        type: s4
+      - id: e_line
+        type: s4
+      - id: s_col
+        type: s4
+      - id: e_col
+        type: s4
+      - id: source_file_cp_index
+        type: s4
