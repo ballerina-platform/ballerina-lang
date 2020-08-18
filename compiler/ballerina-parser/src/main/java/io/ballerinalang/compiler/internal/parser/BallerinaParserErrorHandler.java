@@ -284,10 +284,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.REQUIRED_PARAM };
 
     private static final ParserRuleContext[] PARAMETER_START =
-            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESC_IN_PARAM };
+            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.TYPE_DESC_IN_PARAM };
 
     private static final ParserRuleContext[] PARAMETER_WITHOUT_ANNOTS =
-            { ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESC_IN_PARAM };
+            { ParserRuleContext.TYPE_DESC_IN_PARAM };
 
     private static final ParserRuleContext[] REQUIRED_PARAM_NAME_RHS =
             { ParserRuleContext.PARAM_END, ParserRuleContext.ASSIGN_OP };

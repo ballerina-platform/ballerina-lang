@@ -1302,7 +1302,6 @@ public class BallerinaParser extends AbstractParser {
             case AT_TOKEN:
                 annots = parseOptionalAnnotations();
                 break;
-            case PUBLIC_KEYWORD:
             case IDENTIFIER_TOKEN:
                 annots = STNodeFactory.createEmptyNodeList();
                 break;
