@@ -1463,9 +1463,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return;
             // TODO : Add support for other types. such as union and objects
         }
-        if (!Symbols.isPublic(symbol)) {
-            dlog.error(pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
-        }
     }
 
     public void visit(BLangLetExpression letExpression) {
