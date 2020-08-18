@@ -15,14 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.expressions;
+package org.ballerinalang.model.tree.statements;
+
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * {@code FailExpressionNode} represents an expression which forces to return error.
+ * {@code FailStatementNode} represents an expression which forces to return error.
  *
  * @since Swan Lake
  */
-public interface FailExpressionNode extends ExpressionNode {
+public interface FailStatementNode extends StatementNode {
 
     ExpressionNode getExpression();
 

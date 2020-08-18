@@ -81,7 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -596,6 +596,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (doNode.onFailClause != null) {
             analyzeNode(doNode.onFailClause, env);
         }
+    }
+
+    public void visit(BLangFail failNode) {
+        analyzeNode(failNode.expr, env);
     }
 
     @Override
@@ -1265,10 +1269,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckPanickedExpr checkPanicExpr) {
         analyzeNode(checkPanicExpr.expr, env);
-    }
-
-    public void visit(BLangFailExpr failExpr) {
-        analyzeNode(failExpr.expr, env);
     }
 
     @Override

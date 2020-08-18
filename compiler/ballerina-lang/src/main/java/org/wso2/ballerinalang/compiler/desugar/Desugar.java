@@ -110,7 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -4654,14 +4654,19 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFailExpr failExpr) {
-        BLangStatementExpression expression = ASTBuilderUtil.createStatementExpression(onFailFuncBlock,
-                ASTBuilderUtil.createLiteral(failExpr.pos, symTable.nilType, Names.NIL_VALUE));
-        BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-        exprStmt.expr = expression;
-        exprStmt.pos = failExpr.pos;
-        failExpr.exprStmt = exprStmt;
-        result = failExpr;
+    public void visit(BLangFail failNode) {
+        if(onFailFuncBlock != null) {
+            BLangStatementExpression expression = ASTBuilderUtil.createStatementExpression(onFailFuncBlock,
+                    ASTBuilderUtil.createLiteral(failNode.pos, symTable.nilType, Names.NIL_VALUE));
+            BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+            exprStmt.expr = expression;
+            exprStmt.pos = failNode.pos;
+            failNode.exprStmt = exprStmt;
+            result = failNode;
+        } else {
+            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failNode.pos, failNode.expr);
+            result = rewrite(stmt, env);
+        }
     }
 
     // Generated expressions. Following expressions are not part of the original syntax
@@ -5723,18 +5728,14 @@ public class Desugar extends BLangNodeVisitor {
                 returnStmt.expr = patternFailureCaseVarRef;
                 patternBlockFailureCase.stmts.add(returnStmt);
             } else {
-                BLangFailExpr failExpressionNode = (BLangFailExpr) TreeBuilder.createFailExpressionNode();
+                BLangFail failExpressionNode = (BLangFail) TreeBuilder.createFailNode();
                 BLangStatementExpression expression = ASTBuilderUtil.createStatementExpression(onFailFuncBlock,
                         ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
                 BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
                 exprStmt.expr = expression;
                 exprStmt.pos = pos;
                 failExpressionNode.exprStmt = exprStmt;
-
-                BLangExpressionStmt failExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-                failExprStmt.expr = failExpressionNode;
-                failExprStmt.pos = pos;
-                patternBlockFailureCase.stmts.add(failExprStmt);
+                patternBlockFailureCase.stmts.add(failExpressionNode);
             }
         } else {
             // throw e
