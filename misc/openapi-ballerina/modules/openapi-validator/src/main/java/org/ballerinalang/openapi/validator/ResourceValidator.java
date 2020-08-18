@@ -93,8 +93,8 @@ public class ResourceValidator {
      * @param operation             validate openApi operation
      * @param validationErrors      list of validationErrors
      * @param resourceParameter     validate resource parameter
-     * @param isParameterExit
-     * @param requestBody
+     * @param isParameterExit       boolean tag for checking parameter is available
+     * @param requestBody           requestBody type  operation parameter
      * @return  boolean value for indicating parameter is available
      * @throws OpenApiValidatorException
      */
@@ -213,7 +213,7 @@ public class ResourceValidator {
      * @param validationErrorList       list of ValidationErros
      * @param resourceParam             validate resource parameter
      * @param operationRB               request Body parameters in operations
-     * @param isOParamExit
+     * @param isOParamExit              boolean tag for checking the operation parameter available
      * @return boolean value whether it is exit or not
      * @throws OpenApiValidatorException
      */
