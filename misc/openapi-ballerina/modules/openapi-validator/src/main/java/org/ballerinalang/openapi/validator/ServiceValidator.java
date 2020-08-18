@@ -131,18 +131,14 @@ public class ServiceValidator {
                 }
             }
         }
-        // Validate openApi operations against services in ballerina file
+        // Validate openApi operations against service resource in ballerina file
         for (OpenAPIPathSummary openAPIPathSummary: openAPIPathSummaries) {
             for (ResourcePathSummary resourcePathSummary: resourcePathSummaryList) {
                 if ((openAPIPathSummary.getPath().equals(resourcePathSummary.getPath())) && (!openAPIPathSummary.
                         getOperations().isEmpty()) && (!resourcePathSummary.getMethods().isEmpty())) {
-
                     Map<String, Operation> operations = openAPIPathSummary.getOperations();
-
                     for (Map.Entry<String, Operation> operation : operations.entrySet()) {
-
                         Map<String, ResourceMethod> methods = resourcePathSummary.getMethods();
-
                         for (Map.Entry<String, ResourceMethod> method: methods.entrySet()) {
                             if (operation.getKey().equals(method.getKey())) {
                                 List<ValidationError> errorList =
