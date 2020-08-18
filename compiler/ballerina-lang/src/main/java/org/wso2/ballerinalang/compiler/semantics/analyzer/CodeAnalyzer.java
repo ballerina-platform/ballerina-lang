@@ -110,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectCtorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -2490,6 +2491,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         analyzeExprs(rawTemplateLiteral.strings);
         analyzeExprs(rawTemplateLiteral.insertions);
+    }
+
+    public void visit(BLangObjectCtorExpr objectCtorExpr) {
     }
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {

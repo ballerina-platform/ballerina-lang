@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectCtorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -355,6 +356,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
         objectTypeNode.initFunction = rewrite(objectTypeNode.initFunction);
         objectTypeNode.receiver = rewrite(objectTypeNode.receiver);
         result = objectTypeNode;
+    }
+
+    @Override
+    public void visit(BLangObjectCtorExpr objectCtorExpr) {
+        rewrite(objectCtorExpr.objectTypeNode);
+        result = objectCtorExpr;
     }
 
     @Override

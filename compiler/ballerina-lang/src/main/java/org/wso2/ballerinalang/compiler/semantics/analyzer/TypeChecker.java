@@ -121,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectCtorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -2118,7 +2119,7 @@ public class TypeChecker extends BLangNodeVisitor {
             //  locally defined record type defs. This check should be removed once local var referencing is supported.
             if (((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)) {
                 BVarSymbol varSym = (BVarSymbol) symbol;
-                checkSefReferences(varRefExpr.pos, env, varSym);
+                checkSelfReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
                 markAndRegisterClosureVariable(symbol, varRefExpr.pos);
@@ -4605,6 +4606,34 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangObjectCtorExpr objectCtorExpr) {
+        BType definedType = symResolver.resolveTypeNode(objectCtorExpr.objectTypeNode, env);
+
+        if (expType == symTable.noType) {
+            resultType = definedType;
+            return;
+        }
+
+        if (objectCtorExpr.referenceType != null) {
+            BType bType = symResolver.resolveTypeNode(objectCtorExpr.referenceType, env);
+            if (bType.tag != TypeTags.OBJECT) {
+                dlog.error(objectCtorExpr.pos, DiagnosticCode.OBJECT_TYPE_REQUIRED, expType);
+                resultType = symTable.semanticError;
+                return;
+            }
+        }
+
+        // TODO : check with lhs and rhs
+        if (expType.tag != TypeTags.OBJECT) {
+            dlog.error(objectCtorExpr.pos, DiagnosticCode.INVALID_TYPE_NEW_LITERAL, expType);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        resultType = definedType;
+    }
+
     private BType getEffectiveReadOnlyType(DiagnosticPos pos, BType origTargetType) {
         if (origTargetType == symTable.readonlyType) {
             if (types.isInherentlyImmutableType(expType) || !types.isSelectivelyImmutableType(expType)) {
@@ -4677,7 +4706,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkSefReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
+    private void checkSelfReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
