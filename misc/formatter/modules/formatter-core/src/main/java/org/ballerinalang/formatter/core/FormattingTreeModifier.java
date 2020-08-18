@@ -238,7 +238,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         functionDefinitionNode = functionDefinitionNode.modify()
-                .withFunctionKeyword(formatToken(functionKeyword, 0, 0, 0, 0))
+                .withFunctionKeyword(formatToken(functionKeyword, 0, 0, (qualifierList.size() == 0) ? 1 : 0, 0))
                 .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0, 0))
                 .withFunctionSignature(functionSignatureNode)
                 .apply();
@@ -401,7 +401,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(qualifiedNameReferenceNode)) {
             return qualifiedNameReferenceNode;
         }
-        int startCol = getStartColumn(qualifiedNameReferenceNode, qualifiedNameReferenceNode.kind(), true);
+        int startCol = getStartColumn(qualifiedNameReferenceNode, qualifiedNameReferenceNode.kind(), false);
         Token modulePrefix = getToken(qualifiedNameReferenceNode.modulePrefix());
         Token identifier = getToken(qualifiedNameReferenceNode.identifier());
         Token colon = getToken((Token) qualifiedNameReferenceNode.colon());
@@ -1053,7 +1053,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(checkExpressionNode)) {
             return checkExpressionNode;
         }
-        int startColumn = getStartColumn(checkExpressionNode, checkExpressionNode.kind(), true);
+        int startColumn = getStartColumn(checkExpressionNode, checkExpressionNode.kind(), false);
         Token checkKeyword = getToken(checkExpressionNode.checkKeyword());
         ExpressionNode expressionNode = this.modifyNode(checkExpressionNode.expression());
 
