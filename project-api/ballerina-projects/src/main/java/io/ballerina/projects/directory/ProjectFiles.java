@@ -71,7 +71,7 @@ public class ProjectFiles {
         // Load Ballerina.toml
         BallerinaToml ballerinaToml;
         try {
-            ballerinaToml = BallerinaTomlProcessor.parse(packageDirPath.resolve("ballerina.toml"));
+            ballerinaToml = BallerinaTomlProcessor.parse(packageDirPath.resolve("Ballerina.toml"));
         } catch (IOException | TomlException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
