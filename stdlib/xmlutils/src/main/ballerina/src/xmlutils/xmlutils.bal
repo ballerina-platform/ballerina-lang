@@ -41,7 +41,7 @@ public type JsonOptions record {
 #            successfully converted or else an `error`
 public function fromJSON(json? jsonValue, JsonOptions options = {}) returns xml|error = @java:Method {
     name: "fromJSON",
-    class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
+    'class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
 } external;
 
 
@@ -67,5 +67,5 @@ public function fromTable(table<record{}> tableValue) returns xml {
 
 function externFromTable(table<record{}> tableValue) returns xml = @java:Method {
     name: "fromTable",
-    class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
+    'class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
 } external;

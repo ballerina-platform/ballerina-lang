@@ -33,7 +33,7 @@ string pathListSeparator = isWindows ? ";" : ":";
 # + return - The absolute path reference or else a `filepath:Error` if the path cannot be derived
 public function absolute(@untainted string path) returns string|Error = @java:Method {
     name: "absolute",
-    class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
+    'class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;
 
 # Returns the path separator of the underlying operating system.
@@ -399,7 +399,7 @@ public function relative(string base, string target) returns string|Error {
 # + return - Resolved file path or else a `filepath:Error` if the path is invalid
 public function resolve(@untainted string path) returns string|Error = @java:Method {
     name: "resolve",
-    class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
+    'class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;
 
 # Reports whether the complete filename (not just a substring of it) matches the provided Glob pattern.
@@ -414,7 +414,7 @@ public function resolve(@untainted string path) returns string|Error = @java:Met
 #            or else an `filepath:Error` if the path or pattern is invalid
 public function matches(string path, string pattern) returns boolean|Error = @java:Method {
     name: "matches",
-    class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
+    'class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;
 
 # Parses the give path and remove redundent slashes.

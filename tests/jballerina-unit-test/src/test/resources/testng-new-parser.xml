@@ -136,6 +136,7 @@
             <package name="org.ballerinalang.test.statements.retrystmt.*"/>
             <package name="org.ballerinalang.test.types.readonly.*"/>
             <package name="org.ballerinalang.test.strand.*"/>
+            <package name="org.ballerinalang.test.klass.*"/>
         </packages>
 
         <classes>

@@ -53,6 +53,7 @@ public enum ParserRuleContext {
     EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS("external-func-body-optional-annots"),
     FUNC_BODY_BLOCK("func-body-block"),
     MODULE_TYPE_DEFINITION("type-definition"),
+    MODULE_CLASS_DEFINITION("class-definition"),
     FIELD_OR_REST_DESCIPTOR_RHS("field-or-rest-descriptor-rhs"),
     FIELD_DESCRIPTOR_RHS("field-descriptor-rhs"),
     RECORD_BODY_START("record-body-start"),
@@ -303,6 +304,7 @@ public enum ParserRuleContext {
     // Keywords
     RETURNS_KEYWORD("returns"),
     TYPE_KEYWORD("type"),
+    CLASS_KEYWORD("class"),
     PUBLIC_KEYWORD("public"),
     PRIVATE_KEYWORD("private"),
     REMOTE_KEYWORD("remote"),
@@ -431,6 +433,7 @@ public enum ParserRuleContext {
     SIMPLE_TYPE_DESCRIPTOR("simple-type-desc"),
     BINARY_OPERATOR("binary-operator"),
     TYPE_NAME("type-name"),
+    CLASS_NAME("class-name"),
     BOOLEAN_LITERAL("boolean-literal"),
     CHECKING_KEYWORD("checking-keyword"),
     SERVICE_NAME("service-name"),

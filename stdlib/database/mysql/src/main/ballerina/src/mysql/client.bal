@@ -182,29 +182,29 @@ public type SSLConfig record {|
 
 function createClient(Client mysqlClient, ClientConfiguration clientConf,
     sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
-    class: "org.ballerinalang.mysql.NativeImpl"
+    'class: "org.ballerinalang.mysql.NativeImpl"
 } external;
 
 function nativeQuery(Client sqlClient, string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowType)
 returns stream <record {}, sql:Error> = @java:Method {
-    class: "org.ballerinalang.sql.utils.QueryUtils"
+    'class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;
 
 function nativeExecute(Client sqlClient, string|sql:ParameterizedQuery sqlQuery)
 returns sql:ExecutionResult|sql:Error = @java:Method {
-    class: "org.ballerinalang.sql.utils.ExecuteUtils"
+    'class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 
 function nativeBatchExecute(Client sqlClient, sql:ParameterizedQuery[] sqlQueries)
 returns sql:ExecutionResult[]|sql:Error = @java:Method {
-    class: "org.ballerinalang.sql.utils.ExecuteUtils"
+    'class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 
 function nativeCall(Client sqlClient, string|sql:ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes)
 returns sql:ProcedureCallResult|sql:Error = @java:Method {
-    class: "org.ballerinalang.sql.utils.CallUtils"
+    'class: "org.ballerinalang.sql.utils.CallUtils"
 } external;
 
 function close(Client mysqlClient) returns sql:Error? = @java:Method {
-    class: "org.ballerinalang.mysql.NativeImpl"
+    'class: "org.ballerinalang.mysql.NativeImpl"
 } external;

@@ -6,7 +6,7 @@ public function testCreateBoxedBooleanFromBBoolean(boolean value) returns handle
 }
 
 public function createBoxedBooleanFromBBoolean(boolean value) returns handle = @java:Constructor {
-    class:"java.lang.Boolean",
+    'class:"java.lang.Boolean",
     paramTypes:["boolean"]
 } external;
 
@@ -17,7 +17,7 @@ public function testCreateBoxedByteFromBByte(byte value) returns handle {
 }
 
 public function createBoxedByteFromBByte(byte value) returns handle = @java:Constructor {
-    class:"java.lang.Byte",
+    'class:"java.lang.Byte",
     paramTypes:["byte"]
 } external;
 
@@ -28,7 +28,7 @@ public function testCreateBoxedLongFromBInt(int value) returns handle {
 }
 
 public function createBoxedLongFromBInt(int value) returns handle = @java:Constructor {
-    class:"java.lang.Long",
+    'class:"java.lang.Long",
     paramTypes:["long"]
 } external;
 
@@ -39,6 +39,6 @@ public function testCreateBoxedDoubleFromBFloat(float value) returns handle {
 }
 
 public function createBoxedDoubleFromBFloat(float value) returns handle = @java:Constructor {
-    class:"java.lang.Double",
+    'class:"java.lang.Double",
     paramTypes:["double"]
 } external;

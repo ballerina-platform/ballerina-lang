@@ -124,51 +124,51 @@ public type ReadableDataChannel object {
 function initReadableDataChannel(ReadableDataChannel dataChannel, ReadableByteChannel byteChannel,
                                  string bOrder) = @java:Method {
     name: "initReadableDataChannel",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function readInt16Extern(ReadableDataChannel dataChannel) returns int|Error = @java:Method {
     name: "readInt16",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function readInt32Extern(ReadableDataChannel dataChannel) returns int|Error = @java:Method {
     name: "readInt32",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function readInt64Extern(ReadableDataChannel dataChannel) returns int|Error = @java:Method {
     name: "readInt64",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function readFloat32Extern(ReadableDataChannel dataChannel) returns float|Error = @java:Method {
     name: "readFloat32",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function readFloat64Extern(ReadableDataChannel dataChannel) returns float|Error = @java:Method {
     name: "readFloat64",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function readBoolExtern(ReadableDataChannel dataChannel) returns boolean|Error = @java:Method {
     name: "readBool",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function readStringExtern(ReadableDataChannel dataChannel, int nBytes, string encoding)
                           returns string|Error = @java:Method {
     name: "readString",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function readVarIntExtern(ReadableDataChannel dataChannel) returns int|Error = @java:Method {
     name: "readVarInt",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function closeReadableDataChannelExtern(ReadableDataChannel dataChannel) returns Error? = @java:Method {
     name: "closeDataChannel",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;

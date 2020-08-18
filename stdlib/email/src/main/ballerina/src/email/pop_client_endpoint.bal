@@ -48,12 +48,12 @@ public type PopClient client object {
 function initPopClientEndpoint(PopClient clientEndpoint, string host, string username, string password,
         PopConfig config) returns Error? = @java:Method {
     name : "initPopClientEndpoint",
-    class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
+    'class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
 } external;
 
 function popRead(PopClient clientEndpoint, string folder) returns Email|Error? = @java:Method {
     name : "readMessage",
-    class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
+    'class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
 } external;
 
 # Configuration of the POP Endpoint.

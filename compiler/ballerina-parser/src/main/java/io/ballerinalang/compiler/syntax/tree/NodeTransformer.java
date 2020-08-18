@@ -796,6 +796,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(orderKeyNode);
     }
 
+    public T transform(ClassDefinitionNode classDefinitionNode) {
+        return transformSyntaxNode(classDefinitionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

@@ -126,7 +126,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.SERVICE_DECL,
                     ParserRuleContext.LISTENER_DECL, ParserRuleContext.CONSTANT_DECL, ParserRuleContext.ANNOTATION_DECL,
                     ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.XML_NAMESPACE_DECLARATION,
-                    ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL };
+                    ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL,
+                    ParserRuleContext.MODULE_CLASS_DEFINITION };
 
     private static final ParserRuleContext[] TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC =
             { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.TRANSACTIONAL_KEYWORD };
@@ -2700,6 +2701,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FUNCTIONAL_MATCH_PATTERN_START;
             case NAMED_ARG_MATCH_PATTERN:
                 return ParserRuleContext.IDENTIFIER;
+            case MODULE_CLASS_DEFINITION:
+                return ParserRuleContext.CLASS_KEYWORD;
+            case CLASS_KEYWORD:
+                return ParserRuleContext.IDENTIFIER;
             case OBJECT_MEMBER_QUALIFIER:
                 return ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
             default:
@@ -2803,6 +2808,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_KEYWORD:
                 return ParserRuleContext.TYPE_NAME;
             case OBJECT_KEYWORD:
+            case CLASS_NAME:
                 return ParserRuleContext.OPEN_BRACE;
             case REMOTE_KEYWORD:
                 return ParserRuleContext.OBJECT_METHOD_WITHOUT_REMOTE;
@@ -3496,6 +3502,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end body block
                 return getNextRuleForCloseBraceInFuncBody();
             case SERVICE_DECL:
+            case MODULE_CLASS_DEFINITION:
                 endContext();
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case OBJECT_MEMBER:
@@ -3594,6 +3601,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_MATCH_PATTERN:
                 endContext();
                 return getNextRuleForMatchPattern();
+            case CLASS_NAME:
+                endContext();
+                return ParserRuleContext.OPEN_BRACE;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -3809,6 +3819,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EOF;
             }
             return ParserRuleContext.TOP_LEVEL_NODE;
+        } else if (parentCtx == ParserRuleContext.MODULE_CLASS_DEFINITION) {
+            return ParserRuleContext.OBJECT_MEMBER;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -4086,6 +4098,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.XML_NAME_PATTERN_RHS;
             case NAMED_ARG_MATCH_PATTERN:
                 return ParserRuleContext.ASSIGN_OP;
+            case MODULE_CLASS_DEFINITION:
+                return ParserRuleContext.OPEN_BRACE;
+            case COMP_UNIT:
+                return ParserRuleContext.TOP_LEVEL_NODE;
+            case OBJECT_MEMBER:
+                return ParserRuleContext.SEMICOLON;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }

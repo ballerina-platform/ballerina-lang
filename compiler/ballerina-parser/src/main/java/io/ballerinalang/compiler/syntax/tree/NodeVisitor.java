@@ -795,6 +795,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(orderKeyNode);
     }
 
+    public void visit(ClassDefinitionNode classDefinitionNode) {
+        visitSyntaxNode(classDefinitionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

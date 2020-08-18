@@ -49,10 +49,10 @@ public type WritableByteChannel object {
 
 function byteWriteExtern(WritableByteChannel byteChannel, byte[] content, int offset) returns int|Error = @java:Method {
     name: "write",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
 
 function closeWritableByteChannelExtern(WritableByteChannel byteChannel) returns Error? = @java:Method {
     name: "closeByteChannel",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;

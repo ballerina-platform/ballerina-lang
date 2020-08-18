@@ -312,7 +312,7 @@ public type ClientHttp1Settings record {|
 |};
 
 function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolConfig) = @java:Method {
-   class: "org.ballerinalang.net.http.clientendpoint.CreateSimpleHttpClient",
+   'class: "org.ballerinalang.net.http.clientendpoint.CreateSimpleHttpClient",
    name: "createSimpleHttpClient"
 } external;
 

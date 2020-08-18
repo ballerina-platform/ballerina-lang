@@ -18,7 +18,7 @@
 import ballerina/java;
 
 function getValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
-    class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getValue",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
@@ -41,7 +41,7 @@ function testIncompatibleArg() {
 }
 
 function getMap(typedesc<anydata>... aTypeVar) returns map<aTypeVar> = @java:Method {
-    class: "xyz.pubudu.Hello",
+    'class: "xyz.pubudu.Hello",
     name: "getValue",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
@@ -51,7 +51,7 @@ function testRestParamReference() {
 }
 
 function funcWithDefaultableParam(typedesc<anydata> td = customType) returns td = @java:Method {
-    class: "xyz.pubudu.Hello",
+    'class: "xyz.pubudu.Hello",
     name: "funcWithDefaultableParam",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
@@ -62,7 +62,7 @@ function testDefaultableParamRef() {
 }
 
 function getRecord(typedesc<anydata> td) returns record {| string name; td misc; |} = @java:Method {
-    class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getRecord",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
@@ -76,7 +76,7 @@ function getObject(typedesc<anydata> td) returns object {
                                                          self.misc = misc;
                                                      }
                                                  } = @java:Method {
-    class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getObject",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
@@ -84,7 +84,7 @@ function getObject(typedesc<anydata> td) returns object {
 function getError(typedesc<string> reason, typedesc<record {| (anydata|readonly)...; |}> detail,
                     error<record {| string message?; error cause?; (anydata|readonly)...; |}> err)
                                                                     returns error<detail> = @java:Method {
-    class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getError",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc", "org.ballerinalang.jvm.values.api.BTypedesc",
                     "org.ballerinalang.jvm.values.api.BError"]
@@ -95,7 +95,7 @@ function foo(typedesc<anydata> td = string, td s = "foo") returns td {
 }
 
 function getNonTypedescExpr(typedesc<anydata> aTypeVar = getTypedesc()) returns aTypeVar = @java:Method {
-    class: "xyz.pubudu.Hello",
+    'class: "xyz.pubudu.Hello",
     name: "getValue",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
@@ -105,13 +105,13 @@ function getTypedesc() returns typedesc<anydata> {
 }
 
 function referToANonExistingParam(typedesc<anydata> aTypeVar = int) returns NonExistentParam = @java:Method {
-    class: "xyz.pubudu.Hello",
+    'class: "xyz.pubudu.Hello",
     name: "getValue",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
 function referToNonTypedescParam(string str) returns str = @java:Method {
-    class: "xyz.pubudu.Hello",
+    'class: "xyz.pubudu.Hello",
     name: "getValue",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
@@ -121,7 +121,7 @@ function normalFunction(string str) returns str {
 }
 
 function getValue2(typedesc<int|string> aTypeVar) returns aTypeVar = @java:Method {
-    class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getValue",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
