@@ -45,6 +45,7 @@ import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
@@ -331,6 +332,7 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
             }
         }
     }
+
     /**
      * Can be used to fetch variable values when a debug hit is occurred.
      *
@@ -385,6 +387,20 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
             LOGGER.warn("Error occurred when fetching debug hit child variables", e);
             throw new BallerinaTestException("Error occurred when fetching debug hit child variables", e);
         }
+    }
+
+    /**
+     * Can be used to assert variable name, value and type.
+     *
+     * @param variable      debug hit variable
+     * @param variableName  variable name
+     * @param variableValue variable value
+     * @param variableType  variable type
+     */
+    protected void assertVariable(Variable variable, String variableName, String variableValue, String variableType) {
+        Assert.assertEquals(variable.getName(), variableName);
+        Assert.assertEquals(variable.getValue(), variableValue);
+        Assert.assertEquals(variable.getType(), variableType);
     }
 
     /**

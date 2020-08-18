@@ -46,11 +46,6 @@ public class DocumentationParser extends AbstractParser {
         return parseDocumentationLines();
     }
 
-    @Override
-    public STNode resumeParsing(ParserRuleContext context, Object... args) {
-        return null;
-    }
-
     /**
      * Parse documentation lines.
      * <p>
