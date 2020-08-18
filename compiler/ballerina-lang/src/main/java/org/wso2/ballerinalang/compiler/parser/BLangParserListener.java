@@ -2088,21 +2088,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterWorkerMultipleReceiveExpression(BallerinaParser.WorkerMultipleReceiveExpressionContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startWorkerMultipleReceive(getCurrentPos(ctx));
-    }
-
-    @Override
     public void exitWorkerMultipleReceiveExpression(BallerinaParser.WorkerMultipleReceiveExpressionContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-//        this.pkgBuilder.startWorkerMultipleReceive(getCurrentPos(ctx));
+        this.pkgBuilder.startWorkerMultipleReceive(getCurrentPos(ctx));
 
         for (BallerinaParser.ReceiveFieldContext receiveFieldContext : ctx.multipleWorkerReceiveExpr().receiveField()) {
             BallerinaParser.WorkerNameContext workerNameContext = receiveFieldContext.peerWorker().workerName();

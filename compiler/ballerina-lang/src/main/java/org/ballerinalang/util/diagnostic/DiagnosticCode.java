@@ -113,6 +113,7 @@ public enum DiagnosticCode {
     WORKER_RECEIVE_AFTER_RETURN("worker.receive.after.return"),
     EXPLICIT_WORKER_CANNOT_BE_DEFAULT("explicit.worker.cannot.be.default"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
+    REDUNDANT_WORKER_IDENTIFIERS_IN_MULTIPLE_RECEIVE("redundant.worker.ids.in.multiple.receive"),
     INCOMPATIBLE_TYPE_REFERENCE("incompatible.type.reference"),
     INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS("incompatible.type.reference.non.public.members"),
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),

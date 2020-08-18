@@ -2078,21 +2078,21 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkTypesForWorkerMultipleReceiveRecords(BLangWorkerMultipleReceive bLangWorkerMultipleReceive) {
+    private void checkTypesForWorkerMultipleReceiveRecords(BLangWorkerMultipleReceive workerMultipleReceive) {
 
         Map<String, BField> lhsFields = ((BRecordType) expType).fields;
 
         // check if the record is sealed, if so check if the fields in wait collection is more than the fields expected
         // by the lhs record
-        if (((BRecordType) expType).sealed && bLangWorkerMultipleReceive.receiveFields.size() > lhsFields.size()) {
-            dlog.error(bLangWorkerMultipleReceive.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
-                    getWorkerMultipleReceiveReturnType(bLangWorkerMultipleReceive.receiveFields));
+        if (((BRecordType) expType).sealed && workerMultipleReceive.receiveFields.size() > lhsFields.size()) {
+            dlog.error(workerMultipleReceive.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
+                    getWorkerMultipleReceiveReturnType(workerMultipleReceive.receiveFields));
             resultType = symTable.semanticError;
             return;
 
         }
 
-        for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode receiveField : bLangWorkerMultipleReceive.receiveFields) {
+        for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode receiveField : workerMultipleReceive.receiveFields) {
 
             String key;
             key = receiveField.getWorkerFieldName() != null ?
@@ -2100,107 +2100,109 @@ public class TypeChecker extends BLangNodeVisitor {
             if (!lhsFields.containsKey(key)) {
                 // Check if the field is sealed, if so you cannot have dynamic fields
                 if (((BRecordType) expType).sealed) {
-                    dlog.error(bLangWorkerMultipleReceive.pos, DiagnosticCode.INVALID_FIELD_NAME_RECORD_LITERAL, key,
+                    dlog.error(workerMultipleReceive.pos, DiagnosticCode.INVALID_FIELD_NAME_RECORD_LITERAL, key,
                             expType);
                     resultType = symTable.semanticError;
                 } else {
                     // Else if the record is an open record, then check if the rest field type matches the expression
                     BType restFieldType = ((BRecordType) expType).restFieldType;
-                    checkWorkerMultipleReceiveField(receiveField, restFieldType);
+                    checkWorkerMultipleReceiveField((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField,
+                            restFieldType);
                 }
             } else {
-                checkWorkerMultipleReceiveField(receiveField, lhsFields.get(key).type);
+                checkWorkerMultipleReceiveField((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField,
+                        lhsFields.get(key).type);
             }
         }
         // If the record literal is of record type and types are validated for the fields, check if there are any
-        // required fields missing.
-        checkMissingReqFieldsForWorkerMultiReceive(((BRecordType) expType),
-                bLangWorkerMultipleReceive.receiveFields, bLangWorkerMultipleReceive.pos);
+        // required fields missing and duplicate worker names.
+        if (checkMissingReqFieldsAndDuplicatesForWorkerMultiReceive(((BRecordType) expType),
+                workerMultipleReceive.receiveFields, workerMultipleReceive.pos)) {
+            resultType = symTable.semanticError;
+        }
 
         if (symTable.semanticError != resultType) {
             resultType = expType;
         }
     }
 
-    private void checkMissingReqFieldsForWorkerMultiReceive(BRecordType type,
+    private boolean checkMissingReqFieldsAndDuplicatesForWorkerMultiReceive(BRecordType type,
                                                             List<WorkerMultipleReceiveNode.WorkerReceiveFieldNode>
                                                                     receiveFields, DiagnosticPos pos) {
 
-        for (BField field : type.fields.values()) {
-            // Check if `field` is explicitly assigned a value in the record literal
-            boolean hasField = false;
-            for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode receiveField : receiveFields) {
-                String receivedFieldIdentifier = receiveField.getWorkerFieldName() != null ?
-                        receiveField.getWorkerFieldName().getValue() : receiveField.getWorkerName().getValue();
-                if (field.name.value.equals(receivedFieldIdentifier)) {
-                    hasField = true;
-                    break;
-                }
+        boolean hasSemanticErrors = false;
+        Set<String> receiveFieldIds = new HashSet<>();
+        Set<String> workerNames = new HashSet<>();
+
+        for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode receiveField : receiveFields) {
+            IdentifierNode worker = receiveField.getWorkerName();
+//            String workerName = receiveField.getWorkerName().getValue();
+            if (workerNames.contains(worker.getValue())){
+//                DiagnosticPos workerNamePos = (DiagnosticPos) receiveField.getWorkerName().getPosition();
+                dlog.error((DiagnosticPos) worker.getPosition(),
+                        DiagnosticCode.REDUNDANT_WORKER_IDENTIFIERS_IN_MULTIPLE_RECEIVE, worker.getValue());
+                hasSemanticErrors = true;
             }
 
-            // If a required field is missing, it's a compile error
-            if (!hasField && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
-                dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
-            }
+            workerNames.add(worker.getValue());
+            String receivedFieldIdentifier = receiveField.getWorkerFieldName() != null ?
+                    receiveField.getWorkerFieldName().getValue() : worker.getValue();
+            receiveFieldIds.add(receivedFieldIdentifier);
         }
+
+        Set<String> fieldNames = new HashSet<>();
+        for (BField value : type.fields.values()) {
+            fieldNames.add(value.name.value);
+        }
+
+        if (fieldNames.containsAll(receiveFieldIds) && fieldNames.removeAll(receiveFieldIds)){
+            for (String fieldName : fieldNames) {
+                dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, fieldName);
+                hasSemanticErrors = true;
+            }
+
+        }
+
+        return hasSemanticErrors;
     }
 
-    private void checkWorkerMultipleReceiveField(WorkerMultipleReceiveNode.WorkerReceiveFieldNode receiveField,
-                                                 BType type) {
-
+    private void checkWorkerMultipleReceiveField(BLangWorkerMultipleReceive.BLangWorkerReceiveField receiveField,
+                                                 BType type){
         BLangExpression expression;
-        if (receiveField.getKeyExpression() != null) {
+        if (receiveField.keyExpr != null) {
             BSymbol symbol = symResolver.lookupSymbolInMainSpace(env,
-                    names.fromIdNode(((BLangSimpleVarRef) receiveField.getKeyExpression()).variableName));
-            ((BLangSimpleVarRef) receiveField.getKeyExpression()).type = symbol.type;
-            expression = (BLangExpression) receiveField.getKeyExpression();
+                    names.fromIdNode(((BLangSimpleVarRef) receiveField.keyExpr).variableName));
+            receiveField.keyExpr.type = symbol.type;
+            expression = receiveField.keyExpr;
         } else {
-            expression = receiveField.getSendExpression();
+            expression = receiveField.sendExpression;
         }
 
         if (receiveField.getWorkerFieldName() != null) {
             // Type check with worker field name
-            BSymbol fieldSymbol = symResolver.lookupSymbolInMainSpace(
-                    env,
-                    names.fromIdNode((
-                                    (BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerFieldName
-                                    ));
-            ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerFieldName.type
-                    = fieldSymbol.type;
+            BSymbol fieldSymbol = symResolver.lookupSymbolInMainSpace(env,
+                    names.fromIdNode(receiveField.workerFieldName));
+            receiveField.workerFieldName.type = fieldSymbol.type;
         }
 
         // Type check for worker name
-        BSymbol workerSymbol = symResolver.lookupSymbolInMainSpace(
-                env,
-                names.fromIdNode((
-                                (BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerIdentifier
-                                ));
+        BSymbol workerSymbol = symResolver.lookupSymbolInMainSpace(env,
+                names.fromIdNode(receiveField.workerIdentifier));
 
         // Check if worker is existing. If not, set worker type to semantic error.
         if (symTable.notFoundSymbol.equals(workerSymbol)) {
-            ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerIdentifier.type
-                    = symTable.semanticError;
-            dlog.error(
-                    ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerIdentifier.pos,
-                    DiagnosticCode.UNDEFINED_WORKER,
-                    expType.tsymbol
-                      );
+            receiveField.workerIdentifier.type = symTable.semanticError;
+            dlog.error(receiveField.workerIdentifier.pos, DiagnosticCode.UNDEFINED_WORKER, expType.tsymbol);
         } else {
-            ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerIdentifier.type
-                    = workerSymbol.type;
-            ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerType
-                    = workerSymbol.type;
+            receiveField.workerIdentifier.type = workerSymbol.type;
+            receiveField.workerType = workerSymbol.type;
 
             // check compatibility by testing if the symbol is in the type of worker.
             if ((workerSymbol.flags & Flags.WORKER) == Flags.WORKER) {
-                ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).env
-                        = this.env;
+                receiveField.env = this.env;
             } else {
-                dlog.error(
-                        ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerIdentifier.pos,
-                        DiagnosticCode.INVALID_WORKER_REFERRENCE,
-                        expType.tsymbol
-                          );
+                dlog.error( receiveField.workerIdentifier.pos, DiagnosticCode.INVALID_WORKER_REFERRENCE,
+                        expType.tsymbol);
             }
         }
 
@@ -2208,7 +2210,6 @@ public class TypeChecker extends BLangNodeVisitor {
             BFutureType futureType = new BFutureType(TypeTags.FUTURE, type, null);
             checkExpr(expression, env, futureType);
         }
-
     }
 
     private BRecordType getWorkerMultipleReceiveReturnType(
@@ -2244,74 +2245,67 @@ public class TypeChecker extends BLangNodeVisitor {
             List<WorkerMultipleReceiveNode.WorkerReceiveFieldNode> receiveFields) {
 
         boolean noSemanticErrors = true;
+        Set<String> workerNames = new HashSet<>();
         for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode receiveField : receiveFields) {
-            if (checkTypeForWorkerMultipleMap(receiveField, expType)) {
+            String workerName = receiveField.getWorkerName().getValue();
+            if (checkTypeForWorkerMultipleMap(
+                    (BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField, expType)) {
                 noSemanticErrors = false;
+                resultType = symTable.semanticError;
+            }
+            if (workerNames.contains(workerName)){
+                noSemanticErrors = false;
+                resultType = symTable.semanticError;
+                dlog.error((DiagnosticPos) receiveField.getWorkerName().getPosition(),
+                        DiagnosticCode.REDUNDANT_WORKER_IDENTIFIERS_IN_MULTIPLE_RECEIVE, workerName);
+            }
+            else {
+                workerNames.add(workerName);
             }
         }
-        // return boolean depending on whether a semantic error
+        // return boolean depending on whether a semantic error or not
         return noSemanticErrors;
     }
 
-    private boolean checkTypeForWorkerMultipleMap(WorkerMultipleReceiveNode.WorkerReceiveFieldNode receiveField,
+    private boolean checkTypeForWorkerMultipleMap(BLangWorkerMultipleReceive.BLangWorkerReceiveField receiveField,
                                                   BType expType) {
-
         boolean areSemanticErrorsPresent = false;
-
-        if (receiveField.getWorkerFieldName() != null) {
+        if (receiveField.workerFieldName != null) {
             // Type check with worker field name
-            BSymbol fieldSymbol = symResolver.lookupSymbolInMainSpace(
-                    env,
-                    names.fromIdNode(
-                            ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerFieldName)
-                                                                     );
+            BSymbol fieldSymbol = symResolver.lookupSymbolInMainSpace(env,
+                    names.fromIdNode(receiveField.workerFieldName));
 
-            ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerFieldName.type = fieldSymbol.type;
-
+            receiveField.workerFieldName.type = fieldSymbol.type;
         }
 
         // Type check for worker name
-        BSymbol symbol = symResolver.lookupSymbolInMainSpace(
-                env,
-                names.fromIdNode(((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerIdentifier)
-                                                            );
+        BSymbol workerNameSymbol = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(receiveField.workerIdentifier));
 
         // Check if worker is existing. If not, set worker type to semantic error.
-        if (symTable.notFoundSymbol.equals(symbol)) {
-            ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerIdentifier.type =
-                    symTable.semanticError;
+        if (symTable.notFoundSymbol.equals(workerNameSymbol)) {
+            receiveField.workerIdentifier.type = symTable.semanticError;
 
-            dlog.error(
-                    ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerIdentifier.pos,
-                    DiagnosticCode.UNDEFINED_WORKER,
-                    ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerIdentifier.value
-                      );
+            dlog.error(receiveField.workerIdentifier.pos, DiagnosticCode.UNDEFINED_WORKER,
+                    receiveField.workerIdentifier.value);
 
             areSemanticErrorsPresent = true;
         } else {
-            ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerIdentifier.type
-                    = symbol.type;
-            ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerType
-                    = symbol.type;
+            receiveField.workerIdentifier.type = workerNameSymbol.type;
+            receiveField.workerType = workerNameSymbol.type;
 
             // check compatibility by testing if the symbol is in the type of worker.
-            if ((symbol.flags & Flags.WORKER) == Flags.WORKER) {
-                ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).env
-                        = this.env;
+            if ((workerNameSymbol.flags & Flags.WORKER) == Flags.WORKER) {
+                receiveField.env = this.env;
 
             } else {
-                dlog.error(
-                        ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).workerIdentifier.pos,
-                        DiagnosticCode.INVALID_WORKER_REFERRENCE,
-                        expType.tsymbol
-                          );
+                dlog.error(receiveField.workerIdentifier.pos, DiagnosticCode.INVALID_WORKER_REFERRENCE,
+                        expType.tsymbol);
 
                 areSemanticErrorsPresent = true;
             }
         }
 
         return areSemanticErrorsPresent;
-
     }
 
 

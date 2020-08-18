@@ -3399,12 +3399,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return false;
             }
             BLangNode action = this.currentAction();
+            boolean isReceiver = !isWorkerSend(action) && !isWorkerSyncSend(action);
             if (isWorkerMultipleReceive(action)) {
-                return !isWorkerSend(action) && !isWorkerSyncSend(action) &&
-                        checkAndSetWorkerMultipleReceiveSource(((BLangWorkerMultipleReceive) action), sourceWorkerId);
+                return isReceiver && checkAndSetWorkerMultipleReceiveSource(((BLangWorkerMultipleReceive) action),
+                        sourceWorkerId);
             } else {
-                return !isWorkerSend(action) && !isWorkerSyncSend(action) &&
-                        ((BLangWorkerReceive) action).workerIdentifier.value.equals(sourceWorkerId);
+                return isReceiver && ((BLangWorkerReceive) action).workerIdentifier.value.equals(sourceWorkerId);
             }
         }
 

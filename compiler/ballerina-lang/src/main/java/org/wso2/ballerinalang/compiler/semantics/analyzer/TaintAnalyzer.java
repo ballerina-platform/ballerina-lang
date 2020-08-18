@@ -923,6 +923,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).sendExpression.accept(this);
         }
     }
+
 // Expressions
 
     @Override

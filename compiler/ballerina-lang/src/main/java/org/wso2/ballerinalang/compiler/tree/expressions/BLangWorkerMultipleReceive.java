@@ -118,7 +118,7 @@ public class BLangWorkerMultipleReceive extends BLangExpression implements Worke
         public boolean isChannel = false;
         public SymbolEnv env;
         public BType workerType;
-        public BType matchingSendsError; // TODO: Remove this line
+        public BType matchingSendsError;
 
         public BLangExpression getSendExpression() {
 
