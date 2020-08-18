@@ -6,12 +6,12 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -20,17 +20,17 @@ package io.ballerinalang.compiler.parser.test.syntax.declarations;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing transactional resource function declaration.
+ * Test parsing object method definitions.
  * 
  * @since Swan Lake
  */
-public class TransactionalResourceFuncTest extends AbstractDeclarationTest {
+public class ObjectMethodTest extends AbstractDeclarationTest {
 
     // Valid syntax tests
 
     @Test
-    public void testTransactionalResourceFunctionName() {
-        test("transactional-resource/transaction_resource_func_source_01.bal",
-                "transactional-resource/transaction_resource_func_assert_01.json");
+    public void testIsolatedMethods() {
+        test("isolated-object-methods/isolated_object_method_source_01.bal",
+             "isolated-object-methods/isolated_object_method_assert_01.json");
     }
 }

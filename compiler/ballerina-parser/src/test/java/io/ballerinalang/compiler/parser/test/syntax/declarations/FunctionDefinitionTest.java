@@ -41,6 +41,16 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
         test("func-definition/func_def_source_08.bal", "func-definition/func_def_assert_08.json");
     }
 
+    @Test
+    public void testFunctionWithIsolatedQualifier() {
+        test("func-definition/isolated_func_def_01.bal", "func-definition/isolated_func_def_assert_01.json");
+        test("func-definition/isolated_func_def_02.bal", "func-definition/isolated_func_def_assert_02.json");
+        test("func-definition/isolated_func_def_03.bal", "func-definition/isolated_func_def_assert_03.json");
+        test("func-definition/isolated_func_def_04.bal", "func-definition/isolated_func_def_assert_04.json");
+        test("func-definition/isolated_func_def_05.bal", "func-definition/isolated_func_def_assert_05.json");
+        test("func-definition/isolated_func_def_06.bal", "func-definition/isolated_func_def_assert_06.json");
+    }
+
     // Recovery tests
 
     @Test
