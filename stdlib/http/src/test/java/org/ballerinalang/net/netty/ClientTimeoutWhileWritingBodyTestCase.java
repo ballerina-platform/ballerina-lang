@@ -33,8 +33,6 @@ import org.ballerinalang.net.netty.util.DefaultHttpConnectorListener;
 import org.ballerinalang.net.netty.util.TestUtil;
 import org.ballerinalang.net.netty.util.server.HttpServer;
 import org.ballerinalang.net.netty.util.server.initializers.DumbServerInitializer;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

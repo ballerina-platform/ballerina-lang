@@ -19,13 +19,7 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite" parallel="true">
-<!--    <suite name="My suite">-->
-    <suite-files>
-        <suite-file path="./suite-1.xml" />
-        <suite-file path="./suite-2.xml" />
-    </suite-files>
-</suite>
+<suite name="ballerina-test-suite">
 
     <!--This listener is only meant to be used for debugging purposes. 
     Hence it's disabled by default to avoid causing problems in Travis due to the volume of logs this may generate.-->
@@ -33,45 +27,45 @@ under the License.
     <!--<listener class-name="org.ballerinalang.net.utils.HTTPTestSuiteListener"/>-->
     <!--</listeners>-->
 
-<!--    <listeners>-->
-<!--        <listener class-name="org.ballerinalang.net.utils.JBallerinaTestInitializer"/>-->
-<!--    </listeners>-->
+    <listeners>
+        <listener class-name="org.ballerinalang.net.utils.JBallerinaTestInitializer"/>
+    </listeners>
 
-<!--    &lt;!&ndash; Ballerina language Test Cases. &ndash;&gt;-->
-<!--    <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">-->
-<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="broken"/>-->
-<!--                <exclude name="brokenOnJBallerina"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <packages>-->
-<!--            <package name="org.ballerinalang.net.entity.*"/>-->
-<!--            &lt;!&ndash;<package name="org.ballerinalang.net.services.basics.*"/>&ndash;&gt;-->
-<!--            <package name="org.ballerinalang.net.multipart.*"/>-->
-<!--            <package name="org.ballerinalang.net.services.configuration.*"/>-->
-<!--            <package name="org.ballerinalang.net.services.cors.*"/>-->
-<!--            <package name="org.ballerinalang.net.services.dispatching.*"/>-->
-<!--            <package name="org.ballerinalang.net.services.nativeimpl.*"/>-->
-<!--            <package name="org.ballerinalang.net.websocket.*"/>-->
-<!--            <package name="org.ballerinalang.net.cachingclient.*"/>-->
-<!--            <package name="org.ballerinalang.net.connectionpool.*"/>-->
-<!--            <package name="org.ballerinalang.net.auth.*"/>-->
-<!--            <package name="org.ballerinalang.net.resiliency.*"/>-->
-<!--        </packages>-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.net.services.basics.SignatureTest"/>-->
-<!--            <class name="org.ballerinalang.net.services.basics.ServiceTest">-->
-<!--                <methods>-->
-<!--                    <exclude name="testErrorReturn"></exclude>-->
-<!--                    <exclude name="testGetString"></exclude>-->
-<!--                </methods>-->
-<!--            </class>-->
+    <!-- Ballerina language Test Cases. -->
+    <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="broken"/>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="org.ballerinalang.net.entity.*"/>
+            <!--<package name="org.ballerinalang.net.services.basics.*"/>-->
+            <package name="org.ballerinalang.net.multipart.*"/>
+            <package name="org.ballerinalang.net.services.configuration.*"/>
+            <package name="org.ballerinalang.net.services.cors.*"/>
+            <package name="org.ballerinalang.net.services.dispatching.*"/>
+            <package name="org.ballerinalang.net.services.nativeimpl.*"/>
+            <package name="org.ballerinalang.net.websocket.*"/>
+            <package name="org.ballerinalang.net.cachingclient.*"/>
+            <package name="org.ballerinalang.net.connectionpool.*"/>
+            <package name="org.ballerinalang.net.auth.*"/>
+            <package name="org.ballerinalang.net.resiliency.*"/>
+        </packages>
+        <classes>
+            <class name="org.ballerinalang.net.services.basics.SignatureTest"/>
+            <class name="org.ballerinalang.net.services.basics.ServiceTest">
+                <methods>
+                    <exclude name="testErrorReturn"></exclude>
+                    <exclude name="testGetString"></exclude>
+                </methods>
+            </class>
 
-<!--            &lt;!&ndash;Netty Transport Tests&ndash;&gt;-->
+            <!--Netty Transport Tests-->
 
-<!--            &lt;!&ndash;WebSocket Tests&ndash;&gt;-->
+            <!--WebSocket Tests-->
 <!--            <class name="org.ballerinalang.net.netty.websocket.server.WebSocketServerHandshakeFunctionalityTestCase"/>-->
 <!--            <class name="org.ballerinalang.net.netty.websocket.server.WebSocketServerFunctionalityTestCase"/>-->
 <!--            <class name="org.ballerinalang.net.netty.websocket.client.WebSocketClientHandshakeFunctionalityTestCase"/>-->
@@ -210,6 +204,6 @@ under the License.
 <!--            <class name="org.ballerinalang.net.netty.disablessl.SslDisabledClientTest"/>-->
 <!--            <class name="org.ballerinalang.net.netty.https.ServerCloseConnectionDuringSslTest"/>-->
 
-<!--        </classes>-->
-<!--    </test>-->
-<!--</suite>-->
+        </classes>
+    </test>
+</suite>
