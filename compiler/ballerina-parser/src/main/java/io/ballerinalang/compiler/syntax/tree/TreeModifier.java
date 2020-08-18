@@ -266,6 +266,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public FailStatementNode transform(
+            FailStatementNode failStatementNode) {
+        Token failKeyword =
+                modifyToken(failStatementNode.failKeyword());
+        ExpressionNode expression =
+                modifyNode(failStatementNode.expression());
+        Token semicolonToken =
+                modifyToken(failStatementNode.semicolonToken());
+        return failStatementNode.modify(
+                failKeyword,
+                expression,
+                semicolonToken);
+    }
+
+    @Override
     public ExpressionStatementNode transform(
             ExpressionStatementNode expressionStatementNode) {
         ExpressionNode expression =
@@ -506,19 +521,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return checkExpressionNode.modify(
                 checkExpressionNode.kind(),
                 checkKeyword,
-                expression);
-    }
-
-    @Override
-    public FailExpressionNode transform(
-            FailExpressionNode failExpressionNode) {
-        Token failKeyword =
-                modifyToken(failExpressionNode.failKeyword());
-        ExpressionNode expression =
-                modifyNode(failExpressionNode.expression());
-        return failExpressionNode.modify(
-                failExpressionNode.kind(),
-                failKeyword,
                 expression);
     }
 

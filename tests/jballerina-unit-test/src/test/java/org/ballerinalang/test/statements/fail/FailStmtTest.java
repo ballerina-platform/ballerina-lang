@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.query;
+package org.ballerinalang.test.statements.fail;
 
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
@@ -30,22 +30,22 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
- * This contains methods to test fail expressions.
+ * This contains methods to test fail statement.
  *
  * @since Swan Lake
  */
-public class FailExpressionTest {
+public class FailStmtTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/query/fail-expression.bal");
+        result = BCompileUtil.compile("test-src/statements/fail/fail-statement.bal");
     }
 
-    @Test(description = "Test fail expression basic syntax")
-    public void testFailExpr() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testFailExpr");
+    @Test(description = "Test fail statement basic syntax")
+    public void testFailStmt() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testFailStmt");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue(returnValues[0] instanceof BError);
@@ -53,34 +53,14 @@ public class FailExpressionTest {
                 "Custom error thrown explicitly.");
     }
 
-    @Test(description = "Test fail action basic syntax")
-    public void testFailAction() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testFailAction");
-        Assert.assertNotNull(returnValues);
-
-        Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
-                "Custom error thrown explicitly.");
-    }
-
-    @Test(description = "Test negative cases in fail expr")
+    @Test(description = "Test negative cases in fail statement")
     public void testFailActionNegative() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/query/fail-action-negative.bal");
+        CompileResult negativeResult = BCompileUtil.compile("test-src/statements/fail/fail-statement-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
         int index = 0;
 
         validateError(negativeResult, index++,
                 "type 'err' not allowed here; expected an 'error' or a subtype of 'error'.",
                 5, 10);
-    }
-
-    @Test(description = "Test negative cases in fail expr")
-    public void testFailExprNegative() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/query/fail-expression-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 1);
-        int index = 0;
-
-        validateError(negativeResult, index++,
-                "this function must return a result", 2, 1);
     }
 }

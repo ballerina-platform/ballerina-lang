@@ -154,54 +154,16 @@
               ]
             },
             {
-              "kind": "LOCAL_VAR_DECL",
+              "kind": "FAIL_STATEMENT",
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "TYPED_BINDING_PATTERN",
-                  "children": [
+                  "kind": "FAIL_KEYWORD",
+                  "leadingMinutiae": [
                     {
-                      "kind": "ERROR_TYPE_DESC",
-                      "children": [
-                        {
-                          "kind": "ERROR_KEYWORD",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "CAPTURE_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "failError",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
                     }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
+                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
@@ -210,25 +172,11 @@
                   ]
                 },
                 {
-                  "kind": "FAIL_EXPRESSION",
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "FAIL_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "err"
-                        }
-                      ]
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "err"
                     }
                   ]
                 },

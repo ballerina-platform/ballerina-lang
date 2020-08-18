@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FailExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FailStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -30,62 +30,66 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STFailExpressionNode extends STExpressionNode {
+public class STFailStatementNode extends STStatementNode {
     public final STNode failKeyword;
     public final STNode expression;
+    public final STNode semicolonToken;
 
-    STFailExpressionNode(
-            SyntaxKind kind,
+    STFailStatementNode(
             STNode failKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode semicolonToken) {
         this(
-                kind,
                 failKeyword,
                 expression,
+                semicolonToken,
                 Collections.emptyList());
     }
 
-    STFailExpressionNode(
-            SyntaxKind kind,
+    STFailStatementNode(
             STNode failKeyword,
             STNode expression,
+            STNode semicolonToken,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(kind, diagnostics);
+        super(SyntaxKind.FAIL_STATEMENT, diagnostics);
         this.failKeyword = failKeyword;
         this.expression = expression;
+        this.semicolonToken = semicolonToken;
 
         addChildren(
                 failKeyword,
-                expression);
+                expression,
+                semicolonToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STFailExpressionNode(
-                this.kind,
+        return new STFailStatementNode(
                 this.failKeyword,
                 this.expression,
+                this.semicolonToken,
                 diagnostics);
     }
 
-    public STFailExpressionNode modify(
-            SyntaxKind kind,
+    public STFailStatementNode modify(
             STNode failKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode semicolonToken) {
         if (checkForReferenceEquality(
                 failKeyword,
-                expression)) {
+                expression,
+                semicolonToken)) {
             return this;
         }
 
-        return new STFailExpressionNode(
-                kind,
+        return new STFailStatementNode(
                 failKeyword,
                 expression,
+                semicolonToken,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FailExpressionNode(this, position, parent);
+        return new FailStatementNode(this, position, parent);
     }
 
     @Override
