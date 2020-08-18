@@ -20,6 +20,7 @@ package org.ballerinalang.test.klass;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -52,5 +53,19 @@ public class ClassTest {
     @Test(description = "Test Basic object as struct")
     public void testTypeRef() {
         BRunUtil.invoke(compileResult, "testTypeRefInClass");
+    }
+
+    @Test(description = "Class definition negative")
+    public void classDefNegative() {
+        CompileResult negative = BCompileUtil.compile("test-src/klass/class-def-negative.bal");
+        int i = 0;
+        String expectedErrorMsgPrefix = "cyclic type reference in ";
+        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 2, 5);
+        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, C, A]'", 2, 5);
+        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, A, B]'", 7, 5);
+        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, C, A, B]'", 7, 5);
+        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 12, 1);
+        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[C, A, B, C]'", 12, 1);
+        Assert.assertEquals(negative.getErrorCount(), i);
     }
 }
