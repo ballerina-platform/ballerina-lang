@@ -22,7 +22,6 @@ import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 
 import java.util.Arrays;
 import java.util.Collections;
