@@ -48,6 +48,10 @@ public class Constants {
     public static final String BOOLEAN = "boolean";
     public static final String INTEGER = "integer";
     public static final String OBJECT = "object";
+    public static final String DECIMAL = "decimal";
+    public static final String RECORD = "record";
+    public static final String NUMBER = "number";
+    public static final String INT = "int";
 
     /**
      * Enum Type for handle the validation error types.

@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -97,7 +96,7 @@ public  class BTypeToJsonValidatorUtil {
                     && schema.getType().equals(Constants.STRING)) {
                 isExitType = true;
 
-            } else if (resourceType.getKind().typeName().equals("int")
+            } else if (resourceType.getKind().typeName().equals(Constants.INT)
                     && schema.getType().equals(Constants.INTEGER)) {
                 isExitType = true;
 
@@ -105,14 +104,13 @@ public  class BTypeToJsonValidatorUtil {
                     && schema.getType().equals(Constants.BOOLEAN)) {
                 isExitType = true;
 
-            } else if (resourceType.getKind().typeName().equals("decimal")
-                    && schema.getType().equals("number")) {
+            } else if (resourceType.getKind().typeName().equals(Constants.DECIMAL)
+                    && schema.getType().equals(Constants.NUMBER)) {
                 isExitType = true;
 
             } else if (resourceType instanceof BUnionType) {
                 // Validate OneOf type data
-                validateOneOfType(schema, bVarSymbol, validationErrors, isExitType,
-                        (BUnionType) resourceType);
+                validateOneOfType(schema, bVarSymbol, validationErrors, isExitType, (BUnionType) resourceType);
                 isExitType = true;
             }
         }
@@ -127,12 +125,12 @@ public  class BTypeToJsonValidatorUtil {
     }
 
     /**
-     *
-     * @param schema
-     * @param bVarSymbol
-     * @param validationErrors
-     * @param isExitType
-     * @param resourceType
+     * Validate in oneOf type parameters.
+     * @param schema            OneOf schema
+     * @param bVarSymbol        bVarSymbol for parameter
+     * @param validationErrors  list of ValidationErrors
+     * @param isExitType        tag for tracking the availability of parameter
+     * @param resourceType      validate resource type
      * @throws OpenApiValidatorException
      */
     private static void validateOneOfType(Schema<?> schema, BVarSymbol bVarSymbol,
@@ -140,85 +138,28 @@ public  class BTypeToJsonValidatorUtil {
                                           BUnionType resourceType) throws OpenApiValidatorException {
 
         // Handle OneOf type
-        BUnionType bUnionType = resourceType;
         if (schema instanceof ComposedSchema) {
             ComposedSchema composedSchema = (ComposedSchema) schema;
-            if ((composedSchema.getOneOf() != null) && (bUnionType.getMemberTypes() != null)) {
+            if ((composedSchema.getOneOf() != null) && (resourceType.getMemberTypes() != null)) {
                 List<Schema> oneOflist01 = composedSchema.getOneOf();
-                Set<BType> memberList01 = new HashSet<>((bUnionType.getMemberTypes()));
-                List<BType> memberList = new ArrayList<>();
-                List<Schema> oneOflist = new ArrayList<>();
-                memberList.addAll(memberList01);
-                oneOflist.addAll(oneOflist01);
+                Set<BType> memberList01 = new HashSet<>((resourceType.getMemberTypes()));
+                List<BType> memberList = new ArrayList<>(memberList01);
+                List<Schema> oneOflist = new ArrayList<>(oneOflist01);
 
                 //  Schema against to ballerina records
-                Iterator<Schema> iterator = oneOflist.iterator();
-                while (iterator.hasNext()) {
-                    List<ValidationError> misFieldBallerina = new ArrayList<>();
-                    Schema schema1 = iterator.next();
-                    Iterator<BType> memberIterator = memberList.iterator();
-                    while (memberIterator.hasNext()) {
-                        isExitType = true;
-                        BType member = memberIterator.next();
-                        if (member instanceof BRecordType) {
-                            //  Record validation
-                            List<ValidationError> validationErrorListForRecords = new ArrayList<>();
-                            validateRecord(validationErrorListForRecords, schema1.getProperties(),
-                                    (BRecordType) member);
-                            if (validationErrorListForRecords.isEmpty()) {
-                                misFieldBallerina.clear();
-                                memberIterator.remove();
-                                iterator.remove();
-                                break;
-                            } else {
-                                //  Check the given error fields are same as the given schema fields
-                                if (validationErrorListForRecords.stream().
-                                        allMatch(item -> item instanceof TypeMismatch)) {
-                                    OneOfTypeValidation oneOfTypeValidation =
-                                            new OneOfTypeValidation(getRecordName(member.toString()),
-                                                    Constants.Type.RECORD, validationErrorListForRecords);
-                                    validationErrors.add(oneOfTypeValidation);
-                                    memberIterator.remove();
-                                    iterator.remove();
-                                } else if (validationErrorListForRecords.stream().
-                                        allMatch(item -> item instanceof MissingFieldInBallerinaType)) {
-                                    misFieldBallerina.addAll(validationErrorListForRecords);
-                                }
-                            }
-                        } else if (!(member instanceof BAnyType)) {
-                            //  Handle primitive data type
-                            isExitType =
-                                    member.tsymbol.type.toString().
-                                            equals(convertOpenAPITypeToBallerina(schema1.getType()));
-                            if (isExitType) {
-                                break;
-                            }
-                        } else {
-                            memberIterator.remove();
-                        }
-                    }
-                    //  Handle Schema that not in ballerina resource
-                    if ((!misFieldBallerina.isEmpty()) && (misFieldBallerina.stream().
-                            allMatch(item -> item instanceof MissingFieldInBallerinaType))) {
-                            OneOfTypeValidation oneOfTypeValidation = new OneOfTypeValidation("Schema object",
-                                            Constants.Type.OBJECT, misFieldBallerina);
-                            validationErrors.add(oneOfTypeValidation);
-                    }
-                    if (!isExitType) {
-                        TypeMismatch typeMismatch = new TypeMismatch(bVarSymbol.name.toString(),
-                                convertTypeToEnum(schema1.getType()), null);
-                        validationErrors.add(typeMismatch);
-                    }
-                }
+                isExitType = validateOneOfTypeResourceToOpenApi(bVarSymbol, validationErrors, isExitType, memberList,
+                        oneOflist);
                 if ((!(oneOflist.isEmpty())) && (memberList.isEmpty())) {
                     for (Schema oneOf : oneOflist) {
                         if (oneOf.getProperties() != null) {
                             Map<String, Schema> property = oneOf.getProperties();
                             List<ValidationError> validationErrorsOneOfSchema = new ArrayList<>();
                             for (Map.Entry<String, Schema> prop: property.entrySet()) {
+
                                 MissingFieldInBallerinaType missingFieldInBallerinaType =
                                         new MissingFieldInBallerinaType(prop.getKey(),
                                                 convertTypeToEnum(prop.getValue().getType()));
+
                                 validationErrorsOneOfSchema.add(missingFieldInBallerinaType);
                             }
                             OneOfTypeValidation oneOfTypeValidation = new OneOfTypeValidation("OpenApi Schema",
@@ -229,83 +170,187 @@ public  class BTypeToJsonValidatorUtil {
                 }
                 //  Handle Record against the schema
                 if (!(memberList.isEmpty())) {
-                    List<ValidationError> validationErrorsBa =  new ArrayList<>();
-                    for (BType member: memberList) {
-                        //  Handle record type
-                        if (member instanceof BRecordType) {
-                            isExitType = true;
-                            if (!(oneOflist.isEmpty())) {
-                                Iterator<Schema> oneOfSchema = oneOflist.iterator();
-                                while (oneOfSchema.hasNext()) {
-                                    Schema schema2 = oneOfSchema.next();
-                                    if (schema2.getProperties() != null) {
-                                        validateRecord(validationErrorsBa,
-                                                schema2.getProperties(), (BRecordType) member);
-                                    }
-                                    if (!(validationErrorsBa.isEmpty())) {
-                                        List<String> errorFields = new ArrayList<>();
-                                        List<ValidationError> errorValidation = new ArrayList<>();
-                                        for (ValidationError validationError: validationErrorsBa) {
-                                            if (validationError instanceof MissingFieldInJsonSchema) {
-                                                errorFields.add(validationError.getFieldName());
-                                                errorValidation.add(validationError);
-                                            }
-                                        }
-                                        List<String> recordFields = getRecordFields((BRecordType) member);
-                                        if (errorFields.containsAll(recordFields)) {
-                                            OneOfTypeValidation oneOfTypeValidation =
-                                                    new OneOfTypeValidation(getRecordName(member.toString()),
-                                                            Constants.Type.RECORD, errorValidation);
-                                            validationErrors.add(oneOfTypeValidation);
-                                            validationErrorsBa.clear();
-                                            break;
-                                        }
-                                    }
-                                }
-                            } else {
-                                List<ValidationError> validationErrorslist1 = new ArrayList<>();
-                                OneOfTypeValidation oneOfTypeValidation =
-                                        new OneOfTypeValidation(getRecordName(member.toString())
-                                                , Constants.Type.RECORD, validationErrorslist1);
-                                validationErrors.add(oneOfTypeValidation);
-                            }
-                            //  Handle primitive type
-                        } else if (!(member instanceof BAnyType)) {
-                            for (Schema schema2: oneOflist) {
-                                isExitType =
-                                        member.tsymbol.type.toString().
-                                                equals(convertOpenAPITypeToBallerina(schema2.getType()));
-                                if (isExitType) {
-                                    break;
-                                }
-                            }
-                            if (!isExitType) {
-                                TypeMismatch typeMismatch = new TypeMismatch(bVarSymbol.name.toString(),
-                                        null,
-                                        convertTypeToEnum(member.getKind().typeName()));
-                                validationErrors.add(typeMismatch);
-                            }
-                        } else {
-                            isExitType = true;
-                        }
-                    }
-                    //   Missing fields in ballerina errors checking
-                    if (!(validationErrorsBa.isEmpty())) {
-                        OneOfTypeValidation oneOfTypeValidation = new OneOfTypeValidation("Ballerina records",
-                                        Constants.Type.RECORD, validationErrorsBa);
-                        validationErrors.add(oneOfTypeValidation);
-                    }
+                    validateOneOfTypeOpenApiToResource(bVarSymbol, validationErrors, isExitType, memberList, oneOflist);
                 }
             }
         }
     }
 
     /**
+     * Validate OneOfType openApi against resource parameter.
+     * @param bVarSymbol            parameter bVarSymbol
+     * @param validationErrors      list of ValidationErrors
+     * @param isExitType            tag for track the availability of parameter
+     * @param memberList            list of resources for validating
+     * @param oneOflist             list of operations for validating
+     * @throws OpenApiValidatorException
+     */
+    private static void validateOneOfTypeOpenApiToResource(BVarSymbol bVarSymbol,
+                                                           List<ValidationError> validationErrors, boolean isExitType,
+                                                           List<BType> memberList, List<Schema> oneOflist)
+            throws OpenApiValidatorException {
+
+        List<ValidationError> validationErrorsBa =  new ArrayList<>();
+        for (BType member: memberList) {
+            //  Handle record type
+            if (member instanceof BRecordType) {
+                isExitType = true;
+                validateOneOftypeRecord(validationErrors, oneOflist, validationErrorsBa, member);
+                //  Handle primitive type
+            } else if (!(member instanceof BAnyType)) {
+                for (Schema schema2: oneOflist) {
+                    isExitType = member.tsymbol.type.toString().
+                                    equals(convertOpenAPITypeToBallerina(schema2.getType()));
+                    if (isExitType) {
+                        break;
+                    }
+                }
+                if (!isExitType) {
+                    TypeMismatch typeMismatch = new TypeMismatch(bVarSymbol.name.toString(), null,
+                            convertTypeToEnum(member.getKind().typeName()));
+                    validationErrors.add(typeMismatch);
+                }
+            } else {
+                isExitType = true;
+            }
+        }
+        //   Missing fields in ballerina errors checking
+        if (!(validationErrorsBa.isEmpty())) {
+            OneOfTypeValidation oneOfTypeValidation = new OneOfTypeValidation("Ballerina records",
+                            Constants.Type.RECORD, validationErrorsBa);
+            validationErrors.add(oneOfTypeValidation);
+        }
+    }
+
+    /**
+     * Validate record type oneOf parameters.
+     * @param validationErrors      list for validation errors
+     * @param oneOflist             list with operations for validating
+     * @param validationErrorsBa    list for service side validation errors
+     * @param member                BType for parameter
+     * @throws OpenApiValidatorException
+     */
+    private static void validateOneOftypeRecord(List<ValidationError> validationErrors, List<Schema> oneOflist,
+                                                List<ValidationError> validationErrorsBa, BType member)
+            throws OpenApiValidatorException {
+
+        if ((!(oneOflist.isEmpty())) && member instanceof BRecordType) {
+            Iterator<Schema> oneOfSchema = oneOflist.iterator();
+            while (oneOfSchema.hasNext()) {
+                Schema schema2 = oneOfSchema.next();
+                if (schema2.getProperties() != null) {
+                    validateRecord(validationErrorsBa, schema2.getProperties(), (BRecordType) member);
+                }
+                if (!(validationErrorsBa.isEmpty())) {
+                    List<String> errorFields = new ArrayList<>();
+                    List<ValidationError> errorValidation = new ArrayList<>();
+                    for (ValidationError validationError: validationErrorsBa) {
+                        if (validationError instanceof MissingFieldInJsonSchema) {
+                            errorFields.add(validationError.getFieldName());
+                            errorValidation.add(validationError);
+                        }
+                    }
+                    List<String> recordFields = getRecordFields((BRecordType) member);
+                    if (errorFields.containsAll(recordFields)) {
+                        OneOfTypeValidation oneOfTypeValidation =
+                                new OneOfTypeValidation(getRecordName(member.toString()),
+                                        Constants.Type.RECORD, errorValidation);
+                        validationErrors.add(oneOfTypeValidation);
+                        validationErrorsBa.clear();
+                        break;
+                    }
+                }
+            }
+        } else {
+            List<ValidationError> validationErrorslist1 = new ArrayList<>();
+            OneOfTypeValidation oneOfTypeValidation = new OneOfTypeValidation(getRecordName(member.toString())
+                            , Constants.Type.RECORD, validationErrorslist1);
+            validationErrors.add(oneOfTypeValidation);
+        }
+    }
+
+    /**
+     * Validate OneOf type resource to openApi.
+     * @param bVarSymbol            validate resource parameter BVarSymbol
+     * @param validationErrors      list of ValidationErrors
+     * @param isExitType            tag for check the parameter exit
+     * @param memberList            list of resource parameters
+     * @param oneOflist             list of operations parameters
+     * @return
+     * @throws OpenApiValidatorException
+     */
+    private static boolean validateOneOfTypeResourceToOpenApi(BVarSymbol bVarSymbol,
+                                                              List<ValidationError> validationErrors,
+                                                              boolean isExitType, List<BType> memberList,
+                                                              List<Schema> oneOflist) throws OpenApiValidatorException {
+
+        Iterator<Schema> iterator = oneOflist.iterator();
+        while (iterator.hasNext()) {
+            List<ValidationError> misFieldBallerina = new ArrayList<>();
+            Schema<?> schema1 = iterator.next();
+            Iterator<BType> memberIterator = memberList.iterator();
+            while (memberIterator.hasNext()) {
+                isExitType = true;
+                BType member = memberIterator.next();
+                if (member instanceof BRecordType) {
+                    //  Record validation
+                    List<ValidationError> validationErrorListForRecords = new ArrayList<>();
+                    validateRecord(validationErrorListForRecords, schema1.getProperties(),
+                            (BRecordType) member);
+                    if (validationErrorListForRecords.isEmpty()) {
+                        misFieldBallerina.clear();
+                        memberIterator.remove();
+                        iterator.remove();
+                        break;
+                    } else {
+                        //  Check the given error fields are same as the given schema fields
+                        if (validationErrorListForRecords.stream().allMatch(item -> item instanceof TypeMismatch)) {
+
+                            OneOfTypeValidation oneOfTypeValidation =
+                                    new OneOfTypeValidation(getRecordName(member.toString()),
+                                            Constants.Type.RECORD, validationErrorListForRecords);
+                            validationErrors.add(oneOfTypeValidation);
+                            memberIterator.remove();
+                            iterator.remove();
+
+                        } else if (validationErrorListForRecords.stream().allMatch(item -> item instanceof
+                                MissingFieldInBallerinaType)) {
+                            misFieldBallerina.addAll(validationErrorListForRecords);
+                        }
+                    }
+                } else if (!(member instanceof BAnyType)) {
+                    //  Handle primitive data type
+                    isExitType = member.tsymbol.type.toString().
+                            equals(convertOpenAPITypeToBallerina(schema1.getType()));
+                    if (isExitType) {
+                        break;
+                    }
+                } else {
+                    memberIterator.remove();
+                }
+            }
+            //  Handle Schema that not in ballerina resource
+            if ((!misFieldBallerina.isEmpty()) && (misFieldBallerina.stream().
+                    allMatch(item -> item instanceof MissingFieldInBallerinaType))) {
+                    OneOfTypeValidation oneOfTypeValidation = new OneOfTypeValidation("Schema object",
+                                    Constants.Type.OBJECT, misFieldBallerina);
+                    validationErrors.add(oneOfTypeValidation);
+            }
+            if (!isExitType) {
+                TypeMismatch typeMismatch = new TypeMismatch(bVarSymbol.name.toString(),
+                        convertTypeToEnum(schema1.getType()), null);
+                validationErrors.add(typeMismatch);
+            }
+        }
+        return isExitType;
+    }
+
+    /**
      * Validate Array type data.
-     * @param schema
-     * @param bVarSymbol
-     * @param validationErrors
-     * @param resourceType
+     * @param schema            schema to use validate
+     * @param bVarSymbol        bVarSymbol for parameter to validate
+     * @param validationErrors  list for validationErrors
+     * @param resourceType      bType for parameter
      * @throws OpenApiValidatorException
      */
     private static void validateArray(Schema<?> schema, BVarSymbol bVarSymbol, List<ValidationError> validationErrors,
@@ -326,7 +371,6 @@ public  class BTypeToJsonValidatorUtil {
             BType bArrayTypeEtype = bArrayType.eType;
             Schema arraySchemaItems = arraySchema.getItems();
             if ((bArrayTypeEtype instanceof BArrayType) && (arraySchemaItems instanceof ArraySchema)) {
-
                 traversNestedArray = (BArrayType) bArrayTypeEtype;
                 traversSchemaNestedArray = (ArraySchema) arraySchemaItems;
 
@@ -334,8 +378,7 @@ public  class BTypeToJsonValidatorUtil {
                         (traversSchemaNestedArray.getItems() instanceof ArraySchema)) {
                     Schema<?> traversSchemaNestedArraySchemaType = traversSchemaNestedArray.getItems();
                     if (traversSchemaNestedArraySchemaType instanceof ArraySchema) {
-                        traversSchemaNestedArray =
-                                (ArraySchema) traversSchemaNestedArraySchemaType;
+                        traversSchemaNestedArray = (ArraySchema) traversSchemaNestedArraySchemaType;
                     }
                     BType traversNestedArrayBType = traversNestedArray.eType;
                     if (traversNestedArrayBType instanceof BArrayType) {
@@ -350,10 +393,10 @@ public  class BTypeToJsonValidatorUtil {
 
     /**
      * Handle array item type with record type.
-     * @param bVarSymbol
-     * @param validationErrors
-     * @param traversNestedArray
-     * @param traversSchemaNestedArray
+     * @param bVarSymbol                bVarSymbol for parameter
+     * @param validationErrors          list with validation errors
+     * @param traversNestedArray        BArrayType parameter
+     * @param traversSchemaNestedArray  ArraySchema with openApi parameter
      * @throws OpenApiValidatorException
      */
     private static void validateRecordTypeArray(BVarSymbol bVarSymbol, List<ValidationError> validationErrors,
@@ -392,94 +435,77 @@ public  class BTypeToJsonValidatorUtil {
         for (Map.Entry<String, BField> field : recordType.fields.entrySet()) {
             boolean isExist = false;
             for (Map.Entry<String, Schema> entry : properties.entrySet()) {
-                if (entry.getKey().equals(field.getValue().name.getValue())) {
+                if ((entry.getKey().equals(field.getValue().name.getValue())) && (entry.getValue().getType() != null)) {
                     isExist = true;
-                    if (entry.getValue().getType() != null) {
-                        if (!field.getValue().getType().getKind().typeName()
-                                .equals(BTypeToJsonValidatorUtil.convertOpenAPITypeToBallerina(entry.getValue()
-                                        .getType()))) {
+                    if (!field.getValue().getType().getKind().typeName()
+                            .equals(BTypeToJsonValidatorUtil.convertOpenAPITypeToBallerina(entry.getValue()
+                                    .getType()))) {
 
-                            TypeMismatch validationError = new TypeMismatch(field.getValue().name.getValue(),
-                                    convertTypeToEnum(entry.getValue().getType()),
-                                    convertTypeToEnum(field.getValue().getType().getKind().typeName()),
-                                    getRecordName(recordType.toString()));
+                        TypeMismatch validationError = new TypeMismatch(field.getValue().name.getValue(),
+                                convertTypeToEnum(entry.getValue().getType()),
+                                convertTypeToEnum(field.getValue().getType().getKind().typeName()),
+                                getRecordName(recordType.toString()));
 
-                            validationErrors.add(validationError);
+                        validationErrors.add(validationError);
 
-                        } else if (entry.getValue() instanceof ObjectSchema) {
-                            //  Handle the nested record type
-                            Schema schemaObject = entry.getValue();
-                            if (field.getValue().type instanceof BRecordType) {
-                                List<ValidationError> nestedRecordValidation = BTypeToJsonValidatorUtil
-                                        .validate(schemaObject, field.getValue().symbol);
-                                validationErrors.addAll(nestedRecordValidation);
-                            } else {
-                                //   Type mismatch handle
-                                TypeMismatch validationError = new TypeMismatch(field.getValue().name.getValue(),
-                                        convertTypeToEnum(Constants.OBJECT),
-                                        convertTypeToEnum(field.getValue().getType().getKind().typeName()),
-                                        getRecordName(recordType.name.toString()));
-                                validationErrors.add(validationError);
+                    } else if (entry.getValue() instanceof ObjectSchema) {
+                        //  Handle the nested record type
+                        validateNestedRecord(validationErrors, recordType, field, entry);
+                    } else {
+                        //  Handle array type mismatching.
+                        if (field.getValue().getType().getKind().typeName().equals("[]")) {
+                            BArrayType bArrayType = null;
+                            Schema entrySchema = entry.getValue();
+                            ArraySchema arraySchema = new ArraySchema();
+                            if ((field.getValue().type instanceof BArrayType) && (entrySchema instanceof ArraySchema)) {
+                                bArrayType = (BArrayType) field.getValue().type;
+                                arraySchema = (ArraySchema) entrySchema;
                             }
-                        } else {
-                            //  Handle array type mismatching.
-                            if (field.getValue().getType().getKind().typeName().equals("[]")) {
-                                BArrayType bArrayType = null;
-                                Schema entrySchema = entry.getValue();
-                                ArraySchema arraySchema = new ArraySchema();
-                                if (field.getValue().type instanceof  BArrayType) {
-                                    bArrayType = (BArrayType) field.getValue().type;
-                                }
-                                if (entrySchema instanceof ArraySchema) {
-                                    arraySchema = (ArraySchema) entrySchema;
-                                }
-                                if (bArrayType != null) {
-                                    BArrayType traversNestedArray = bArrayType;
-                                    ArraySchema traversSchemaNestedArray = arraySchema;
-                                    //  Handle nested array type
-                                    if ((bArrayType.eType instanceof BArrayType) &&
-                                            (arraySchema.getItems() instanceof ArraySchema)) {
-                                        Schema traversSchemaNestedArraySchemaType = arraySchema.getItems();
-                                        traversNestedArray = (BArrayType) bArrayType.eType;
-                                        if (traversSchemaNestedArraySchemaType instanceof ArraySchema) {
-                                            traversSchemaNestedArray = (ArraySchema) traversSchemaNestedArraySchemaType;
-                                        }
-                                        while ((traversNestedArray.eType instanceof BArrayType) &&
-                                                (traversSchemaNestedArray.getItems() instanceof ArraySchema)) {
-                                            Schema<?> traversSchemaNestedArraySchema =
-                                                    traversSchemaNestedArray.getItems();
-                                            BType traversNestedArrayBtype = traversNestedArray.eType;
-                                            if (traversSchemaNestedArraySchema instanceof ArraySchema) {
-                                                traversSchemaNestedArray =
-                                                        (ArraySchema) traversSchemaNestedArraySchema;
-                                            }
-                                            if (traversNestedArrayBtype instanceof BArrayType) {
-                                                traversNestedArray = (BArrayType) traversNestedArrayBtype;
-                                            }
-                                        }
-                                    }
-                                    //  Handle record type in item array
-                                    if ((traversNestedArray.eType instanceof BRecordType) &&
-                                            traversSchemaNestedArray.getItems() != null) {
-                                        if ((traversNestedArray.eType.tsymbol.type instanceof BRecordType) &&
-                                                traversSchemaNestedArray.getItems() instanceof ObjectSchema) {
-                                            Schema schema2 = traversSchemaNestedArray.getItems();
-                                            BVarSymbol bVarSymbol2 = field.getValue().symbol;
-                                            List<ValidationError> nestedRecordValidation = BTypeToJsonValidatorUtil
-                                                    .validate(schema2, bVarSymbol2);
-                                            validationErrors.addAll(nestedRecordValidation);
-                                        }
-                                    } else if (!traversNestedArray.eType.tsymbol.toString().equals(
-                                            BTypeToJsonValidatorUtil.convertOpenAPITypeToBallerina(
-                                                    traversSchemaNestedArray.getItems().getType()))) {
+                            if (bArrayType != null) {
+                                BArrayType traversNestedArray = bArrayType;
+                                ArraySchema traversSchemaNestedArray = arraySchema;
+                                //  Handle nested array type
+                                if ((bArrayType.eType instanceof BArrayType) &&
+                                        (arraySchema.getItems() instanceof ArraySchema)) {
+                                    Schema traversSchemaNestedArraySchemaType = arraySchema.getItems();
+                                    traversNestedArray = (BArrayType) bArrayType.eType;
 
-                                        TypeMismatch validationError = new TypeMismatch(
-                                                field.getValue().name.getValue(),
-                                                convertTypeToEnum(traversSchemaNestedArray.getItems().getType()),
-                                                convertTypeToEnum(traversNestedArray.eType.tsymbol.toString()),
-                                                getRecordName(recordType.toString()));
-                                        validationErrors.add(validationError);
+                                    if (traversSchemaNestedArraySchemaType instanceof ArraySchema) {
+                                        traversSchemaNestedArray = (ArraySchema) traversSchemaNestedArraySchemaType;
                                     }
+                                    while ((traversNestedArray.eType instanceof BArrayType) &&
+                                            (traversSchemaNestedArray.getItems() instanceof ArraySchema)) {
+                                        Schema<?> traversSchemaNestedArraySchema = traversSchemaNestedArray.getItems();
+                                        BType traversNestedArrayBtype = traversNestedArray.eType;
+
+                                        if ((traversSchemaNestedArraySchema instanceof ArraySchema) &&
+                                                (traversNestedArrayBtype instanceof BArrayType)) {
+                                            traversSchemaNestedArray = (ArraySchema) traversSchemaNestedArraySchema;
+                                            traversNestedArray = (BArrayType) traversNestedArrayBtype;
+                                        }
+                                    }
+                                }
+                                //  Handle record type in item array
+                                if ((traversNestedArray.eType instanceof BRecordType) &&
+                                        (traversSchemaNestedArray.getItems() != null) &&
+                                        (traversNestedArray.eType.tsymbol.type instanceof BRecordType) &&
+                                        traversSchemaNestedArray.getItems() instanceof ObjectSchema) {
+
+                                        Schema schema2 = traversSchemaNestedArray.getItems();
+                                        BVarSymbol bVarSymbol2 = field.getValue().symbol;
+                                        List<ValidationError> nestedRecordValidation = BTypeToJsonValidatorUtil
+                                                .validate(schema2, bVarSymbol2);
+                                        validationErrors.addAll(nestedRecordValidation);
+
+                                } else if (!traversNestedArray.eType.tsymbol.toString().equals(
+                                        BTypeToJsonValidatorUtil.convertOpenAPITypeToBallerina(
+                                                traversSchemaNestedArray.getItems().getType()))) {
+
+                                    TypeMismatch validationError = new TypeMismatch(field.getValue().name.getValue(),
+                                                    convertTypeToEnum(traversSchemaNestedArray.getItems().getType()),
+                                                    convertTypeToEnum(traversNestedArray.eType.tsymbol.toString()),
+                                                    getRecordName(recordType.toString()));
+                                    validationErrors.add(validationError);
                                 }
                             }
                         }
@@ -511,6 +537,26 @@ public  class BTypeToJsonValidatorUtil {
         return validationErrors;
     }
 
+    //  This function use to validate nested records.
+    private static void validateNestedRecord(List<ValidationError> validationErrors, BRecordType recordType,
+                                             Map.Entry<String, BField> field, Map.Entry<String, Schema> entry)
+            throws OpenApiValidatorException {
+
+        Schema schemaObject = entry.getValue();
+        if (field.getValue().type instanceof BRecordType) {
+            List<ValidationError> nestedRecordValidation = BTypeToJsonValidatorUtil
+                    .validate(schemaObject, field.getValue().symbol);
+            validationErrors.addAll(nestedRecordValidation);
+        } else {
+            //   Type mismatch handle
+            TypeMismatch validationError = new TypeMismatch(field.getValue().name.getValue(),
+                    convertTypeToEnum(Constants.OBJECT),
+                    convertTypeToEnum(field.getValue().getType().getKind().typeName()),
+                    getRecordName(recordType.name.toString()));
+            validationErrors.add(validationError);
+        }
+    }
+
     /**
      * Method for convert string type to constant enum type.
      * @param type  input type
@@ -522,7 +568,7 @@ public  class BTypeToJsonValidatorUtil {
             case Constants.INTEGER:
                 convertedType = Constants.Type.INTEGER;
                 break;
-            case "int":
+            case Constants.INT:
                 convertedType = Constants.Type.INT;
                 break;
             case Constants.STRING:
@@ -538,13 +584,13 @@ public  class BTypeToJsonValidatorUtil {
             case Constants.OBJECT:
                 convertedType = Constants.Type.OBJECT;
                 break;
-            case "record":
+            case Constants.RECORD:
                 convertedType = Constants.Type.RECORD;
                 break;
-            case "number":
+            case Constants.NUMBER:
                 convertedType = Constants.Type.NUMBER;
                 break;
-            case  "decimal":
+            case  Constants.DECIMAL:
                 convertedType = Constants.Type.DECIMAL;
                 break;
             default:
@@ -576,7 +622,7 @@ public  class BTypeToJsonValidatorUtil {
             case Constants.OBJECT:
                 convertedType = "record";
                 break;
-            case "number":
+            case Constants.DECIMAL:
                 convertedType = "decimal";
                 break;
             default:
@@ -726,7 +772,7 @@ public  class BTypeToJsonValidatorUtil {
     }
 
     /**
-     * Get record name
+     * Get record name from given reference.
      */
     public static String getRecordName(String ref) {
         String recordName = null;
