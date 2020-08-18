@@ -46,8 +46,10 @@ public class ResourceValidator {
      * @return                  list of validationErrors
      * @throws OpenApiValidatorException
      */
-    public static List<ValidationError> validateResourceAgainstOperation(Operation operation, ResourceMethod resourceMethod)
+    public static List<ValidationError> validateResourceAgainstOperation(Operation operation,
+                                                                         ResourceMethod resourceMethod)
             throws OpenApiValidatorException {
+
         List<ValidationError> validationErrors = new ArrayList<>();
         if (!resourceMethod.getParamNames().isEmpty()) {
             for (ResourceParameter resourceParameter: resourceMethod.getParamNames()) {
@@ -55,47 +57,24 @@ public class ResourceValidator {
                 //  Handle the requestBody parameter
                 if ((resourceMethod.getBody() != null) && (resourceMethod.getBody().equals(resourceParameter.getName()))
                         && (operation.getRequestBody() != null)) {
-                    if (operation.getRequestBody() != null) {
                         RequestBody requestBody = operation.getRequestBody();
-                        if (requestBody.getContent() != null) {
-                            Map<String, Schema> requestBodySchemas = getOperationRequestBody(operation);
-                            if (!requestBodySchemas.isEmpty()) {
-                                for (Map.Entry<String, Schema> requestBodyOperation: requestBodySchemas.entrySet()) {
-                                    List<ValidationError> requestBValidationError  =
-                                            BTypeToJsonValidatorUtil.validate(requestBodyOperation.getValue(),
-                                                    resourceParameter.getParameter().symbol);
-                                    if (requestBValidationError.isEmpty()) {
-                                        isParameterExit = true;
-                                        break;
-                                    } else {
-                                        for (ValidationError validationError: requestBValidationError) {
-                                            if ((validationError instanceof TypeMismatch) ||
-                                                    (validationError instanceof MissingFieldInJsonSchema) ||
-                                                    (validationError instanceof OneOfTypeValidation)) {
-                                                validationErrors.add(validationError);
-                                            }
-                                        }
-                                        isParameterExit = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                //  Handle Path parameter
+                    isParameterExit =
+                            validateRequestBodyResourceToOpenApi(operation, validationErrors, resourceParameter,
+                                    isParameterExit, requestBody);
+
+                    //  Handle Path parameter
                 } else if (operation.getParameters() != null) {
                     for (Parameter parameter : operation.getParameters()) {
-                        if (resourceParameter.getName().equals(parameter.getName())) {
-                            if (parameter.getSchema() != null) {
-                                isParameterExit = true;
-                                List<ValidationError> validationErrorsResource =
-                                        BTypeToJsonValidatorUtil.validate(parameter.getSchema(),
-                                        resourceParameter.getParameter().symbol);
-                                if (!validationErrorsResource.isEmpty()) {
-                                    validationErrors.addAll(validationErrorsResource);
-                                }
-                                break;
+                        if (resourceParameter.getName().equals(parameter.getName()) &&
+                                (parameter.getSchema() != null)) {
+                            isParameterExit = true;
+                            List<ValidationError> validationErrorsResource =
+                                    BTypeToJsonValidatorUtil.validate(parameter.getSchema(),
+                                            resourceParameter.getParameter().symbol);
+                            if (!validationErrorsResource.isEmpty()) {
+                                validationErrors.addAll(validationErrorsResource);
                             }
+                            break;
                         }
                     }
                 }
@@ -110,7 +89,45 @@ public class ResourceValidator {
     }
 
     /**
-     * Get the requestBody parameter from operation
+     * Validate request Body parameters in resource against to openAPI.
+     * @param operation             validate openApi operation
+     * @param validationErrors      list of validationErrors
+     * @param resourceParameter     validate resource parameter
+     * @param isParameterExit
+     * @param requestBody
+     * @return  boolean value for indicating parameter is available
+     * @throws OpenApiValidatorException
+     */
+    private static Boolean validateRequestBodyResourceToOpenApi(Operation operation,
+                                                                List<ValidationError> validationErrors,
+                                                                ResourceParameter resourceParameter,
+                                                                Boolean isParameterExit, RequestBody requestBody)
+            throws OpenApiValidatorException {
+
+        if ((requestBody.getContent() != null) && !getOperationRequestBody(operation).isEmpty()) {
+            Map<String, Schema> requestBodySchemas = getOperationRequestBody(operation);
+                for (Map.Entry<String, Schema> requestBodyOperation: requestBodySchemas.entrySet()) {
+                    List<ValidationError> requestBValidationError  =
+                            BTypeToJsonValidatorUtil.validate(requestBodyOperation.getValue(),
+                                    resourceParameter.getParameter().symbol);
+                    if (!requestBValidationError.isEmpty()) {
+                        for (ValidationError validationError : requestBValidationError) {
+                            if ((validationError instanceof TypeMismatch) ||
+                                    (validationError instanceof MissingFieldInJsonSchema) ||
+                                    (validationError instanceof OneOfTypeValidation)) {
+                                validationErrors.add(validationError);
+                            }
+                        }
+                    }
+                    isParameterExit = true;
+                    break;
+                }
+        }
+        return isParameterExit;
+    }
+
+    /**
+     * Get the requestBody parameter from operation.
      * @param operation     openApi operation object
      * @return Map with parameters
      */
@@ -130,7 +147,8 @@ public class ResourceValidator {
      * @return                  list of ValidationErrors
      * @throws OpenApiValidatorException
      */
-    public static List<ValidationError> validateOperationAgainstResource(Operation operation, ResourceMethod resourceMethod)
+    public static List<ValidationError> validateOperationAgainstResource(Operation operation,
+                                                                         ResourceMethod resourceMethod)
             throws OpenApiValidatorException {
         List<ValidationError> validationErrorList = new ArrayList<>();
         // Handle path , query parameters
@@ -146,17 +164,15 @@ public class ResourceValidator {
                 if (!resourceMethod.getParamNames().isEmpty()) {
                     for (ResourceParameter resourceParam: resourceMethod.getParamNames()) {
                         //  Check whether it is path parameter
-                        if (param instanceof PathParameter) {
-                            if (param.getName().equals(resourceParam.getName())) {
-                                isOParamExit = true;
-                                List<ValidationError> validationErrors =
-                                        BTypeToJsonValidatorUtil.validate(param.getSchema(),
-                                                resourceParam.getParameter().symbol);
-                                if (!validationErrors.isEmpty()) {
-                                    validationErrorList.addAll(validationErrors);
-                                }
-                                break;
+                        if ((param instanceof PathParameter) && (param.getName().equals(resourceParam.getName()))) {
+                            isOParamExit = true;
+                            List<ValidationError> validationErrors =
+                                    BTypeToJsonValidatorUtil.validate(param.getSchema(),
+                                            resourceParam.getParameter().symbol);
+                            if (!validationErrors.isEmpty()) {
+                                validationErrorList.addAll(validationErrors);
                             }
+                            break;
                         }
                     }
                 }
@@ -173,28 +189,8 @@ public class ResourceValidator {
             Map<String, Schema> requestBodySchemas = ResourceValidator.getOperationRequestBody(operation);
             for (Map.Entry<String, Schema> operationRB: requestBodySchemas.entrySet()) {
                 Boolean isOParamExit = false;
-                if (!resourceParam.isEmpty()) {
-                    for (ResourceParameter resourceParameter : resourceParam) {
-                        if (resourceMethod.getBody().equals(resourceParameter.getName())) {
-                            List<ValidationError> validationErrors =
-                                    BTypeToJsonValidatorUtil.validate(operationRB.getValue(),
-                                            resourceParameter.getParameter().symbol);
-                            if (validationErrors.isEmpty()) {
-                                isOParamExit = true;
-                            } else {
-                                for (ValidationError validEr: validationErrors) {
-                                    if ((validEr instanceof MissingFieldInBallerinaType) ||
-                                            (validEr instanceof OneOfTypeValidation) ||
-                                            (validEr instanceof TypeMismatch)) {
-                                        validationErrorList.add(validEr);
-                                        isOParamExit = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                isOParamExit = validateRequestBodyOpenApiToResource(resourceMethod, validationErrorList, resourceParam,
+                        operationRB, isOParamExit);
                 if (!isOParamExit) {
                     String type = "";
                     if (operationRB.getValue().getType() == null && (operationRB.getValue().getProperties() != null)) {
@@ -209,5 +205,46 @@ public class ResourceValidator {
             }
         }
         return validationErrorList;
+    }
+
+    /**
+     * Validate the requestBody parameter openApi against resource.
+     * @param resourceMethod            validate resource Methods
+     * @param validationErrorList       list of ValidationErros
+     * @param resourceParam             validate resource parameter
+     * @param operationRB               request Body parameters in operations
+     * @param isOParamExit
+     * @return boolean value whether it is exit or not
+     * @throws OpenApiValidatorException
+     */
+    private static Boolean validateRequestBodyOpenApiToResource(ResourceMethod resourceMethod,
+                                                                List<ValidationError> validationErrorList,
+                                                                List<ResourceParameter> resourceParam,
+                                                                Map.Entry<String, Schema> operationRB,
+                                                                Boolean isOParamExit) throws OpenApiValidatorException {
+
+        if (!resourceParam.isEmpty()) {
+            for (ResourceParameter resourceParameter : resourceParam) {
+                if (resourceMethod.getBody().equals(resourceParameter.getName())) {
+                    List<ValidationError> validationErrors =
+                            BTypeToJsonValidatorUtil.validate(operationRB.getValue(),
+                                    resourceParameter.getParameter().symbol);
+                    if (validationErrors.isEmpty()) {
+                        isOParamExit = true;
+                    } else {
+                        for (ValidationError validEr: validationErrors) {
+                            if ((validEr instanceof MissingFieldInBallerinaType) ||
+                                    (validEr instanceof OneOfTypeValidation) ||
+                                    (validEr instanceof TypeMismatch)) {
+                                validationErrorList.add(validEr);
+                                isOParamExit = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return isOParamExit;
     }
 }
