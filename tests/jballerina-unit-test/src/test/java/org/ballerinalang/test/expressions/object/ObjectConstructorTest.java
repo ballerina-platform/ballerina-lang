@@ -54,6 +54,6 @@ public class ObjectConstructorTest {
         int index = 0;
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'SampleRec' is not an object", 21, 39);
         BAssertUtil.validateError(negativeResult, index++, "a remote function in a non client object", 24, 5);
-        Assert.assertEquals(negativeResult.getErrorCount(), index+1);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }
