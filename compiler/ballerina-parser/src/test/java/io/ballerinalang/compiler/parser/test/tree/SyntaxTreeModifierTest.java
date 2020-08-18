@@ -22,7 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
+import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
+import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
@@ -107,6 +109,30 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
 
         Assert.assertEquals(plusOrAsteriskCounter.transform(newRoot), new Integer(0));
         Assert.assertEquals(minusOrSlashCounter.transform(newRoot), new Integer(4));
+    }
+
+    @Test
+    public void testSeparatedListNodeModification() {
+        SyntaxTree syntaxTree = parseFile("separated_node_list_modify.bal");
+        ModulePartNode oldRoot = syntaxTree.rootNode();
+
+        ModuleVariableDeclarationNode oldModuleVariableDeclarationNode =
+                (ModuleVariableDeclarationNode) oldRoot.members().get(0);
+        ListConstructorExpressionNode oldSeperatedlistNode =
+                (ListConstructorExpressionNode) oldModuleVariableDeclarationNode.initializer();
+
+        IdentifierModifier identifierModifier = new IdentifierModifier();
+        ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(identifierModifier);
+
+        ModuleVariableDeclarationNode newModuleVariableDeclarationNode =
+                (ModuleVariableDeclarationNode) newRoot.members().get(0);
+        ListConstructorExpressionNode newSeperatedlistNode =
+                (ListConstructorExpressionNode) newModuleVariableDeclarationNode.initializer();
+
+        Assert.assertEquals(oldSeperatedlistNode.expressions().separatorSize(),
+                newSeperatedlistNode.expressions().separatorSize());
+        Assert.assertEquals(oldSeperatedlistNode.expressions().size(),
+                newSeperatedlistNode.expressions().size());
     }
 
     /**

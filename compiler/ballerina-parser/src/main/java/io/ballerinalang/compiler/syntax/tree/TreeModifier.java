@@ -3070,14 +3070,23 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         }
 
         boolean nodeModified = false;
-        STNode[] newSTNodes = new STNode[nodeList.size()];
+        STNode[] newSTNodes = new STNode[nodeList.internalListNode.size()];
+
         for (int index = 0; index < nodeList.size(); index++) {
             T oldNode = nodeList.get(index);
             T newNode = modifyNode(oldNode);
             if (oldNode != newNode) {
                 nodeModified = true;
             }
-            newSTNodes[index] = newNode.internalNode();
+
+            if (nodeList instanceof SeparatedNodeList && index < nodeList.size() - 1) {
+                newSTNodes[2 * index] = newNode.internalNode();
+                newSTNodes[(2 * index) + 1] = ((SeparatedNodeList<?>) nodeList).getSeparator(index).internalNode();
+            } else if (nodeList instanceof SeparatedNodeList) {
+                newSTNodes[2 * index] = newNode.internalNode();
+            } else {
+                newSTNodes[index] = newNode.internalNode();
+            }
         }
 
         if (!nodeModified) {
