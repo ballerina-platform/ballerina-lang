@@ -595,6 +595,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER =
             { ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER, ParserRuleContext.MAPPING_FIELD };
 
+    private static final ParserRuleContext[] LISTENERS_LIST_END =
+            { ParserRuleContext.COMMA, ParserRuleContext.OPEN_BRACE };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -1325,6 +1328,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case INTERMEDIATE_CLAUSE_START:
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
             case TYPE_DESC_OR_EXPR_RHS:
+            case LISTENERS_LIST_END:
                 return true;
             default:
                 return false;
@@ -1865,6 +1869,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MEMBER_ACCESS_KEY_EXPR_END:
                 alternativeRules = MEMBER_ACCESS_KEY_EXPR_END;
                 break;
+            case LISTENERS_LIST_END:
+                alternativeRules = LISTENERS_LIST_END;
+                break;
             case EXPRESSION_RHS:
                 return seekMatchInExpressionRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint, false);
             case VARIABLE_REF_RHS:
@@ -1985,11 +1992,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.OPEN_BRACKET };
                 break;
             case LISTENERS_LIST:
-                alternatives = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
-                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
-                        ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
-                        ParserRuleContext.OPEN_BRACE };
+                alternatives = new ParserRuleContext[] { ParserRuleContext.LISTENERS_LIST_END,
+                        ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
+                        ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
+                        ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR };
                 break;
             case LIST_CONSTRUCTOR:
             case MEMBER_ACCESS_KEY_EXPR:
@@ -2175,7 +2182,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_NAME:
                 return ParserRuleContext.OPEN_PARENTHESIS;
             case OPEN_BRACE:
-                return getNextRuleForOpenBrace(nextLookahead);
+                return getNextRuleForOpenBrace();
             case OPEN_PARENTHESIS:
                 return getNextRuleForOpenParenthesis();
             case SEMICOLON:
@@ -3155,7 +3162,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         }
     }
 
-    private ParserRuleContext getNextRuleForOpenBrace(int nextLookahead) {
+    private ParserRuleContext getNextRuleForOpenBrace() {
         ParserRuleContext parentCtx = getParentContext();
         if (parentCtx == ParserRuleContext.LISTENERS_LIST) {
             endContext();

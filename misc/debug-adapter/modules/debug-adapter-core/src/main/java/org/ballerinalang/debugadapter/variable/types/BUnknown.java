@@ -18,10 +18,9 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
-import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Optional;
 
@@ -32,8 +31,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
  */
 public class BUnknown extends BSimpleVariable {
 
-    public BUnknown(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.UNKNOWN, value, dapVariable);
+    public BUnknown(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.UNKNOWN, value);
     }
 
     @Override

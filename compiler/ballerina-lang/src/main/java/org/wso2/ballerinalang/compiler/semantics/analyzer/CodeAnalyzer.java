@@ -2239,6 +2239,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        if (!actionInvocation.async && !this.withinTransactionScope &&
+                Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
+            dlog.error(actionInvocation.pos, DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED, actionInvocation);
+            return;
+        }
+
         if (actionInvocation.async && this.withinTransactionScope &&
                 !Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticCode.USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED);

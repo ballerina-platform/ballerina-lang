@@ -82,9 +82,9 @@ public type PushPromise object {
         return externPromiseRemoveHeader(self, headerName);
     }
 
-    # Removes all transport headers from the `Phttp:ushPromise`.
+    # Removes all transport headers from the `http:PushPromise`.
     public function removeAllHeaders() {
-        return externRemoveAllHeaders(self);
+        return externPromiseRemoveAllHeaders(self);
     }
 
     # Gets all transport header names from the `http:PushPromise`.
@@ -131,7 +131,7 @@ function externPromiseRemoveHeader(PushPromise promise, string headerName) =
     name: "removeHeader"
 } external;
 
-function externRemoveAllHeaders(PushPromise promise) =
+function externPromiseRemoveAllHeaders(PushPromise promise) =
 @java:Method {
     class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
     name: "removeAllHeaders"

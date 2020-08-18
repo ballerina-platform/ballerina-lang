@@ -160,8 +160,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(serviceDeclarationNode.serviceName());
         Token onKeyword =
                 modifyToken(serviceDeclarationNode.onKeyword());
-        NodeList<ExpressionNode> expressions =
-                modifyNodeList(serviceDeclarationNode.expressions());
+        SeparatedNodeList<ExpressionNode> expressions =
+                modifySeparatedNodeList(serviceDeclarationNode.expressions());
         Node serviceBody =
                 modifyNode(serviceDeclarationNode.serviceBody());
         return serviceDeclarationNode.modify(
@@ -679,8 +679,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public DefaultableParameterNode transform(
             DefaultableParameterNode defaultableParameterNode) {
-        Token leadingComma =
-                modifyToken(defaultableParameterNode.leadingComma().orElse(null));
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(defaultableParameterNode.annotations());
         Token visibilityQualifier =
@@ -694,7 +692,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node expression =
                 modifyNode(defaultableParameterNode.expression());
         return defaultableParameterNode.modify(
-                leadingComma,
                 annotations,
                 visibilityQualifier,
                 typeName,
@@ -706,8 +703,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public RequiredParameterNode transform(
             RequiredParameterNode requiredParameterNode) {
-        Token leadingComma =
-                modifyToken(requiredParameterNode.leadingComma().orElse(null));
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(requiredParameterNode.annotations());
         Token visibilityQualifier =
@@ -717,7 +712,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token paramName =
                 modifyToken(requiredParameterNode.paramName().orElse(null));
         return requiredParameterNode.modify(
-                leadingComma,
                 annotations,
                 visibilityQualifier,
                 typeName,
@@ -727,8 +721,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public RestParameterNode transform(
             RestParameterNode restParameterNode) {
-        Token leadingComma =
-                modifyToken(restParameterNode.leadingComma().orElse(null));
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(restParameterNode.annotations());
         Node typeName =
@@ -738,23 +730,10 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token paramName =
                 modifyToken(restParameterNode.paramName().orElse(null));
         return restParameterNode.modify(
-                leadingComma,
                 annotations,
                 typeName,
                 ellipsisToken,
                 paramName);
-    }
-
-    @Override
-    public ExpressionListItemNode transform(
-            ExpressionListItemNode expressionListItemNode) {
-        Token leadingComma =
-                modifyToken(expressionListItemNode.leadingComma().orElse(null));
-        ExpressionNode expression =
-                modifyNode(expressionListItemNode.expression());
-        return expressionListItemNode.modify(
-                leadingComma,
-                expression);
     }
 
     @Override
@@ -782,24 +761,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ImportSubVersionNode transform(
-            ImportSubVersionNode importSubVersionNode) {
-        Token leadingDot =
-                modifyToken(importSubVersionNode.leadingDot().orElse(null));
-        Token versionNumber =
-                modifyToken(importSubVersionNode.versionNumber());
-        return importSubVersionNode.modify(
-                leadingDot,
-                versionNumber);
-    }
-
-    @Override
     public ImportVersionNode transform(
             ImportVersionNode importVersionNode) {
         Token versionKeyword =
                 modifyToken(importVersionNode.versionKeyword());
-        NodeList<Node> versionNumber =
-                modifyNodeList(importVersionNode.versionNumber());
+        SeparatedNodeList<Token> versionNumber =
+                modifySeparatedNodeList(importVersionNode.versionNumber());
         return importVersionNode.modify(
                 versionKeyword,
                 versionNumber);
@@ -1173,17 +1140,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         Token parameterizedType =
                 modifyToken(parameterizedTypeDescriptorNode.parameterizedType());
-        Token ltToken =
-                modifyToken(parameterizedTypeDescriptorNode.ltToken());
-        Node typeNode =
-                modifyNode(parameterizedTypeDescriptorNode.typeNode());
-        Token gtToken =
-                modifyToken(parameterizedTypeDescriptorNode.gtToken());
+        TypeParameterNode typeParameter =
+                modifyNode(parameterizedTypeDescriptorNode.typeParameter());
         return parameterizedTypeDescriptorNode.modify(
                 parameterizedType,
-                ltToken,
-                typeNode,
-                gtToken);
+                typeParameter);
     }
 
     @Override
@@ -1837,7 +1798,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             TypeParameterNode typeParameterNode) {
         Token ltToken =
                 modifyToken(typeParameterNode.ltToken());
-        Node typeNode =
+        TypeDescriptorNode typeNode =
                 modifyNode(typeParameterNode.typeNode());
         Token gtToken =
                 modifyToken(typeParameterNode.gtToken());
@@ -1876,8 +1837,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             FunctionSignatureNode functionSignatureNode) {
         Token openParenToken =
                 modifyToken(functionSignatureNode.openParenToken());
-        NodeList<ParameterNode> parameters =
-                modifyNodeList(functionSignatureNode.parameters());
+        SeparatedNodeList<ParameterNode> parameters =
+                modifySeparatedNodeList(functionSignatureNode.parameters());
         Token closeParenToken =
                 modifyToken(functionSignatureNode.closeParenToken());
         ReturnTypeDescriptorNode returnTypeDesc =
@@ -2053,7 +2014,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             QueryPipelineNode queryPipelineNode) {
         FromClauseNode fromClause =
                 modifyNode(queryPipelineNode.fromClause());
-        NodeList<Node> intermediateClauses =
+        NodeList<ClauseNode> intermediateClauses =
                 modifyNodeList(queryPipelineNode.intermediateClauses());
         return queryPipelineNode.modify(
                 fromClause,
