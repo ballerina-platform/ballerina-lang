@@ -70,8 +70,8 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
             } else {
                 /*
                 Covers the following
-                (1) typedesc<mod:*cursor*>
-                (2) typedesc<mod:x*cursor*>
+                (1) [typedesc | map]<mod:*cursor*>
+                (2) [typedesc | map]<mod:x*cursor*>
                  */
                 moduleContent = QNameReferenceUtil.getTypesInModule(context, refNode);
             }
@@ -92,13 +92,14 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
                     .filter(scopeEntry -> scopeEntry.symbol.type instanceof BXMLSubType)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(xmlSubTypes, context));
-        } else if (node.parent().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
+        } else {
             /*
             Covers the following
-            (1) typedesc<*cursor*>
-            (2) typedesc<x*cursor*>
+            (1) [typedesc | map]<*cursor*>
+            (2) [typedesc | map]<x*cursor*>
              */
             // modules and the types are suggested
+            completionItems.addAll(this.getPackagesCompletionItems(context));
             completionItems.addAll(this.getTypeItems(context));
         }
 
