@@ -43,6 +43,12 @@ public class Constants {
     public static final String EXCLUDETAGS = "excludeTags";
     public static final String EXCLUDEOPERATIONS = "excludeOperations";
     public static final String METHOD = "method";
+    public static final String ARRAY = "array";
+    public static final String STRING = "string";
+    public static final String BOOLEAN = "boolean";
+    public static final String INTEGER = "integer";
+    public static final String OBJECT = "object";
+
     /**
      * Enum Type for handle the validation error types.
      */
