@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 2,
+    "character": 28
+  },
+  "source": "function_def/source/source8.bal",
+  "items": [
+    {
+      "label": "external",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "external;",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

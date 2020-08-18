@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.AnnotationNodeKind;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
@@ -45,9 +45,9 @@ import java.util.stream.Collectors;
 
 /**
  * Annotation cache for Language server.
- * 
+ * <p>
  * Note: Annotation cache should be synced with the LS Package Cache
- * 
+ *
  * @since 0.970.0
  */
 public class LSAnnotationCache {
@@ -70,14 +70,14 @@ public class LSAnnotationCache {
     private static HashMap<PackageID, List<BAnnotationSymbol>> workerAnnotations = new HashMap<>();
     private static LSAnnotationCache lsAnnotationCache = null;
     private static List<PackageID> processedPackages = new ArrayList<>();
-    
+
     private LSAnnotationCache() {
     }
-    
+
     public static LSAnnotationCache getInstance() {
         return lsAnnotationCache;
     }
-    
+
     public static synchronized void initiate() {
         if (lsAnnotationCache == null) {
             lsAnnotationCache = new LSAnnotationCache();
@@ -95,8 +95,8 @@ public class LSAnnotationCache {
         // Annotation cache will only load the sk packages initially and the others will load in the runtime
         for (BallerinaPackage sdkPackage : LSPackageLoader.getSdkPackages()) {
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getOrgName()),
-                                                new Name(sdkPackage.getPackageName()),
-                                                new Name(sdkPackage.getVersion()));
+                    new Name(sdkPackage.getPackageName()),
+                    new Name(sdkPackage.getVersion()));
             try {
                 // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
                 Optional<BPackageSymbol> bPackageSymbol = LSPackageLoader.getPackageSymbolById(compilerCtx, packageID);
@@ -111,11 +111,11 @@ public class LSAnnotationCache {
 
         return staticPackages;
     }
-    
+
     private static void loadAnnotations(List<BPackageSymbol> packageList) {
         packageList.forEach(LSAnnotationCache::loadAnnotationsFromPackage);
     }
-    
+
     private static void addAttachment(BAnnotationSymbol bAnnotationSymbol,
                                       HashMap<PackageID, List<BAnnotationSymbol>> map, PackageID packageID) {
         if (map.containsKey(packageID)) {
@@ -128,11 +128,11 @@ public class LSAnnotationCache {
     /**
      * Get the annotation map for the given type.
      *
-     * @param attachmentPoint   Attachment point
-     * @param ctx               LSContext
+     * @param attachmentPoint Attachment point based on the syntax kind of the attached node
+     * @param ctx             LSContext
      * @return {@link HashMap}  Map of annotation lists
      */
-    public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(AnnotationNodeKind attachmentPoint,
+    public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(SyntaxKind attachmentPoint,
                                                                                LSContext ctx) {
         HashMap<PackageID, List<BAnnotationSymbol>> annotationMap;
         CompilerContext compilerCtx = ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
@@ -148,25 +148,25 @@ public class LSAnnotationCache {
                     }
                 });
         switch (attachmentPoint) {
-            case SERVICE:
+            case SERVICE_DECLARATION:
                 annotationMap = serviceAnnotations;
                 break;
-            case RESOURCE:
+            case RESOURCE_KEYWORD:
                 annotationMap = resourceAnnotations;
                 break;
-            case FUNCTION:
+            case FUNCTION_DEFINITION:
                 annotationMap = functionAnnotations;
                 break;
-            case LISTENER:
+            case LISTENER_DECLARATION:
                 annotationMap = listenerAnnotations;
                 break;
-            case EXTERNAL:
-                annotationMap = externalAnnotations;
-                break;
-            case WORKER:
+//            case EXTERNAL:
+//                annotationMap = externalAnnotations;
+//                break;
+            case NAMED_WORKER_DECLARATION:
                 annotationMap = workerAnnotations;
                 break;
-            case CONSTANT:
+            case CONST_DECLARATION:
                 annotationMap = constAnnotations;
                 break;
             default:
@@ -179,7 +179,7 @@ public class LSAnnotationCache {
 
     /**
      * Get all annotations.
-     * 
+     *
      * @return {@link List} list of all annotations in the cache
      */
     public List<BAnnotationSymbol> getAnnotations() {
@@ -203,9 +203,11 @@ public class LSAnnotationCache {
 
     /**
      * Load annotations from the package.
-     * @param bPackageSymbol      BLang Package Symbol to load annotations
+     *
+     * @param bPackageSymbol BLang Package Symbol to load annotations
      */
     private static void loadAnnotationsFromPackage(BPackageSymbol bPackageSymbol) {
+//        List<Scope.ScopeEntry> scopeEntries = new ArrayList<>();
         List<Scope.ScopeEntry> scopeEntries = extractAnnotationDefinitions(bPackageSymbol.scope.entries);
 
         scopeEntries.forEach(annotationEntry -> {
@@ -261,10 +263,10 @@ public class LSAnnotationCache {
                 }
             }
         });
-        
+
         processedPackages.add(bPackageSymbol.pkgID);
     }
-    
+
     private static List<Scope.ScopeEntry> extractAnnotationDefinitions(Map<Name, Scope.ScopeEntry> scopeEntries) {
         return scopeEntries.entrySet().stream()
                 .filter(entry -> entry.getValue().symbol.kind == SymbolKind.ANNOTATION)

@@ -14,15 +14,6 @@
           "kind": "CONST_DECLARATION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "CONST_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -74,15 +65,6 @@
           "kind": "CONST_DECLARATION",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "CONST_KEYWORD",
               "leadingMinutiae": [
@@ -157,15 +139,6 @@
           "kind": "CONST_DECLARATION",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "CONST_KEYWORD",
               "leadingMinutiae": [

@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocument
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
@@ -70,7 +72,7 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
         Optional<Lock> exModeLock = docManager.enableExplicitMode(filePath);
         Optional<Lock> fileLock = docManager.lockFile(filePath);
         try {
-            docManager.updateFile(filePath, content);
+            docManager.updateFile(filePath, Collections.singletonList(new TextDocumentContentChangeEvent(content)));
             BallerinaFile bFile = compileFile(filePath, phase);
             docManager.closeFile(filePath);
             return bFile;

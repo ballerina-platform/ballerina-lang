@@ -30,7 +30,12 @@
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
-            "kind": "ELLIPSIS_TOKEN"
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
+              {
+                "kind": "ELLIPSIS_TOKEN"
+              }
+            ]
           }
         }
       ]

@@ -83,4 +83,10 @@ public class RemoteMethodCallActionTest extends AbstractActionTest {
         testFile("remote-method-call-action/remote_method_call_source_09.bal",
                 "remote-method-call-action/remote_method_call_assert_09.json");
     }
+
+    @Test
+    public void testInvalidTokenInRHS() {
+        testFile("remote-method-call-action/remote_method_call_source_10.bal",
+                "remote-method-call-action/remote_method_call_assert_10.json");
+    }
 }

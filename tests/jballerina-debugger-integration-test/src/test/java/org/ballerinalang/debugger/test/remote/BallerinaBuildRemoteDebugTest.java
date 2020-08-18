@@ -40,6 +40,8 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
+        testProjectName = "basic-project";
+        testModuleName = "hello-world";
         projectPath = testProjectBaseDir + File.separator + testProjectName;
         singleFilePath = testSingleFileBaseDir.toString();
     }

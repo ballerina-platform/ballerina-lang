@@ -392,3 +392,101 @@ function testOuterJoinWithOnClauseWithFunction() returns boolean {
     testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept is ();
     return testPassed;
 }
+
+function testSimpleJoinClauseWithLetAndEquals() returns boolean {
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       let string deptName = "HR"
+       join var {id,name} in deptList
+       on deptName equals name
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : name
+       };
+
+    boolean testPassed = true;
+    DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
+    testPassed = testPassed && deptPersonList.length() == 2;
+    dp = deptPersonList[0];
+    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
+    dp = deptPersonList[1];
+    testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept == "HR";
+    return testPassed;
+}
+
+function testSimpleJoinClauseWithFunctionInAnEquals() returns boolean {
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       let string deptName = "HR"
+       join var {id,name} in deptList
+       on deptName equals getDeptName(id)
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : name
+       };
+
+    boolean testPassed = true;
+    DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
+    testPassed = testPassed && deptPersonList.length() == 2;
+    dp = deptPersonList[0];
+    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
+    dp = deptPersonList[1];
+    testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept == "HR";
+    return testPassed;
+}
+
+function testSimpleJoinWithAStream() {
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       let string deptName = "HR"
+       join var {id,name} in deptList.toStream()
+       on deptName equals getDeptName(id)
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : name
+       };
+}
+
+function getDeptName(int id) returns string {
+    if (id == 1) {
+        return "HR";
+    } else {
+        return "Operations";
+    }
+}

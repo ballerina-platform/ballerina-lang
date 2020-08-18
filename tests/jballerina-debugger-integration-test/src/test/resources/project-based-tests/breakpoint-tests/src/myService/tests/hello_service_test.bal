@@ -26,7 +26,7 @@ function beforeSuiteServiceFunc () {
 
 # Test function
 @test:Config{}
-function testServiceFunction ()  {
+function directoryTestServiceFunction ()  {
     string payload = "Invalid";
     http:Client httpClient = new("http://localhost:9393");
     http:Response | error response = httpClient->get("/hello/sayHello");
@@ -43,8 +43,26 @@ function testServiceFunction ()  {
     }
 }
 
+# Test function
+@test:Config{}
+function testServiceFunction ()  {
+    string payload = "Invalid";
+    http:Client httpClient = new("http://localhost:9090");
+    http:Response | error response = httpClient->get("/greeting/sayHello");
+    if (response is http:Response) {
+        string | error res = response.getTextPayload();
+        if (res is string){
+            payload = res;
+        }
+        test:assertEquals(payload, "Greeting, World!", "Service involation test");
+        io:println(payload);
+        io:println("Service 1 completed");
+    } else {
+        test:assertFail(response.toString());
+    }
+}
 # After Suite Function
-@test:AfterSuite
+@test:AfterSuite {}
 function afterSuiteServiceFunc () {
     io:println("Service should stop after this.");
 }

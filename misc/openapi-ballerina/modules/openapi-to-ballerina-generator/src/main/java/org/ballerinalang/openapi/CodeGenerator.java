@@ -131,6 +131,7 @@ public class CodeGenerator {
      *
      * @param executionPath  Command execution path
      * @param definitionPath Input Open Api Definition file path
+     * @param serviceName    Name of the service
      * @param outPath        Destination file path to save generated source files. If not provided
      *                       {@code definitionPath} will be used as the default destination path
      * @throws IOException               when file operations fail

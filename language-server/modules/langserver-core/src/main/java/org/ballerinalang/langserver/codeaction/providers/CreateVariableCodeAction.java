@@ -140,7 +140,9 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
             Position afterAliasPos = offsetPositionToInvocation(diagnosedContent, position);
             Reference refAtCursor = getSymbolAtCursor(context, document, afterAliasPos);
-
+            if (refAtCursor == null) {
+                return actions;
+            }
             BSymbol symbolAtCursor = refAtCursor.getSymbol();
 
             boolean isInvocation = symbolAtCursor instanceof BInvokableSymbol;

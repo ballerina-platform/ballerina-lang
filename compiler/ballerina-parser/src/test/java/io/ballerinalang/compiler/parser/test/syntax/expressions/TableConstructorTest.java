@@ -33,8 +33,7 @@ public class TableConstructorTest extends AbstractExpressionsTest {
 
     @Test
     public void testTableWithOneRow() {
-        test("table [{\"name\":\"Lochana\", age:24}]",
-                "table-constructor/table_constructor_assert_02.json");
+        test("table [{\"name\":\"Lochana\", age:24}]", "table-constructor/table_constructor_assert_02.json");
     }
 
     @Test
@@ -48,10 +47,8 @@ public class TableConstructorTest extends AbstractExpressionsTest {
         test("table key(age) []", "table-constructor/table_constructor_assert_04.json");
         test("table key() [{age:24},{age:25}]", "table-constructor/table_constructor_assert_05.json");
         test("table key(age,name) [{age:24}]", "table-constructor/table_constructor_assert_06.json");
-        test("table key(email, bu) [\n" +
-                        "   { email: \"supuns@wso2.com\", bu: \"IPaaS\" },\n" +
-                        "   { email: \"lochanaj@wso2.com\", bu: \"IPaaS\" }\n" +
-                        "]",
+        test("table key(email, bu) [\n" + "   { email: \"supuns@wso2.com\", bu: \"IPaaS\" },\n" +
+                "   { email: \"lochanaj@wso2.com\", bu: \"IPaaS\" }\n" + "]",
                 "table-constructor/table_constructor_assert_07.json");
     }
 
@@ -107,9 +104,15 @@ public class TableConstructorTest extends AbstractExpressionsTest {
     public void testTableWithMissingKeyKeyword() {
         test("table () [{k1:v1}]", "table-constructor/table_constructor_assert_23.json");
     }
+
     @Test
     public void testTableWithExtraToken() {
         test("table foo key() [{k1:v1}]", "table-constructor/table_constructor_assert_24.json");
         test("table foo [{k1:v1}]", "table-constructor/table_constructor_assert_25.json");
+    }
+
+    @Test
+    public void testTableKeywordOnly() {
+        test("table-constructor/table_constructor_source_26.bal", "table-constructor/table_constructor_assert_26.json");
     }
 }

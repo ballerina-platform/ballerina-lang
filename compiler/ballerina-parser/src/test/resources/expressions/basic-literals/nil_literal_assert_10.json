@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -235,7 +230,12 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "CLOSE_PAREN_TOKEN"
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
+                          {
+                            "kind": "CLOSE_PAREN_TOKEN"
+                          }
+                        ]
                       }
                     }
                   ],

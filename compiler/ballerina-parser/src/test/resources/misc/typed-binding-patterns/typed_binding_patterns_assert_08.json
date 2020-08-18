@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -104,15 +95,6 @@
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
@@ -223,15 +205,6 @@
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
@@ -350,15 +323,6 @@
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
@@ -526,20 +490,28 @@
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "EQUAL_TOKEN",
-                    "trailingMinutiae": [
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
                       {
-                        "kind": "WHITESPACE_MINUTIAE",
-                        "value": " "
+                        "kind": "EQUAL_TOKEN"
                       }
                     ]
                   }
                 },
                 {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                },
+                {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "v"
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
+                      {
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "v"
+                      }
+                    ]
                   }
                 }
               ],
@@ -557,13 +529,8 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -680,14 +647,17 @@
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "SEMICOLON_TOKEN",
-                                                "trailingMinutiae": [
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
                                                   {
-                                                    "kind": "END_OF_LINE_MINUTIAE",
-                                                    "value": "\n"
+                                                    "kind": "SEMICOLON_TOKEN"
                                                   }
                                                 ]
                                               }
+                                            },
+                                            {
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
                                             },
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",

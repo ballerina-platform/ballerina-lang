@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 4,
+    "character": 15
+  },
+  "source": "statement_context/source/flush_action_ctx_source2.bal",
+  "items": [
+    {
+      "label": "w1",
+      "kind": "Variable",
+      "detail": "future<()>",
+      "sortText": "130",
+      "insertText": "w1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w3",
+      "kind": "Variable",
+      "detail": "future<()>",
+      "sortText": "130",
+      "insertText": "w3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "default",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "default",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

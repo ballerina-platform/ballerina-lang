@@ -26,8 +26,6 @@ import java.util.Map;
  */
 public enum SymbolFilters {
 
-    ACTION_AND_FUNC_FILTER(DelimiterBasedContentFilter.class, new DelimiterBasedContentFilter()),
-
     STMT_TEMPLATE_FILTER(StatementTemplateFilter.class, new StatementTemplateFilter());
 
     private final Class context;

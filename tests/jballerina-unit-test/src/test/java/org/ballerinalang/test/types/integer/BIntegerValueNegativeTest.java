@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for negative integer tests.
  */
-@Test(groups = { "brokenOnNewParser" })
+@Test(groups = { "disableOnOldParser" })
 public class BIntegerValueNegativeTest {
 
     @Test
@@ -47,18 +47,16 @@ public class BIntegerValueNegativeTest {
         expectedError = "Integer '-9999999999999999999' too small";
         BAssertUtil.validateError(compileResult, index++, expectedError, 6, 13);
 
-        expectedError = "mismatched input 'int'. expecting {'is', 'equals', ';', '?', '+', '-', '*', '/', '%', '==', " +
-                "'!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 13, 5);
+        expectedError = "missing semicolon token";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 12, 1);
 
-        expectedError = "extraneous input '672'";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 13, 14);
+        expectedError = "leading zeros in numeric literals";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 13, 13);
 
-        expectedError = "extraneous input '912'";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 14, 14);
+        expectedError = "leading zeros in numeric literals";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 14, 13);
 
-        expectedError = "mismatched input '}'. expecting {'is', 'equals', ';', '?', '+', '-', '*', '/', '%', '==', " +
-                "'!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
-        BAssertUtil.validateError(compileResult, index, expectedError, 18, 1);
+        expectedError = "missing semicolon token";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 18, 1);
     }
 }

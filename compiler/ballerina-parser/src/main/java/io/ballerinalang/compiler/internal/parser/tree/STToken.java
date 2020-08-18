@@ -24,6 +24,7 @@ import io.ballerinalang.compiler.syntax.tree.Token;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents a terminal node in the internal syntax tree.
@@ -78,6 +79,14 @@ public class STToken extends STNode {
 
     public int lookbackTokenCount() {
         return lookback;
+    }
+
+    public List<STToken> tokens() {
+        return Collections.singletonList(this);
+    }
+
+    protected void tokensInternal(List<STToken> tokens) {
+        tokens.add(this);
     }
 
     public STToken firstToken() {

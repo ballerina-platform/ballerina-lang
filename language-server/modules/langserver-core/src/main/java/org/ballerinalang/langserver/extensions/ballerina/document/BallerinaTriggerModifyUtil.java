@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -75,8 +77,7 @@ public class BallerinaTriggerModifyUtil {
         BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         String fileName = compilationPath.toFile().getName();
 
-        String fileContent = documentManager.getFileContent(compilationPath);
-        TextDocument oldTextDocument = TextDocuments.from(fileContent);
+        TextDocument oldTextDocument = documentManager.getTree(compilationPath).textDocument();
 
         List<TextEdit> edits =
                 BallerinaTriggerModifyUtil.createTriggerEdits(oldTextDocument, oldTree, type.toUpperCase(), config);
@@ -85,11 +86,12 @@ public class BallerinaTriggerModifyUtil {
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
         TextDocument newTextDoc = oldTextDocument.apply(textDocumentChange);
-        documentManager.updateFile(compilationPath, newTextDoc.toString());
+        documentManager.updateFile(compilationPath, Collections
+                .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
 
         //remove unused imports
         LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
-                false, false, false);
+                                         false, false, false);
         BLangPackage updatedTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
 
         UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor(fileName, new HashMap<>());
@@ -101,7 +103,8 @@ public class BallerinaTriggerModifyUtil {
             textDocumentChange = TextDocumentChange.from(edits.toArray(
                     new TextEdit[0]));
             newTextDoc = newTextDoc.apply(textDocumentChange);
-            documentManager.updateFile(compilationPath, newTextDoc.toString());
+            documentManager.updateFile(compilationPath, Collections
+                    .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
         }
 
         //Format bal file code
@@ -112,7 +115,8 @@ public class BallerinaTriggerModifyUtil {
         formattingUtil.accept(model);
 
         newTextDoc = TextDocuments.from(FormattingSourceGen.getSourceOf(model));
-        documentManager.updateFile(compilationPath, newTextDoc.toString());
+        documentManager.updateFile(compilationPath, Collections
+                .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
 
         astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, newTextDoc.toString());
         return astContext;

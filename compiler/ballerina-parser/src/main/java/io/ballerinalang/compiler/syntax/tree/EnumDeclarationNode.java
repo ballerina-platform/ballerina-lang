@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,8 +33,8 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
-        return childInBucket(0);
+    public Optional<MetadataNode> metadata() {
+        return optionalChildInBucket(0);
     }
 
     public Token qualifier() {
@@ -132,7 +133,7 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
 
         public EnumDeclarationNodeModifier(EnumDeclarationNode oldNode) {
             this.oldNode = oldNode;
-            this.metadata = oldNode.metadata();
+            this.metadata = oldNode.metadata().orElse(null);
             this.qualifier = oldNode.qualifier();
             this.enumKeywordToken = oldNode.enumKeywordToken();
             this.identifier = oldNode.identifier();

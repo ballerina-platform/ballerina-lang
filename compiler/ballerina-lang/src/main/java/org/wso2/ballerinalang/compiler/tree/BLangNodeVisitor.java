@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -357,6 +359,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangOnClause onClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangOrderKey orderKeyClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangOrderByClause orderByClause) {
         throw new AssertionError();
     }
 
