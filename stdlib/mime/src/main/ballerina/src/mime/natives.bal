@@ -285,7 +285,7 @@ public type Entity object {
     # + filePath - Path of the file
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #                 The default value is `application/octet-stream`
-    public function setFileAsEntityBody(@untainted string filePath, public string contentType = "application/octet-stream") {
+    public function setFileAsEntityBody(@untainted string filePath, string contentType = "application/octet-stream") {
         io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(filePath);
         self.setByteChannel(byteChannel, contentType = contentType);
     }
