@@ -990,6 +990,10 @@ public class ParserTestUtils {
                 return SyntaxKind.RECORD_TYPE_DESC;
             case "OBJECT_TYPE_DESC":
                 return SyntaxKind.OBJECT_TYPE_DESC;
+            case "OBJECT_CONSTRUCTOR_BODY":
+                return SyntaxKind.OBJECT_CONSTRUCTOR_BODY;
+            case "OBJECT_CONSTRUCTOR":
+                return SyntaxKind.OBJECT_CONSTRUCTOR;
             case "UNION_TYPE_DESC":
                 return SyntaxKind.UNION_TYPE_DESC;
             case "ERROR_TYPE_DESC":

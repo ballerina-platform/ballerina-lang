@@ -644,6 +644,32 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
+    public static STNode createObjectConstructorExpressionNode(
+            STNode annotations,
+            STNode objectTypeQualifier,
+            STNode objectKeyword,
+            STNode typeDescriptor,
+            STNode objectConstructorBody) {
+
+        return new STObjectConstructorExpressionNode(
+                annotations,
+                objectTypeQualifier,
+                objectKeyword,
+                typeDescriptor,
+                objectConstructorBody);
+    }
+
+    public static STNode createObjectConstructorBodyNode(
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
+
+        return new STObjectConstructorBodyNode(
+                openBraceToken,
+                members,
+                closeBraceToken);
+    }
+
     public static STNode createRecordTypeDescriptorNode(
             STNode recordKeyword,
             STNode bodyStartDelimiter,

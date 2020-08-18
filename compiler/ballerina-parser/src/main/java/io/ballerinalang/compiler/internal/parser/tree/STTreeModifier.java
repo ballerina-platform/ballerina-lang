@@ -678,6 +678,34 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STObjectConstructorExpressionNode transform(
+            STObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        STNode annotations = modifyNode(objectConstructorExpressionNode.annotations);
+        STNode objectTypeQualifier = modifyNode(objectConstructorExpressionNode.objectTypeQualifier);
+        STNode objectKeyword = modifyNode(objectConstructorExpressionNode.objectKeyword);
+        STNode typeDescriptor = modifyNode(objectConstructorExpressionNode.typeDescriptor);
+        STNode objectConstructorBody = modifyNode(objectConstructorExpressionNode.objectConstructorBody);
+        return objectConstructorExpressionNode.modify(
+                annotations,
+                objectTypeQualifier,
+                objectKeyword,
+                typeDescriptor,
+                objectConstructorBody);
+    }
+
+    @Override
+    public STObjectConstructorBodyNode transform(
+            STObjectConstructorBodyNode objectConstructorBodyNode) {
+        STNode openBraceToken = modifyNode(objectConstructorBodyNode.openBraceToken);
+        STNode members = modifyNode(objectConstructorBodyNode.members);
+        STNode closeBraceToken = modifyNode(objectConstructorBodyNode.closeBraceToken);
+        return objectConstructorBodyNode.modify(
+                openBraceToken,
+                members,
+                closeBraceToken);
+    }
+
+    @Override
     public STRecordTypeDescriptorNode transform(
             STRecordTypeDescriptorNode recordTypeDescriptorNode) {
         STNode recordKeyword = modifyNode(recordTypeDescriptorNode.recordKeyword);

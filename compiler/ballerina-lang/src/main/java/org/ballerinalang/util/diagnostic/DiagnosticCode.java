@@ -47,6 +47,7 @@ public enum DiagnosticCode {
     ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
     DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED("missing.error.reason"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
+    OBJECT_TYPE_REQUIRED("object.type.required"),
     UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
@@ -168,7 +169,6 @@ public enum DiagnosticCode {
     ROLLBACK_NOT_ALLOWED("rollback.not.allowed"),
 
     // Service, endpoint related errors codes
-    SERVICE_OBJECT_TYPE_REQUIRED("service.object.type.required"),
     SERVICE_INVALID_OBJECT_TYPE("service.invalid.object.type"),
     SERVICE_INVALID_ENDPOINT_TYPE("service.invalid.endpoint.type"),
     SERVICE_FUNCTION_INVALID_MODIFIER("service.function.invalid.modifier"),

@@ -1126,6 +1126,56 @@
             ]
         },
         {
+            "name": "ObjectConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "OBJECT_CONSTRUCTOR",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "objectTypeQualifier",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "objectKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "objectConstructorBody",
+                    "type": "ObjectConstructorBodyNode"
+                }
+            ]
+        },
+        {
+            "name": "ObjectConstructorBodyNode",
+            "base": "Node",
+            "kind": "OBJECT_CONSTRUCTOR_BODY",
+            "attributes": [
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "members",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "RecordTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "RECORD_TYPE_DESC",

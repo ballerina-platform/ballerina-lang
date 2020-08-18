@@ -126,6 +126,7 @@ public enum NodeKind {
     LET_EXPR,
     TABLE_CONSTRUCTOR_EXPR,
     TRANSACTIONAL_EXPRESSION,
+    OBJECT_CTOR_EXPRESSION,
 
     /* Statements */
     ABORT,
