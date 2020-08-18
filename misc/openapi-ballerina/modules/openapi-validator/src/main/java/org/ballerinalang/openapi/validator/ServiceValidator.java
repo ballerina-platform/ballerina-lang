@@ -106,75 +106,25 @@ public class ServiceValidator {
         List<ResourcePathSummary> resourcePathSummaryList =
                 MatchResourcewithOperationId.summarizeResources(serviceNode);
         if (!resourcePathSummaryList.isEmpty()) {
-            Iterator<ResourcePathSummary> resourcePSIterator = resourcePathSummaryList.iterator();
-            while (resourcePSIterator.hasNext()) {
-                ResourcePathSummary resourcePathSummary = resourcePSIterator.next();
-                if (!resourceMissingPathMethod.isEmpty()) {
-                    for (ResourceValidationError resourceValidationError: resourceMissingPathMethod) {
-                        if (resourcePathSummary.getPath().equals(resourceValidationError.getResourcePath())) {
-                            if ((!resourcePathSummary.getMethods().isEmpty())
-                                    && (resourceValidationError.getresourceMethod() != null)) {
-                                Map<String, ResourceMethod> resourceMethods = resourcePathSummary.getMethods();
-                                resourceMethods.entrySet().removeIf(resourceMethod -> resourceMethod.getKey()
-                                        .equals(resourceValidationError.getresourceMethod()));
-                            } else if (resourceValidationError.getresourceMethod() == null) {
-                                resourcePSIterator.remove();
-                            }
-                        }
-                    }
-                }
-            }
+            createListResourcePathSummary(resourceMissingPathMethod, resourcePathSummaryList);
         }
         //  Create the OpenAPIPathSummary list removing undocumented paths and operations.
         if (!openAPIPathSummaries.isEmpty()) {
-            Iterator<ResourcePathSummary> resourcePathSummaryIterator = resourcePathSummaryList.iterator();
-            while (resourcePathSummaryIterator.hasNext()) {
-                Boolean isExit = false;
-                ResourcePathSummary resourcePathSummary = resourcePathSummaryIterator.next();
-                for (OpenAPIPathSummary apiPathSummary: openAPIPathSummaries) {
-                    if (resourcePathSummary.getPath().equals(apiPathSummary.getPath())) {
-                        isExit = true;
-                        if (!(resourcePathSummary.getMethods().isEmpty()) &&
-                                !(apiPathSummary.getOperations().isEmpty())) {
-                            Iterator<Map.Entry<String, ResourceMethod>> methods =
-                                    resourcePathSummary.getMethods().entrySet().iterator();
-                            while (methods.hasNext()) {
-                                Boolean isMethodExit = false;
-                                Map.Entry<String, ResourceMethod> reMethods = methods.next();
-                                Map<String, Operation> operations = apiPathSummary.getOperations();
-                                for (Map.Entry<String, Operation> operation: operations.entrySet()) {
-                                    if (reMethods.getKey().equals(operation.getKey())) {
-                                        isMethodExit = true;
-                                        break;
-                                    }
-                                }
-                                if (!isMethodExit) {
-                                    methods.remove();
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
-                if (!isExit) {
-                    resourcePathSummaryIterator.remove();
-                }
-            }
+            createListOperations(openAPIPathSummaries, resourcePathSummaryList);
         }
         // Validate service file against to openApi  contract operations
         for (ResourcePathSummary resourcePathSummary : resourcePathSummaryList) {
             for (OpenAPIPathSummary openApiPath : openAPIPathSummaries) {
-                if (resourcePathSummary.getPath().equals(openApiPath.getPath())) {
-                    if (!resourcePathSummary.getMethods().isEmpty()) {
-                        Map<String, ResourceMethod> resourceMethods = resourcePathSummary.getMethods();
-                        for (Map.Entry<String, ResourceMethod> method: resourceMethods.entrySet()) {
-                            for (Map.Entry<String, Operation> operation: openApiPath.getOperations().entrySet()) {
-                                if (method.getKey().equals(operation.getKey())) {
-                                    List<ValidationError> postErrors =
-                                            ResourceValidator.validateResourceAgainstOperation(operation.getValue(),
-                                                    method.getValue());
-                                    generateDlogMessage(kind, dLog, resourcePathSummary, method, postErrors);
-                                }
+                if ((resourcePathSummary.getPath().equals(openApiPath.getPath())) &&
+                        (!resourcePathSummary.getMethods().isEmpty())) {
+                    Map<String, ResourceMethod> resourceMethods = resourcePathSummary.getMethods();
+                    for (Map.Entry<String, ResourceMethod> method: resourceMethods.entrySet()) {
+                        for (Map.Entry<String, Operation> operation: openApiPath.getOperations().entrySet()) {
+                            if (method.getKey().equals(operation.getKey())) {
+                                List<ValidationError> postErrors =
+                                        ResourceValidator.validateResourceAgainstOperation(operation.getValue(),
+                                                method.getValue());
+                                generateDlogMessage(kind, dLog, resourcePathSummary, method, postErrors);
                             }
                         }
                     }
@@ -184,58 +134,124 @@ public class ServiceValidator {
         // Validate openApi operations against services in ballerina file
         for (OpenAPIPathSummary openAPIPathSummary: openAPIPathSummaries) {
             for (ResourcePathSummary resourcePathSummary: resourcePathSummaryList) {
-                if (openAPIPathSummary.getPath().equals(resourcePathSummary.getPath())) {
-                    if (!openAPIPathSummary.getOperations().isEmpty()) {
-                        if (!resourcePathSummary.getMethods().isEmpty()) {
-                            Map<String, Operation> operations = openAPIPathSummary.getOperations();
-                            for (Map.Entry<String, Operation> operation : operations.entrySet()) {
-                                Map<String, ResourceMethod> methods = resourcePathSummary.getMethods();
-                                for (Map.Entry<String, ResourceMethod> method: methods.entrySet()) {
-                                    if (operation.getKey().equals(method.getKey())) {
-                                        List<ValidationError> errorList =
-                                                ResourceValidator.validateOperationAgainstResource(operation.getValue(),
-                                                        method.getValue());
-                                        if (!errorList.isEmpty()) {
-                                            for (ValidationError error: errorList) {
-                                                if (error instanceof MissingFieldInBallerinaType) {
+                if ((openAPIPathSummary.getPath().equals(resourcePathSummary.getPath())) && (!openAPIPathSummary.
+                        getOperations().isEmpty()) && (!resourcePathSummary.getMethods().isEmpty())) {
+
+                    Map<String, Operation> operations = openAPIPathSummary.getOperations();
+
+                    for (Map.Entry<String, Operation> operation : operations.entrySet()) {
+
+                        Map<String, ResourceMethod> methods = resourcePathSummary.getMethods();
+
+                        for (Map.Entry<String, ResourceMethod> method: methods.entrySet()) {
+                            if (operation.getKey().equals(method.getKey())) {
+                                List<ValidationError> errorList =
+                                        ResourceValidator.validateOperationAgainstResource(operation.getValue(),
+                                                method.getValue());
+
+                                if (!errorList.isEmpty()) {
+                                    for (ValidationError error: errorList) {
+                                        if (error instanceof MissingFieldInBallerinaType) {
+                                            dLog.logDiagnostic(kind, serviceNode.getPosition(),
+                                                    ErrorMessages.unimplementedFieldInOperation(
+                                                            error.getFieldName(),
+                                                            ((MissingFieldInBallerinaType) error)
+                                                                    .getRecordName(), operation.getKey(),
+                                                            openAPIPathSummary.getPath()));
+                                        } else if ((error instanceof OneOfTypeValidation) &&
+                                                (!((OneOfTypeValidation) error).getBlockErrors().isEmpty())) {
+                                            List<ValidationError> oneOfErrors =
+                                                    ((OneOfTypeValidation) error).getBlockErrors();
+                                            for (ValidationError oneOf : oneOfErrors) {
+                                                if (oneOf instanceof MissingFieldInBallerinaType) {
                                                     dLog.logDiagnostic(kind, serviceNode.getPosition(),
                                                             ErrorMessages.unimplementedFieldInOperation(
-                                                                    error.getFieldName(),
-                                                                    ((MissingFieldInBallerinaType) error)
-                                                                            .getRecordName(), operation.getKey(),
-                                                                    openAPIPathSummary.getPath()));
-                                                } else if ((error instanceof OneOfTypeValidation)) {
-//                                                    need to merge
-                                                    if (!((OneOfTypeValidation) error).getBlockErrors().isEmpty()) {
-                                                        List<ValidationError> oneOfErrors =
-                                                                ((OneOfTypeValidation) error).getBlockErrors();
-                                                        for (ValidationError oneOf : oneOfErrors) {
-                                                            if (oneOf instanceof MissingFieldInBallerinaType) {
-                                                                dLog.logDiagnostic(kind, serviceNode.getPosition(),
-                                                                        ErrorMessages.unimplementedFieldInOperation(
-                                                                                oneOf.getFieldName(),
-                                                                                ((MissingFieldInBallerinaType) oneOf)
-                                                                                        .getRecordName(), operation.
-                                                                                        getKey(), openAPIPathSummary.
-                                                                                        getPath()));
-                                                            }
-                                                        }
-                                                    }
-                                                } else if (!(error instanceof TypeMismatch) &&
-                                                        (!(error instanceof MissingFieldInJsonSchema))) {
-//                                                    if  {
-                                                        dLog.logDiagnostic(kind, serviceNode.getPosition(),
-                                                                ErrorMessages.unimplementedParameterForOperation(
-                                                                        error.getFieldName(),
-                                                                        operation.getKey(),
-                                                                        openAPIPathSummary.getPath()));
-//                                                    }
+                                                                    oneOf.getFieldName(),
+                                                                    ((MissingFieldInBallerinaType) oneOf)
+                                                                            .getRecordName(), operation.
+                                                                            getKey(), openAPIPathSummary.getPath()));
                                                 }
                                             }
+                                        } else if (!(error instanceof TypeMismatch) &&
+                                                (!(error instanceof MissingFieldInJsonSchema))) {
+                                            dLog.logDiagnostic(kind, serviceNode.getPosition(),
+                                                    ErrorMessages.unimplementedParameterForOperation(
+                                                            error.getFieldName(), operation.getKey(),
+                                                            openAPIPathSummary.getPath()));
                                         }
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Fix the list with openAPIPathSummary by matching resources that documented for validating.
+     * @param openAPIPathSummaries      summary list with OpenAPI Path
+     * @param resourcePathSummaryList   summary list with resourcePath
+     */
+    private static void createListOperations(List<OpenAPIPathSummary> openAPIPathSummaries,
+                                             List<ResourcePathSummary> resourcePathSummaryList) {
+
+        Iterator<ResourcePathSummary> resourcePathSummaryIterator = resourcePathSummaryList.iterator();
+        while (resourcePathSummaryIterator.hasNext()) {
+            boolean isExit = false;
+            ResourcePathSummary resourcePathSummary = resourcePathSummaryIterator.next();
+            for (OpenAPIPathSummary apiPathSummary: openAPIPathSummaries) {
+                isExit = true;
+                if (!(resourcePathSummary.getMethods().isEmpty()) && !(apiPathSummary.getOperations().isEmpty())
+                        && (resourcePathSummary.getPath().equals(apiPathSummary.getPath()))) {
+                    Iterator<Map.Entry<String, ResourceMethod>> methods =
+                            resourcePathSummary.getMethods().entrySet().iterator();
+                    while (methods.hasNext()) {
+                        boolean isMethodExit = false;
+                        Map.Entry<String, ResourceMethod> reMethods = methods.next();
+                        Map<String, Operation> operations = apiPathSummary.getOperations();
+                        for (Map.Entry<String, Operation> operation: operations.entrySet()) {
+                            if (reMethods.getKey().equals(operation.getKey())) {
+                                isMethodExit = true;
+                                break;
+                            }
+                        }
+                        if (!isMethodExit) {
+                            methods.remove();
+                        }
+                    }
+                }
+                break;
+            }
+            if (!isExit) {
+                resourcePathSummaryIterator.remove();
+            }
+        }
+    }
+
+    /**
+     *  Fix the list with ResourcePathSummary for validate by removing undocumented path and method.
+     * @param resourceMissingPathMethod     list with missing Path and methods
+     * @param resourcePathSummaryList       list with all documented services in ballerina file
+     */
+
+    private static void createListResourcePathSummary(List<ResourceValidationError> resourceMissingPathMethod,
+                                                      List<ResourcePathSummary> resourcePathSummaryList) {
+
+        Iterator<ResourcePathSummary> resourcePSIterator = resourcePathSummaryList.iterator();
+        while (resourcePSIterator.hasNext()) {
+            ResourcePathSummary resourcePathSummary = resourcePSIterator.next();
+            if (!resourceMissingPathMethod.isEmpty()) {
+                for (ResourceValidationError resourceValidationError: resourceMissingPathMethod) {
+                    if (resourcePathSummary.getPath().equals(resourceValidationError.getResourcePath())) {
+                        if ((!resourcePathSummary.getMethods().isEmpty())
+                                && (resourceValidationError.getresourceMethod() != null)) {
+                            Map<String, ResourceMethod> resourceMethods = resourcePathSummary.getMethods();
+                            resourceMethods.entrySet().removeIf(resourceMethod -> resourceMethod.getKey()
+                                    .equals(resourceValidationError.getresourceMethod()));
+                        } else if (resourceValidationError.getresourceMethod() == null) {
+                            resourcePSIterator.remove();
                         }
                     }
                 }
@@ -310,8 +326,8 @@ public class ServiceValidator {
                                 BTypeToJsonValidatorUtil.convertEnumTypetoString((
                                         (TypeMismatch) postErr).getTypeJsonSchema()),
                                 BTypeToJsonValidatorUtil.convertEnumTypetoString(((
-                                        TypeMismatch) postErr).getTypeBallerinaType())
-                                , method.getKey(), resourcePathSummary.getPath()));
+                                        TypeMismatch) postErr).getTypeBallerinaType()), method.getKey(),
+                                resourcePathSummary.getPath()));
 
             } else {
                 dLog.logDiagnostic(kind, method.getValue().getMethodPosition(),
@@ -319,8 +335,8 @@ public class ServiceValidator {
                                 BTypeToJsonValidatorUtil.convertEnumTypetoString
                                         (((TypeMismatch) postErr).getTypeJsonSchema()),
                                 BTypeToJsonValidatorUtil.convertEnumTypetoString
-                                        (((TypeMismatch) postErr).getTypeBallerinaType())
-                                , method.getKey(), resourcePathSummary.getPath()));
+                                        (((TypeMismatch) postErr).getTypeBallerinaType()), method.getKey(),
+                                resourcePathSummary.getPath()));
             }
         }
     }
