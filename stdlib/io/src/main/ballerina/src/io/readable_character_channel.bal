@@ -121,12 +121,12 @@ function readXmlExtern(ReadableCharacterChannel characterChannel) returns @taint
 function readPropertyExtern(ReadableCharacterChannel characterChannel, string key, string defaultValue) returns
                             @tainted string|Error = @java:Method {
     name: "readProperty",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;
 
 function readAllPropertiesExtern(ReadableCharacterChannel characterChannel) returns @tainted map<string>|Error = @java:Method {
     name: "readAllProperties",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;
 
 function closeReadableCharacterChannel(ReadableCharacterChannel characterChannel) returns Error? = @java:Method {

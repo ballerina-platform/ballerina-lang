@@ -113,7 +113,7 @@ function writeXmlExtern(WritableCharacterChannel characterChannel, xml content) 
 function writePropertiesExtern(WritableCharacterChannel characterChannel, map<string> properties,
                                 string comment) returns Error? = @java:Method {
     name: "writeProperties",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;
 
 function closeWritableCharacterChannel(WritableCharacterChannel characterChannel) returns Error? = @java:Method {

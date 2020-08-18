@@ -400,7 +400,7 @@ public type OutParameter object {
     # + td - Type description of the data that need to be converted
     # + return - The converted ballerina value or Error
     public function get(typedesc<anydata> td) returns td|Error = @java:Method {
-        class: "org.ballerinalang.sql.utils.OutParameterUtils"
+        'class: "org.ballerinalang.sql.utils.OutParameterUtils"
     } external;
 };
 
@@ -417,7 +417,7 @@ public type InOutParameter object {
     # + td - Type description of the data that need to be converted
     # + return - The converted ballerina value or Error
     public function get(typedesc<anydata> td) returns td|Error = @java:Method {
-        class: "org.ballerinalang.sql.utils.OutParameterUtils"
+        'class: "org.ballerinalang.sql.utils.OutParameterUtils"
     } external;
 };
 

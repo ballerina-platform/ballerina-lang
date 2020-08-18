@@ -202,7 +202,7 @@ returns sql:ExecutionResult[]|sql:Error = @java:Method {
 
 function nativeCall(Client sqlClient, string|sql:ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes)
 returns sql:ProcedureCallResult|sql:Error = @java:Method {
-    class: "org.ballerinalang.sql.utils.CallUtils"
+    'class: "org.ballerinalang.sql.utils.CallUtils"
 } external;
 
 function close(Client mysqlClient) returns sql:Error? = @java:Method {

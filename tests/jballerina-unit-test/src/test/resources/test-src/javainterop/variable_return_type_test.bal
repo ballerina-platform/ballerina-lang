@@ -151,18 +151,18 @@ type PersonObj object {
     function name() returns string => self.fname + " " + self.lname;
 
     function getObjectValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
-        class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
     } external;
 
     function getObjectValueWithTypeDescParam(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
         name: "getObjectValue",
-        class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
         paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
     } external;
 
     function getObjectValueWithParamTypes(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
         name: "getObjectValue",
-        class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
         paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.api.BTypedesc"]
     } external;
 };

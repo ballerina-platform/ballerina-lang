@@ -31,62 +31,62 @@ public type Person object {
     }
 
     function newInstance() returns handle = @java:Constructor {
-        class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
     } external;
 
     public function getCounter(handle receiver) returns handle = @java:Method{
-        class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
     } external;
 
     public function setCounterValue(handle receiver, handle count) = @java:Method{
-        class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
     } external;
 
     public function getObjectValueField(handle receiver) returns int = @java:Method{
-        class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
     } external;
 
     public function getInt(handle h, int x) returns int = @java:Method{
-        class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
     } external;
 
     public function getRandomInt(handle h) returns int = @java:Method{
-        class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
     } external;
 
     public function acceptTwoParamsAndReturnSomething(handle s, handle s2) returns handle = @java:Method {
-       class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+       'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 
     public function acceptObjectAndObjectReturn(int age) returns Person = @java:Method {
-       class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+       'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 
     public function acceptObjectAndReturnField() returns int = @java:Method {
-       class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+       'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 
     function echoObject() returns abstract object {}  = @java:Method {
-            class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+            'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 
     function getBIntFromJInt(handle receiver) returns int = @java:Method {
         name:"longValue",
-        class:"java.lang.Integer"
+        'class:"java.lang.Integer"
     } external;
 
     function newInteger(int value) returns handle = @java:Constructor {
-        class:"java.lang.Integer"
+        'class:"java.lang.Integer"
     } external;
 
      public function floor(float a) returns float = @java:Method {
-             class: "java/lang/Math"
+             'class: "java/lang/Math"
      } external;
 };
 
 function getBIntFromJInt(handle receiver) returns int = @java:Method {
     name:"longValue",
-    class:"java.lang.Integer"
+    'class:"java.lang.Integer"
 } external;
 
 public function testInteropsInsideObject() {
