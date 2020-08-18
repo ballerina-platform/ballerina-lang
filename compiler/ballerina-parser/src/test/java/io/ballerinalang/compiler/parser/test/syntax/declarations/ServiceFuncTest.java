@@ -39,4 +39,24 @@ public class ServiceFuncTest extends AbstractDeclarationTest {
         test("isolated-service-functions/isolated_service_func_source_01.bal",
              "isolated-service-functions/isolated_service_func_assert_01.json");
     }
+
+    // Recovery tests
+
+    @Test
+    public void testMissingFunctionKeywordWithQualifiers() {
+        testFile("isolated-service-functions/isolated_service_func_source_02.bal",
+                 "isolated-service-functions/isolated_service_func_assert_02.json");
+    }
+
+    @Test
+    public void testMissingFunctionNameWithQualifiers() {
+        testFile("isolated-service-functions/isolated_service_func_source_03.bal",
+                 "isolated-service-functions/isolated_service_func_assert_03.json");
+    }
+
+    @Test
+    public void testMissingTokensWithQualifiers() {
+        testFile("isolated-service-functions/isolated_service_func_source_04.bal",
+                 "isolated-service-functions/isolated_service_func_assert_04.json");
+    }
 }

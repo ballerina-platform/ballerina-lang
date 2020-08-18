@@ -33,4 +33,24 @@ public class ObjectMethodTest extends AbstractDeclarationTest {
         test("isolated-object-methods/isolated_object_method_source_01.bal",
              "isolated-object-methods/isolated_object_method_assert_01.json");
     }
+
+    // Recovery tests
+
+    @Test
+    public void testMissingFunctionKeywordWithQualifiers() {
+        testFile("isolated-object-methods/isolated_object_method_source_02.bal",
+                 "isolated-object-methods/isolated_object_method_assert_02.json");
+    }
+
+    @Test
+    public void testMissingFunctionNameWithQualifiers() {
+        testFile("isolated-object-methods/isolated_object_method_source_03.bal",
+                 "isolated-object-methods/isolated_object_method_assert_03.json");
+    }
+
+    @Test
+    public void testMissingTokensWithQualifiers() {
+        testFile("isolated-object-methods/isolated_object_method_source_04.bal",
+                 "isolated-object-methods/isolated_object_method_assert_04.json");
+    }
 }

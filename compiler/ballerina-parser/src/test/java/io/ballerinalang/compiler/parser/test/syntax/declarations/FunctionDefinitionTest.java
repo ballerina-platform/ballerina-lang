@@ -156,4 +156,19 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testFunctionWithInvalidExpressionStatement() {
         testFile("func-definition/func_def_source_24.bal", "func-definition/func_def_assert_24.json");
     }
+
+    @Test
+    public void testMissingFunctionKeywordWithQualifiers() {
+        testFile("func-definition/func_def_source_25.bal", "func-definition/func_def_assert_25.json");
+    }
+
+    @Test
+    public void testMissingFunctionNameWithQualifiers() {
+        testFile("func-definition/func_def_source_26.bal", "func-definition/func_def_assert_26.json");
+    }
+
+    @Test
+    public void testMissingTokensWithQualifiers() {
+        testFile("func-definition/func_def_source_27.bal", "func-definition/func_def_assert_27.json");
+    }
 }
