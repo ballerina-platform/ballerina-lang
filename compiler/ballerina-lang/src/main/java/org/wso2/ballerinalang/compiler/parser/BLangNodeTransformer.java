@@ -3329,12 +3329,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ClassDefinitionNode classDefinitionNode) {
         BLangClassDefinition blangClass = (BLangClassDefinition) TreeBuilder.createClassDefNode();
         blangClass.pos = getPositionWithoutMetadata(classDefinitionNode);
-        blangClass.annAttachments = applyAll(classDefinitionNode.metadata().annotations());
+        blangClass.annAttachments = applyAll(getAnnotations(classDefinitionNode.metadata()));
 
         BLangIdentifier identifierNode = createIdentifier(classDefinitionNode.className());
         blangClass.setName(identifierNode);
         blangClass.markdownDocumentationAttachment =
-                createMarkdownDocumentationAttachment(classDefinitionNode.metadata().documentationString());
+                createMarkdownDocumentationAttachment(getDocumentationString(classDefinitionNode.metadata()));
 
         classDefinitionNode.visibilityQualifier().ifPresent(visibilityQual -> {
             if (visibilityQual.kind() == SyntaxKind.PUBLIC_KEYWORD) {

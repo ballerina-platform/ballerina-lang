@@ -1347,7 +1347,7 @@
                 },
                 {
                     "name": "typeName",
-                    "type": "NameReferenceNode"
+                    "type": "Node"
                 },
                 {
                     "name": "semicolonToken",
@@ -4052,7 +4052,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",

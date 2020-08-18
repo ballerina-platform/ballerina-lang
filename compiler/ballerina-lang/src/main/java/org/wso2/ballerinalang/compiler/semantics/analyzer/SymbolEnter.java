@@ -883,7 +883,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 checkErrors(unresolvedType, ((BLangTableTypeNode) currentTypeOrClassNode).constraint, visitedNodes);
                 break;
             case USER_DEFINED_TYPE:
-                checkErrorsOfUserDefinedType(unresolvedType, currentTypeOrClassNode, visitedNodes);
+                checkErrorsOfUserDefinedType(unresolvedType, (BLangUserDefinedType) currentTypeOrClassNode,
+                        visitedNodes);
                 break;
             case BUILT_IN_REF_TYPE:
                 // Eg - `xml`. This is not needed to be checked because no types are available in the `xml`.
@@ -913,14 +914,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void checkErrorsOfUserDefinedType(BLangNode unresolvedType, BLangNode currentTypeOrClassNode, Stack<String> visitedNodes) {
-        String currentTypeNodeName = ((BLangUserDefinedType) currentTypeOrClassNode).typeName.value;
+    private void checkErrorsOfUserDefinedType(BLangNode unresolvedType, BLangUserDefinedType currentTypeOrClassNode,
+                                              Stack<String> visitedNodes) {
+        String currentTypeNodeName = currentTypeOrClassNode.typeName.value;
         // Skip all types defined as anonymous types.
         if (currentTypeNodeName.startsWith("$")) {
             return;
         }
 
-        String unresolvedTypeNodeName = ((TypeDefinition) unresolvedType).getName().getValue();
+        String unresolvedTypeNodeName = getTypeOrClassName(unresolvedType);
 
         if (unresolvedTypeNodeName.equals(currentTypeNodeName)) {
             // Cyclic dependency detected. We need to add the `unresolvedTypeNodeName` or the

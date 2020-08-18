@@ -2994,7 +2994,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             NodeList<Node> members,
             Token closeBrace,
             Token semicolonToken) {
-        Objects.requireNonNull(metadata, "metadata must not be null");
         Objects.requireNonNull(classTypeQualifiers, "classTypeQualifiers must not be null");
         Objects.requireNonNull(classKeyword, "classKeyword must not be null");
         Objects.requireNonNull(className, "className must not be null");
@@ -3004,7 +3003,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
         STNode stClassDefinitionNode = STNodeFactory.createClassDefinitionNode(
-                metadata.internalNode(),
+                getOptionalSTNode(metadata),
                 getOptionalSTNode(visibilityQualifier),
                 classTypeQualifiers.underlyingListNode().internalNode(),
                 classKeyword.internalNode(),

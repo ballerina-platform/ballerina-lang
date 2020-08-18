@@ -3041,7 +3041,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public ClassDefinitionNode transform(
             ClassDefinitionNode classDefinitionNode) {
         MetadataNode metadata =
-                modifyNode(classDefinitionNode.metadata());
+                modifyNode(classDefinitionNode.metadata().orElse(null));
         Token visibilityQualifier =
                 modifyToken(classDefinitionNode.visibilityQualifier().orElse(null));
         NodeList<Token> classTypeQualifiers =
