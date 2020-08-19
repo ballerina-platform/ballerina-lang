@@ -146,10 +146,10 @@
             <class name="org.ballerinalang.test.statements.transaction.NestedTransactionTest"/>
             <class name="org.ballerinalang.test.statements.transaction.NestedRetryTransactionStmtsTest" />
             <class name="org.ballerinalang.test.statements.transaction.SetRollbackOnlyTest" />
+            <class name="org.ballerinalang.test.expressions.object.ObjectConstructorTest" />
             <class name="org.ballerinalang.test.statements.transaction.RetryTransactionStmtTest"></class>
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
-            <class name="org.ballerinalang.test.expressions.object.ObjectConstructorTest" />
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest"></class>
             <class name="org.ballerinalang.test.expressions.unaryoperations.UnaryExprTest"></class>

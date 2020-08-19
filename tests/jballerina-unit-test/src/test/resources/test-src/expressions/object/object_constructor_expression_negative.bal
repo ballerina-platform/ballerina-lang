@@ -23,3 +23,12 @@ var objCreatedViaConstructor = object SampleRec {};
 var notClient = object {
     private remote function remoteFunc() {}
 };
+
+var invalidInit = object {
+    private function init(int x) {}
+};
+
+var objVariable = object {
+    private function init() {
+    }
+};

@@ -916,6 +916,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLangFunction.flagSet.add(Flag.ATTACHED);
                 if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
                     if (objectTypeNode.initFunction == null) {
+                        if (bLangFunction.requiredParams.size() != 0) {
+                            dlog.error(bLangFunction.pos, DiagnosticCode.OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS);
+                            continue;
+                        }
                         bLangFunction.objInitFunction = true;
                         objectTypeNode.initFunction = bLangFunction;
                     } else {
@@ -949,15 +953,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         Optional<TypeDescriptorNode> typeDescriptor = objectConstructorExpressionNode.typeDescriptor();
 
-        Optional<Token> objectTypeQualifier = objectConstructorExpressionNode.objectTypeQualifier();
-        objectTypeQualifier.ifPresent(qualifier -> {
-            if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
-                objectTypeNode.flagSet.add(Flag.CLIENT);
-            } else {
-                dlog.error(pos, DiagnosticCode.INVALID_TOKEN);
-            }
-        });
-
         typeDescriptor.ifPresent(typeDescriptorNode -> {
             BLangType type = createTypeNode(typeDescriptorNode);
             objectCtorExpression.addTypeReference(type);
@@ -965,6 +960,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         // create a type definition and attach annotations
         BLangTypeDefinition bLTypeDef = createTypeDefinitionWithTypeNode(objectTypeNode);
+        Optional<Token> objectTypeQualifier = objectConstructorExpressionNode.objectTypeQualifier();
+
+        objectTypeQualifier.ifPresent(qualifier -> {
+            if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
+                objectTypeNode.flagSet.add(Flag.CLIENT);
+                bLTypeDef.flagSet.add(Flag.CLIENT);
+            } else {
+                dlog.error(pos, DiagnosticCode.INVALID_TOKEN);
+            }
+        });
         bLTypeDef.annAttachments = applyAll(objectConstructorExpressionNode.annotations());
 
         addToTop(bLTypeDef);

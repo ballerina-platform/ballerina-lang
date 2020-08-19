@@ -23,37 +23,57 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for object-constructor-expr types in ballerina.
  */
+@Test
 public class ObjectConstructorTest {
 
     private CompileResult compiledConstructedObjects;
 
     @BeforeClass
     public void setup() {
-        compiledConstructedObjects = BCompileUtil.compile("test-src/expressions/object/object_constructor.bal");
+        compiledConstructedObjects = BCompileUtil.compile(
+                "test-src/expressions/object/object_constructor_expression.bal");
     }
 
+    @Test
     public void testObjectCreationViaObjectConstructor() {
         BRunUtil.invoke(compiledConstructedObjects, "testObjectCreationViaObjectConstructor");
     }
 
+    @Test
     public void testObjectConstructorAnnotationAttachment() {
         BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorAnnotationAttachment");
     }
 
+    @Test
     public void testObjectConstructorObjectFunctionInvocation() {
         BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorObjectFunctionInvocation");
     }
 
+//    @Test
+//    public void testObjectConstructorClientKeyword() {
+//        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorClientKeyword");
+//    }
+
+    @Test
+    public void testObjectConstructorIncludedMethod() {
+        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorIncludedMethod");
+    }
+
     public void testObjectConstructorNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
-                "test-src/expressions/object/object_constructor_negative.bal");
+                "test-src/expressions/object/object_constructor_expression_negative.bal");
         int index = 0;
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'SampleRec' is not an object", 21, 39);
         BAssertUtil.validateError(negativeResult, index++, "a remote function in a non client object", 24, 5);
+        BAssertUtil.validateError(negativeResult, index++, "object constructor 'init' method cannot have parameters",
+                28, 5);
+        BAssertUtil.validateError(negativeResult, index++, "object initializer function can not be declared as " +
+                "private", 32, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }

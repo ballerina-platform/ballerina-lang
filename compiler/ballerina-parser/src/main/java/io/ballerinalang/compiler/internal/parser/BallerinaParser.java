@@ -3331,6 +3331,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseLetExpression(isRhsExpr);
             case BACKTICK_TOKEN:
                 return parseTemplateExpression();
+            case CLIENT_KEYWORD:
             case OBJECT_KEYWORD:
                 return parseObjectConstructorExpressionNode(isRhsExpr, annots);
             case XML_KEYWORD:
@@ -4379,6 +4380,12 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse object constructor expression.
      *
+     * object-constructor-expr :=
+     *    [annots] [client] object [type-reference] {
+     *       object-member*
+     *    }
+     * object-member := object-field | method-defn
+     *
      * @param isRhsExpr
      * @param annots
      * @return Parsed node
@@ -4390,7 +4397,9 @@ public class BallerinaParser extends AbstractParser {
         STNode objectTypeQualifier;
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.CLIENT_KEYWORD) {
+            startContext(ParserRuleContext.CLIENT_KEYWORD);
             objectTypeQualifier = parseClientKeyword();
+            endContext();
         } else {
             objectTypeQualifier = STNodeFactory.createEmptyNode();
         }
@@ -4425,6 +4434,7 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createObjectConstructorBodyNode(openBrace, objectMembers, closeBrace);
     }
 
+    /**
     /**
      * Parse object type qualifiers.
      *

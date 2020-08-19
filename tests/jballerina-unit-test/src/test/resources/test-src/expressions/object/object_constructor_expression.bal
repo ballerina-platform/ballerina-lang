@@ -74,23 +74,53 @@ function testObjectConstructorObjectFunctionInvocation() {
     assertTrue(obj.n == 2);
 }
 
-var remoteObject = @OBJAnnots { descriptor: "ConstructedObject" }
-    object client {
-        int n = 0;
-        function remote remoteFunc() {
-            self.n += 1;
+//var remoteObject = @OBJAnnots { descriptor: "ConstructedObject" }
+//    client object {
+//        int n = 0;
+//        remote function remoteFunc() {
+//            self.n += 1;
+//        }
+//
+//        function inc() {
+//            self.n += 1;
+//        }
+//    };
+//
+//function testObjectConstructorClientKeyword() {
+//    remoteObject->remoteFunc();
+//    assertTrue(remoteObject.n == 1);
+//    remoteObject.inc();
+//    assertTrue(remoteObject.n == 2);
+//}
+
+type MoAdvanced object {
+    int n = 0;
+
+    public function setN(int userN) {
+        self.n = userN;
+    }
+
+    public function init() {
+        self.n = 0;
+    }
+};
+
+function testObjectConstructorIncludedMethod() {
+    var objWithIncludedMethod = object MoAdvanced {
+
+        public function init() {
+            self.n = -1;
         }
 
-        function remote inc() {
-            self.n += 1;
+        public function setN(int userN) {
+            self.n = userN;
         }
     };
 
-function testObjectConstructorConstObject() {
-    remoteObject->remoteFunc();
-    assertTrue(remoteObject.n == 1);
-    remoteObject.inc();
-    assertTrue(remoteObject.n == 2);
+    objWithIncludedMethod.setN(200);
+    assertTrue(objWithIncludedMethod.n == 200);
+    objWithIncludedMethod.setN(100);
+    assertTrue(objWithIncludedMethod.n == 100);
 }
 
 // assertion helpers
