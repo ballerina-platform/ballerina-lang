@@ -20,10 +20,10 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.utils.RepoUtils;
 import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

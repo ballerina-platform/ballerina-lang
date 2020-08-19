@@ -19,7 +19,7 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.Project;
 import io.ballerina.projects.utils.ProjectConstants;
-import org.wso2.ballerinalang.util.RepoUtils;
+import io.ballerina.projects.utils.RepoUtils;
 
 import java.nio.file.Path;
 
