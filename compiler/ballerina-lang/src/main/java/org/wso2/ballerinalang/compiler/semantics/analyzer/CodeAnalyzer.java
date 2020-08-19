@@ -245,6 +245,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int loopCount;
     private int transactionCount;
     private boolean statementReturns;
+    private boolean failureHandled;
     private boolean lastStatement;
     private boolean withinLockBlock;
     private SymbolTable symTable;
@@ -504,6 +505,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction statement occurred in a transactional scope
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
@@ -534,7 +536,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.doneWithinTransactionCheckStack.push(false);
         this.returnWithinLambdaWrappingCheckStack.push(false);
         this.transactionCount++;
-
+        if (transactionNode.onFailClause != null) {
+            analyzeNode(transactionNode.onFailClause, env);
+        }
         analyzeNode(transactionNode.transactionBody, env);
         if (commitCount < 1) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.INVALID_COMMIT_COUNT);
@@ -557,13 +561,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         this.resetLastStatement();
 
-        if (transactionNode.onFailClause != null) {
-            analyzeNode(transactionNode.onFailClause, env);
-        }
-
         this.returnWithinTransactionCheckStack.pop();
         this.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
+        this.failureHandled = failureHandled;
     }
 
     @Override
@@ -1359,8 +1360,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         this.loopWithinTransactionCheckStack.push(true);
+        boolean failureHandled = this.failureHandled;
         boolean statementReturns = this.statementReturns;
         this.checkStatementExecutionValidity(whileNode);
+        if (whileNode.onFailClause != null) {
+            analyzeNode(whileNode.onFailClause, env);
+        }
         this.loopCount++;
         analyzeNode(whileNode.body, env);
         this.loopCount--;
@@ -1369,20 +1374,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(whileNode.expr);
 
-        if (whileNode.onFailClause != null) {
-            analyzeNode(whileNode.onFailClause, env);
-        }
+        this.failureHandled = failureHandled;
     }
 
     @Override
     public void visit(BLangDo doNode) {
         boolean statementReturns = this.statementReturns;
+        boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(doNode);
-        analyzeNode(doNode.body, env);
         if (doNode.onFailClause != null) {
             analyzeNode(doNode.onFailClause, env);
         }
+        analyzeNode(doNode.body, env);
         this.statementReturns = statementReturns;
+        this.failureHandled = failureHandled;
         this.resetLastStatement();
     }
 
@@ -1400,7 +1405,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
         failNode.expr.type = symTable.errorType;
 
-        if (!types.isAssignable(getErrorTypes(failNode.expr.type), exprType)) {
+        if (!this.failureHandled && !types.isAssignable(getErrorTypes(failNode.expr.type), exprType)) {
             dlog.error(failNode.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
@@ -2717,7 +2722,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
 
-        if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
+        if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
             dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
@@ -2822,6 +2827,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         this.returnWithinLambdaWrappingCheckStack.push(false);
+        this.failureHandled = true;
         analyzeNode(onFailClause.body, env);
         onFailClause.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();

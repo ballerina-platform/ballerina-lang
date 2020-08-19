@@ -939,11 +939,6 @@ public class BIRGen extends BLangNodeVisitor {
     // Statements
 
     @Override
-    public void visit(BLangDo doNode) {
-
-    }
-
-    @Override
     public void visit(BLangBlockStmt astBlockStmt) {
         BIRBasicBlock blockEndBB = null;
         BIRBasicBlock currentOnFailEndBB = this.env.enclOnFailEndBB;
@@ -994,7 +989,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (!toUnlock.isEmpty()) {
             BIRBasicBlock goToBB = new BIRBasicBlock(this.env.nextBBId(names));
             this.env.enclBasicBlocks.add(goToBB);
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(failExpr.pos, goToBB);
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, goToBB);
             this.env.enclBB = goToBB;
         }
 

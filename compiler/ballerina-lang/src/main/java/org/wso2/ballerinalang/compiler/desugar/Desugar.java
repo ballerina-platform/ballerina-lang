@@ -1152,9 +1152,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt block) {
+        BLangInvocation currentOnFailLambdaInvo = this.onFailLambdaInvocation;
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(block, env);
         block.stmts = rewriteStmt(block.stmts, blockEnv);
         result = block;
+        this.onFailLambdaInvocation = currentOnFailLambdaInvo;
     }
 
     @Override
@@ -2883,7 +2885,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
-        BLangInvocation currentOnFailLambdaInvo = this.onFailLambdaInvocation;
         BLangType onFailReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
 
         BLangSimpleVariableDef onFailErrorVariableDef = (BLangSimpleVariableDef) onFailClause.variableDefinitionNode;
@@ -2926,7 +2927,6 @@ public class Desugar extends BLangNodeVisitor {
             exprStmt.expr = onFailLambdaInvocation;
             onFailFuncBlock.stmts.add(exprStmt);
         }
-        this.onFailLambdaInvocation = currentOnFailLambdaInvo;
         result = onFailFunc;
     }
 
