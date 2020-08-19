@@ -18,6 +18,7 @@
 package org.ballerinalang.openapi.validator.error;
 
 import org.ballerinalang.openapi.validator.Constants;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 
 /**
  * This model for identify the validation errors.
@@ -25,6 +26,7 @@ import org.ballerinalang.openapi.validator.Constants;
 public class ValidationError {
     String fieldName;
     Constants.Type type;
+    Diagnostic.DiagnosticPosition parameterPos;
     
     public ValidationError() {
         fieldName = null;
@@ -34,17 +36,27 @@ public class ValidationError {
         this.fieldName = fieldName;
         this.type = type;
     }
-
     public void setFieldName(String fieldName) {
         this.fieldName = fieldName;
     }
+
     public void setType(Constants.Type type) {
         this.type = type;
     }
+
     public String getFieldName() {
         return fieldName;
     }
+
     public  Constants.Type getType() {
         return type;
+    }
+
+    public Diagnostic.DiagnosticPosition getParameterPos() {
+        return parameterPos;
+    }
+
+    public void setParameterPos(Diagnostic.DiagnosticPosition parameterPos) {
+        this.parameterPos = parameterPos;
     }
 }

@@ -294,9 +294,9 @@ public class ServiceValidator {
                         }
                     }
                 } else if (!(postErr instanceof MissingFieldInBallerinaType)) {
-                    dLog.logDiagnostic(kind, method.getValue().getMethodPosition(),
+                    dLog.logDiagnostic(kind, postErr.getParameterPos(),
                             ErrorMessages.undocumentedResourceParameter(postErr.getFieldName(),
-                                    method.getKey(), resourcePathSummary.getPath()));
+                            method.getKey(), resourcePathSummary.getPath()));
                 }
             }
         }

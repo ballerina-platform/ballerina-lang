@@ -47,21 +47,27 @@ public class TypeMismatch extends ValidationError {
     public void setFieldName(String fieldName) {
         this.fieldName = fieldName;
     }
+
     public void setTypeJsonSchemaType(Constants.Type typeJsonSchema) {
         this.typeJsonSchema = typeJsonSchema;
     }
+
     public void setTypeBallerinaType(Constants.Type typeBallerinaType) {
         this.typeBallerinaType = typeBallerinaType;
     }
+
     public String getFieldName() {
         return fieldName;
     }
+
     public  Constants.Type getTypeJsonSchema() {
         return typeJsonSchema;
     }
+
     public  Constants.Type getTypeBallerinaType() {
         return typeBallerinaType;
     }
+
     public String getRecordName() {
         return recordName;
     }

@@ -175,7 +175,7 @@ public class ResourceValidator {
                     }
                 }
                 if (!isOParamExit) {
-                    MissingFieldInBallerinaType validationError = new MissingFieldInBallerinaType(param.getName(),
+                    ValidationError validationError = new ValidationError(param.getName(),
                             BTypeToJsonValidatorUtil.convertTypeToEnum(param.getSchema().getType()));
                     validationErrorList.add(validationError);
                 }
