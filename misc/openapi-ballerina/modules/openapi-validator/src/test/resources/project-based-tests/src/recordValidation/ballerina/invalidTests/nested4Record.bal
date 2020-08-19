@@ -1,6 +1,5 @@
 import ballerina/http;
 
-
 type FourNestedComponent record {
      int id;
      string shipDate;
@@ -14,7 +13,6 @@ type Tag record {
      int id;
      string name;
      Year date;
-    //record {  string day; Year year; }  date;
 };
 type Year record {
      int month;
@@ -22,8 +20,6 @@ type Year record {
 };
 
 service hello on new http:Listener(9090) {
-
-    resource function sayHello(http:Caller caller,
-        http:Request req, FourNestedComponent body ) returns error? {
+    resource function sayHello(http:Caller caller, http:Request req, FourNestedComponent body ) returns error? {
     }
 }

@@ -15,8 +15,6 @@ type Error record {
      string message;
 };
 service hello on new http:Listener(9090) {
-
-    resource function sayHello(http:Caller caller,
-        http:Request req, AllOfTest body ) returns error? {
+    resource function sayHello(http:Caller caller, http:Request req, AllOfTest body ) returns error? {
     }
 }

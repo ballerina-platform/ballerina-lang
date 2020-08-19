@@ -10,24 +10,17 @@ type Dog record {
     *Pet;
      string bark;
 };
-
 type Category record {
     int id;
     string name;
 };
-
 type Cat record {
      string id;
      string name;
      string tag;
      string 'type;
-     //Category category;
 };
-
-
 service hello on new http:Listener(9090) {
-
-    resource function sayHello(http:Caller caller,
-        http:Request req, Cat| Dog| Catergory| any body ) returns error? {
+    resource function sayHello(http:Caller caller, http:Request req, Cat| Dog| Catergory| any body ) returns error? {
     }
 }

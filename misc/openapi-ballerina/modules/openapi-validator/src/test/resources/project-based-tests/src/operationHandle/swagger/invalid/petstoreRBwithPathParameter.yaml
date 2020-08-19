@@ -104,7 +104,7 @@ paths:
               $ref: "#/components/schemas/Pet"
 #          application/xml:
 #            schema:
-#              $ref: "#/components/schemas/Dog"
+#              $ref: "#/components/schemas/Dog" this for enabling the multiple mime type
       responses:
         '200':
           description: Expected response to a valid request
