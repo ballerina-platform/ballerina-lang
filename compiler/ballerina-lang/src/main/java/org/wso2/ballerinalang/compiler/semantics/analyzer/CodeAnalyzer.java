@@ -1379,12 +1379,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean statementReturns = this.statementReturns;
         this.checkStatementExecutionValidity(doNode);
         analyzeNode(doNode.body, env);
-        analyzeNode(doNode.onFailClause, env);
+        if (doNode.onFailClause != null) {
+            analyzeNode(doNode.onFailClause, env);
+        }
         this.statementReturns = statementReturns;
         this.resetLastStatement();
-//        if (doNode.onFailClause != null) {
-//            analyzeNode(doNode.onFailClause, env);
-//        }
     }
 
 

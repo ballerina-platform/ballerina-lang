@@ -22,7 +22,7 @@ function testOnFail()  {
      fail err;
    }
    on fail error e {
-      io:println("whoops error caught !");
+      io:println("Whoops error caught ! Error: ", e.message());
    }
    io:println("After do block");
 }
