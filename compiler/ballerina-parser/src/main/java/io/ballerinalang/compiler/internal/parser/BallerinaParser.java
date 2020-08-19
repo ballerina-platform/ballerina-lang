@@ -1778,9 +1778,6 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode createBuiltinSimpleNameReference(STNode token) {
         SyntaxKind typeKind = getTypeSyntaxKind(token.kind);
-//        if (typeKind == SyntaxKind.SIMPLE_TYPE_DESC) {
-//            return STNodeFactory.createBuiltinSimpleNameReferenceNode(SyntaxKind.TYPE_DESC, token);
-//        }
         return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
     }
 
