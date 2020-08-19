@@ -40,15 +40,12 @@ import java.util.List;
 public class BLangObjectCtorExpr extends BLangExpression implements StructureTypeNode {
 
     public BLangObjectTypeNode objectTypeNode;
-    public BLangFunction initFunction;
     public BLangTypeInit typeInit;
     public BLangType referenceType;
-    public boolean desugarPhase;
 
     public BLangObjectCtorExpr(BLangObjectTypeNode objectTypeNode) {
         super();
         this.objectTypeNode = objectTypeNode;
-        desugarPhase = false;
     }
 
     @Override
@@ -69,10 +66,8 @@ public class BLangObjectCtorExpr extends BLangExpression implements StructureTyp
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("OCE {\n");
+        StringBuilder sb = new StringBuilder("OCE {");
         sb.append(this.objectTypeNode.toString());
-        sb.append("\nDesugared :  ");
-        sb.append(this.desugarPhase);
         sb.append("};\n");
         return sb.toString();
     }

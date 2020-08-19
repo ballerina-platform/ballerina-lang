@@ -4624,7 +4624,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        // TODO : check with lhs and rhs
         if (expType.tag != TypeTags.OBJECT) {
             dlog.error(objectCtorExpr.pos, DiagnosticCode.INVALID_TYPE_NEW_LITERAL, expType);
             resultType = symTable.semanticError;
