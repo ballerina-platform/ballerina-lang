@@ -1,7 +1,6 @@
 package io.ballerina.projects;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;

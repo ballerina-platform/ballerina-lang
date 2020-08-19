@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -34,18 +36,22 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class BuildProject extends Project {
-    // TODO: check if this can extend the SingleFileProject (DefaultProject)
     private LockFile lockFile; // related to build command?
 
-    public BuildProject(Path projectPath) throws Exception {
+    public static BuildProject loadProject(Path projectPath) throws Exception {
+        return new BuildProject(projectPath);
+    }
+
+    private BuildProject(Path projectPath) throws Exception {
         super();
         if (!RepoUtils.isBallerinaProject(projectPath)) {
             throw new Exception("invalid Ballerina source path:" + projectPath);
         }
-        validateProject(ProjectFiles.loadPackageData(projectPath.toString(), false));
         packagePath = projectPath.toString();
         //TODO: replace with the new toml processor
         ballerinaToml = ManifestProcessor.parseTomlContentAsStream(getTomlContent(projectPath));
+        this.context.setSourceRoot(projectPath);
+        this.context.setTargetPath(ProjectFiles.createTargetDirectoryStructure(projectPath));
     }
 
     private InputStream getTomlContent(Path projectPath) {
@@ -59,18 +65,9 @@ public class BuildProject extends Project {
         return new ByteArrayInputStream(new byte[0]);
     }
 
-    private void validateProject(PackageData packageData) throws Exception {
-        // 1) validate project name ? project dir also should be validated
-        // 2) validate package name - already done in toml parser
-        // 3) validate module names
-        for (ModuleData moduleData : packageData.otherModules()) {
-            String moduleName = moduleData.moduleDirectoryPath().getFileName().toString();
-            if (!RepoUtils.validateModuleName(moduleName)) {
-                throw new Exception("Invalid module name : '" + moduleName + "' :\n" +
-                        "Module name can only contain alphanumerics, underscores and periods " +
-                        "and the maximum length is 256 characters");
-            }
-        }
+    public Package getPackage() {
+        final PackageConfig packageConfig = PackageLoader.loadPackage(packagePath, false);
+        this.context.addPackage(packageConfig);
+        return this.context.currentPackage();
     }
-
 }

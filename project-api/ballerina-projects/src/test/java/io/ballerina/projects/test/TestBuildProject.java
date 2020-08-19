@@ -21,9 +21,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.SingleFileProject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -43,13 +41,12 @@ public class TestBuildProject {
     public void testBuildProjectAPI() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
         // 1) Initialize the project instance
-        Project project = null;
+        BuildProject project = null;
         try {
-            project = Project.loadProject(projectPath);
+            project = BuildProject.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
-        Assert.assertTrue(project instanceof BuildProject);
         // 2) Load the package
         Package currentPackage = project.getPackage();
         // 3) Load the default module
@@ -73,93 +70,9 @@ public class TestBuildProject {
 
         Assert.assertEquals(noOfSrcDocuments, 4);
         Assert.assertEquals(noOfTestDocuments, 3);
+
+        Assert.assertTrue(project.target().toFile().exists());
+        Assert.assertEquals(project.target().toFile().getParent(), projectPath.toString());
     }
 
-    @Test
-    public void testLoadSingleFile() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
-        Project project = null;
-        try {
-            project = Project.loadProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        Assert.assertTrue(project instanceof SingleFileProject);
-        // 2) Load the package
-        Package currentPackage = project.getPackage();
-        // 3) Load the default module
-        Module defaultModule = currentPackage.getDefaultModule();
-        Assert.assertEquals(defaultModule.documentIds().size(), 1);
-    }
-
-    @Test
-    public void testLoadProjectByDefaultModuleFile() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal");
-        Project project = null;
-        try {
-            project = Project.loadProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        Assert.assertTrue(project instanceof BuildProject);
-        // 2) Load the package
-        Package currentPackage = project.getPackage();
-        // 3) Load the default module
-        Module defaultModule = currentPackage.getDefaultModule();
-        Assert.assertEquals(defaultModule.documentIds().size(), 2);
-
-        // TODO find an easy way to test the project structure. e.g. serialize the structure in a json file.
-        int noOfSrcDocuments = 0;
-        int noOfTestDocuments = 0;
-        final Collection<ModuleId> moduleIds = currentPackage.moduleIds();
-        Assert.assertEquals(moduleIds.size(), 3);
-        for (ModuleId moduleId : moduleIds) {
-            Module module = currentPackage.module(moduleId);
-            for (DocumentId documentId : module.documentIds()) {
-                noOfSrcDocuments++;
-            }
-            for (DocumentId testDocumentId : module.testDocumentIds()) {
-                noOfTestDocuments++;
-            }
-        }
-
-        Assert.assertEquals(noOfSrcDocuments, 4);
-        Assert.assertEquals(noOfTestDocuments, 3);
-    }
-
-    @Test
-    public void testLoadProjectByOtherModulesFile() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
-                .resolve("svc.bal");
-        Project project = null;
-        try {
-            project = Project.loadProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        Assert.assertTrue(project instanceof BuildProject);
-        // 2) Load the package
-        Package currentPackage = project.getPackage();
-        // 3) Load the default module
-        Module defaultModule = currentPackage.getDefaultModule();
-        Assert.assertEquals(defaultModule.documentIds().size(), 2);
-
-        // TODO find an easy way to test the project structure. e.g. serialize the structure in a json file.
-        int noOfSrcDocuments = 0;
-        int noOfTestDocuments = 0;
-        final Collection<ModuleId> moduleIds = currentPackage.moduleIds();
-        Assert.assertEquals(moduleIds.size(), 3);
-        for (ModuleId moduleId : moduleIds) {
-            Module module = currentPackage.module(moduleId);
-            for (DocumentId documentId : module.documentIds()) {
-                noOfSrcDocuments++;
-            }
-            for (DocumentId testDocumentId : module.testDocumentIds()) {
-                noOfTestDocuments++;
-            }
-        }
-
-        Assert.assertEquals(noOfSrcDocuments, 4);
-        Assert.assertEquals(noOfTestDocuments, 3);
-    }
 }

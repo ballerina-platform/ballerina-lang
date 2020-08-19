@@ -17,17 +17,42 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import org.ballerinalang.toml.model.Manifest;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class SingleFileProject extends Project {
 
-    public SingleFileProject(Path projectPath) {
+    public static SingleFileProject loadProject(Path projectPath) {
+        return new SingleFileProject(projectPath);
+    }
+
+    private SingleFileProject(Path projectPath) {
         super();
-        isSingleFile = true;
         packagePath = projectPath.toString();
         ballerinaToml = new Manifest();
+        this.context.setSourceRoot(createTempProjectRoot());
+        this.context.setTargetPath(ProjectFiles.createTargetDirectoryStructure(this.context.getSourceRoot()));
     }
+
+    private Path createTempProjectRoot() {
+        try {
+            return Files.createTempDirectory("ballerina-project" + System.nanoTime());
+        } catch (IOException e) {
+            throw new RuntimeException("error while creating project root directory for single file execution. ", e);
+        }
+    }
+
+    public Package getPackage() {
+        final PackageConfig packageConfig = PackageLoader.loadPackage(packagePath, true);
+        this.context.addPackage(packageConfig);
+        return this.context.currentPackage();
+    }
+
+
 }
