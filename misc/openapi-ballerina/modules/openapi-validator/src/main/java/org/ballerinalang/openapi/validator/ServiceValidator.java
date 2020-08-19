@@ -61,11 +61,11 @@ public class ServiceValidator {
                                         DiagnosticLog dLog) throws OpenApiValidatorException {
 
         //  Filter openApi operation according to given filters
-        List<OpenAPIPathSummary> openAPIPathSummaries = MatchResourcewithOperationId.filterOpenapi(openApi, filters);
+        List<OpenAPIPathSummary> openAPIPathSummaries = ResourceWithOperationId.filterOpenapi(openApi, filters);
 
         //  Check all the filtered operations are available at the service file
         List<OpenapiServiceValidationError> openApiMissingServiceMethod =
-                MatchResourcewithOperationId.checkServiceAvailable(openAPIPathSummaries, serviceNode);
+                ResourceWithOperationId.checkServiceAvailable(openAPIPathSummaries, serviceNode);
 
         //  Generate errors for missing resource in service file
         if (!openApiMissingServiceMethod.isEmpty()) {
@@ -81,12 +81,12 @@ public class ServiceValidator {
                 }
             }
             // Remove undocumentedPath and get clean operation list
-            MatchResourcewithOperationId.removeUndocumentedPath(openAPIPathSummaries,
+            ResourceWithOperationId.removeUndocumentedPath(openAPIPathSummaries,
                     openApiMissingServiceMethod);
         }
         // Check all the services are available at operations
         List<ResourceValidationError> resourceMissingPathMethod =
-                MatchResourcewithOperationId.checkOperationIsAvailable(openApi, serviceNode);
+                ResourceWithOperationId.checkOperationIsAvailable(openApi, serviceNode);
         if (!resourceMissingPathMethod.isEmpty()) {
             for (ResourceValidationError resourceValidationError: resourceMissingPathMethod) {
                 // Handling the Missing path in openApi contract
@@ -104,7 +104,7 @@ public class ServiceValidator {
 
         // Create the ResourcePathSummary list that use to validate
         List<ResourcePathSummary> resourcePathSummaryList =
-                MatchResourcewithOperationId.summarizeResources(serviceNode);
+                ResourceWithOperationId.summarizeResources(serviceNode);
         if (!resourcePathSummaryList.isEmpty()) {
             createListResourcePathSummary(resourceMissingPathMethod, resourcePathSummaryList);
         }

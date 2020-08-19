@@ -17,7 +17,7 @@ package org.ballerinalang.openapi.validator.tests;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
-import org.ballerinalang.openapi.validator.MatchResourcewithOperationId;
+import org.ballerinalang.openapi.validator.ResourceWithOperationId;
 import org.ballerinalang.openapi.validator.OpenApiValidatorUtil;
 import org.ballerinalang.openapi.validator.ResourceMethod;
 import org.ballerinalang.openapi.validator.ResourcePathSummary;
@@ -76,7 +76,7 @@ public class ValidatorTest {
     public static ResourceMethod getFunction(BLangService bLangService, String method) {
 
         List<ResourcePathSummary> resourcePathSummaryList =
-                MatchResourcewithOperationId.summarizeResources(bLangService);
+                ResourceWithOperationId.summarizeResources(bLangService);
         ResourceMethod resourceMethod = resourcePathSummaryList.get(0).getMethods().get(method);
         return resourceMethod;
     }

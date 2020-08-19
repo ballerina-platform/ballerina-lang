@@ -43,7 +43,6 @@ paths:
       description: Show a list of pets in the system
       operationId: listPets
       tags:
-#        - pets
         - list
       responses:
         '200':
@@ -121,6 +120,19 @@ paths:
               application/json:
                 schema:
                   $ref: "#/components/schemas/Pets"
+    post:
+      summary: Create a pet
+      tags:
+        - pets
+      responses:
+        '201':
+          description: Null response
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     Pet:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import java.util.Map;
  * This for finding out the all the filtered operations are documented as services in the ballerina file and all the
  * ballerina services are documented in the contract yaml file.
  */
-public class MatchResourcewithOperationId {
+public class ResourceWithOperationId {
     /**
      * Filter all the operations according to the given filters.
      * @param openApi       OpenApi Object
@@ -56,7 +56,7 @@ public class MatchResourcewithOperationId {
         boolean excludeTagsFilteringEnabled = filters.getExcludeTag().size() > 0;
         boolean excludeOperationFilteringEnable = filters.getExcludeOperation().size() > 0;
 
-        List<OpenAPIPathSummary> openAPIPathSummaries = MatchResourcewithOperationId.summarizeOpenAPI(openApi);
+        List<OpenAPIPathSummary> openAPIPathSummaries = ResourceWithOperationId.summarizeOpenAPI(openApi);
         // Check based on the method and path filters
         Iterator<OpenAPIPathSummary> openAPIIter = openAPIPathSummaries.iterator();
         while (openAPIIter.hasNext()) {
@@ -74,19 +74,17 @@ public class MatchResourcewithOperationId {
                             openAPIPathSummary.getOperations().entrySet().iterator();
                     while (operations.hasNext()) {
                         Map.Entry<String, Operation> operationMap = operations.next();
-//                        Check operationId is null scenario.
-                        if ((filters.getOperation().contains(operationMap.getValue().getOperationId())) ||
-                                operationMap.getValue().getOperationId() == null) {
-//                                    Check tag is available if it is null then remove other wise else-if not include
-//                                    tag then remove operations.
-                            if (operationMap.getValue().getTags() == null) {
+                        // Check operationId is null scenario.
+                        // Check tag is available if it is null then remove other wise else-if not include
+                        // tag then remove operations.
+                        if (!(filters.getOperation().contains(operationMap.getValue().getOperationId())) ||
+                                (operationMap.getValue().getOperationId() == null)) {
                                 operations.remove();
-                            } else if (Collections.disjoint(filters.getTag(), operationMap.getValue().getTags())) {
-//                                        Remove operation
+                        } else {
+                            if ((operationMap.getValue().getTags() == null) ||
+                                    (Collections.disjoint(filters.getTag(), operationMap.getValue().getTags()))) {
                                 operations.remove();
                             }
-                        } else {
-                            operations.remove();
                         }
                     }
                 } else if (excludeTagsFilteringEnabled) {
@@ -95,11 +93,10 @@ public class MatchResourcewithOperationId {
                     while (operationIter.hasNext()) {
                         Map.Entry<String, Operation> operationMap = operationIter.next();
                         if (filters.getOperation().contains(operationMap.getValue().getOperationId())) {
-//                                    Check tag is available
-                            if (operationMap.getValue().getTags() != null) {
-                                if (!Collections.disjoint(filters.getExcludeTag(), operationMap.getValue().getTags())) {
+                            //  Check tag is available
+                            if ((operationMap.getValue().getTags() != null) && (!Collections.
+                                    disjoint(filters.getExcludeTag(), operationMap.getValue().getTags()))) {
                                     operationIter.remove();
-                                }
                             }
                         } else {
                             operationIter.remove();
@@ -126,16 +123,10 @@ public class MatchResourcewithOperationId {
                             openAPIPathSummary.getOperations().entrySet().iterator();
                     while (operationIter.hasNext()) {
                         Map.Entry<String, Operation> operationMap = operationIter.next();
-                        if (!filters.getExcludeOperation().contains(operationMap.getValue().getOperationId())) {
-                            if (operationMap.getValue().getTags() != null) {
-                                if (!Collections.disjoint(filters.getExcludeTag(), operationMap.getValue().getTags())) {
-                                    operationIter.remove();
-                                }
-                            } else {
+                        if ((!filters.getExcludeOperation().contains(operationMap.getValue().getOperationId())) &&
+                                ((operationMap.getValue().getTags() != null) && (!Collections
+                                .disjoint(filters.getExcludeTag(), operationMap.getValue().getTags())))) {
                                 operationIter.remove();
-                            }
-                        } else {
-                            operationIter.remove();
                         }
                     }
                 } else if (tagFilteringEnabled) {
@@ -144,11 +135,10 @@ public class MatchResourcewithOperationId {
                     while (operations.hasNext()) {
                         Map.Entry<String, Operation> operationMap = operations.next();
                         if (!filters.getExcludeOperation().contains(operationMap.getValue().getOperationId())) {
-//                                    Check tag is available if it is null and not included in list
-//                                    then remove operations.
-                            if (operationMap.getValue().getTags() == null) {
-                                operations.remove();
-                            } else if (Collections.disjoint(filters.getTag(), operationMap.getValue().getTags())) {
+                            //  Check tag is available if it is null and not included in list
+                            //  then remove operations.
+                            if ((operationMap.getValue().getTags() == null) || (Collections.disjoint(filters.getTag(),
+                                    operationMap.getValue().getTags()))) {
                                 operations.remove();
                             }
                         } else {
@@ -188,9 +178,8 @@ public class MatchResourcewithOperationId {
                             openAPIPathSummary.getOperations().entrySet().iterator();
                     while (operations.hasNext()) {
                         Map.Entry<String, Operation> operationMap = operations.next();
-                        if (operationMap.getValue().getTags() == null) {
-                            operations.remove();
-                        } else if (Collections.disjoint(filters.getTag(), operationMap.getValue().getTags())) {
+                        if ((operationMap.getValue().getTags() == null) || (Collections.disjoint(filters.getTag(),
+                                operationMap.getValue().getTags()))) {
                             operations.remove();
                         }
                     }
@@ -213,9 +202,9 @@ public class MatchResourcewithOperationId {
         List<ResourceValidationError> resourceValidationErrorList = new ArrayList<>();
         List<ResourcePathSummary> resourcePathSummaries = summarizeResources(serviceNode);
         List<OpenAPIPathSummary> openAPISummaries = summarizeOpenAPI(openAPI);
-//      Check given path with its methods has documented in OpenApi contract
+        // Check given path with its methods has documented in OpenApi contract
         for (ResourcePathSummary resourcePathSummary: resourcePathSummaries) {
-            Boolean isExit = false;
+            boolean isExit = false;
             String resourcePath = resourcePathSummary.getPath();
             Map<String, ResourceMethod> resourcePathMethods = resourcePathSummary.getMethods();
             for (OpenAPIPathSummary openAPIPathSummary : openAPISummaries) {
@@ -225,7 +214,7 @@ public class MatchResourcewithOperationId {
                     isExit = true;
                     if ((!servicePathOperations.isEmpty()) && (!resourcePathMethods.isEmpty())) {
                         for (Map.Entry<String, ResourceMethod> entry : resourcePathMethods.entrySet()) {
-                            Boolean isMethodExit = false;
+                            boolean isMethodExit = false;
                             for (String operation : servicePathOperations) {
                                 if (entry.getKey().equals(operation)) {
                                     isMethodExit = true;
@@ -262,14 +251,14 @@ public class MatchResourcewithOperationId {
                                                                             ServiceNode serviceNode) {
         List<OpenapiServiceValidationError> validationErrors = new ArrayList<>();
         List<ResourcePathSummary> resourcePathSummaries = summarizeResources(serviceNode);
-//        check the contract paths are available at the resource
+        // check the contract paths are available at the resource
         for (OpenAPIPathSummary openAPIPathSummary: openAPISummaries) {
             Boolean isServiceExit = false;
             for (ResourcePathSummary resourcePathSummary: resourcePathSummaries) {
                 if (openAPIPathSummary.getPath().equals(resourcePathSummary.getPath())) {
                     isServiceExit = true;
-//                    check whether documented operations are available at resource file
-                    if ((!openAPIPathSummary.getAvailableOperations().isEmpty())) {
+                    //  check whether documented operations are available at resource file
+                    if (!openAPIPathSummary.getAvailableOperations().isEmpty()) {
                         for (String operation: openAPIPathSummary.getAvailableOperations()) {
                             Boolean isOperationExit = false;
                             if (!(resourcePathSummary.getMethods().isEmpty())) {

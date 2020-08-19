@@ -42,27 +42,27 @@ public class OpenAPIPathSummary {
         this.path = null;
     }
 
-    String getPath() {
+    public String getPath() {
         return path;
     }
 
-    void setPath(String path) {
+    public void setPath(String path) {
         this.path = path;
     }
 
-    List<String> getAvailableOperations() {
+    public List<String> getAvailableOperations() {
         return availableOperations;
     }
 
-    void addOperation(String method, Operation operation) {
+    public void addOperation(String method, Operation operation) {
         this.operations.put(method, operation);
     }
 
-    void addAvailableOperation(String operation) {
+    public void addAvailableOperation(String operation) {
         this.availableOperations.add(operation);
     }
 
-    boolean hasTags(List<String> tags, String method) {
+    public boolean hasTags(List<String> tags, String method) {
         Operation operation = operations.get(method);
         if (operation == null) {
             return false;
@@ -70,7 +70,7 @@ public class OpenAPIPathSummary {
         return !Collections.disjoint(tags, operation.getTags());
     }
 
-    boolean hasOperations(List<String> operationslist, String method) {
+    public boolean hasOperations(List<String> operationslist, String method) {
         Operation operation = operations.get(method);
         if (operation == null) {
             return false;
@@ -79,7 +79,7 @@ public class OpenAPIPathSummary {
 
     }
 
-    List<OpenAPIParameter> getParamNamesForOperation(String operation) {
+    public List<OpenAPIParameter> getParamNamesForOperation(String operation) {
         List<OpenAPIParameter> paramNames = new ArrayList<>();
         for (Map.Entry<String, Operation> entry : this.operations.entrySet()) {
             if (entry.getKey().equals(operation)
@@ -107,7 +107,7 @@ public class OpenAPIPathSummary {
         return paramNames;
     }
 
-    Map<String, Schema> getRequestBodyForOperation(String operation) {
+    public Map<String, Schema> getRequestBodyForOperation(String operation) {
         Map<String, Schema> requestBodySchemas = new HashMap<>();
         for (Map.Entry<String, Operation> entry : this.operations.entrySet()) {
             if (entry.getKey().equals(operation)) {

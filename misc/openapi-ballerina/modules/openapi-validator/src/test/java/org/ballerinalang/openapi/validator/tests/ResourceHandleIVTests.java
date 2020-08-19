@@ -18,7 +18,7 @@ package org.ballerinalang.openapi.validator.tests;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.Schema;
-import org.ballerinalang.openapi.validator.MatchResourcewithOperationId;
+import org.ballerinalang.openapi.validator.ResourceWithOperationId;
 import org.ballerinalang.openapi.validator.OpenApiValidatorException;
 import org.ballerinalang.openapi.validator.ResourceMethod;
 import org.ballerinalang.openapi.validator.ResourceValidator;
@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Test for resource validate with operation model in MatchResourcewithOperationId function checkOperationIsAvailable
+ * Test for resource validate with operation model in ResourceWithOperationId function checkOperationIsAvailable
  * and resource Validator validateResourceAgainstOperation function.
  */
 public class ResourceHandleIVTests {
@@ -63,7 +63,7 @@ public class ResourceHandleIVTests {
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
         bLangPackage = ValidatorTest.getBlangPackage("resourceHandle/ballerina/invalid/petstore.bal");
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
-        validationErrors = MatchResourcewithOperationId.checkOperationIsAvailable(api, extractBLangservice);
+        validationErrors = ResourceWithOperationId.checkOperationIsAvailable(api, extractBLangservice);
         Assert.assertTrue(validationErrors.get(0) instanceof ResourceValidationError);
         Assert.assertEquals(validationErrors.get(0).getResourcePath(), "/extraPathPet");
     }
@@ -74,7 +74,7 @@ public class ResourceHandleIVTests {
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
         bLangPackage = ValidatorTest.getBlangPackage("resourceHandle/ballerina/invalid/petstoreExtraMethod.bal");
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
-        validationErrors = MatchResourcewithOperationId.checkOperationIsAvailable(api, extractBLangservice);
+        validationErrors = ResourceWithOperationId.checkOperationIsAvailable(api, extractBLangservice);
         Assert.assertTrue(validationErrors.get(0) instanceof ResourceValidationError);
         Assert.assertEquals(validationErrors.get(0).getresourceMethod(), "post");
     }
@@ -87,7 +87,7 @@ public class ResourceHandleIVTests {
                 "resourceHandle/ballerina/invalid/petstoreExtraServiceOperation.bal");
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         serviceValidationErrors =
-                MatchResourcewithOperationId.checkServiceAvailable(MatchResourcewithOperationId.summarizeOpenAPI(api),
+                ResourceWithOperationId.checkServiceAvailable(ResourceWithOperationId.summarizeOpenAPI(api),
                         extractBLangservice);
         Assert.assertTrue(serviceValidationErrors.get(0) instanceof OpenapiServiceValidationError);
         Assert.assertEquals(serviceValidationErrors.get(0).getServiceOperation(), "post");

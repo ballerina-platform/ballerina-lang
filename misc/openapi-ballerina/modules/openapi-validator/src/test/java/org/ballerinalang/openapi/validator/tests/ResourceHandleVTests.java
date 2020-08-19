@@ -17,7 +17,7 @@ package org.ballerinalang.openapi.validator.tests;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
-import org.ballerinalang.openapi.validator.MatchResourcewithOperationId;
+import org.ballerinalang.openapi.validator.ResourceWithOperationId;
 import org.ballerinalang.openapi.validator.OpenApiValidatorException;
 import org.ballerinalang.openapi.validator.ResourceMethod;
 import org.ballerinalang.openapi.validator.ResourceValidator;
@@ -57,7 +57,7 @@ public class ResourceHandleVTests {
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
         bLangPackage = ValidatorTest.getBlangPackage("resourceHandle/ballerina/valid/petstore.bal");
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
-        validationErrors = MatchResourcewithOperationId.checkOperationIsAvailable(api, extractBLangservice);
+        validationErrors = ResourceWithOperationId.checkOperationIsAvailable(api, extractBLangservice);
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
@@ -67,7 +67,7 @@ public class ResourceHandleVTests {
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
         bLangPackage = ValidatorTest.getBlangPackage("resourceHandle/ballerina/valid/petstore.bal");
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
-        validationErrors = MatchResourcewithOperationId.checkOperationIsAvailable(api, extractBLangservice);
+        validationErrors = ResourceWithOperationId.checkOperationIsAvailable(api, extractBLangservice);
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
@@ -78,7 +78,7 @@ public class ResourceHandleVTests {
         bLangPackage = ValidatorTest.getBlangPackage("resourceHandle/ballerina/valid/servicePetstore.bal");
         extractBLangservice = ValidatorTest.getServiceNode(bLangPackage);
         serviceValidationErrors =
-                MatchResourcewithOperationId.checkServiceAvailable(MatchResourcewithOperationId.summarizeOpenAPI(api),
+                ResourceWithOperationId.checkServiceAvailable(ResourceWithOperationId.summarizeOpenAPI(api),
                         extractBLangservice);
         Assert.assertTrue(serviceValidationErrors.isEmpty());
     }
