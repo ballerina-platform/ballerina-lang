@@ -409,7 +409,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         };
     }
 
-    private void defineMembersOfClassDef(SymbolEnv env, BLangClassDefinition classDefinition) {
+    private void defineMembersOfClassDef(SymbolEnv pkgEnv, BLangClassDefinition classDefinition) {
         BObjectType objectType = (BObjectType) classDefinition.symbol.type;
 
         if (objectType.mutableType != null) {
@@ -420,7 +420,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         SymbolEnv objMethodsEnv =
-                SymbolEnv.createClassMethodsEnv(classDefinition, (BObjectTypeSymbol) classDefinition.symbol, env); // verify this `env` to be module level env
+                SymbolEnv.createClassMethodsEnv(classDefinition, (BObjectTypeSymbol) classDefinition.symbol, pkgEnv);
 
         // Define the functions defined within the object
         defineClassInitFunction(classDefinition, objMethodsEnv);
@@ -2572,15 +2572,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
                     referencedFunc.symbol)) {
-                Optional<BLangFunction> matchingFunc = declaredFunctions.stream().filter(fn -> fn.symbol == matchingObjFuncSym).findFirst();
-                DiagnosticPos methodPos = matchingFunc.isPresent() ? matchingFunc.get().pos : typeRef.pos;
+                BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
+                DiagnosticPos methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
                 dlog.error(methodPos, DiagnosticCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
                            referencedFunc.funcName, typeRef);
             }
 
             if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
-                Optional<BLangFunction> matchingFunc = declaredFunctions.stream().filter(fn -> fn.symbol == matchingObjFuncSym).findFirst();
-                DiagnosticPos methodPos = matchingFunc.isPresent() ? matchingFunc.get().pos : typeRef.pos;
+                BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
+                DiagnosticPos methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
                 dlog.error(methodPos, DiagnosticCode.REFERRED_FUNCTION_SIGNATURE_MISMATCH,
                            getCompleteFunctionSignature(referencedFunc.symbol),
                            getCompleteFunctionSignature((BInvokableSymbol) matchingObjFuncSym));
@@ -2613,6 +2613,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                 new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type);
         ((BObjectTypeSymbol) typeDefSymbol).attachedFuncs.add(attachedFunc);
         ((BObjectTypeSymbol) typeDefSymbol).referencedFunctions.add(attachedFunc);
+    }
+
+    private BLangFunction findFunctionBySymbol(List<BLangFunction> declaredFunctions, BSymbol symbol) {
+        for (BLangFunction fn : declaredFunctions) {
+            if (fn.symbol == symbol) {
+                return fn;
+            }
+        }
+        return null;
     }
 
     private boolean hasSameFunctionSignature(BInvokableSymbol attachedFuncSym, BInvokableSymbol referencedFuncSym) {

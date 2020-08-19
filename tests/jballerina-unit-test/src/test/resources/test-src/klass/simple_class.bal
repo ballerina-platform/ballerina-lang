@@ -26,6 +26,19 @@ public function testTypeRefInClass() {
     assertEquality(x.i, 0);
 }
 
+public function testUsingClassValueAsRecordField() {
+    Rec r = {p: new(), s: new(1, "Guido", 1970, "Feb")};
+    assertEquality(r.p.name, "sample name");
+    assertEquality(r.s.name, "Guido");
+    assertEquality(r.p.age, 10);
+    assertEquality(r.s.age, 1);
+}
+
+type Rec record {
+    Person p;
+    Student s;
+};
+
 class Person {
     public int age = 10;
     public string name = "sample name";
