@@ -2708,7 +2708,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(failExpr.expr);
 
         if (failExpr.expectedType.tag == symTable.noType.tag) {
-//            this.statementReturns = true;
+            this.statementReturns = true;
             if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
                 // Check at module level.
                 return;

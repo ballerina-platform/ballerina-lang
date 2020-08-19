@@ -4671,38 +4671,20 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFailExpr failExpr) {
-//        lambdaFunction.function = func;
-//        func.requiredParams.addAll(lambdaFunctionVariable);
-//        func.setReturnTypeNode(returnType);
-//        func.desugaredReturnType = true;
-//        defineFunction(func, env.enclPkg);
-//        lambdaFunctionVariable = func.requiredParams;
-//
-//        func.body = lambdaBody;
-//        func.desugared = false;
-//        lambdaFunction.pos = pos;
-//        List<BType> paramTypes = new ArrayList<>();
-//        lambdaFunctionVariable.forEach(variable -> paramTypes.add(variable.symbol.type));
-//        BLangSimpleVarRef errrRef = (BLangSimpleVarRef) failExpr.expr;
-//        BLangSimpleVariable errVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-//        errVar.expr = errrRef;
-//        errVar.symbol = (BVarSymbol) errrRef.symbol;
-//        errVar.type = errrRef.type;
-//        errVar.name = errrRef.variableName;
-//        onFailFunc.function.requiredParams.add(errVar);
-//        List<BType> paramTypes = new ArrayList();
-//        onFailFunc.function.requiredParams.forEach(variable -> paramTypes.add(variable.symbol.type));
-//        onFailFunc.type = new BInvokableType(paramTypes, onFailFunc..type.getReturnType(),
-//                null);
-        onFailLambdaInvocation.argExprs = Lists.of(rewrite(failExpr.expr, env));
-        onFailLambdaInvocation.requiredArgs = onFailLambdaInvocation.argExprs;
-        BLangStatementExpression expression = ASTBuilderUtil.createStatementExpression(onFailFuncBlock,
-                ASTBuilderUtil.createLiteral(failExpr.pos, symTable.nilType, Names.NIL_VALUE));
-        BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-        exprStmt.expr = expression;
-        exprStmt.pos = failExpr.pos;
-        failExpr.exprStmt = exprStmt;
-        result = failExpr;
+        if(onFailFuncBlock != null) {
+            onFailLambdaInvocation.argExprs = Lists.of(rewrite(failExpr.expr, env));
+            onFailLambdaInvocation.requiredArgs = onFailLambdaInvocation.argExprs;
+            BLangStatementExpression expression = ASTBuilderUtil.createStatementExpression(onFailFuncBlock,
+                    ASTBuilderUtil.createLiteral(failExpr.pos, symTable.nilType, Names.NIL_VALUE));
+            BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+            exprStmt.expr = expression;
+            exprStmt.pos = failExpr.pos;
+            failExpr.exprStmt = exprStmt;
+            result = failExpr;
+        } else {
+            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failExpr.pos, failExpr.expr);
+            result = rewrite(stmt, env);
+        }
     }
 
     // Generated expressions. Following expressions are not part of the original syntax

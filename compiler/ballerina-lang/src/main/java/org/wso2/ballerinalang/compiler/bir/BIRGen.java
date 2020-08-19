@@ -965,29 +965,51 @@ public class BIRGen extends BLangNodeVisitor {
 
             this.env.enclBB = blockBB;
             this.env.enclOnFailEndBB = blockEndBB;
+            this.env.unlockVars.push(new BIRLockDetailsHolder());
         }
         for (BLangStatement astStmt : astBlockStmt.stmts) {
             astStmt.accept(this);
         }
-        this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
-                birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
-        );
         if (astBlockStmt.isBreakable) {
-            if (this.env.enclLoopEndBB != null) {
-                blockEndBB.terminator = new BIRTerminator.GOTO(astBlockStmt.pos, this.env.enclLoopEndBB);
-            }
+            this.env.unlockVars.pop();
+//            if (this.env.enclLoopEndBB != null) {
+//                blockEndBB.terminator = new BIRTerminator.GOTO(astBlockStmt.pos, this.env.enclLoopEndBB);
+//            }
             if (this.env.enclBB.terminator == null) {
                 this.env.enclBB.terminator = new BIRTerminator.GOTO(null, blockEndBB);
             }
             this.env.enclBasicBlocks.add(blockEndBB);
             this.env.enclBB = blockEndBB;
         }
+        this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
+                birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
+        );
         this.env.enclOnFailEndBB = currentOnFailEndBB;
         this.currentBlock = prevBlock;
     }
 
     @Override
     public void visit(BLangFailExpr failExpr) {
+        BIRLockDetailsHolder toUnlock = this.env.unlockVars.peek();
+        if (!toUnlock.isEmpty()) {
+            BIRBasicBlock goToBB = new BIRBasicBlock(this.env.nextBBId(names));
+            this.env.enclBasicBlocks.add(goToBB);
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(failExpr.pos, goToBB);
+            this.env.enclBB = goToBB;
+        }
+
+        int numLocks = toUnlock.size();
+        while (numLocks > 0) {
+            BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
+            this.env.enclBasicBlocks.add(unlockBB);
+            BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null, unlockBB);
+            this.env.enclBB.terminator = unlock;
+            BIRTerminator.Lock lock = toUnlock.getLock(numLocks - 1);
+            unlock.relatedLock = lock;
+            this.env.enclBB = unlockBB;
+            numLocks--;
+        }
+
         // Create a basic block for the on fail clause.
         BIRBasicBlock onFailBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(onFailBB);
