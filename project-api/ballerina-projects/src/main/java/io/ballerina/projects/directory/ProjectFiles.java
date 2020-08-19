@@ -17,6 +17,10 @@
  */
 package io.ballerina.projects.directory;
 
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -24,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,30 +44,44 @@ public class ProjectFiles {
     private ProjectFiles() {
     }
 
-    public static PackageData loadPackageData(String packageDir) {
-        if (packageDir == null) {
+    protected static PackageData loadPackageData(String filePath, boolean singleFileProject) {
+        // Handle single file project
+        if (singleFileProject) {
+            DocumentData documentData = loadDocument(Paths.get(filePath));
+            ModuleData defaultModule = ModuleData.from(Paths.get(filePath), Collections.singletonList(documentData),
+                    Collections.emptyList());
+            return PackageData.from(Paths.get(filePath), defaultModule, Collections.emptyList());
+        }
+
+        // Handle build project
+
+        if (filePath == null) {
             throw new IllegalArgumentException("packageDir cannot be null");
         }
 
         // Check whether the directory exists
-        Path packageDirPath = Paths.get(packageDir).toAbsolutePath();
+        Path packageDirPath = Paths.get(filePath).toAbsolutePath();
+        if (!packageDirPath.toFile().canRead()
+                || !packageDirPath.toFile().canWrite() || !packageDirPath.toFile().canExecute()) {
+            throw new RuntimeException("insufficient privileges to path: " + packageDirPath);
+        }
         if (!Files.exists(packageDirPath)) {
             // TODO handle the error
             // TODO use a custom runtime error
-            throw new RuntimeException("directory does not exists: " + packageDir);
+            throw new RuntimeException("directory does not exists: " + filePath);
         }
 
         if (!Files.isDirectory(packageDirPath)) {
-            throw new RuntimeException("Not a directory: " + packageDir);
+            throw new RuntimeException("Not a directory: " + filePath);
         }
 
-        // Check whether this is a project: Ballerina.toml file has to be there
-        Path ballerinaTomlPath = packageDirPath.resolve("Ballerina.toml");
-        if (!Files.exists(ballerinaTomlPath)) {
-            // TODO handle the error
-            // TODO use a custom runtime error
-            throw new RuntimeException("Not a package directory: " + packageDir);
-        }
+//        // Check whether this is a project: Ballerina.toml file has to be there
+//        Path ballerinaTomlPath = packageDirPath.resolve("Ballerina.toml");
+//        if (!Files.exists(ballerinaTomlPath)) {
+//            // TODO handle the error
+//            // TODO use a custom runtime error
+//            throw new RuntimeException("Not a package directory: " + filePath);
+//        }
 
         // Load Ballerina.toml
         // Load default module
@@ -90,6 +109,12 @@ public class ProjectFiles {
     }
 
     private static ModuleData loadModule(Path moduleDirPath) {
+        // validate moduleName
+        if (!RepoUtils.validateModuleName(moduleDirPath.getFileName().toString())) {
+            throw new RuntimeException("Invalid module name : '" + moduleDirPath.getFileName() + "' :\n" +
+                    "Module name can only contain alphanumerics, underscores and periods " +
+                    "and the maximum length is 256 characters");
+        }
         List<DocumentData> srcDocs = loadDocuments(moduleDirPath);
         List<DocumentData> testSrcDocs;
         Path testDirPath = moduleDirPath.resolve("tests");
@@ -118,5 +143,24 @@ public class ProjectFiles {
         // IMO, fileNamePath cannot be null in this case.
         String name = fileNamePath != null ? fileNamePath.toString() : "";
         return DocumentData.from(name, documentFilePath);
+    }
+
+    static Path createTargetDirectoryStructure(Path projectPath) {
+        Path targetDir;
+        try {
+            targetDir = projectPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+            if (targetDir.toFile().exists()) {
+                Files.walk(targetDir)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            }
+            Files.createDirectories(targetDir.resolve(ProjectDirConstants.CACHES_DIR_NAME));
+            Files.createDirectory(targetDir.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY));
+            Files.createDirectory(targetDir.resolve(ProjectDirConstants.BIN_DIR_NAME));
+        } catch (IOException e) {
+            throw new RuntimeException("error while creating target directory " + e);
+        }
+        return targetDir;
     }
 }
