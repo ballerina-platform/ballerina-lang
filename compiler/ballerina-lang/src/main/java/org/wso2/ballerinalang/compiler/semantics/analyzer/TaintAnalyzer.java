@@ -2488,7 +2488,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.IGNORED) {
                 return;
             } else if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-                returnTaintedStatus = TaintedStatus.TAINTED;
+                returnTaintedStatus = invokableSymbol.taintTable.containsKey(0)
+                        ? invokableSymbol.taintTable.get(0).returnTaintedStatus
+                        : TaintedStatus.TAINTED;
             }
         }
         getCurrentAnalysisState().taintedStatus = returnTaintedStatus;
