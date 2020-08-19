@@ -17,7 +17,6 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -207,8 +206,8 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
             MinutiaeList oldLeadingMinutiae = token.leadingMinutiae();
             MinutiaeList oldTrailingMinutiae = token.trailingMinutiae();
 
-            Collection<Minutiae> matchingLeadingMinutiae = getMatchingMinutiae(oldLeadingMinutiae,minutiaePredicate);
-            Collection<Minutiae> matchingTrailingMinutiae = getMatchingMinutiae(oldTrailingMinutiae,minutiaePredicate);
+            Collection<Minutiae> matchingLeadingMinutiae = getMatchingMinutiae(oldLeadingMinutiae, minutiaePredicate);
+            Collection<Minutiae> matchingTrailingMinutiae = getMatchingMinutiae(oldTrailingMinutiae, minutiaePredicate);
 
             MinutiaeList newLeadingMinutiae = oldLeadingMinutiae.removeAll(matchingLeadingMinutiae);
             MinutiaeList newTrailingMinutiae = oldTrailingMinutiae.removeAll(matchingTrailingMinutiae);
