@@ -10,7 +10,6 @@ type Dog record {
     *Pet;
      string bark;
 };
-
 type Cat record {
      string id;
      string name;
@@ -18,8 +17,6 @@ type Cat record {
      string 'type;
 
 };
-
-
 service hello on new http:Listener(9090) {
     @http:ResourceConfig {
                 methods:["POST"],

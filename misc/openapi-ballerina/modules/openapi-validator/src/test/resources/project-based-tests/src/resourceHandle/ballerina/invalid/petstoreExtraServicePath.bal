@@ -22,7 +22,6 @@ service petstore on ep0, ep1 {
     resource function listPets (http:Caller caller, http:Request req) returns error? {
 
     }
-
     @http:ResourceConfig {
         methods:["POST"],
         path:"/pets"
@@ -30,11 +29,9 @@ service petstore on ep0, ep1 {
     resource function resource_post_pets (http:Caller caller, http:Request req) returns error? {
 
     }
-
     @http:ResourceConfig {
         methods:["GET"],
         path:"/pets/{petId}"
-
     }
     resource function showPetById (http:Caller caller, http:Request req,  string petId) returns error? {
 

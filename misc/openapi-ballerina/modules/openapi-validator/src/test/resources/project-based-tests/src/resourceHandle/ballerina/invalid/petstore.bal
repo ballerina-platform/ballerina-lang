@@ -12,9 +12,7 @@ listener http:Listener ep1 = new(443, config = {host: "petstore.swagger.io"});
 @http:ServiceConfig {
     basePath: "/v1"
 }
-
 service petstore on ep0, ep1 {
-
     @http:ResourceConfig {
         methods:["GET"],
         path:"/pets"

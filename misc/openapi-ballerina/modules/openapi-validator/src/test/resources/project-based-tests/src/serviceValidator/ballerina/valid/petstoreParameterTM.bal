@@ -14,7 +14,6 @@ listener http:Listener ep1 = new(443, config = {host: "petstore.swagger.io"});
 }
 
 service petstore on ep0, ep1 {
-
     @http:ResourceConfig {
         methods:["GET"],
         path:"/pets"
@@ -34,7 +33,6 @@ service petstore on ep0, ep1 {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/pets/{petId}"
-
     }
     resource function showPetById (http:Caller caller, http:Request req,  int petId) returns error? {
 

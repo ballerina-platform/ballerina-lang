@@ -17,8 +17,8 @@ service inlineservice on ep0 {
         path:"/user",
         body:"body"
     }
-    resource function addUser (http:Caller caller, http:Request req, record {  string userName; string userPhone; }  body) returns error? {
-
+    resource function addUser (http:Caller caller, http:Request req,
+     record {  string userName; string userPhone; }  body) returns error? {
     }
 
 }

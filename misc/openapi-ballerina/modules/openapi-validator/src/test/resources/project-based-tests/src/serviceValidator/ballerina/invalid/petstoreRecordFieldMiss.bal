@@ -38,7 +38,6 @@ service putService on ep0, ep1 {
     resource function resource_post_pets (http:Caller caller, http:Request req,  Dog  body) returns error? {
 
     }
-
     @http:ResourceConfig {
         methods:["PUT"],
         path:"/user",

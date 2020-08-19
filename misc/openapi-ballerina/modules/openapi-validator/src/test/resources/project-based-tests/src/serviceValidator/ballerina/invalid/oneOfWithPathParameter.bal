@@ -21,11 +21,8 @@ type Error record {
      int code;
      string message;
 };
-
 listener http:Listener ep0 = new(80, config = {host: "petstore.openapi.io"});
-
 listener http:Listener ep1 = new(9090);
-
 @openapi:ServiceInfo {
     contract: "resources/oneOf-with-parameter.yaml",
     tags: [ ]
@@ -33,16 +30,13 @@ listener http:Listener ep1 = new(9090);
 @http:ServiceConfig {
     basePath: "/v1"
 }
-
 service parameter_service on ep0, ep1 {
-
     @http:ResourceConfig {
         methods:["POST"],
         path:"/oneOfRequestBody",
         body:"body"
     }
     resource function getPets (http:Caller caller, http:Request req,  int limit,  Dog| Cat| any  body) returns error? {
-
     }
 
 }

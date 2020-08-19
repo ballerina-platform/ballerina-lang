@@ -26,6 +26,5 @@ service petstore on ep0, ep1 {
             path:"/pets/{petId}"
             }
         resource function showPetById (http:Caller caller, http:Request req,  string petId, Pet petDetail) returns error? {
-
         }
     }
