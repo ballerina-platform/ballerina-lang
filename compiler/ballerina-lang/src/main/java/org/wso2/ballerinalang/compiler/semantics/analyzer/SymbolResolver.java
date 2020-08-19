@@ -906,18 +906,48 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (arrayTypeNode.sizes.length == 0) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
-                int size = arrayTypeNode.sizes[i];
-                arrType = (size == UNSEALED_ARRAY_INDICATOR) ?
-                        new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
-                        (size == OPEN_SEALED_ARRAY_INDICATOR) ?
-                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
-                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
+                if(arrayTypeNode.sizes[i] instanceof BLangLiteral){
+                    BLangExpression size = arrayTypeNode.sizes[i];
+                    arrType = ((int)(((BLangLiteral)size).getValue()) == UNSEALED_ARRAY_INDICATOR) ?
+                            new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
+                            (size == OPEN_SEALED_ARRAY_INDICATOR) ?
+                                    new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
+                                    new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
+                }
             }
             resultType = arrayTypeSymbol.type = arrType;
 
             markParameterizedType(arrType, arrType.eType);
         }
     }
+
+
+//    public void visit(BLangArrayType arrayTypeNode) {
+//        // The value of the dimensions field should always be >= 1
+//        // If sizes is null array is unsealed
+//        resultType = resolveTypeNode(arrayTypeNode.elemtype, env, diagCode);
+//        if (resultType == symTable.noType) {
+//            return;
+//        }
+//        for (int i = 0; i < arrayTypeNode.dimensions; i++) {
+//            BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
+//                    env.enclPkg.symbol.pkgID, null, env.scope.owner);
+//            BArrayType arrType;
+//            if (arrayTypeNode.sizes.length == 0) {
+//                arrType = new BArrayType(resultType, arrayTypeSymbol);
+//            } else {
+//                int size = arrayTypeNode.sizes[i];
+//                arrType = (size == UNSEALED_ARRAY_INDICATOR) ?
+//                        new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
+//                        (size == OPEN_SEALED_ARRAY_INDICATOR) ?
+//                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
+//                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
+//            }
+//            resultType = arrayTypeSymbol.type = arrType;
+//
+//            markParameterizedType(arrType, arrType.eType);
+//        }
+//    }
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
         LinkedHashSet<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()

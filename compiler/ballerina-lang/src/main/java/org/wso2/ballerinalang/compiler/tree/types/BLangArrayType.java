@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,14 +73,16 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
         if (sizes.length == 0) {
             Arrays.stream(sizes).forEach(size -> {
                 if(size instanceof BLangLiteral){
-                    if ((int)(size.getValue()) == -1) {
+                    if ((int)(((BLangLiteral)size).getValue()) == -1) {
                         sb[0].append("[]");
                     } else {
-                        sb[0].append("[").append((size.getValue()).toString()).append("]");
+                        sb[0].append("[").append((((BLangLiteral)size).getValue()).toString()).append("]");
                     }
                 }
                 else {
-                    sb[0].append("[").append(size).append("]");
+                    sb[0].append("[").append(((BLangSimpleVarRef)size).variableName).append("]");
+                    //added by me
+//                    sb[0].append("[").append(((BLangSimpleVarRef)size).toString()).append("]");
                 }
             });
         } else {

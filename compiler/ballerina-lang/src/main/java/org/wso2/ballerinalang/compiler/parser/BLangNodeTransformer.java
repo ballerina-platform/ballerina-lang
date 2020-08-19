@@ -3047,8 +3047,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_TOKEN) {
                     sizes.add(new BLangLiteral(Integer.valueOf(OPEN_SEALED_ARRAY_INDICATOR), symTable.intType));
                 } else {
-                    BLangExpression expr = createExpression(keyExpr);
-                    sizes.add(expr);
+                    sizes.add(createExpression(keyExpr));
                 }
             }
 
@@ -3064,7 +3063,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         arrayTypeNode.pos = position;
         arrayTypeNode.elemtype = createTypeNode(arrayTypeDescriptorNode.memberTypeDesc());
         arrayTypeNode.dimensions = dimensions;
-        arrayTypeNode.sizes = (BLangExpression[]) sizes.stream().map(val -> val).toArray();
+        arrayTypeNode.sizes = (BLangExpression[]) sizes.stream().toArray();
         return arrayTypeNode;
     }
 
