@@ -1766,12 +1766,12 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseSimpleTypeDescriptor() {
-        STToken node = peek();
-        if (isSimpleType(node.kind)) {
+        STToken nextToken = peek();
+        if (isSimpleType(nextToken.kind) || nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             STToken token = consume();
             return createBuiltinSimpleNameReference(token);
         } else {
-            recover(node, ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
+            recover(nextToken, ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
             return parseSimpleTypeDescriptor();
         }
     }
@@ -7468,7 +7468,6 @@ public class BallerinaParser extends AbstractParser {
             case TYPEDESC_KEYWORD: // This is for recovery logic. <code>typedesc a;</code> scenario recovered here.
             case READONLY_KEYWORD:
             case DISTINCT_KEYWORD:
-            case IDENTIFIER_TOKEN:
                 return true;
             default:
                 return false;
