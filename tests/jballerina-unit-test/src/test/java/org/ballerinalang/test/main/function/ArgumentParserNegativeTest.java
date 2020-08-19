@@ -69,6 +69,20 @@ public class ArgumentParserNegativeTest {
         Assert.fail("insufficient arguments not identified");
     }
 
+    @Test(description = "Test passing undefined parameters to the main function")
+    public void testIncorrectArgs() {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_int_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"-j=1"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: undefined parameter: 'j'"),
+                    "invalid error message, usage error for undefined parameters not found");
+            return;
+        }
+        Assert.fail("undefined parameters not identified");
+    }
+
     @Test(dataProvider = "intValues")
     public void testInvalidIntArg(String arg) {
         try {

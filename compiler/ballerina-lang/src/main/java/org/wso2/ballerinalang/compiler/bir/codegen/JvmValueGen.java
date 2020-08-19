@@ -447,7 +447,7 @@ class JvmValueGen {
                 j += 1;
             }
 
-            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value, methodSig, false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, cleanupFunctionName(func.name.value), methodSig, false);
             if (retType == null || retType.tag == TypeTags.NIL || retType.tag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
             } else {
