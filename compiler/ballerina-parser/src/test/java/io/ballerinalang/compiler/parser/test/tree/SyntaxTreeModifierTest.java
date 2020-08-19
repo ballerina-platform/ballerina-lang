@@ -17,12 +17,15 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
+import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.Minutiae;
+import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
@@ -38,6 +41,8 @@ import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Predicate;
 
 /**
@@ -112,8 +117,8 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     }
 
     @Test
-    public void testSeparatedListNodeModification() {
-        SyntaxTree syntaxTree = parseFile("separated_node_list_modify.bal");
+    public void testSeparatedListNodeNonSeperatorModification() {
+        SyntaxTree syntaxTree = parseFile("separated_node_list_modify_all_nodes.bal");
         ModulePartNode oldRoot = syntaxTree.rootNode();
 
         ModuleVariableDeclarationNode oldModuleVariableDeclarationNode =
@@ -123,6 +128,30 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
 
         IdentifierModifier identifierModifier = new IdentifierModifier();
         ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(identifierModifier);
+
+        ModuleVariableDeclarationNode newModuleVariableDeclarationNode =
+                (ModuleVariableDeclarationNode) newRoot.members().get(0);
+        ListConstructorExpressionNode newSeperatedlistNode =
+                (ListConstructorExpressionNode) newModuleVariableDeclarationNode.initializer();
+
+        Assert.assertEquals(oldSeperatedlistNode.expressions().separatorSize(),
+                newSeperatedlistNode.expressions().separatorSize());
+        Assert.assertEquals(oldSeperatedlistNode.expressions().size(),
+                newSeperatedlistNode.expressions().size());
+    }
+
+    @Test
+    public void testSeparatedListNodeAllNodeModification() {
+        SyntaxTree syntaxTree = parseFile("separated_node_list_modify.bal");
+        ModulePartNode oldRoot = syntaxTree.rootNode();
+
+        ModuleVariableDeclarationNode oldModuleVariableDeclarationNode =
+                (ModuleVariableDeclarationNode) oldRoot.members().get(0);
+        ListConstructorExpressionNode oldSeperatedlistNode =
+                (ListConstructorExpressionNode) oldModuleVariableDeclarationNode.initializer();
+
+        TokenModifier tokenModifier = new TokenModifier();
+        ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(tokenModifier);
 
         ModuleVariableDeclarationNode newModuleVariableDeclarationNode =
                 (ModuleVariableDeclarationNode) newRoot.members().get(0);
@@ -164,6 +193,40 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         public IdentifierToken transform(IdentifierToken identifier) {
             return identifier.modify(identifier.text() + "_new");
         }
+    }
+
+    /**
+     * An implementation of {@code TreeModifier} that removes all white space minutiae from all tokens.
+     */
+    private static class TokenModifier extends TreeModifier {
+
+        @Override
+        public Token transform(Token token) {
+            Predicate<Minutiae> minutiaePredicate = minutiae -> minutiae.kind() == SyntaxKind.WHITESPACE_MINUTIAE;
+
+            MinutiaeList oldLeadingMinutiae = token.leadingMinutiae();
+            MinutiaeList oldTrailingMinutiae = token.trailingMinutiae();
+
+            Collection<Minutiae> matchingLeadingMinutiae = getMatchingMinutiae(oldLeadingMinutiae,minutiaePredicate);
+            Collection<Minutiae> matchingTrailingMinutiae = getMatchingMinutiae(oldTrailingMinutiae,minutiaePredicate);
+
+            MinutiaeList newLeadingMinutiae = oldLeadingMinutiae.removeAll(matchingLeadingMinutiae);
+            MinutiaeList newTrailingMinutiae = oldTrailingMinutiae.removeAll(matchingTrailingMinutiae);
+
+            return token.modify(newLeadingMinutiae, newTrailingMinutiae);
+        }
+    }
+
+    private static Collection<Minutiae> getMatchingMinutiae(MinutiaeList leadingMinutiae,
+                                                            Predicate<Minutiae> predicate) {
+        Collection<Minutiae> c = new ArrayList<>();
+        for (int i = 0; i < leadingMinutiae.size(); i++) {
+            Minutiae minutiae = leadingMinutiae.get(i);
+            if (predicate.test(minutiae)) {
+                c.add(minutiae);
+            }
+        }
+        return c;
     }
 
     /**

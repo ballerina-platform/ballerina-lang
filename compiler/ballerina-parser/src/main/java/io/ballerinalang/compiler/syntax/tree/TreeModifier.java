@@ -3059,12 +3059,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     protected <T extends Node> SeparatedNodeList<T> modifySeparatedNodeList(SeparatedNodeList<T> nodeList) {
-        return modifyGenericNodeList(nodeList, SeparatedNodeList::new);
-    }
-
-    private <T extends Node, N extends NodeList<T>> N modifyGenericNodeList(
-            N nodeList,
-            Function<NonTerminalNode, N> nodeListCreator) {
+        Function<NonTerminalNode, SeparatedNodeList> nodeListCreator = SeparatedNodeList::new;
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -3079,14 +3074,45 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 nodeModified = true;
             }
 
-            if (nodeList instanceof SeparatedNodeList && index < nodeList.size() - 1) {
+            if (index != nodeList.size() - 1) {
+                Token oldSeperator = nodeList.getSeparator(index);
+                Token newSeperator = modifyToken(oldSeperator);
+
+                if (oldSeperator != newSeperator) {
+                    nodeModified = true;
+                }
+
                 newSTNodes[2 * index] = newNode.internalNode();
-                newSTNodes[(2 * index) + 1] = ((SeparatedNodeList<?>) nodeList).getSeparator(index).internalNode();
-            } else if (nodeList instanceof SeparatedNodeList) {
-                newSTNodes[2 * index] = newNode.internalNode();
+                newSTNodes[(2 * index) + 1] = newSeperator.internalNode();
             } else {
-                newSTNodes[index] = newNode.internalNode();
+                newSTNodes[2 * index] = newNode.internalNode();
             }
+        }
+
+        if (!nodeModified) {
+            return nodeList;
+        }
+
+        STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
+        return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
+    }
+
+    private <T extends Node, N extends NodeList<T>> N modifyGenericNodeList(
+            N nodeList,
+            Function<NonTerminalNode, N> nodeListCreator) {
+        if (nodeList.isEmpty()) {
+            return nodeList;
+        }
+
+        boolean nodeModified = false;
+        STNode[] newSTNodes = new STNode[nodeList.size()];
+        for (int index = 0; index < nodeList.size(); index++) {
+            T oldNode = nodeList.get(index);
+            T newNode = modifyNode(oldNode);
+            if (oldNode != newNode) {
+                nodeModified = true;
+            }
+            newSTNodes[index] = newNode.internalNode();
         }
 
         if (!nodeModified) {
