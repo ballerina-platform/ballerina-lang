@@ -20,31 +20,28 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.ballerinalang.model.tree.types.StructureTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Represents the object-constructor-expr.
  *
  * @since slp3
  */
-public class BLangObjectCtorExpr extends BLangExpression implements StructureTypeNode {
+public class BLangObjectCtorExpr extends BLangExpression {
 
     public BLangObjectTypeNode objectTypeNode;
     public BLangTypeInit typeInit;
     public BLangType referenceType;
+    public boolean isClient;
 
     public BLangObjectCtorExpr(BLangObjectTypeNode objectTypeNode) {
         super();
         this.objectTypeNode = objectTypeNode;
+        this.isClient = false;
     }
 
     @Override
@@ -65,42 +62,18 @@ public class BLangObjectCtorExpr extends BLangExpression implements StructureTyp
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("OCE {");
+        StringBuilder sb = new StringBuilder("");
+        if (isClient) {
+            sb.append("client ");
+        }
+        sb.append("object ");
+        if (referenceType != null && referenceType.type.name != null) {
+            sb.append(referenceType.type.name.getValue());
+        }
+        sb.append(" {");
         sb.append(this.objectTypeNode.toString());
         sb.append("};\n");
         return sb.toString();
-    }
-
-    @Override
-    public boolean getIsAnonymous() {
-        return this.objectTypeNode.getIsAnonymous();
-    }
-
-    @Override
-    public boolean getIsLocal() {
-        return this.objectTypeNode.getIsLocal();
-    }
-
-    @Override
-    public List<? extends SimpleVariableNode> getFields() {
-        return objectTypeNode.fields;
-    }
-
-    @Override
-    public void addField(SimpleVariableNode field) {
-        this.objectTypeNode.fields.add((BLangSimpleVariable) field);
-    }
-
-    /**
-     * Get the list of types that are referenced by this type.
-     *
-     * @return list of types that are referenced by this type.
-     */
-    @Override
-    public List<? extends TypeNode> getTypeReferences() {
-        List<BLangType> typeRefs = new ArrayList<>();
-        typeRefs.add(this.referenceType);
-        return typeRefs;
     }
 
     /**
@@ -108,7 +81,6 @@ public class BLangObjectCtorExpr extends BLangExpression implements StructureTyp
      *
      * @param type Type that is referenced by this type.
      */
-    @Override
     public void addTypeReference(TypeNode type) {
         if (this.referenceType == null) {
             this.referenceType = (BLangType) type;
@@ -116,28 +88,5 @@ public class BLangObjectCtorExpr extends BLangExpression implements StructureTyp
             return;
         }
         throw new BallerinaException("object-constructor-expr can only have one type-reference");
-    }
-
-    /**
-     * Returns whether this {@code TypeNode} is a nullable type.
-     * <p>
-     * e.g. T?
-     *
-     * @return whether this {@code TypeNode} is a nullable type.
-     */
-    @Override
-    public boolean isNullable() {
-        return this.objectTypeNode.isNullable();
-    }
-
-    /**
-     * Returns whether this {@code TypeNode} is a grouped type.
-     * e.g. (T)
-     *
-     * @return whether this {@code TypeNode} is a grouped type.
-     */
-    @Override
-    public boolean isGrouped() {
-        return this.objectTypeNode.isGrouped();
     }
 }

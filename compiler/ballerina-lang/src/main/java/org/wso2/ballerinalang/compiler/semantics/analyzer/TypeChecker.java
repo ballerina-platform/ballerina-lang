@@ -121,7 +121,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectCtorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -4604,33 +4603,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, varRef.type);
                 return false;
         }
-    }
-
-    @Override
-    public void visit(BLangObjectCtorExpr objectCtorExpr) {
-        BType definedType = symResolver.resolveTypeNode(objectCtorExpr.objectTypeNode, env);
-
-        if (expType == symTable.noType) {
-            resultType = definedType;
-            return;
-        }
-
-        if (objectCtorExpr.referenceType != null) {
-            BType bType = symResolver.resolveTypeNode(objectCtorExpr.referenceType, env);
-            if (bType.tag != TypeTags.OBJECT) {
-                dlog.error(objectCtorExpr.pos, DiagnosticCode.OBJECT_TYPE_REQUIRED, expType);
-                resultType = symTable.semanticError;
-                return;
-            }
-        }
-
-        if (expType.tag != TypeTags.OBJECT) {
-            dlog.error(objectCtorExpr.pos, DiagnosticCode.INVALID_TYPE_NEW_LITERAL, expType);
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        resultType = definedType;
     }
 
     private BType getEffectiveReadOnlyType(DiagnosticPos pos, BType origTargetType) {

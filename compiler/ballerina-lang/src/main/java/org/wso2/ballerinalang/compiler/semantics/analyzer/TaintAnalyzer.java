@@ -84,7 +84,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectCtorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -351,10 +350,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             typeDefinition.typeNode.accept(this);
         }
-    }
-
-    @Override
-    public void visit(BLangObjectCtorExpr objectCtorExpr) {
     }
 
     @Override

@@ -966,6 +966,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
                 objectTypeNode.flagSet.add(Flag.CLIENT);
                 bLTypeDef.flagSet.add(Flag.CLIENT);
+                objectCtorExpression.isClient = true;
             } else {
                 dlog.error(pos, DiagnosticCode.INVALID_TOKEN);
             }
