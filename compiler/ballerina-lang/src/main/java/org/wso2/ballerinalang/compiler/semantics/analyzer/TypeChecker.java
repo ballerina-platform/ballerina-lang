@@ -2399,7 +2399,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (env.enclEnv.node != null && ((env.enclEnv.node.getKind() == NodeKind.TRANSACTION) ||
-                (env.enclEnv.node.getKind() == NodeKind.RETRY))) {
+                (env.enclEnv.node.getKind() == NodeKind.RETRY) || (env.enclEnv.node.getKind() == NodeKind.ON_FAIL))) {
             // if enclosing env's node is a transaction or retry
             return env.enclEnv;
         }

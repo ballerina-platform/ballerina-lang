@@ -326,6 +326,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangStatementLink currentLink;
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
     private BLangBlockStmt onFailFuncBlock;
+    private  BLangInvocation onFailLambdaInvocation;
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
@@ -2883,11 +2884,24 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         BLangType onFailReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
+
+        BLangSimpleVariableDef onFailErrorVariableDef = (BLangSimpleVariableDef) onFailClause.variableDefinitionNode;
+        BVarSymbol thrownErrorVarSymbol = new BVarSymbol(0, new Name("$thrownError$"),
+                env.scope.owner.pkgID, symTable.errorType, env.scope.owner);
+        thrownErrorVarSymbol.closure = true;
+        //todo @chiran resolve onFailClause.varType
+//        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailClause.pos, "$thrownError$",
+//                onFailClause.varType, null, thrownErrorVarSymbol);
+        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailClause.pos, "$thrownError$",
+                onFailErrorVariableDef.var.type, null, thrownErrorVarSymbol);
         BLangLambdaFunction onFailFunc = createLambdaFunction(onFailClause.pos, "$onFailFunc$",
-                Collections.emptyList(), onFailReturnType, onFailClause.body.stmts,
+                Lists.of(errorVar), onFailReturnType, onFailClause.body.stmts,
                 env, onFailClause.body.scope);
-        onFailFunc.capturedClosureEnv = env.createClone();
-        //  var $onFailFunc$ = function () returns any|error {
+        onFailFunc.capturedClosureEnv = env;
+        BLangSimpleVarRef thrownErrorRef = ASTBuilderUtil.createVariableRef(onFailClause.pos, errorVar.symbol);
+        onFailErrorVariableDef.var.expr = thrownErrorRef;
+        ((BLangBlockFunctionBody) onFailFunc.function.body).stmts.add(0, onFailErrorVariableDef);
+        //  var $onFailFunc$ = function (error $thrownError$) returns any|error {
         //    <"Content in on fail clause goes here">
         //  };
         BVarSymbol onFailVarSymbol = new BVarSymbol(0, names.fromString("$onFailFunc$"),
@@ -2900,7 +2914,7 @@ public class Desugar extends BLangNodeVisitor {
         onFailFuncBlock = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
         onFailFuncBlock.stmts.add(onFailLambdaVariableDef);
 
-        BLangInvocation onFailLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(onFailClause.pos,
+        onFailLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(onFailClause.pos,
                 onFailFuncRef, onFailFuncRef.symbol, symTable.anyOrErrorType);
         if (onFailClause.statementBlockReturns) {
             //  return <TypeCast>$onFailFunc$();
@@ -4655,6 +4669,31 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFailExpr failExpr) {
+//        lambdaFunction.function = func;
+//        func.requiredParams.addAll(lambdaFunctionVariable);
+//        func.setReturnTypeNode(returnType);
+//        func.desugaredReturnType = true;
+//        defineFunction(func, env.enclPkg);
+//        lambdaFunctionVariable = func.requiredParams;
+//
+//        func.body = lambdaBody;
+//        func.desugared = false;
+//        lambdaFunction.pos = pos;
+//        List<BType> paramTypes = new ArrayList<>();
+//        lambdaFunctionVariable.forEach(variable -> paramTypes.add(variable.symbol.type));
+//        BLangSimpleVarRef errrRef = (BLangSimpleVarRef) failExpr.expr;
+//        BLangSimpleVariable errVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+//        errVar.expr = errrRef;
+//        errVar.symbol = (BVarSymbol) errrRef.symbol;
+//        errVar.type = errrRef.type;
+//        errVar.name = errrRef.variableName;
+//        onFailFunc.function.requiredParams.add(errVar);
+//        List<BType> paramTypes = new ArrayList();
+//        onFailFunc.function.requiredParams.forEach(variable -> paramTypes.add(variable.symbol.type));
+//        onFailFunc.type = new BInvokableType(paramTypes, onFailFunc..type.getReturnType(),
+//                null);
+        onFailLambdaInvocation.argExprs = Lists.of(rewrite(failExpr.expr, env));
+        onFailLambdaInvocation.requiredArgs = onFailLambdaInvocation.argExprs;
         BLangStatementExpression expression = ASTBuilderUtil.createStatementExpression(onFailFuncBlock,
                 ASTBuilderUtil.createLiteral(failExpr.pos, symTable.nilType, Names.NIL_VALUE));
         BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
