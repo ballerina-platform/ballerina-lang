@@ -70,16 +70,16 @@ public class BallerinaTreeModifyUtil {
         put("DELETE", "");
         put("IMPORT", "import $TYPE;\n");
         put("DECLARATION", "$TYPE $VARIABLE = new ($PARAMS);\n");
-        put("REMOTE_SERVICE_CALL_CHECK", "$TYPE $VARIABLE = check $CALLER->$FUNCTION($PARAMS);\n");
+        put("REMOTE_SERVICE_CALL_CHECK", "$TYPE $VARIABLE = checkpanic $CALLER->$FUNCTION($PARAMS);\n");
         put("REMOTE_SERVICE_CALL", "$TYPE $VARIABLE = $CALLER->$FUNCTION($PARAMS);\n");
-        put("SERVICE_CALL_CHECK", "$TYPE $VARIABLE = check $CALLER.$FUNCTION($PARAMS);\n");
+        put("SERVICE_CALL_CHECK", "$TYPE $VARIABLE = checkpanic $CALLER.$FUNCTION($PARAMS);\n");
         put("SERVICE_CALL", "$TYPE $VARIABLE = $CALLER.$FUNCTION($PARAMS);\n");
         put("MAIN_START", "$COMMENTpublic function main() {\n");
         put("MAIN_END", "\n}\n");
         put("SERVICE_START", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
                 "service $SERVICE on new http:Listener($PORT) {\n" +
                 "@http:ResourceConfig {\n\tmethods: [$METHODS],\npath: \"/$RES_PATH\"\n}\n" +
-                "    resource function $RESOURCE(http:Caller caller, http:Request req) returns error? {\n\n");
+                "    resource function $RESOURCE(http:Caller caller, http:Request req) {\n\n");
         put("SERVICE_END",
                 "    }\n" +
                         "}\n");
@@ -97,9 +97,10 @@ public class BallerinaTreeModifyUtil {
                 "\n}\n");
         put("TYPE_GUARD_ELSE", " else {\n" +
                 "\n}\n");
-        put("RESPOND_WITH_CHECK", "check $CALLER->respond($EXPRESSION);\n");
-        put("PROPERTY_STATEMENT", "$PROPERTY");
-        put("RETURN_STATEMENT", "return $RETURN_EXPR;");
+        put("RESPOND_WITH_CHECK", "checkpanic $CALLER->respond(<@untainted>$EXPRESSION);\n");
+        put("PROPERTY_STATEMENT", "$PROPERTY\n");
+        put("RETURN_STATEMENT", "return $RETURN_EXPR;\n");
+        put("CHECKED_PAYLOAD_FUNCTION_INVOCATION", "$TYPE $VARIABLE = checkpanic $RESPONSE.$PAYLOAD();\n");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {
