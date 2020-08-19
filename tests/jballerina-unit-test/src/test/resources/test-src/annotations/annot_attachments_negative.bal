@@ -846,3 +846,12 @@ function typeConversionExpressionUserFunc() {
     string k = <@v19> s;
     string j = <@v16> s;
 }
+
+public const annotation v20 on class;
+
+@v20 @v19 class cls {
+    int i;
+    function init() {
+        self.i = 2;
+    }
+};

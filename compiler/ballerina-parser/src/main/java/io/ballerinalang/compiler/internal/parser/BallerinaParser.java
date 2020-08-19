@@ -7103,6 +7103,7 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
             case FIELD_KEYWORD:
             case RECORD_KEYWORD:
+            case CLASS_KEYWORD:
                 sourceKeyword = STNodeFactory.createEmptyNode();
                 STNode firstIdent = consume();
                 return parseDualAttachPointIdent(sourceKeyword, firstIdent);
