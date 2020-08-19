@@ -1767,7 +1767,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseSimpleTypeDescriptor() {
         STToken nextToken = peek();
-        if (isSimpleType(nextToken.kind) || nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+        if (isSimpleType(nextToken.kind)) {
             STToken token = consume();
             return createBuiltinSimpleNameReference(token);
         } else {
@@ -2637,8 +2637,18 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTypeReference() {
         STNode typeReference = parseTypeDescriptor(ParserRuleContext.TYPE_REFERENCE);
-        if (typeReference.kind == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                typeReference.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (typeReference.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            if (typeReference.hasDiagnostics()) {
+                // When a missing type desc is recovered, diagnostic code will be missing type desc.
+                // Since this is type ref context we correct the error message by creating a new missing token
+                STNode emptyNameReference = STNodeFactory.createSimpleNameReferenceNode
+                        (SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                                DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER));
+                return emptyNameReference;
+            }
+            return typeReference;
+        }
+        if (typeReference.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return typeReference;
         }
 
