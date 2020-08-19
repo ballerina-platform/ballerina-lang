@@ -1645,7 +1645,6 @@ public class BallerinaParser extends AbstractParser {
      * </p>
      * If the preceding token is <code>?</code> then it is an optional type descriptor
      *
-     * @param tokenKind Next token kind
      * @param context Current context
      * @param isInConditionalExpr
      * @return Parsed node
@@ -1779,9 +1778,9 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode createBuiltinSimpleNameReference(STNode token) {
         SyntaxKind typeKind = getTypeSyntaxKind(token.kind);
-        if (typeKind == SyntaxKind.SIMPLE_TYPE_DESC) {
-            return STNodeFactory.createBuiltinSimpleNameReferenceNode(SyntaxKind.TYPE_DESC, token);
-        }
+//        if (typeKind == SyntaxKind.SIMPLE_TYPE_DESC) {
+//            return STNodeFactory.createBuiltinSimpleNameReferenceNode(SyntaxKind.TYPE_DESC, token);
+//        }
         return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
     }
 
@@ -7469,11 +7468,7 @@ public class BallerinaParser extends AbstractParser {
             case TYPEDESC_KEYWORD: // This is for recovery logic. <code>typedesc a;</code> scenario recovered here.
             case READONLY_KEYWORD:
             case DISTINCT_KEYWORD:
-                return true;
-            case SIMPLE_TYPE_DESC:
-                // This is a special case. SIMPLE_TYPE_DESC is only return from
-                // error recovery. when a type is missing. Hence we treat it as
-                // a simple type
+            case IDENTIFIER_TOKEN:
                 return true;
             default:
                 return false;
@@ -7515,7 +7510,7 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD:
                 return SyntaxKind.ERROR_TYPE_DESC;
             default:
-                return SyntaxKind.TYPE_DESC;
+                return SyntaxKind.TYPE_REFERENCE;
         }
     }
 
@@ -12208,7 +12203,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isDefiniteTypeDesc(SyntaxKind kind) {
-        return kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 && kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0;
+        return kind.compareTo(SyntaxKind.RECORD_TYPE_DESC) >= 0 && kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0;
     }
 
     private boolean isDefiniteExpr(SyntaxKind kind) {
@@ -13909,7 +13904,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseStmtStartsWithTupleTypeOrExprRhs(STNode annots, STNode tupleTypeOrListConst, boolean isRoot) {
-        if (tupleTypeOrListConst.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
+        if (tupleTypeOrListConst.kind.compareTo(SyntaxKind.RECORD_TYPE_DESC) >= 0 &&
                 tupleTypeOrListConst.kind.compareTo(SyntaxKind.TYPEDESC_TYPE_DESC) <= 0) {
             STNode finalKeyword = STNodeFactory.createEmptyNode();
             STNode typedBindingPattern =
@@ -13989,7 +13984,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private SyntaxKind getStmtStartBracketedListType(STNode memberNode) {
-        if (memberNode.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
+        if (memberNode.kind.compareTo(SyntaxKind.RECORD_TYPE_DESC) >= 0 &&
                 memberNode.kind.compareTo(SyntaxKind.TYPEDESC_TYPE_DESC) <= 0) {
             return SyntaxKind.TUPLE_TYPE_DESC;
         }

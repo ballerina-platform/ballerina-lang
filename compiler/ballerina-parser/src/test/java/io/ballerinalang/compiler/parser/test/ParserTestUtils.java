@@ -956,8 +956,6 @@ public class ParserTestUtils {
                 return SyntaxKind.INVALID_EXPRESSION_STATEMENT;
 
             // Types
-            case "TYPE_DESC":
-                return SyntaxKind.TYPE_DESC;
             case "INT_TYPE_DESC":
                 return SyntaxKind.INT_TYPE_DESC;
             case "FLOAT_TYPE_DESC":
@@ -1022,8 +1020,6 @@ public class ParserTestUtils {
                 return SyntaxKind.VAR_TYPE_DESC;
             case "SERVICE_TYPE_DESC":
                 return SyntaxKind.SERVICE_TYPE_DESC;
-            case "SIMPLE_TYPE_DESC":
-                return SyntaxKind.SIMPLE_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":

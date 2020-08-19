@@ -219,7 +219,6 @@ public enum SyntaxKind {
     DOCUMENTATION_STRING(1104),
 
     // Other
-    SIMPLE_TYPE_DESC(1190),
     INVALID_TOKEN(1191),
 
     //-----------------------------------------------non-terminal-kinds-----------------------------------------------
@@ -318,7 +317,7 @@ public enum SyntaxKind {
     ASTERISK_LITERAL(1343),
 
     // Type descriptors
-    TYPE_DESC(2000),
+//    TYPE_DESC(2000),
     RECORD_TYPE_DESC(2001),
     OBJECT_TYPE_DESC(2002),
     NIL_TYPE_DESC(2003),

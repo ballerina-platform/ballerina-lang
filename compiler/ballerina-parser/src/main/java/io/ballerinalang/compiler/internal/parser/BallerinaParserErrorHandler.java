@@ -4260,7 +4260,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ASSIGNMENT_OR_VAR_DECL_STMT:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
-                return SyntaxKind.SIMPLE_TYPE_DESC;
+            case OBJECT_MEMBER_WITHOUT_METADATA:
+            case RECORD_FIELD_WITHOUT_METADATA:
+            case PARAMETER_WITHOUT_ANNOTS:
+            case TYPE_DESCRIPTOR:
+                // From SIMPLE_TYPE_DESCRIPTOR to TYPE_DESCRIPTOR expects a type descriptor.
             case TYPE_NAME:
             case TYPE_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
@@ -4318,11 +4322,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.OPTIONAL_TYPE_DESC;
             case ARRAY_TYPE_DESCRIPTOR:
                 return SyntaxKind.ARRAY_TYPE_DESC;
-            case OBJECT_MEMBER_WITHOUT_METADATA:
-            case RECORD_FIELD_WITHOUT_METADATA:
-            case PARAMETER_WITHOUT_ANNOTS:
-            case TYPE_DESCRIPTOR:
-                return SyntaxKind.SIMPLE_TYPE_DESC;
             case ARRAY_LENGTH:
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
             case HEX_INTEGER_LITERAL_TOKEN:
