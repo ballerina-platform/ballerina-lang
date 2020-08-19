@@ -87,7 +87,7 @@ public class BallerinaTreeModifyUtil {
                 "\n} else {\n\n}\n");
         put("FOREACH_STATEMENT", "foreach $TYPE $VARIABLE in $COLLECTION {\n" +
                 "\n}\n");
-        put("LOG_STATEMENT", "log:print$TYPE(\"$LOG_EXPR\");\n");
+        put("LOG_STATEMENT", "log:print$TYPE($LOG_EXPR);\n");
         put("PROPERTY_STATEMENT", "$PROPERTY\n");
         put("RESPOND", "$TYPE $VARIABLE = $CALLER->respond($EXPRESSION);\n");
         put("TYPE_GUARD_IF", "if($VARIABLE is $TYPE) {\n" +
