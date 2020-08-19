@@ -97,7 +97,7 @@ public function assertNotEquals(anydata|error actual, anydata|error expected, st
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertExactEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
+public function assertExactEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual === expected);
     if (!isEqual) {
         string expectedStr = sprintf("%s", expected);
@@ -112,7 +112,7 @@ public function assertExactEquals(any|error actual, any|error expected, public s
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertNotExactEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
+public function assertNotExactEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual === expected);
     if (isEqual) {
         string expectedStr = sprintf("%s", expected);
