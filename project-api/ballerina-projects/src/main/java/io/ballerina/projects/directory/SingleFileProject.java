@@ -20,6 +20,7 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.utils.ProjectConstants;
 import org.ballerinalang.toml.model.Manifest;
 
 import java.io.IOException;
@@ -71,8 +72,8 @@ public class SingleFileProject extends Project {
     public static class BuildOptions extends io.ballerina.projects.BuildOptions {
 
         private BuildOptions() {
-            this.sourceRoot = System.getProperty("user.dir");
-            this.output = System.getProperty("user.dir");
+            this.sourceRoot = System.getProperty(ProjectConstants.USER_DIR);
+            this.output = System.getProperty(ProjectConstants.USER_DIR);
             this.skipLock = true;
             this.codeCoverage = false;
             this.observabilityIncluded = false;

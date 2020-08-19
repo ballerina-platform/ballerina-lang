@@ -20,6 +20,7 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.RepoUtils;
 import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.Manifest;
@@ -89,8 +90,8 @@ public class BuildProject extends Project {
     public static class BuildOptions extends io.ballerina.projects.BuildOptions {
 
         private BuildOptions(Manifest ballerinaToml) {
-            this.sourceRoot = System.getProperty("user.dir");
-            this.output = System.getProperty("user.dir");
+            this.sourceRoot = System.getProperty(ProjectConstants.USER_DIR);
+            this.output = System.getProperty(ProjectConstants.USER_DIR);
             if (ballerinaToml.getBuildOptions() != null) {
                 this.observabilityIncluded = ballerinaToml.getBuildOptions().isObservabilityIncluded();
             }
