@@ -2,15 +2,6 @@
   "kind": "CLASS_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "LIST",
       "children": []
     },
@@ -53,10 +44,7 @@
           "kind": "END_OF_LINE_MINUTIAE",
           "value": "\n"
         }
-      ]
-    },
-    {
-      "kind": "SEMICOLON_TOKEN",
+      ],
       "trailingMinutiae": [
         {
           "kind": "END_OF_LINE_MINUTIAE",

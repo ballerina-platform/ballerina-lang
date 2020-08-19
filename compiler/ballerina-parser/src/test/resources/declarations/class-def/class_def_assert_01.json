@@ -2,15 +2,6 @@
   "kind": "CLASS_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "LIST",
       "children": []
     },
@@ -84,15 +75,6 @@
         {
           "kind": "OBJECT_FIELD",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "INT_TYPE_DESC",
               "children": [
@@ -189,15 +171,6 @@
           "kind": "OBJECT_FIELD",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "STRING_TYPE_DESC",
               "children": [
                 {
@@ -235,15 +208,6 @@
         {
           "kind": "OBJECT_FIELD",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "PUBLIC_KEYWORD",
               "leadingMinutiae": [
@@ -316,15 +280,6 @@
           "kind": "OBJECT_FIELD",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "PRIVATE_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -372,34 +327,30 @@
           "kind": "OBJECT_METHOD_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
+              "kind": "LIST",
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
-              "kind": "PUBLIC_KEYWORD",
-              "leadingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": "    "
-                },
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                },
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": "    "
-                }
-              ],
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "PUBLIC_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    },
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -512,13 +463,8 @@
           "kind": "OBJECT_METHOD_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -603,39 +549,35 @@
           "kind": "OBJECT_METHOD_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
+              "kind": "LIST",
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
-              "kind": "PRIVATE_KEYWORD",
-              "leadingMinutiae": [
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
+                  "kind": "PRIVATE_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": "    "
-                }
-              ],
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "REMOTE_KEYWORD",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "REMOTE_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -720,15 +662,6 @@
           "kind": "OBJECT_FIELD",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "OBJECT_TYPE_DESC",
               "children": [
                 {
@@ -801,15 +734,6 @@
                     {
                       "kind": "OBJECT_FIELD",
                       "children": [
-                        {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
                         {
                           "kind": "INT_TYPE_DESC",
                           "children": [
@@ -902,15 +826,6 @@
                       "kind": "OBJECT_FIELD",
                       "children": [
                         {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
-                        {
                           "kind": "STRING_TYPE_DESC",
                           "children": [
                             {
@@ -948,15 +863,6 @@
                     {
                       "kind": "OBJECT_FIELD",
                       "children": [
-                        {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
                         {
                           "kind": "PUBLIC_KEYWORD",
                           "leadingMinutiae": [
@@ -1029,15 +935,6 @@
                       "kind": "OBJECT_FIELD",
                       "children": [
                         {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
-                        {
                           "kind": "PRIVATE_KEYWORD",
                           "leadingMinutiae": [
                             {
@@ -1085,30 +982,26 @@
                       "kind": "METHOD_DECLARATION",
                       "children": [
                         {
-                          "kind": "METADATA",
+                          "kind": "LIST",
                           "children": [
                             {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "PUBLIC_KEYWORD",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
-                            },
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "        "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "PUBLIC_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                },
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "        "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -1191,13 +1084,8 @@
                       "kind": "METHOD_DECLARATION",
                       "children": [
                         {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
+                          "kind": "LIST",
+                          "children": []
                         },
                         {
                           "kind": "FUNCTION_KEYWORD",
@@ -1285,10 +1173,7 @@
       ]
     },
     {
-      "kind": "CLOSE_BRACE_TOKEN"
-    },
-    {
-      "kind": "SEMICOLON_TOKEN",
+      "kind": "CLOSE_BRACE_TOKEN",
       "trailingMinutiae": [
         {
           "kind": "END_OF_LINE_MINUTIAE",

@@ -32,4 +32,4 @@ class Foo {
 
         function getName();
     } parent;
-};
+}

@@ -2,15 +2,6 @@
   "kind": "CLASS_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "LIST",
       "children": []
     },
@@ -48,15 +39,6 @@
         {
           "kind": "OBJECT_FIELD",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "INT_TYPE_DESC",
               "children": [
@@ -149,15 +131,6 @@
           "kind": "OBJECT_FIELD",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "STRING_TYPE_DESC",
               "children": [
                 {
@@ -195,15 +168,6 @@
         {
           "kind": "OBJECT_FIELD",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "PUBLIC_KEYWORD",
               "leadingMinutiae": [
@@ -276,15 +240,6 @@
           "kind": "OBJECT_FIELD",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "PRIVATE_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -331,10 +286,7 @@
       ]
     },
     {
-      "kind": "CLOSE_BRACE_TOKEN"
-    },
-    {
-      "kind": "SEMICOLON_TOKEN",
+      "kind": "CLOSE_BRACE_TOKEN",
       "trailingMinutiae": [
         {
           "kind": "END_OF_LINE_MINUTIAE",

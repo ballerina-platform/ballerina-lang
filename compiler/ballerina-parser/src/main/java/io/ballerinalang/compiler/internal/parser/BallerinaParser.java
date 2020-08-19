@@ -205,7 +205,11 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
             case ENUM_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+                // Following are module-class-defn starting tokens
             case CLASS_KEYWORD:
+            case DISTINCT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case READONLY_KEYWORD:
                 metadata = STNodeFactory.createEmptyNode();
                 break;
             case IDENTIFIER_TOKEN:
@@ -267,7 +271,11 @@ public class BallerinaParser extends AbstractParser {
             case XMLNS_KEYWORD:
             case ENUM_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+                // Following are module-class-defn starting tokens
             case CLASS_KEYWORD:
+            case DISTINCT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case READONLY_KEYWORD:
                 break;
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
@@ -740,7 +748,7 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
-                // ANything starts with a function keyword could be a function definition
+                // Anything starts with a function keyword could be a function definition
                 // or a module-var-decl with function type desc.
                 List<STNode> qualifiers = new ArrayList<>();
                 if (qualifier != null) {
@@ -751,6 +759,9 @@ public class BallerinaParser extends AbstractParser {
             case TYPE_KEYWORD:
                 return parseModuleTypeDefinition(metadata, getQualifier(qualifier));
             case CLASS_KEYWORD:
+            case DISTINCT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case READONLY_KEYWORD:
                 return parserClassDefinition(metadata, getQualifier(qualifier));
             case LISTENER_KEYWORD:
                 return parseListenerDeclaration(metadata, getQualifier(qualifier));
@@ -2357,7 +2368,7 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * Parse a class definition.
      * </p>
-     * <code>module-class-defn := metadata [public] class-type-quals class identifier { class-member* } ;</code>
+     * <code>module-class-defn := metadata [public] class-type-quals class identifier { class-member* }</code>
      * <code>class-type-quals := (distinct | client | readonly)*</code>
      *
      * @param metadata Metadata
@@ -2366,49 +2377,31 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parserClassDefinition(STNode metadata, STNode qualifier) {
         startContext(ParserRuleContext.MODULE_CLASS_DEFINITION);
-        STNode classTypeQualifiers = parserClassTypeQualifiers();
+        STNode classTypeQualifiers = parseClassTypeQualifiers();
         STNode classKeyword = parseClassKeyword();
-        STNode className = parseClassName(metadata, qualifier);
+        STNode className = parseClassName();
         STNode openBrace = parseOpenBrace();
         STNode classMembers = parseObjectMembers();
         STNode closeBrace = parseCloseBrace();
-        STNode semicolon = parseSemicolon();
         endContext();
         return STNodeFactory.createClassDefinitionNode(metadata, qualifier, classTypeQualifiers, classKeyword,
-                className, openBrace, classMembers, closeBrace, semicolon);
+                className, openBrace, classMembers, closeBrace);
     }
 
-
-    private STNode parserClassTypeQualifiers() {
-        STToken peek = peek();
-        return parseClassTypeQualifiers(peek.kind);
-    }
-
-    private STNode parseClassTypeQualifiers(SyntaxKind kind) {
+    private STNode parseClassTypeQualifiers() {
+        STToken nextToken = peek();
         STNode firstQualifier;
-        switch (kind) {
+        switch (nextToken.kind) {
             case CLIENT_KEYWORD:
-                firstQualifier = parseClientKeyword();
-                break;
             case READONLY_KEYWORD:
-                firstQualifier = parseReadonlyKeyword();
-                break;
             case DISTINCT_KEYWORD:
-                firstQualifier = parseDistinctKeyword();
+                firstQualifier = consume();
                 break;
             case CLASS_KEYWORD:
                 return STNodeFactory.createEmptyNodeList();
             default:
-                Solution solution = recover(peek(), ParserRuleContext.MODULE_CLASS_DEFINITION);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
-                return parseClassTypeQualifiers(solution.tokenKind);
+                recover(peek(), ParserRuleContext.MODULE_CLASS_DEFINITION);
+                return parseClassTypeQualifiers();
         }
 
         return parseClassTypeNextQualifiers(firstQualifier);
@@ -2422,7 +2415,7 @@ public class BallerinaParser extends AbstractParser {
         for (int i = 0; i < 2; i++) {
             STNode nextToken = peek();
             if (isNodeWithSyntaxKindInList(qualifiers, nextToken.kind)) {
-                // Consumer the nextToken
+                // Consume the nextToken
                 nextToken = consume();
                 updateLastNodeInListWithInvalidNode(qualifiers, nextToken,
                         DiagnosticErrorCode.ERROR_SAME_OBJECT_TYPE_QUALIFIER);
@@ -2432,13 +2425,9 @@ public class BallerinaParser extends AbstractParser {
             STNode nextQualifier;
             switch (nextToken.kind) {
                 case CLIENT_KEYWORD:
-                    nextQualifier = parseClientKeyword();
-                    break;
                 case DISTINCT_KEYWORD:
-                    nextQualifier = parseDistinctKeyword();
-                    break;
                 case READONLY_KEYWORD:
-                    nextQualifier = parseReadonlyKeyword();
+                    nextQualifier = consume();
                     break;
                 case CLASS_KEYWORD:
                 default:
@@ -2499,15 +2488,13 @@ public class BallerinaParser extends AbstractParser {
      * Parse class name.
      *
      * @return Parsed node
-     * @param metadata
-     * @param qualifier
      */
-    private STNode parseClassName(STNode metadata, STNode qualifier) {
+    private STNode parseClassName() {
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CLASS_NAME, metadata, qualifier);
+            Solution sol = recover(token, ParserRuleContext.CLASS_NAME);
             return sol.recoveredNode;
         }
     }
@@ -4618,7 +4605,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse object members.
+     * Parse class members.
+     * <code>class-members := class-member*</code>
      *
      * @return Parsed node
      */
@@ -4639,6 +4627,14 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(objectMembers);
     }
 
+    /**
+     * <p>
+     * Parse a class member.
+     * </p>
+     * <code>class-member :=  object-field | method-defn | object-type-inclusion</code>
+     *
+     * @return Parsed node
+     */
     private STNode parseObjectMember() {
         STNode metadata;
         STToken nextToken = peek();
@@ -4656,7 +4652,6 @@ public class BallerinaParser extends AbstractParser {
             case RESOURCE_KEYWORD:// resource qualifier is not allowed but let it pass here and validate in
                 // parseFunctionQualifiers method
                 metadata = STNodeFactory.createEmptyNode();
-
                 break;
             case DOCUMENTATION_STRING:
             case AT_TOKEN:
@@ -4735,7 +4730,7 @@ public class BallerinaParser extends AbstractParser {
      * one qualifier at-most.
      *
      * @param metadata Metadata
-     * @param visibilityQualifiers Visibility qualifiers
+     * @param visibilityQualifier Visibility qualifier
      * @return Parse object member node
      */
     private STNode parseObjectMethodOrField(STNode metadata, STNode visibilityQualifier) {

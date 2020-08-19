@@ -2,15 +2,6 @@
   "kind": "CLASS_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "LIST",
       "children": []
     },
@@ -49,26 +40,22 @@
           "kind": "OBJECT_METHOD_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
+              "kind": "LIST",
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
-              "kind": "PUBLIC_KEYWORD",
-              "leadingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": "    "
-                }
-              ],
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "PUBLIC_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -145,13 +132,8 @@
           "kind": "OBJECT_METHOD_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -236,39 +218,35 @@
           "kind": "OBJECT_METHOD_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
+              "kind": "LIST",
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
-              "kind": "PRIVATE_KEYWORD",
-              "leadingMinutiae": [
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
+                  "kind": "PRIVATE_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": "    "
-                }
-              ],
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "REMOTE_KEYWORD",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "REMOTE_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -350,10 +328,7 @@
           "kind": "END_OF_LINE_MINUTIAE",
           "value": "\n"
         }
-      ]
-    },
-    {
-      "kind": "SEMICOLON_TOKEN",
+      ],
       "trailingMinutiae": [
         {
           "kind": "END_OF_LINE_MINUTIAE",

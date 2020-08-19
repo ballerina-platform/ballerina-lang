@@ -2,15 +2,6 @@
   "kind": "CLASS_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "LIST",
       "children": []
     },
@@ -48,15 +39,6 @@
         {
           "kind": "OBJECT_FIELD",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "INTERSECTION_TYPE_DESC",
               "children": [
@@ -193,15 +175,6 @@
           "kind": "OBJECT_FIELD",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "INTERSECTION_TYPE_DESC",
               "children": [
                 {
@@ -336,10 +309,7 @@
       ]
     },
     {
-      "kind": "CLOSE_BRACE_TOKEN"
-    },
-    {
-      "kind": "SEMICOLON_TOKEN",
+      "kind": "CLOSE_BRACE_TOKEN",
       "trailingMinutiae": [
         {
           "kind": "END_OF_LINE_MINUTIAE",
