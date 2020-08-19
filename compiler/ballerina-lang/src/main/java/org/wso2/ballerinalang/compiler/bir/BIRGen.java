@@ -965,8 +965,6 @@ public class BIRGen extends BLangNodeVisitor {
 
             this.env.enclBB = blockBB;
             this.env.enclOnFailEndBB = blockEndBB;
-            this.env.unlockVars.push(new BIRLockDetailsHolder());
-
         }
         for (BLangStatement astStmt : astBlockStmt.stmts) {
             astStmt.accept(this);
@@ -975,7 +973,6 @@ public class BIRGen extends BLangNodeVisitor {
                 birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
         );
         if (astBlockStmt.isBreakable) {
-            this.env.unlockVars.pop();
             if (this.env.enclLoopEndBB != null) {
                 blockEndBB.terminator = new BIRTerminator.GOTO(astBlockStmt.pos, this.env.enclLoopEndBB);
             }
