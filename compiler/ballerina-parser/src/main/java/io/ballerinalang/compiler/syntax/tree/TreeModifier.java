@@ -3074,8 +3074,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 nodeModified = true;
             }
 
+            newSTNodes[2 * index] = newNode.internalNode();
             if (index == nodeList.size() - 1) {
-                newSTNodes[2 * index] = newNode.internalNode();
                 break;
             }
 
@@ -3086,7 +3086,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 nodeModified = true;
             }
 
-            newSTNodes[2 * index] = newNode.internalNode();
             newSTNodes[(2 * index) + 1] = newSeperator.internalNode();
         }
 

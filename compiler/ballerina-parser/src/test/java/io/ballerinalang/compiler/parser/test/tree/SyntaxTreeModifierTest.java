@@ -31,6 +31,7 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
@@ -117,7 +118,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
 
     @Test
     public void testSeparatedListNodeNonSeperatorModification() {
-        SyntaxTree syntaxTree = parseFile("separated_node_list_modify_all_nodes.bal");
+        SyntaxTree syntaxTree = parseFile("separated_node_list_modify.bal");
         ModulePartNode oldRoot = syntaxTree.rootNode();
 
         ModuleVariableDeclarationNode oldModuleVariableDeclarationNode =
@@ -137,11 +138,13 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
                 newSeperatedlistNode.expressions().separatorSize());
         Assert.assertEquals(oldSeperatedlistNode.expressions().size(),
                 newSeperatedlistNode.expressions().size());
+        Assert.assertEquals(((SimpleNameReferenceNode) newSeperatedlistNode.expressions().get(0)).name().text(),
+                ((SimpleNameReferenceNode) oldSeperatedlistNode.expressions().get(0)).name().text()+"_new");
     }
 
     @Test
     public void testSeparatedListNodeAllNodeModification() {
-        SyntaxTree syntaxTree = parseFile("separated_node_list_modify.bal");
+        SyntaxTree syntaxTree = parseFile("separated_node_list_modify_all_nodes.bal");
         ModulePartNode oldRoot = syntaxTree.rootNode();
 
         ModuleVariableDeclarationNode oldModuleVariableDeclarationNode =
@@ -161,6 +164,10 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
                 newSeperatedlistNode.expressions().separatorSize());
         Assert.assertEquals(oldSeperatedlistNode.expressions().size(),
                 newSeperatedlistNode.expressions().size());
+        assert(oldSeperatedlistNode.expressions().getSeparator(0).containsTrailingMinutiae());
+        assert(!newSeperatedlistNode.expressions().getSeparator(0).containsTrailingMinutiae());
+        assert(oldSeperatedlistNode.expressions().getSeparator(1).containsTrailingMinutiae());
+        assert(!newSeperatedlistNode.expressions().getSeparator(1).containsTrailingMinutiae());
     }
 
     /**
