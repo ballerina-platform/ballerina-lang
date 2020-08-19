@@ -30,17 +30,17 @@ public class ResourcePathSummary {
     private Diagnostic.DiagnosticPosition pathPosition;
     private Map<String, ResourceMethod> methods;
 
-    ResourcePathSummary() {
+    public ResourcePathSummary() {
         this.methods = new HashMap<>();
         this.path = null;
         this.pathPosition = null;
     }
 
-    String getPath() {
+    public String getPath() {
         return path;
     }
 
-    void setPath(String path) {
+    public void setPath(String path) {
         this.path = path;
     }
 
@@ -48,11 +48,11 @@ public class ResourcePathSummary {
         return methods;
     }
 
-    void addMethod(String method, ResourceMethod resourceMethod) {
+    public void addMethod(String method, ResourceMethod resourceMethod) {
         this.methods.put(method, resourceMethod);
     }
 
-    boolean isMethodAvailable(String method) {
+    public boolean isMethodAvailable(String method) {
         boolean isAvailable = false;
         Map<String, ResourceMethod> methods = this.methods;
         for (Map.Entry<String, ResourceMethod> m : methods.entrySet()) {
@@ -63,10 +63,10 @@ public class ResourcePathSummary {
         }
         return isAvailable;
     }
-    Diagnostic.DiagnosticPosition getPathPosition() {
+    public Diagnostic.DiagnosticPosition getPathPosition() {
         return pathPosition;
     }
-    void setPathPosition(Diagnostic.DiagnosticPosition pathPosition) {
+    public void setPathPosition(Diagnostic.DiagnosticPosition pathPosition) {
         this.pathPosition = pathPosition;
     }
 }
