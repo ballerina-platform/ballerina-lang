@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -51,7 +52,7 @@ public class FunctionMock {
         for (String caseId : caseIds) {
             if (MockRegistry.getInstance().hasCase(caseId)) {
                 returnVal = MockRegistry.getInstance().getReturnValue(caseId);
-                if ((returnVal instanceof StringValue)) {
+                if (returnVal instanceof StringValue) {
                     if (returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
                         return callFunction(originalFunction, originalFunctionPackage, returnVal.toString(), args);
                     } else if (returnVal.toString().equals(MockConstants.FUNCTION_CALLORIGINAL_PLACEHOLDER)) {
@@ -80,11 +81,7 @@ public class FunctionMock {
         String version = packageValues[2];
         String className = packageValues[3];
 
-        List<Object> argsList = new ArrayList<>();
-        for (Object arg : args) {
-            argsList.add(arg);
-        }
-
+        List<Object> argsList = Arrays.asList(args);
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, originalFunction);
         return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
                 packageName, version, className, originalFunction, argsList.toArray());
@@ -114,11 +111,7 @@ public class FunctionMock {
                     e.getMessage());
         }
 
-        List<Object> argsList = new ArrayList<>();
-        for (Object arg : args) {
-            argsList.add(arg);
-        }
-
+        List<Object> argsList = Arrays.asList(args);
         ClassLoader classLoader = FunctionMock.class.getClassLoader();
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, methodName);
         return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
@@ -140,10 +133,9 @@ public class FunctionMock {
             for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
                 String file = entries.nextElement().getName();
                 // Get .class files but dont contain '..Frame.class'
-                if (file.endsWith(".class") && !file.contains("Frame.class") && !file.contains("__init")) {
-                    if (file.contains("/tests/") && mockMethod == null) {
-                        mockMethod = getClassDeclaredMethod(file, mockMethodName);
-                    }
+                if (file.endsWith(".class") && !file.contains("Frame.class") && !file.contains("__init")
+                        && file.contains("/tests/") && mockMethod == null) {
+                    mockMethod = getClassDeclaredMethod(file, mockMethodName);
                 }
             }
             originalMethod = getOriginalMethod(originalMethodName, originalPackageName);
@@ -177,20 +169,23 @@ public class FunctionMock {
             // Validate Return types
             if (mockMethodType != originalMethodType) {
                 throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                        MockConstants.TEST_PACKAGE_ID, "Return Types do not match");
+                        MockConstants.TEST_PACKAGE_ID, "Return Type of function " + mockMethod.getName() +
+                                " does not match function" + originalMethod.getName());
             }
 
             // Validate if param number is the same
             if (mockMethodParameters.length != originalMethodParameters.length) {
                 throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                        MockConstants.TEST_PACKAGE_ID, "Parameter types do not match");
+                        MockConstants.TEST_PACKAGE_ID, "Parameter types of function " + mockMethod.getName() +
+                                "does not match function" + originalMethod.getName());
             }
 
             // Validate each param
             for (int i = 0; i < mockMethodParameters.length; i++) {
                 if (mockMethodParameters [i] != originalMethodParameters[i]) {
                     throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                            MockConstants.TEST_PACKAGE_ID, "Parameter types do not match");
+                            MockConstants.TEST_PACKAGE_ID, "Parameter types of function " + mockMethod.getName() +
+                                    "does not match function" + originalMethod.getName());
                 }
             }
 
