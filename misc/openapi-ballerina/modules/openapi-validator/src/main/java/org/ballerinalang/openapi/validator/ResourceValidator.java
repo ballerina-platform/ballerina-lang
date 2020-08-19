@@ -49,7 +49,6 @@ public class ResourceValidator {
     public static List<ValidationError> validateResourceAgainstOperation(Operation operation,
                                                                          ResourceMethod resourceMethod)
             throws OpenApiValidatorException {
-
         List<ValidationError> validationErrors = new ArrayList<>();
         if (!resourceMethod.getParamNames().isEmpty()) {
             for (ResourceParameter resourceParameter: resourceMethod.getParamNames()) {
@@ -103,7 +102,6 @@ public class ResourceValidator {
                                                                 ResourceParameter resourceParameter,
                                                                 Boolean isParameterExit, RequestBody requestBody)
             throws OpenApiValidatorException {
-
         if ((requestBody.getContent() != null) && !getOperationRequestBody(operation).isEmpty()) {
             Map<String, Schema> requestBodySchemas = getOperationRequestBody(operation);
                 for (Map.Entry<String, Schema> requestBodyOperation: requestBodySchemas.entrySet()) {

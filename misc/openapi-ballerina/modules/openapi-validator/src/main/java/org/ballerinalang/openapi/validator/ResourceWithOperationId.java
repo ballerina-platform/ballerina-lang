@@ -55,7 +55,6 @@ public class ResourceWithOperationId {
         boolean operationFilteringEnabled = filters.getOperation().size() > 0;
         boolean excludeTagsFilteringEnabled = filters.getExcludeTag().size() > 0;
         boolean excludeOperationFilteringEnable = filters.getExcludeOperation().size() > 0;
-
         List<OpenAPIPathSummary> openAPIPathSummaries = ResourceWithOperationId.summarizeOpenAPI(openApi);
         // Check based on the method and path filters
         Iterator<OpenAPIPathSummary> openAPIIter = openAPIPathSummaries.iterator();

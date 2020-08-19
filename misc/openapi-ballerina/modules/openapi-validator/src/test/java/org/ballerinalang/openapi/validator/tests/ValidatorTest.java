@@ -17,10 +17,10 @@ package org.ballerinalang.openapi.validator.tests;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
-import org.ballerinalang.openapi.validator.ResourceWithOperationId;
 import org.ballerinalang.openapi.validator.OpenApiValidatorUtil;
 import org.ballerinalang.openapi.validator.ResourceMethod;
 import org.ballerinalang.openapi.validator.ResourcePathSummary;
+import org.ballerinalang.openapi.validator.ResourceWithOperationId;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;

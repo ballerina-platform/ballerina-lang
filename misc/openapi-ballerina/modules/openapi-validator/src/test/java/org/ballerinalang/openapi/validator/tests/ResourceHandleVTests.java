@@ -17,10 +17,10 @@ package org.ballerinalang.openapi.validator.tests;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
-import org.ballerinalang.openapi.validator.ResourceWithOperationId;
 import org.ballerinalang.openapi.validator.OpenApiValidatorException;
 import org.ballerinalang.openapi.validator.ResourceMethod;
 import org.ballerinalang.openapi.validator.ResourceValidator;
+import org.ballerinalang.openapi.validator.ResourceWithOperationId;
 import org.ballerinalang.openapi.validator.ServiceValidator;
 import org.ballerinalang.openapi.validator.error.OpenapiServiceValidationError;
 import org.ballerinalang.openapi.validator.error.ResourceValidationError;
