@@ -2382,7 +2382,11 @@ public class BallerinaParser extends AbstractParser {
         STNode className = parseClassName();
         STNode openBrace = parseOpenBrace();
         STNode classMembers = parseObjectMembers();
+        // TODO: Find another way
+        startContext(ParserRuleContext.OBJECT_MEMBER);
         STNode closeBrace = parseCloseBrace();
+        endContext();
+
         endContext();
         return STNodeFactory.createClassDefinitionNode(metadata, qualifier, classTypeQualifiers, classKeyword,
                 className, openBrace, classMembers, closeBrace);
@@ -2449,8 +2453,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.CLASS_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CLASS_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CLASS_KEYWORD);
+            return parseClassKeyword();
         }
     }
 
@@ -2494,8 +2498,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CLASS_NAME);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.CLASS_NAME);
+            return parseClassName();
         }
     }
 

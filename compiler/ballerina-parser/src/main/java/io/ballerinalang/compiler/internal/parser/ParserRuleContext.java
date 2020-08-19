@@ -54,6 +54,8 @@ public enum ParserRuleContext {
     FUNC_BODY_BLOCK("func-body-block"),
     MODULE_TYPE_DEFINITION("type-definition"),
     MODULE_CLASS_DEFINITION("class-definition"),
+    MODULE_CLASS_DEFINITION_START("class-definition-start"),
+    CLASS_TYPE_QUALIFIER("class-type-qualifier"),
     FIELD_OR_REST_DESCIPTOR_RHS("field-or-rest-descriptor-rhs"),
     FIELD_DESCRIPTOR_RHS("field-descriptor-rhs"),
     RECORD_BODY_START("record-body-start"),
