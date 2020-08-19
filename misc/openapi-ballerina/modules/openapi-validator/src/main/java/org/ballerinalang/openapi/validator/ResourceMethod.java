@@ -46,7 +46,7 @@ public class ResourceMethod {
         return methodPosition;
     }
 
-    void setMethodPosition(Diagnostic.DiagnosticPosition methodsPosition) {
+    public void setMethodPosition(Diagnostic.DiagnosticPosition methodsPosition) {
         this.methodPosition = methodsPosition;
     }
 
@@ -92,7 +92,7 @@ public class ResourceMethod {
         this.body = body;
     }
 
-    void setResourcePosition(Diagnostic.DiagnosticPosition position) {
+    public void setResourcePosition(Diagnostic.DiagnosticPosition position) {
         this.resourcePosition = position;
     }
 
