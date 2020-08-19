@@ -42,7 +42,7 @@ public class ResourceMethod {
         this.body = null;
     }
 
-    Diagnostic.DiagnosticPosition getMethodPosition() {
+    public Diagnostic.DiagnosticPosition getMethodPosition() {
         return methodPosition;
     }
 

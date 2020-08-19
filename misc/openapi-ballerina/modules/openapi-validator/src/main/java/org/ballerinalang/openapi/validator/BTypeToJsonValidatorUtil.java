@@ -362,30 +362,30 @@ public  class BTypeToJsonValidatorUtil {
         if (resourceType instanceof BArrayType) {
             bArrayType = (BArrayType) resourceType;
         }
-        BArrayType traversNestedArray = bArrayType;
+        BArrayType traverseNestedArray = bArrayType;
         ArraySchema traversSchemaNestedArray = arraySchema;
         // Handle nested array type
         if (bArrayType != null) {
             BType bArrayTypeEtype = bArrayType.eType;
             Schema arraySchemaItems = arraySchema.getItems();
             if ((bArrayTypeEtype instanceof BArrayType) && (arraySchemaItems instanceof ArraySchema)) {
-                traversNestedArray = (BArrayType) bArrayTypeEtype;
+                traverseNestedArray = (BArrayType) bArrayTypeEtype;
                 traversSchemaNestedArray = (ArraySchema) arraySchemaItems;
 
-                while ((traversNestedArray.eType instanceof BArrayType) &&
+                while ((traverseNestedArray.eType instanceof BArrayType) &&
                         (traversSchemaNestedArray.getItems() instanceof ArraySchema)) {
                     Schema<?> traversSchemaNestedArraySchemaType = traversSchemaNestedArray.getItems();
                     if (traversSchemaNestedArraySchemaType instanceof ArraySchema) {
                         traversSchemaNestedArray = (ArraySchema) traversSchemaNestedArraySchemaType;
                     }
-                    BType traversNestedArrayBType = traversNestedArray.eType;
-                    if (traversNestedArrayBType instanceof BArrayType) {
-                        traversNestedArray = (BArrayType) traversNestedArrayBType;
+                    BType traverseNestedArrayBType = traverseNestedArray.eType;
+                    if (traverseNestedArrayBType instanceof BArrayType) {
+                        traverseNestedArray = (BArrayType) traverseNestedArrayBType;
                     }
                 }
             }
             //   Handle record type array
-            validateRecordTypeArray(bVarSymbol, validationErrors, traversNestedArray, traversSchemaNestedArray);
+            validateRecordTypeArray(bVarSymbol, validationErrors, traverseNestedArray, traversSchemaNestedArray);
         }
     }
 
@@ -393,26 +393,27 @@ public  class BTypeToJsonValidatorUtil {
      * Handle array item type with record type.
      * @param bVarSymbol                bVarSymbol for parameter
      * @param validationErrors          list with validation errors
-     * @param traversNestedArray        BArrayType parameter
+     * @param traverseNestedArray        BArrayType parameter
      * @param traversSchemaNestedArray  ArraySchema with openApi parameter
      * @throws OpenApiValidatorException
      */
     private static void validateRecordTypeArray(BVarSymbol bVarSymbol, List<ValidationError> validationErrors,
-                                                BArrayType traversNestedArray, ArraySchema traversSchemaNestedArray)
+                                                BArrayType traverseNestedArray, ArraySchema traversSchemaNestedArray)
             throws OpenApiValidatorException {
 
-        if ((traversNestedArray.eType instanceof BRecordType) && traversSchemaNestedArray.getItems() != null) {
-            if ((traversNestedArray.eType.tsymbol.type instanceof BRecordType) &&
+        if ((traverseNestedArray.eType instanceof BRecordType) && traversSchemaNestedArray.getItems() != null) {
+            if ((traverseNestedArray.eType.tsymbol.type instanceof BRecordType) &&
                     traversSchemaNestedArray.getItems() instanceof ObjectSchema) {
                 Schema arraySchema = traversSchemaNestedArray.getItems();
-                List<ValidationError> nestedRecordValidation = BTypeToJsonValidatorUtil.validate(arraySchema, bVarSymbol);
+                List<ValidationError> nestedRecordValidation = BTypeToJsonValidatorUtil.
+                        validate(arraySchema, bVarSymbol);
                 validationErrors.addAll(nestedRecordValidation);
             }
-        } else if (!traversNestedArray.eType.tsymbol.toString().equals(BTypeToJsonValidatorUtil
+        } else if (!traverseNestedArray.eType.tsymbol.toString().equals(BTypeToJsonValidatorUtil
                 .convertOpenAPITypeToBallerina(traversSchemaNestedArray.getItems().getType()))) {
             TypeMismatch validationError = new TypeMismatch(bVarSymbol.name.getValue(),
                     convertTypeToEnum(traversSchemaNestedArray.getItems().getType()),
-                    convertTypeToEnum(traversNestedArray.eType.tsymbol.toString()));
+                    convertTypeToEnum(traverseNestedArray.eType.tsymbol.toString()));
             validationErrors.add(validationError);
         }
     }
@@ -460,33 +461,33 @@ public  class BTypeToJsonValidatorUtil {
                                 arraySchema = (ArraySchema) entrySchema;
                             }
                             if (bArrayType != null) {
-                                BArrayType traversNestedArray = bArrayType;
+                                BArrayType traverseNestedArray = bArrayType;
                                 ArraySchema traversSchemaNestedArray = arraySchema;
                                 //  Handle nested array type
                                 if ((bArrayType.eType instanceof BArrayType) &&
                                         (arraySchema.getItems() instanceof ArraySchema)) {
                                     Schema traversSchemaNestedArraySchemaType = arraySchema.getItems();
-                                    traversNestedArray = (BArrayType) bArrayType.eType;
+                                    traverseNestedArray = (BArrayType) bArrayType.eType;
 
                                     if (traversSchemaNestedArraySchemaType instanceof ArraySchema) {
                                         traversSchemaNestedArray = (ArraySchema) traversSchemaNestedArraySchemaType;
                                     }
-                                    while ((traversNestedArray.eType instanceof BArrayType) &&
+                                    while ((traverseNestedArray.eType instanceof BArrayType) &&
                                             (traversSchemaNestedArray.getItems() instanceof ArraySchema)) {
                                         Schema<?> traversSchemaNestedArraySchema = traversSchemaNestedArray.getItems();
-                                        BType traversNestedArrayBtype = traversNestedArray.eType;
+                                        BType traverseNestedArrayBtype = traverseNestedArray.eType;
 
                                         if ((traversSchemaNestedArraySchema instanceof ArraySchema) &&
-                                                (traversNestedArrayBtype instanceof BArrayType)) {
+                                                (traverseNestedArrayBtype instanceof BArrayType)) {
                                             traversSchemaNestedArray = (ArraySchema) traversSchemaNestedArraySchema;
-                                            traversNestedArray = (BArrayType) traversNestedArrayBtype;
+                                            traverseNestedArray = (BArrayType) traverseNestedArrayBtype;
                                         }
                                     }
                                 }
                                 //  Handle record type in item array
-                                if ((traversNestedArray.eType instanceof BRecordType) &&
+                                if ((traverseNestedArray.eType instanceof BRecordType) &&
                                         (traversSchemaNestedArray.getItems() != null) &&
-                                        (traversNestedArray.eType.tsymbol.type instanceof BRecordType) &&
+                                        (traverseNestedArray.eType.tsymbol.type instanceof BRecordType) &&
                                         traversSchemaNestedArray.getItems() instanceof ObjectSchema) {
 
                                         Schema arrayNschema = traversSchemaNestedArray.getItems();
@@ -495,13 +496,13 @@ public  class BTypeToJsonValidatorUtil {
                                                 .validate(arrayNschema, bVarSymbolArray);
                                         validationErrors.addAll(nestedRecordValidation);
 
-                                } else if (!traversNestedArray.eType.tsymbol.toString().equals(
+                                } else if (!traverseNestedArray.eType.tsymbol.toString().equals(
                                         BTypeToJsonValidatorUtil.convertOpenAPITypeToBallerina(
                                                 traversSchemaNestedArray.getItems().getType()))) {
 
                                     TypeMismatch validationError = new TypeMismatch(field.getValue().name.getValue(),
                                                     convertTypeToEnum(traversSchemaNestedArray.getItems().getType()),
-                                                    convertTypeToEnum(traversNestedArray.eType.tsymbol.toString()),
+                                                    convertTypeToEnum(traverseNestedArray.eType.tsymbol.toString()),
                                                     getRecordName(recordType.toString()));
                                     validationErrors.add(validationError);
                                 }

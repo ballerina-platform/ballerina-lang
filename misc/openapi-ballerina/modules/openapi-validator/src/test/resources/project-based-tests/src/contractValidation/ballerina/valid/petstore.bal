@@ -9,9 +9,6 @@ listener http:Listener ep1 = new(443, config = {host: "petstore.swagger.io"});
     contract: "resources/petstore.yaml",
     tags: [ ],
     operations:[]
-    //excludeTags: [],
-    //excludeOperations: [],
-
 }
 @http:ServiceConfig {
     basePath: "/v1"
