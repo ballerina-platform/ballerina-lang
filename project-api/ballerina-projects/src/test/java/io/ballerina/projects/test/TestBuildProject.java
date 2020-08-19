@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
@@ -65,6 +66,9 @@ public class TestBuildProject {
             }
             for (DocumentId testDocumentId : module.testDocumentIds()) {
                 noOfTestDocuments++;
+            }
+            for (Document doc : module.documents()) {
+                Assert.assertNotNull(doc.syntaxTree());
             }
         }
 

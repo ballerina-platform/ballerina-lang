@@ -43,7 +43,11 @@ public final class DocumentId {
     public UUID id() {
         return id;
     }
-
+    
+    public String documentPath() {
+        return this.documentPath;
+    }
+    
     public ModuleId moduleId() {
         return moduleId;
     }
