@@ -54,16 +54,12 @@ public class ObjectConstructorTest {
         BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorObjectFunctionInvocation");
     }
 
-//    @Test
-//    public void testObjectConstructorClientKeyword() {
-//        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorClientKeyword");
-//    }
-
     @Test
     public void testObjectConstructorIncludedMethod() {
         BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorIncludedMethod");
     }
 
+    @Test
     public void testObjectConstructorNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/expressions/object/object_constructor_expression_negative.bal");

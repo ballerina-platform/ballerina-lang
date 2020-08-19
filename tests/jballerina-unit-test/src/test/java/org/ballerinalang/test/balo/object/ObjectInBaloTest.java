@@ -575,11 +575,6 @@ public class ObjectInBaloTest {
     }
 
     @Test
-    public void testObjectConstructorInitialization() {
-        BRunUtil.invoke(result, "testObjectConstructorInitialization");
-    }
-
-    @Test
     public void testObjectReferingTypeFromBaloNegative() {
         CompileResult result =
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");
