@@ -2488,12 +2488,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.IGNORED) {
                 return;
             } else if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-                returnTaintedStatus = invokableSymbol.taintTable.containsKey(0)
-                        ? invokableSymbol.taintTable.get(0).returnTaintedStatus
-                        : TaintedStatus.TAINTED;
+                returnTaintedStatus = getTaintedStatusOfReceiverParam(invokableSymbol);
             }
         }
         getCurrentAnalysisState().taintedStatus = returnTaintedStatus;
+    }
+
+    private TaintedStatus getTaintedStatusOfReceiverParam(BInvokableSymbol invokableSymbol) {
+        TaintRecord taintRecordOfReceiverParam = invokableSymbol.taintTable.get(0);
+        if (taintRecordOfReceiverParam == null) {
+            return TaintedStatus.TAINTED;
+        } else {
+            return taintRecordOfReceiverParam.returnTaintedStatus;
+        }
     }
 
     private boolean restoreTableIfIgnored(BInvokableSymbol invokableSymbol, Map<Integer, TaintRecord> origTaintTable,

@@ -2615,8 +2615,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         ((BObjectTypeSymbol) typeDefSymbol).referencedFunctions.add(attachedFunc);
     }
 
-    private BLangFunction findFunctionBySymbol(List<BLangFunction> declaredFunctions,
-                                               BSymbol symbol) {
+    private BLangFunction findFunctionBySymbol(List<BLangFunction> declaredFunctions, BSymbol symbol) {
         for (BLangFunction fn : declaredFunctions) {
             if (fn.symbol == symbol) {
                 return fn;
