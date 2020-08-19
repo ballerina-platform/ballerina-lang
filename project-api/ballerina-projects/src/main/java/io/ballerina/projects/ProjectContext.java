@@ -17,6 +17,10 @@
  */
 package io.ballerina.projects;
 
+import org.ballerinalang.toml.model.BuildOptions;
+
+import java.nio.file.Path;
+
 /**
  * The class {@code ProjectContext} offers an API to the environment in
  * which the project runs to manipulate the project.
@@ -25,6 +29,9 @@ package io.ballerina.projects;
  */
 public class ProjectContext {
     private Package currentPackage;
+    private Path sourceRoot;
+    private Path targetPath;
+    private BuildOptions buildOptions;
 
     ProjectContext() {
     }
@@ -44,5 +51,29 @@ public class ProjectContext {
         // TODO 2) Set the created package instance as the currentPackage
         Package newPackage = Package.from(packageConfig);
         setCurrentPackage(newPackage);
+    }
+
+    public Path getTargetPath() {
+        return targetPath;
+    }
+
+    public void setTargetPath(Path targetPath) {
+        this.targetPath = targetPath;
+    }
+
+    public Path getSourceRoot() {
+        return sourceRoot;
+    }
+
+    public void setSourceRoot(Path sourceRoot) {
+        this.sourceRoot = sourceRoot;
+    }
+
+    public BuildOptions getBuildOptions() {
+        return buildOptions;
+    }
+
+    public void setBuildOptions(BuildOptions buildOptions) {
+        this.buildOptions = buildOptions;
     }
 }

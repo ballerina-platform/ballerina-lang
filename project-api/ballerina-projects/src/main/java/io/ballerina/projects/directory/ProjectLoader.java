@@ -17,56 +17,40 @@
  */
 package io.ballerina.projects.directory;
 
-import io.ballerina.projects.DocumentConfig;
-import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.ModuleConfig;
-import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.PackageConfig;
-import io.ballerina.projects.PackageId;
-import io.ballerina.projects.model.BallerinaToml;
+import io.ballerina.projects.Project;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * Contains a set of utility methods that creates the config hierarchy from the project directory.
+ * Contains a set of utility methods to create a project.
  *
  * @since 2.0.0
  */
-class ProjectLoader {
-    public static PackageConfig loadPackage(String packageDir) {
-        final PackageData packageData = ProjectFiles.loadPackageData(packageDir);
-        return createPackageConfig(packageData);
+public class ProjectLoader {
+
+    public static Project loadProject(Path projectPath) throws Exception {
+        if (RepoUtils.isBallerinaProject(projectPath)) {
+            return BuildProject.loadProject(projectPath);
+        } else if (isFileInDefaultModule(projectPath)) {
+            return BuildProject.loadProject(projectPath.getParent());
+        } else if (isFileInOtherModules(projectPath)) {
+            return BuildProject.loadProject(projectPath.getParent().getParent().getParent());
+        } else if (RepoUtils.isBallerinaStandaloneFile(projectPath)) {
+            return SingleFileProject.loadProject(projectPath);
+        } else {
+            throw new Exception("invalid project path: " + projectPath);
+        }
     }
 
-    public static PackageConfig createPackageConfig(PackageData packageData) {
-        final Path packagePage = packageData.packagePath();
-        final PackageId packageId = PackageId.create(packagePage.toString());
-        ModuleConfig defaultModuleConfig = createModuleData(packageData.defaultModule(), packageId);
-        List<ModuleConfig> otherModuleConfigs = packageData.otherModules()
-                .stream()
-                .map(moduleData -> createModuleData(moduleData, packageId))
-                .collect(Collectors.toList());
-        final BallerinaToml ballerinaToml = packageData.ballerinaToml();
-        return PackageConfig.from(packageId, packagePage, defaultModuleConfig, otherModuleConfigs, ballerinaToml);
+    private static boolean isFileInDefaultModule(Path filePath) {
+        return RepoUtils.isBallerinaProject(filePath.getParent());
     }
-
-    public static ModuleConfig createModuleData(ModuleData moduleData, PackageId packageId) {
-        final ModuleId moduleId = ModuleId.create(moduleData.moduleDirectoryPath().toString(), packageId);
-        List<DocumentConfig> srcDocs = moduleData.sourceDocs()
-                .stream()
-                .map(srcDoc -> createDocumentData(srcDoc, moduleId))
-                .collect(Collectors.toList());
-        List<DocumentConfig> testSrcDocs = moduleData.testSourceDocs()
-                .stream()
-                .map(testSrcDoc -> createDocumentData(testSrcDoc, moduleId))
-                .collect(Collectors.toList());
-        return ModuleConfig.from(moduleId, moduleData.moduleDirectoryPath(), srcDocs, testSrcDocs);
-    }
-
-    public static DocumentConfig createDocumentData(DocumentData documentData, ModuleId moduleId) {
-        final DocumentId documentId = DocumentId.create(documentData.filePath().toString(), moduleId);
-        return DocumentConfig.from(documentId, documentData.filePath());
+    private static boolean isFileInOtherModules(Path filePath) {
+        if (filePath.getParent().getParent().getFileName() != null) {
+            return ProjectDirConstants.MODULES_ROOT.equals(filePath.getParent().getParent().getFileName().toString());
+        }
+        return false;
     }
 }

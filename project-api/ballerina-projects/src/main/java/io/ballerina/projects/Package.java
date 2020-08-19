@@ -53,4 +53,8 @@ public class Package {
     public boolean containsModule(ModuleId moduleId) {
         return this.moduleMap.containsKey(moduleId);
     }
+
+    public Module getDefaultModule() {
+        return module(this.packageContext.defaultModuleContext().moduleId());
+    }
 }

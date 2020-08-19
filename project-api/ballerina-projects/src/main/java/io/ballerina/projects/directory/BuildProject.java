@@ -20,6 +20,11 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.model.BallerinaTomlProcessor;
+import org.ballerinalang.toml.model.LockFile;
+import org.wso2.ballerinalang.util.RepoUtils;
+
+import java.nio.file.Path;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created from the project directory.
@@ -27,18 +32,28 @@ import io.ballerina.projects.Project;
  * @since 2.0.0
  */
 public class BuildProject extends Project {
-    // TODO Move projects.build package to a different Gradle module.
-    public static BuildProject newInstance() {
-        return new BuildProject();
+     private LockFile lockFile; // related to build command?
+
+    public static BuildProject loadProject(Path projectPath) throws Exception {
+        return new BuildProject(projectPath);
     }
 
-    private BuildProject() {
+    private BuildProject(Path projectPath) throws Exception {
         super();
+        if (!RepoUtils.isBallerinaProject(projectPath)) {
+            throw new Exception("invalid Ballerina source path:" + projectPath);
+        }
+        packagePath = projectPath.toString();
+        //TODO: replace with the new toml processor
+        ballerinaToml = BallerinaTomlProcessor.parse(projectPath.resolve("Ballerina.toml"));
+        this.context.setSourceRoot(projectPath);
+        this.context.setTargetPath(ProjectFiles.createTargetDirectoryStructure(projectPath));
     }
 
-    public Package loadPackage(String packagePath) {
-        final PackageConfig packageConfig = ProjectLoader.loadPackage(packagePath);
+    public Package getPackage() {
+        final PackageConfig packageConfig = PackageLoader.loadPackage(packagePath, false);
         this.context.addPackage(packageConfig);
+        this.context.setBuildOptions(this.ballerinaToml.getBuildOptions());
         return this.context.currentPackage();
     }
 }

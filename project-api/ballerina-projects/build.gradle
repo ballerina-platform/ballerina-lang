@@ -24,6 +24,7 @@ dependencies {
     testImplementation 'org.testng:testng'
     testCompile 'org.powermock:powermock-mockito-release-full'
     testCompile 'org.powermock:powermock-module-testng-common'
+    testCompile 'org.testng:testng'
 }
 
 description = 'Ballerina - Projects'

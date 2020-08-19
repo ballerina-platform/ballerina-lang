@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.model.BallerinaToml;
-
 import java.nio.file.Path;
 import java.util.List;
 
@@ -37,26 +35,22 @@ public class PackageConfig {
     // Ballerina toml file config
     private final ModuleConfig defaultModule;
     private final List<ModuleConfig> otherModules;
-    private final BallerinaToml ballerinaToml;
 
     private PackageConfig(PackageId packageId,
                           Path packagePath,
                           ModuleConfig defaultModule,
-                          List<ModuleConfig> otherModules,
-                          BallerinaToml ballerinaToml) {
+                          List<ModuleConfig> otherModules) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.defaultModule = defaultModule;
         this.otherModules = otherModules;
-        this.ballerinaToml = ballerinaToml;
     }
 
     public static PackageConfig from(PackageId packageId,
                                      Path packagePath,
                                      ModuleConfig defaultModule,
-                                     List<ModuleConfig> otherModules,
-                                     BallerinaToml ballerinaToml) {
-        return new PackageConfig(packageId, packagePath, defaultModule, otherModules, ballerinaToml);
+                                     List<ModuleConfig> otherModules) {
+        return new PackageConfig(packageId, packagePath, defaultModule, otherModules);
     }
 
     public PackageId packageId() {
@@ -75,9 +69,5 @@ public class PackageConfig {
 
     public List<ModuleConfig> otherModules() {
         return otherModules;
-    }
-
-    public BallerinaToml ballerinaToml() {
-        return this.ballerinaToml;
     }
 }

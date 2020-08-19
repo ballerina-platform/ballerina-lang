@@ -17,6 +17,10 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.model.BallerinaToml;
+
+import java.nio.file.Path;
+
 /**
  * The class {code Project} provides an abstract representation of a Ballerina project.
  *
@@ -24,6 +28,8 @@ package io.ballerina.projects;
  */
 public abstract class Project {
     protected final ProjectContext context;
+    protected String packagePath;
+    protected BallerinaToml ballerinaToml;
 
     protected Project() {
         this.context = new ProjectContext();
@@ -31,5 +37,9 @@ public abstract class Project {
 
     public Package currentPackage() {
         return this.context.currentPackage();
+    }
+
+    public Path target() {
+        return this.context.getTargetPath();
     }
 }

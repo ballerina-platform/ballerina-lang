@@ -41,9 +41,17 @@ public class TestBuildProject {
     public void testBuildProjectAPI() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
         // 1) Initialize the project instance
-        BuildProject project = BuildProject.newInstance();
+        BuildProject project = null;
+        try {
+            project = BuildProject.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
         // 2) Load the package
-        Package currentPackage = project.loadPackage(projectPath.toString());
+        Package currentPackage = project.getPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 2);
 
         // TODO find an easy way to test the project structure. e.g. serialize the structure in a json file.
         int noOfSrcDocuments = 0;
@@ -62,5 +70,9 @@ public class TestBuildProject {
 
         Assert.assertEquals(noOfSrcDocuments, 4);
         Assert.assertEquals(noOfTestDocuments, 3);
+
+        Assert.assertTrue(project.target().toFile().exists());
+        Assert.assertEquals(project.target().toFile().getParent(), projectPath.toString());
     }
+
 }
