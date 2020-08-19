@@ -41,18 +41,6 @@ public class ErrorTypeDescriptor extends BallerinaTypeDesc {
     }
 
     /**
-     * Get the reason type descriptor.
-     *
-     * @return {@link BallerinaTypeDescriptor} reason
-     */
-    public BallerinaTypeDescriptor getReason() {
-        if (this.reason == null) {
-            this.reason = TypesFactory.getTypeDescriptor(((BErrorType) this.getBType()).getReasonType());
-        }
-        return this.reason;
-    }
-
-    /**
      * Get the detail type descriptor.
      *
      * @return {@link BallerinaTypeDescriptor} detail
