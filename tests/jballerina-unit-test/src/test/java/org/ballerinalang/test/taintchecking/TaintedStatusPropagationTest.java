@@ -655,8 +655,9 @@ public class TaintedStatusPropagationTest {
     public void testClassMemberWithConstructorNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/class-member-with-constructor-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 21, 20);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 30, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 31, 20);
     }
 
 //    @Test () Disabled on #21823
