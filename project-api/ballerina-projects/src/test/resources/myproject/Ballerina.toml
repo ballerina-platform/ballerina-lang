@@ -1,4 +1,4 @@
-[project]
-org-name = "sameera"
+[package]
+org = "sameera"
 name = "winery"
 version = "0.1.0"

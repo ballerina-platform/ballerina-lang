@@ -36,8 +36,11 @@ public class SingleFileProject extends Project {
         super();
         packagePath = projectPath.toString();
         ballerinaToml = new Manifest();
-        this.context.setSourceRoot(createTempProjectRoot());
-        this.context.setTargetPath(ProjectFiles.createTargetDirectoryStructure(this.context.getSourceRoot()));
+        Path sourceRoot = createTempProjectRoot();
+        this.context.setTargetPath(ProjectFiles.createTargetDirectoryStructure(sourceRoot));
+
+        // Set default build options
+        this.context.setBuildOptions(new BuildOptions());
     }
 
     private Path createTempProjectRoot() {
@@ -54,5 +57,35 @@ public class SingleFileProject extends Project {
         return this.context.currentPackage();
     }
 
+    public BuildOptions getBuildOptions() {
+        return (BuildOptions) this.context.getBuildOptions();
+    }
+    public void setBuildOptions(BuildOptions newBuildOptions) {
+        BuildOptions buildOptions = (BuildOptions) this.context.getBuildOptions();
+        buildOptions.setB7aConfigFile(newBuildOptions.getB7aConfigFile());
+        buildOptions.setSourceRoot(newBuildOptions.getSourceRoot());
+        buildOptions.setOutput(newBuildOptions.getOutput());
+        this.context.setBuildOptions(newBuildOptions);
+    }
 
+    public static class BuildOptions extends io.ballerina.projects.BuildOptions {
+
+        private BuildOptions() {
+            this.sourceRoot = System.getProperty("user.dir");
+            this.output = System.getProperty("user.dir");
+            this.skipLock = true;
+            this.codeCoverage = false;
+            this.observabilityIncluded = false;
+//            this.b7aConfigFile = ballerinaToml.getBuildOptions().getB7aConfig();
+        }
+
+        public void setOutput(String output) {
+            this.output = output;
+        }
+
+        public String getOutput() {
+            return output;
+        }
+
+    }
 }

@@ -20,10 +20,9 @@ package io.ballerina.projects.utils;
 /**
  * Defines constants related to the project directory.
  *
- * @since 0.964.0
+ * @since 2.0.0
  */
 public class ProjectConstants {
-
 
     public static final String BLANG_SOURCE_EXT = ".bal";
     public static final String BLANG_COMPILED_PROG_EXT = ".balx";
