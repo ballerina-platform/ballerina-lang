@@ -41,8 +41,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-
 /**
  * This util class for validate the any given schema with BVarSymbol type.
  */
