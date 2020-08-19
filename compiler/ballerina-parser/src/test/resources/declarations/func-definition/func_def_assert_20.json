@@ -92,11 +92,11 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "TYPE_DESC",
+                                      "kind": "SIMPLE_NAME_REFERENCE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "SIMPLE_TYPE_DESC",
+                                          "kind": "IDENTIFIER_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
@@ -293,11 +293,11 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "TYPE_DESC",
+                                      "kind": "SIMPLE_NAME_REFERENCE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "SIMPLE_TYPE_DESC",
+                                          "kind": "IDENTIFIER_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
