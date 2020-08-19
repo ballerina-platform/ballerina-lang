@@ -21,6 +21,10 @@ import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static org.ballerinalang.openapi.utils.GeneratorConstants.USER_DIR;
 
 /**
  * Main class to implement "openapi" command for ballerina.
@@ -42,12 +46,21 @@ import java.io.PrintStream;
 public class OpenApiCmd implements BLauncherCmd {
     private static final String CMD_NAME = "openapi";
     private PrintStream outStream;
+    private Path executionPath = Paths.get(System.getProperty(USER_DIR));
 
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Option(names = {"--input"}, description = "Generating the client and service both files")
+    private String inputPath;
+
+    @CommandLine.Option(names = {"-o", "--output"}, description = "Location of the generated Ballerina service, " +
+            "client and model files.")
+    private String outputPath;
+
     public OpenApiCmd() {
         this.outStream = System.err;
+//        this.executionPath = System.getProperty("user.dir");
     }
 
     public OpenApiCmd(PrintStream outStream) {
