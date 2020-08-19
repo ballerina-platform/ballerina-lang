@@ -647,6 +647,20 @@ public class TypeChecker {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
+        // If the source type is neither a record type nor an object type, check `is` type by looking only at the types.
+        // Else, since records and objects may have `readonly` fields, need to use the value also.
+        // e.g.,
+        //      const HUNDRED = 100;
+        //
+        //      type Foo record {
+        //          HUNDRED i;
+        //      };
+        //
+        //      type Bar record {
+        //          readonly string|int i;
+        //      };
+        //
+        // where `Bar b = {i: 100};`, `b is Foo` should evaluate to true.
         if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
             return checkIsType(sourceType, targetType);
         }
@@ -804,36 +818,39 @@ public class TypeChecker {
                 return checkConstraints(((BMapType) sourceType).getConstrainedType(), targetConstrainedType,
                                         unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
-                MapValue sourceMapValue = (MapValue) sourceVal;
-                BRecordType recType = (BRecordType) sourceType;
-
-                for (BField field : recType.getFields().values()) {
-                    if (!Flags.isFlagOn(field.flags, Flags.READONLY)) {
-                        if (!checkIsType(field.type, targetConstrainedType, unresolvedTypes)) {
-                            return false;
-                        }
-                        continue;
-                    }
-
-                    BString name = StringUtils.fromString(field.name);
-
-                    if (Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !sourceMapValue.containsKey(name)) {
-                        continue;
-                    }
-
-                    if (!checkIsLikeType(sourceMapValue.get(name), targetConstrainedType)) {
-                        return false;
-                    }
-                }
-
-                if (recType.sealed) {
-                    return true;
-                }
-
-                return checkIsType(recType.restFieldType, targetConstrainedType, unresolvedTypes);
+                return checkIsMapType((MapValue) sourceVal, (BRecordType) sourceType, unresolvedTypes,
+                                      targetConstrainedType);
             default:
                 return false;
         }
+    }
+
+    private static boolean checkIsMapType(MapValue sourceVal, BRecordType sourceType, List<TypePair> unresolvedTypes,
+                                          BType targetConstrainedType) {
+        for (BField field : sourceType.getFields().values()) {
+            if (!Flags.isFlagOn(field.flags, Flags.READONLY)) {
+                if (!checkIsType(field.type, targetConstrainedType, unresolvedTypes)) {
+                    return false;
+                }
+                continue;
+            }
+
+            BString name = StringUtils.fromString(field.name);
+
+            if (Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !sourceVal.containsKey(name)) {
+                continue;
+            }
+
+            if (!checkIsLikeType(sourceVal.get(name), targetConstrainedType)) {
+                return false;
+            }
+        }
+
+        if (sourceType.sealed) {
+            return true;
+        }
+
+        return checkIsType(sourceType.restFieldType, targetConstrainedType, unresolvedTypes);
     }
 
     private static boolean checkIsXMLType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
