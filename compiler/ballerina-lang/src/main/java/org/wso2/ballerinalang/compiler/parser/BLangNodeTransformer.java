@@ -4074,20 +4074,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return bLUserDefinedType;
         } else if (type.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             // Map name reference as a type
+            if (type.hasDiagnostics()) {
+                // if it hasDiagnostics then its missing type desc.
+                BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+                BLangIdentifier pkgAlias = this.createIdentifier(null, "");
+                BLangIdentifier name = this.createIdentifier((Token) type);
+                BLangNameReference nameReference = new BLangNameReference(getPosition(type), null, pkgAlias, name);
+                bLUserDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+                bLUserDefinedType.typeName = (BLangIdentifier) nameReference.name;
+                bLUserDefinedType.pos = getPosition(type);
+                return bLUserDefinedType;
+            }
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) type;
             return createTypeNode(nameReferenceNode.name());
-        } else if (type.kind() == SyntaxKind.TYPE_DESC) {
-            // kind can be type-desc only if its a missing token.
-            BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-            BLangIdentifier pkgAlias = this.createIdentifier(null, "");
-            BLangIdentifier name = this.createIdentifier((Token) type);
-            BLangNameReference nameReference = new BLangNameReference(getPosition(type), null, pkgAlias, name);
-            bLUserDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-            bLUserDefinedType.typeName = (BLangIdentifier) nameReference.name;
-            bLUserDefinedType.pos = getPosition(type);
-            return bLUserDefinedType;
         }
-
         return (BLangType) type.apply(this);
     }
 
@@ -4535,7 +4535,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     static boolean isType(SyntaxKind nodeKind) {
         switch (nodeKind) {
-            case TYPE_DESC:
             case RECORD_TYPE_DESC:
             case OBJECT_TYPE_DESC:
             case NIL_TYPE_DESC:
