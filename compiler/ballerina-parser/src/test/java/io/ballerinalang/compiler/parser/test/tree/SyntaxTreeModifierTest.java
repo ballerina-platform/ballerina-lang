@@ -139,7 +139,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(oldSeperatedlistNode.expressions().size(),
                 newSeperatedlistNode.expressions().size());
         Assert.assertEquals(((SimpleNameReferenceNode) newSeperatedlistNode.expressions().get(0)).name().text(),
-                ((SimpleNameReferenceNode) oldSeperatedlistNode.expressions().get(0)).name().text()+"_new");
+                ((SimpleNameReferenceNode) oldSeperatedlistNode.expressions().get(0)).name().text() + "_new");
     }
 
     @Test
