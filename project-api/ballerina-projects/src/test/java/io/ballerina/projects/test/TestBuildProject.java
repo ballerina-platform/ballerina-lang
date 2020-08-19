@@ -75,4 +75,45 @@ public class TestBuildProject {
         Assert.assertEquals(project.target().toFile().getParent(), projectPath.toString());
     }
 
+    @Test
+    public void testSetBuildOptions() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        BuildProject.BuildOptions buildOptions = project.getBuildOptions();
+
+        // Verify expected default buildOptions
+        Assert.assertEquals(buildOptions.getSourceRoot(), System.getProperty("user.dir"));
+        Assert.assertFalse(buildOptions.isObservabilityIncluded());
+        Assert.assertFalse(buildOptions.isSkipTests());
+        Assert.assertFalse(buildOptions.isOffline());
+        Assert.assertFalse(buildOptions.isTestReport());
+        Assert.assertFalse(buildOptions.isCodeCoverage());
+        Assert.assertFalse(buildOptions.isSkipLock());
+        Assert.assertFalse(buildOptions.isExperimental());
+
+        buildOptions.setObservabilityEnabled(false);
+        buildOptions.setSkipLock(true);
+        buildOptions.setSkipTests(true);
+        buildOptions.setSourceRoot(projectPath.toString());
+        buildOptions.setCodeCoverage(true);
+
+        // Update and verify buildOptions
+        project.setBuildOptions(buildOptions);
+        buildOptions = project.getBuildOptions();
+        Assert.assertEquals(buildOptions.getSourceRoot(), projectPath.toString());
+        Assert.assertFalse(buildOptions.isObservabilityIncluded());
+        Assert.assertTrue(buildOptions.isSkipTests());
+        Assert.assertFalse(buildOptions.isOffline());
+        Assert.assertFalse(buildOptions.isTestReport());
+        Assert.assertTrue(buildOptions.isCodeCoverage());
+        Assert.assertTrue(buildOptions.isSkipLock());
+        Assert.assertFalse(buildOptions.isExperimental());
+    }
+
 }
