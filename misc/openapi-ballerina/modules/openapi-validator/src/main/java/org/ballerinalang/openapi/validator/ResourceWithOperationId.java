@@ -253,14 +253,14 @@ public class ResourceWithOperationId {
         List<ResourcePathSummary> resourcePathSummaries = summarizeResources(serviceNode);
         // check the contract paths are available at the resource
         for (OpenAPIPathSummary openAPIPathSummary: openAPISummaries) {
-            Boolean isServiceExit = false;
+            boolean isServiceExit = false;
             for (ResourcePathSummary resourcePathSummary: resourcePathSummaries) {
                 if (openAPIPathSummary.getPath().equals(resourcePathSummary.getPath())) {
                     isServiceExit = true;
                     //  check whether documented operations are available at resource file
                     if (!openAPIPathSummary.getAvailableOperations().isEmpty()) {
                         for (String operation: openAPIPathSummary.getAvailableOperations()) {
-                            Boolean isOperationExit = false;
+                            boolean isOperationExit = false;
                             if (!(resourcePathSummary.getMethods().isEmpty())) {
                                 for (Map.Entry<String, ResourceMethod> method:
                                         resourcePathSummary.getMethods().entrySet()) {
@@ -303,31 +303,25 @@ public class ResourceWithOperationId {
         List<ResourcePathSummary> resourceSummaryList = new ArrayList<>();
         for (FunctionNode resource : serviceNode.getResources()) {
             AnnotationAttachmentNode annotation = null;
-
             // Find the "ResourceConfig" annotation.
             for (AnnotationAttachmentNode ann : resource.getAnnotationAttachments()) {
-
                 if (Constants.HTTP.equals(ann.getPackageAlias().getValue())
                         && Constants.RESOURCE_CONFIG.equals(ann.getAnnotationName().getValue())) {
                     annotation = ann;
                 }
             }
-
             if (annotation != null) {
                 if (annotation.getExpression() instanceof BLangRecordLiteral) {
                     BLangRecordLiteral recordLiteral = (BLangRecordLiteral) annotation.getExpression();
-
                     String methodPath = null;
                     Diagnostic.DiagnosticPosition pathPos = null;
                     ResourceMethod resourceMethod = new ResourceMethod();
                     String methodName = null;
                     Diagnostic.DiagnosticPosition methodPos = null;
                     String body = null;
-
                     for (BLangRecordLiteral.RecordField field : recordLiteral.getFields()) {
                         BLangExpression keyExpr;
                         BLangExpression valueExpr;
-
                         if (field.isKeyValueField()) {
                             BLangRecordLiteral.BLangRecordKeyValueField keyValue =
                                     (BLangRecordLiteral.BLangRecordKeyValueField) field;
@@ -339,7 +333,6 @@ public class ResourceWithOperationId {
                             keyExpr = varNameField;
                             valueExpr = varNameField;
                         }
-
                         if (keyExpr instanceof BLangSimpleVarRef) {
                             BLangSimpleVarRef path = (BLangSimpleVarRef) keyExpr;
                             String contractAttr = path.getVariableName().getValue();
@@ -448,23 +441,18 @@ public class ResourceWithOperationId {
                 if (operations.getGet() != null) {
                     addOpenapiSummary(openAPISummary, Constants.GET, operations.getGet());
                 }
-
                 if (operations.getPost() != null) {
                     addOpenapiSummary(openAPISummary, Constants.POST, operations.getPost());
                 }
-
                 if (operations.getPut() != null) {
                     addOpenapiSummary(openAPISummary, Constants.PUT, operations.getPut());
                 }
-
                 if (operations.getDelete() != null) {
                     addOpenapiSummary(openAPISummary, Constants.DELETE, operations.getDelete());
                 }
-
                 if (operations.getHead() != null) {
                     addOpenapiSummary(openAPISummary, Constants.HEAD, operations.getHead());
                 }
-
                 if (operations.getPatch() != null) {
                     addOpenapiSummary(openAPISummary, Constants.PATCH, operations.getPatch());
                 }
@@ -472,12 +460,10 @@ public class ResourceWithOperationId {
                 if (operations.getOptions() != null) {
                     addOpenapiSummary(openAPISummary, Constants.OPTIONS, operations.getOptions());
                 }
-
                 if (operations.getTrace() != null) {
                     addOpenapiSummary(openAPISummary, Constants.TRACE, operations.getTrace());
                 }
             }
-
             openAPISummaries.add(openAPISummary);
         }
     return openAPISummaries;
@@ -519,5 +505,4 @@ public class ResourceWithOperationId {
         }
         return openAPISummaries;
     }
-
 }
