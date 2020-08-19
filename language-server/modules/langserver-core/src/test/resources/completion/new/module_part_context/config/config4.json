@@ -82,6 +82,30 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestMap1",
+      "kind": "Unit",
+      "detail": "Map",
+      "sortText": "230",
+      "insertText": "TestMap1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "Unit",
+      "detail": "Map",
+      "sortText": "230",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "Unit",
+      "detail": "Map",
+      "sortText": "230",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestObject1",
       "kind": "Interface",
       "detail": "Object",
