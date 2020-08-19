@@ -40,7 +40,7 @@ public class ValidatorTest {
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
 
     /**
-     * Return bLangPackage for given .bal file
+     * Return bLangPackage for given bal file.
      * @param fileName      String type Of file name
      * @return BlangPackage
      * @throws UnsupportedEncodingException
