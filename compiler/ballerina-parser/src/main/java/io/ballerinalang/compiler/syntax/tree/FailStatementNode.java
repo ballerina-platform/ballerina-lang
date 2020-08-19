@@ -26,9 +26,9 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class FailExpressionNode extends ExpressionNode {
+public class FailStatementNode extends StatementNode {
 
-    public FailExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public FailStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -38,6 +38,10 @@ public class FailExpressionNode extends ExpressionNode {
 
     public ExpressionNode expression() {
         return childInBucket(1);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(2);
     }
 
     @Override
@@ -54,27 +58,29 @@ public class FailExpressionNode extends ExpressionNode {
     protected String[] childNames() {
         return new String[]{
                 "failKeyword",
-                "expression"};
+                "expression",
+                "semicolonToken"};
     }
 
-    public FailExpressionNode modify(
-            SyntaxKind kind,
+    public FailStatementNode modify(
             Token failKeyword,
-            ExpressionNode expression) {
+            ExpressionNode expression,
+            Token semicolonToken) {
         if (checkForReferenceEquality(
                 failKeyword,
-                expression)) {
+                expression,
+                semicolonToken)) {
             return this;
         }
 
-        return NodeFactory.createFailExpressionNode(
-                kind,
+        return NodeFactory.createFailStatementNode(
                 failKeyword,
-                expression);
+                expression,
+                semicolonToken);
     }
 
-    public FailExpressionNodeModifier modify() {
-        return new FailExpressionNodeModifier(this);
+    public FailStatementNodeModifier modify() {
+        return new FailStatementNodeModifier(this);
     }
 
     /**
@@ -82,36 +88,45 @@ public class FailExpressionNode extends ExpressionNode {
      *
      * @since 2.0.0
      */
-    public static class FailExpressionNodeModifier {
-        private final FailExpressionNode oldNode;
+    public static class FailStatementNodeModifier {
+        private final FailStatementNode oldNode;
         private Token failKeyword;
         private ExpressionNode expression;
+        private Token semicolonToken;
 
-        public FailExpressionNodeModifier(FailExpressionNode oldNode) {
+        public FailStatementNodeModifier(FailStatementNode oldNode) {
             this.oldNode = oldNode;
             this.failKeyword = oldNode.failKeyword();
             this.expression = oldNode.expression();
+            this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public FailExpressionNodeModifier withFailKeyword(
+        public FailStatementNodeModifier withFailKeyword(
                 Token failKeyword) {
             Objects.requireNonNull(failKeyword, "failKeyword must not be null");
             this.failKeyword = failKeyword;
             return this;
         }
 
-        public FailExpressionNodeModifier withExpression(
+        public FailStatementNodeModifier withExpression(
                 ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public FailExpressionNode apply() {
+        public FailStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public FailStatementNode apply() {
             return oldNode.modify(
-                    oldNode.kind(),
                     failKeyword,
-                    expression);
+                    expression,
+                    semicolonToken);
         }
     }
 }

@@ -110,7 +110,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT,
             ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.TRANSACTION_STMT,
             ParserRuleContext.RETRY_STMT, ParserRuleContext.ROLLBACK_STMT, ParserRuleContext.DO_BLOCK,
-            ParserRuleContext.MATCH_STMT};
+            ParserRuleContext.MATCH_STMT, ParserRuleContext.FAIL_STATEMENT};
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
@@ -2155,6 +2155,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.BREAK_KEYWORD;
             case RETURN_STMT:
                 return ParserRuleContext.RETURN_KEYWORD;
+            case FAIL_STATEMENT:
+                return ParserRuleContext.FAIL_KEYWORD;
             case ACCESS_EXPRESSION:
                 return ParserRuleContext.VARIABLE_REF;
             case MAPPING_FIELD_NAME:
@@ -2776,6 +2778,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CONTINUE_STATEMENT:
             case BREAK_STATEMENT:
             case RETURN_STMT:
+            case FAIL_STATEMENT:
             case COMPUTED_FIELD_NAME:
             case LISTENERS_LIST:
             case SERVICE_DECL:
@@ -3947,6 +3950,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CONTINUE_STATEMENT:
             case BREAK_STATEMENT:
             case RETURN_STMT:
+            case FAIL_STATEMENT:
             case COMPOUND_ASSIGNMENT_STMT:
             case LOCAL_TYPE_DEFINITION_STMT:
             case EXPRESSION_STATEMENT:

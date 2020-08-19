@@ -283,6 +283,7 @@ public enum ParserRuleContext {
     ROLLBACK_STMT("rollback-stmt"),
     AMBIGUOUS_STMT("ambiguous-stmt"),
     MATCH_STMT("match-stmt"),
+    FAIL_STATEMENT("fail-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),

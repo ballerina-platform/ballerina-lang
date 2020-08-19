@@ -109,7 +109,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -175,6 +174,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -1967,14 +1967,6 @@ public class BLangPackageBuilder {
         addExpressionNode(checkPanicExpr);
     }
 
-    void createFailExpr(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangFailExpr failExpr = (BLangFailExpr) TreeBuilder.createFailExpressionNode();
-        failExpr.pos = pos;
-        failExpr.addWS(ws);
-        failExpr.expr = (BLangExpression) exprNodeStack.pop();
-        addExpressionNode(failExpr);
-    }
-
     void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
         trapExpr.pos = pos;
@@ -3183,6 +3175,15 @@ public class BLangPackageBuilder {
         }
 
         addStmtToCurrentBlock(doNode);
+    }
+
+    void addFailStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangFail failNode = (BLangFail) TreeBuilder.createFailNode();
+        failNode.pos = pos;
+        failNode.addWS(ws);
+        failNode.expr = (BLangExpression) exprNodeStack.pop();
+
+        addStmtToCurrentBlock(failNode);
     }
 
     void startBlockStmt() {

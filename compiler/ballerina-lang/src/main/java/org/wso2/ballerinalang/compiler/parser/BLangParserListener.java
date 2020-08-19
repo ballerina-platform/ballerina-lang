@@ -1933,6 +1933,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addDoStmt(getCurrentPos(ctx), getWS(ctx));
     }
 
+    @Override
+    public void exitFailStatement(BallerinaParser.FailStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addFailStmt(getCurrentPos(ctx), getWS(ctx));
+    }
 
     /**
      * {@inheritDoc}
@@ -2823,15 +2831,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createCheckedExpr(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void exitFailExpression(BallerinaParser.FailExpressionContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.createFailExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

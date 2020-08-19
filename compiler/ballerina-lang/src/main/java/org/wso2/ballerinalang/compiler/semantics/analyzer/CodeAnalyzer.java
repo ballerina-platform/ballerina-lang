@@ -98,7 +98,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -157,6 +156,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -1384,6 +1384,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.statementReturns = statementReturns;
         this.resetLastStatement();
+    }
+
+
+    @Override
+    public void visit(BLangFail failNode) {
+        analyzeExpr(failNode.expr);
+
+        this.statementReturns = true;
+        if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+            // Check at module level.
+            return;
+        }
+
+        BType exprType = env.enclInvokable.getReturnTypeNode().type;
+        failNode.expr.type = symTable.errorType;
+
+        if (!types.isAssignable(getErrorTypes(failNode.expr.type), exprType)) {
+            dlog.error(failNode.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        }
+
+        returnTypes.peek().add(exprType);
     }
 
     @Override
@@ -2701,29 +2722,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         returnTypes.peek().add(exprType);
-    }
-
-    @Override
-    public void visit(BLangFailExpr failExpr) {
-        analyzeExpr(failExpr.expr);
-
-        if (failExpr.expectedType.tag == symTable.noType.tag) {
-//            this.statementReturns = true;
-            if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
-                // Check at module level.
-                return;
-            }
-
-            BType exprType = env.enclInvokable.getReturnTypeNode().type;
-            failExpr.expr.type = symTable.errorType;
-
-//            if (!types.isAssignable(getErrorTypes(failExpr.expr.type), exprType)) {
-//                dlog.error(failExpr.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
-//            }
-
-            returnTypes.peek().add(exprType);
-            validateActionParentNode(failExpr.pos, failExpr);
-        }
     }
 
     @Override

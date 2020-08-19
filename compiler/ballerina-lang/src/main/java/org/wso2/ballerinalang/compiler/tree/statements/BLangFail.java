@@ -15,23 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.tree.expressions;
+package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.FailExpressionNode;
+import org.ballerinalang.model.tree.statements.FailStatementNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.List;
 
 /**
- * {@code FailExpressionNode} represents an expression which forces to return error.
+ * {@code FailStatementNode} represents an expression which forces to return error.
  *
  * @since Swan Lake
  */
-public class BLangFailExpr extends BLangExpression implements FailExpressionNode {
+public class BLangFail extends BLangStatement implements FailStatementNode {
 
     public BLangExpression expr;
     public BLangExpressionStmt exprStmt;

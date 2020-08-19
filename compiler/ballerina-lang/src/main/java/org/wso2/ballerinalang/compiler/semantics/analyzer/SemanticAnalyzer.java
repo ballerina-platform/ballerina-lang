@@ -111,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -2417,6 +2418,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(doNode.body, narrowedEnv);
         if (doNode.onFailClause != null) {
             this.analyzeNode(doNode.onFailClause, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangFail failNode) {
+        BLangExpression errorExpression = failNode.expr;
+        BType errorExpressionType = typeChecker.checkExpr(errorExpression, env);
+
+        if (errorExpressionType == symTable.semanticError ||
+                !types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
+            dlog.error(errorExpression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, errorExpression.toString());
         }
     }
 

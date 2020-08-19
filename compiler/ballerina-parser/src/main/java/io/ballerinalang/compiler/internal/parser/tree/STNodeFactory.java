@@ -203,6 +203,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
+    public static STNode createFailStatementNode(
+            STNode failKeyword,
+            STNode expression,
+            STNode semicolonToken) {
+
+        return new STFailStatementNode(
+                failKeyword,
+                expression,
+                semicolonToken);
+    }
+
     public static STNode createExpressionStatementNode(
             SyntaxKind kind,
             STNode expression,
@@ -383,17 +394,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STCheckExpressionNode(
                 kind,
                 checkKeyword,
-                expression);
-    }
-
-    public static STNode createFailExpressionNode(
-            SyntaxKind kind,
-            STNode failKeyword,
-            STNode expression) {
-
-        return new STFailExpressionNode(
-                kind,
-                failKeyword,
                 expression);
     }
 

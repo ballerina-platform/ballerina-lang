@@ -1,5 +1,4 @@
-public function foo() {
-
-    foreach var [ fruits , , ...foobar] in test {
-    }
+function foo(){
+    error err = error("Custom error thrown explicitly.");
+    fail ;
 }

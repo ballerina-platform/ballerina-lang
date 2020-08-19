@@ -110,7 +110,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -195,6 +194,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -4668,7 +4668,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFailExpr failExpr) {
+    public void visit(BLangFail failNode) {
 //        lambdaFunction.function = func;
 //        func.requiredParams.addAll(lambdaFunctionVariable);
 //        func.setReturnTypeNode(returnType);
@@ -4692,15 +4692,20 @@ public class Desugar extends BLangNodeVisitor {
 //        onFailFunc.function.requiredParams.forEach(variable -> paramTypes.add(variable.symbol.type));
 //        onFailFunc.type = new BInvokableType(paramTypes, onFailFunc..type.getReturnType(),
 //                null);
-        onFailLambdaInvocation.argExprs = Lists.of(rewrite(failExpr.expr, env));
-        onFailLambdaInvocation.requiredArgs = onFailLambdaInvocation.argExprs;
-        BLangStatementExpression expression = ASTBuilderUtil.createStatementExpression(onFailFuncBlock,
-                ASTBuilderUtil.createLiteral(failExpr.pos, symTable.nilType, Names.NIL_VALUE));
-        BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-        exprStmt.expr = expression;
-        exprStmt.pos = failExpr.pos;
-        failExpr.exprStmt = exprStmt;
-        result = failExpr;
+        if (onFailFuncBlock != null) {
+            onFailLambdaInvocation.argExprs = Lists.of(rewrite(failNode.expr, env));
+            onFailLambdaInvocation.requiredArgs = onFailLambdaInvocation.argExprs;
+            BLangStatementExpression expression = ASTBuilderUtil.createStatementExpression(onFailFuncBlock,
+                    ASTBuilderUtil.createLiteral(failNode.pos, symTable.nilType, Names.NIL_VALUE));
+            BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+            exprStmt.expr = expression;
+            exprStmt.pos = failNode.pos;
+            failNode.exprStmt = exprStmt;
+            result = failNode;
+        } else {
+            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failNode.pos, failNode.expr);
+            result = rewrite(stmt, env);
+        }
     }
 
     // Generated expressions. Following expressions are not part of the original syntax
@@ -5762,18 +5767,14 @@ public class Desugar extends BLangNodeVisitor {
                 returnStmt.expr = patternFailureCaseVarRef;
                 patternBlockFailureCase.stmts.add(returnStmt);
             } else {
-                BLangFailExpr failExpressionNode = (BLangFailExpr) TreeBuilder.createFailExpressionNode();
+                BLangFail failExpressionNode = (BLangFail) TreeBuilder.createFailNode();
                 BLangStatementExpression expression = ASTBuilderUtil.createStatementExpression(onFailFuncBlock,
                         ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
                 BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
                 exprStmt.expr = expression;
                 exprStmt.pos = pos;
                 failExpressionNode.exprStmt = exprStmt;
-
-                BLangExpressionStmt failExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-                failExprStmt.expr = failExpressionNode;
-                failExprStmt.pos = pos;
-                patternBlockFailureCase.stmts.add(failExprStmt);
+                patternBlockFailureCase.stmts.add(failExpressionNode);
             }
         } else {
             // throw e
