@@ -340,6 +340,25 @@
             ]
         },
         {
+            "name": "FailStatementNode",
+            "base": "StatementNode",
+            "kind": "FAIL_STATEMENT",
+            "attributes": [
+                {
+                    "name": "failKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "semicolonToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "ExpressionStatementNode",
             "base": "StatementNode",
             "attributes": [
@@ -645,20 +664,6 @@
             "attributes": [
                 {
                     "name": "checkKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "expression",
-                    "type": "ExpressionNode"
-                }
-            ]
-        },
-        {
-            "name": "FailExpressionNode",
-            "base": "ExpressionNode",
-            "attributes": [
-                {
-                    "name": "failKeyword",
                     "type": "Token"
                 },
                 {

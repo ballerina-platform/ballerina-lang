@@ -106,7 +106,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -4194,37 +4193,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFailExpr failExpr) {
-        BLangExpression errorExpression = failExpr.expr;
-        BType errorExpressionType = checkExpr(errorExpression, env);
-
-        if (errorExpressionType == symTable.semanticError) {
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        if (!types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
-            dlog.error(errorExpression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, errorExpression.toString());
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        BType exprExpType;
-        if (expType == symTable.noType) {
-            exprExpType = symTable.noType;
-        } else if (types.isAssignable(errorExpressionType, expType)) {
-            exprExpType = errorExpressionType;
-        } else {
-            dlog.error(failExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
-                    symTable.errorType, expType);
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        resultType = exprExpType;
-    }
-
-    @Override
     public void visit(BLangCheckPanickedExpr checkedExpr) {
         visitCheckAndCheckPanicExpr(checkedExpr);
     }
@@ -4779,8 +4747,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangNode node = env.node;
         SymbolEnv cEnv = env;
         while (node != null && node.getKind() != NodeKind.FUNCTION) {
-            if (node.getKind() == NodeKind.TRANSACTION || node.getKind() == NodeKind.RETRY
-                    || node.getKind() == NodeKind.ON_FAIL) {
+            if (node.getKind() == NodeKind.TRANSACTION || node.getKind() == NodeKind.RETRY ||
+                    node.getKind() == NodeKind.ON_FAIL) {
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                         SymTag.VARIABLE);

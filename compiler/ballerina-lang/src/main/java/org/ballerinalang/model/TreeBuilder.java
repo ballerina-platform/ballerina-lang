@@ -56,7 +56,6 @@ import org.ballerinalang.model.tree.expressions.CheckPanickedExpressionNode;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
 import org.ballerinalang.model.tree.expressions.ElvisExpressionNode;
 import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
-import org.ballerinalang.model.tree.expressions.FailExpressionNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.GroupExpressionNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
@@ -111,6 +110,7 @@ import org.ballerinalang.model.tree.statements.ContinueNode;
 import org.ballerinalang.model.tree.statements.DoNode;
 import org.ballerinalang.model.tree.statements.ErrorDestructureNode;
 import org.ballerinalang.model.tree.statements.ExpressionStatementNode;
+import org.ballerinalang.model.tree.statements.FailStatementNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
@@ -193,7 +193,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -257,6 +256,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -561,8 +561,8 @@ public class TreeBuilder {
         return new BLangCheckedExpr();
     }
 
-    public static FailExpressionNode createFailExpressionNode() {
-        return new BLangFailExpr();
+    public static FailStatementNode createFailNode() {
+        return new BLangFail();
     }
 
     public static QueryExpressionNode createQueryExpressionNode() {

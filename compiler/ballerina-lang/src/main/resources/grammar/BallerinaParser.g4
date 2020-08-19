@@ -380,6 +380,7 @@ statement
     |   namespaceDeclarationStatement
     |   blockStatement
     |   doStatement
+    |   failStatement
     ;
 
 variableDefinitionStatement
@@ -614,6 +615,10 @@ doStatement
     :   DO LEFT_BRACE statement* RIGHT_BRACE onFailClause?
     ;
 
+failStatement
+    :   FAIL expression SEMICOLON
+    ;
+
 intRangeExpression
     :   (LEFT_BRACKET | LEFT_PARENTHESIS) expression RANGE expression? (RIGHT_BRACKET | RIGHT_PARENTHESIS)
     ;
@@ -822,7 +827,6 @@ expression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
-    |   FAIL expression                                                     # failExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
     |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
     |   expression (MUL | DIV | MOD) expression                             # binaryDivMulModExpression

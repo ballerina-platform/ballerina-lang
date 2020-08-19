@@ -206,6 +206,18 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STFailStatementNode transform(
+            STFailStatementNode failStatementNode) {
+        STNode failKeyword = modifyNode(failStatementNode.failKeyword);
+        STNode expression = modifyNode(failStatementNode.expression);
+        STNode semicolonToken = modifyNode(failStatementNode.semicolonToken);
+        return failStatementNode.modify(
+                failKeyword,
+                expression,
+                semicolonToken);
+    }
+
+    @Override
     public STExpressionStatementNode transform(
             STExpressionStatementNode expressionStatementNode) {
         STNode expression = modifyNode(expressionStatementNode.expression);
@@ -396,17 +408,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return checkExpressionNode.modify(
                 checkExpressionNode.kind,
                 checkKeyword,
-                expression);
-    }
-
-    @Override
-    public STFailExpressionNode transform(
-            STFailExpressionNode failExpressionNode) {
-        STNode failKeyword = modifyNode(failExpressionNode.failKeyword);
-        STNode expression = modifyNode(failExpressionNode.expression);
-        return failExpressionNode.modify(
-                failExpressionNode.kind,
-                failKeyword,
                 expression);
     }
 

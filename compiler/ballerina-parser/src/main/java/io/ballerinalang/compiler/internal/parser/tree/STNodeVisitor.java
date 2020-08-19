@@ -73,6 +73,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(breakStatementNode);
     }
 
+    public void visit(STFailStatementNode failStatementNode) {
+        visitSyntaxNode(failStatementNode);
+    }
+
     public void visit(STExpressionStatementNode expressionStatementNode) {
         visitSyntaxNode(expressionStatementNode);
     }
@@ -131,10 +135,6 @@ public abstract class STNodeVisitor {
 
     public void visit(STCheckExpressionNode checkExpressionNode) {
         visitSyntaxNode(checkExpressionNode);
-    }
-
-    public void visit(STFailExpressionNode failExpressionNode) {
-        visitSyntaxNode(failExpressionNode);
     }
 
     public void visit(STFieldAccessExpressionNode fieldAccessExpressionNode) {

@@ -15,26 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.syntax.expressions;
+package io.ballerinalang.compiler.parser.test.syntax.statements;
 
 import org.testng.annotations.Test;
 
 /**
- * Test parsing fail expression.
- * 
- * @since Swan Lake
+ * Test parsing fail statements.
  */
-public class FailExpressionTest extends AbstractExpressionsTest {
+public class FailStatementTest extends AbstractStatementTest {
 
     @Test
     public void testSimpleFailExpr() {
-        testFile("fail-expr/fail_expr_source_01.bal", "fail-expr/fail_expr_assert_01.json");
+        testFile("fail-stmt/fail_stmt_source_01.bal", "fail-stmt/fail_stmt_assert_01.json");
     }
 
     // Recovery test
 
     @Test
     public void testFailWithMissingExpr() {
-        testFile("fail-expr/fail_expr_source_02.bal", "fail-expr/fail_expr_assert_02.json");
+        testFile("fail-stmt/fail_stmt_source_02.bal", "fail-stmt/fail_stmt_assert_02.json");
     }
 }

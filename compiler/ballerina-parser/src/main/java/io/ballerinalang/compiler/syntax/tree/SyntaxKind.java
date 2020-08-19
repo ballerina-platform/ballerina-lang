@@ -253,6 +253,7 @@ public enum SyntaxKind {
     MATCH_STATEMENT(1222),
     INVALID_EXPRESSION_STATEMENT(1223),
     DO_STATEMENT(1224),
+    FAIL_STATEMENT(1225),
 
     // Expressions
     BINARY_EXPRESSION(1300),
@@ -292,7 +293,6 @@ public enum SyntaxKind {
     XML_STEP_EXPRESSION(1334),
     XML_NAME_PATTERN_CHAIN(1335),
     XML_ATOMIC_NAME_PATTERN(1336),
-    FAIL_EXPRESSION(1337),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -344,7 +344,6 @@ public enum SyntaxKind {
     WAIT_ACTION(2509),
     QUERY_ACTION(2510),
     COMMIT_ACTION(2511),
-    FAIL_ACTION(2512),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),

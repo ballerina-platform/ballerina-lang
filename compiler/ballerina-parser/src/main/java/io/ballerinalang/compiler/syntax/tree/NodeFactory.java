@@ -258,6 +258,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stBreakStatementNode.createUnlinkedFacade();
     }
 
+    public static FailStatementNode createFailStatementNode(
+            Token failKeyword,
+            ExpressionNode expression,
+            Token semicolonToken) {
+        Objects.requireNonNull(failKeyword, "failKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+
+        STNode stFailStatementNode = STNodeFactory.createFailStatementNode(
+                failKeyword.internalNode(),
+                expression.internalNode(),
+                semicolonToken.internalNode());
+        return stFailStatementNode.createUnlinkedFacade();
+    }
+
     public static ExpressionStatementNode createExpressionStatementNode(
             SyntaxKind kind,
             ExpressionNode expression,
@@ -499,20 +514,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 checkKeyword.internalNode(),
                 expression.internalNode());
         return stCheckExpressionNode.createUnlinkedFacade();
-    }
-
-    public static FailExpressionNode createFailExpressionNode(
-            SyntaxKind kind,
-            Token failKeyword,
-            ExpressionNode expression) {
-        Objects.requireNonNull(failKeyword, "failKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
-
-        STNode stFailExpressionNode = STNodeFactory.createFailExpressionNode(
-                kind,
-                failKeyword.internalNode(),
-                expression.internalNode());
-        return stFailExpressionNode.createUnlinkedFacade();
     }
 
     public static FieldAccessExpressionNode createFieldAccessExpressionNode(
