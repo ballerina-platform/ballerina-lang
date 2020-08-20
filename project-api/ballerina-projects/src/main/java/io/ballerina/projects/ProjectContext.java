@@ -27,7 +27,6 @@ import java.nio.file.Path;
  */
 public class ProjectContext {
     private Package currentPackage;
-    private Path targetPath;
     private BuildOptions buildOptions;
 
     ProjectContext() {
@@ -48,14 +47,6 @@ public class ProjectContext {
         // TODO 2) Set the created package instance as the currentPackage
         Package newPackage = Package.from(packageConfig);
         setCurrentPackage(newPackage);
-    }
-
-    public Path getTargetPath() {
-        return targetPath;
-    }
-
-    public void setTargetPath(Path targetPath) {
-        this.targetPath = targetPath;
     }
 
     public BuildOptions getBuildOptions() {

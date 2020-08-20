@@ -26,7 +26,7 @@ import java.nio.file.Path;
  */
 public abstract class Project {
     protected final ProjectContext context;
-    protected String packagePath;
+    protected Path sourceRoot;
 
     protected Project() {
         this.context = new ProjectContext();
@@ -36,7 +36,7 @@ public abstract class Project {
         return this.context.currentPackage();
     }
 
-    public Path target() {
-        return this.context.getTargetPath();
+    public Path sourceRoot() {
+        return sourceRoot;
     }
 }

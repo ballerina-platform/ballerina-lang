@@ -49,7 +49,7 @@ public class TestBuildProject {
             Assert.fail(e.getMessage());
         }
         // 2) Load the package
-        Package currentPackage = project.getPackage();
+        Package currentPackage = project.currentPackage();
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
         Assert.assertEquals(defaultModule.documentIds().size(), 2);
@@ -75,8 +75,6 @@ public class TestBuildProject {
         Assert.assertEquals(noOfSrcDocuments, 4);
         Assert.assertEquals(noOfTestDocuments, 3);
 
-        Assert.assertTrue(project.target().toFile().exists());
-        Assert.assertEquals(project.target().toFile().getParent(), projectPath.toString());
     }
 
     @Test
@@ -92,7 +90,6 @@ public class TestBuildProject {
         BuildProject.BuildOptions buildOptions = project.getBuildOptions();
 
         // Verify expected default buildOptions
-        Assert.assertEquals(buildOptions.getSourceRoot(), System.getProperty("user.dir"));
         Assert.assertFalse(buildOptions.isObservabilityIncluded());
         Assert.assertFalse(buildOptions.isSkipTests());
         Assert.assertFalse(buildOptions.isOffline());
@@ -104,13 +101,11 @@ public class TestBuildProject {
         buildOptions.setObservabilityEnabled(false);
         buildOptions.setSkipLock(true);
         buildOptions.setSkipTests(true);
-        buildOptions.setSourceRoot(projectPath.toString());
         buildOptions.setCodeCoverage(true);
 
         // Update and verify buildOptions
-        project.setBuildOptions(buildOptions);
+//        project.setBuildOptions(buildOptions);
         buildOptions = project.getBuildOptions();
-        Assert.assertEquals(buildOptions.getSourceRoot(), projectPath.toString());
         Assert.assertFalse(buildOptions.isObservabilityIncluded());
         Assert.assertTrue(buildOptions.isSkipTests());
         Assert.assertFalse(buildOptions.isOffline());

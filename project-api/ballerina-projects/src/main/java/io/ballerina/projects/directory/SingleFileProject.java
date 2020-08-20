@@ -17,19 +17,15 @@
  */
 package io.ballerina.projects.directory;
 
-import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.utils.ProjectConstants;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * {@code SingleFileProject} represents single Ballerina file.
- *
- * @since 2.0.0
+ * {@code SingleFileProject} represents Ballerina standalone file.
  */
 public class SingleFileProject extends Project {
 
@@ -39,10 +35,8 @@ public class SingleFileProject extends Project {
 
     private SingleFileProject(Path projectPath) {
         super();
-        packagePath = projectPath.toString();
-        Path sourceRoot = createTempProjectRoot();
-        this.context.setTargetPath(ProjectFiles.createTargetDirectoryStructure(sourceRoot));
-
+        this.sourceRoot = createTempProjectRoot();
+        addPackage(projectPath.toString());
         // Set default build options
         this.context.setBuildOptions(new BuildOptions());
     }
@@ -55,10 +49,9 @@ public class SingleFileProject extends Project {
         }
     }
 
-    public Package getPackage() {
-        final PackageConfig packageConfig = PackageLoader.loadPackage(packagePath, true);
+    private void addPackage(String projectPath) {
+        final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, true);
         this.context.addPackage(packageConfig);
-        return this.context.currentPackage();
     }
 
     public BuildOptions getBuildOptions() {
@@ -67,31 +60,19 @@ public class SingleFileProject extends Project {
     public void setBuildOptions(BuildOptions newBuildOptions) {
         BuildOptions buildOptions = (BuildOptions) this.context.getBuildOptions();
         buildOptions.setB7aConfigFile(newBuildOptions.getB7aConfigFile());
-        buildOptions.setSourceRoot(newBuildOptions.getSourceRoot());
-        buildOptions.setOutput(newBuildOptions.getOutput());
         this.context.setBuildOptions(newBuildOptions);
     }
 
     /**
-     * {@code BuildOptions} represents build options.
+     * {@code BuildOptions} represents build options specific to a Ballerina standalone file.
      */
     public static class BuildOptions extends io.ballerina.projects.BuildOptions {
 
         private BuildOptions() {
-            this.sourceRoot = System.getProperty(ProjectConstants.USER_DIR);
-            this.output = System.getProperty(ProjectConstants.USER_DIR);
             this.skipLock = true;
             this.codeCoverage = false;
             this.observabilityIncluded = false;
 //            this.b7aConfigFile = ballerinaToml.getBuildOptions().getB7aConfig();
-        }
-
-        public void setOutput(String output) {
-            this.output = output;
-        }
-
-        public String getOutput() {
-            return output;
         }
 
     }

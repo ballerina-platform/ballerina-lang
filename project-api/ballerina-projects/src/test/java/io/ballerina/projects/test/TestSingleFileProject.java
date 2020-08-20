@@ -50,7 +50,7 @@ public class TestSingleFileProject {
             Assert.fail(e.getMessage());
         }
         // 2) Load the package
-        Package currentPackage = project.getPackage();
+        Package currentPackage = project.currentPackage();
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
         Assert.assertEquals(defaultModule.documentIds().size(), 1);
@@ -58,8 +58,7 @@ public class TestSingleFileProject {
         Collection<ModuleId> moduleIds = currentPackage.moduleIds();
         Assert.assertEquals(moduleIds.size(), 1);
         Assert.assertEquals(moduleIds.iterator().next(), currentPackage.getDefaultModule().moduleId());
-        Assert.assertTrue(project.target().toFile().exists());
-        Assert.assertEquals(project.target().getParent().getParent().toString(), System.getProperty("java.io.tmpdir"));
+
     }
 
     @Test
@@ -75,22 +74,17 @@ public class TestSingleFileProject {
         SingleFileProject.BuildOptions buildOptions = project.getBuildOptions();
 
         // Verify expected default buildOptions
-        Assert.assertEquals(buildOptions.getSourceRoot(), System.getProperty("user.dir"));
         Assert.assertFalse(buildOptions.isSkipTests());
         Assert.assertFalse(buildOptions.isOffline());
         Assert.assertFalse(buildOptions.isTestReport());
         Assert.assertFalse(buildOptions.isExperimental());
-        Assert.assertEquals(buildOptions.getOutput(), System.getProperty("user.dir"));
 
         buildOptions.setSkipTests(true);
-        buildOptions.setSourceRoot(projectPath.getParent().toString());
-        buildOptions.setOutput(System.getProperty("java.io.tmpdir"));
         buildOptions.setSkipTests(true);
 
         // Update and verify buildOptions
         project.setBuildOptions(buildOptions);
         buildOptions = project.getBuildOptions();
-        Assert.assertEquals(buildOptions.getSourceRoot(), projectPath.getParent().toString());
         Assert.assertTrue(buildOptions.isSkipTests());
         Assert.assertFalse(buildOptions.isOffline());
         Assert.assertFalse(buildOptions.isTestReport());
@@ -109,7 +103,7 @@ public class TestSingleFileProject {
         }
         Assert.assertTrue(project instanceof BuildProject);
         // 2) Load the package
-        Package currentPackage = ((BuildProject) project).getPackage();
+        Package currentPackage = project.currentPackage();
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
         Assert.assertEquals(defaultModule.documentIds().size(), 2);
@@ -132,8 +126,6 @@ public class TestSingleFileProject {
         Assert.assertEquals(noOfSrcDocuments, 4);
         Assert.assertEquals(noOfTestDocuments, 3);
 
-        Assert.assertTrue(project.target().toFile().exists());
-        Assert.assertEquals(project.target().getParent(), RESOURCE_DIRECTORY.resolve("myproject"));
     }
 
     @Test
@@ -148,7 +140,7 @@ public class TestSingleFileProject {
         }
         Assert.assertTrue(project instanceof BuildProject);
         // 2) Load the package
-        Package currentPackage = ((BuildProject) project).getPackage();
+        Package currentPackage = project.currentPackage();
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
         Assert.assertEquals(defaultModule.documentIds().size(), 2);
@@ -170,8 +162,5 @@ public class TestSingleFileProject {
 
         Assert.assertEquals(noOfSrcDocuments, 4);
         Assert.assertEquals(noOfTestDocuments, 3);
-
-        Assert.assertTrue(project.target().toFile().exists());
-        Assert.assertEquals(project.target().getParent(), RESOURCE_DIRECTORY.resolve("myproject"));
     }
 }

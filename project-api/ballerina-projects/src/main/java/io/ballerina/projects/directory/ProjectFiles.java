@@ -155,9 +155,15 @@ public class ProjectFiles {
                         .map(Path::toFile)
                         .forEach(File::delete);
             }
-            Files.createDirectories(targetDir.resolve(ProjectConstants.CACHES_DIR_NAME));
-            Files.createDirectory(targetDir.resolve(ProjectConstants.TARGET_BALO_DIRECTORY));
-            Files.createDirectory(targetDir.resolve(ProjectConstants.BIN_DIR_NAME));
+            Files.createDirectories(targetDir.resolve(ProjectConstants.CACHES_DIR_NAME)
+                    .resolve(ProjectConstants.BIR_CACHE_DIR_NAME));
+            Files.createDirectories(targetDir.resolve(ProjectConstants.CACHES_DIR_NAME)
+                    .resolve(ProjectConstants.JAR_CACHE_DIR_NAME));
+            Files.createDirectories(targetDir.resolve(ProjectConstants.TARGET_BALO_DIRECTORY));
+            Files.createDirectories(targetDir.resolve(ProjectConstants.BIN_DIR_NAME));
+            Files.createDirectories(targetDir.resolve(ProjectConstants.TEST_DIR_NAME)
+                    .resolve(ProjectConstants.JSON_CACHE_DIR_NAME));
+
         } catch (IOException e) {
             throw new RuntimeException("error while creating target directory " + e);
         }

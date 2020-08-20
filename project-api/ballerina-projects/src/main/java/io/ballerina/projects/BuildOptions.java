@@ -24,7 +24,6 @@ package io.ballerina.projects;
  * be exposed by available project types accordingly.
  */
 public abstract class BuildOptions {
-    protected String sourceRoot;
     private String b7aConfigFile;
     private boolean offline;
     private boolean skipTests;
@@ -33,7 +32,6 @@ public abstract class BuildOptions {
     protected boolean skipLock;
     protected boolean codeCoverage;
     protected boolean observabilityIncluded;
-    protected String output;
 
     public boolean isSkipTests() {
         return skipTests;
@@ -41,14 +39,6 @@ public abstract class BuildOptions {
 
     public void setSkipTests(boolean skipTests) {
         this.skipTests = skipTests;
-    }
-
-    public String getSourceRoot() {
-        return sourceRoot;
-    }
-
-    public void setSourceRoot(String sourceRoot) {
-        this.sourceRoot = sourceRoot;
     }
 
     public boolean isOffline() {

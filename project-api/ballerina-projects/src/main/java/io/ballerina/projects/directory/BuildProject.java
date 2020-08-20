@@ -17,13 +17,10 @@
  */
 package io.ballerina.projects.directory;
 
-import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.model.BallerinaToml;
-import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.RepoUtils;
-import org.ballerinalang.toml.model.LockFile;
 
 import java.nio.file.Path;
 
@@ -33,7 +30,6 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class BuildProject extends Project {
-     private LockFile lockFile; // related to build command?
 
     public static BuildProject loadProject(Path projectPath) throws Exception {
         return new BuildProject(projectPath);
@@ -44,17 +40,17 @@ public class BuildProject extends Project {
         if (!RepoUtils.isBallerinaProject(projectPath)) {
             throw new Exception("invalid Ballerina source path:" + projectPath);
         }
-        packagePath = projectPath.toString();
-        this.context.setTargetPath(ProjectFiles.createTargetDirectoryStructure(projectPath));
+        this.sourceRoot = projectPath;
+
+        addPackage(projectPath.toString());
 
         // Set default build options
         this.context.setBuildOptions(new BuildProject.BuildOptions(this.context.currentPackage().ballerinaToml()));
     }
 
-    public Package getPackage() {
-        final PackageConfig packageConfig = PackageLoader.loadPackage(packagePath, false);
+    private void addPackage(String projectPath) {
+        final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, false);
         this.context.addPackage(packageConfig);
-        return this.context.currentPackage();
     }
 
     public BuildOptions getBuildOptions() {
@@ -65,18 +61,15 @@ public class BuildProject extends Project {
         buildOptions.setB7aConfigFile(newBuildOptions.getB7aConfigFile());
         buildOptions.setObservabilityEnabled(newBuildOptions.isObservabilityIncluded());
         buildOptions.setSkipLock(newBuildOptions.isSkipLock());
-        buildOptions.setSourceRoot(newBuildOptions.getSourceRoot());
         this.context.setBuildOptions(newBuildOptions);
     }
 
     /**
-     * {@code BuildOptions} represents build options.
+     * {@code BuildOptions} represents build options specific to a build project.
      */
     public static class BuildOptions extends io.ballerina.projects.BuildOptions {
 
         private BuildOptions(BallerinaToml ballerinaToml) {
-            this.sourceRoot = System.getProperty(ProjectConstants.USER_DIR);
-            this.output = System.getProperty(ProjectConstants.USER_DIR);
             if (ballerinaToml.getBuildOptions() != null) {
                 this.observabilityIncluded = ballerinaToml.getBuildOptions().isObservabilityIncluded();
             }
@@ -103,7 +96,6 @@ public class BuildProject extends Project {
         public  boolean isCodeCoverage() {
             return this.codeCoverage;
         }
-
         public void setCodeCoverage(boolean codeCoverage) {
             this.codeCoverage = codeCoverage;
         }
