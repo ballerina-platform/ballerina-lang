@@ -298,7 +298,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectCtorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -948,7 +948,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangObjectTypeNode objectTypeNode =
                 (BLangObjectTypeNode) createTypeNode(objectConstructorExpressionNode.objectConstructorBody());
 
-        BLangObjectCtorExpr objectCtorExpression = TreeBuilder.createObjectCtorExpression(objectTypeNode);
+        BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression(objectTypeNode);
         objectCtorExpression.pos = pos;
 
         Optional<TypeDescriptorNode> typeDescriptor = objectConstructorExpressionNode.typeDescriptor();
@@ -968,7 +968,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLTypeDef.flagSet.add(Flag.CLIENT);
                 objectCtorExpression.isClient = true;
             } else {
-                dlog.error(pos, DiagnosticCode.INVALID_TOKEN);
+                throw new RuntimeException("Syntax kind is not supported: " + qualifier.kind());
             }
         });
         bLTypeDef.annAttachments = applyAll(objectConstructorExpressionNode.annotations());

@@ -3333,7 +3333,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTemplateExpression();
             case CLIENT_KEYWORD:
             case OBJECT_KEYWORD:
-                return parseObjectConstructorExpressionNode(isRhsExpr, annots);
+                return parseObjectConstructorExpression(annots);
             case XML_KEYWORD:
                 STToken nextNextToken = getNextNextToken(nextToken.kind);
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
@@ -4378,28 +4378,26 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * <p>
      * Parse object constructor expression.
-     *
-     * object-constructor-expr :=
+     * </p>
+     * <code>object-constructor-expr :=
      *    [annots] [client] object [type-reference] {
      *       object-member*
      *    }
-     * object-member := object-field | method-defn
+     * object-member := object-field | method-defn</code>
      *
-     * @param isRhsExpr
-     * @param annots
-     * @return Parsed node
+     * @param annots annotations attached to object constructor
+     * @return Parsed object constructor expression node
      */
-    private STNode parseObjectConstructorExpressionNode(boolean isRhsExpr, STNode annots) {
+    private STNode parseObjectConstructorExpression(STNode annots) {
 
         startContext(ParserRuleContext.OBJECT_CONSTRUCTOR);
 
         STNode objectTypeQualifier;
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.CLIENT_KEYWORD) {
-            startContext(ParserRuleContext.CLIENT_KEYWORD);
-            objectTypeQualifier = parseClientKeyword();
-            endContext();
+            objectTypeQualifier = consume();
         } else {
             objectTypeQualifier = STNodeFactory.createEmptyNode();
         }
@@ -4409,7 +4407,7 @@ public class BallerinaParser extends AbstractParser {
         STNode typeDescriptor;
         nextToken = peek();
         if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_NEW_EXPR);
+            typeDescriptor = parseQualifiedIdentifier(ParserRuleContext.TYPE_REFERENCE);
         } else {
             typeDescriptor = STNodeFactory.createEmptyNode();
         }
@@ -4423,14 +4421,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseObjectConstructorBody() {
-        startContext(ParserRuleContext.OBJECT_CONSTRUCTOR_BODY);
-
         STNode openBrace = parseOpenBrace();
         STNode objectMembers = parseObjectMembers();
         STNode closeBrace = parseCloseBrace();
         
-        endContext();
-
         return STNodeFactory.createObjectConstructorBodyNode(openBrace, objectMembers, closeBrace);
     }
 

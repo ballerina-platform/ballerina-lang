@@ -31,14 +31,14 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
  *
  * @since slp3
  */
-public class BLangObjectCtorExpr extends BLangExpression {
+public class BLangObjectConstructorExpression extends BLangExpression {
 
     public BLangObjectTypeNode objectTypeNode;
     public BLangTypeInit typeInit;
     public BLangType referenceType;
     public boolean isClient;
 
-    public BLangObjectCtorExpr(BLangObjectTypeNode objectTypeNode) {
+    public BLangObjectConstructorExpression(BLangObjectTypeNode objectTypeNode) {
         super();
         this.objectTypeNode = objectTypeNode;
         this.isClient = false;
@@ -56,7 +56,6 @@ public class BLangObjectCtorExpr extends BLangExpression {
      */
     @Override
     public NodeKind getKind() {
-
         return NodeKind.OBJECT_CTOR_EXPRESSION;
     }
 

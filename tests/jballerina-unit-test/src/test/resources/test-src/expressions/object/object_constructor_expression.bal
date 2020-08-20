@@ -105,6 +105,8 @@ type MoAdvanced object {
     }
 };
 
+// test function methods
+
 function testObjectConstructorIncludedMethod() {
     var objWithIncludedMethod = object MoAdvanced {
 
