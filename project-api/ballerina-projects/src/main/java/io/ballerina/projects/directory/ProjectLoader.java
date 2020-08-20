@@ -37,7 +37,7 @@ public class ProjectLoader {
             return BuildProject.loadProject(projectPath.getParent());
         } else if (isFileInOtherModules(projectPath)) {
             return BuildProject.loadProject(projectPath.getParent().getParent().getParent());
-        } else if(RepoUtils.isBallerinaStandaloneFile(projectPath)) {
+        } else if (RepoUtils.isBallerinaStandaloneFile(projectPath)) {
             return SingleFileProject.loadProject(projectPath);
         } else {
             throw new Exception("invalid project path: " + projectPath);

@@ -21,12 +21,16 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.utils.ProjectConstants;
-import org.ballerinalang.toml.model.Manifest;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * {@code SingleFileProject} represents single Ballerina file.
+ *
+ * @since 2.0.0
+ */
 public class SingleFileProject extends Project {
 
     public static SingleFileProject loadProject(Path projectPath) {
@@ -36,7 +40,6 @@ public class SingleFileProject extends Project {
     private SingleFileProject(Path projectPath) {
         super();
         packagePath = projectPath.toString();
-        ballerinaToml = new Manifest();
         Path sourceRoot = createTempProjectRoot();
         this.context.setTargetPath(ProjectFiles.createTargetDirectoryStructure(sourceRoot));
 
@@ -69,6 +72,9 @@ public class SingleFileProject extends Project {
         this.context.setBuildOptions(newBuildOptions);
     }
 
+    /**
+     * {@code BuildOptions} represents build options.
+     */
     public static class BuildOptions extends io.ballerina.projects.BuildOptions {
 
         private BuildOptions() {
