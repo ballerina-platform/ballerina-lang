@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -71,5 +72,11 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
 
         return (closeParanPosition.line() == cursor.getLine() && closeParanPosition.offset() < cursor.getCharacter())
                 || closeParanPosition.line() < cursor.getLine();
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, FunctionSignatureNode node) {
+        // If the signature belongs to the function type descriptor, we skip this resolver
+        return node.parent().kind() != SyntaxKind.FUNCTION_TYPE_DESC;
     }
 }

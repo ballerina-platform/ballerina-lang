@@ -16,15 +16,12 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerinalang.compiler.text.LineRange;
 import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -32,13 +29,10 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link ModuleVariableDeclarationNode} context.
@@ -53,29 +47,16 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ModuleVariableDeclarationNode node) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         if (this.withinInitializerContext(context, node)) {
             return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor(),
                     node.initializer());
-        }
-
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            Predicate<Scope.ScopeEntry> predicate = scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol;
-            List<Scope.ScopeEntry> types = QNameReferenceUtil.getModuleContent(context,
-                    (QualifiedNameReferenceNode) nodeAtCursor, predicate);
-            return this.getCompletionItemList(types, context);
         }
 
         if (withinServiceOnKeywordContext(context, node)) {
             return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
         }
 
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(addTopLevelItems(context));
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
-
-        return completionItems;
+        return new ArrayList<>();
     }
 
     private boolean withinServiceOnKeywordContext(LSContext context, ModuleVariableDeclarationNode node) {
@@ -100,5 +81,10 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
         Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
         TextRange equalTokenRange = node.equalsToken().textRange();
         return equalTokenRange.endOffset() <= textPosition;
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, ModuleVariableDeclarationNode node) {
+        return node.equalsToken() != null && !node.equalsToken().isMissing();
     }
 }
