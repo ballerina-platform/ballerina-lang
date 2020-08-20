@@ -95,11 +95,9 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
         } else {
             /*
             Covers the following
-            (1) [typedesc | map]<*cursor*>
-            (2) [typedesc | map]<x*cursor*>
+            (1) [typedesc | map | future]<*cursor*>
+            (2) [typedesc | map | future]<x*cursor*>
              */
-            // modules and the types are suggested
-            completionItems.addAll(this.getPackagesCompletionItems(context));
             completionItems.addAll(this.getTypeItems(context));
         }
 

@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 5,
-    "character": 8
+    "character": 15
   },
-  "source": "typedesc_context/source/map_typedesc1.bal",
+  "source": "typedesc_context/source/stream_typedesc4.bal",
   "items": [
     {
       "label": "module1",
@@ -1132,6 +1132,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestMap2",
+      "kind": "Unit",
+      "detail": "Map",
+      "sortText": "230",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "Unit",
+      "detail": "Map",
+      "sortText": "230",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "stream",
       "kind": "Unit",
       "detail": "Stream",
@@ -1145,6 +1161,14 @@
       "detail": "Json",
       "sortText": "230",
       "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap1",
+      "kind": "Unit",
+      "detail": "Map",
+      "sortText": "230",
+      "insertText": "TestMap1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1180,6 +1204,14 @@
       "detail": "Anydata",
       "sortText": "230",
       "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "180",
+      "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
