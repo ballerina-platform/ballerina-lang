@@ -9,6 +9,62 @@ seq:
     type: constant_pool_set
   - id: module
     type: module
+enums:
+  type_tag_enum:
+    1:
+      id: type_tag_int
+      doc: Basic type, 64-bit signed integers
+    2: type_tag_byte
+    3: type_tag_float
+    4: type_tag_decimal
+    5: type_tag_string
+    6: type_tag_boolean
+    7: type_tag_json
+    8: type_tag_xml
+    9: type_tag_table
+    10: type_tag_nil
+    11: type_tag_anydata
+    12: type_tag_record
+    13: type_tag_typedesc
+    14: type_tag_stream
+    15: type_tag_map
+    16: type_tag_invokable
+    17: type_tag_any
+    18: type_tag_endpoint
+    19: type_tag_array
+    20: type_tag_union
+    21: type_tag_intersection
+    22: type_tag_package
+    23: type_tag_none
+    24: type_tag_void
+    25: type_tag_xmlns
+    26: type_tag_annotation
+    27: type_tag_semantic_error
+    28: type_tag_error
+    29: type_tag_iterator
+    30: type_tag_tuple
+    31: type_tag_future
+    32: type_tag_finite
+    33: type_tag_object
+    34: type_tag_service
+    35: type_tag_byte_array
+    36: type_tag_function_pointer
+    37: type_tag_handle
+    38: type_tag_readonly
+    39: type_tag_signed32_int
+    40: type_tag_signed16_int
+    41: type_tag_signed8_int
+    42: type_tag_unsigned32_int
+    43: type_tag_unsigned16_int
+    44: type_tag_unsigned8_int
+    45: type_tag_char_string
+    46: type_tag_xml_element
+    47: type_tag_xml_pi
+    48: type_tag_xml_comment
+    49: type_tag_xml_text
+    50: type_tag_never
+    51: type_tag_null_set
+    52: type_tag_parameterized_type
 types:
   constant_pool_set:
     seq:
@@ -30,6 +86,7 @@ types:
             'tag_enum::cp_entry_string': string_cp_info
             'tag_enum::cp_entry_package': package_cp_info
             'tag_enum::cp_entry_shape': shape_cp_info
+            'tag_enum::cp_entry_integer': int_cp_info
     enums:
       tag_enum:
         1: cp_entry_integer
@@ -81,62 +138,6 @@ types:
     instances:
       name_as_str:
         value: _root.constant_pool.constant_pool_entries[name_index].cp_info.as<string_cp_info>.value
-    enums:
-      type_tag_enum:
-        1:
-          id: type_tag_int
-          doc: Basic type, 64-bit signed integers
-        2: type_tag_byte
-        3: type_tag_float
-        4: type_tag_decimal
-        5: type_tag_string
-        6: type_tag_boolean
-        7: type_tag_json
-        8: type_tag_xml
-        9: type_tag_table
-        10: type_tag_nil
-        11: type_tag_anydata
-        12: type_tag_record
-        13: type_tag_typedesc
-        14: type_tag_stream
-        15: type_tag_map
-        16: type_tag_invokable
-        17: type_tag_any
-        18: type_tag_endpoint
-        19: type_tag_array
-        20: type_tag_union
-        21: type_tag_intersection
-        22: type_tag_package
-        23: type_tag_none
-        24: type_tag_void
-        25: type_tag_xmlns
-        26: type_tag_annotation
-        27: type_tag_semantic_error
-        28: type_tag_error
-        29: type_tag_iterator
-        30: type_tag_tuple
-        31: type_tag_future
-        32: type_tag_finite
-        33: type_tag_object
-        34: type_tag_service
-        35: type_tag_byte_array
-        36: type_tag_function_pointer
-        37: type_tag_handle
-        38: type_tag_readonly
-        39: type_tag_signed32_int
-        40: type_tag_signed16_int
-        41: type_tag_signed8_int
-        42: type_tag_unsigned32_int
-        43: type_tag_unsigned16_int
-        44: type_tag_unsigned8_int
-        45: type_tag_char_string
-        46: type_tag_xml_element
-        47: type_tag_xml_pi
-        48: type_tag_xml_comment
-        49: type_tag_xml_text
-        50: type_tag_never
-        51: type_tag_null_set
-        52: type_tag_parameterized_type
   type_invokable:
     seq:
       - id: param_count
@@ -157,8 +158,16 @@ types:
         repeat-expr: import_count
       - id: const_count
         type: s4
-      - id: type_def_count
+      - id: constants
+        type: constant
+        repeat: expr
+        repeat-expr: const_count
+      - id: type_definition_count
         type: s4
+      - id: type_definitions
+        type: type_definition
+        repeat: expr
+        repeat-expr: type_definition_count
       - id: golbal_var_count
         type: s4
       - id: golbal_vars
@@ -185,6 +194,55 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+  type_definition:
+    seq:
+      - id: position
+        type: position
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s4
+      - id: label
+        type: s1
+      - id: doc
+        type: markdown
+      - id: type_cp_index
+        type: s4
+  constant:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s4
+      - id: doc
+        type: markdown
+      - id: type_cp_index
+        type: s4
+      - id: length
+        type: s8
+      - id: constant_value_type_cp_index
+        type: s4
+      - id: constant_value
+        type:
+          switch-on: type_tag
+          cases:
+            'type_tag_enum::type_tag_int': int_constant_info
+            'type_tag_enum::type_tag_byte': byte_constant_info
+    instances:
+      type_tag:
+        value: _root.constant_pool.constant_pool_entries[constant_value_type_cp_index].cp_info.as<shape_cp_info>.shape.type_tag
+  int_constant_info:
+    seq:
+      - id: value_cp_index
+        type: s4
+  byte_constant_info:
+    seq:
+      - id: value_cp_index
+        type: s4
+  int_cp_info:
+    seq:
+      - id: value
+        type: s8
   markdown:
     seq:
       - id: length
