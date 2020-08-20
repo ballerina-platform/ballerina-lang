@@ -1,1 +1,1 @@
-inta =[a  ,b  ,c];
+inta=[a,b,c];

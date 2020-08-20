@@ -190,6 +190,11 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
 
             return token.modify(newLeadingMinutiae, newTrailingMinutiae);
         }
+
+        @Override
+        public IdentifierToken transform(IdentifierToken identifierToken) {
+            return (IdentifierToken) this.transform((Token) identifierToken);
+        }
     }
 
     private static Collection<Minutiae> getMatchingMinutiae(MinutiaeList leadingMinutiae,
