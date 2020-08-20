@@ -3056,8 +3056,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNodeList(classDefinitionNode.members());
         Token closeBrace =
                 modifyToken(classDefinitionNode.closeBrace());
-        Token semicolonToken =
-                modifyToken(classDefinitionNode.semicolonToken());
         return classDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
@@ -3066,8 +3064,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 className,
                 openBrace,
                 members,
-                closeBrace,
-                semicolonToken);
+                closeBrace);
     }
 
     // Tokens

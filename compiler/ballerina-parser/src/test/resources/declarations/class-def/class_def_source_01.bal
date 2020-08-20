@@ -6,7 +6,7 @@ class Foo {
     string name;
     public int status = 0;
     private float score;
-    
+
     public function init() {
     }
 
@@ -16,7 +16,7 @@ class Foo {
     }
 
     private remote function get() {
-    
+
     }
 
     object {
@@ -32,4 +32,4 @@ class Foo {
 
         function getName();
     } parent;
-};
+}

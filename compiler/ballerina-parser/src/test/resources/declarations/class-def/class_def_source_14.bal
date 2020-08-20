@@ -1,3 +1,3 @@
-class client Foo {
+client class Foo {
     string name;
-};
+}

@@ -2992,15 +2992,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token className,
             Token openBrace,
             NodeList<Node> members,
-            Token closeBrace,
-            Token semicolonToken) {
+            Token closeBrace) {
         Objects.requireNonNull(classTypeQualifiers, "classTypeQualifiers must not be null");
         Objects.requireNonNull(classKeyword, "classKeyword must not be null");
         Objects.requireNonNull(className, "className must not be null");
         Objects.requireNonNull(openBrace, "openBrace must not be null");
         Objects.requireNonNull(members, "members must not be null");
         Objects.requireNonNull(closeBrace, "closeBrace must not be null");
-        Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
         STNode stClassDefinitionNode = STNodeFactory.createClassDefinitionNode(
                 getOptionalSTNode(metadata),
@@ -3010,8 +3008,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 className.internalNode(),
                 openBrace.internalNode(),
                 members.underlyingListNode().internalNode(),
-                closeBrace.internalNode(),
-                semicolonToken.internalNode());
+                closeBrace.internalNode());
         return stClassDefinitionNode.createUnlinkedFacade();
     }
 }

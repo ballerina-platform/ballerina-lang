@@ -4085,10 +4085,6 @@
                 {
                     "name": "closeBrace",
                     "type": "Token"
-                },
-                {
-                    "name": "semicolonToken",
-                    "type": "Token"
                 }
             ]
         }

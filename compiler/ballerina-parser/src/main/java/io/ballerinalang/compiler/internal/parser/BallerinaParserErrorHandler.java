@@ -599,6 +599,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] LISTENERS_LIST_END =
             { ParserRuleContext.COMMA, ParserRuleContext.OPEN_BRACE };
 
+    private static final ParserRuleContext[] MODULE_CLASS_DEFINITION_START =
+            { ParserRuleContext.CLASS_TYPE_QUALIFIER, ParserRuleContext.CLASS_KEYWORD };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -626,6 +629,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
             case OBJECT_MEMBER:
             case OBJECT_TYPE_QUALIFIER:
+            case CLASS_TYPE_QUALIFIER:
             case ELSE_BODY:
             case IMPORT_DECL_RHS:
             case IMPORT_SUB_VERSION:
@@ -774,6 +778,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.EOF_TOKEN;
                     break;
                 case FUNC_NAME:
+                case CLASS_NAME:
                 case VARIABLE_NAME:
                 case TYPE_NAME:
                 case IMPORT_ORG_OR_MODULE_NAME:
@@ -843,6 +848,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case OBJECT_TYPE_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.ABSTRACT_KEYWORD ||
+                            nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
+                            nextToken.kind == SyntaxKind.READONLY_KEYWORD;
+                    break;
+                case CLASS_TYPE_QUALIFIER:
+                    hasMatch = nextToken.kind == SyntaxKind.DISTINCT_KEYWORD ||
                             nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
                             nextToken.kind == SyntaxKind.READONLY_KEYWORD;
                     break;
@@ -1330,6 +1340,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
             case TYPE_DESC_OR_EXPR_RHS:
             case LISTENERS_LIST_END:
+            case MODULE_CLASS_DEFINITION_START:
                 return true;
             default:
                 return false;
@@ -1524,6 +1535,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
                 alternativeRules = MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER;
+                break;
+            case MODULE_CLASS_DEFINITION_START:
+                alternativeRules = MODULE_CLASS_DEFINITION_START;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2256,6 +2270,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OBJECT_TYPE_DESCRIPTOR_START;
             case OBJECT_TYPE_QUALIFIER:
                 return ParserRuleContext.OBJECT_KEYWORD;
+            case CLASS_TYPE_QUALIFIER:
+                return ParserRuleContext.CLASS_KEYWORD;
             case OPEN_BRACKET:
                 return getNextRuleForOpenBracket();
             case CLOSE_BRACKET:
@@ -2702,9 +2718,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NAMED_ARG_MATCH_PATTERN:
                 return ParserRuleContext.IDENTIFIER;
             case MODULE_CLASS_DEFINITION:
+                return ParserRuleContext.MODULE_CLASS_DEFINITION_START;
+            case CLASS_TYPE_QUALIFIER:
                 return ParserRuleContext.CLASS_KEYWORD;
             case CLASS_KEYWORD:
-                return ParserRuleContext.IDENTIFIER;
+                return ParserRuleContext.CLASS_NAME;
+            case CLASS_NAME:
+                return ParserRuleContext.OPEN_BRACE;
             case OBJECT_MEMBER_QUALIFIER:
                 return ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
             default:
@@ -3047,6 +3067,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NAMED_ARG_MATCH_PATTERN:
             case SELECT_CLAUSE:
             case JOIN_CLAUSE:
+            case MODULE_CLASS_DEFINITION:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -3193,6 +3214,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER;
             case MAPPING_MATCH_PATTERN:
                 return ParserRuleContext.FIELD_MATCH_PATTERNS_START;
+            case MODULE_CLASS_DEFINITION:
+                return ParserRuleContext.OBJECT_MEMBER;
             default:
                 return ParserRuleContext.STATEMENT;
         }
@@ -3502,11 +3525,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end body block
                 return getNextRuleForCloseBraceInFuncBody();
             case SERVICE_DECL:
-            case MODULE_CLASS_DEFINITION:
                 endContext();
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case OBJECT_MEMBER:
                 endContext(); // end object member
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.MODULE_CLASS_DEFINITION) {
+                    endContext();
+                    return ParserRuleContext.TOP_LEVEL_NODE;
+                }
                 // fall through
             case RECORD_TYPE_DESCRIPTOR:
             case OBJECT_TYPE_DESCRIPTOR:
@@ -4522,6 +4549,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.CLIENT_KEYWORD;
             case OBJECT_TYPE_QUALIFIER:
                 return SyntaxKind.OBJECT_KEYWORD;
+            case CLASS_TYPE_QUALIFIER:
+                return SyntaxKind.CLASS_KEYWORD;
             case IF_KEYWORD:
                 return SyntaxKind.IF_KEYWORD;
             case ELSE_KEYWORD:

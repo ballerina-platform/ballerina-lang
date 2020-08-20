@@ -2253,8 +2253,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode className,
             STNode openBrace,
             STNode members,
-            STNode closeBrace,
-            STNode semicolonToken) {
+            STNode closeBrace) {
 
         return new STClassDefinitionNode(
                 metadata,
@@ -2264,8 +2263,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 className,
                 openBrace,
                 members,
-                closeBrace,
-                semicolonToken);
+                closeBrace);
     }
 }
 

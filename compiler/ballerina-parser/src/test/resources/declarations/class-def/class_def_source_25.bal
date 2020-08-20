@@ -1,3 +1,3 @@
-class distinct Foo {
+distinct class Foo {
     string name;
-};
+}
