@@ -11,5 +11,5 @@ class B {
 
 type C abstract object {
     *A;
-}
+};
 

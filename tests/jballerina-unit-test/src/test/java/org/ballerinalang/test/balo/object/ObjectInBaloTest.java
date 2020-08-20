@@ -574,7 +574,7 @@ public class ObjectInBaloTest {
         BRunUtil.invoke(result, "testObjectReferingNonAbstractObjLoadedFromBalo");
     }
 
-    @Test
+    @Test(enabled = false) // disabled as with the class change objects would not have implementations.
     public void testObjectReferingTypeFromBaloNegative() {
         CompileResult result =
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");

@@ -133,5 +133,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "found '" + expected.toString() + "', expected '" + actual.toString () + "'");
 }
