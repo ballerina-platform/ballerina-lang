@@ -20,9 +20,11 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.utils.RepoUtils;
 import org.ballerinalang.toml.model.LockFile;
+import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -50,8 +52,10 @@ public class BuildProject extends Project {
         packagePath = projectPath.toString();
         //TODO: replace with the new toml processor
         ballerinaToml = ManifestProcessor.parseTomlContentAsStream(getTomlContent(projectPath));
-        this.context.setSourceRoot(projectPath);
         this.context.setTargetPath(ProjectFiles.createTargetDirectoryStructure(projectPath));
+
+        // Set default build options
+        this.context.setBuildOptions(new BuildOptions(ballerinaToml));
     }
 
     private InputStream getTomlContent(Path projectPath) {
@@ -69,5 +73,53 @@ public class BuildProject extends Project {
         final PackageConfig packageConfig = PackageLoader.loadPackage(packagePath, false);
         this.context.addPackage(packageConfig);
         return this.context.currentPackage();
+    }
+
+    public BuildOptions getBuildOptions() {
+        return (BuildOptions) this.context.getBuildOptions();
+    }
+    public void setBuildOptions(BuildOptions newBuildOptions) {
+        BuildOptions buildOptions = (BuildOptions) this.context.getBuildOptions();
+        buildOptions.setB7aConfigFile(newBuildOptions.getB7aConfigFile());
+        buildOptions.setObservabilityEnabled(newBuildOptions.isObservabilityIncluded());
+        buildOptions.setSkipLock(newBuildOptions.isSkipLock());
+        buildOptions.setSourceRoot(newBuildOptions.getSourceRoot());
+        this.context.setBuildOptions(newBuildOptions);
+    }
+
+    public static class BuildOptions extends io.ballerina.projects.BuildOptions {
+
+        private BuildOptions(Manifest ballerinaToml) {
+            this.sourceRoot = System.getProperty(ProjectConstants.USER_DIR);
+            this.output = System.getProperty(ProjectConstants.USER_DIR);
+            if (ballerinaToml.getBuildOptions() != null) {
+                this.observabilityIncluded = ballerinaToml.getBuildOptions().isObservabilityIncluded();
+            }
+//            this.skipLock = ballerinaToml.getBuildOptions().skipLock();
+//            this.b7aConfigFile = ballerinaToml.getBuildOptions().getB7aConfig();
+        }
+
+        public void setObservabilityEnabled(boolean observabilityEnabled) {
+            observabilityIncluded = observabilityEnabled;
+        }
+
+        public void setSkipLock(boolean skipLock) {
+            this.skipLock = skipLock;
+        }
+
+        public boolean isObservabilityIncluded() {
+            return observabilityIncluded;
+        }
+
+        public boolean isSkipLock() {
+            return skipLock;
+        }
+
+        public  boolean isCodeCoverage() {
+            return this.codeCoverage;
+        }
+        public void setCodeCoverage(boolean codeCoverage){
+            this.codeCoverage = codeCoverage;
+        }
     }
 }

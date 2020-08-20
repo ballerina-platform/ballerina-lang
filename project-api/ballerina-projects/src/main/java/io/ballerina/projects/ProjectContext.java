@@ -27,8 +27,8 @@ import java.nio.file.Path;
  */
 public class ProjectContext {
     private Package currentPackage;
-    private Path sourceRoot;
     private Path targetPath;
+    private BuildOptions buildOptions;
 
     ProjectContext() {
     }
@@ -58,11 +58,11 @@ public class ProjectContext {
         this.targetPath = targetPath;
     }
 
-    public Path getSourceRoot() {
-        return sourceRoot;
+    public BuildOptions getBuildOptions() {
+        return buildOptions;
     }
 
-    public void setSourceRoot(Path sourceRoot) {
-        this.sourceRoot = sourceRoot;
+    public void setBuildOptions(BuildOptions buildOptions) {
+        this.buildOptions = buildOptions;
     }
 }

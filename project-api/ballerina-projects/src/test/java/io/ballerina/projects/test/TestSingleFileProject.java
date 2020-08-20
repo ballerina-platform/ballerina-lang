@@ -62,6 +62,41 @@ public class TestSingleFileProject {
         Assert.assertEquals(project.target().getParent().getParent().toString(), System.getProperty("java.io.tmpdir"));
     }
 
+    @Test
+    public void testSetBuildOptions() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        SingleFileProject project = null;
+        try {
+            project = SingleFileProject.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        SingleFileProject.BuildOptions buildOptions = project.getBuildOptions();
+
+        // Verify expected default buildOptions
+        Assert.assertEquals(buildOptions.getSourceRoot(), System.getProperty("user.dir"));
+        Assert.assertFalse(buildOptions.isSkipTests());
+        Assert.assertFalse(buildOptions.isOffline());
+        Assert.assertFalse(buildOptions.isTestReport());
+        Assert.assertFalse(buildOptions.isExperimental());
+        Assert.assertEquals(buildOptions.getOutput(), System.getProperty("user.dir"));
+
+        buildOptions.setSkipTests(true);
+        buildOptions.setSourceRoot(projectPath.getParent().toString());
+        buildOptions.setOutput(System.getProperty("java.io.tmpdir"));
+        buildOptions.setSkipTests(true);
+
+        // Update and verify buildOptions
+        project.setBuildOptions(buildOptions);
+        buildOptions = project.getBuildOptions();
+        Assert.assertEquals(buildOptions.getSourceRoot(), projectPath.getParent().toString());
+        Assert.assertTrue(buildOptions.isSkipTests());
+        Assert.assertFalse(buildOptions.isOffline());
+        Assert.assertFalse(buildOptions.isTestReport());
+        Assert.assertFalse(buildOptions.isExperimental());
+    }
+
     // LS project test
     @Test
     public void testLoadProjectByDefaultModuleFile() {
