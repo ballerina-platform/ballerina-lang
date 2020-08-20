@@ -705,7 +705,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (varNode.type == null) {
-            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+            varNode.type = symResolver.resolveTypeNode(ConstantValueResolvervarNode.typeNode, env);
         }
 
         if (!(checkTypeAndVarCountConsistency(varNode))) {

@@ -906,14 +906,13 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (arrayTypeNode.sizes.length == 0) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
-                if(arrayTypeNode.sizes[i] instanceof BLangLiteral){
                     BLangExpression size = arrayTypeNode.sizes[i];
                     arrType = ((int)(((BLangLiteral)size).getValue()) == UNSEALED_ARRAY_INDICATOR) ?
-                            new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
-                            (size == OPEN_SEALED_ARRAY_INDICATOR) ?
-                                    new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
+                            new BArrayType(resultType, arrayTypeSymbol, (int)(((BLangLiteral)size).getValue()), BArrayState.UNSEALED) :
+                            ((int)(((BLangLiteral)size).getValue()) == OPEN_SEALED_ARRAY_INDICATOR) ?
+                                    new BArrayType(resultType, arrayTypeSymbol, (int)(((BLangLiteral)size).getValue()), BArrayState.OPEN_SEALED) :
                                     new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
-                }
+
             }
             resultType = arrayTypeSymbol.type = arrType;
 
