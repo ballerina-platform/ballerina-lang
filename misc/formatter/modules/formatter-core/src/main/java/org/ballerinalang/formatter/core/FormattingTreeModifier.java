@@ -337,7 +337,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withMetadata(metadata).apply();
         }
         return functionDefinitionNode.modify()
-                .withFunctionKeyword(formatToken(functionKeyword, 0, 0, (qualifierList.size() == 0) ? 1 : 0, 0))
+                .withFunctionKeyword(formatToken(functionKeyword, 0, 0, 0, 0))
                 .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0, 0))
                 .withFunctionSignature(functionSignatureNode)
                 .withQualifierList(qualifierList)
@@ -835,7 +835,8 @@ public class FormattingTreeModifier extends TreeModifier {
             return errorTypeDescriptorNode;
         }
         Token errorKeywordToken = getToken(errorTypeDescriptorNode.errorKeywordToken());
-        ErrorTypeParamsNode errorTypeParamsNode = this.modifyNode(errorTypeDescriptorNode.errorTypeParamsNode().orElse(null));
+        ErrorTypeParamsNode errorTypeParamsNode =
+                this.modifyNode(errorTypeDescriptorNode.errorTypeParamsNode().orElse(null));
         if (errorTypeParamsNode != null) {
             errorTypeDescriptorNode = errorTypeDescriptorNode.modify()
                     .withErrorTypeParamsNode(errorTypeParamsNode).apply();
