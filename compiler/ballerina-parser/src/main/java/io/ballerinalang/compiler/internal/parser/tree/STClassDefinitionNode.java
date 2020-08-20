@@ -39,7 +39,6 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode openBrace;
     public final STNode members;
     public final STNode closeBrace;
-    public final STNode semicolonToken;
 
     STClassDefinitionNode(
             STNode metadata,
@@ -49,8 +48,7 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
             STNode className,
             STNode openBrace,
             STNode members,
-            STNode closeBrace,
-            STNode semicolonToken) {
+            STNode closeBrace) {
         this(
                 metadata,
                 visibilityQualifier,
@@ -60,7 +58,6 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
                 openBrace,
                 members,
                 closeBrace,
-                semicolonToken,
                 Collections.emptyList());
     }
 
@@ -73,7 +70,6 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
             STNode openBrace,
             STNode members,
             STNode closeBrace,
-            STNode semicolonToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.CLASS_DEFINITION, diagnostics);
         this.metadata = metadata;
@@ -84,7 +80,6 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
         this.openBrace = openBrace;
         this.members = members;
         this.closeBrace = closeBrace;
-        this.semicolonToken = semicolonToken;
 
         addChildren(
                 metadata,
@@ -94,8 +89,7 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
                 className,
                 openBrace,
                 members,
-                closeBrace,
-                semicolonToken);
+                closeBrace);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -108,7 +102,6 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
                 this.openBrace,
                 this.members,
                 this.closeBrace,
-                this.semicolonToken,
                 diagnostics);
     }
 
@@ -120,8 +113,7 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
             STNode className,
             STNode openBrace,
             STNode members,
-            STNode closeBrace,
-            STNode semicolonToken) {
+            STNode closeBrace) {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
@@ -130,8 +122,7 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
                 className,
                 openBrace,
                 members,
-                closeBrace,
-                semicolonToken)) {
+                closeBrace)) {
             return this;
         }
 
@@ -144,7 +135,6 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
                 openBrace,
                 members,
                 closeBrace,
-                semicolonToken,
                 diagnostics);
     }
 
