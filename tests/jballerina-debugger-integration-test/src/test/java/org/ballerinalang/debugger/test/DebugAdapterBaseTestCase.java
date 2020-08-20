@@ -444,7 +444,7 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
      */
     private Variable evaluateExpression(StoppedEventArguments args, String expr) throws BallerinaTestException {
         if (!DebugHitListener.connector.isConnected()) {
-            throw new BallerinaTestException("Connection error is occurred when trying to fet information from the " +
+            throw new BallerinaTestException("Connection error occurred when trying to fetch information from the " +
                     "debug server");
         }
         try {
