@@ -96,10 +96,10 @@ public class SymbolTable {
     public static final Integer UNSIGNED16_MAX_VALUE = 65535;
     public static final Integer UNSIGNED8_MAX_VALUE = 255;
 
+    public final DiagnosticPos builtinPos;
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
     public final BSymbol notFoundSymbol;
-    public final BSymbol invalidUsageSymbol;
     public final Scope rootScope;
 
     public final BType noType = new BNoType(TypeTags.NONE);
@@ -208,16 +208,15 @@ public class SymbolTable {
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null);
-        this.rootPkgNode.pos = new DiagnosticPos(new BDiagnosticSource(rootPkgSymbol.pkgID, Names.EMPTY.value), 0, 0,
-                0, 0);
+        this.builtinPos = new DiagnosticPos(new BDiagnosticSource(rootPkgSymbol.pkgID, Names.EMPTY.value), 0, 0,
+                                            0, 0);
+        this.rootPkgNode.pos = this.builtinPos;
         this.rootPkgNode.symbol = this.rootPkgSymbol;
         this.rootScope = new Scope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
 
         this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
-                rootPkgSymbol.pkgID, noType, rootPkgSymbol);
-        this.invalidUsageSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID, noType,
-                                              rootPkgSymbol);
+                                          rootPkgSymbol.pkgID, noType, rootPkgSymbol, builtinPos);
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
         initializeType(byteType, TypeKind.BYTE.typeName());
