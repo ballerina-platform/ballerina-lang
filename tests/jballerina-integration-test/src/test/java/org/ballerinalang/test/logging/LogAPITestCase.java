@@ -198,7 +198,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[9], "TRACE", "[]", traceLog);
     }
 
-    @Test(description = "Tests log functionality when all log levels are turned on", enabled = false)
+    @Test(description = "Tests log functionality when all log levels are turned on")
     public void testAllOn() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] {logLevelTestFileName, "--" + logLevelProperty + "=ALL" };

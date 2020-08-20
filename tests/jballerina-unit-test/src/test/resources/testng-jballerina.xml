@@ -129,7 +129,8 @@
             <package name="org.ballerinalang.test.statements.retrystmt.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.javainterop.*"/>
-            <package name="org.ballerinalang.test.execution.*" />
+            <package name="org.ballerinalang.test.execution.LargeInitBuildTest" />
+<!--            <package name="org.ballerinalang.test.execution.ModuleExecutionFlowTests" />-->
             <package name="org.ballerinalang.test.query.*" />
             <package name="org.ballerinalang.test.strand.*" />
         </packages>

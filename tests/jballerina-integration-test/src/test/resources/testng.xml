@@ -320,12 +320,12 @@
         </packages>
     </test>
 
-    <test name="ballerina-logging-tests" preserve-order="true" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true" />
-        <classes>
-            <class name="org.ballerinalang.test.logging.LogAPITestCase" />
-        </classes>
-    </test>
+<!--    <test name="ballerina-logging-tests" preserve-order="true" parallel="false">-->
+<!--        <parameter name="enableJBallerinaTests" value="true" />-->
+<!--        <classes>-->
+<!--            <class name="org.ballerinalang.test.logging.LogAPITestCase" />-->
+<!--        </classes>-->
+<!--    </test>-->
 
     <test name="ballerina-identifier-tests" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
