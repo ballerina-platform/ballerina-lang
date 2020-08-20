@@ -214,7 +214,6 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         assertExpression(context, String.format("%s / %s", intVar, floatVar), "-2.0", "float");
         // float / float
         assertExpression(context, String.format("%s / %s", floatVar, floatVar), "1.0", "float");
-
         // Todo - Enable after adding support
         //        // decimal / decimal
         //        assertExpression(context, String.format("%s / %s", decimalVar, decimalVar), "10.0", "decimal");
@@ -236,7 +235,6 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         assertExpression(context, String.format("%s %% %s", intVar, floatVar), "0.0", "float");
         // float % float
         assertExpression(context, String.format("%s %% %s", floatVar, floatVar), "-0.0", "float");
-
         // Todo - Enable after adding support
         //        // decimal % decimal
         //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "10.0", "decimal");
@@ -248,6 +246,29 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "-35", "decimal");
         //        // decimal % float
         //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "-35", "decimal");
+    }
+
+    @Test
+    public void expressionEvaluationNegativeTest() throws BallerinaTestException {
+        // empty expressions
+        assertEvaluationError(context, "  ", EvaluationExceptionKind.EMPTY.getString());
+        // unsupported expressions
+        assertEvaluationError(context, "~x", String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION
+                .getString(), "~x - UNARY_EXPRESSION"));
+        // syntactically incorrect expressions (additional semi-colon)
+        assertEvaluationError(context, "x + 5;;", String.format(EvaluationExceptionKind.SYNTAX_ERROR
+                .getString(), "invalid token ';'"));
+        // semantically incorrect expressions (addition between int + string)
+        assertEvaluationError(context, String.format("%s + %s", intVar, stringVar),
+                String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
+                        "'+' operation is not supported for types: 'int' and 'string'"));
+        // Todo - Enable
+        // assignment statements
+        // assertEvaluationError(context, "int x = 5;", "");
+        // undefined variables
+        // assertEvaluationError(context, "x", String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getReason()
+        //     .getString(), "~x - UNARY_EXPRESSION"));
+        // Todo - Add negative tests for function invocations related errors.
     }
 
     @BeforeMethod

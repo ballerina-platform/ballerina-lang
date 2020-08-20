@@ -406,19 +406,33 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     }
 
     /**
-     * Can be used to evaluate any given expression, when a debug hit is occurred.
+     * Can be used to assert any expression evaluation result.
      *
-     * @param context       suspended context.
-     * @param expression    expression.
-     * @param variableValue variable value
-     * @param variableType  variable type.
+     * @param context     suspended context.
+     * @param expression  expression.
+     * @param resultValue result value.
+     * @param resultType  result type.
      * @throws BallerinaTestException if an error occurs when evaluating the expression.
      */
-    protected void assertExpression(StoppedEventArguments context, String expression, String variableValue,
-                                    String variableType) throws BallerinaTestException {
+    protected void assertExpression(StoppedEventArguments context, String expression, String resultValue,
+                                    String resultType) throws BallerinaTestException {
         Variable result = evaluateExpression(context, expression);
-        Assert.assertEquals(result.getValue(), variableValue);
-        Assert.assertEquals(result.getType(), variableType);
+        Assert.assertEquals(result.getValue(), resultValue);
+        Assert.assertEquals(result.getType(), resultType);
+    }
+
+    /**
+     * Can be used to evaluate any given evaluation failure, against its expected error message.
+     *
+     * @param context    suspended context.
+     * @param expression expression.
+     * @throws BallerinaTestException if an error occurs when evaluating the expression.
+     */
+    protected void assertEvaluationError(StoppedEventArguments context, String expression, String errorMessage)
+            throws BallerinaTestException {
+        Variable result = evaluateExpression(context, expression);
+        Assert.assertEquals(result.getValue(), errorMessage);
+        Assert.assertEquals(result.getType(), "string");
     }
 
     /**
