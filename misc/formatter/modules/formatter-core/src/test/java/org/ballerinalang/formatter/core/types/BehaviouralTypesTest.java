@@ -43,6 +43,7 @@ public class BehaviouralTypesTest extends FormatterTest {
     @Override
     public Object[][] testSubset() {
         return new Object[][] {
+                {"error_type_1.bal", this.getTestResourceDir()},
                 {"error_type_2.bal", this.getTestResourceDir()}
         };
     }

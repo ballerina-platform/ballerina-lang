@@ -416,7 +416,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(builtinSimpleNameReferenceNode)) {
             return builtinSimpleNameReferenceNode;
         }
-        int startCol = getStartColumn(builtinSimpleNameReferenceNode, builtinSimpleNameReferenceNode.kind(), true);
+        boolean addSpaces = true;
+        if (builtinSimpleNameReferenceNode.parent() != null
+                && builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.FUNCTION_CALL)) {
+            addSpaces = false;
+        }
+        int startCol = getStartColumn(builtinSimpleNameReferenceNode, builtinSimpleNameReferenceNode.kind(), addSpaces);
         Token name = getToken(builtinSimpleNameReferenceNode.name());
         return builtinSimpleNameReferenceNode.modify()
                 .withName(formatToken(name, startCol, 0, 0, 0))
@@ -829,6 +834,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(errorTypeDescriptorNode)) {
             return errorTypeDescriptorNode;
         }
+        boolean addSpaces = true;
+        if (errorTypeDescriptorNode.parent() != null
+                && errorTypeDescriptorNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
+            addSpaces = false;
+        }
+        int startColumn = getStartColumn(errorTypeDescriptorNode, errorTypeDescriptorNode.kind(), addSpaces);
         Token errorKeywordToken = getToken(errorTypeDescriptorNode.errorKeywordToken());
         ErrorTypeParamsNode errorTypeParamsNode =
                 this.modifyNode(errorTypeDescriptorNode.errorTypeParamsNode().orElse(null));
@@ -837,7 +848,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withErrorTypeParamsNode(errorTypeParamsNode).apply();
         }
         return errorTypeDescriptorNode.modify()
-                .withErrorKeywordToken(formatToken(errorKeywordToken, 0, 0, 0, 0))
+                .withErrorKeywordToken(formatToken(errorKeywordToken, startColumn, 0, 0, 0))
                 .apply();
     }
 
