@@ -113,6 +113,7 @@
             <package name="org.ballerinalang.test.expressions.mappingconstructor.*"/>
             <package name="org.ballerinalang.test.expressions.listconstructor.*"/>
             <package name="org.ballerinalang.test.expressions.rawtemplate.*"/>
+            <package name="org.ballerinalang.test.expressions.object.*" />
             <package name="org.ballerinalang.test.object.*" />
             <package name="org.ballerinalang.test.documentation.*" />
             <package name="org.ballerinalang.test.endpoint.*" />
@@ -146,7 +147,6 @@
             <class name="org.ballerinalang.test.statements.transaction.NestedTransactionTest"/>
             <class name="org.ballerinalang.test.statements.transaction.NestedRetryTransactionStmtsTest" />
             <class name="org.ballerinalang.test.statements.transaction.SetRollbackOnlyTest" />
-            <class name="org.ballerinalang.test.expressions.object.ObjectConstructorTest" />
             <class name="org.ballerinalang.test.statements.transaction.RetryTransactionStmtTest"></class>
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
