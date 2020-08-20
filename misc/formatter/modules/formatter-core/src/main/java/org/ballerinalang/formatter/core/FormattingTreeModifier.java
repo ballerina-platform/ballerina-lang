@@ -116,6 +116,7 @@ import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
@@ -247,6 +248,11 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(importDeclarationNode)) {
             return importDeclarationNode;
         }
+        int trailingNewLines = 1;
+        NodeList importStatements = ((ModulePartNode) importDeclarationNode.parent()).imports();
+        if (importStatements.get(importStatements.size() - 1).equals(importDeclarationNode)) {
+            trailingNewLines = 2;
+        }
         Token importKeyword = getToken(importDeclarationNode.importKeyword());
         Token semicolon = getToken(importDeclarationNode.semicolon());
         SeparatedNodeList<IdentifierToken> moduleNames = this.modifySeparatedNodeList(
@@ -269,7 +275,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return importDeclarationNode.modify()
                 .withImportKeyword(formatToken(importKeyword, 0, 0, 0, 0))
                 .withModuleName(moduleNames)
-                .withSemicolon(formatToken(semicolon, 0, 0, 0, 1))
+                .withSemicolon(formatToken(semicolon, 0, 0, 0, trailingNewLines))
                 .apply();
     }
 
@@ -445,7 +451,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         return functionBodyBlockNode.modify()
                 .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0, 1))
-                .withCloseBraceToken(formatToken(functionBodyCloseBrace, startColumn, 0, 0, 1))
+                .withCloseBraceToken(formatToken(functionBodyCloseBrace, startColumn, 0, 0, 2))
                 .withStatements(statements)
                 .apply();
     }
