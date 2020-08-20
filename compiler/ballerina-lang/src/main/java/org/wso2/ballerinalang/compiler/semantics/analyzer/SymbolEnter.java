@@ -389,7 +389,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                             annotationNode.getAttachPoints(),
                                                                             names.fromIdNode(annotationNode.name),
                                                                             env.enclPkg.symbol.pkgID, null,
-                                                                            env.scope.owner);
+                                                                            env.scope.owner, annotationNode.pos);
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
         if (isDeprecated(annotationNode.annAttachments)) {
@@ -1905,9 +1905,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         BInvokableTypeSymbol functionTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
-                invokableSymbol.flags,
-                env.enclPkg.symbol.pkgID,
-                invokableSymbol.type, env.scope.owner);
+                                                                                    invokableSymbol.flags,
+                                                                                    env.enclPkg.symbol.pkgID,
+                                                                                    invokableSymbol.type,
+                                                                                    env.scope.owner, invokableNode.pos);
         functionTypeSymbol.params = invokableSymbol.params;
         functionTypeSymbol.returnType = invokableSymbol.retType;
 
@@ -2411,7 +2412,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private BPackageSymbol duplicatePackagSymbol(BPackageSymbol originalSymbol) {
-        BPackageSymbol copy = new BPackageSymbol(originalSymbol.pkgID, originalSymbol.owner, originalSymbol.flags);
+        BPackageSymbol copy = new BPackageSymbol(originalSymbol.pkgID, originalSymbol.owner, originalSymbol.flags,
+                                                 originalSymbol.pos);
         copy.initFunctionSymbol = originalSymbol.initFunctionSymbol;
         copy.startFunctionSymbol = originalSymbol.startFunctionSymbol;
         copy.stopFunctionSymbol = originalSymbol.stopFunctionSymbol;
@@ -2438,7 +2440,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void resolveAndSetFunctionTypeFromRHSLambda(BLangSimpleVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
         variable.type = symResolver.createInvokableType(function.getParameters(),
-                function.restParam, function.returnTypeNode, Flags.asMask(variable.flagSet), env);
+                                                        function.restParam, function.returnTypeNode,
+                                                        Flags.asMask(variable.flagSet), env, function.pos);
     }
 
     /**

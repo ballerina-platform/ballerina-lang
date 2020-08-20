@@ -154,7 +154,7 @@ public class TypeDefBuilderHelper {
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                          initFunction.symbol.flags,
                                                                          env.enclPkg.packageID, initFunction.type,
-                                                                         initFunction.symbol);
+                                                                         initFunction.symbol, initFunction.pos);
         tsymbol.params = initFunction.symbol.params;
         tsymbol.restParam = initFunction.symbol.restParam;
         tsymbol.returnType = initFunction.symbol.retType;

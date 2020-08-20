@@ -962,7 +962,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
-                env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                env.enclPkg.symbol.pkgID, null, env.scope.owner, objectTypeNode.pos);
         BObjectType objectType;
         if (flags.contains(Flag.SERVICE)) {
             objectType = new BServiceType(objectSymbol);
@@ -984,7 +984,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     : EnumSet.noneOf(Flag.class);
             BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
                                                                         env.enclPkg.symbol.pkgID, null,
-                                                                        env.scope.owner);
+                                                                        env.scope.owner, recordTypeNode.pos);
             BRecordType recordType = new BRecordType(recordSymbol);
             recordSymbol.type = recordType;
             recordTypeNode.symbol = recordSymbol;
@@ -1114,7 +1114,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         // Define user define error type.
         BErrorTypeSymbol errorTypeSymbol = Symbols
                 .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
-                                   null, env.scope.owner);
+                                   null, env.scope.owner, errorTypeNode.pos);
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
         errorType.flags |= errorTypeSymbol.flags;
         errorTypeSymbol.type = errorType;
@@ -1238,7 +1238,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 if (paramValType != null) {
                     BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | tempSymbol.flags,
-                                                          tempSymbol.name, tempSymbol.pkgID, null, func.symbol);
+                                                          tempSymbol.name, tempSymbol.pkgID, null, func.symbol,
+                                                          tempSymbol.pos);
                     tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
                                                           tSymbol, tempSymbol.name);
                     tSymbol.type.flags |= Flags.PARAMETERIZED;
@@ -1297,17 +1298,18 @@ public class SymbolResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         resultType = createInvokableType(functionTypeNode.getParams(), functionTypeNode.restParam,
-                functionTypeNode.returnTypeNode, Flags.asMask(functionTypeNode.flagSet), env);
-    } 
+                                         functionTypeNode.returnTypeNode, Flags.asMask(functionTypeNode.flagSet), env,
+                                         functionTypeNode.pos);
+    }
 
     public BInvokableType createInvokableType(List<? extends BLangVariable> paramVars, BLangVariable restVariable,
-                               BLangType retTypeVar, int flags, SymbolEnv env) {
+                                              BLangType retTypeVar, int flags, SymbolEnv env, DiagnosticPos pos) {
         List<BType> paramTypes = new ArrayList<>();
         List<BVarSymbol> params = new ArrayList<>();
 
         boolean foundDefaultableParam = false;
         List<String> paramNames = new ArrayList<>();
-        for (BLangVariable paramNode :  paramVars) {
+        for (BLangVariable paramNode : paramVars) {
             BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
             Name paramName = names.fromIdNode(param.name);
             if (paramName != Names.EMPTY) {
@@ -1364,7 +1366,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         bInvokableType.flags = flags;
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                                                                          env.enclPkg.symbol.pkgID, bInvokableType,
-                                                                         env.scope.owner);
+                                                                         env.scope.owner, pos);
 
         tsymbol.params = params;
         tsymbol.restParam = restParam;
@@ -1557,7 +1559,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         BConstructorSymbol elementCtor =
-                FunctionalConstructorBuilder.newConstructor("Element", xmlModuleSymbol, symTable.xmlElementType)
+                FunctionalConstructorBuilder
+                    .newConstructor("Element", xmlModuleSymbol, symTable.xmlElementType, symTable.builtinPos)
                     .addParam("name", symTable.stringType)
                     .addDefaultableParam("attributes", symTable.mapStringType)
                     .addDefaultableParam("children", symTable.xmlType)
@@ -1565,22 +1568,23 @@ public class SymbolResolver extends BLangNodeVisitor {
         xmlModuleSymbol.scope.define(elementCtor.name, elementCtor);
 
         BConstructorSymbol piCtor =
-                FunctionalConstructorBuilder.newConstructor("ProcessingInstruction",
-                        xmlModuleSymbol,
-                        symTable.xmlPIType)
+                FunctionalConstructorBuilder.newConstructor("ProcessingInstruction", xmlModuleSymbol,
+                                                            symTable.xmlPIType, symTable.builtinPos)
                     .addParam("target", symTable.stringType)
                     .addDefaultableParam("content", symTable.stringType)
                     .build();
         xmlModuleSymbol.scope.define(piCtor.name, piCtor);
 
         BConstructorSymbol commentCtor =
-                FunctionalConstructorBuilder.newConstructor("Comment", xmlModuleSymbol, symTable.xmlCommentType)
+                FunctionalConstructorBuilder
+                    .newConstructor("Comment", xmlModuleSymbol, symTable.xmlCommentType, symTable.builtinPos)
                     .addDefaultableParam("comment", symTable.stringType)
                     .build();
         xmlModuleSymbol.scope.define(commentCtor.name, commentCtor);
 
         BConstructorSymbol textCtor =
-                FunctionalConstructorBuilder.newConstructor("Text", xmlModuleSymbol, symTable.xmlTextType)
+                FunctionalConstructorBuilder
+                    .newConstructor("Text", xmlModuleSymbol, symTable.xmlTextType, symTable.builtinPos)
                     .addDefaultableParam("characters", symTable.stringType)
                     .build();
         xmlModuleSymbol.scope.define(textCtor.name, textCtor);

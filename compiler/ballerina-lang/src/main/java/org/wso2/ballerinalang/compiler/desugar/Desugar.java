@@ -4446,7 +4446,8 @@ public class Desugar extends BLangNodeVisitor {
                 anonModelHelper.getNextRawTemplateTypeKey(env.enclPkg.packageID, tSymbol.name));
         final int updatedFlags = Flags.unset(tSymbol.flags, Flags.ABSTRACT);
         BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(updatedFlags, objectClassName,
-                                                                    env.enclPkg.packageID, null, env.enclPkg.symbol);
+                                                                    env.enclPkg.packageID, null, env.enclPkg.symbol,
+                                                                    pos);
 
         // Create a new concrete, class type for the provided abstract object type
         BObjectType objectClassType = new BObjectType(classTSymbol, updatedFlags);
@@ -5966,7 +5967,7 @@ public class Desugar extends BLangNodeVisitor {
 
             BRecordTypeSymbol recordSymbol =
                     Symbols.createRecordSymbol(0, names.fromString("$anonRecordType$" + recordCount++),
-                                               env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                                               env.enclPkg.symbol.pkgID, null, env.scope.owner, recordVariable.pos);
             recordSymbol.initializerFunc = createRecordInitFunc();
             recordSymbol.scope = new Scope(recordSymbol);
             recordSymbol.scope.define(
@@ -6018,12 +6019,13 @@ public class Desugar extends BLangNodeVisitor {
                     Flags.PUBLIC,
                     names.fromString("$anonErrorType$" + errorCount++),
                     env.enclPkg.symbol.pkgID,
-                    null, null);
+                    null, null, errorVariable.pos);
             BType detailType;
             if ((errorVariable.detail == null || errorVariable.detail.isEmpty()) && errorVariable.restDetail != null) {
                 detailType = symTable.detailType;
             } else {
-                detailType = createDetailType(errorVariable.detail, errorVariable.restDetail, errorCount++);
+                detailType = createDetailType(errorVariable.detail, errorVariable.restDetail, errorCount++,
+                                              errorVariable.pos);
 
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
                 recordTypeNode.initFunction = TypeDefBuilderHelper
@@ -6064,12 +6066,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BType createDetailType(List<BLangErrorVariable.BLangErrorDetailEntry> detail,
-                                   BLangSimpleVariable restDetail, int errorNo) {
+                                   BLangSimpleVariable restDetail, int errorNo, DiagnosticPos pos) {
         BRecordTypeSymbol detailRecordTypeSymbol = new BRecordTypeSymbol(
                 SymTag.RECORD,
                 Flags.PUBLIC,
                 names.fromString("$anonErrorType$" + errorNo + "$detailType"),
-                env.enclPkg.symbol.pkgID, null, null);
+                env.enclPkg.symbol.pkgID, null, null, pos);
 
         detailRecordTypeSymbol.initializerFunc = createRecordInitFunc();
         detailRecordTypeSymbol.scope = new Scope(detailRecordTypeSymbol);

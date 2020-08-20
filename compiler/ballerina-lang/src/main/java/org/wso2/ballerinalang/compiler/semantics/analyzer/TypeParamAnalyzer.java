@@ -642,7 +642,7 @@ public class TypeParamAnalyzer {
         BRecordTypeSymbol expTSymbol = (BRecordTypeSymbol) expType.tsymbol;
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(expTSymbol.flags, expTSymbol.name,
                                                                     expTSymbol.pkgID, null,
-                                                                    expType.tsymbol.scope.owner);
+                                                                    expType.tsymbol.scope.owner, expTSymbol.pos);
         recordSymbol.scope = new Scope(recordSymbol);
         recordSymbol.initializerFunc = expTSymbol.initializerFunc;
 
@@ -676,14 +676,17 @@ public class TypeParamAnalyzer {
                 .collect(Collectors.toList());
         BType restType = expType.restType;
         return new BInvokableType(paramTypes, restType, getMatchingBoundType(expType.retType, env, resolvedTypes),
-                Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, expType.flags,
-                        env.enclPkg.symbol.pkgID, expType, env.scope.owner));
+                                  Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, expType.flags,
+                                                                    env.enclPkg.symbol.pkgID, expType, env.scope.owner,
+                                                                    expType.tsymbol.pos));
     }
 
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
 
         BObjectTypeSymbol actObjectSymbol = Symbols.createObjectSymbol(expType.tsymbol.flags,
-                expType.tsymbol.name, expType.tsymbol.pkgID, null, expType.tsymbol.scope.owner);
+                                                                       expType.tsymbol.name, expType.tsymbol.pkgID,
+                                                                       null, expType.tsymbol.scope.owner,
+                                                                       expType.tsymbol.pos);
         BObjectType objectType = new BObjectType(actObjectSymbol);
         actObjectSymbol.type = objectType;
         actObjectSymbol.scope = new Scope(actObjectSymbol);
@@ -729,10 +732,10 @@ public class TypeParamAnalyzer {
         }
         BType detailType = getMatchingBoundType(expType.detailType, env, resolvedTypes);
         BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR,
-                symTable.errorType.tsymbol.flags,
-                symTable.errorType.tsymbol.name,
-                symTable.errorType.tsymbol.pkgID,
-                null, null);
+                                                           symTable.errorType.tsymbol.flags,
+                                                           symTable.errorType.tsymbol.name,
+                                                           symTable.errorType.tsymbol.pkgID,
+                                                           null, null, symTable.builtinPos);
         BErrorType errorType = new BErrorType(typeSymbol, detailType);
         typeSymbol.type = errorType;
         return errorType;
