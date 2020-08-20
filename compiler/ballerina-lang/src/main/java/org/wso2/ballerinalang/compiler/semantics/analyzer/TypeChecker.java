@@ -2734,7 +2734,8 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangLetExpression letExpression) {
         BLetSymbol letSymbol = new BLetSymbol(SymTag.LET, Flags.asMask(new HashSet<>(Lists.of())),
                                               new Name(String.format("$let_symbol_%d$", letCount++)),
-                                              env.enclPkg.symbol.pkgID, letExpression.type, env.scope.owner);
+                                              env.enclPkg.symbol.pkgID, letExpression.type, env.scope.owner,
+                                              letExpression.pos);
         letExpression.env = SymbolEnv.createExprEnv(letExpression, env, letSymbol);
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, letExpression.env);
