@@ -24,9 +24,8 @@ import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
-import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -68,12 +67,17 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
     private static final String neverVar = "v27_neverVar";
 
     @BeforeClass
-    public void setup() {
+    public void setup() throws BallerinaTestException {
         testProjectName = "basic-project";
         testModuleName = "advanced";
         testModuleFileName = "main.bal";
         testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 150));
+        initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
+        this.context = debugHitInfo.getRight();
     }
 
     @Test
@@ -138,7 +142,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
 
     @Test
     public void arithmeticEvaluationTest() throws BallerinaTestException {
-        //////////////////////////////-------------addition------------------/////////////////////////////////////////
+        //////////////////////////////-------------addition------------------///////////////////////////////////////////
         // int + int
         assertExpression(context, String.format("%s + %s", intVar, intVar), "40", "int");
         // float + int
@@ -271,15 +275,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         // Todo - Add negative tests for function invocations related errors.
     }
 
-    @BeforeMethod
-    private void prepareForEvaluation() throws BallerinaTestException {
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 150));
-        initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
-        this.context = debugHitInfo.getRight();
-    }
-
-    @AfterMethod
+    @AfterClass
     private void cleanup() {
         terminateDebugSession();
         this.context = null;
