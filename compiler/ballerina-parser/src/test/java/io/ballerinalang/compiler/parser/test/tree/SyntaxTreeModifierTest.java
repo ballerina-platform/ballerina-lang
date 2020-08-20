@@ -121,25 +121,12 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         SyntaxTree syntaxTree = parseFile("separated_node_list_modify.bal");
         ModulePartNode oldRoot = syntaxTree.rootNode();
 
-        ModuleVariableDeclarationNode oldModuleVariableDeclarationNode =
-                (ModuleVariableDeclarationNode) oldRoot.members().get(0);
-        ListConstructorExpressionNode oldSeperatedlistNode =
-                (ListConstructorExpressionNode) oldModuleVariableDeclarationNode.initializer();
-
         IdentifierModifier identifierModifier = new IdentifierModifier();
         ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(identifierModifier);
 
-        ModuleVariableDeclarationNode newModuleVariableDeclarationNode =
-                (ModuleVariableDeclarationNode) newRoot.members().get(0);
-        ListConstructorExpressionNode newSeperatedlistNode =
-                (ListConstructorExpressionNode) newModuleVariableDeclarationNode.initializer();
-
-        Assert.assertEquals(oldSeperatedlistNode.expressions().separatorSize(),
-                newSeperatedlistNode.expressions().separatorSize());
-        Assert.assertEquals(oldSeperatedlistNode.expressions().size(),
-                newSeperatedlistNode.expressions().size());
-        Assert.assertEquals(((SimpleNameReferenceNode) newSeperatedlistNode.expressions().get(0)).name().text(),
-                ((SimpleNameReferenceNode) oldSeperatedlistNode.expressions().get(0)).name().text() + "_new");
+        String expectedStr = getFileContentAsString("separated_node_list_modify_assert.bal");
+        String actualStr = newRoot.toString();
+        Assert.assertEquals(actualStr, expectedStr);
     }
 
     @Test
@@ -147,27 +134,12 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         SyntaxTree syntaxTree = parseFile("separated_node_list_modify_all_nodes.bal");
         ModulePartNode oldRoot = syntaxTree.rootNode();
 
-        ModuleVariableDeclarationNode oldModuleVariableDeclarationNode =
-                (ModuleVariableDeclarationNode) oldRoot.members().get(0);
-        ListConstructorExpressionNode oldSeperatedlistNode =
-                (ListConstructorExpressionNode) oldModuleVariableDeclarationNode.initializer();
+        WhiteSpaceMinutiaeRemover whiteSpaceMinutiaeRemover = new WhiteSpaceMinutiaeRemover();
+        ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(whiteSpaceMinutiaeRemover);
 
-        TokenModifier tokenModifier = new TokenModifier();
-        ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(tokenModifier);
-
-        ModuleVariableDeclarationNode newModuleVariableDeclarationNode =
-                (ModuleVariableDeclarationNode) newRoot.members().get(0);
-        ListConstructorExpressionNode newSeperatedlistNode =
-                (ListConstructorExpressionNode) newModuleVariableDeclarationNode.initializer();
-
-        Assert.assertEquals(oldSeperatedlistNode.expressions().separatorSize(),
-                newSeperatedlistNode.expressions().separatorSize());
-        Assert.assertEquals(oldSeperatedlistNode.expressions().size(),
-                newSeperatedlistNode.expressions().size());
-        assert(oldSeperatedlistNode.expressions().getSeparator(0).containsTrailingMinutiae());
-        assert(!newSeperatedlistNode.expressions().getSeparator(0).containsTrailingMinutiae());
-        assert(oldSeperatedlistNode.expressions().getSeparator(1).containsTrailingMinutiae());
-        assert(!newSeperatedlistNode.expressions().getSeparator(1).containsTrailingMinutiae());
+        String expectedStr = getFileContentAsString("separated_node_list_modify_all_nodes_assert.bal");
+        String actualStr = newRoot.toString();
+        Assert.assertEquals(actualStr, expectedStr);
     }
 
     /**
@@ -204,7 +176,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     /**
      * An implementation of {@code TreeModifier} that removes all white space minutiae from all tokens.
      */
-    private static class TokenModifier extends TreeModifier {
+    private static class WhiteSpaceMinutiaeRemover extends TreeModifier {
 
         @Override
         public Token transform(Token token) {
