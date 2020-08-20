@@ -18,7 +18,9 @@
 package io.ballerina.projects;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -60,7 +62,7 @@ public class Module {
     }
 
     public Iterable<Document> documents() {
-        return null;
+        return new DocumentIterable(this.srcDocs.values());
     }
 
     public Collection<DocumentId> testDocumentIds() {
@@ -77,6 +79,24 @@ public class Module {
             return this.srcDocs.computeIfAbsent(documentId, this.populateDocumentFunc);
         } else {
             return this.testSrcDocs.computeIfAbsent(documentId, this.populateDocumentFunc);
+        }
+    }
+    
+    private static class DocumentIterable implements Iterable {
+        private final Collection<Document> documentList;
+    
+        public DocumentIterable(Collection<Document> documentList) {
+            this.documentList = documentList;
+        }
+    
+        @Override
+        public Iterator<Document> iterator() {
+            return this.documentList.iterator();
+        }
+    
+        @Override
+        public Spliterator spliterator() {
+            return this.documentList.spliterator();
         }
     }
 }

@@ -1,5 +1,7 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.model.BallerinaToml;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,5 +58,9 @@ public class Package {
 
     public Module getDefaultModule() {
         return module(this.packageContext.defaultModuleContext().moduleId());
+    }
+
+    public BallerinaToml ballerinaToml() {
+        return this.packageContext.ballerinaToml();
     }
 }

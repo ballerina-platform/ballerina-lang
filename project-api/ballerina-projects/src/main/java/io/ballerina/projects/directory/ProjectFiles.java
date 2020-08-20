@@ -17,8 +17,8 @@
  */
 package io.ballerina.projects.directory;
 
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.util.RepoUtils;
+import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.utils.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -148,16 +148,16 @@ public class ProjectFiles {
     static Path createTargetDirectoryStructure(Path projectPath) {
         Path targetDir;
         try {
-            targetDir = projectPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+            targetDir = projectPath.resolve(ProjectConstants.TARGET_DIR_NAME);
             if (targetDir.toFile().exists()) {
                 Files.walk(targetDir)
                         .sorted(Comparator.reverseOrder())
                         .map(Path::toFile)
                         .forEach(File::delete);
             }
-            Files.createDirectories(targetDir.resolve(ProjectDirConstants.CACHES_DIR_NAME));
-            Files.createDirectory(targetDir.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY));
-            Files.createDirectory(targetDir.resolve(ProjectDirConstants.BIN_DIR_NAME));
+            Files.createDirectories(targetDir.resolve(ProjectConstants.CACHES_DIR_NAME));
+            Files.createDirectory(targetDir.resolve(ProjectConstants.TARGET_BALO_DIRECTORY));
+            Files.createDirectory(targetDir.resolve(ProjectConstants.BIN_DIR_NAME));
         } catch (IOException e) {
             throw new RuntimeException("error while creating target directory " + e);
         }

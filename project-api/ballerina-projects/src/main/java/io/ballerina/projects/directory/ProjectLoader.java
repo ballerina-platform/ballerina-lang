@@ -18,8 +18,8 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.Project;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.util.RepoUtils;
+import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.utils.RepoUtils;
 
 import java.nio.file.Path;
 
@@ -48,9 +48,6 @@ public class ProjectLoader {
         return RepoUtils.isBallerinaProject(filePath.getParent());
     }
     private static boolean isFileInOtherModules(Path filePath) {
-        if (filePath.getParent().getParent().getFileName() != null) {
-            return ProjectDirConstants.MODULES_ROOT.equals(filePath.getParent().getParent().getFileName().toString());
-        }
-        return false;
+        return ProjectConstants.MODULES_ROOT.equals(filePath.getParent().getParent().getFileName().toString());
     }
 }

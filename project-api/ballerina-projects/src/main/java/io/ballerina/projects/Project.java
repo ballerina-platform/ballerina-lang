@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.model.BallerinaToml;
-
 import java.nio.file.Path;
 
 /**
@@ -29,7 +27,6 @@ import java.nio.file.Path;
 public abstract class Project {
     protected final ProjectContext context;
     protected String packagePath;
-    protected BallerinaToml ballerinaToml;
 
     protected Project() {
         this.context = new ProjectContext();

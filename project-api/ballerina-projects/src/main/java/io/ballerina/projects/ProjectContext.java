@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects;
 
-import org.ballerinalang.toml.model.BuildOptions;
-
 import java.nio.file.Path;
 
 /**
@@ -29,7 +27,6 @@ import java.nio.file.Path;
  */
 public class ProjectContext {
     private Package currentPackage;
-    private Path sourceRoot;
     private Path targetPath;
     private BuildOptions buildOptions;
 
@@ -59,14 +56,6 @@ public class ProjectContext {
 
     public void setTargetPath(Path targetPath) {
         this.targetPath = targetPath;
-    }
-
-    public Path getSourceRoot() {
-        return sourceRoot;
-    }
-
-    public void setSourceRoot(Path sourceRoot) {
-        this.sourceRoot = sourceRoot;
     }
 
     public BuildOptions getBuildOptions() {
