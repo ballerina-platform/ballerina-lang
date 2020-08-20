@@ -89,9 +89,9 @@ public class CodeGenerator {
                           String reldefinitionPath , String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
 
-        if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
-            throw new BallerinaOpenApiException(OpenApiMesseges.GEN_CLIENT_PROJECT_ROOT);
-        }
+//        if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
+//            throw new BallerinaOpenApiException(OpenApiMesseges.GEN_CLIENT_PROJECT_ROOT);
+//        }
 
         //Check if the selected path is a ballerina root for service generation
         //TODO check with team for root check

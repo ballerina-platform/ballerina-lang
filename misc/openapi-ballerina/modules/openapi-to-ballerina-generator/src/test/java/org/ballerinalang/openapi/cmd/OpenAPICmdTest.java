@@ -48,4 +48,16 @@ public class OpenAPICmdTest extends OpenAPICommandTest {
         String output = readOutput(true);
         Assert.assertTrue(output.contains("NAME\n       The Ballerina OpenAPI Tool"));
     }
+
+    @Test(description = "Test openapi command with --input flag")
+    public void testOpenAPICmdInput() throws IOException {
+        String[] args = {"--input", "petstore.yaml"};
+        OpenApiCmd openApiCommand = new OpenApiCmd(printStream);
+        new CommandLine(openApiCommand).parseArgs(args);
+        openApiCommand.execute();
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("An OpenApi definition file is required to generate the"));
+    }
+//    @Test(description = "Generate service with input tag")
 }

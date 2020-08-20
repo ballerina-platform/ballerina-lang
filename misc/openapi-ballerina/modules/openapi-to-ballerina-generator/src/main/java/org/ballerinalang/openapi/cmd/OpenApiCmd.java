@@ -17,12 +17,19 @@
  */
 package org.ballerinalang.openapi.cmd;
 
+import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.OpenApiMesseges;
+import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.tool.BLauncherCmd;
+import org.ballerinalang.tool.LauncherUtils;
 import picocli.CommandLine;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.ballerinalang.openapi.utils.GeneratorConstants.USER_DIR;
 
@@ -44,33 +51,82 @@ import static org.ballerinalang.openapi.utils.GeneratorConstants.USER_DIR;
         }
 )
 public class OpenApiCmd implements BLauncherCmd {
-    private static final String CMD_NAME = "openapi";
+    private static final String CMD_NAME = "ballerina openapi [(-i|--input) <inputPath>] [(-o|-output) <outputPath>]";
     private PrintStream outStream;
     private Path executionPath = Paths.get(System.getProperty(USER_DIR));
+    private Path targetOutputPath;
 
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = {"--input"}, description = "Generating the client and service both files")
-    private String inputPath;
+    @CommandLine.Option(names = {"-i", "--input"}, description = "Generating the client and service both files")
+    private boolean inputPath;
 
     @CommandLine.Option(names = {"-o", "--output"}, description = "Location of the generated Ballerina service, " +
             "client and model files.")
     private String outputPath;
 
+    @CommandLine.Parameters
+    private List<String> argList;
+
     public OpenApiCmd() {
         this.outStream = System.err;
-//        this.executionPath = System.getProperty("user.dir");
+        this.executionPath = Paths.get(System.getProperty("user.dir"));
     }
 
     public OpenApiCmd(PrintStream outStream) {
         this.outStream = outStream;
+        this.executionPath = Paths.get(System.getProperty("user.dir"));
     }
 
     @Override
     public void execute() {
-        String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
-        outStream.println(commandUsageInfo);
+        //User notification of using an experimental tool
+        outStream.println(OpenApiMesseges.EXPERIMENTAL_FEATURE);
+        //Check if cli help argument is present
+//        if (argList == null) {
+//            helpFlag = true;
+//        }
+        if (helpFlag) {
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
+            outStream.println(commandUsageInfo);
+            return;
+        }
+        //Check if cli input argument is present
+        if (inputPath) {
+            //Check if an OpenApi definition is provided
+            if (argList == null) {
+                throw LauncherUtils.createLauncherException("An OpenApi definition file is required to generate the " +
+                        "service. \nE.g: ballerina openapi --input <OpenApiContract> -o /.");
+            }
+            //Generate Service file
+            CodeGenerator generator = new CodeGenerator();
+            if (this.outputPath != null) {
+                if (Paths.get(outputPath).isAbsolute()) {
+                    targetOutputPath = Paths.get(outputPath);
+                } else {
+                    targetOutputPath = Paths.get(targetOutputPath.toString(), outputPath);
+                }
+            } else {
+                targetOutputPath = executionPath;
+            }
+            final File openApiFile = new File(argList.get(0));
+            final String openApiFilePath = openApiFile.getPath();
+//            String resourcePath = Paths.get(executionPath + "/" + openApiFile.getName()).toString();
+            Path resourcePath = null;
+            try {
+                resourcePath = Paths.get(openApiFile.getCanonicalPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                generator.generateService(executionPath.toString(), resourcePath.toString(), resourcePath.toString(),
+                        "TestService", targetOutputPath.toString());
+            } catch (IOException | BallerinaOpenApiException e) {
+                throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
+                        "contract at " + argList.get(0) + ". " + e.getMessage() + ".");
+            }
+        }
     }
 
     @Override
