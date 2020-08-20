@@ -18,7 +18,7 @@ class TestObject {
         _ = self.testFunction(input);
         return input;
     }
-};
+}
 
 function secureFunction(@untainted string secureIn, string insecureIn) {
 

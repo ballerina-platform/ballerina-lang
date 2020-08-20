@@ -1236,7 +1236,7 @@ public class Types {
             }
         }
 
-        return true;
+        return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {

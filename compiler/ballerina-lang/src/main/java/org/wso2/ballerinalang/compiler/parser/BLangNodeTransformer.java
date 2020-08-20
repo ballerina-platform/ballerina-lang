@@ -3343,7 +3343,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         });
 
         for (Token qualifier : classDefinitionNode.classTypeQualifiers()) {
-            if (qualifier.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
+            if (qualifier.kind() == SyntaxKind.DISTINCT_KEYWORD) {
                 blangClass.flagSet.add(Flag.DISTINCT);
             }
 

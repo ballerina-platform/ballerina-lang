@@ -854,4 +854,4 @@ public const annotation v20 on class;
     function init() {
         self.i = 2;
     }
-};
+}

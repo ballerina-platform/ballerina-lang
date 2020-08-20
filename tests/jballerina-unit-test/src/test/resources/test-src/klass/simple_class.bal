@@ -44,7 +44,7 @@ class Person {
     public string name = "sample name";
     int year = 50;
     string month = "february";
-};
+}
 
 class Student {
     *Person;
@@ -56,7 +56,7 @@ class Student {
         self.year = year;
         self.month = month;
     }
-};
+}
 
 class Stu {
     *Per;
@@ -64,11 +64,11 @@ class Stu {
     function init(int i) {
         self.i = i;
     }
-};
+}
 
 class Per {
     int i = 0;
-};
+}
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
