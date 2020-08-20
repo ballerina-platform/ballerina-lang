@@ -246,7 +246,9 @@ public const TYPE_REFCURSOR = "REFCURSOR";
 # The direction of the parameter.
 #
 # `IN` - IN parameters are used to send values to stored procedures
+# 
 # `OUT` - OUT parameters are used to get values from stored procedures
+# 
 # `INOUT` - INOUT parameters are used to send values and get values from stored procedures
 public type Direction DIRECTION_IN|DIRECTION_OUT|DIRECTION_INOUT;
 
