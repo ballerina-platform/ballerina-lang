@@ -205,6 +205,9 @@ public class LogAPITestCase extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
+        for (int i = 0; i < logLines.length; i++) {
+            console.println(logLines[i]);
+        }
         assertEquals(logLines.length, 10);
 
         console.println(logLines[4]);
