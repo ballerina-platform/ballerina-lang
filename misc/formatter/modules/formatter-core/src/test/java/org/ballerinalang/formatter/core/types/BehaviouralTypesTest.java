@@ -45,7 +45,8 @@ public class BehaviouralTypesTest extends FormatterTest {
         return new Object[][] {
                 {"error_type_1.bal", this.getTestResourceDir()},
                 {"error_type_2.bal", this.getTestResourceDir()},
-                {"error_type_3.bal", this.getTestResourceDir()}
+                {"error_type_3.bal", this.getTestResourceDir()},
+                {"function_type_2.bal", this.getTestResourceDir()}
         };
     }
 
