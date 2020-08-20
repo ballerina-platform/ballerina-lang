@@ -14,14 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+const int a = 4;
+
 function foo() {
-
-}
-
-function bar() {
-
-}
-
-function baz() {
 
 }
