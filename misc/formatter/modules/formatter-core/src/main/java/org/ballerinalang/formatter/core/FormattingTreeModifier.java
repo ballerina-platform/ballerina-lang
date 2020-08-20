@@ -1687,13 +1687,14 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(panicStatementNode)) {
             return panicStatementNode;
         }
+        int startCol = getStartColumn(panicStatementNode, panicStatementNode.kind(), true);
         Token panicKeyword = getToken(panicStatementNode.panicKeyword());
         ExpressionNode expression = this.modifyNode(panicStatementNode.expression());
         Token semicolonToken = getToken(panicStatementNode.semicolonToken());
         return panicStatementNode.modify()
-                .withPanicKeyword(formatToken(panicKeyword, 1, 1, 0, 0))
+                .withPanicKeyword(formatToken(panicKeyword, startCol, 1, 0, 0))
                 .withExpression(expression)
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
