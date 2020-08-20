@@ -51,16 +51,12 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, FunctionTypeDescriptorNode node) {
-        /*
-        Covers the following cases
-        (1) error< <cursor> >
-        (2) error< t<cursor> >
-        (3) error< module:<cursor> >
-        (4) error< module:t<cursor> >
-         */
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
 
         if (this.withinParameterContext(context, node)) {
+            /*
+            Covers the completions when the cursor is within the parameter context
+             */
             if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 List<Scope.ScopeEntry> typesInModule = QNameReferenceUtil.getTypesInModule(context,
                         ((QualifiedNameReferenceNode) nodeAtCursor));
