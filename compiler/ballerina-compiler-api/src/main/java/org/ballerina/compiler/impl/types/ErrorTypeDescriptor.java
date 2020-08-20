@@ -31,8 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
  */
 public class ErrorTypeDescriptor extends BallerinaTypeDesc {
 
-    private BallerinaTypeDescriptor reason;
-
     private BallerinaTypeDescriptor detail;
 
     public ErrorTypeDescriptor(ModuleID moduleID,

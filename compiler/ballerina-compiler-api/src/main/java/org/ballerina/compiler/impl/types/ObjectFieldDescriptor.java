@@ -17,7 +17,6 @@
  */
 package org.ballerina.compiler.impl.types;
 
-import org.ballerina.compiler.api.element.DocAttachment;
 import org.ballerina.compiler.api.symbol.Qualifier;
 import org.ballerina.compiler.api.type.BallerinaTypeDescriptor;
 
@@ -36,7 +35,7 @@ public class ObjectFieldDescriptor {
     
     private String fieldName;
     
-    private DocAttachment docAttachment;
+//    private DocAttachment docAttachment;
 
     public ObjectFieldDescriptor(Qualifier visibilityQualifier,
                                  BallerinaTypeDescriptor typeDescriptorImpl,
