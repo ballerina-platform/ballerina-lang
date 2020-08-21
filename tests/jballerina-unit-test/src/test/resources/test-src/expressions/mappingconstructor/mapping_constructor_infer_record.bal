@@ -226,22 +226,17 @@ class Bar {
     }
 }
 
-type Rec1 record {
-    int i;
-    boolean b;
-};
-
-type Rec2 record {|
+type Rec1 record {|
     string i;
     float f?;
 |};
 
 function testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp() {
-    Rec2 rec2 = {i: "str"};
+    Rec1 rec1 = {i: "str"};
 
     var r1 = {
         a: 0.1d,
-        ...rec2
+        ...rec1
     };
 
     record {

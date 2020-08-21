@@ -58,6 +58,19 @@ public function testRecordRefAsSpreadOp() {
     assertEquality(123.4, f["f"]);
 }
 
+type Bla record {
+    int j;
+    never i?;
+};
+
+public function testRecordRefWithNeverType() {
+    Bla b = {j: 2, "k": 3};
+    map<anydata> m = {i: 0, ...b};
+
+    assertEquality(3, m.length());
+    assertEquality(0, m["i"]);
+}
+
 public function testRecordValueViaFuncAsSpreadOp() {
     var fn = function () returns Bar => {s: "str", i: 1};
     Foo f = {...fn(), f: 123.4};
