@@ -128,8 +128,6 @@ public class OpenApiCmd implements BLauncherCmd {
                         "contract at " + argList.get(0) + ". " + e.getMessage() + ".");
             }
             //Generates Client file
-
-
         }
     }
 
