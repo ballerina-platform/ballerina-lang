@@ -43,6 +43,12 @@ public class ServiceTest {
         Assert.assertTrue(output.errorOutput.contains("error: startError"));
     }
 
+    @Test
+    public void testServiceWithTransactionalKeyword() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_transactional_negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
+    }
+
     @Test(expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*error: startError.*")
     public void testServiceInitPanicNegativeTest() {
