@@ -16,6 +16,4 @@
 
 const int a = 4;
 
-function foo() {
-
-}
+const s = "Hello";

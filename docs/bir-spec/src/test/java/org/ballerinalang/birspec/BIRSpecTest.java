@@ -25,12 +25,12 @@ import org.testng.annotations.Test;
 public class BIRSpecTest {
 
     @Test(description = "Test to verify BIR with functions")
-    public void functionNameTest() {
-        BIRTestUtils.assertFunctions("basic/function.bal");
+    public void functionsTest() {
+        BIRTestUtils.assertFunctions("functions.bal");
     }
 
     @Test(description = "Test to verify BIR with constant values")
     public void constantValueTest() {
-        BIRTestUtils.assertConstants("basic/constant.bal");
+        BIRTestUtils.assertConstants("constants.bal");
     }
 }
