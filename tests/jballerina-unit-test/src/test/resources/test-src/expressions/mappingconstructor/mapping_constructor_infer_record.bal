@@ -402,6 +402,14 @@ function testInferringForReadOnlyInUnion() {
 }
 
 function testValidReadOnlyWithDifferentFieldKinds() {
+    record {|
+            int[] x;
+            int[] y;
+        |} & readonly rec = {
+           x: [1, 2],
+           y: [3]
+        };
+
     map<int[]> & readonly a = {
         "x": [1, 2],
         "y": [3]
@@ -410,8 +418,8 @@ function testValidReadOnlyWithDifferentFieldKinds() {
     boolean[] & readonly b = [true, false];
 
     readonly x = {
-        ...a,
         b,
+        ...rec,
         c: {
             d: a
         }
@@ -445,9 +453,12 @@ function testValidReadOnlyWithDifferentFieldKinds() {
 }
 
 function testValidReadOnlyInUnionWithDifferentFieldKinds() {
-    map<int[]> & readonly a = {
-        "x": [1, 2],
-        "y": [3]
+    record {|
+        int[] x;
+        int[] y;
+    |} & readonly a = {
+       x: [1, 2],
+       y: [3]
     };
 
     boolean[] & readonly b = [true, false];

@@ -211,8 +211,6 @@ public class MappingConstructorExprTest {
                 { "testSpreadOpInConstMap" },
                 { "testSpreadOpInGlobalMap" },
                 { "testMappingConstrExprAsSpreadExpr" },
-                { "testOrderWithSpreadOp" },
-//                { "testInherentTypeViolationViaSpreadOp" }
         };
     }
 
