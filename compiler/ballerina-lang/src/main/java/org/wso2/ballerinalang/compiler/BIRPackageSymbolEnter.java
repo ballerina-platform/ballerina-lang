@@ -1014,7 +1014,7 @@ public class BIRPackageSymbolEnter {
                         if (bTableType.keyTypeConstraint.tsymbol == null) {
                             bTableType.keyTypeConstraint.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE,
                                     Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID,
-                                    bTableType.keyTypeConstraint, env.pkgSymbol.owner);
+                                    bTableType.keyTypeConstraint, env.pkgSymbol.owner, symTable.builtinPos);
                         }
                     }
                     return bTableType;
@@ -1053,15 +1053,19 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.ARRAY:
                     byte state = inputStream.readByte();
                     int size = inputStream.readInt();
-                    BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
-                            .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+                    BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE,
+                                                                           Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                                                                           Names.EMPTY, env.pkgSymbol.pkgID, null,
+                                                                           env.pkgSymbol.owner, symTable.builtinPos);
                     BArrayType bArrayType = new BArrayType(null, arrayTypeSymbol, size, BArrayState.valueOf(state),
                                                            flags);
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
                 case TypeTags.UNION:
-                    BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet
-                            .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+                    BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE,
+                                                                           Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                                                                           Names.EMPTY, env.pkgSymbol.pkgID, null,
+                                                                           env.pkgSymbol.owner, symTable.builtinPos);
                     BUnionType unionType = BUnionType.create(unionTypeSymbol,
                             new LinkedHashSet<>()); //TODO improve(useless second param)
                     int unionMemberCount = inputStream.readInt();
@@ -1074,7 +1078,8 @@ public class BIRPackageSymbolEnter {
                     BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
                                                                                   Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                                                                                   Names.EMPTY, env.pkgSymbol.pkgID,
-                                                                                  null, env.pkgSymbol.owner);
+                                                                                  null, env.pkgSymbol.owner,
+                                                                                  symTable.builtinPos);
                     int intersectionMemberCount = inputStream.readInt();
                     LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>(intersectionMemberCount);
                     for (int i = 0; i < intersectionMemberCount; i++) {
@@ -1129,8 +1134,10 @@ public class BIRPackageSymbolEnter {
                     // TODO fix
                     break;
                 case TypeTags.TUPLE:
-                    BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet
-                            .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+                    BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE,
+                                                                           Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                                                                           Names.EMPTY, env.pkgSymbol.pkgID, null,
+                                                                           env.pkgSymbol.owner, symTable.builtinPos);
                     BTupleType bTupleType = new BTupleType(tupleTypeSymbol, null);
                     bTupleType.flags = flags;
                     int tupleMemberCount = inputStream.readInt();
@@ -1149,7 +1156,8 @@ public class BIRPackageSymbolEnter {
                     String finiteTypeName = getStringCPEntryValue(inputStream);
                     int finiteTypeFlags = inputStream.readInt();
                     BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteTypeFlags,
-                            names.fromString(finiteTypeName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
+                                                                  names.fromString(finiteTypeName), env.pkgSymbol.pkgID,
+                                                                  null, env.pkgSymbol, symTable.builtinPos);
                     symbol.scope = new Scope(symbol);
                     BFiniteType finiteType = new BFiniteType(symbol);
                     finiteType.flags = flags;

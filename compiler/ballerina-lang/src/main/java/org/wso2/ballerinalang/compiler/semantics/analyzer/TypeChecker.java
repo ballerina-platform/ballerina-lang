@@ -3032,7 +3032,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BUnionType unionType = BUnionType.create(null, retTypeMembers);
         unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0, Names.EMPTY,
-                env.enclPkg.symbol.pkgID, unionType, env.scope.owner);
+                env.enclPkg.symbol.pkgID, unionType, env.scope.owner, pos);
 
         return unionType;
     }
@@ -3061,7 +3061,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BUnionType unionType = BUnionType.create(null, retTypeMembers);
             unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0,
                                                          Names.EMPTY, env.enclPkg.symbol.pkgID, unionType,
-                                                         env.scope.owner);
+                                                         env.scope.owner, symTable.builtinPos);
             return unionType;
         } else if (initRetType.tag == TypeTags.NIL) {
             return objType;

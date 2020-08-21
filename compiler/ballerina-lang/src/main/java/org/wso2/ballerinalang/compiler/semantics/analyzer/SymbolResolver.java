@@ -901,7 +901,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
-                                                                   env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                                                                   env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                                                                   arrayTypeNode.pos);
             BArrayType arrType;
             if (arrayTypeNode.sizes.length == 0) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
@@ -930,7 +931,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                                                                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
-                                                               env.scope.owner);
+                                                               env.scope.owner, unionTypeNode.pos);
 
         if (memberTypes.contains(symTable.noType)) {
             resultType = symTable.noType;
@@ -1015,7 +1016,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                                                      typeSymbol.pkgID, streamType, typeSymbol.owner);
+                                                      typeSymbol.pkgID, streamType, typeSymbol.owner,
+                                                      streamTypeNode.pos);
 
         markParameterizedType(streamType, constraintType);
         if (error != null) {
@@ -1037,7 +1039,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
-                typeSymbol.name, env.enclPkg.symbol.pkgID, tableType, env.scope.owner);
+                                                     typeSymbol.name, env.enclPkg.symbol.pkgID, tableType,
+                                                     env.scope.owner, tableTypeNode.pos);
         tableType.constraintPos = tableTypeNode.constraint.pos;
 
         if (tableTypeNode.tableKeyTypeConstraint != null) {
@@ -1060,7 +1063,9 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
-                Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                                                                Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY,
+                                                                env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                                                                finiteTypeNode.pos);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : finiteTypeNode.valueSpace) {
@@ -1085,7 +1090,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                                                                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
-                                                               env.scope.owner);
+                                                               env.scope.owner, tupleTypeNode.pos);
 
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
@@ -1157,7 +1162,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                                                           typeSymbol.pkgID, constrainedType, typeSymbol.owner);
+                                                           typeSymbol.pkgID, constrainedType, typeSymbol.owner,
+                                                           constrainedTypeNode.pos);
         markParameterizedType(constrainedType, constraintType);
         resultType = constrainedType;
     }

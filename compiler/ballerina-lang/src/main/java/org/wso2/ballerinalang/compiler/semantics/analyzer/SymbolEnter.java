@@ -808,7 +808,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
             definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
                                                            Names.EMPTY, env.enclPkg.symbol.pkgID, definedType,
-                                                           env.scope.owner);
+                                                           env.scope.owner, typeDefinition.pos);
         }
 
         typeDefinition.precedence = this.typePrecedence++;
@@ -2189,6 +2189,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return docAttachment;
     }
 
+    // TODO: Remove
     private void createDummyTypeDefSymbol(TypeDefinition typeDefNode, SymbolEnv env) {
         if (typeDefNode.getKind() == NodeKind.CONSTANT) {
             return;
@@ -2197,7 +2198,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangTypeDefinition typeDef = (BLangTypeDefinition) typeDefNode;
         // This is only to keep the flow running so that at the end there will be proper semantic errors
         typeDef.symbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
-                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, typeDef.typeNode.type, env.scope.owner);
+                                                  names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID,
+                                                  typeDef.typeNode.type, env.scope.owner, typeDef.pos);
         typeDef.symbol.scope = env.scope;
 
         // Todo - Add more kinds.

@@ -660,12 +660,13 @@ public class ImmutableTypeCloner {
 
         if (env == null) {
             return Symbols.createTypeSymbol(originalTSymbol.tag, originalTSymbol.flags | Flags.READONLY,
-                                            getImmutableTypeName(names, originalTSymbol), pkgId, null, owner);
+                                            getImmutableTypeName(names, originalTSymbol), pkgId, null, owner,
+                                            originalTSymbol.pos);
         }
 
         return Symbols.createTypeSymbol(originalTSymbol.tag, originalTSymbol.flags | Flags.READONLY,
                                         getImmutableTypeName(names, originalTSymbol), env.enclPkg.symbol.pkgID, null,
-                                        env.scope.owner);
+                                        env.scope.owner, originalTSymbol.pos);
     }
 
     private static Name getImmutableTypeName(Names names, BTypeSymbol originalTSymbol) {
@@ -688,7 +689,8 @@ public class ImmutableTypeCloner {
         BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
                                                                       Flags.asMask(EnumSet.of(Flag.PUBLIC,
                                                                                               Flag.READONLY)),
-                                                                      Names.EMPTY, pkgId, null, owner);
+                                                                      Names.EMPTY, pkgId, null, owner,
+                                                                      symTable.builtinPos);
 
         LinkedHashSet<BType> constituentTypes = new LinkedHashSet<BType>() {{
             add(nonReadOnlyType);

@@ -261,7 +261,7 @@ public class SymbolTable {
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                 names.fromString("$anonType$TRUE"),
-                rootPkgNode.packageID, null, rootPkgNode.symbol.owner);
+                rootPkgNode.packageID, null, rootPkgNode.symbol.owner, this.builtinPos);
         this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{
             add(trueLiteral);
         }});

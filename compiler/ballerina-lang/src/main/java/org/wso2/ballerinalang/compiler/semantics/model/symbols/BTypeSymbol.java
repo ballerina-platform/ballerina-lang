@@ -49,7 +49,7 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
     @Override
     public BTypeSymbol createLabelSymbol() {
-        BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, flags, Names.EMPTY, pkgID, type, owner);
+        BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, flags, Names.EMPTY, pkgID, type, owner, pos);
         typeSymbol.isLabel = true;
         return typeSymbol;
     }
