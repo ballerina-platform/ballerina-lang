@@ -130,7 +130,7 @@ public class JarResolverImpl implements JarResolver {
         // copy platform libs for all modules(imported modules as well)
         addPlatformLibs(packageID, modulePlatformLibs);
         Path runtimeJar = getRuntimeJar();
-        if (runtimeJar != null && !isModuleInDistribution(packageID)) {
+        if (runtimeJar != null) {
             modulePlatformLibs.add(getRuntimeJar());
         }
 
