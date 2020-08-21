@@ -337,7 +337,7 @@ public class BIRPackageSymbolEnter {
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
-                this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+                this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE), );
         invokableSymbol.source = source;
         invokableSymbol.retType = funcType.retType;
 
@@ -357,7 +357,8 @@ public class BIRPackageSymbolEnter {
                     scopeToDefine = attachedType.tsymbol.scope;
                 }
                 BAttachedFunction attachedFunc =
-                        new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
+                        new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
+                                              symTable.builtinPos);
                 BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
                 if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName)
                         || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
@@ -470,7 +471,7 @@ public class BIRPackageSymbolEnter {
 
     private void defineErrorConstructor(Scope scope, BTypeSymbol typeDefSymbol) {
         BConstructorSymbol symbol = new BConstructorSymbol(typeDefSymbol.flags, typeDefSymbol.name,
-                typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
+                typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, symTable.builtinPos);
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
         symbol.retType = typeDefSymbol.type;
@@ -557,7 +558,8 @@ public class BIRPackageSymbolEnter {
 
         // Create the constant symbol.
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                this.env.pkgSymbol.pkgID, null, type, enclScope.owner);
+                                                             this.env.pkgSymbol.pkgID, null, type, enclScope.owner,
+                                                             symTable.builtinPos);
 
         defineMarkDownDocAttachment(constantSymbol, docBytes);
 
@@ -617,7 +619,7 @@ public class BIRPackageSymbolEnter {
             // from the varType (i.e: from InvokableType), and assumes it can have only required
             // params.
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
-                    this.env.pkgSymbol.pkgID, varType, enclScope.owner);
+                                             this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos);
         } else {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
                                        enclScope.owner, symTable.builtinPos);
@@ -958,10 +960,10 @@ public class BIRPackageSymbolEnter {
                         BInvokableSymbol recordInitFuncSymbol =
                                 Symbols.createFunctionSymbol(recordInitFuncFlags,
                                         initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
-                                        env.pkgSymbol, isNative);
+                                        env.pkgSymbol, isNative, );
                         recordInitFuncSymbol.retType = recordInitFuncType.retType;
                         recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
-                                recordInitFuncType);
+                                                                             recordInitFuncType, symTable.builtinPos);
                         recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
                     }
 

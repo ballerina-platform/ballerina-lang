@@ -349,7 +349,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangGroupExpr transactionErrorCheckGroupExpr = new BLangGroupExpr();
         transactionErrorCheckGroupExpr.type = symTable.booleanType;
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()),
-                symTable.rootPkgSymbol.pkgID, errorType, symTable.rootPkgSymbol);
+                                                                symTable.rootPkgSymbol.pkgID, errorType,
+                                                                symTable.rootPkgSymbol, symTable.builtinPos);
         transactionErrorCheckGroupExpr.expression = ASTBuilderUtil.createUnaryExpr(pos, testExpr,
                 symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
 
@@ -493,9 +494,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
         List<BType> paramTypes = new ArrayList<>();
         paramTypes.add(symTable.booleanType);
         BInvokableType type = new BInvokableType(paramTypes, symTable.booleanType,
-                null);
+                                                 null);
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
-                names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol);
+                names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
+                symTable.builtinPos);
         failureValidationGroupExpr.expression = ASTBuilderUtil.createUnaryExpr(pos, failureValidationExprVarRef,
                 symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
         failureValidationIf.expr = failureValidationGroupExpr;

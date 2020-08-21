@@ -575,14 +575,15 @@ public class ASTBuilderUtil {
                                                         BLangExpression lhsExpr,
                                                         BType targetType,
                                                         BType type,
-                                                        Names names) {
+                                                        Names names,
+                                                        DiagnosticPos opSymPos) {
         final BLangIsAssignableExpr assignableExpr = new BLangIsAssignableExpr();
         assignableExpr.pos = pos;
         assignableExpr.lhsExpr = lhsExpr;
         assignableExpr.targetType = targetType;
         assignableExpr.type = type;
         assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
-                null, targetType, null);
+                null, targetType, null, opSymPos);
         return assignableExpr;
     }
 
@@ -806,7 +807,7 @@ public class ASTBuilderUtil {
 
     public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
         BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name,
-                invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist);
+                invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist, );
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.restParam = invokableSymbol.restParam;
@@ -829,7 +830,7 @@ public class ASTBuilderUtil {
     public static BInvokableSymbol duplicateFunctionDeclarationSymbol(BInvokableSymbol invokableSymbol, BSymbol owner,
                                                                       Name newName, PackageID newPkgID) {
         BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newPkgID,
-                                                                      null, owner, invokableSymbol.bodyExist);
+                                                                      null, owner, invokableSymbol.bodyExist, );
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.receiverSymbol = null;

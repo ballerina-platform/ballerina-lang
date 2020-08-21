@@ -536,14 +536,14 @@ public class ImmutableTypeCloner {
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY,
                                            getImmutableTypeName(names, origRecordType.tsymbol.toString()),
-                                           pkgID, null, env.scope.owner, origRecordType.tsymbol.pos);
+                                           pkgID, null, env.scope.owner, pos);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false);
+                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false, );
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
-                                                             bInvokableType);
+                                                             bInvokableType, pos);
 
         recordSymbol.scope = new Scope(recordSymbol);
         recordSymbol.scope.define(
@@ -646,7 +646,7 @@ public class ImmutableTypeCloner {
                     ASTBuilderUtil.duplicateFunctionDeclarationSymbol(origFunc.symbol, immutableObjectSymbol,
                                                                       funcName, immutableObjectSymbol.pkgID);
             immutableFuncs.add(new BAttachedFunction(origFunc.funcName, immutableFuncSymbol,
-                                                     (BInvokableType) immutableFuncSymbol.type));
+                                                     (BInvokableType) immutableFuncSymbol.type, ));
             immutableObjectSymbol.methodScope.define(funcName, immutableFuncSymbol);
         }
         immutableObjectSymbol.attachedFuncs = immutableFuncs;

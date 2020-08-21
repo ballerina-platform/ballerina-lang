@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 public class BEndpointVarSymbol extends BVarSymbol {
 
     public BEndpointVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(flags, name, pkgID, type, owner);
+        super(flags, name, pkgID, type, owner, null);
         this.tag = SymTag.ENDPOINT;
     }
 }

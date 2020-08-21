@@ -223,7 +223,7 @@ class JvmObservabilityGen {
 
             // Creating and adding invokable symbol to the relevant scope
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, lambdaName,
-                    currentPkgId, bInvokableType, functionOwner);
+                    currentPkgId, bInvokableType, functionOwner, desugaredFunc.pos);
             invokableSymbol.retType = funcReturnVariableDcl.type;
             invokableSymbol.kind = SymbolKind.FUNCTION;
             invokableSymbol.params = asyncCallIns.args.stream()

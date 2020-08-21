@@ -704,7 +704,7 @@ public class SymbolTable {
                                 List<BType> paramTypes,
                                 BType retType) {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol);
+        BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos);
         rootScope.define(name, symbol);
     }
 }

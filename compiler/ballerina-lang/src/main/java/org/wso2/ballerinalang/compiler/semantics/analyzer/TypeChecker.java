@@ -3861,7 +3861,7 @@ public class TypeChecker extends BLangNodeVisitor {
             pkgSymbol.isUsed = true;
             String nsURI = constVal.substring(s + 1, e);
             String local = constVal.substring(e);
-            return new BXMLNSSymbol(names.fromString(local), nsURI, constantSymbol.pkgID, constantSymbol.owner);
+            return new BXMLNSSymbol(names.fromString(local), nsURI, constantSymbol.pkgID, constantSymbol.owner, );
         }
 
         // Resolved const string is not in valid format.
@@ -6879,7 +6879,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (varSymbol.kind != SymbolKind.FUNCTION) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, 0, varSymbol.name, env.enclPkg.symbol.pkgID, varType,
-                    env.scope.owner);
+                    env.scope.owner, );
             varSymbol.kind = SymbolKind.FUNCTION;
         }
 
@@ -7112,10 +7112,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false);
+                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false, );
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
-                                                             bInvokableType);
+                                                             bInvokableType, pos);
 
         recordSymbol.scope = new Scope(recordSymbol);
         recordSymbol.scope.define(

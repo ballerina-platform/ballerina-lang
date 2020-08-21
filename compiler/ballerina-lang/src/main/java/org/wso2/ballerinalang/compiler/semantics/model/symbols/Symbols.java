@@ -109,8 +109,9 @@ public class Symbols {
                                                       Name name,
                                                       PackageID pkgID,
                                                       BType type,
-                                                      BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner);
+                                                      BSymbol owner,
+                                                      DiagnosticPos pos) {
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner, pos);
         symbol.kind = SymbolKind.WORKER;
         return symbol;
     }
@@ -119,8 +120,9 @@ public class Symbols {
                                                      Name name,
                                                      PackageID pkgID,
                                                      BType type,
-                                                     BSymbol owner) {
-        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner);
+                                                     BSymbol owner,
+                                                     DiagnosticPos pos) {
+        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner, pos);
         serviceSymbol.kind = SymbolKind.SERVICE;
         return serviceSymbol;
     }
@@ -130,8 +132,9 @@ public class Symbols {
                                                         PackageID pkgID,
                                                         BType type,
                                                         BSymbol owner,
-                                                        boolean bodyExist) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner);
+                                                        boolean bodyExist,
+                                                        DiagnosticPos pos) {
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner, pos);
         symbol.bodyExist = bodyExist;
         symbol.kind = SymbolKind.FUNCTION;
         return symbol;
@@ -164,15 +167,16 @@ public class Symbols {
                                                          Name name,
                                                          PackageID pkgID,
                                                          BType type,
-                                                         BSymbol owner) {
-        return new BInvokableSymbol(kind, flags, name, pkgID, type, owner);
+                                                         BSymbol owner,
+                                                         DiagnosticPos pos) {
+        return new BInvokableSymbol(kind, flags, name, pkgID, type, owner, pos);
     }
 
     public static BXMLNSSymbol createXMLNSSymbol(Name name,
                                                  String nsURI,
                                                  PackageID pkgID,
                                                  BSymbol owner) {
-        return new BXMLNSSymbol(name, nsURI, pkgID, owner);
+        return new BXMLNSSymbol(name, nsURI, pkgID, owner, );
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {

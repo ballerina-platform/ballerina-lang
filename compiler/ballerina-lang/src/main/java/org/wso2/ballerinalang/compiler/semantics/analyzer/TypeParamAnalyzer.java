@@ -704,12 +704,14 @@ public class TypeParamAnalyzer {
         for (BAttachedFunction expFunc : ((BObjectTypeSymbol) expType.tsymbol).attachedFuncs) {
             BInvokableType matchType = getMatchingFunctionBoundType(expFunc.type, env, resolvedTypes);
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(expFunc.symbol.tag, expFunc.symbol.flags,
-                    expFunc.symbol.name, env.enclPkg.packageID, matchType, env.scope.owner);
+                                                                    expFunc.symbol.name, env.enclPkg.packageID,
+                                                                    matchType, env.scope.owner, expFunc.pos);
             invokableSymbol.retType = invokableSymbol.getType().retType;
             matchType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags, Names.EMPTY,
                                                          env.enclPkg.symbol.pkgID, invokableSymbol.type,
                                                          env.scope.owner, invokableSymbol.pos);
-            actObjectSymbol.attachedFuncs.add(new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType));
+            actObjectSymbol.attachedFuncs.add(
+                    new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos));
             String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
                     expFunc.funcName.value);
             actObjectSymbol.methodScope.define(names.fromString(funcName), invokableSymbol);

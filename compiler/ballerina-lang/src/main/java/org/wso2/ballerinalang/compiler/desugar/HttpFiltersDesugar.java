@@ -420,11 +420,13 @@ public class HttpFiltersDesugar {
         BInvokableType type = new BInvokableType(createSingletonArrayList(symTable.booleanType), symTable.booleanType,
                                                  null);
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
-                names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol);
+                names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
+                symTable.builtinPos);
         BLangUnaryExpr unaryExpr = ASTBuilderUtil.createUnaryExpr(
                 resourceNode.pos, filterRequestInvocation, symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
         BOperatorSymbol andOperatorSymbol = new BOperatorSymbol(
-                names.fromString(OperatorKind.AND.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol);
+                names.fromString(OperatorKind.AND.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
+                symTable.builtinPos);
         BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(
                 resourceNode.pos, filterTypeCheckExpr, unaryExpr, symTable.booleanType, OperatorKind.AND,
                 andOperatorSymbol);
