@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects;
 
-import java.nio.file.Path;
-
 /**
  * The class {@code ProjectContext} offers an API to the environment in
  * which the project runs to manipulate the project.

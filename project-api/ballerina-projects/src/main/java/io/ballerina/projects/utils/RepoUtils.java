@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
  */
 public class RepoUtils {
 
+
     /**
      * Checks if the path is a project.
      *

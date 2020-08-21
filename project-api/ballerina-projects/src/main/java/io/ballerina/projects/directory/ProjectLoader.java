@@ -20,8 +20,10 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.RepoUtils;
+import org.ballerinalang.toml.exceptions.TomlException;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Contains a set of utility methods to create a project.
@@ -30,24 +32,30 @@ import java.nio.file.Path;
  */
 public class ProjectLoader {
 
-    public static Project loadProject(Path projectPath) throws Exception {
-        if (RepoUtils.isBallerinaProject(projectPath)) {
-            return BuildProject.loadProject(projectPath);
-        } else if (isFileInDefaultModule(projectPath)) {
-            return BuildProject.loadProject(projectPath.getParent());
-        } else if (isFileInOtherModules(projectPath)) {
-            return BuildProject.loadProject(projectPath.getParent().getParent().getParent());
-        } else if (RepoUtils.isBallerinaStandaloneFile(projectPath)) {
-            return SingleFileProject.loadProject(projectPath);
+    public static Project loadProject(Path path) throws TomlException {
+
+        Path absProjectPath = path.toAbsolutePath();
+        if (!path.toFile().exists()) {
+            throw new RuntimeException("project path does not exist:" + path);
+        }
+
+        if (absProjectPath.toFile().isDirectory()) {
+            return BuildProject.loadProject(absProjectPath);
+        } else if (isFileInDefaultModule(absProjectPath)) {
+            return BuildProject.loadProject(Optional.of(absProjectPath.getParent()).get());
+        } else if (isFileInOtherModules(absProjectPath)) {
+            Path projectRoot = Optional.of(Optional.of(absProjectPath.getParent()).get().getParent()).get();
+            return BuildProject.loadProject(Optional.of(projectRoot.getParent()).get());
         } else {
-            throw new Exception("invalid project path: " + projectPath);
+            return SingleFileProject.loadProject(absProjectPath);
         }
     }
 
     private static boolean isFileInDefaultModule(Path filePath) {
-        return RepoUtils.isBallerinaProject(filePath.getParent());
+        return RepoUtils.isBallerinaProject(Optional.of(filePath.getParent()).get());
     }
     private static boolean isFileInOtherModules(Path filePath) {
-        return ProjectConstants.MODULES_ROOT.equals(filePath.getParent().getParent().getFileName().toString());
+        Path projectRoot = Optional.of(Optional.of(filePath.getParent()).get().getParent()).get();
+        return ProjectConstants.MODULES_ROOT.equals(projectRoot.toFile().getName());
     }
 }

@@ -19,6 +19,7 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.utils.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,11 +31,20 @@ import java.nio.file.Path;
 public class SingleFileProject extends Project {
 
     public static SingleFileProject loadProject(Path projectPath) {
+        if (!RepoUtils.isBallerinaStandaloneFile(projectPath)) {
+            throw new RuntimeException("provided path is not a valid Ballerina standalone file: " + projectPath);
+        }
         return new SingleFileProject(projectPath);
     }
 
     private SingleFileProject(Path projectPath) {
         super();
+        if (projectPath == null) {
+            throw new RuntimeException("project path cannot be null");
+        }
+        if (!projectPath.toFile().exists()) {
+            throw new RuntimeException("project path does not exist:" + projectPath);
+        }
         this.sourceRoot = createTempProjectRoot();
         addPackage(projectPath.toString());
         // Set default build options

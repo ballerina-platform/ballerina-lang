@@ -54,7 +54,6 @@ public class ProjectFiles {
         }
 
         // Handle build project
-
         if (filePath == null) {
             throw new IllegalArgumentException("packageDir cannot be null");
         }
@@ -110,7 +109,7 @@ public class ProjectFiles {
 
     private static ModuleData loadModule(Path moduleDirPath) {
         // validate moduleName
-        if (!RepoUtils.validateModuleName(moduleDirPath.getFileName().toString())) {
+        if (!RepoUtils.validateModuleName(moduleDirPath.toFile().getName())) {
             throw new RuntimeException("Invalid module name : '" + moduleDirPath.getFileName() + "' :\n" +
                     "Module name can only contain alphanumerics, underscores and periods " +
                     "and the maximum length is 256 characters");

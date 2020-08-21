@@ -31,14 +31,20 @@ import java.nio.file.Path;
  */
 public class BuildProject extends Project {
 
-    public static BuildProject loadProject(Path projectPath) throws Exception {
+    public static BuildProject loadProject(Path projectPath) {
+        if (!RepoUtils.isBallerinaProject(projectPath)) {
+            throw new RuntimeException("provided path is not a valid Ballerina project: " + projectPath);
+        }
         return new BuildProject(projectPath);
     }
 
-    private BuildProject(Path projectPath) throws Exception {
+    private BuildProject(Path projectPath) {
         super();
-        if (!RepoUtils.isBallerinaProject(projectPath)) {
-            throw new Exception("invalid Ballerina source path:" + projectPath);
+        if (projectPath == null) {
+            throw new RuntimeException("project path cannot be null");
+        }
+        if (!projectPath.toFile().exists()) {
+            throw new RuntimeException("project path does not exist:" + projectPath);
         }
         this.sourceRoot = projectPath;
 
