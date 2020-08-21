@@ -5217,7 +5217,9 @@ public class BallerinaParser extends AbstractParser {
         // Parse first field mapping, that has no leading comma
         List<STNode> fields = new ArrayList<>();
         STNode field = parseMappingField(ParserRuleContext.FIRST_MAPPING_FIELD);
-        fields.add(field);
+        if (field != null) {
+            fields.add(field);
+        }
 
         return parseMappingConstructorFields(fields);
     }
