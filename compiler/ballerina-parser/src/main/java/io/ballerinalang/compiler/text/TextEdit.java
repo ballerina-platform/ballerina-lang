@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.text;
 
+import io.ballerina.text.TextRange;
+
 /**
  * Represents a text edit on a {@code TextDocument}.
  *

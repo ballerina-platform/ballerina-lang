@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.text;
 
+import io.ballerina.text.LinePosition;
 import io.ballerinalang.compiler.internal.parser.CharReader;
 
 /**

@@ -17,12 +17,12 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerina.text.LineRange;
+import io.ballerina.text.TextRange;
 import io.ballerinalang.compiler.internal.parser.tree.STInvalidNodeMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.text.LineRange;
 import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextRange;
 
 import java.util.Optional;
 

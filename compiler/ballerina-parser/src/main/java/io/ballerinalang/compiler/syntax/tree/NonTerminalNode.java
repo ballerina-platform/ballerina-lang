@@ -17,11 +17,11 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerina.text.TextRange;
 import io.ballerinalang.compiler.diagnostics.Diagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.internal.syntax.TreeModifiers;
-import io.ballerinalang.compiler.text.TextRange;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.text;
 
+import io.ballerina.text.LinePosition;
+
 /**
  * The {@code LineMap} represents a collection text lines in the {@code TextDocument}.
  *
