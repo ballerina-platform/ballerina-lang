@@ -60,6 +60,12 @@ public class ClassTest {
         BRunUtil.invoke(compileResult, "testTypeRefInClass");
     }
 
+    @Test
+    public void testSimpleDistinctClass() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/klass/distinct-class-def.bal");
+        BRunUtil.invoke(compileResult, "testDistinctAssignability");
+    }
+
     @Test(description = "Class definition negative")
     public void classDefNegative() {
         CompileResult negative = BCompileUtil.compile("test-src/klass/class-def-negative.bal");

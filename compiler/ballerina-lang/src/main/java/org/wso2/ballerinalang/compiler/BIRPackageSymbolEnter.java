@@ -1211,6 +1211,9 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < funcCount; i++) {
                         ignoreAttachedFunc();
                     }
+
+                    objectType.typeIdSet = readTypeIdSet(inputStream);
+
                     Object poppedObjType = compositeStack.pop();
                     assert poppedObjType == objectType;
 

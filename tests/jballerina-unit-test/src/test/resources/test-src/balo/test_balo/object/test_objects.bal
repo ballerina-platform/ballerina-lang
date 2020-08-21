@@ -253,7 +253,7 @@ public function testObjectReferingNonAbstractObjFromBalo() {
     utils:assertEquality(20, cemp1.Age());
 }
 
-public type PostPandemicEmployee object {
+public class PostPandemicEmployee {
     *foo:CorronifiedEmployee;
 
     public function init(boolean workingFromHome, float salary, float workingFromHomeAllowance, int age, string name) {
@@ -291,7 +291,7 @@ public type PostPandemicEmployee object {
     public function Age() returns int {
         return self.age;
     }
-};
+}
 
 public function testObjectReferingNonAbstractObjLoadedFromBalo() {
     PostPandemicEmployee cemp1 = new (true, 100.0, 200.3, 20, "John");

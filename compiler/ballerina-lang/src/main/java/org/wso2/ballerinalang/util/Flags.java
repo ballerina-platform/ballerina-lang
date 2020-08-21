@@ -55,6 +55,7 @@ public class Flags {
     public static final int TRANSACTIONAL = FORKED << 1;
     public static final int PARAMETERIZED = TRANSACTIONAL << 1;
     public static final int DISTINCT = PARAMETERIZED << 1;
+    public static final int CLASS = DISTINCT << 1; // todo: remove ABSTRACT flag and replace with this one
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -141,6 +142,8 @@ public class Flags {
                 case DISTINCT:
                     mask |= DISTINCT;
                     break;
+                case CLASS:
+                    mask |= CLASS;
             }
         }
         return mask;
@@ -225,6 +228,9 @@ public class Flags {
                     break;
                 case DISTINCT:
                     flagVal = DISTINCT;
+                    break;
+                case CLASS:
+                    flagVal = CLASS;
                     break;
                 default:
                     continue;

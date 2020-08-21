@@ -367,6 +367,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type def members (if any)
         defineMembers(typDefs, pkgEnv);
 
+        // Add distinct type information
+        defineDistinctClassDefinitions(typDefs);
+
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
         // them and set the fields and members of the relevant immutable type.
@@ -389,6 +392,33 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.globalVars.stream().filter(var -> var.symbol.type.tsymbol != null && Symbols
                 .isFlagOn(var.symbol.type.tsymbol.flags, Flags.CLIENT)).map(varNode -> varNode.symbol)
                 .forEach(varSymbol -> varSymbol.tag = SymTag.ENDPOINT);
+    }
+
+    private void defineDistinctClassDefinitions(List<BLangNode> typDefs) {
+        for (BLangNode typeDef : typDefs) {
+            if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
+                populateDistinctTypeIdsFromIncludedTypeReferences((BLangClassDefinition) typeDef);
+            }
+        }
+    }
+
+    private void populateDistinctTypeIdsFromIncludedTypeReferences(BLangClassDefinition typeDef) {
+        BLangClassDefinition classDefinition = typeDef;
+        if (!classDefinition.flagSet.contains(Flag.DISTINCT)) {
+            return;
+        }
+
+        BTypeIdSet typeIdSet = ((BObjectType) classDefinition.type).typeIdSet;
+
+        for (BLangType typeRef : classDefinition.typeRefs) {
+            if (typeRef.type.tag != TypeTags.OBJECT) {
+                continue;
+            }
+            BObjectType refType = (BObjectType) typeRef.type;
+
+            typeIdSet.primary.addAll(refType.typeIdSet.primary);
+            typeIdSet.secondary.addAll(refType.typeIdSet.secondary);
+        }
     }
 
     private Comparator<BLangNode> getTypePrecedenceComparator() {
@@ -547,9 +577,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangClassDefinition classDefinition) {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
         boolean isReadOnly = flags.contains(Flag.READONLY);
-        if (isReadOnly) {
-            flags.add(Flag.READONLY);
-        }
+        boolean isPublicType = flags.contains(Flag.PUBLIC);
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
                 names.fromIdNode(classDefinition.name),
@@ -557,6 +585,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         tSymbol.scope = new Scope(tSymbol);
 
         BObjectType objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
+
+        if (flags.contains(Flag.DISTINCT)) {
+            objectType.typeIdSet = BTypeIdSet.from(env.enclPkg.symbol.pkgID, classDefinition.name.value, isPublicType,
+                    BTypeIdSet.emptySet());
+        }
 
         tSymbol.type = objectType;
         classDefinition.type = objectType;

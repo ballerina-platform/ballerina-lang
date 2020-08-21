@@ -260,6 +260,7 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeByte(1);
 
         writeObjectAndServiceTypes(bServiceType);
+        writeTypeIds(bServiceType.typeIdSet);
     }
 
     @Override
@@ -335,8 +336,8 @@ public class BIRTypeWriter implements TypeVisitor {
         // ideal fix would be to use the type tag to
         // differentiate. TODO fix later
         buff.writeByte(0);
-
         writeObjectAndServiceTypes(bObjectType);
+        writeTypeIds(bObjectType.typeIdSet);
     }
 
     private void writeObjectAndServiceTypes(BObjectType bObjectType) {

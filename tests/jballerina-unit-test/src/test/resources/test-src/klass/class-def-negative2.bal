@@ -8,7 +8,7 @@ class Person {
     public string name = "sample name";
     int year = 50;
     string month = "february";
-};
+}
 
 class Student {
     *Person;
@@ -20,7 +20,7 @@ class Student {
         self.year = year;
         self.month = month;
     }
-};
+}
 
 class Stu {
     *Per;
@@ -35,14 +35,14 @@ class Stu {
     function f() {
 
     }
-};
+}
 
 class Per {
     int i = 0;
 
     function f() {
     }
-};
+}
 
 function testFunc() {
     Student s = new();

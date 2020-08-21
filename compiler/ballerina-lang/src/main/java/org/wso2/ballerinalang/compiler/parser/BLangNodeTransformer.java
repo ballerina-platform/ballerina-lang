@@ -3336,6 +3336,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         blangClass.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(classDefinitionNode.metadata()));
 
+        blangClass.flagSet.add(Flag.CLASS);
         classDefinitionNode.visibilityQualifier().ifPresent(visibilityQual -> {
             if (visibilityQual.kind() == SyntaxKind.PUBLIC_KEYWORD) {
                 blangClass.flagSet.add(Flag.PUBLIC);
@@ -3343,7 +3344,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         });
 
         for (Token qualifier : classDefinitionNode.classTypeQualifiers()) {
-            if (qualifier.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
+            if (qualifier.kind() == SyntaxKind.DISTINCT_KEYWORD) {
                 blangClass.flagSet.add(Flag.DISTINCT);
             }
 
