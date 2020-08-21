@@ -116,7 +116,6 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectConstructorBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
@@ -901,16 +900,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return deSugarTypeAsUserDefType(objectTypeNode);
     }
 
-    @Override
-    public BLangNode transform(ObjectConstructorBodyNode objectConstructorBodyNode) {
+    public BLangObjectTypeNode createObjectExpressionBody(NodeList<Node> members) {
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
         objectTypeNode.flagSet.add(Flag.ANONYMOUS);
 
-        NodeList<Node> members = objectConstructorBodyNode.members();
-
         for (Node node : members) {
             BLangNode bLangNode = node.apply(this);
-            if (bLangNode.getKind() == NodeKind.FUNCTION) {
+            NodeKind nodeKind =  bLangNode.getKind();
+            if (nodeKind == NodeKind.FUNCTION) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
@@ -928,15 +925,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 } else {
                     objectTypeNode.addFunction(bLangFunction);
                 }
-            } else if (bLangNode.getKind() == NodeKind.VARIABLE) {
+            } else if (nodeKind == NodeKind.VARIABLE) {
                 objectTypeNode.addField((BLangSimpleVariable) bLangNode);
-            } else if (bLangNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+            } else if (nodeKind == NodeKind.USER_DEFINED_TYPE) {
                 objectTypeNode.addTypeReference((BLangType) bLangNode);
             }
         }
 
         objectTypeNode.isAnonymous = true;
-        objectTypeNode.pos = getPosition(objectConstructorBodyNode);
         return objectTypeNode;
     }
 
@@ -945,34 +941,28 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         DiagnosticPos pos = getPositionWithoutMetadata(objectConstructorExpressionNode);
 
-        BLangObjectTypeNode objectTypeNode =
-                (BLangObjectTypeNode) createTypeNode(objectConstructorExpressionNode.objectConstructorBody());
-
+        BLangObjectTypeNode objectTypeNode = createObjectExpressionBody(objectConstructorExpressionNode.members());
+        objectTypeNode.pos = pos;
         BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression(objectTypeNode);
         objectCtorExpression.pos = pos;
 
-        Optional<TypeDescriptorNode> typeDescriptor = objectConstructorExpressionNode.typeDescriptor();
-
-        typeDescriptor.ifPresent(typeDescriptorNode -> {
-            BLangType type = createTypeNode(typeDescriptorNode);
-            objectCtorExpression.addTypeReference(type);
+        Optional<TypeDescriptorNode> typeReference = objectConstructorExpressionNode.typeReference();
+        typeReference.ifPresent(typeReferenceNode -> {
+            objectCtorExpression.addTypeReference(createTypeNode(typeReferenceNode));
         });
 
-        // create a type definition and attach annotations
         BLangTypeDefinition bLTypeDef = createTypeDefinitionWithTypeNode(objectTypeNode);
-        Optional<Token> objectTypeQualifier = objectConstructorExpressionNode.objectTypeQualifier();
 
-        objectTypeQualifier.ifPresent(qualifier -> {
+        NodeList<Token> objectConstructorQualifierList = objectConstructorExpressionNode.objectTypeQualifiers();
+        for (Token qualifier : objectConstructorQualifierList) {
             if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
                 objectTypeNode.flagSet.add(Flag.CLIENT);
-                bLTypeDef.flagSet.add(Flag.CLIENT);
                 objectCtorExpression.isClient = true;
             } else {
                 throw new RuntimeException("Syntax kind is not supported: " + qualifier.kind());
             }
-        });
+        }
         bLTypeDef.annAttachments = applyAll(objectConstructorExpressionNode.annotations());
-
         addToTop(bLTypeDef);
 
         BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();

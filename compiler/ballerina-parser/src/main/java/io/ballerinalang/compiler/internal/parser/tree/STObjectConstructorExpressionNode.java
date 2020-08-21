@@ -32,79 +32,99 @@ import java.util.Collections;
  */
 public class STObjectConstructorExpressionNode extends STExpressionNode {
     public final STNode annotations;
-    public final STNode objectTypeQualifier;
+    public final STNode objectTypeQualifiers;
     public final STNode objectKeyword;
-    public final STNode typeDescriptor;
-    public final STNode objectConstructorBody;
+    public final STNode typeReference;
+    public final STNode openBraceToken;
+    public final STNode members;
+    public final STNode closeBraceToken;
 
     STObjectConstructorExpressionNode(
             STNode annotations,
-            STNode objectTypeQualifier,
+            STNode objectTypeQualifiers,
             STNode objectKeyword,
-            STNode typeDescriptor,
-            STNode objectConstructorBody) {
+            STNode typeReference,
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
         this(
                 annotations,
-                objectTypeQualifier,
+                objectTypeQualifiers,
                 objectKeyword,
-                typeDescriptor,
-                objectConstructorBody,
+                typeReference,
+                openBraceToken,
+                members,
+                closeBraceToken,
                 Collections.emptyList());
     }
 
     STObjectConstructorExpressionNode(
             STNode annotations,
-            STNode objectTypeQualifier,
+            STNode objectTypeQualifiers,
             STNode objectKeyword,
-            STNode typeDescriptor,
-            STNode objectConstructorBody,
+            STNode typeReference,
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.OBJECT_CONSTRUCTOR, diagnostics);
         this.annotations = annotations;
-        this.objectTypeQualifier = objectTypeQualifier;
+        this.objectTypeQualifiers = objectTypeQualifiers;
         this.objectKeyword = objectKeyword;
-        this.typeDescriptor = typeDescriptor;
-        this.objectConstructorBody = objectConstructorBody;
+        this.typeReference = typeReference;
+        this.openBraceToken = openBraceToken;
+        this.members = members;
+        this.closeBraceToken = closeBraceToken;
 
         addChildren(
                 annotations,
-                objectTypeQualifier,
+                objectTypeQualifiers,
                 objectKeyword,
-                typeDescriptor,
-                objectConstructorBody);
+                typeReference,
+                openBraceToken,
+                members,
+                closeBraceToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STObjectConstructorExpressionNode(
                 this.annotations,
-                this.objectTypeQualifier,
+                this.objectTypeQualifiers,
                 this.objectKeyword,
-                this.typeDescriptor,
-                this.objectConstructorBody,
+                this.typeReference,
+                this.openBraceToken,
+                this.members,
+                this.closeBraceToken,
                 diagnostics);
     }
 
     public STObjectConstructorExpressionNode modify(
             STNode annotations,
-            STNode objectTypeQualifier,
+            STNode objectTypeQualifiers,
             STNode objectKeyword,
-            STNode typeDescriptor,
-            STNode objectConstructorBody) {
+            STNode typeReference,
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
         if (checkForReferenceEquality(
                 annotations,
-                objectTypeQualifier,
+                objectTypeQualifiers,
                 objectKeyword,
-                typeDescriptor,
-                objectConstructorBody)) {
+                typeReference,
+                openBraceToken,
+                members,
+                closeBraceToken)) {
             return this;
         }
 
         return new STObjectConstructorExpressionNode(
                 annotations,
-                objectTypeQualifier,
+                objectTypeQualifiers,
                 objectKeyword,
-                typeDescriptor,
-                objectConstructorBody,
+                typeReference,
+                openBraceToken,
+                members,
+                closeBraceToken,
                 diagnostics);
     }
 

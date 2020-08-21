@@ -235,10 +235,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(objectConstructorExpressionNode);
     }
 
-    public void visit(ObjectConstructorBodyNode objectConstructorBodyNode) {
-        visitSyntaxNode(objectConstructorBodyNode);
-    }
-
     public void visit(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         visitSyntaxNode(recordTypeDescriptorNode);
     }

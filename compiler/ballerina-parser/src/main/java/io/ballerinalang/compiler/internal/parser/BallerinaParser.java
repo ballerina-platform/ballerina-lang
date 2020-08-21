@@ -4391,41 +4391,16 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed object constructor expression node
      */
     private STNode parseObjectConstructorExpression(STNode annots) {
-
         startContext(ParserRuleContext.OBJECT_CONSTRUCTOR);
-
-        STNode objectTypeQualifier;
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.CLIENT_KEYWORD) {
-            objectTypeQualifier = consume();
-        } else {
-            objectTypeQualifier = STNodeFactory.createEmptyNode();
-        }
-
+        STNode objectTypeQualifier = parseObjectConstructorExpressionQualifier();
         STNode objectKeyword = parseObjectKeyword();
-
-        STNode typeDescriptor;
-        nextToken = peek();
-        if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            typeDescriptor = parseQualifiedIdentifier(ParserRuleContext.TYPE_REFERENCE);
-        } else {
-            typeDescriptor = STNodeFactory.createEmptyNode();
-        }
-
-        STNode objectCtorBody = parseObjectConstructorBody();
-
-        endContext();
-
-        return STNodeFactory.createObjectConstructorExpressionNode(annots,
-                objectTypeQualifier, objectKeyword, typeDescriptor, objectCtorBody);
-    }
-
-    private STNode parseObjectConstructorBody() {
+        STNode typeReference = parseObjectConstructorExpressionTypeReference();
         STNode openBrace = parseOpenBrace();
         STNode objectMembers = parseObjectMembers();
         STNode closeBrace = parseCloseBrace();
-        
-        return STNodeFactory.createObjectConstructorBodyNode(openBrace, objectMembers, closeBrace);
+        endContext();
+        return STNodeFactory.createObjectConstructorExpressionNode(annots,
+                objectTypeQualifier, objectKeyword, typeReference, openBrace, objectMembers, closeBrace);
     }
 
     /**
@@ -4455,6 +4430,50 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return parseObjectTypeNextQualifiers(firstQualifier);
+    }
+
+    /**
+     /**
+     * Parse object constructor expression type qualifiers.
+     *
+     * @return Parsed qualifier list with only client or empty node list
+     */
+    private STNode parseObjectConstructorExpressionQualifier() {
+        STNode qualifier;
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case CLIENT_KEYWORD:
+                qualifier = parseClientKeyword();
+                break;
+            case OBJECT_KEYWORD:
+                return STNodeFactory.createEmptyNodeList();
+            default:
+                recover(nextToken, ParserRuleContext.OBJECT_CONSTRUCTOR);
+                return parseObjectConstructorExpressionQualifier();
+        }
+        return qualifier;
+    }
+
+    /**
+     /**
+     * Parse object constructor expression type reference.
+     *
+     * @return Parsed type reference or empty node
+     */
+    private STNode parseObjectConstructorExpressionTypeReference() {
+        STNode typeReference;
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case IDENTIFIER_TOKEN:
+                typeReference = parseQualifiedIdentifier(ParserRuleContext.TYPE_REFERENCE);
+                break;
+            case OPEN_BRACE_TOKEN:
+                return STNodeFactory.createEmptyNode();
+            default:
+                recover(nextToken, ParserRuleContext.OBJECT_CONSTRUCTOR);
+                return parseObjectConstructorExpressionTypeReference();
+        }
+        return typeReference;
     }
 
     private STNode parseObjectTypeNextQualifiers(STNode firstQualifier) {

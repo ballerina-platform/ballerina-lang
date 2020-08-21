@@ -646,25 +646,18 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createObjectConstructorExpressionNode(
             STNode annotations,
-            STNode objectTypeQualifier,
+            STNode objectTypeQualifiers,
             STNode objectKeyword,
-            STNode typeDescriptor,
-            STNode objectConstructorBody) {
-
-        return new STObjectConstructorExpressionNode(
-                annotations,
-                objectTypeQualifier,
-                objectKeyword,
-                typeDescriptor,
-                objectConstructorBody);
-    }
-
-    public static STNode createObjectConstructorBodyNode(
+            STNode typeReference,
             STNode openBraceToken,
             STNode members,
             STNode closeBraceToken) {
 
-        return new STObjectConstructorBodyNode(
+        return new STObjectConstructorExpressionNode(
+                annotations,
+                objectTypeQualifiers,
+                objectKeyword,
+                typeReference,
                 openBraceToken,
                 members,
                 closeBraceToken);

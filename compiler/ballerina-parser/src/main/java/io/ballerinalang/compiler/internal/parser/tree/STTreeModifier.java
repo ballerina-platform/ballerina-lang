@@ -681,25 +681,17 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STObjectConstructorExpressionNode transform(
             STObjectConstructorExpressionNode objectConstructorExpressionNode) {
         STNode annotations = modifyNode(objectConstructorExpressionNode.annotations);
-        STNode objectTypeQualifier = modifyNode(objectConstructorExpressionNode.objectTypeQualifier);
+        STNode objectTypeQualifiers = modifyNode(objectConstructorExpressionNode.objectTypeQualifiers);
         STNode objectKeyword = modifyNode(objectConstructorExpressionNode.objectKeyword);
-        STNode typeDescriptor = modifyNode(objectConstructorExpressionNode.typeDescriptor);
-        STNode objectConstructorBody = modifyNode(objectConstructorExpressionNode.objectConstructorBody);
+        STNode typeReference = modifyNode(objectConstructorExpressionNode.typeReference);
+        STNode openBraceToken = modifyNode(objectConstructorExpressionNode.openBraceToken);
+        STNode members = modifyNode(objectConstructorExpressionNode.members);
+        STNode closeBraceToken = modifyNode(objectConstructorExpressionNode.closeBraceToken);
         return objectConstructorExpressionNode.modify(
                 annotations,
-                objectTypeQualifier,
+                objectTypeQualifiers,
                 objectKeyword,
-                typeDescriptor,
-                objectConstructorBody);
-    }
-
-    @Override
-    public STObjectConstructorBodyNode transform(
-            STObjectConstructorBodyNode objectConstructorBodyNode) {
-        STNode openBraceToken = modifyNode(objectConstructorBodyNode.openBraceToken);
-        STNode members = modifyNode(objectConstructorBodyNode.members);
-        STNode closeBraceToken = modifyNode(objectConstructorBodyNode.closeBraceToken);
-        return objectConstructorBodyNode.modify(
+                typeReference,
                 openBraceToken,
                 members,
                 closeBraceToken);

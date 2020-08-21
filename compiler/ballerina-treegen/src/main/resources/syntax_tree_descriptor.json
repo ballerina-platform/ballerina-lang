@@ -1136,30 +1136,19 @@
                     "occurrences": "MULTIPLE"
                 },
                 {
-                    "name": "objectTypeQualifier",
+                    "name": "objectTypeQualifiers",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "objectKeyword",
                     "type": "Token"
                 },
                 {
-                    "name": "typeDescriptor",
+                    "name": "typeReference",
                     "type": "TypeDescriptorNode",
                     "isOptional": true
                 },
-                {
-                    "name": "objectConstructorBody",
-                    "type": "ObjectConstructorBodyNode"
-                }
-            ]
-        },
-        {
-            "name": "ObjectConstructorBodyNode",
-            "base": "Node",
-            "kind": "OBJECT_CONSTRUCTOR_BODY",
-            "attributes": [
                 {
                     "name": "openBraceToken",
                     "type": "Token"

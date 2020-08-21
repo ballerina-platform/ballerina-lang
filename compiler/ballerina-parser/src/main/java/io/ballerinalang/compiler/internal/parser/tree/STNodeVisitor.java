@@ -225,10 +225,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(objectConstructorExpressionNode);
     }
 
-    public void visit(STObjectConstructorBodyNode objectConstructorBodyNode) {
-        visitSyntaxNode(objectConstructorBodyNode);
-    }
-
     public void visit(STRecordTypeDescriptorNode recordTypeDescriptorNode) {
         visitSyntaxNode(recordTypeDescriptorNode);
     }

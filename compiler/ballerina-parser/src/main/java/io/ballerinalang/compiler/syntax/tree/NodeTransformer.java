@@ -236,10 +236,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(objectConstructorExpressionNode);
     }
 
-    public T transform(ObjectConstructorBodyNode objectConstructorBodyNode) {
-        return transformSyntaxNode(objectConstructorBodyNode);
-    }
-
     public T transform(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         return transformSyntaxNode(recordTypeDescriptorNode);
     }
