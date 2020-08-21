@@ -39,15 +39,12 @@ class BIRTestUtils {
 
     private static final String TEST_RESOURCE_ROOT = "test-src/";
 
-    private static BPackageSymbol compile(String testSource) {
+    private static BIRCompileResult compile(String testSource) {
 
         CompileResult result = BCompileUtil.compileAndGetBIR(TEST_RESOURCE_ROOT + testSource);
         Assert.assertEquals(result.getErrorCount(), 0);
 
-        return ((BLangPackage) result.getAST()).symbol;
-    }
-
-    private static byte[] getBIRBinary(BPackageSymbol packageSymbol) {
+        BPackageSymbol packageSymbol = ((BLangPackage) result.getAST()).symbol;
 
         BIRPackageFile birPackageFile = packageSymbol.birPackageFile;
         Assert.assertNotNull(birPackageFile);
@@ -55,18 +52,20 @@ class BIRTestUtils {
         byte[] birBinaryContent = birPackageFile.pkgBirBinaryContent;
         Assert.assertNotNull(birBinaryContent);
 
-        return birBinaryContent;
+        Bir kaitaiBir = new Bir(new ByteBufferKaitaiStream(birBinaryContent));
+        return new BIRCompileResult(packageSymbol.bir, kaitaiBir);
     }
 
     static void assertFunctions(String testSource) {
-        BPackageSymbol packageSymbol = compile(testSource);
-        byte[] birBinaryContent = getBIRBinary(packageSymbol);
-        BIRNode.BIRPackage originalBir = packageSymbol.bir;
-        Bir kaitaiBir = new Bir(new ByteBufferKaitaiStream(birBinaryContent));
-        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = kaitaiBir.constantPool().constantPoolEntries();
-        Bir.Module birModule = kaitaiBir.module();
 
-        List<BIRNode.BIRFunction> expectedFunctions = originalBir.functions;
+        BIRCompileResult compileResult = compile(testSource);
+        BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
+        Bir actualBIR = compileResult.getActualBIR();
+
+        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
+        Bir.Module birModule = actualBIR.module();
+
+        List<BIRNode.BIRFunction> expectedFunctions = expectedBIR.functions;
         ArrayList<Bir.Function> actualFunctions = birModule.functions();
         Assert.assertEquals(birModule.functionCount(), expectedFunctions.size());
 
@@ -81,14 +80,15 @@ class BIRTestUtils {
     }
 
     static void assertConstants(String testSource) {
-        BPackageSymbol packageSymbol = compile(testSource);
-        byte[] birBinaryContent = getBIRBinary(packageSymbol);
-        BIRNode.BIRPackage originalBir = packageSymbol.bir;
-        Bir kaitaiBir = new Bir(new ByteBufferKaitaiStream(birBinaryContent));
-        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = kaitaiBir.constantPool().constantPoolEntries();
-        Bir.Module birModule = kaitaiBir.module();
 
-        List<BIRNode.BIRConstant> expectedConstants = originalBir.constants;
+        BIRCompileResult compileResult = compile(testSource);
+        BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
+        Bir actualBIR = compileResult.getActualBIR();
+
+        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
+        Bir.Module birModule = actualBIR.module();
+
+        List<BIRNode.BIRConstant> expectedConstants = expectedBIR.constants;
         ArrayList<Bir.Constant> actualConstants = birModule.constants();
         Assert.assertEquals(birModule.constCount(), expectedConstants.size());
 
@@ -106,8 +106,7 @@ class BIRTestUtils {
             assertConstantPoolEntry(constantPoolEntries.get(actualConstant.typeCpIndex()), expectedConstant.type);
 
             // assert value
-            assertConstantValue(actualConstant.typeTag(), constantPoolEntries, actualConstant.constantValue(),
-                    expectedConstant.constValue.value);
+            assertConstantValue(actualConstant.constantValue(), expectedConstant.constValue.value, constantPoolEntries);
         }
     }
 
@@ -147,20 +146,50 @@ class BIRTestUtils {
         Assert.assertEquals(actualFlags, expectedFlags, "Invalid flags");
     }
 
-    private static void assertConstantValue(Bir.TypeTagEnum typeTag, ArrayList<Bir.ConstantPoolEntry> cPEntries,
-                                            KaitaiStruct actualValueInfo, Object expectedValue) {
+    private static void assertConstantValue(Bir.ConstantValue actualConstantValue, Object expectedValue,
+                                            ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
 
-        switch (typeTag) {
+        KaitaiStruct constantValueInfo = actualConstantValue.constantValueInfo();
+        switch (actualConstantValue.typeTag()) {
             case TYPE_TAG_INT:
-                Bir.IntConstantInfo intConstantInfo = (Bir.IntConstantInfo) actualValueInfo;
-                assertConstantPoolEntry(cPEntries.get(intConstantInfo.valueCpIndex()), expectedValue);
+                Bir.IntConstantInfo intConstantInfo = (Bir.IntConstantInfo) constantValueInfo;
+                assertConstantPoolEntry(constantPoolEntries.get(intConstantInfo.valueCpIndex()), expectedValue);
                 break;
             case TYPE_TAG_BYTE:
-                Bir.ByteConstantInfo byteConstantInfo = (Bir.ByteConstantInfo) actualValueInfo;
-                assertConstantPoolEntry(cPEntries.get(byteConstantInfo.valueCpIndex()), expectedValue);
+                Bir.ByteConstantInfo byteConstantInfo = (Bir.ByteConstantInfo) constantValueInfo;
+                assertConstantPoolEntry(constantPoolEntries.get(byteConstantInfo.valueCpIndex()), expectedValue);
+                break;
+            case TYPE_TAG_STRING:
+                Bir.StringConstantInfo stringConstantInfo = (Bir.StringConstantInfo) constantValueInfo;
+                assertConstantPoolEntry(constantPoolEntries.get(stringConstantInfo.valueCpIndex()), expectedValue);
                 break;
             default:
-                Assert.fail(String.format("Unknown constant value type: %s", typeTag.name()));
+                Assert.fail(String.format("Unknown constant value type: %s", actualConstantValue.typeTag().name()));
+        }
+    }
+
+    /**
+     * Class to hold both expected and actual compile result of BIR.
+     */
+    static class BIRCompileResult {
+
+        private BIRNode.BIRPackage expectedBIR;
+        private Bir actualBIR;
+
+        BIRCompileResult(BIRNode.BIRPackage expectedBIR, Bir actualBIR) {
+
+            this.expectedBIR = expectedBIR;
+            this.actualBIR = actualBIR;
+        }
+
+        BIRNode.BIRPackage getExpectedBIR() {
+
+            return expectedBIR;
+        }
+
+        Bir getActualBIR() {
+
+            return actualBIR;
         }
     }
 }
