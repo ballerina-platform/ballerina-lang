@@ -3336,6 +3336,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         blangClass.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(classDefinitionNode.metadata()));
 
+        blangClass.flagSet.add(Flag.CLASS);
         classDefinitionNode.visibilityQualifier().ifPresent(visibilityQual -> {
             if (visibilityQual.kind() == SyntaxKind.PUBLIC_KEYWORD) {
                 blangClass.flagSet.add(Flag.PUBLIC);
