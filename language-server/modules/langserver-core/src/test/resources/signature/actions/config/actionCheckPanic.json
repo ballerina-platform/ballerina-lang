@@ -1,13 +1,20 @@
 {
     "position": {
-        "line": 217,
-        "character": 27
+        "line": 42,
+        "character": 33
     },
+    "source": "actions/actions.bal",
     "expected": {
         "result": {
             "signatures": [
                 {
-                    "label": "fooE(float a, boolean b)",
+                    "label": "fooErr(float a, boolean b)",
+                    "documentation": {
+                        "right": {
+                            "kind": "markdown",
+                            "value": "**Description**  \nFunction Foo or Error"
+                        }
+                    },
                     "parameters": [
                         {
                             "label": {
@@ -16,7 +23,7 @@
                             "documentation": {
                                 "right": {
                                     "kind": "markdown",
-                                    "value": "**Parameter**  \n**`float`a**: "
+                                    "value": "**Parameter**  \n**`float`a**: a float"
                                 }
                             }
                         },
@@ -27,7 +34,7 @@
                             "documentation": {
                                 "right": {
                                     "kind": "markdown",
-                                    "value": "**Parameter**  \n**`boolean`b**: "
+                                    "value": "**Parameter**  \n**`boolean`b**: b bool"
                                 }
                             }
                         }

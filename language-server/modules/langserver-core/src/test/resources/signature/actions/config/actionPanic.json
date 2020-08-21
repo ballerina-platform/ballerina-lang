@@ -1,17 +1,18 @@
 {
     "position": {
-        "line": 191,
-        "character": 33
+        "line": 41,
+        "character": 28
     },
+    "source": "actions/actions.bal",
     "expected": {
         "result": {
             "signatures": [
                 {
-                    "label": "foo(float a, boolean b)",
+                    "label": "fooErr(float a, boolean b)",
                     "documentation": {
                         "right": {
                             "kind": "markdown",
-                            "value": "**Description**  \nFunction Foo"
+                            "value": "**Description**  \nFunction Foo or Error"
                         }
                     },
                     "parameters": [

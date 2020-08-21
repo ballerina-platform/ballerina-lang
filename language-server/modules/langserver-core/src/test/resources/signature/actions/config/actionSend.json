@@ -1,28 +1,29 @@
 {
     "position": {
-        "line": 194,
-        "character": 21
+        "line": 38,
+        "character": 14
     },
+    "source": "actions/actions.bal",
     "expected": {
         "result": {
             "signatures": [
                 {
-                    "label": "bar(float n)",
+                    "label": "Stub.send(string msg)",
                     "documentation": {
                         "right": {
                             "kind": "markdown",
-                            "value": "**Description**  \nFunction Bar"
+                            "value": "**Description**  \nSend a message"
                         }
                     },
                     "parameters": [
                         {
                             "label": {
-                                "left": "float n"
+                                "left": "string msg"
                             },
                             "documentation": {
                                 "right": {
                                     "kind": "markdown",
-                                    "value": "**Parameter**  \n**`float`n**: n float"
+                                    "value": "**Parameter**  \n**`string`msg**: message"
                                 }
                             }
                         }

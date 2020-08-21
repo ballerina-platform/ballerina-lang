@@ -32,22 +32,27 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Test class for Signature help.
  *
  * @since 0.982.0
  */
-public class SignatureHelpTest {
-    
+public abstract class AbstractSignatureHelpTest {
+
+    private final String configDir = "config";
+
     private Endpoint serviceEndpoint;
 
     private JsonParser parser = new JsonParser();
-    
-    private Path sourcesPath = new File(getClass().getClassLoader().getResource("signature").getFile()).toPath();
 
-    private static final Logger log = LoggerFactory.getLogger(SignatureHelpTest.class);
+    private Path testRoot = new File(getClass().getClassLoader().getResource("signature").getFile()).toPath();
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractSignatureHelpTest.class);
 
     @BeforeClass
     public void init() throws Exception {
@@ -57,11 +62,11 @@ public class SignatureHelpTest {
     @Test(dataProvider = "signature-help-data-provider", description = "Test Signature Help")
     public void test(String config, String source)
             throws WorkspaceDocumentException, IOException, InterruptedException {
-
-        String configJsonPath = "signature" + File.separator + config;
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        String configJsonPath =
+                "signature" + File.separator + source + File.separator + configDir + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         expected.remove("id");
         String response = this.getSignatureResponse(configJsonObject, sourcePath).replace("\\r\\n", "\\n");
         JsonObject responseJson = parser.parse(response).getAsJsonObject();
@@ -78,18 +83,15 @@ public class SignatureHelpTest {
             Assert.fail("Failed Test for: " + configJsonPath);
         }
     }
-    
+
     @DataProvider(name = "signature-help-data-provider")
-    public Object[][] dataProvider() {
+    public abstract Object[][] dataProvider();
+
+    public Object[][] oldDataProvider() {
         log.info("Test textDocument/signatureHelp");
-        return new Object[][] {
+        return new Object[][]{
                 {"annotations1.json", "annotations.bal"},
                 {"annotations2.json", "annotations.bal"},
-                {"actionStart.json", "functionsAndTypeDefs.bal"},
-                {"actionWait.json", "functionsAndTypeDefs.bal"},
-                {"actionRemoteMethodCall.json", "functionsAndTypeDefs.bal"},
-                {"actionCheckPanic.json", "functionsAndTypeDefs.bal"},
-                {"actionPanic.json", "functionsAndTypeDefs.bal"},
                 {"exprListConstructor.json", "functionsAndTypeDefs.bal"},
                 {"exprMappingConstructor1.json", "functionsAndTypeDefs.bal"},
                 {"exprMappingConstructor2.json", "functionsAndTypeDefs.bal"},
@@ -188,6 +190,35 @@ public class SignatureHelpTest {
                 {"signatureSpreadOperator.json", "signatureSpreadOperator.bal"},
                 {"signatureLangLib.json", "signatureLangLib.bal"}
         };
+    }
+
+    public abstract String getTestResourceDir();
+
+    public Object[][] testSubset() {
+        return new Object[0][];
+    }
+
+    public List<String> skipList() {
+        return new ArrayList<>();
+    }
+
+    protected Object[][] getConfigsList() {
+        if (this.testSubset().length != 0) {
+            return this.testSubset();
+        }
+        List<String> skippedTests = this.skipList();
+        try {
+            return Files.walk(this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))
+                    .filter(path -> {
+                        File file = path.toFile();
+                        return file.isFile() && file.getName().endsWith(".json")
+                                && !skippedTests.contains(file.getName());
+                    })
+                    .map(path -> new Object[]{path.toFile().getName(), this.getTestResourceDir()})
+                    .toArray(size -> new Object[size][2]);
+        } catch (IOException e) {
+            return new Object[0][];
+        }
     }
 
     private String getSignatureResponse(JsonObject config, Path sourcePath) throws IOException {
