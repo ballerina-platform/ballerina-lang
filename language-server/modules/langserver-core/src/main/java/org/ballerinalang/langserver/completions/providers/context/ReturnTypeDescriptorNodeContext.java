@@ -41,9 +41,9 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<ReturnTypeDescriptorNode> {
+    
     public ReturnTypeDescriptorNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(ReturnTypeDescriptorNode.class);
+        super(ReturnTypeDescriptorNode.class);
     }
 
     @Override
