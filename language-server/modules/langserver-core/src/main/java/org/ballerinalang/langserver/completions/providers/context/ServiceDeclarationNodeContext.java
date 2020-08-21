@@ -43,8 +43,7 @@ import java.util.stream.Collectors;
 public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<ServiceDeclarationNode> {
 
     public ServiceDeclarationNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ServiceDeclarationNode.class);
+        super(ServiceDeclarationNode.class);
     }
 
     @Override

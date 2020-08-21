@@ -1,13 +1,17 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
- * This software is the property of WSO2 Inc. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein is strictly forbidden, unless permitted by WSO2 in accordance with
- * the WSO2 Commercial License available at http://wso2.com/licenses.
- * For specific language governing the permissions and limitations under
- * this license, please see the license as well as any agreement you’ve
- * entered into with WSO2 governing the purchase of this software and any
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.ballerinalang.datamapper.utils;
 
@@ -15,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -24,11 +27,8 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -37,6 +37,7 @@ import java.util.Map;
 public class HttpClientRequest {
     private static final Logger LOG = LoggerFactory.getLogger(HttpClientRequest.class);
     private static final int DEFAULT_READ_TIMEOUT = 30000;
+    private static final int DEFAULT_CONNECT_TIMEOUT = 15000;
 
     /**
      * Send an HTTP POST request to a service.
@@ -66,31 +67,15 @@ public class HttpClientRequest {
     }
 
     private static HttpURLConnection getURLConnection(String requestUrl) throws IOException {
-        return getURLConnection(requestUrl, DEFAULT_READ_TIMEOUT);
-    }
-
-    private static HttpURLConnection getURLConnection(String requestUrl, int readTimeout) throws IOException {
         URL url = new URL(requestUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);
-        conn.setReadTimeout(readTimeout);
-        conn.setConnectTimeout(15000);
+        conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
+        conn.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
         conn.setDoInput(true);
         conn.setUseCaches(true);
         conn.setAllowUserInteraction(false);
         return conn;
-    }
-
-    private static Map<String, String> readHeaders(URLConnection urlConnection) {
-        Iterator<String> itr = urlConnection.getHeaderFields().keySet().iterator();
-        Map<String, String> headers = new HashMap();
-        while (itr.hasNext()) {
-            String key = itr.next();
-            if (key != null) {
-                headers.put(key, urlConnection.getHeaderField(key));
-            }
-        }
-        return headers;
     }
 
     private static void setHeadersAndMethod(HttpURLConnection conn, Map<String, String> headers, String method)
@@ -102,12 +87,12 @@ public class HttpClientRequest {
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn) throws IOException {
-        return buildResponse(conn, defaultResponseBuilder, false);
+        return buildResponse(conn, defaultResponseBuilder);
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn,
-                                              CheckedFunction<BufferedReader, String> responseBuilder,
-                                              boolean throwError) throws IOException {
+                                              CheckedFunction<BufferedReader, String> responseBuilder)
+            throws IOException {
         HttpResponse httpResponse;
         BufferedReader rd = null;
         String responseData;
@@ -117,21 +102,11 @@ public class HttpClientRequest {
             responseData = responseBuilder.apply(rd);
         } catch (IOException ex) {
             if (conn.getErrorStream() == null) {
-                if (throwError) {
-                    if (ex instanceof FileNotFoundException) {
-                        if (rd != null) {
-                            rd.close();
-                        }
-                        throw new IOException("Server returned HTTP response code: 404 or 410");
-                    }
-                    throw ex;
-                } else {
-                    LOG.error("Error in building HTTP response", ex.getMessage());
-                    if (rd != null) {
-                        rd.close();
-                    }
-                    return null;
+                LOG.error("Error in building HTTP response", ex.getMessage());
+                if (rd != null) {
+                    rd.close();
                 }
+                return null;
             }
             rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()
                     , Charset.defaultCharset()));
@@ -146,8 +121,7 @@ public class HttpClientRequest {
                 rd.close();
             }
         }
-        Map<String, String> responseHeaders = readHeaders(conn);
-        httpResponse = new HttpResponse(responseData, conn.getResponseCode(), responseHeaders);
+        httpResponse = new HttpResponse(responseData, conn.getResponseCode());
         return httpResponse;
     }
 

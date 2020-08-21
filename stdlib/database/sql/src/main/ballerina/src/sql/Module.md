@@ -340,5 +340,30 @@ if (ret is error) {
 }
 ```
 
+#### Execute SQL stored procedures
+
+This example demonstrates how to execute a stored procedure with a single INSERT statement that is executed via the 
+`call` remote function of the client.
+
+```ballerina
+int uid = 10;
+sql:OutParameter insertId = new;
+
+var ret = dbClient->call(`call InsertPerson(${uid}, ${insertId})`);
+if (ret is error) {
+    io:println("Error occurred:", err.message());
+} else {
+    io:println("Outparameter insert id: ", insertId.get(int));
+    stream<record{}, sql:Error>? resultStr = ret.queryResult;
+    if (!(resultStr is ())) {
+        sql:Error? e = resultStr.forEach(function(record{} result) {
+        io:println("Full Customer details: ", result);
+      });
+    } else {
+        io:println("Stored  procedure does not return anything.");
+    }
+}
+```
+
 >**Note:** The default thread pool size used in Ballerina is the number of processors available * 2. You can configure
 the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.

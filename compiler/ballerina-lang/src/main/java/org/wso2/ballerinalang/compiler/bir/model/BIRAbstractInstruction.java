@@ -38,4 +38,6 @@ public abstract class BIRAbstractInstruction extends BIRNode implements BIRInstr
     public InstructionKind getKind() {
         return this.kind;
     }
+
+    public abstract BIROperand[] getRhsOperands();
 }

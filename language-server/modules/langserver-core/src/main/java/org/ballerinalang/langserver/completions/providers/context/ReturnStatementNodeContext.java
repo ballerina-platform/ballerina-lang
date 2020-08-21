@@ -36,9 +36,9 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ReturnStatementNodeContext extends AbstractCompletionProvider<ReturnStatementNode> {
+
     public ReturnStatementNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(ReturnStatementNode.class);
+        super(ReturnStatementNode.class);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ReturnStatementNodeContext extends AbstractCompletionProvider<Retur
         if (node.expression().isPresent() && node.expression().get().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             List<Scope.ScopeEntry> entries = QNameReferenceUtil.expressionContextEntries(context,
                     (QualifiedNameReferenceNode) node.expression().get());
-            
+
             return this.getCompletionItemList(entries, context);
         }
 

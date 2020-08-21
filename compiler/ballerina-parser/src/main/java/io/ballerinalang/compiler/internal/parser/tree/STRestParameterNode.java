@@ -31,20 +31,17 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STRestParameterNode extends STParameterNode {
-    public final STNode leadingComma;
     public final STNode annotations;
     public final STNode typeName;
     public final STNode ellipsisToken;
     public final STNode paramName;
 
     STRestParameterNode(
-            STNode leadingComma,
             STNode annotations,
             STNode typeName,
             STNode ellipsisToken,
             STNode paramName) {
         this(
-                leadingComma,
                 annotations,
                 typeName,
                 ellipsisToken,
@@ -53,21 +50,18 @@ public class STRestParameterNode extends STParameterNode {
     }
 
     STRestParameterNode(
-            STNode leadingComma,
             STNode annotations,
             STNode typeName,
             STNode ellipsisToken,
             STNode paramName,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.REST_PARAM, diagnostics);
-        this.leadingComma = leadingComma;
         this.annotations = annotations;
         this.typeName = typeName;
         this.ellipsisToken = ellipsisToken;
         this.paramName = paramName;
 
         addChildren(
-                leadingComma,
                 annotations,
                 typeName,
                 ellipsisToken,
@@ -76,7 +70,6 @@ public class STRestParameterNode extends STParameterNode {
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRestParameterNode(
-                this.leadingComma,
                 this.annotations,
                 this.typeName,
                 this.ellipsisToken,
@@ -85,13 +78,11 @@ public class STRestParameterNode extends STParameterNode {
     }
 
     public STRestParameterNode modify(
-            STNode leadingComma,
             STNode annotations,
             STNode typeName,
             STNode ellipsisToken,
             STNode paramName) {
         if (checkForReferenceEquality(
-                leadingComma,
                 annotations,
                 typeName,
                 ellipsisToken,
@@ -100,7 +91,6 @@ public class STRestParameterNode extends STParameterNode {
         }
 
         return new STRestParameterNode(
-                leadingComma,
                 annotations,
                 typeName,
                 ellipsisToken,
