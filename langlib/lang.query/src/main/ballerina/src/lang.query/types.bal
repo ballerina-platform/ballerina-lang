@@ -217,7 +217,10 @@ class _NestedFromFunction {
         if (cf is _Frame && itr is _Iterator) {
             record {|(any|error) value;|}|error? v = itr.next();
             if (v is record {|(any|error) value;|}) {
-                _Frame _frame = {...cf, ...v};
+                _Frame _frame = {...cf};
+                foreach var [k, val] in v.entries() {
+                    _frame[k] = val;
+                }
                 return _frame;
             } else if (v is error) {
                 return v;
