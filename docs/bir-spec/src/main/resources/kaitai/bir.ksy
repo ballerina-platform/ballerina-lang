@@ -119,6 +119,10 @@ types:
       - id: shape
         size: shape_lenght
         type: type_info
+  int_cp_info:
+    seq:
+      - id: value
+        type: s8
   type_info:
     seq:
       - id: type_tag
@@ -220,14 +224,24 @@ types:
         type: s4
       - id: length
         type: s8
+      - id: constant_value
+        type: constant_value
+  constant_value:
+    seq:
       - id: constant_value_type_cp_index
         type: s4
-      - id: constant_value
+      - id: constant_value_info
         type:
           switch-on: type_tag
           cases:
             'type_tag_enum::type_tag_int': int_constant_info
             'type_tag_enum::type_tag_byte': byte_constant_info
+            'type_tag_enum::type_tag_float': float_constant_info
+            'type_tag_enum::type_tag_string': string_constant_info
+            'type_tag_enum::type_tag_decimal': decimal_constant_info
+            'type_tag_enum::type_tag_boolean': boolean_constant_info
+            'type_tag_enum::type_tag_nil': nil_constant_info
+            'type_tag_enum::type_tag_map': map_constant_info
     instances:
       type_tag:
         value: _root.constant_pool.constant_pool_entries[constant_value_type_cp_index].cp_info.as<shape_cp_info>.shape.type_tag
@@ -239,10 +253,40 @@ types:
     seq:
       - id: value_cp_index
         type: s4
-  int_cp_info:
+  float_constant_info:
     seq:
-      - id: value
-        type: s8
+      - id: value_cp_index
+        type: s4
+  string_constant_info:
+    seq:
+      - id: value_cp_index
+        type: s4
+  decimal_constant_info:
+    seq:
+      - id: value_cp_index
+        type: s4
+  boolean_constant_info:
+    seq:
+      - id: value_boolean_constant
+        type: s2
+  nil_constant_info:
+    seq:
+      - id: value_nil_constant
+        size: 0
+  map_constant_info:
+    seq:
+      - id: map_constant_size
+        type: s4
+      - id: map_key_values
+        type: map_key_value
+        repeat: expr
+        repeat-expr: map_constant_size
+  map_key_value:
+    seq:
+      - id: key_name_cp_index
+        type: s4
+      - id: key_value_info
+        type: constant_value
   markdown:
     seq:
       - id: length
