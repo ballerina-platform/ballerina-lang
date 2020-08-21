@@ -20,16 +20,11 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.RepoUtils;
 import org.ballerinalang.toml.model.LockFile;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -38,7 +33,7 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class BuildProject extends Project {
-    private LockFile lockFile; // related to build command?
+     private LockFile lockFile; // related to build command?
 
     public static BuildProject loadProject(Path projectPath) throws Exception {
         return new BuildProject(projectPath);
@@ -50,23 +45,10 @@ public class BuildProject extends Project {
             throw new Exception("invalid Ballerina source path:" + projectPath);
         }
         packagePath = projectPath.toString();
-        //TODO: replace with the new toml processor
-        ballerinaToml = ManifestProcessor.parseTomlContentAsStream(getTomlContent(projectPath));
         this.context.setTargetPath(ProjectFiles.createTargetDirectoryStructure(projectPath));
 
         // Set default build options
-        this.context.setBuildOptions(new BuildOptions(ballerinaToml));
-    }
-
-    private InputStream getTomlContent(Path projectPath) {
-        Path tomlFilePath = projectPath.resolve("Ballerina.toml");
-        if (Files.exists(tomlFilePath)) {
-            try {
-                return Files.newInputStream(tomlFilePath);
-            } catch (IOException ignore) {
-            }
-        }
-        return new ByteArrayInputStream(new byte[0]);
+        this.context.setBuildOptions(new BuildProject.BuildOptions(this.context.currentPackage().ballerinaToml()));
     }
 
     public Package getPackage() {
@@ -87,9 +69,12 @@ public class BuildProject extends Project {
         this.context.setBuildOptions(newBuildOptions);
     }
 
+    /**
+     * {@code BuildOptions} represents build options.
+     */
     public static class BuildOptions extends io.ballerina.projects.BuildOptions {
 
-        private BuildOptions(Manifest ballerinaToml) {
+        private BuildOptions(BallerinaToml ballerinaToml) {
             this.sourceRoot = System.getProperty(ProjectConstants.USER_DIR);
             this.output = System.getProperty(ProjectConstants.USER_DIR);
             if (ballerinaToml.getBuildOptions() != null) {
@@ -118,7 +103,8 @@ public class BuildProject extends Project {
         public  boolean isCodeCoverage() {
             return this.codeCoverage;
         }
-        public void setCodeCoverage(boolean codeCoverage){
+
+        public void setCodeCoverage(boolean codeCoverage) {
             this.codeCoverage = codeCoverage;
         }
     }
