@@ -17,13 +17,9 @@
  */
 package io.ballerina.projects.test;
 
-import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -40,7 +36,7 @@ import java.util.Collection;
 public class TestSingleFileProject {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
-    @Test
+    @Test (description = "tests loading a valid standalone Ballerina file")
     public void testLoadSingleFile() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
         SingleFileProject project = null;
@@ -61,7 +57,27 @@ public class TestSingleFileProject {
 
     }
 
-    @Test
+    @Test (description = "tests loading an invalid standalone Ballerina file")
+    public void testLoadSingleFileNegative() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
+                .resolve("svc.bal");
+        try {
+            SingleFileProject.loadProject(projectPath);
+            Assert.fail("expected an invalid project exception");
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina standalone file"));
+        }
+
+        projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal");
+        try {
+            SingleFileProject.loadProject(projectPath);
+            Assert.fail("expected an invalid project exception");
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina standalone file"));
+        }
+    }
+
+    @Test (description = "tests setting build options to the project")
     public void testSetBuildOptions() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
         SingleFileProject project = null;
@@ -87,78 +103,5 @@ public class TestSingleFileProject {
         Assert.assertFalse(project.getBuildOptions().isOffline());
         Assert.assertFalse(project.getBuildOptions().isTestReport());
         Assert.assertFalse(project.getBuildOptions().isExperimental());
-    }
-
-    // LS project test
-    @Test
-    public void testLoadProjectByDefaultModuleFile() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal");
-        Project project = null;
-        try {
-            project = ProjectLoader.loadProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        Assert.assertTrue(project instanceof BuildProject);
-        // 2) Load the package
-        Package currentPackage = project.currentPackage();
-        // 3) Load the default module
-        Module defaultModule = currentPackage.getDefaultModule();
-        Assert.assertEquals(defaultModule.documentIds().size(), 2);
-
-        // TODO find an easy way to test the project structure. e.g. serialize the structure in a json file.
-        int noOfSrcDocuments = 0;
-        int noOfTestDocuments = 0;
-        final Collection<ModuleId> moduleIds = currentPackage.moduleIds();
-        Assert.assertEquals(moduleIds.size(), 3);
-        for (ModuleId moduleId : moduleIds) {
-            Module module = currentPackage.module(moduleId);
-            for (DocumentId documentId : module.documentIds()) {
-                noOfSrcDocuments++;
-            }
-            for (DocumentId testDocumentId : module.testDocumentIds()) {
-                noOfTestDocuments++;
-            }
-        }
-
-        Assert.assertEquals(noOfSrcDocuments, 4);
-        Assert.assertEquals(noOfTestDocuments, 3);
-
-    }
-
-    @Test
-    public void testLoadProjectByOtherModulesFile() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
-                .resolve("svc.bal");
-        Project project = null;
-        try {
-            project = ProjectLoader.loadProject(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        Assert.assertTrue(project instanceof BuildProject);
-        // 2) Load the package
-        Package currentPackage = project.currentPackage();
-        // 3) Load the default module
-        Module defaultModule = currentPackage.getDefaultModule();
-        Assert.assertEquals(defaultModule.documentIds().size(), 2);
-
-        // TODO find an easy way to test the project structure. e.g. serialize the structure in a json file.
-        int noOfSrcDocuments = 0;
-        int noOfTestDocuments = 0;
-        final Collection<ModuleId> moduleIds = currentPackage.moduleIds();
-        Assert.assertEquals(moduleIds.size(), 3);
-        for (ModuleId moduleId : moduleIds) {
-            Module module = currentPackage.module(moduleId);
-            for (DocumentId documentId : module.documentIds()) {
-                noOfSrcDocuments++;
-            }
-            for (DocumentId testDocumentId : module.testDocumentIds()) {
-                noOfTestDocuments++;
-            }
-        }
-
-        Assert.assertEquals(noOfSrcDocuments, 4);
-        Assert.assertEquals(noOfTestDocuments, 3);
     }
 }

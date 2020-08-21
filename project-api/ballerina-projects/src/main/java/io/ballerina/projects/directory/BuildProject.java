@@ -19,10 +19,12 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.model.BallerinaToml;
-import io.ballerina.projects.utils.RepoUtils;
+import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.utils.ProjectUtils;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created from the project directory.
@@ -31,32 +33,58 @@ import java.nio.file.Path;
  */
 public class BuildProject extends Project {
 
+    /**
+     * Loads a BuildProject from the provided path.
+     *
+     * @param projectPath Ballerina project path
+     * @return build project
+     */
     public static BuildProject loadProject(Path projectPath) {
-        if (!RepoUtils.isBallerinaProject(projectPath)) {
+        Path absProjectPath = Optional.of(projectPath.toAbsolutePath()).get();
+        if (!absProjectPath.toFile().exists()) {
+            throw new RuntimeException("project path does not exist:" + projectPath);
+        }
+        if (!isBallerinaProject(absProjectPath)) {
             throw new RuntimeException("provided path is not a valid Ballerina project: " + projectPath);
         }
-        return new BuildProject(projectPath);
+        return new BuildProject(absProjectPath);
     }
 
     private BuildProject(Path projectPath) {
         super();
-        if (projectPath == null) {
-            throw new RuntimeException("project path cannot be null");
-        }
-        if (!projectPath.toFile().exists()) {
-            throw new RuntimeException("project path does not exist:" + projectPath);
-        }
         this.sourceRoot = projectPath;
-
         addPackage(projectPath.toString());
 
         // Set default build options
-        this.context.setBuildOptions(new BuildProject.BuildOptions(this.context.currentPackage().ballerinaToml()));
+        if (this.context.currentPackage().ballerinaToml().getBuildOptions() != null) {
+            this.context.setBuildOptions(this.context.currentPackage().ballerinaToml().getBuildOptions());
+        } else {
+            this.context.setBuildOptions(new BuildOptions());
+        }
     }
 
+    /**
+     * Loads a package in the provided project path.
+     *
+     * @param projectPath project path
+     */
     private void addPackage(String projectPath) {
         final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, false);
         this.context.addPackage(packageConfig);
+    }
+
+    /**
+     * Checks if the path is a Ballerina project.
+     *
+     * @param sourceRoot source root of the project.
+     * @return true if the directory is a project repo, false if its the home repo
+     */
+    private static boolean isBallerinaProject(Path sourceRoot) {
+        Path ballerinaToml = sourceRoot.resolve(ProjectConstants.BALLERINA_TOML);
+        return Files.isDirectory(sourceRoot)
+                && Files.exists(ballerinaToml)
+                && Files.isRegularFile(ballerinaToml)
+                && (ProjectUtils.findProjectRoot(sourceRoot) == null);
     }
 
     public BuildOptions getBuildOptions() {
@@ -68,13 +96,7 @@ public class BuildProject extends Project {
      */
     public static class BuildOptions extends io.ballerina.projects.BuildOptions {
 
-        private BuildOptions(BallerinaToml ballerinaToml) {
-            if (ballerinaToml.getBuildOptions() != null) {
-                this.observabilityIncluded = ballerinaToml.getBuildOptions().isObservabilityIncluded();
-            }
-//            this.skipLock = ballerinaToml.getBuildOptions().skipLock();
-//            this.b7aConfigFile = ballerinaToml.getBuildOptions().getB7aConfig();
-        }
+        private BuildOptions() {}
 
         public void setObservabilityEnabled(boolean observabilityEnabled) {
             observabilityIncluded = observabilityEnabled;
@@ -84,17 +106,6 @@ public class BuildProject extends Project {
             this.skipLock = skipLock;
         }
 
-        public boolean isObservabilityIncluded() {
-            return observabilityIncluded;
-        }
-
-        public boolean isSkipLock() {
-            return skipLock;
-        }
-
-        public  boolean isCodeCoverage() {
-            return this.codeCoverage;
-        }
         public void setCodeCoverage(boolean codeCoverage) {
             this.codeCoverage = codeCoverage;
         }

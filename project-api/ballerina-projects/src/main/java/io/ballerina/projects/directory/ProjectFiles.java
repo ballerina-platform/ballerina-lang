@@ -17,10 +17,8 @@
  */
 package io.ballerina.projects.directory;
 
-import io.ballerina.projects.utils.ProjectConstants;
-import io.ballerina.projects.utils.RepoUtils;
+import io.ballerina.projects.utils.ProjectUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -28,7 +26,6 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -109,7 +106,7 @@ public class ProjectFiles {
 
     private static ModuleData loadModule(Path moduleDirPath) {
         // validate moduleName
-        if (!RepoUtils.validateModuleName(moduleDirPath.toFile().getName())) {
+        if (!ProjectUtils.validateModuleName(moduleDirPath.toFile().getName())) {
             throw new RuntimeException("Invalid module name : '" + moduleDirPath.getFileName() + "' :\n" +
                     "Module name can only contain alphanumerics, underscores and periods " +
                     "and the maximum length is 256 characters");
@@ -142,30 +139,5 @@ public class ProjectFiles {
         // IMO, fileNamePath cannot be null in this case.
         String name = fileNamePath != null ? fileNamePath.toString() : "";
         return DocumentData.from(name, documentFilePath);
-    }
-
-    static Path createTargetDirectoryStructure(Path projectPath) {
-        Path targetDir;
-        try {
-            targetDir = projectPath.resolve(ProjectConstants.TARGET_DIR_NAME);
-            if (targetDir.toFile().exists()) {
-                Files.walk(targetDir)
-                        .sorted(Comparator.reverseOrder())
-                        .map(Path::toFile)
-                        .forEach(File::delete);
-            }
-            Files.createDirectories(targetDir.resolve(ProjectConstants.CACHES_DIR_NAME)
-                    .resolve(ProjectConstants.BIR_CACHE_DIR_NAME));
-            Files.createDirectories(targetDir.resolve(ProjectConstants.CACHES_DIR_NAME)
-                    .resolve(ProjectConstants.JAR_CACHE_DIR_NAME));
-            Files.createDirectories(targetDir.resolve(ProjectConstants.TARGET_BALO_DIRECTORY));
-            Files.createDirectories(targetDir.resolve(ProjectConstants.BIN_DIR_NAME));
-            Files.createDirectories(targetDir.resolve(ProjectConstants.TEST_DIR_NAME)
-                    .resolve(ProjectConstants.JSON_CACHE_DIR_NAME));
-
-        } catch (IOException e) {
-            throw new RuntimeException("error while creating target directory " + e);
-        }
-        return targetDir;
     }
 }

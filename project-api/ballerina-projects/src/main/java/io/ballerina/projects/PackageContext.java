@@ -19,9 +19,11 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.model.BallerinaTomlProcessor;
+import io.ballerina.projects.utils.ProjectConstants;
 import org.ballerinalang.toml.exceptions.TomlException;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,11 +50,17 @@ class PackageContext {
         this.defaultModuleContext = defaultModuleContext;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
+
         // load Ballerina.toml
-        try {
-            this.ballerinaToml = BallerinaTomlProcessor.parse(packageConfig.packagePath().resolve("Ballerina.toml"));
-        } catch (IOException | TomlException e) {
-            throw new RuntimeException(e.getMessage(), e);
+        Path ballerinaTomlPath = packageConfig.packagePath().resolve(ProjectConstants.BALLERINA_TOML);
+        if (ballerinaTomlPath.toFile().exists()) {
+            try {
+                this.ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlPath);
+            } catch (IOException | TomlException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        } else {
+            this.ballerinaToml = new BallerinaToml();
         }
     }
 

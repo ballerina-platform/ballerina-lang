@@ -20,9 +20,9 @@ package io.ballerina.projects.model;
 
 import com.google.gson.JsonSyntaxException;
 import com.moandjiezana.toml.Toml;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.toml.exceptions.TomlException;
-import org.ballerinalang.toml.model.BuildOptions;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -85,10 +85,7 @@ public class BallerinaTomlProcessor {
 
             if (toml.contains("build-options")) {
                 Toml buildOptionsTable = toml.getTable("build-options");
-                BuildOptions buildOptions = new BuildOptions();
-                if (buildOptionsTable.contains("observability-included")) {
-                    buildOptions.setObservabilityIncluded(buildOptionsTable.getBoolean("observability-included"));
-                }
+                BuildProject.BuildOptions buildOptions = buildOptionsTable.to(BuildProject.BuildOptions.class);
                 ballerinaToml.setBuildOptions(buildOptions);
             }
             validateBallerinaTomlPackage(ballerinaToml);
@@ -115,7 +112,7 @@ public class BallerinaTomlProcessor {
         }
 
         // check org is valid identifier
-        boolean isValidOrg = RepoUtils.validateOrg(org);
+        boolean isValidOrg = ProjectUtils.validateOrgName(org);
         if (!isValidOrg) {
             throw new TomlException("invalid Ballerina.toml file: Invalid 'org' under [package]: '" + org + "' :\n"
                     + "'org' can only contain alphanumerics, underscores and periods "
@@ -123,8 +120,17 @@ public class BallerinaTomlProcessor {
         }
 
         // check name exists
-        if (null == ballerinaToml.getPackage().getName() || "".equals(ballerinaToml.getPackage().getName())) {
+        String pkg = ballerinaToml.getPackage().getName();
+        if (null == pkg || "".equals(pkg)) {
             throw new TomlException("invalid Ballerina.toml file: cannot find 'name' under [package]");
+        }
+
+        // check that the package name is valid
+        boolean isValidPkg = ProjectUtils.validatePkgName(pkg);
+        if (!isValidPkg) {
+            throw new TomlException("invalid Ballerina.toml file: Invalid 'name' under [package]: '" + pkg + "' :\n"
+                    + "'name' can only contain alphanumerics, underscores and periods "
+                    + "and the maximum length is 256 characters");
         }
 
         // check version exists
