@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
+package io.ballerina.text;
 
 import java.util.Objects;
 
