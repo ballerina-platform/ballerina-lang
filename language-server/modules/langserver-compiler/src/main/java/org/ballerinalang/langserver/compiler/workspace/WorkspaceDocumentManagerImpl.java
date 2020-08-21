@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import io.ballerina.text.LinePosition;
+import io.ballerina.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
 import io.ballerinalang.compiler.text.TextDocuments;
 import io.ballerinalang.compiler.text.TextEdit;
-import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
