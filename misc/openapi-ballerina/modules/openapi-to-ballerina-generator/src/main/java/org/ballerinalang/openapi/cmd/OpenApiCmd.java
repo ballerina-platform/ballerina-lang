@@ -128,6 +128,18 @@ public class OpenApiCmd implements BLauncherCmd {
                         "contract at " + argList.get(0) + ". " + e.getMessage() + ".");
             }
             //Generates Client file
+            String clientName = serviceName.split("\\.")[0] + "Client";
+            try {
+                generator.generateClient(executionPath.toString(), resourcePath.toString(), clientName,
+                        targetOutputPath.toString());
+            } catch (IOException | BallerinaOpenApiException e) {
+                if (e.getLocalizedMessage() != null) {
+                    throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+                } else {
+                    throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
+                }
+
+            }
         }
     }
 

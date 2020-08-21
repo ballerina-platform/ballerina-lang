@@ -104,21 +104,21 @@ public class CodeGenerator {
         Path srcPath = Paths.get(outPath);
         Path implPath = CodegenUtils.getImplPath(srcPackage, srcPath);
 
-        if (type.equals(GEN_CLIENT)) {
-            if (srcPackage.equals("")) {
-                srcPath = srcPath.resolve("client");
-                implPath = implPath.resolve("client");
-            }
-
-            if (Files.notExists(srcPath)) {
-                Files.createDirectory(srcPath);
-            }
-
-            if (Files.notExists(implPath)) {
-                Files.createDirectory(implPath);
-            }
-
-        }
+//        if (type.equals(GEN_CLIENT)) {
+//            if (srcPackage.equals("")) {
+//                srcPath = srcPath.resolve("client");
+//                implPath = implPath.resolve("client");
+//            }
+//
+//            if (Files.notExists(srcPath)) {
+//                Files.createDirectory(srcPath);
+//            }
+//
+//            if (Files.notExists(implPath)) {
+//                Files.createDirectory(implPath);
+//            }
+//
+//        }
 
         List<GenSrcFile> genFiles = generateBalSource(type, definitionPath, reldefinitionPath, serviceName);
         writeGeneratedSources(genFiles, srcPath, implPath, type);
