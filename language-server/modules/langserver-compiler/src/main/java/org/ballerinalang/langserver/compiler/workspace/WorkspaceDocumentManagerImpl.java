@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
-import io.ballerina.text.LinePosition;
-import io.ballerina.text.TextRange;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;

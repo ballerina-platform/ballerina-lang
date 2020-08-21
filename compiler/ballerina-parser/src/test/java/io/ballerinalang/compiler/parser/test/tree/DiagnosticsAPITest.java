@@ -17,10 +17,10 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerina.text.LineRange;
-import io.ballerinalang.compiler.diagnostics.Diagnostic;
-import io.ballerinalang.compiler.diagnostics.DiagnosticInfo;
-import io.ballerinalang.compiler.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;

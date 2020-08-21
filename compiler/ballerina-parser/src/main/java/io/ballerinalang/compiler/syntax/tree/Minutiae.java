@@ -17,8 +17,8 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerina.text.LineRange;
-import io.ballerina.text.TextRange;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.internal.parser.tree.STInvalidNodeMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;

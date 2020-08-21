@@ -16,7 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation;
 
-import io.ballerinalang.compiler.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;

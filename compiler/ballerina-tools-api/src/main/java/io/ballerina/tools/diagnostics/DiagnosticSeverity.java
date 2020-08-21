@@ -15,26 +15,17 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.diagnostics;
-
-import io.ballerinalang.compiler.syntax.tree.NodeLocation;
+package io.ballerina.tools.diagnostics;
 
 /**
- * A diagnostic represents a compiler error, a warning or a message at a specific location in the source file.
+ * Represents a severity of a {@code Diagnostic}.
  *
  * @since 2.0.0
  */
-public abstract class Diagnostic {
-
-    public abstract NodeLocation location();
-
-    public abstract DiagnosticInfo diagnosticInfo();
-
-    public abstract String message();
-
-    @Override
-    public String toString() {
-        return diagnosticInfo().severity().toString() + " [" +
-                location().lineRange().filePath() + ":" + location().lineRange() + "] " + message();
-    }
+public enum DiagnosticSeverity {
+    INTERNAL,
+    HINT,
+    INFO,
+    WARNING,
+    ERROR
 }

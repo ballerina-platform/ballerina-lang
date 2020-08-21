@@ -15,17 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.diagnostics;
+package io.ballerina.tools.diagnostics;
+
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 
 /**
- * Represents a severity of a {@code Diagnostic}.
+ * The {@code Location} represent the location in {@code TextDocument}.
+ * <p>
+ * It is a combination of source file path, start and end line numbers, and start and end column numbers.
  *
  * @since 2.0.0
  */
-public enum DiagnosticSeverity {
-    INTERNAL,
-    HINT,
-    INFO,
-    WARNING,
-    ERROR
+public interface Location {
+
+    LineRange lineRange();
+
+    TextRange textRange();
 }

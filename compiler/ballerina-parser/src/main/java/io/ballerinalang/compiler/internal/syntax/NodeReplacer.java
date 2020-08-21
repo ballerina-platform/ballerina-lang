@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.syntax;
 
-import io.ballerina.text.TextRange;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.Token;

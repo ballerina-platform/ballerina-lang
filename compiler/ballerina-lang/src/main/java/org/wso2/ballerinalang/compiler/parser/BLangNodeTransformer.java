@@ -17,8 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
-import io.ballerina.text.LinePosition;
-import io.ballerina.text.LineRange;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerinalang.compiler.syntax.tree.AnnotationDeclarationNode;

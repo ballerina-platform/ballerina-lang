@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.text;
 
-import io.ballerina.text.TextRange;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.internal.parser.CharReader;
 
 import java.util.ArrayList;

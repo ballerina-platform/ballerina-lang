@@ -15,31 +15,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.diagnostics;
-
-import io.ballerinalang.compiler.syntax.tree.NodeLocation;
+package io.ballerina.tools.diagnostics;
 
 /**
- * Represents a message and location related to a particular {@code Diagnostic}.
- * <p>
- * A sample usage would be to record all symbol information related to duplicate symbol error.
+ * A diagnostic represents a compiler error, a warning or a message at a specific location in the source file.
  *
  * @since 2.0.0
  */
-public class DiagnosticRelatedInformation {
-    private final NodeLocation location;
-    private final String message;
+public abstract class Diagnostic {
 
-    public DiagnosticRelatedInformation(NodeLocation location, String message) {
-        this.location = location;
-        this.message = message;
-    }
+    public abstract Location location();
 
-    public NodeLocation location() {
-        return this.location;
-    }
+    public abstract DiagnosticInfo diagnosticInfo();
 
-    public String message() {
-        return this.message;
+    public abstract String message();
+
+    @Override
+    public String toString() {
+        return diagnosticInfo().severity().toString() + " [" +
+                location().lineRange().filePath() + ":" + location().lineRange() + "] " + message();
     }
 }

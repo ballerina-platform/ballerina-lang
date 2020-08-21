@@ -15,34 +15,40 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.text;
+package io.ballerina.tools.text;
 
 import java.util.Objects;
 
 /**
- * The {@code LinePosition} represents a line number and a character offset from the start of the line.
+ * The {@code LineRange} represents a pair of {@code LinePosition}.
  *
  * @since 2.0.0
  */
-public class LinePosition {
-    private final int line;
-    private final int offset;
+public class LineRange {
+    private final String filePath;
+    private final LinePosition startLine;
+    private final LinePosition endLine;
 
-    private LinePosition(int line, int offset) {
-        this.line = line;
-        this.offset = offset;
+    private LineRange(String filePath, LinePosition startLine, LinePosition endLine) {
+        this.filePath = filePath;
+        this.startLine = startLine;
+        this.endLine = endLine;
     }
 
-    public static LinePosition from(int line, int offset) {
-        return new LinePosition(line, offset);
+    public static LineRange from(String filePath, LinePosition startLine, LinePosition endLine) {
+        return new LineRange(filePath, startLine, endLine);
     }
 
-    public int line() {
-        return line;
+    public String filePath() {
+        return filePath;
     }
 
-    public int offset() {
-        return offset;
+    public LinePosition startLine() {
+        return startLine;
+    }
+
+    public LinePosition endLine() {
+        return endLine;
     }
 
     @Override
@@ -53,18 +59,18 @@ public class LinePosition {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        LinePosition linePosition = (LinePosition) o;
-        return line == linePosition.line &&
-                offset == linePosition.offset;
+        LineRange lineRange = (LineRange) o;
+        return Objects.equals(startLine, lineRange.startLine) &&
+                Objects.equals(endLine, lineRange.endLine);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(line, offset);
+        return Objects.hash(startLine, endLine);
     }
 
     @Override
     public String toString() {
-        return line + ":" + offset;
+        return "(" + startLine + "," + endLine + ")";
     }
 }

@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.incremental;
 
-import io.ballerina.text.TextRange;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.internal.parser.BallerinaLexer;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.utils.PersistentStack;

@@ -15,21 +15,29 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.diagnostics;
-
-import io.ballerina.text.LineRange;
-import io.ballerina.text.TextRange;
+package io.ballerina.tools.diagnostics;
 
 /**
- * The {@code Location} represent the location in {@code TextDocument}.
+ * Represents a message and location related to a particular {@code Diagnostic}.
  * <p>
- * It is a combination of source file path, start and end line numbers, and start and end column numbers.
+ * A sample usage would be to record all symbol information related to duplicate symbol error.
  *
  * @since 2.0.0
  */
-public interface Location {
+public class DiagnosticRelatedInformation {
+    private final Location location;
+    private final String message;
 
-    LineRange lineRange();
+    public DiagnosticRelatedInformation(Location location, String message) {
+        this.location = location;
+        this.message = message;
+    }
 
-    TextRange textRange();
+    public Location location() {
+        return this.location;
+    }
+
+    public String message() {
+        return this.message;
+    }
 }
