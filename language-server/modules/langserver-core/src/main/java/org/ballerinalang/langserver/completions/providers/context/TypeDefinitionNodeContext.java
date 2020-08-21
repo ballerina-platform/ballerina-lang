@@ -35,8 +35,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDefinitionNode> {
     public TypeDefinitionNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(TypeDefinitionNode.class);
+        super(TypeDefinitionNode.class);
     }
 
     @Override
