@@ -4465,7 +4465,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
-                typeReference = parseQualifiedIdentifier(ParserRuleContext.TYPE_REFERENCE);
+                typeReference = parseTypeReference();
                 break;
             case OPEN_BRACE_TOKEN:
                 return STNodeFactory.createEmptyNode();
