@@ -45,8 +45,8 @@ function testMain() {
 }
 function testFunction() {
     time:Time time = time:currentTime();
-   test:when(sqrtMockFn).call("mockSqrt");
-   test:assertEquals(time:getYear(time), 125);
+    test:when(sqrtMockFn).call("mockSqrt");
+    test:assertEquals(time:getYear(time), 125);
 }
 
 # After test function
