@@ -15,31 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.syntax.tree;
+package io.ballerina.diagnostics;
 
-import io.ballerina.diagnostics.Location;
 import io.ballerina.text.LineRange;
 import io.ballerina.text.TextRange;
 
 /**
- * The {@code NodeLocation} represent the location of a {@code Node} in source code.
+ * The {@code Location} represent the location in {@code TextDocument}.
  * <p>
  * It is a combination of source file path, start and end line numbers, and start and end column numbers.
  *
  * @since 2.0.0
  */
-public class NodeLocation implements Location {
-    private final Node node;
+public interface Location {
 
-    NodeLocation(Node node) {
-        this.node = node;
-    }
+    LineRange lineRange();
 
-    public LineRange lineRange() {
-        return node.lineRange();
-    }
-
-    public TextRange textRange() {
-        return node.textRange();
-    }
+    TextRange textRange();
 }
