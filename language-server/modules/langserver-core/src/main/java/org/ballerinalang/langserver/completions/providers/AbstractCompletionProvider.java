@@ -18,7 +18,9 @@
 package org.ballerinalang.langserver.completions.providers;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.text.LinePosition;
@@ -70,6 +72,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,17 +86,16 @@ import java.util.stream.IntStream;
  */
 public abstract class AbstractCompletionProvider<T extends Node> implements CompletionProvider<T> {
 
-    protected List<Class<T>> attachmentPoints = new ArrayList<>();
+    private final List<Class<T>> attachmentPoints;
 
     protected Precedence precedence = Precedence.LOW;
 
-    private Kind kind;
-
-    public AbstractCompletionProvider(Kind kind) {
-        this.kind = kind;
+    public AbstractCompletionProvider(List<Class<T>> attachmentPoints) {
+        this.attachmentPoints = attachmentPoints;
     }
 
-    public AbstractCompletionProvider() {
+    public AbstractCompletionProvider(Class<T> attachmentPoint) {
+        this.attachmentPoints = Collections.singletonList(attachmentPoint);
     }
 
     /**
@@ -126,11 +128,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     @Override
     public Optional<CompletionProvider<T>> getContextProvider(LSContext ctx) {
         return Optional.empty();
-    }
-
-    @Override
-    public Kind getKind() {
-        return this.kind;
     }
 
     @Override
@@ -187,7 +184,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                                                            LSContext context) {
         return list.isLeft() ? list.getLeft() : this.getCompletionItemList(list.getRight(), context);
     }
-    
+
     /**
      * Get the type completion Items.
      *
@@ -657,8 +654,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     private boolean appendSingleQuoteForPackageInsertText(LSContext context) {
-        // TODO: Fix needed based on the new parser tree
-        return false;
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        return !(nodeAtCursor != null && nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+                ((SimpleNameReferenceNode) nodeAtCursor).name().text().startsWith("'"));
     }
 
     private void addIfNotExists(SnippetBlock snippet, BLangService service, List<LSCompletionItem> items,

@@ -45,18 +45,6 @@ public interface CompletionProvider<T extends Node> {
     }
 
     /**
-     * Provider kind.
-     *
-     * @since 2.0.0
-     */
-    enum Kind {
-        STATEMENT,
-        MODULE_MEMBER,
-        EXPRESSION,
-        OTHER
-    }
-
-    /**
      * Get Completion items for the scope/ context.
      *
      * @param context Language Server Context
@@ -100,8 +88,6 @@ public interface CompletionProvider<T extends Node> {
      * @return {@link Optional} Context Completion provider
      */
     Optional<CompletionProvider<T>> getContextProvider(LSContext ctx);
-
-    Kind getKind();
 
     /**
      * Pre-validation is used during the completion provider selection phase.

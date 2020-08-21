@@ -42,8 +42,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<FunctionDefinitionNode> {
     public FunctionDefinitionNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(FunctionDefinitionNode.class);
+        super(FunctionDefinitionNode.class);
     }
 
     @Override

@@ -32,8 +32,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ListConstructorExpressionNodeContext extends AbstractCompletionProvider<ListConstructorExpressionNode> {
     public ListConstructorExpressionNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(ListConstructorExpressionNode.class);
+        super(ListConstructorExpressionNode.class);
     }
 
     @Override
