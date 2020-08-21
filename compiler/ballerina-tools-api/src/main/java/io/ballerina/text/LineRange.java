@@ -20,7 +20,7 @@ package io.ballerina.text;
 import java.util.Objects;
 
 /**
- * The {@code LineRange} represents a pair of {@code LineInfo}.
+ * The {@code LineRange} represents a pair of {@code LinePosition}.
  *
  * @since 2.0.0
  */

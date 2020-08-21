@@ -20,7 +20,7 @@ package io.ballerina.text;
 import java.util.Objects;
 
 /**
- * The {@code LineInfo} represents a line number and a character offset from the start of the line.
+ * The {@code LinePosition} represents a line number and a character offset from the start of the line.
  *
  * @since 2.0.0
  */
