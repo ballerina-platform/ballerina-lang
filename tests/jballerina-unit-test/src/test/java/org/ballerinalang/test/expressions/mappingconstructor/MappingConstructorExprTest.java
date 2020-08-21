@@ -167,7 +167,7 @@ public class MappingConstructorExprTest {
     public void testSpreadOpFieldCodeAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/spread_op_field_code_analysis_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 7);
+        Assert.assertEquals(result.getErrorCount(), 13);
         validateError(result, 0, "invalid usage of record literal: duplicate key 'i' via spread operator '...f'", 30,
                       31);
         validateError(result, 1, "invalid usage of record literal: duplicate key 's'", 30, 34);
@@ -177,6 +177,16 @@ public class MappingConstructorExprTest {
         validateError(result, 5, "invalid usage of map literal: duplicate key 's' via spread operator '... {s: hi,i: " +
                 "1}'", 32, 38);
         validateError(result, 6, "invalid usage of map literal: duplicate key 'i'", 32, 63);
+        validateError(result, 7, "invalid usage of map literal: duplicate key 'i' via spread " +
+                "operator '...alpha'", 41, 27);
+        validateError(result, 8, "invalid usage of mapping constructor expression: inclusive record 'b' " +
+                "may consist of already-occurred keys.", 50, 32);
+        validateError(result, 9, "invalid usage of map literal: duplicate key 'i'", 55, 29);
+        validateError(result, 10, "invalid usage of map literal: duplicate key 'y'", 60, 30);
+        validateError(result, 11, "invalid usage of mapping constructor expression: inclusive " +
+                "record 'b2' may consist of already-occurred keys.", 70, 35);
+        validateError(result, 12, "invalid usage of mapping constructor expression: multiple spread " +
+                "fields of inclusive mapping type is not allowed.", 70, 35);
     }
 
     @Test
@@ -207,6 +217,7 @@ public class MappingConstructorExprTest {
                 { "testMapRefAsSpreadOp" },
                 { "testMapValueViaFuncAsSpreadOp" },
                 { "testRecordRefAsSpreadOp" },
+                { "testRecordRefWithNeverType" },
                 { "testRecordValueViaFuncAsSpreadOp" },
                 { "testSpreadOpInConstMap" },
                 { "testSpreadOpInGlobalMap" },

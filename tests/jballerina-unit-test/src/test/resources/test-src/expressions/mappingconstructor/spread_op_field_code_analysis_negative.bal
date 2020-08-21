@@ -31,3 +31,41 @@ function testDulpicateKeyWithSpreadOpField() {
     map<string|int|float> m = {s: "hello", ...b, f: 1.0, i: "bye"};
     map<anydata> n = {s: "hello", ...{s: "hi", i: 1}, f: 1.0, i: "bye"};
 }
+
+type Alpha record {|
+    int i?;
+|};
+
+function testDuplicateKeyWithOptionalField() {
+    Alpha alpha = {i:2};
+    map<int> m = {i:1, ...alpha};   // invalid usage of map literal: duplicate key 'i' via spread operator '...alpha'
+}
+
+type Beta record {
+    int j;
+};
+
+function testInclusiveRecordWithSpreadOp1() {
+    Beta b = {j: 1, "i": 2};
+    map<anydata> m = {i: 0, ...b};  // invalid usage of mapping constructor expression: inclusive record 'b' may consist of already-occurred keys.
+}
+
+function testInclusiveRecordWithSpreadOp2() {
+    Beta b = {j: 1, "i": 2};
+    map<anydata> m = {...b, i:3};  // invalid usage of map literal: duplicate key 'i'.
+}
+
+function testMappWithSpreadOp() {
+    map<string> m1 = {x:"aa", y:"bb"};
+    map<string> m2 = {...m1, y:"cc"};   // mapping constructor expression: inclusive mapping 'm1' may consist of already-occurred keys.
+}
+
+type Beta2 record {
+    int i;
+};
+
+function testMultipleInclRecordsWithSpreadOp() {
+    Beta b1 = {j: 1, "k": 4};
+    Beta2 b2 = {i: 2, "k": 4};
+    map<any|error> m = {...b1, ...b2};
+}
