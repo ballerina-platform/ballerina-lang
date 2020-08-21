@@ -69,9 +69,9 @@ function testObjectConstructorAnnotationAttachment() {
 
 function testObjectConstructorObjectFunctionInvocation() {
     obj.inc();
-    assertTrue(obj.n == 1);
+    assertValueEquality(1, obj.n);
     obj.inc();
-    assertTrue(obj.n == 2);
+    assertValueEquality(2, obj.n);
 }
 
 //var remoteObject = @OBJAnnots { descriptor: "ConstructedObject" }
