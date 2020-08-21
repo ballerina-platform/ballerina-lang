@@ -95,12 +95,13 @@ public class CodeGenerator {
 
         //Check if the selected path is a ballerina root for service generation
         //TODO check with team for root check
-        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(executionPath));
-        if (type.equals(GenType.GEN_SERVICE) && projectRoot == null) {
-            throw LauncherUtils.createUsageExceptionWithHelp(OpenApiMesseges.GEN_SERVICE_PROJECT_ROOT);
-        }
+//        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(executionPath));
+//        if (type.equals(GenType.GEN_SERVICE) && projectRoot == null) {
+//            throw LauncherUtils.createUsageExceptionWithHelp(OpenApiMesseges.GEN_SERVICE_PROJECT_ROOT);
+//        }
 
-        Path srcPath = CodegenUtils.getSourcePath(srcPackage, outPath);
+//        Path srcPath = CodegenUtils.getSourcePath(srcPackage, outPath);
+        Path srcPath = Paths.get(outPath);
         Path implPath = CodegenUtils.getImplPath(srcPackage, srcPath);
 
         if (type.equals(GEN_CLIENT)) {
@@ -302,26 +303,40 @@ public class CodeGenerator {
 
     private void writeGeneratedSources(List<GenSrcFile> sources, Path srcPath, Path implPath, GenType type)
             throws IOException {
-        // Remove old generated files - if any - before regenerate
-        // if srcPackage was not provided and source was written to main package nothing will be deleted.
-        if (srcPackage != null && !srcPackage.isEmpty() && Files.exists(srcPath)) {
+        //  Remove old generated file with same name
+        if (Files.exists(srcPath)) {
             final File[] listFiles = new File(String.valueOf(srcPath)).listFiles();
             if (listFiles != null) {
                 Arrays.stream(listFiles).forEach(file -> {
-                    boolean deleteStatus = true;
-                    if (!file.isDirectory() && !file.getName().equals(MODULE_MD)) {
-                        deleteStatus = file.delete();
-                    }
-
-                    //Capture return value of file.delete() since if
-                    //unable to delete returns false from file.delete() without an exception.
-                    if (!deleteStatus) {
-                        outStream.println("Unable to clean module directory.");
+                    for (GenSrcFile gFile : sources) {
+                        if (file.getName().equals(gFile.getFileName())) {
+                            file.delete();
+                            break;
+                        }
                     }
                 });
             }
-
         }
+//        // Remove old generated files - if any - before regenerate
+//        // if srcPackage was not provided and source was written to main package nothing will be deleted.
+//        if (srcPackage != null && !srcPackage.isEmpty() && Files.exists(srcPath)) {
+//            final File[] listFiles = new File(String.valueOf(srcPath)).listFiles();
+//            if (listFiles != null) {
+//                Arrays.stream(listFiles).forEach(file -> {
+//                    boolean deleteStatus = true;
+//                    if (!file.isDirectory() && !file.getName().equals(MODULE_MD)) {
+//                        deleteStatus = file.delete();
+//                    }
+//
+//                    //Capture return value of file.delete() since if
+//                    //unable to delete returns false from file.delete() without an exception.
+//                    if (!deleteStatus) {
+//                        outStream.println("Unable to clean module directory.");
+//                    }
+//                });
+//            }
+//
+//        }
 
         for (GenSrcFile file : sources) {
             Path filePath;
