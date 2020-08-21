@@ -1957,7 +1957,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv);
+        BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv, pos);
         if (type.tag == TypeTags.INVOKABLE && type.tsymbol != null) {
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) type.tsymbol;
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;
@@ -1982,7 +1982,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                       SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
-        BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env);
+        BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos);
 
         // Add it to the enclosing scope
         if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
@@ -1999,11 +1999,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         env.scope.define(varSymbol.name, varSymbol);
     }
 
-    public BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {
-        return createVarSymbol(Flags.asMask(flagSet), varType, varName, env);
+    public BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env,
+                                      DiagnosticPos pos) {
+        return createVarSymbol(Flags.asMask(flagSet), varType, varName, env, pos);
     }
 
-    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env) {
+    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env, DiagnosticPos pos) {
         BType safeType = types.getSafeType(varType, true, false);
         BVarSymbol varSymbol;
         if (safeType.tag == TypeTags.INVOKABLE) {
@@ -2011,7 +2012,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                              env.scope.owner);
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
-            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, pos);
             if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
             }

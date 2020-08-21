@@ -1333,8 +1333,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 foundDefaultableParam = true;
             }
 
-            BVarSymbol symbol = new BVarSymbol(type.flags, paramName,
-                    env.enclPkg.symbol.pkgID, type, env.scope.owner);
+            BVarSymbol symbol = new BVarSymbol(type.flags, paramName, env.enclPkg.symbol.pkgID, type, env.scope.owner,
+                                               param.pos);
             param.symbol = symbol;
 
             if (param.expr == null && foundDefaultableParam) {
@@ -1365,7 +1365,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             restType = resolveTypeNode(restVariable.typeNode, env);
             restVariable.type = restType;
             restParam = new BVarSymbol(restType.flags, names.fromIdNode(((BLangSimpleVariable) restVariable).name),
-                                       env.enclPkg.symbol.pkgID, restType, env.scope.owner);
+                                       env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos);
         }
 
         BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);

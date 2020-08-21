@@ -1649,9 +1649,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
-                                                        add(Flag.REQUIRED);
-                                                        add(Flag.READONLY);
-                                                    }}), fieldName, pkgID, readOnlyFieldType, recordSymbol);
+                add(Flag.REQUIRED);
+                add(Flag.READONLY);
+            }}), fieldName, pkgID, readOnlyFieldType, recordSymbol,
+                                                    ((BLangNode) field).pos);
             newFields.put(key, new BField(fieldName, null, fieldSymbol));
             recordSymbol.scope.define(fieldName, fieldSymbol);
         }
@@ -1681,7 +1682,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BVarSymbol fieldSymbol = new BVarSymbol(origFieldFlags, field.name, pkgID,
-                                                        origFieldSymbol.type, recordSymbol);
+                                                        origFieldSymbol.type, recordSymbol, field.pos);
                 newFields.put(fieldName, new BField(field.name, null, fieldSymbol));
                 recordSymbol.scope.define(field.name, fieldSymbol);
             }
@@ -2089,7 +2090,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.type = this.symTable.semanticError;
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
             }
-            varRefExpr.symbol = new BVarSymbol(0, varName, env.enclPkg.symbol.pkgID, varRefExpr.type, env.scope.owner);
+            varRefExpr.symbol = new BVarSymbol(0, varName, env.enclPkg.symbol.pkgID, varRefExpr.type, env.scope.owner,
+                                               varRefExpr.pos);
             resultType = varRefExpr.type;
             return;
         }
@@ -2180,7 +2182,8 @@ public class TypeChecker extends BLangNodeVisitor {
             BVarSymbol bVarSymbol = (BVarSymbol) ((BLangVariableReference) recordRefField.variableReference).symbol;
             BField field = new BField(names.fromIdNode(recordRefField.variableName), varRefExpr.pos,
                                       new BVarSymbol(0, names.fromIdNode(recordRefField.variableName),
-                                                     env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol));
+                                                     env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol,
+                                                     varRefExpr.pos));
             fields.put(field.name.value, field);
         }
 
@@ -2199,7 +2202,7 @@ public class TypeChecker extends BLangNodeVisitor {
         bRecordType.fields = fields;
         recordSymbol.type = bRecordType;
         varRefExpr.symbol = new BVarSymbol(0, recordSymbol.name,
-                env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner);
+                                           env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner, varRefExpr.pos);
 
         if (restParam == null) {
             bRecordType.sealed = true;
@@ -3014,7 +3017,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         Name fieldName = Names.VALUE;
         BField field = new BField(fieldName, pos, new BVarSymbol(Flags.PUBLIC,
-                fieldName, env.enclPkg.packageID, streamType.constraint, env.scope.owner));
+                                                                 fieldName, env.enclPkg.packageID,
+                                                                 streamType.constraint, env.scope.owner, pos));
         field.type = streamType.constraint;
         recordType.fields.put(field.name.value, field);
 
@@ -3273,7 +3277,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BType fieldType = symbol.type.tag == TypeTags.FUTURE ? ((BFutureType) symbol.type).constraint : symbol.type;
             BField field = new BField(names.fromIdNode(keyVal.key), null,
                                       new BVarSymbol(0, names.fromIdNode(keyVal.key), env.enclPkg.packageID,
-                                                     fieldType, null));
+                                                     fieldType, null, keyVal.pos));
             retType.fields.put(field.name.value, field);
         }
 
@@ -5004,7 +5008,7 @@ public class TypeChecker extends BLangNodeVisitor {
         Set<Name> availableErrorDetailFields = new HashSet<>();
         for (BLangNamedArgsExpression arg : namedArgs) {
             Name fieldName = names.fromIdNode(arg.name);
-            BField field = new BField(fieldName, arg.pos, new BVarSymbol(0, fieldName, null, arg.type, null));
+            BField field = new BField(fieldName, arg.pos, new BVarSymbol(0, fieldName, null, arg.type, null, arg.pos));
             recordType.fields.put(field.name.value, field);
             availableErrorDetailFields.add(fieldName);
         }
@@ -5014,7 +5018,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (notRequired && !availableErrorDetailFields.contains(field.name)) {
                 BField defaultableField = new BField(field.name, iExpr.pos,
                                                      new BVarSymbol(field.symbol.flags, field.name, null, field.type,
-                                                                    null));
+                                                                    null, iExpr.pos));
                 recordType.fields.put(defaultableField.name.value, defaultableField);
             }
         }
@@ -7063,7 +7067,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 allReadOnlyNonRestFields = false;
             }
 
-            BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, pkgID, type, recordSymbol);
+            BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, pkgID, type, recordSymbol,
+                                                    symTable.builtinPos);
             fields.put(fieldName.value, new BField(fieldName, null, fieldSymbol));
             recordSymbol.scope.define(fieldName, fieldSymbol);
         }

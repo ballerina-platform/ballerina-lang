@@ -147,7 +147,7 @@ public class ASTBuilderUtil {
 
     static void defineVariable(BLangSimpleVariable variable, BSymbol targetSymbol, Names names) {
         variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), targetSymbol.pkgID, variable.type,
-                targetSymbol);
+                                         targetSymbol, variable.pos);
         targetSymbol.scope.define(variable.symbol.name, variable.symbol);
     }
 
@@ -485,12 +485,13 @@ public class ASTBuilderUtil {
         return varRef;
     }
 
+    // TODO: Remove
     static BLangSimpleVarRef createIgnoreVariableRef(DiagnosticPos pos, SymbolTable symTable) {
         final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = pos;
         varRef.variableName = createIdentifier(pos, Names.IGNORE.value);
         varRef.symbol = new BVarSymbol(0, Names.IGNORE, symTable.rootPkgSymbol.scope.owner.pkgID, symTable.noType,
-                symTable.rootPkgSymbol.scope.owner);
+                                       symTable.rootPkgSymbol.scope.owner, pos);
         varRef.type = symTable.noType;
         return varRef;
     }
@@ -781,9 +782,10 @@ public class ASTBuilderUtil {
         return argExpr;
     }
 
+    // TODO: remove this
     public static BVarSymbol duplicateVarSymbol(BVarSymbol varSymbol) {
         BVarSymbol dupVarSymbol = new BVarSymbol(varSymbol.flags, varSymbol.name,
-                varSymbol.pkgID, varSymbol.type, varSymbol.owner);
+                                                 varSymbol.pkgID, varSymbol.type, varSymbol.owner, varSymbol.pos);
         dupVarSymbol.tainted = varSymbol.tainted;
         dupVarSymbol.closure = varSymbol.closure;
         dupVarSymbol.markdownDocumentation = varSymbol.markdownDocumentation;
@@ -853,8 +855,8 @@ public class ASTBuilderUtil {
     }
 
     private static BVarSymbol duplicateParamSymbol(BVarSymbol paramSymbol, BInvokableSymbol owner) {
-        BVarSymbol newParamSymbol =
-                new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID, paramSymbol.type, owner);
+        BVarSymbol newParamSymbol = new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID,
+                                                   paramSymbol.type, owner, paramSymbol.pos);
         newParamSymbol.tainted = paramSymbol.tainted;
         newParamSymbol.defaultableParam = paramSymbol.defaultableParam;
         newParamSymbol.markdownDocumentation = paramSymbol.markdownDocumentation;

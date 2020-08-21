@@ -65,7 +65,7 @@ public class TypeDefBuilderHelper {
         for (BField field : recordType.fields.values()) {
             BVarSymbol symbol = field.symbol;
             if (symbol == null) {
-                symbol = new BVarSymbol(Flags.PUBLIC, field.name, packageID, symTable.pureType, null);
+                symbol = new BVarSymbol(Flags.PUBLIC, field.name, packageID, symTable.pureType, null, field.pos);
             }
 
             BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
@@ -132,7 +132,8 @@ public class TypeDefBuilderHelper {
         initFunction.receiver = ASTBuilderUtil.createReceiver(structureTypeNode.pos, structureTypeNode.type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, structureTypeNode.type, null);
+                                                   env.enclPkg.symbol.pkgID, structureTypeNode.type, null,
+                                                   structureTypeNode.pos);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
