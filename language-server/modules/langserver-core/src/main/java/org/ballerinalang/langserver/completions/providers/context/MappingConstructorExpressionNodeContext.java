@@ -67,8 +67,7 @@ import java.util.Optional;
 public class MappingConstructorExpressionNodeContext extends
         AbstractCompletionProvider<MappingConstructorExpressionNode> {
     public MappingConstructorExpressionNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(MappingConstructorExpressionNode.class);
+        super(MappingConstructorExpressionNode.class);
     }
 
     @Override
