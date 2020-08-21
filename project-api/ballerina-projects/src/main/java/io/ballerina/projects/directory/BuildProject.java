@@ -62,13 +62,6 @@ public class BuildProject extends Project {
     public BuildOptions getBuildOptions() {
         return (BuildOptions) this.context.getBuildOptions();
     }
-    public void setBuildOptions(BuildOptions newBuildOptions) {
-        BuildOptions buildOptions = (BuildOptions) this.context.getBuildOptions();
-        buildOptions.setB7aConfigFile(newBuildOptions.getB7aConfigFile());
-        buildOptions.setObservabilityEnabled(newBuildOptions.isObservabilityIncluded());
-        buildOptions.setSkipLock(newBuildOptions.isSkipLock());
-        this.context.setBuildOptions(newBuildOptions);
-    }
 
     /**
      * {@code BuildOptions} represents build options specific to a build project.

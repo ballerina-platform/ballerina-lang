@@ -83,12 +83,10 @@ public class TestSingleFileProject {
         buildOptions.setSkipTests(true);
 
         // Update and verify buildOptions
-        project.setBuildOptions(buildOptions);
-        buildOptions = project.getBuildOptions();
-        Assert.assertTrue(buildOptions.isSkipTests());
-        Assert.assertFalse(buildOptions.isOffline());
-        Assert.assertFalse(buildOptions.isTestReport());
-        Assert.assertFalse(buildOptions.isExperimental());
+        Assert.assertTrue(project.getBuildOptions().isSkipTests());
+        Assert.assertFalse(project.getBuildOptions().isOffline());
+        Assert.assertFalse(project.getBuildOptions().isTestReport());
+        Assert.assertFalse(project.getBuildOptions().isExperimental());
     }
 
     // LS project test

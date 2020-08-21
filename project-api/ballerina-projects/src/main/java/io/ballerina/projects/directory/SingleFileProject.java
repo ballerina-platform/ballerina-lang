@@ -67,11 +67,6 @@ public class SingleFileProject extends Project {
     public BuildOptions getBuildOptions() {
         return (BuildOptions) this.context.getBuildOptions();
     }
-    public void setBuildOptions(BuildOptions newBuildOptions) {
-        BuildOptions buildOptions = (BuildOptions) this.context.getBuildOptions();
-        buildOptions.setB7aConfigFile(newBuildOptions.getB7aConfigFile());
-        this.context.setBuildOptions(newBuildOptions);
-    }
 
     /**
      * {@code BuildOptions} represents build options specific to a Ballerina standalone file.
@@ -80,8 +75,6 @@ public class SingleFileProject extends Project {
 
         private BuildOptions() {
             this.skipLock = true;
-            this.codeCoverage = false;
-            this.observabilityIncluded = false;
 //            this.b7aConfigFile = ballerinaToml.getBuildOptions().getB7aConfig();
         }
 

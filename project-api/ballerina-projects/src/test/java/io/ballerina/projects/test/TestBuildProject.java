@@ -105,14 +105,13 @@ public class TestBuildProject {
 
         // Update and verify buildOptions
 //        project.setBuildOptions(buildOptions);
-        buildOptions = project.getBuildOptions();
-        Assert.assertFalse(buildOptions.isObservabilityIncluded());
-        Assert.assertTrue(buildOptions.isSkipTests());
-        Assert.assertFalse(buildOptions.isOffline());
-        Assert.assertFalse(buildOptions.isTestReport());
-        Assert.assertTrue(buildOptions.isCodeCoverage());
-        Assert.assertTrue(buildOptions.isSkipLock());
-        Assert.assertFalse(buildOptions.isExperimental());
+        Assert.assertFalse(project.getBuildOptions().isObservabilityIncluded());
+        Assert.assertTrue(project.getBuildOptions().isSkipTests());
+        Assert.assertFalse(project.getBuildOptions().isOffline());
+        Assert.assertFalse(project.getBuildOptions().isTestReport());
+        Assert.assertTrue(project.getBuildOptions().isCodeCoverage());
+        Assert.assertTrue(project.getBuildOptions().isSkipLock());
+        Assert.assertFalse(project.getBuildOptions().isExperimental());
     }
 
 }
