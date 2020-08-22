@@ -140,6 +140,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
     private ResolvedTypeBuilder typeBuilder;
+    private TypeChecker typeChecker;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -161,6 +162,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.typeBuilder = new ResolvedTypeBuilder();
+        this.typeChecker = TypeChecker.getInstance(context);
     }
 
     public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
@@ -907,15 +909,18 @@ public class SymbolResolver extends BLangNodeVisitor {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
                     BLangExpression size = arrayTypeNode.sizes[i];
-                    arrType = ((int)(((BLangLiteral)size).getValue()) == UNSEALED_ARRAY_INDICATOR) ?
-                            new BArrayType(resultType, arrayTypeSymbol, (int)(((BLangLiteral)size).getValue()), BArrayState.UNSEALED) :
-                            ((int)(((BLangLiteral)size).getValue()) == OPEN_SEALED_ARRAY_INDICATOR) ?
-                                    new BArrayType(resultType, arrayTypeSymbol, (int)(((BLangLiteral)size).getValue()), BArrayState.OPEN_SEALED) :
-                                    new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
-
+                    if(size instanceof BLangLiteral){
+                        arrType = ((Integer) (((BLangLiteral)size).getValue()) == UNSEALED_ARRAY_INDICATOR) ?
+                                new BArrayType(resultType, arrayTypeSymbol, (Integer)(((BLangLiteral)size).getValue()), BArrayState.UNSEALED) :
+                                ((Integer)(((BLangLiteral)size).getValue()) == OPEN_SEALED_ARRAY_INDICATOR) ?
+                                        new BArrayType(resultType, arrayTypeSymbol, (Integer)(((BLangLiteral)size).getValue()), BArrayState.OPEN_SEALED) :
+                                        new BArrayType(resultType, arrayTypeSymbol, (Integer)(((BLangLiteral)size).getValue()), BArrayState.CLOSED_SEALED);
+                    }
+                    else {
+                        arrType = new BArrayType(resultType, arrayTypeSymbol,size, BArrayState.CLOSED_SEALED);
+                    }
             }
             resultType = arrayTypeSymbol.type = arrType;
-
             markParameterizedType(arrType, arrType.eType);
         }
     }

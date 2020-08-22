@@ -3063,7 +3063,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         arrayTypeNode.pos = position;
         arrayTypeNode.elemtype = createTypeNode(arrayTypeDescriptorNode.memberTypeDesc());
         arrayTypeNode.dimensions = dimensions;
-        arrayTypeNode.sizes = (BLangExpression[]) sizes.stream().toArray();
+        arrayTypeNode.sizes =  sizes.stream().toArray(BLangExpression[]::new);
         return arrayTypeNode;
     }
 

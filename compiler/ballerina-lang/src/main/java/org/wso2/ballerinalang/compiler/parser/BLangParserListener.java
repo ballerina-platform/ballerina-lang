@@ -856,7 +856,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         Collections.reverse(sizes);
         this.pkgBuilder.addArrayType(
-                getCurrentPos(ctx), getWS(ctx), dimensions, (BLangExpression[]) sizes.stream().toArray());
+                getCurrentPos(ctx), getWS(ctx), dimensions, sizes.stream().toArray(BLangExpression[]::new));
     }
 
 //    public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {

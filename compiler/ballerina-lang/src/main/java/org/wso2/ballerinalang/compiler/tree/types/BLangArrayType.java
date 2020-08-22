@@ -73,16 +73,14 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
         if (sizes.length == 0) {
             Arrays.stream(sizes).forEach(size -> {
                 if(size instanceof BLangLiteral){
-                    if ((int)(((BLangLiteral)size).getValue()) == -1) {
+                    if ((Integer)(((BLangLiteral)size).getValue()) == -1) {
                         sb[0].append("[]");
                     } else {
-                        sb[0].append("[").append((((BLangLiteral)size).getValue()).toString()).append("]");
+                        sb[0].append("[").append((Integer)(((BLangLiteral)size).getValue())).append("]");
                     }
                 }
                 else {
                     sb[0].append("[").append(((BLangSimpleVarRef)size).variableName).append("]");
-                    //added by me
-//                    sb[0].append("[").append(((BLangSimpleVarRef)size).toString()).append("]");
                 }
             });
         } else {
