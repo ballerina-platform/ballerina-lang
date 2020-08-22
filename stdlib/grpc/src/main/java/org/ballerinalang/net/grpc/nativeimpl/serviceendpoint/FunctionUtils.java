@@ -35,11 +35,11 @@ import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.netty.contract.ServerConnector;
+import org.ballerinalang.net.netty.contract.ServerConnectorFuture;
+import org.ballerinalang.net.netty.contract.config.ListenerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;

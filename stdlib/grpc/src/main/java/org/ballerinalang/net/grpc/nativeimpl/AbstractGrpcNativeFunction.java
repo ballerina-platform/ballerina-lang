@@ -20,7 +20,7 @@ package org.ballerinalang.net.grpc.nativeimpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.ServicesRegistry;
-import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.ballerinalang.net.netty.contract.ServerConnector;
 
 /**
  * Abstract class of gRPC service endpoint extern functions.

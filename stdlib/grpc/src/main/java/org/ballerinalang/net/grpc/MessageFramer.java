@@ -20,7 +20,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

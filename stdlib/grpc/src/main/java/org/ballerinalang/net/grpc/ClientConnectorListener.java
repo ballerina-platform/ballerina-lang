@@ -20,8 +20,8 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.ballerinalang.jvm.runtime.BLangThreadFactory;
-import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.contract.HttpClientConnectorListener;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 
 import java.nio.charset.Charset;
 import java.util.concurrent.ExecutorService;

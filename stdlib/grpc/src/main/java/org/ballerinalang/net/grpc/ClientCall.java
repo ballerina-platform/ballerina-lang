@@ -24,11 +24,11 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.stubs.AbstractStub;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.netty.contract.Constants;
+import org.ballerinalang.net.netty.contract.HttpClientConnector;
+import org.ballerinalang.net.netty.contract.HttpResponseFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.Constants;
-import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 
 import java.io.InputStream;
 import java.util.Map;

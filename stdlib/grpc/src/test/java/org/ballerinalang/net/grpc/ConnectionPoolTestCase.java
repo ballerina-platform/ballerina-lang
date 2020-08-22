@@ -20,13 +20,13 @@ package org.ballerinalang.net.grpc;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

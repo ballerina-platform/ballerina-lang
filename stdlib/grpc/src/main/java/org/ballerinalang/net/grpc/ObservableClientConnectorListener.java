@@ -19,8 +19,8 @@ package org.ballerinalang.net.grpc;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.contract.exceptions.ClientConnectorException;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 
 import java.util.Optional;
 

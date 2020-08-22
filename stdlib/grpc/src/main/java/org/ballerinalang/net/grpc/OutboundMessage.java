@@ -21,7 +21,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;

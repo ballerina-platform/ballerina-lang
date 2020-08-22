@@ -22,7 +22,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
-import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
+import org.ballerinalang.net.netty.contract.exceptions.ServerConnectorException;
 
 import java.io.InputStream;
 import java.util.Arrays;

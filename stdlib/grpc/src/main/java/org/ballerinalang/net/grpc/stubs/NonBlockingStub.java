@@ -25,7 +25,7 @@ import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
-import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.ballerinalang.net.netty.contract.HttpClientConnector;
 
 /**
  * This class handles Non Blocking client connection.

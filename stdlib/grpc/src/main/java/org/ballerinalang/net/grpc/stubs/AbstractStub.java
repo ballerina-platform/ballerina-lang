@@ -26,9 +26,9 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.OutboundMessage;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.http.HttpConstants;
-import org.wso2.transport.http.netty.contract.Constants;
-import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.netty.contract.Constants;
+import org.ballerinalang.net.netty.contract.HttpClientConnector;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
 
 import java.net.MalformedURLException;
 import java.net.URL;

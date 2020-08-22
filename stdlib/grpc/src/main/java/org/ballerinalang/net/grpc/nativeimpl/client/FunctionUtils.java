@@ -46,12 +46,12 @@ import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.wso2.transport.http.netty.contract.Constants;
-import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
-import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
-import org.wso2.transport.http.netty.message.HttpConnectorUtil;
+import org.ballerinalang.net.netty.contract.Constants;
+import org.ballerinalang.net.netty.contract.HttpClientConnector;
+import org.ballerinalang.net.netty.contract.config.SenderConfiguration;
+import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.ConnectionManager;
+import org.ballerinalang.net.netty.contractimpl.sender.channel.pool.PoolConfiguration;
+import org.ballerinalang.net.netty.message.HttpConnectorUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
