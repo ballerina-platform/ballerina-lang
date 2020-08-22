@@ -49,10 +49,6 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.hsqldb:hsqldb'
     testCompile 'org.mockito:mockito-all'
-    testCompile 'io.netty:netty-transport'
-    testCompile 'io.netty:netty-codec'
-    testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-runtime')

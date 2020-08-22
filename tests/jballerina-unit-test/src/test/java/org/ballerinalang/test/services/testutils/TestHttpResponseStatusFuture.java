@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.services.testutils;
 
-import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
-import org.wso2.transport.http.netty.contractimpl.DefaultOperationStatus;
+import org.ballerinalang.net.netty.contractimpl.DefaultHttpResponseFuture;
+import org.ballerinalang.net.netty.contractimpl.DefaultOperationStatus;
 
 /**
  * Test HttpResponseStatusFuture implementation for service tests.

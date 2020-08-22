@@ -99,9 +99,6 @@ dependencies {
     compile group: 'org.wso2.eclipse.osgi', name: 'org.eclipse.osgi', version:'3.10.2.v20150203-1939'
     compile group: 'org.wso2.orbit.org.yaml', name: 'snakeyaml', version:'1.16.0.wso2v1'
 
-
-//    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-//    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.jvnet.mimepull:mimepull'
     implementation 'org.bouncycastle:bcprov-jdk15on'
