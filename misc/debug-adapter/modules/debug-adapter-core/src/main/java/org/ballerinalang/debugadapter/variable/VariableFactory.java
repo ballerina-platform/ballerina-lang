@@ -100,15 +100,23 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  */
 public class VariableFactory {
 
+    public static BVariable getVariable(SuspendedContext context, Value value) {
+        return getVariable(context, "unknown", value);
+    }
+
+    public static BVariable getVariable(SuspendedContext context, String name, Value value) {
+        return getVariable(context, name, value, "unknown");
+    }
+
     /**
      * Returns the corresponding BType variable instance for a given java variable.
      *
-     * @param value          jdi value instance of the java variable
-     * @param parentTypeName variable type of the java parent variable
-     * @param varName        variable name
+     * @param context suspended context
+     * @param varName variable name
+     * @param value   jdi value instance of the java variable
      * @return Ballerina type variable instance which corresponds to the given java variable
      */
-    public static BVariable getVariable(SuspendedContext context, Value value, String parentTypeName, String varName) {
+    public static BVariable getVariable(SuspendedContext context, String varName, Value value, String parentTypeName) {
 
         if (varName == null || varName.isEmpty() || varName.startsWith("$") || varName.equals(STRAND_VAR_NAME)) {
             return null;

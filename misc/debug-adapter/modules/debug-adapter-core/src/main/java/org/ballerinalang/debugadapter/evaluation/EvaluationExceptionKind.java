@@ -22,8 +22,9 @@ package org.ballerinalang.debugadapter.evaluation;
  * @since 2.0.0
  */
 public enum EvaluationExceptionKind {
-    // function Invocation related exceptions.
+    // function invocation related exceptions.
     FUNCTION_NOT_FOUND("No functions are found with name: '%s'"),
+    OBJECT_METHOD_NOT_FOUND("No object methods are found with name: '%s'"),
     FUNCTION_EXECUTION_ERROR("Error occurred when executing method: '%s'"),
     STRAND_NOT_FOUND("Error occurred when trying to get the parent strand instance for executing the method: %s"),
     INVALID_ARGUMENT("Unsupported/invalid argument found: %s"),

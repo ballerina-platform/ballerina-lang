@@ -25,7 +25,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
 
 /**
- * Basic literal evaluator implementation.
+ * Evaluator implementation for Basic literals.
  *
  * @since 2.0.0
  */

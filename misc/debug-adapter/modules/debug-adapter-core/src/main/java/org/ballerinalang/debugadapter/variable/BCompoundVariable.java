@@ -65,6 +65,11 @@ public abstract class BCompoundVariable implements BVariable {
     }
 
     @Override
+    public Value getJvmValue() {
+        return jvmValue;
+    }
+
+    @Override
     public Variable getDapVariable() {
         if (dapVariable == null) {
             dapVariable = new Variable();

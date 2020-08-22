@@ -38,6 +38,7 @@ import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
+import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
@@ -101,7 +102,6 @@ import javax.annotation.Nullable;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getRectifiedSourcePath;
-import static org.ballerinalang.debugadapter.variable.VariableFactory.getVariable;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
@@ -434,8 +434,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             Optional<Value> result = executionManager.evaluate(context, args.getExpression());
             if (result.isPresent()) {
                 Value value = result.get();
-                String valueTypeName = value.type().name();
-                BVariable variable = getVariable(context, value, valueTypeName, "Evaluation Result");
+                BVariable variable = VariableFactory.getVariable(context, value);
                 if (variable == null) {
                     return CompletableFuture.completedFuture(response);
                 } else if (variable instanceof BSimpleVariable) {
@@ -547,7 +546,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 varType = localVar.toString();
             }
             String name = localVar.name();
-            BVariable variable = getVariable(suspendedContext, stackFrame.getValue(localVar), varType, name);
+            Value value = stackFrame.getValue(localVar);
+            BVariable variable = VariableFactory.getVariable(suspendedContext, name, value, varType);
             if (variable == null) {
                 continue;
             } else if (variable instanceof BSimpleVariable) {
@@ -574,10 +574,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             return new Variable[0];
         }
         return childVariables.entrySet().stream().map(entry -> {
-            Value value = entry.getValue();
-            String varTypeStr = Optional.ofNullable(value).map(val -> val.type().name()).orElse("null");
             String name = entry.getKey();
-            BVariable variable = getVariable(suspendedContext, value, varTypeStr, name);
+            Value value = entry.getValue();
+            BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
             if (variable == null) {
                 return null;
             } else if (variable instanceof BSimpleVariable) {

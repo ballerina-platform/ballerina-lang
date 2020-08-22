@@ -29,7 +29,7 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 /**
- * Binary expression evaluator implementation.
+ * Evaluator implementation for binary expressions.
  *
  * @since 2.0.0
  */
@@ -72,8 +72,8 @@ public class BinaryExpressionEvaluator extends Evaluator {
     private BExpressionValue performOperation(BExpressionValue lhs, BExpressionValue rhs) throws EvaluationException {
         Value lValue = lhs.getJdiValue();
         Value rValue = rhs.getJdiValue();
-        BVariable lVar = VariableFactory.getVariable(context, lValue, lValue.type().name(), "lVar");
-        BVariable rVar = VariableFactory.getVariable(context, rValue, rValue.type().name(), "rVar");
+        BVariable lVar = VariableFactory.getVariable(context, lValue);
+        BVariable rVar = VariableFactory.getVariable(context, rValue);
         SyntaxKind operatorType = syntaxNode.operator().kind();
 
         switch (operatorType) {
