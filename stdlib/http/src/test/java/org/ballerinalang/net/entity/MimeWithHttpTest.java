@@ -24,10 +24,11 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.stdlib.utils.HTTPTestRequest;
-import org.ballerinalang.stdlib.utils.MessageUtils;
-import org.ballerinalang.stdlib.utils.ResponseReader;
-import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.net.netty.message.HttpCarbonMessage;
+import org.ballerinalang.net.utils.HTTPTestRequest;
+import org.ballerinalang.net.utils.MessageUtils;
+import org.ballerinalang.net.utils.ResponseReader;
+import org.ballerinalang.net.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -36,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 
