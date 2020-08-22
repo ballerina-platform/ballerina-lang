@@ -15,14 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser;
+package io.ballerinalang.compiler.text;
 
 import java.util.Arrays;
 
 /**
  * A character reader utility used by the Ballerina lexer.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class CharReader {
 
@@ -32,13 +32,17 @@ public class CharReader {
 
     private int lexemeStartPos;
 
-    private CharReader(String text) {
-        this.charBuffer = text.toCharArray();
-        this.charBufferLength = charBuffer.length;
+    private CharReader(char[] buffer) {
+        this.charBuffer = buffer;
+        this.charBufferLength = buffer.length;
     }
 
-    public static CharReader fromString(String text) {
-        return new CharReader(text);
+    public static CharReader from(TextDocument textDocument) {
+        return new CharReader(textDocument.toCharArray());
+    }
+
+    public static CharReader from(String text) {
+        return new CharReader(text.toCharArray());
     }
 
     public void reset(int offset) {

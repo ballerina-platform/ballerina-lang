@@ -18,7 +18,6 @@
 package io.ballerinalang.compiler.text;
 
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.internal.parser.CharReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,8 +61,8 @@ class StringTextDocument extends TextDocument {
     }
 
     @Override
-    public CharReader getCharacterReader() {
-        return CharReader.fromString(text);
+    public char[] toCharArray() {
+        return this.text.toCharArray();
     }
 
     public String toString() {

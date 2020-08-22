@@ -22,6 +22,7 @@ import io.ballerinalang.compiler.internal.parser.incremental.HybridTokenReader;
 import io.ballerinalang.compiler.internal.parser.incremental.IncrementalParser;
 import io.ballerinalang.compiler.internal.parser.incremental.UnmodifiedSubtreeSupplier;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.CharReader;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -81,6 +82,6 @@ public class ParserFactory {
     }
 
     private static BallerinaLexer getLexer(TextDocument textDocument) {
-        return new BallerinaLexer(textDocument.getCharacterReader());
+        return new BallerinaLexer(CharReader.from(textDocument));
     }
 }
