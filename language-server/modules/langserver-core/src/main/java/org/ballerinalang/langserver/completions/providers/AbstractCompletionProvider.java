@@ -18,8 +18,12 @@
 package org.ballerinalang.langserver.completions.providers;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -43,6 +47,7 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -67,6 +72,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -80,17 +86,16 @@ import java.util.stream.IntStream;
  */
 public abstract class AbstractCompletionProvider<T extends Node> implements CompletionProvider<T> {
 
-    protected List<Class<T>> attachmentPoints = new ArrayList<>();
+    private final List<Class<T>> attachmentPoints;
 
     protected Precedence precedence = Precedence.LOW;
 
-    private Kind kind;
-
-    public AbstractCompletionProvider(Kind kind) {
-        this.kind = kind;
+    public AbstractCompletionProvider(List<Class<T>> attachmentPoints) {
+        this.attachmentPoints = attachmentPoints;
     }
 
-    public AbstractCompletionProvider() {
+    public AbstractCompletionProvider(Class<T> attachmentPoint) {
+        this.attachmentPoints = Collections.singletonList(attachmentPoint);
     }
 
     /**
@@ -126,8 +131,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     @Override
-    public Kind getKind() {
-        return this.kind;
+    public boolean onPreValidation(LSContext context, T node) {
+        return true;
     }
 
     /**
@@ -178,35 +183,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     protected List<LSCompletionItem> getCompletionItemList(Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> list,
                                                            LSContext context) {
         return list.isLeft() ? list.getLeft() : this.getCompletionItemList(list.getRight(), context);
-    }
-
-    /**
-     * Get the basic types.
-     *
-     * @param context        LS Operation Context
-     * @param visibleSymbols List of visible symbols
-     * @return {@link List}     List of completion items
-     */
-    @Deprecated
-    protected List<LSCompletionItem> getBasicTypesItems(LSContext context, List<Scope.ScopeEntry> visibleSymbols) {
-        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.forEach(scopeEntry -> {
-            BSymbol bSymbol = scopeEntry.symbol;
-            if (((bSymbol instanceof BConstructorSymbol && Names.ERROR.equals(bSymbol.name)))
-                    || (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol))) {
-                BSymbol symbol = bSymbol;
-                if (bSymbol instanceof BConstructorSymbol) {
-                    symbol = ((BConstructorSymbol) bSymbol).type.tsymbol;
-                }
-                CompletionItem cItem = BTypeCompletionItemBuilder.build(symbol, scopeEntry.symbol.name.getValue());
-                completionItems.add(new SymbolCompletionItem(context, symbol, cItem));
-            }
-        });
-
-        completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
-
-        return completionItems;
     }
 
     /**
@@ -456,6 +432,16 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return items;
     }
 
+    protected boolean onQualifiedNameIdentifier(LSContext context, Node node) {
+        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            return false;
+        }
+        LinePosition colonPos = ((QualifiedNameReferenceNode) node).colon().lineRange().endLine();
+        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+
+        return colonPos.line() == cursor.getLine() && colonPos.offset() <= cursor.getCharacter();
+    }
+
     private void addAllWSClientResources(LSContext ctx, List<LSCompletionItem> items, BLangService service) {
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_TEXT.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_BINARY.get(), service, items, ctx);
@@ -475,22 +461,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         addIfNotExists(Snippet.DEF_RESOURCE_WS_IDLE.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_ERROR.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
-    }
-
-    protected Optional<Scope.ScopeEntry> getPackageSymbolFromAlias(LSContext context, String alias) {
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        Optional<BLangImportPackage> pkgForAlias = context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
-                .filter(pkg -> pkg.alias.value.equals(alias))
-                .findAny();
-        if (alias.isEmpty() || !pkgForAlias.isPresent()) {
-            return Optional.empty();
-        }
-        return visibleSymbols.stream()
-                .filter(scopeEntry -> {
-                    BSymbol symbol = scopeEntry.symbol;
-                    return symbol == pkgForAlias.get().symbol;
-                })
-                .findAny();
     }
 
     /**
@@ -684,8 +654,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     private boolean appendSingleQuoteForPackageInsertText(LSContext context) {
-        // TODO: Fix needed based on the new parser tree
-        return false;
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        return !(nodeAtCursor != null && nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+                ((SimpleNameReferenceNode) nodeAtCursor).name().text().startsWith("'"));
     }
 
     private void addIfNotExists(SnippetBlock snippet, BLangService service, List<LSCompletionItem> items,

@@ -184,17 +184,16 @@
                               ]
                             },
                             {
-                              "kind": "DEFAULTABLE_PARAM",
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true,
                               "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_COMMA_TOKEN"
+                              ]
+                            },
+                            {
+                              "kind": "DEFAULTABLE_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_COMMA_TOKEN"
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -250,17 +249,16 @@
                               ]
                             },
                             {
-                              "kind": "REST_PARAM",
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true,
                               "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_COMMA_TOKEN"
+                              ]
+                            },
+                            {
+                              "kind": "REST_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_COMMA_TOKEN"
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -403,17 +401,17 @@
                               ]
                             },
                             {
+                              "kind": "COMMA_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
                               "kind": "DEFAULTABLE_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -453,17 +451,17 @@
                               ]
                             },
                             {
+                              "kind": "COMMA_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
                               "kind": "REST_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -546,6 +544,10 @@
           "kind": "FUNCTION_DEFINITION",
           "hasDiagnostics": true,
           "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
             {
               "kind": "FUNCTION_KEYWORD",
               "leadingMinutiae": [
@@ -797,17 +799,16 @@
                                           ]
                                         },
                                         {
-                                          "kind": "DEFAULTABLE_PARAM",
+                                          "kind": "COMMA_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_COMMA_TOKEN"
+                                          ]
+                                        },
+                                        {
+                                          "kind": "DEFAULTABLE_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_COMMA_TOKEN"
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -863,17 +864,16 @@
                                           ]
                                         },
                                         {
-                                          "kind": "REST_PARAM",
+                                          "kind": "COMMA_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_COMMA_TOKEN"
+                                          ]
+                                        },
+                                        {
+                                          "kind": "REST_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_COMMA_TOKEN"
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -1026,17 +1026,17 @@
                                           ]
                                         },
                                         {
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "kind": "DEFAULTABLE_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -1076,17 +1076,17 @@
                                           ]
                                         },
                                         {
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "kind": "REST_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []

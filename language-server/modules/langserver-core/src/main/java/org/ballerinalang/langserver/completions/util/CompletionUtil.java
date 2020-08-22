@@ -98,15 +98,17 @@ public class CompletionUtil {
 
         while ((reference != null)) {
             provider = providers.get(reference.getClass());
-            if (provider != null) {
+            if (provider != null && provider.onPreValidation(ctx, reference)) {
                 break;
             }
             reference = reference.parent();
         }
 
-        if (provider == null) {
+        if (provider == null || ctx.get(CompletionKeys.RESOLVER_CHAIN).contains(provider.getClass())) {
             return completionItems;
         }
+        ctx.get(CompletionKeys.RESOLVER_CHAIN).add(provider.getClass());
+        
         return provider.getCompletions(ctx, reference);
     }
 
@@ -147,6 +149,7 @@ public class CompletionUtil {
 
         Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        context.put(CompletionKeys.TEXT_POSITION_IN_TREE, txtPos);
         TextRange range = TextRange.from(txtPos, 0);
         NonTerminalNode nonTerminalNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(range);
 

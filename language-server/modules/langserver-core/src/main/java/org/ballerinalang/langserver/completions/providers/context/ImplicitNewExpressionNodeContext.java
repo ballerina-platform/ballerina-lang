@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -26,6 +26,8 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -48,8 +50,7 @@ import java.util.Optional;
 public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider<ImplicitNewExpressionNode> {
 
     public ImplicitNewExpressionNodeContext() {
-        super(Kind.EXPRESSION);
-        this.attachmentPoints.add(ImplicitNewExpressionNode.class);
+        super(ImplicitNewExpressionNode.class);
     }
 
     @Override
@@ -89,8 +90,9 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
-            Optional<Scope.ScopeEntry> pkgSymbol = this.getPackageSymbolFromAlias(context,
-                    nameReferenceNode.modulePrefix().text());
+
+            Optional<Scope.ScopeEntry> pkgSymbol = CommonUtil.packageSymbolFromAlias(context,
+                    QNameReferenceUtil.getAlias(nameReferenceNode));
             if (!pkgSymbol.isPresent()) {
                 return Optional.empty();
             }

@@ -52,7 +52,6 @@ import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.FailExpressionNode;
@@ -79,7 +78,6 @@ import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
@@ -119,7 +117,6 @@ import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectMethodDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
@@ -406,7 +403,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.model.elements.Flag.SERVICE;
-import static org.ballerinalang.model.elements.Flag.TRANSACTIONAL;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
@@ -552,8 +548,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (versionNode != null) {
             if (versionNode.isMissing()) {
                 version = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
+            } else {
+                version = extractVersion(versionNode.versionNumber());
             }
-            version = extractVersion(versionNode.versionNumber());
         }
 
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
@@ -575,8 +572,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(MethodDeclarationNode methodDeclarationNode) {
         BLangFunction bLFunction = createFunctionNode(methodDeclarationNode.methodName(),
-                methodDeclarationNode.visibilityQualifier(), methodDeclarationNode.methodSignature(), null,
-                Optional.empty());
+                methodDeclarationNode.qualifierList(), methodDeclarationNode.methodSignature(), null);
 
         bLFunction.annAttachments = applyAll(getAnnotations(methodDeclarationNode.metadata()));
         bLFunction.pos = getPositionWithoutMetadata(methodDeclarationNode);
@@ -922,8 +918,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return createService(serviceDeclrNode, serviceDeclrNode.serviceName(), false);
     }
 
-    private BLangNode createService(Node serviceNode, IdentifierToken serviceNameNode,
-                                    boolean isAnonServiceValue) {
+    private BLangNode createService(Node serviceNode, IdentifierToken serviceNameNode, boolean isAnonServiceValue) {
         // Any Service can be represented in two major components.
         //  1) A anonymous type node (Object)
         //  2) Variable assignment with "serviceName".
@@ -1170,8 +1165,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(FunctionDefinitionNode funcDefNode) {
-        BLangFunction bLFunction = createFunctionNode(funcDefNode.functionName(), funcDefNode.visibilityQualifier(),
-                funcDefNode.functionSignature(), funcDefNode.functionBody(), funcDefNode.transactionalKeyword());
+        BLangFunction bLFunction = createFunctionNode(funcDefNode.functionName(), funcDefNode.qualifierList(),
+                funcDefNode.functionSignature(), funcDefNode.functionBody());
 
         bLFunction.annAttachments = applyAll(getAnnotations(funcDefNode.metadata()));
         bLFunction.pos = getPositionWithoutMetadata(funcDefNode);
@@ -1181,29 +1176,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLFunction;
     }
 
-    private BLangFunction createFunctionNode(IdentifierToken funcName, Optional<Token> visibilityQualifier,
-            FunctionSignatureNode functionSignature, FunctionBodyNode functionBody, Optional<Token> transactional) {
+    private BLangFunction createFunctionNode(IdentifierToken funcName, NodeList<Token> qualifierList,
+            FunctionSignatureNode functionSignature, FunctionBodyNode functionBody) {
 
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
 
         // Set function name
         bLFunction.name = createIdentifier(getPosition(funcName), funcName);
-
-        // Set the visibility qualifier
-        visibilityQualifier.ifPresent(visibilityQual -> {
-            if (visibilityQual.kind() == SyntaxKind.PUBLIC_KEYWORD) {
-                bLFunction.flagSet.add(Flag.PUBLIC);
-            } else if (visibilityQual.kind() == SyntaxKind.PRIVATE_KEYWORD) {
-                bLFunction.flagSet.add(Flag.PRIVATE);
-            } else if (visibilityQual.kind() == SyntaxKind.RESOURCE_KEYWORD) {
-                bLFunction.flagSet.add(Flag.RESOURCE);
-            }
-        });
-
-        if (transactional.isPresent()) {
-            bLFunction.flagSet.add(TRANSACTIONAL);
-        }
-
+        //Set method qualifiers
+        setFunctionQualifiers(bLFunction, qualifierList);
         // Set function signature
         populateFuncSignature(bLFunction, functionSignature);
 
@@ -1221,61 +1202,29 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLFunction;
     }
 
-    @Override
-    public BLangNode transform(ObjectMethodDefinitionNode methodDefNode) {
-        BLangFunction bLFunction =
-                createObjectMethodNode(methodDefNode.methodName(), methodDefNode.visibilityQualifier(),
-                        methodDefNode.remoteKeyword(), methodDefNode.methodSignature(), methodDefNode.functionBody(),
-                        methodDefNode.transactionalKeyword());
+    private void setFunctionQualifiers(BLangFunction bLFunction, NodeList<Token> qualifierList) {
 
-        bLFunction.annAttachments = applyAll(getAnnotations(methodDefNode.metadata()));
-        bLFunction.pos = getPositionWithoutMetadata(methodDefNode);
-        bLFunction.markdownDocumentationAttachment =
-                createMarkdownDocumentationAttachment(getDocumentationString(methodDefNode.metadata()));
-        return bLFunction;
-    }
-
-    private BLangFunction createObjectMethodNode(IdentifierToken methodName, Optional<Token> visibilityQualifier,
-                                                 Optional<Token> remoteKeyword, FunctionSignatureNode methodSignature,
-                                                 FunctionBodyNode functionBody, Optional<Token> transactional) {
-        BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-
-        // Set method name
-        bLFunction.name = createIdentifier(methodName);
-
-        // Set the visibility qualifier
-        visibilityQualifier.ifPresent(visibilityQual -> {
-            if (visibilityQual.kind() == SyntaxKind.PUBLIC_KEYWORD) {
-                bLFunction.flagSet.add(Flag.PUBLIC);
-            } else if (visibilityQual.kind() == SyntaxKind.PRIVATE_KEYWORD) {
-                bLFunction.flagSet.add(Flag.PRIVATE);
-            }
-        });
-
-        if (transactional.isPresent()) {
-            bLFunction.flagSet.add(TRANSACTIONAL);
-        }
-
-        // Set remote flag
-        if (remoteKeyword.isPresent()) {
-            bLFunction.flagSet.add(Flag.REMOTE);
-        }
-
-        // Set function signature
-        populateFuncSignature(bLFunction, methodSignature);
-
-        // Set the function body
-        if (functionBody == null) {
-            bLFunction.body = null;
-            bLFunction.flagSet.add(Flag.INTERFACE);
-            bLFunction.interfaceFunction = true;
-        } else {
-            bLFunction.body = (BLangFunctionBody) functionBody.apply(this);
-            if (bLFunction.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
-                bLFunction.flagSet.add(Flag.NATIVE);
+        for (Token qualifier : qualifierList) {
+            switch (qualifier.kind()) {
+                case PUBLIC_KEYWORD:
+                    bLFunction.flagSet.add(Flag.PUBLIC);
+                    break;
+                case PRIVATE_KEYWORD:
+                    bLFunction.flagSet.add(Flag.PRIVATE);
+                    break;
+                case REMOTE_KEYWORD:
+                    bLFunction.flagSet.add(Flag.REMOTE);
+                    break;
+                case TRANSACTIONAL_KEYWORD:
+                    bLFunction.flagSet.add(Flag.TRANSACTIONAL);
+                    break;
+                case RESOURCE_KEYWORD:
+                    bLFunction.flagSet.add(Flag.RESOURCE);
+                    break;
+                default:
+                    continue;
             }
         }
-        return bLFunction;
     }
 
     @Override
@@ -1390,6 +1339,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         // change default worker name
         String workerName = namedWorkerDeclNode.workerName().text();
+        if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
+            bLFunction.defaultWorkerName.originalValue = workerName;
+            workerName = unescapeIdentifier(workerName);
+        }
         bLFunction.defaultWorkerName.value = workerName;
         bLFunction.defaultWorkerName.pos = getPosition(namedWorkerDeclNode.workerName());
 
@@ -1476,6 +1429,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         this.additionalStatements.push(workerInvoc);
 
         return lamdaWrkr;
+    }
+
+    private String unescapeIdentifier(String identifier) {
+        return StringEscapeUtils.unescapeJava(identifier.replaceAll("(\\\\u)\\{(\\d{4})\\}", "$1$2")).substring(1);
     }
 
     private <A extends BLangNode, B extends Node> List<A> applyAll(NodeList<B> annotations) {
@@ -2772,7 +2729,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
         constrainedType.type = refType;
-        constrainedType.constraint = createTypeNode(parameterizedTypeDescNode.typeNode());
+        constrainedType.constraint = createTypeNode(parameterizedTypeDescNode.typeParameter().typeNode());
         constrainedType.pos = getPosition(parameterizedTypeDescNode);
         return constrainedType;
     }
@@ -3688,14 +3645,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return statements;
     }
 
-    private String extractVersion(NodeList<Node> versionNumbers) {
-        StringBuilder version = null;
-        for (Node versionNumber : versionNumbers) {
-            if (versionNumber.kind() == SyntaxKind.IMPORT_SUB_VERSION) {
-                version.append(".").append(((ImportSubVersionNode) versionNumber).versionNumber().text());
-                continue;
+    private String extractVersion(SeparatedNodeList<Token> versionNumbers) {
+        StringBuilder version = new StringBuilder();
+        int size = versionNumbers.size();
+        for (int i = 0; i < size; i++) {
+            if (i != 0) {
+                version.append(".");
             }
-            version = new StringBuilder(((Token) versionNumber).text());
+            version.append(versionNumbers.get(i).text());
         }
         return version.toString();
     }
@@ -3794,8 +3751,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             group.expression = (BLangExpression) actionOrExpression.apply(this);
             group.pos = getPosition(actionOrExpression);
             return group;
-        } else if (actionOrExpression.kind() == SyntaxKind.EXPRESSION_LIST_ITEM) {
-            return createExpression(((ExpressionListItemNode) actionOrExpression).expression());
         } else if (isType(actionOrExpression.kind())) {
             BLangTypedescExpr typeAccessExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
             typeAccessExpr.pos = getPosition(actionOrExpression);
@@ -3946,11 +3901,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            if (!escapeQuotedIdentifier(value).matches("^[0-9a-zA-Z.]*$")) {
-                dlog.error(pos, DiagnosticCode.IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS);
-            }
-            String unescapedValue = StringEscapeUtils.unescapeJava(value);
-            bLIdentifer.setValue(unescapedValue.substring(1));
+            bLIdentifer.setValue(unescapeIdentifier(value));
             bLIdentifer.originalValue = value;
             bLIdentifer.setLiteral(true);
         } else {
@@ -4631,15 +4582,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             default:
                 return false;
         }
-    }
-
-    // If this is a quoted identifier then unescape it and remove the quote prefix.
-    // Else return original.
-    private static String escapeQuotedIdentifier(String identifier) {
-        if (identifier.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            identifier = StringEscapeUtils.unescapeJava(identifier).substring(1);
-        }
-        return identifier;
     }
 
     private boolean isPresent(Node node) {

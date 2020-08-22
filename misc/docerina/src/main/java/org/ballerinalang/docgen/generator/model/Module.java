@@ -19,7 +19,9 @@ import com.google.gson.annotations.Expose;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Represents a Ballerina Module.
@@ -60,4 +62,7 @@ public class Module {
 
     @Expose
     public List<Path> resources = new ArrayList<>();
+
+    public Queue<String> linkedAnonObjects = new LinkedList<>();
+
 }

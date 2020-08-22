@@ -99,4 +99,9 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
     public void testResourceWithoutName() {
         testFile("service-decl/service_decl_source_14.bal", "service-decl/service_decl_assert_14.json");
     }
+
+    @Test
+    public void testInvalidResourcesRecovery() {
+        test("service-decl/service_decl_source_15.bal", "service-decl/service_decl_assert_15.json");
+    }
 }

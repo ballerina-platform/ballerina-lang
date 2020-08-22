@@ -185,20 +185,12 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(restParameterNode);
     }
 
-    public T transform(STExpressionListItemNode expressionListItemNode) {
-        return transformSyntaxNode(expressionListItemNode);
-    }
-
     public T transform(STImportOrgNameNode importOrgNameNode) {
         return transformSyntaxNode(importOrgNameNode);
     }
 
     public T transform(STImportPrefixNode importPrefixNode) {
         return transformSyntaxNode(importPrefixNode);
-    }
-
-    public T transform(STImportSubVersionNode importSubVersionNode) {
-        return transformSyntaxNode(importSubVersionNode);
     }
 
     public T transform(STImportVersionNode importVersionNode) {
@@ -723,10 +715,6 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STMatchGuardNode matchGuardNode) {
         return transformSyntaxNode(matchGuardNode);
-    }
-
-    public T transform(STObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        return transformSyntaxNode(objectMethodDefinitionNode);
     }
 
     public T transform(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {

@@ -5,11 +5,11 @@ string 'global\ var = "this is a IL with global var";
 
 json 'global\ json = {};
 
-function getGlobalVarWithIL() returns (string) {
+function getGlobalVarWithIL() returns string {
     return 'global\ var;
 }
 
-function getConstWithIL() returns (float) {
+function getConstWithIL() returns float {
     return 'const\ IL;
 }
 
@@ -36,12 +36,12 @@ function useILInStructVar() returns [string, string, int] {
     return ['person\ 1.'first\ name, 'person\ 1.'last\ name, 'person\ 1.'current\ age];
 }
 
-function useILAsrefType()returns (json) {
+function useILAsrefType()returns json {
     'global\ json = {"name" : "James", "age": 30};
     return 'global\ json;
 }
 
-function useILAsArrayIndex() returns (float) {
+function useILAsArrayIndex() returns float {
     float[] 'float\ array = [234.0, 8834.834, 88.0];
     int 'array\ index = 1;
     return 'float\ array['array\ index];
@@ -59,16 +59,16 @@ function passILValuesAsParams(string 'first\ name, string 'last\ name, int 'curr
     return ['full\ name, 'current\ age];
 }
 
-function testCharInIL() returns (string) {
-    string '\\\|\ \!\#\[\{\]\}\ \"\ \u2324 = "sample value";
-    return '\\\|\ \!\#\[\{\]\}\ \"\ \u2324;
+function testCharInIL() returns string {
+    string '\\\|\ \!\#\{\}\ \"\ \u2324 = "sample value";
+    return '\\\|\ \!\#\{\}\ \"\ \u2324;
 }
 
-function testFunctionNameWithIL() returns (string) {
+function testFunctionNameWithIL() returns string {
     return 'test\ function\ for\ identifier("sample");
 }
 
-function 'test\ function\ for\ identifier(string val) returns (string) {
+function 'test\ function\ for\ identifier(string val) returns string {
     string s = " test";
     return val + s;
 }
@@ -80,24 +80,24 @@ public type '\|Test\ Connector\| client object {
 
     }
 
-    public remote function action1() returns (string) {
+    public remote function action1() returns string {
         string '\|sample\ string\| = "this is a sample";
         return '\|sample\ string\|;
     }
 
-    public remote function '\|second\ action\|() returns (string){
+    public remote function '\|second\ action\|() returns string {
        string '\|string\ \|\ value\| = "sample string";
        return '\|string\ \|\ value\|;
     }
 };
 
-function testConnectorNameWithIL() returns (string) {
+function testConnectorNameWithIL() returns string {
     '\|Test\ Connector\| testConnector = new("MyParam1", "MyParam2", 5);
     string value = testConnector->action1();
     return value;
 }
 
-function testConnectorActionWithIL() returns (string) {
+function testConnectorActionWithIL() returns string {
     '\|Test\ Connector\| '\|test\ Connector\| = new("MyParam1", "MyParam2", 5);
     string value = '\|test\ Connector\|->'\|second\ action\|();
     return value;
@@ -114,7 +114,7 @@ type 'family\ person record {
     int 'current\ age;
 };
 
-function testUnicodeInIL() returns (string) {
+function testUnicodeInIL() returns string {
     string 'සිංහල\ වචනය = "සිංහල වාක්‍යක්";
     return 'සිංහල\ වචනය;
 }
@@ -127,13 +127,4 @@ function testAcessILWithoutPipe() returns [string, string] {
 function testAcessJSONFielAsIL() returns (json|error) {
     json j = {"foo" : {"int" : "I am an integer"}};
     return j.foo.'int;
-}
-
-type DOM record {
-    string '\{http\:\/\/test\.com\}fname;
-};
-
-function testILConsistency() returns DOM {
-    DOM d = {'\{http\:\/\/test\.com\}fname: "First Name Element"};
-    return d;
 }

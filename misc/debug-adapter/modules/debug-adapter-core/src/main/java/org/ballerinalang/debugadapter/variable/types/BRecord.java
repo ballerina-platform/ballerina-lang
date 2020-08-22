@@ -19,30 +19,29 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
-import org.eclipse.lsp4j.debug.Variable;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
 
 /**
  * Ballerina record variable type.
  */
 public class BRecord extends BCompoundVariable {
 
-    public BRecord(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.RECORD, value, dapVariable);
+    public BRecord(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.RECORD, value);
     }
 
     @Override
     public String computeValue() {
         try {
-            return isAnonymous() ? "anonymous" : getBType(jvmValue);
+            return isAnonymous() ? "anonymous" : VariableUtils.getBType(jvmValue);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }
@@ -78,7 +77,7 @@ public class BRecord extends BCompoundVariable {
      * @return whether the given record instance is anonymous.
      */
     private boolean isAnonymous() {
-        String bType = getBType(jvmValue);
+        String bType = VariableUtils.getBType(jvmValue);
         return bType.startsWith("$");
     }
 }

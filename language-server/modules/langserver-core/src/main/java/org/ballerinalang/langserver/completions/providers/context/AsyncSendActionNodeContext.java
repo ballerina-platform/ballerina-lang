@@ -30,9 +30,9 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class AsyncSendActionNodeContext extends RightArrowActionNodeContext<AsyncSendActionNode> {
+
     public AsyncSendActionNodeContext() {
-        super(Kind.EXPRESSION);
-        this.attachmentPoints.add(AsyncSendActionNode.class);
+        super(AsyncSendActionNode.class);
     }
 
     @Override

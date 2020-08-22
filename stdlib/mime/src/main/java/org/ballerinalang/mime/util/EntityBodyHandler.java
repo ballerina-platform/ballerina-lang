@@ -27,7 +27,6 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BString;
@@ -157,7 +156,7 @@ public class EntityBodyHandler {
     public static ArrayValue constructBlobDataSource(ObjectValue entityObj) throws IOException {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
-            return new ArrayValueImpl(new byte[0]);
+            return (ArrayValue) BValueCreator.createArrayValue(new byte[0]);
         }
         try {
             return constructBlobDataSource(byteChannel.getInputStream());
@@ -179,7 +178,7 @@ public class EntityBodyHandler {
         } catch (IOException ex) {
             throw BallerinaErrors.createError("Error occurred while reading input stream :" + ex.getMessage());
         }
-        return new ArrayValueImpl(byteData);
+        return (ArrayValue) BValueCreator.createArrayValue(byteData);
     }
 
     /**
@@ -344,7 +343,7 @@ public class EntityBodyHandler {
         if (!bodyParts.isEmpty()) {
             BObjectType typeOfBodyPart = bodyParts.get(FIRST_BODY_PART_INDEX).getType();
             ObjectValue[] result = bodyParts.toArray(new ObjectValue[bodyParts.size()]);
-            ArrayValue partsArray = new ArrayValueImpl(result, new BArrayType(typeOfBodyPart));
+            ArrayValue partsArray = (ArrayValue) BValueCreator.createArrayValue(result, new BArrayType(typeOfBodyPart));
             entity.addNativeData(BODY_PARTS, partsArray);
         }
     }
