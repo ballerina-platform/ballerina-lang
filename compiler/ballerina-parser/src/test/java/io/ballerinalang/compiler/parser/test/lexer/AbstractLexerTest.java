@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.parser.test.lexer;
 
+import io.ballerina.tools.text.CharReader;
 import io.ballerinalang.compiler.internal.parser.BallerinaLexer;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.text.CharReader;
 
 /**
  * An abstract class that contains utilities for {@code BallerinaLexer} tests.

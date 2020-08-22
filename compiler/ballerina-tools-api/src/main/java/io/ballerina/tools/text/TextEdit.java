@@ -15,18 +15,37 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
+package io.ballerina.tools.text;
+
+import io.ballerina.tools.text.TextRange;
 
 /**
- * Contains a set of helper methods.
+ * Represents a text edit on a {@code TextDocument}.
+ *
+ * @since 1.3.0
  */
-public class TextDocuments {
+public class TextEdit {
+    private final TextRange range;
+    private final String text;
 
-    private TextDocuments() {
+    private TextEdit(TextRange range, String text) {
+        this.range = range;
+        this.text = text;
     }
 
-    public static TextDocument from(String text) {
-        return new StringTextDocument(text);
+    public static TextEdit from(TextRange range, String text) {
+        return new TextEdit(range, text);
     }
 
+    public TextRange range() {
+        return range;
+    }
+
+    public String text() {
+        return text;
+    }
+
+    public String toString() {
+        return range + text;
+    }
 }

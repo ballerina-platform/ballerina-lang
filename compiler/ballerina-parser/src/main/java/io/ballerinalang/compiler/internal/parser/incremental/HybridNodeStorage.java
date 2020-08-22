@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.parser.incremental;
 
+import io.ballerina.tools.text.TextDocumentChange;
+import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.internal.parser.BallerinaLexer;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -24,8 +26,6 @@ import io.ballerinalang.compiler.internal.parser.utils.PersistentStack;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.text.TextDocumentChange;
-import io.ballerinalang.compiler.text.TextEdit;
 
 import java.util.ArrayList;
 import java.util.List;
