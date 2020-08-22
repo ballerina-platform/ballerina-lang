@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerina.text.TextRange;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.InvalidTokenMinutiaeNode;

@@ -17,8 +17,8 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerina.text.LinePosition;
-import io.ballerina.text.LineRange;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;

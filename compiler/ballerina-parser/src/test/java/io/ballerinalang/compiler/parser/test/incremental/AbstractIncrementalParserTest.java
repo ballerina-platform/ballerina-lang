@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.incremental;
 
-import io.ballerina.text.TextRange;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
