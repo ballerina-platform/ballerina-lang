@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 5,
+    "character": 17
+  },
+  "source": "typedesc_context/source/array_typedesc4.bal",
+  "items": [
+    {
+      "label": "TEST_INT_CONST1",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "130",
+      "insertText": "TEST_INT_CONST1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

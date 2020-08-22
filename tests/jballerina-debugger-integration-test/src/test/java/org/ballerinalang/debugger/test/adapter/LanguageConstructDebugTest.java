@@ -50,7 +50,7 @@ public class LanguageConstructDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testLanguageConstructDebugScenarios() throws BallerinaTestException {
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 12));
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 18));
@@ -92,7 +92,7 @@ public class LanguageConstructDebugTest extends DebugAdapterBaseTestCase {
         assertVariable(variables[3], "v04_statusCode", "500", "int");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testWorkerScenarios() throws BallerinaTestException {
         testModuleName = "languageConstruct";
         testModuleFileName = "mainLangConstruct.bal";

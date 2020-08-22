@@ -34,9 +34,9 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLNamespaceDeclarationNode> {
+    
     public XMLNSDeclarationNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(XMLNamespaceDeclarationNode.class);
+        super(XMLNamespaceDeclarationNode.class);
     }
 
     @Override

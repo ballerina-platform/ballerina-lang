@@ -36,8 +36,7 @@ import java.util.List;
 public class ServiceBodyNodeContext extends AbstractCompletionProvider<ServiceBodyNode> {
 
     public ServiceBodyNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ServiceBodyNode.class);
+        super(ServiceBodyNode.class);
     }
 
     @Override
