@@ -38,6 +38,7 @@ public enum EvaluationExceptionKind {
     SYNTAX_ERROR("Syntax errors found: " + System.lineSeparator() + "%s"),
     UNSUPPORTED_EXPRESSION("Unsupported expressions/sub-expressions found: %s" + System.lineSeparator()),
     UNSUPPORTED_OPERATION("'%s' operation is not supported for types: '%s' and '%s'"),
+    INTERNAL_ERROR("Internal error occurred while evaluating the expression: '%s'"),
     CUSTOM_ERROR("%s");
 
     public static final String PREFIX = "Failed to evaluate." + System.lineSeparator() + "Reason: ";

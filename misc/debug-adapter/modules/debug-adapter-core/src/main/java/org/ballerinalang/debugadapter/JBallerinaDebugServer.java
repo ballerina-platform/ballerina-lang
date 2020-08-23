@@ -92,7 +92,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -431,28 +430,24 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             StackFrameProxyImpl frame = stackFramesMap.get(args.getFrameId());
             SuspendedContext context = new SuspendedContext(projectRoot, debuggeeVM, activeThread, frame);
-            Optional<Value> result = executionManager.evaluate(context, args.getExpression());
-            if (result.isPresent()) {
-                Value value = result.get();
-                BVariable variable = VariableFactory.getVariable(context, value);
-                if (variable == null) {
-                    return CompletableFuture.completedFuture(response);
-                } else if (variable instanceof BSimpleVariable) {
-                    variable.getDapVariable().setVariablesReference(0L);
-                } else if (variable instanceof BCompoundVariable) {
-                    long variableReference = nextVarReference.getAndIncrement();
-                    variable.getDapVariable().setVariablesReference(variableReference);
-                    this.loadedVariables.put(variableReference, (BCompoundVariable) variable);
-                    updateVariableToStackFrameMap(args.getFrameId(), variableReference);
-                }
-                Variable dapVariable = variable.getDapVariable();
-                response.setResult(dapVariable.getValue());
-                response.setType(dapVariable.getType());
-                response.setIndexedVariables(dapVariable.getIndexedVariables());
-                response.setNamedVariables(dapVariable.getNamedVariables());
-                response.setVariablesReference(dapVariable.getVariablesReference());
+            Value result = executionManager.evaluate(context, args.getExpression());
+            BVariable variable = VariableFactory.getVariable(context, result);
+            if (variable == null) {
                 return CompletableFuture.completedFuture(response);
+            } else if (variable instanceof BSimpleVariable) {
+                variable.getDapVariable().setVariablesReference(0L);
+            } else if (variable instanceof BCompoundVariable) {
+                long variableReference = nextVarReference.getAndIncrement();
+                variable.getDapVariable().setVariablesReference(variableReference);
+                this.loadedVariables.put(variableReference, (BCompoundVariable) variable);
+                updateVariableToStackFrameMap(args.getFrameId(), variableReference);
             }
+            Variable dapVariable = variable.getDapVariable();
+            response.setResult(dapVariable.getValue());
+            response.setType(dapVariable.getType());
+            response.setIndexedVariables(dapVariable.getIndexedVariables());
+            response.setNamedVariables(dapVariable.getNamedVariables());
+            response.setVariablesReference(dapVariable.getVariablesReference());
             return CompletableFuture.completedFuture(response);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);

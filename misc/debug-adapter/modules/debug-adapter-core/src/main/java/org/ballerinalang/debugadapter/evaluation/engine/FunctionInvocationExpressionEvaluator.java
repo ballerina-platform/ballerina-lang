@@ -56,20 +56,27 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
-        // First we try to find the matching JVM method from the JVM backend, among already loaded classes.
-        Optional<JvmMethod> jvmMethod = findFunctionFromLoadedClasses();
-        if (!jvmMethod.isPresent()) {
-            // If we cannot find the matching method within the loaded classes, then we try to forcefully load
-            // all the generated classes related to the current module using the JDI classloader, and search
-            // again.
-            jvmMethod = loadFunction(syntaxNode);
+        try {
+            // First we try to find the matching JVM method from the JVM backend, among already loaded classes.
+            Optional<JvmMethod> jvmMethod = findFunctionFromLoadedClasses();
+            if (!jvmMethod.isPresent()) {
+                // If we cannot find the matching method within the loaded classes, then we try to forcefully load
+                // all the generated classes related to the current module using the JDI classloader, and search
+                // again.
+                jvmMethod = loadFunction();
+            }
+            if (!jvmMethod.isPresent()) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
+                        syntaxNode.functionName().toString()));
+            }
+            Value result = jvmMethod.get().invoke();
+            return new BExpressionValue(context, result);
+        } catch (EvaluationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
+                    syntaxNode.toSourceCode().trim()));
         }
-        if (!jvmMethod.isPresent()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                    syntaxNode.functionName().toString()));
-        }
-        Value result = jvmMethod.get().invoke();
-        return new BExpressionValue(context, result);
     }
 
     /**
@@ -112,10 +119,9 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
     /**
      * Loads the generated jvm method of the particular ballerina function.
      *
-     * @param functionNode syntax node
      * @return JvmMethod instance
      */
-    private Optional<JvmMethod> loadFunction(FunctionCallExpressionNode functionNode) throws EvaluationException {
+    private Optional<JvmMethod> loadFunction() throws EvaluationException {
         // If the debug source is a ballerina module file and the method is still not loaded into the JVM, we have
         // iterate over all the classes generated for this particular ballerina module and check each class for a
         // matching method.

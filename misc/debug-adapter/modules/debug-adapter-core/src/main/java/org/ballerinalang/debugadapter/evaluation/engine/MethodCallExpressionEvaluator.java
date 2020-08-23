@@ -32,7 +32,7 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import java.util.List;
 
 /**
- * Evaluator implementation for Method calls invocation expressions.
+ * Evaluator implementation for method call invocation expressions.
  *
  * @since 2.0.0
  */
@@ -53,15 +53,23 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
-        BExpressionValue result = objectExpressionEvaluator.evaluate();
-        BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());
-        if (resultVar.getBType() != BVariableType.OBJECT) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Method " +
-                    "calls are not supported on type '" + resultVar.getBType() + "'."));
+        try {
+            BExpressionValue result = objectExpressionEvaluator.evaluate();
+            BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());
+            if (resultVar.getBType() != BVariableType.OBJECT && resultVar.getBType() != BVariableType.INT) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Method" +
+                        " calls are not supported on type '" + resultVar.getBType() + "'."));
+            }
+            String methodName = syntaxNode.methodName().toString().trim();
+            JvmMethod method = getObjectMethodByName(resultVar.getJvmValue(), methodName);
+            Value invocationResult = method.invoke();
+            return new BExpressionValue(context, invocationResult);
+        } catch (EvaluationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
+                    syntaxNode.toSourceCode().trim()));
         }
-        JvmMethod method = getObjectMethodByName(resultVar.getJvmValue(), syntaxNode.methodName().toString().trim());
-        Value invocationResult = method.invoke();
-        return new BExpressionValue(context, invocationResult);
     }
 
     private JvmMethod getObjectMethodByName(Value objectValueRef, String methodName) throws EvaluationException {

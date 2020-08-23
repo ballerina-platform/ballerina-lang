@@ -57,8 +57,8 @@ public class BinaryExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "An " +
-                    "internal error is occurred while evaluating the binary expression: " + syntaxNode.toSourceCode()));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
+                    syntaxNode.toSourceCode().trim()));
         }
     }
 

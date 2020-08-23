@@ -20,6 +20,7 @@ import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
@@ -36,6 +37,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.FieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
@@ -116,12 +118,9 @@ public class EvaluatorBuilder extends NodeVisitor {
     private EvaluationException builderException = null;
 
     public EvaluatorBuilder(SuspendedContext context) {
-
         this.context = context;
-
         // braced expression
         supportedSyntax.add(SyntaxKind.BRACED_EXPRESSION);
-
         // binary expression
         supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
         supportedSyntax.add(SyntaxKind.LT_TOKEN);
@@ -132,18 +131,16 @@ public class EvaluatorBuilder extends NodeVisitor {
         supportedSyntax.add(SyntaxKind.MINUS_TOKEN);
         supportedSyntax.add(SyntaxKind.ASTERISK_TOKEN);
         supportedSyntax.add(SyntaxKind.SLASH_TOKEN);
-
         // function invocation expression
         supportedSyntax.add(SyntaxKind.FUNCTION_CALL);
         supportedSyntax.add(SyntaxKind.POSITIONAL_ARG);
-
         // method call expression
         supportedSyntax.add(SyntaxKind.METHOD_CALL);
-
+        // field access expression
+        supportedSyntax.add(SyntaxKind.FIELD_ACCESS);
         // name reference
         // Todo - add rest
         supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
-
         // basic literal
         supportedSyntax.add(SyntaxKind.BASIC_LITERAL);
         supportedSyntax.add(SyntaxKind.DECIMAL_INTEGER_LITERAL);
@@ -151,7 +148,6 @@ public class EvaluatorBuilder extends NodeVisitor {
         supportedSyntax.add(SyntaxKind.TRUE_KEYWORD);
         supportedSyntax.add(SyntaxKind.FALSE_KEYWORD);
         supportedSyntax.add(SyntaxKind.STRING_LITERAL);
-
         // misc
         supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
         supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
@@ -247,8 +243,16 @@ public class EvaluatorBuilder extends NodeVisitor {
             // Todo - should we disable GC like intellij expression evaluator does?
             argEvaluators.add(result);
         }
-        result = new MethodCallExpressionEvaluator(context, expression, methodCallExpressionNode,
-                argEvaluators);
+        result = new MethodCallExpressionEvaluator(context, expression, methodCallExpressionNode, argEvaluators);
+    }
+
+    @Override
+    public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
+        visitSyntaxNode(fieldAccessExpressionNode);
+        // visits object expression.
+        fieldAccessExpressionNode.expression().accept(this);
+        Evaluator expression = result;
+        result = new FieldAccessExpressionEvaluator(context, expression, fieldAccessExpressionNode);
     }
 
     @Override

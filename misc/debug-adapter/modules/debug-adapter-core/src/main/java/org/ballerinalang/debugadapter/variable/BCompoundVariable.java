@@ -86,4 +86,11 @@ public abstract class BCompoundVariable implements BVariable {
         }
         return childVariables;
     }
+
+    public Value getChildByName(String name) {
+        if (childVariables == null) {
+            childVariables = computeChildVariables();
+        }
+        return childVariables.get(name);
+    }
 }
