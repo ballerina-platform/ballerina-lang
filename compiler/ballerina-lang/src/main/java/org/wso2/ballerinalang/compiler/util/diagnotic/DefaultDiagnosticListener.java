@@ -44,6 +44,7 @@ public class DefaultDiagnosticListener implements DiagnosticListener {
                 console.println("warning: " + pos + " " + diag.msg);
                 break;
             case NOTE:
+                console.println("note: " + pos + " " + diag.msg);
                 break;
         }
     }
