@@ -100,7 +100,11 @@ function testFromJsonString() returns map<json|error> {
     string aNull = "null";
     string aString = "\"aString\"";
     string aNumber = "10";
-    //string aFloatNumber = "10.5";
+    string aFloatNumber = "10.5";
+    string positiveZero = "0";
+    string negativeZero = "-0";
+    string negativeNumber = "-25";
+    string negativeFloatNumber = "-10.5";
     string anArray = "[\"hello\", \"world\"]";
     string anObject = "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}";
     string anInvalid = "{\"name\":\"anObject\",";
@@ -110,10 +114,98 @@ function testFromJsonString() returns map<json|error> {
     result["aNull"] = aNull.fromJsonString();
     result["aString"] = aString.fromJsonString();
     result["aNumber"] = aNumber.fromJsonString();
-    //result["aFloatNumber"] = aFloatNumber.fromJsonString();
+    result["aFloatNumber"] = aFloatNumber.fromJsonString();
+    result["positiveZero"] = positiveZero.fromJsonString();
+    result["negativeZero"] = negativeZero.fromJsonString();
+    result["negativeNumber"] = negativeNumber.fromJsonString();
+    result["negativeFloatNumber"] = negativeFloatNumber.fromJsonString();
     result["anArray"] = anArray.fromJsonString();
     result["anObject"] = anObject.fromJsonString();
     result["anInvalid"] = anInvalid.fromJsonString();
+
+    assert(result["aNumber"] is int, true);
+    assert(result["aFloatNumber"] is decimal, true);
+    assert(result["positiveZero"] is int, true);
+    assert(result["negativeZero"] is float, true);
+    assert(result["negativeNumber"] is int, true);
+    assert(result["negativeFloatNumber"] is decimal, true);
+
+    return result;
+}
+
+function testFromJsonFloatString() returns map<json|error> {
+    string aNil = "()";
+    string aNull = "null";
+    string aString = "\"aString\"";
+    string aNumber = "10";
+    string aFloatNumber = "10.5";
+    string positiveZero = "0";
+    string negativeZero = "-0";
+    string negativeNumber = "-25";
+    string negativeFloatNumber = "-10.5";
+    string anArray = "[\"hello\", \"world\"]";
+    string anObject = "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}";
+    string anInvalid = "{\"name\":\"anObject\",";
+    map<json|error> result = {};
+
+    result["aNil"] = aNil.fromJsonFloatString();
+    result["aNull"] = aNull.fromJsonFloatString();
+    result["aString"] = aString.fromJsonFloatString();
+    result["aNumber"] = aNumber.fromJsonFloatString();
+    result["aFloatNumber"] = aFloatNumber.fromJsonFloatString();
+    result["positiveZero"] = positiveZero.fromJsonFloatString();
+    result["negativeZero"] = negativeZero.fromJsonFloatString();
+    result["negativeNumber"] = negativeNumber.fromJsonFloatString();
+    result["negativeFloatNumber"] = negativeFloatNumber.fromJsonFloatString();
+    result["anArray"] = anArray.fromJsonFloatString();
+    result["anObject"] = anObject.fromJsonFloatString();
+    result["anInvalid"] = anInvalid.fromJsonFloatString();
+
+    assert(result["aNumber"] is float, true);
+    assert(result["aFloatNumber"] is float, true);
+    assert(result["positiveZero"] is float, true);
+    assert(result["negativeZero"] is float, true);
+    assert(result["negativeNumber"] is float, true);
+    assert(result["negativeFloatNumber"] is float, true);
+
+    return result;
+}
+
+function testFromJsonDecimalString() returns map<json|error> {
+    string aNil = "()";
+    string aNull = "null";
+    string aString = "\"aString\"";
+    string aNumber = "10";
+    string aFloatNumber = "10.5";
+    string positiveZero = "0";
+    string negativeZero = "-0";
+    string negativeNumber = "-25";
+    string negativeFloatNumber = "-10.5";
+    string anArray = "[\"hello\", \"world\"]";
+    string anObject = "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}";
+    string anInvalid = "{\"name\":\"anObject\",";
+    map<json|error> result = {};
+
+    result["aNil"] = aNil.fromJsonDecimalString();
+    result["aNull"] = aNull.fromJsonDecimalString();
+    result["aString"] = aString.fromJsonDecimalString();
+    result["aNumber"] = aNumber.fromJsonDecimalString();
+    result["aFloatNumber"] = aFloatNumber.fromJsonDecimalString();
+    result["positiveZero"] = positiveZero.fromJsonDecimalString();
+    result["negativeZero"] = negativeZero.fromJsonDecimalString();
+    result["negativeNumber"] = negativeNumber.fromJsonDecimalString();
+    result["negativeFloatNumber"] = negativeFloatNumber.fromJsonDecimalString();
+    result["anArray"] = anArray.fromJsonDecimalString();
+    result["anObject"] = anObject.fromJsonDecimalString();
+    result["anInvalid"] = anInvalid.fromJsonDecimalString();
+
+    assert(result["aNumber"] is decimal, true);
+    assert(result["aFloatNumber"] is decimal, true);
+    assert(result["positiveZero"] is decimal, true);
+    assert(result["negativeZero"] is decimal, true);
+    assert(result["negativeNumber"] is decimal, true);
+    assert(result["negativeFloatNumber"] is decimal, true);
+
     return result;
 }
 
