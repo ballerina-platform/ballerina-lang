@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -45,6 +46,8 @@ import java.util.Deque;
  */
 @SuppressWarnings("unchecked")
 public class JSONParser {
+    public static boolean fromJsonFloatStringMode;
+    public static boolean fromJsonDecimalStringMode;
 
     private static ThreadLocal<StateMachine> tlStateMachine = new ThreadLocal<StateMachine>() {
         @Override
@@ -806,23 +809,21 @@ public class JSONParser {
         private void processNonStringValue(ValueType type) throws JsonParserException {
             String str = value();
             if (str.indexOf('.') >= 0) {
+                char ch = str.charAt(0);
                 try {
-                    double doubleValue = Double.parseDouble(str);
-                    switch (type) {
-                        case ARRAY_ELEMENT:
-                            ((ArrayValue) this.currentJsonNode).append(doubleValue);
-                            break;
-                        case FIELD:
-                            ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    StringUtils.fromString(this.fieldNames.pop()), doubleValue);
-                            break;
-                        case VALUE:
-                            currentJsonNode = doubleValue;
-                            break;
-                        default:
-                            break;
+                    if (ch == '-' && !fromJsonFloatStringMode && !fromJsonDecimalStringMode && isZero(str)) {
+                        double doubleValue = Double.parseDouble(str);
+                        setValueToJsonType(type, doubleValue);
+                    } else if (fromJsonFloatStringMode) {
+                        double doubleValue = Double.parseDouble(str);
+                        setValueToJsonType(type, doubleValue);
+                    } else {
+                        DecimalValue decimalValue = new DecimalValue(str);
+                        setValueToJsonType(type, decimalValue);
                     }
                 } catch (NumberFormatException ignore) {
+                    fromJsonFloatStringMode = false;
+                    fromJsonDecimalStringMode = false;
                     throw new JsonParserException("unrecognized token '" + str + "'");
                 }
             } else {
@@ -874,26 +875,47 @@ public class JSONParser {
                     }
                 } else {
                     try {
-                        long longValue = Long.parseLong(str);
-                        switch (type) {
-                            case ARRAY_ELEMENT:
-                                ((ArrayValue) this.currentJsonNode).append(longValue);
-                                break;
-                            case FIELD:
-                                ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                        StringUtils.fromString(this.fieldNames.pop()), longValue);
-                                break;
-                            case VALUE:
-                                currentJsonNode = longValue;
-                                break;
-                            default:
-                                break;
+                        if (ch == '-' && !fromJsonFloatStringMode && !fromJsonDecimalStringMode && isZero(str)) {
+                            double doubleValue = Double.parseDouble(str);
+                            setValueToJsonType(type, doubleValue);
+                        } else if (fromJsonFloatStringMode) {
+                            double doubleValue = Double.parseDouble(str);
+                            setValueToJsonType(type, doubleValue);
+                        } else if (fromJsonDecimalStringMode) {
+                            DecimalValue decimalValue = new DecimalValue(str);
+                            setValueToJsonType(type, decimalValue);
+                        } else {
+                            Long longValue = Long.parseLong(str);
+                            setValueToJsonType(type, longValue);
                         }
                     } catch (NumberFormatException ignore) {
+                        fromJsonFloatStringMode = false;
+                        fromJsonDecimalStringMode = false;
                         throw new JsonParserException("unrecognized token '" + str + "'");
                     }
                 }
             }
+        }
+
+        private void setValueToJsonType(ValueType type, Object value) {
+            switch (type) {
+                case ARRAY_ELEMENT:
+                    ((ArrayValue) this.currentJsonNode).append(value);
+                    break;
+                case FIELD:
+                    ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
+                            StringUtils.fromString(this.fieldNames.pop()), value);
+                    break;
+                case VALUE:
+                    currentJsonNode = value;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private boolean isZero(String str) {
+            return 0 == Double.parseDouble(str);
         }
 
         /**
