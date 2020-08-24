@@ -50,7 +50,7 @@ public class ControlFlowDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testControlFlowDebugScenarios() throws BallerinaTestException {
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 9));
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 17));

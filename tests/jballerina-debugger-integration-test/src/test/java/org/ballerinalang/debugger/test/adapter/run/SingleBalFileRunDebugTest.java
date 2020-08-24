@@ -25,6 +25,7 @@ import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -63,18 +64,19 @@ public class SingleBalFileRunDebugTest extends DebugAdapterBaseTestCase {
         debugHitInfo = waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(1));
 
-        // TODO Need to fix STEP_IN request in Single bal file tests
+        // Test for step in
+        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_IN);
+        debugHitInfo = waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 35));
 
-//        // Test for step in
-//        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_IN);
-//        debugHitInfo = waitForDebugHit(10000);
-//        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 35));
-//
-//        // Test for step out
-//        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OUT);
-//        debugHitInfo = waitForDebugHit(10000);
-//        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 31));
+        // Test for step out
+        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OUT);
+        debugHitInfo = waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 31));
+    }
 
+    @AfterMethod(alwaysRun = true)
+    public void cleanUp() {
         terminateDebugSession();
     }
 }
