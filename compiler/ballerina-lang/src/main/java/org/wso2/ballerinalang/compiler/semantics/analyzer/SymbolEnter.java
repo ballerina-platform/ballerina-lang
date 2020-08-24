@@ -592,7 +592,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BXMLNSSymbol xmlnsSymbol = Symbols.createXMLNSSymbol(names.fromIdNode(xmlnsNode.prefix), nsURI,
-                env.enclPkg.symbol.pkgID, env.scope.owner);
+                env.enclPkg.symbol.pkgID, env.scope.owner, xmlnsNode.pos);
         xmlnsNode.symbol = xmlnsSymbol;
 
         // First check for package-imports with the same alias.

@@ -175,8 +175,9 @@ public class Symbols {
     public static BXMLNSSymbol createXMLNSSymbol(Name name,
                                                  String nsURI,
                                                  PackageID pkgID,
-                                                 BSymbol owner) {
-        return new BXMLNSSymbol(name, nsURI, pkgID, owner, );
+                                                 BSymbol owner,
+                                                 DiagnosticPos pos) {
+        return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos);
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {

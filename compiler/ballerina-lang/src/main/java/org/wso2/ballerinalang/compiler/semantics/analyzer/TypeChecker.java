@@ -3861,7 +3861,7 @@ public class TypeChecker extends BLangNodeVisitor {
             pkgSymbol.isUsed = true;
             String nsURI = constVal.substring(s + 1, e);
             String local = constVal.substring(e);
-            return new BXMLNSSymbol(names.fromString(local), nsURI, constantSymbol.pkgID, constantSymbol.owner, );
+            return new BXMLNSSymbol(names.fromString(local), nsURI, constantSymbol.pkgID, constantSymbol.owner, pos);
         }
 
         // Resolved const string is not in valid format.
@@ -6861,6 +6861,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return matchExprTypes;
     }
 
+    // TODO: remove
     private BSymbol getFunctionPointerCallSymbol(BLangInvocation iExpr) {
         if (iExpr.expr == null) {
             // shouldn't reach here
@@ -6879,7 +6880,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (varSymbol.kind != SymbolKind.FUNCTION) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, 0, varSymbol.name, env.enclPkg.symbol.pkgID, varType,
-                    env.scope.owner, );
+                    env.scope.owner, symTable.builtinPos);
             varSymbol.kind = SymbolKind.FUNCTION;
         }
 
