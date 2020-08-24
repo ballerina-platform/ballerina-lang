@@ -36,7 +36,7 @@ public type RetryManager abstract object {
  public function shouldRetry(error? e) returns boolean;
 };
 
-public type DefaultRetryManager object {
+public class DefaultRetryManager {
     private int count;
     public function init(int count = 3) {
         self.count = count;
@@ -49,7 +49,7 @@ public type DefaultRetryManager object {
            return false;
         }
     }
-};
+}
 
 public type CommitHandler function(Info info);
 public type RollbackHandler function(Info info, error? cause, boolean willRetry);

@@ -279,7 +279,7 @@ public type AnotherDetail record {
 public const REASON_1 = "Reason1";
 public type FirstError distinct error<AnotherDetail>;
 
-public type Student object {
+public class Student {
 
     string name;
     string school;
@@ -292,9 +292,9 @@ public type Student object {
     public function getDetails() returns string {
         return self.name + " from " + self.school;
     }
-};
+}
 
-public type Teacher object {
+public class Teacher {
 
     string name;
     string school;
@@ -311,7 +311,7 @@ public type Teacher object {
     public function toString() returns string {
         return self.getDetails();
     }
-};
+}
 
 function testToString() returns string[] {
     int varInt = 6;
