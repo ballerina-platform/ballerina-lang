@@ -149,7 +149,7 @@ public function toJsonString(anydata v) returns string = external;
 # + return - `str` parsed to json or error
 public function fromJsonString(string str) returns json|error = external;
 
-# Parses a string in JSON format and returns the the value that it represents.
+# Parses a string in JSON format and returns the value that it represents.
 # All numbers in the JSON will be represented as float values.
 # Returns an error if the string cannot be parsed.
 #
@@ -157,7 +157,7 @@ public function fromJsonString(string str) returns json|error = external;
 # + return - `str` parsed to json or error
 public function fromJsonFloatString(string str) returns json|error = external;
 
-# Parses a string in JSON format and returns the the value that it represents.
+# Parses a string in JSON format and returns the value that it represents.
 # All numbers in the JSON will be represented as decimal values.
 # Returns an error if the string cannot be parsed.
 #

@@ -811,7 +811,7 @@ public class JSONParser {
             if (str.indexOf('.') >= 0) {
                 char ch = str.charAt(0);
                 try {
-                    if (ch == '-' && !fromJsonFloatStringMode && !fromJsonDecimalStringMode && isZero(str)) {
+                    if (ch == '-' && !fromJsonDecimalStringMode && isZero(str)) {
                         double doubleValue = Double.parseDouble(str);
                         setValueToJsonType(type, doubleValue);
                     } else if (fromJsonFloatStringMode) {
@@ -875,7 +875,7 @@ public class JSONParser {
                     }
                 } else {
                     try {
-                        if (ch == '-' && !fromJsonFloatStringMode && !fromJsonDecimalStringMode && isZero(str)) {
+                        if (ch == '-' && !fromJsonDecimalStringMode && isZero(str)) {
                             double doubleValue = Double.parseDouble(str);
                             setValueToJsonType(type, doubleValue);
                         } else if (fromJsonFloatStringMode) {
