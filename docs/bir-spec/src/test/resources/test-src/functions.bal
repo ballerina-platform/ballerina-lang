@@ -18,10 +18,10 @@ function foo() {
 
 }
 
-function bar() {
-
+function bar(int a) {
+    int i = a;
 }
 
-function baz() {
-
+function baz(string s, float f) returns byte {
+    return 4;
 }
