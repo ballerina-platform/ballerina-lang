@@ -1,18 +1,18 @@
 {
     "position": {
-        "line": 57,
-        "character": 28
+        "line": 61,
+        "character": 25
     },
     "source": "actions/actions.bal",
     "expected": {
         "result": {
             "signatures": [
                 {
-                    "label": "fooErr(float a, boolean b)",
+                    "label": "fooE(float a, boolean b)",
                     "documentation": {
                         "right": {
                             "kind": "markdown",
-                            "value": "**Description**  \nFunction Foo or Error"
+                            "value": "**Description**  \nFunction Foo"
                         }
                     },
                     "parameters": [
@@ -42,7 +42,7 @@
                 }
             ],
             "activeSignature": 0,
-            "activeParameter": 1
+            "activeParameter": 0
         },
         "jsonrpc": "2.0"
     }

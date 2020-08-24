@@ -1,29 +1,29 @@
 {
     "position": {
-        "line": 43,
-        "character": 14
+        "line": 54,
+        "character": 22
     },
     "source": "actions/actions.bal",
     "expected": {
         "result": {
             "signatures": [
                 {
-                    "label": "Stub.send(string msg)",
+                    "label": "Stub.ping(any a)",
                     "documentation": {
                         "right": {
                             "kind": "markdown",
-                            "value": "**Description**  \nSend a message"
+                            "value": "**Description**  \nReturns same"
                         }
                     },
                     "parameters": [
                         {
                             "label": {
-                                "left": "string msg"
+                                "left": "any a"
                             },
                             "documentation": {
                                 "right": {
                                     "kind": "markdown",
-                                    "value": "**Parameter**  \n**`string`msg**: message"
+                                    "value": "**Parameter**  \n**`any`a**: any"
                                 }
                             }
                         }

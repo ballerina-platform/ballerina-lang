@@ -3,18 +3,23 @@ public function actions() returns error? {
     // Actions
     //==================================================
     // action :=
-    //    start-action
-    //    | wait-action
-    //    | send-action
-    //    | receive-action
-    //    | flush-action
-    //    | remote-method-call-action
-    //    | checking-action
-    //    | trap-action
-    //    | ( action )
+    //   start-action
+    //   | wait-action
+    //   | send-action
+    //   | receive-action*
+    //   | flush-action*
+    //   | remote-method-call-action
+    //   | query-action
+    //   | type-cast-action
+    //   | checking-action
+    //   | trap-action
+    //   | ( action )
     // action-or-expr := action | expression
+    // type-cast-action := < type-cast-param > action
     // checking-action := checking-keyword action
     // trap-action := trap action
+    //
+    // NOTE: *Not related to signatureHelp
 
     // -- action, start-action
     future<int> r1 = start foo(2, true);
@@ -37,6 +42,17 @@ public function actions() returns error? {
     // -- action, remote-method-call-action
     Stub stub = new(1);
     stub->send("");
+
+    // -- action, query-action
+    Person[] personList = [];
+    var x =  from var person in personList
+            do {
+                foo(1, false);
+            };
+
+    //   -- action, type-cast-action
+    Stub stub2 = new(1);
+    <string>stub2->ping("test");
 
     // -- action, checking-action
     int aa = check fooErr(2, false);
@@ -109,6 +125,13 @@ public type Stub client object {
 
     }
 
+    # Returns same
+    # + a - any
+    # + return - any
+    public function ping(any a) returns any {
+        return a;
+    }
+
     # Returns bar
     # + a - float
     # + b - boolean
@@ -126,3 +149,9 @@ public type Stub client object {
         return ();
     }
 };
+
+type Person record {|
+   string firstName;
+   string lastName;
+   int age;
+|};
