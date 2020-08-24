@@ -2381,7 +2381,7 @@ public class BallerinaParser extends AbstractParser {
         STNode classKeyword = parseClassKeyword();
         STNode className = parseClassName();
         STNode openBrace = parseOpenBrace();
-        STNode classMembers = parseObjectMembers();
+        STNode classMembers = parseObjectMembers(false);
         // TODO: Find another way
         startContext(ParserRuleContext.OBJECT_MEMBER);
         STNode closeBrace = parseCloseBrace();
