@@ -65,7 +65,7 @@ public class BallerinaTomlProcessor {
      * @return `BallerinaToml` object
      * @throws TomlException exception when parsing toml
      */
-    private static BallerinaToml parse(InputStream inputStream) throws TomlException {
+    public static BallerinaToml parse(InputStream inputStream) throws TomlException {
         try {
             Toml toml = new Toml().read(inputStream);
             if (toml.isEmpty()) {
@@ -147,8 +147,8 @@ public class BallerinaTomlProcessor {
      * @throws TomlException When the dependencies block is invalid
      */
     private static void validateManifestDependencies(BallerinaToml ballerinaToml) throws TomlException {
-        for (Map.Entry<String, Object> dependency : getDependenciesAsObjectMap(ballerinaToml.getDependencies())
-                .entrySet()) {
+        for (Map.Entry<String, Object> dependency : getDependenciesAsObjectMap(
+                ballerinaToml.getDependenciesAsObjectMap()).entrySet()) {
             if (!(dependency.getValue() instanceof String) && !(dependency.getValue() instanceof Map)) {
                 throw new TomlException(
                         "invalid Ballerina.toml file: invalid metadata found for dependency" + " [" + dependency

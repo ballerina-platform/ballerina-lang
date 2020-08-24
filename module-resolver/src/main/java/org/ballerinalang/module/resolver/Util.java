@@ -1,15 +1,43 @@
-package org.ballerinalang.moduleloader;
+/*
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
+package org.ballerinalang.module.resolver;
 
 import java.util.regex.Pattern;
 
+/**
+ * Utility functions used by module resolver.
+ */
 public class Util {
 
-    private boolean isExactVersion(String version) {
+    private Util() {
+    }
+
+    static boolean isAbsoluteVersion(String version) {
         final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
         return semVerPattern.matcher(version).matches();
     }
 
-    public static boolean isValidVersion(String version, String filter) {
+    static boolean isValidVersion(String version, String filter) {
+        if ("".equals(version)) {
+            return false;
+        }
+
         String[] versionParts = version.split("\\.");
         int majorVersion = Integer.parseInt(versionParts[0]);
         int minorVersion = Integer.parseInt(versionParts[1]);
@@ -49,16 +77,16 @@ public class Util {
         return false;
     }
 
-    public static boolean isGreaterVersion(String version, String newVersion) {
+    static boolean isGreaterVersion(String version, String newVersion) {
         String[] levels1 = version.split("\\.");
         String[] levels2 = newVersion.split("\\.");
 
         int length = Math.max(levels1.length, levels2.length);
-        for (int i = 0; i < length; i++){
+        for (int i = 0; i < length; i++) {
             Integer v1 = i < levels1.length ? Integer.parseInt(levels1[i]) : 0;
             Integer v2 = i < levels2.length ? Integer.parseInt(levels2[i]) : 0;
             int compare = v1.compareTo(v2);
-            if (compare != 0){
+            if (compare != 0) {
                 if (compare < 0) {
                     return true;
                 }

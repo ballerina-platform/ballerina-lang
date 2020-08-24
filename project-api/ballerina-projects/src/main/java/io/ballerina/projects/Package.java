@@ -1,6 +1,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.model.BallerinaToml;
+import org.ballerinalang.model.elements.PackageID;
 
 import java.util.Collection;
 import java.util.Map;
@@ -62,5 +63,17 @@ public class Package {
 
     public BallerinaToml ballerinaToml() {
         return this.packageContext.ballerinaToml();
+    }
+
+    public boolean containsModule(PackageID packageID) {
+        // TODO Need to refactor this code
+        for (ModuleId moduleId : this.moduleMap.keySet()) {
+            String moduleName = packageID.getName().getValue();
+            String moduleNameFromPath = moduleId.moduleDirPath().split("/modules/")[2];
+            if (moduleName.equals(moduleNameFromPath)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

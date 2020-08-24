@@ -48,6 +48,10 @@ public final class ModuleId {
         return packageId;
     }
 
+    public String moduleDirPath() {
+        return moduleDirPath;
+    }
+
     @Override
     public String toString() {
         return "ModuleId{" +

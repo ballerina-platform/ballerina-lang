@@ -35,6 +35,8 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-cli-module')
+    implementation project(':ballerina-parser')
+    implementation project(':ballerina-projects')
 
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'

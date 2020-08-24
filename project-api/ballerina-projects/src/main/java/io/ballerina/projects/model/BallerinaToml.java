@@ -19,10 +19,14 @@
 package io.ballerina.projects.model;
 
 import org.ballerinalang.toml.model.BuildOptions;
+import org.ballerinalang.toml.model.Dependency;
+import org.ballerinalang.toml.model.DependencyMetadata;
 import org.ballerinalang.toml.model.Platform;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Defines the `ballerina.toml` object which is created using the toml file configs.
@@ -39,8 +43,21 @@ public class BallerinaToml {
         return pkg;
     }
 
-    public Map<String, Object> getDependencies() {
-        return dependencies;
+    public List<Dependency> getDependencies() {
+        return this.dependencies.entrySet().stream()
+                .map(entry -> {
+                    Dependency dependency = new Dependency();
+                    // get rid of the double quotes
+                    dependency.setModuleID(entry.getKey());
+                    dependency.setMetadata(convertObjectToDependencyMetadata(entry.getValue()));
+                    return dependency;
+                })
+                .collect(Collectors.toList());
+    }
+
+    Map<String, Object> getDependenciesAsObjectMap() {
+        return this.dependencies.entrySet().stream()
+                .collect(Collectors.toMap(d -> d.getKey().replaceAll("^\"|\"$", ""), Map.Entry::getValue));
     }
 
     public Platform getPlatform() {
@@ -65,5 +82,22 @@ public class BallerinaToml {
 
     public void setBuildOptions(BuildOptions buildOptions) {
         this.buildOptions = buildOptions;
+    }
+
+    private DependencyMetadata convertObjectToDependencyMetadata(Object obj) {
+        DependencyMetadata metadata = new DependencyMetadata();
+        if (obj instanceof String) {
+            metadata.setVersion((String) obj);
+        } else if (obj instanceof Map) {
+            Map metadataMap = (Map) obj;
+            if (metadataMap.keySet().contains("version") && metadataMap.get("version") instanceof String) {
+                metadata.setVersion((String) metadataMap.get("version"));
+            }
+
+            if (metadataMap.keySet().contains("path") && metadataMap.get("path") instanceof String) {
+                metadata.setPath((String) metadataMap.get("path"));
+            }
+        }
+        return metadata;
     }
 }
