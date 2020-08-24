@@ -429,6 +429,10 @@ types:
         if: has_default_params_basic_blocks != 0
       - id: function_basic_blocks_info
         type: basic_blocks_info
+      - id: error_table
+        type: error_table
+      - id: worker_channel_info
+        type: worker_channel
   return_var:
     seq:
       - id: kind
@@ -464,6 +468,40 @@ types:
       - id: enclosing_basic_block_id
         type: enclosing_basic_block_id
         if: kind == 1
+  error_table:
+    seq:
+      - id: error_entries_count
+        type: s4
+      - id: error_entries
+        type: error_entry
+        repeat: expr
+        repeat-expr: error_entries_count
+  error_entry:
+    seq:
+      - id: trap_bb_id_cp_index
+        type: s4
+      - id: end_bb_id_cp_index
+        type: s4
+      - id: error_operand
+        type: operand
+      - id: target_bb_id_cp_index
+        type: s4
+  worker_channel:
+    seq:
+      - id: channels_length
+        type: s4
+      - id: worker_channel_details
+        type: worker_channel_detail
+        repeat: expr
+        repeat-expr: channels_length
+  worker_channel_detail:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: channel_in_same_strand
+        type: u1
+      - id: send
+        type: u1
   enclosing_basic_block_id:
     seq:
       - id: meta_var_name_cp_index
