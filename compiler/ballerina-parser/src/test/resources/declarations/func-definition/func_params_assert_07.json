@@ -120,7 +120,7 @@
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                         "children": [
                           {
-                            "kind": "DECIMAL_INTEGER_LITERAL",
+                            "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                             "value": "5"
                           }
                         ]

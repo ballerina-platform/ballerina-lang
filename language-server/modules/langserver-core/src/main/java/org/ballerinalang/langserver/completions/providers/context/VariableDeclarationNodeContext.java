@@ -33,9 +33,9 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class VariableDeclarationNodeContext extends VariableDeclarationProvider<VariableDeclarationNode> {
+
     public VariableDeclarationNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(VariableDeclarationNode.class);
+        super(VariableDeclarationNode.class);
     }
 
     @Override

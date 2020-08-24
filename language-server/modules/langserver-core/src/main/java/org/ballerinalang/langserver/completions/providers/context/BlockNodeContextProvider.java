@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,8 +55,9 @@ import java.util.stream.IntStream;
  * @since 2.0.0
  */
 public class BlockNodeContextProvider<T extends Node> extends AbstractCompletionProvider<T> {
-    public BlockNodeContextProvider(Kind kind) {
-        super(kind);
+
+    public BlockNodeContextProvider(Class<T> attachmentPoint) {
+        super(attachmentPoint);
     }
 
     @Override

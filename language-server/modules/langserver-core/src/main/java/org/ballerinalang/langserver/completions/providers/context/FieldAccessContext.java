@@ -49,8 +49,9 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public abstract class FieldAccessContext<T extends Node> extends AbstractCompletionProvider<T> {
-    public FieldAccessContext(Kind kind) {
-        super(kind);
+
+    public FieldAccessContext(Class<T> attachmentPoint) {
+        super(attachmentPoint);
     }
 
     /**
