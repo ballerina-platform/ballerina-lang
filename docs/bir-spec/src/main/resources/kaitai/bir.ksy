@@ -559,6 +559,7 @@ types:
             'instruction_kind_enum::instruction_kind_new_structure': instruction_new_structure
             'instruction_kind_enum::instruction_kind_const_load': instruction_const_load
             'instruction_kind_enum::instruction_kind_move': instruction_move
+            'instruction_kind_enum::instruction_kind_call': instruction_call
     enums:
       instruction_kind_enum:
         1: instruction_kind_goto
@@ -669,6 +670,27 @@ types:
         type: operand
       - id: lhs_operand
         type: operand
+  instruction_call:
+    seq:
+      - id: is_virtual
+        type: u1
+      - id: package_index
+        type: s4
+      - id: call_name_cp_index
+        type: s4
+      - id: arguments_count
+        type: s4
+      - id: arguments
+        type: operand
+        repeat: expr
+        repeat-expr: arguments_count
+      - id: has_lhs_operand
+        type: s1
+      - id: lhs_operand
+        type: operand
+        if: has_lhs_operand != 0
+      - id: then_bb_id_name_cp_index
+        type: s4
   instruction_return:
     seq:
       - id: no_value
