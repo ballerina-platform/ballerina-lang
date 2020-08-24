@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -46,6 +47,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.compiler.JarResolver.JAR_RESOLVER_KEY;
@@ -111,7 +113,7 @@ public class CodeGenerator {
         Set<Path> moduleDependencies = findDependencies(bLangPackage.packageID);
 
         // generate module jar
-        generate(bLangPackage.symbol, moduleDependencies);
+        Map<String, BIRFunctionWrapper> birFunctionMap = generate(bLangPackage.symbol, moduleDependencies, null);
 
         if (skipTests || !bLangPackage.hasTestablePackage()) {
             return bLangPackage;
@@ -123,21 +125,27 @@ public class CodeGenerator {
             Set<Path> testDependencies = findTestDependencies(testablePackage.packageID, moduleDependencies);
 
             // generate test module jar
-            generate(testablePackage.symbol, testDependencies);
+            generate(testablePackage.symbol, testDependencies, birFunctionMap);
         });
 
         return bLangPackage;
     }
 
-    private void generate(BPackageSymbol packageSymbol, Set<Path> moduleDependencies) {
+    private Map<String, BIRFunctionWrapper> generate(BPackageSymbol packageSymbol, Set<Path> moduleDependencies,
+                                                     Map<String, BIRFunctionWrapper> birFunctionMap) {
 
         final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog);
+        if (birFunctionMap != null) {
+            jvmPackageGen.setBirFunctionMap(birFunctionMap);
+        }
 
         populateExternalMap(jvmPackageGen);
 
         ClassLoader interopValidationClassLoader = makeClassLoader(moduleDependencies);
         InteropValidator interopValidator = new InteropValidator(interopValidationClassLoader, symbolTable);
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, interopValidator, true);
+        birFunctionMap = jvmPackageGen.getBirFunctionMap();
+        return birFunctionMap;
     }
 
     private Set<Path> findDependencies(PackageID packageID) {

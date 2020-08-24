@@ -158,6 +158,14 @@ public class JvmPackageGen {
         JvmInstructionGen.anyType = symbolTable.anyType;
     }
 
+    public void setBirFunctionMap(Map<String, BIRFunctionWrapper> birFunctionMap) {
+        this.birFunctionMap = birFunctionMap;
+    }
+
+    public Map<String, BIRFunctionWrapper> getBirFunctionMap() {
+        return this.birFunctionMap;
+    }
+
     private static String getBvmAlias(String orgName, String moduleName) {
 
         if (Names.ANON_ORG.value.equals(orgName)) {
@@ -669,7 +677,7 @@ public class JvmPackageGen {
                 try {
                     BIRFunctionWrapper birFuncWrapperOrError =
                             getBirFunctionWrapper(interopValidator, isEntry, orgName, moduleName, version, birFunc,
-                                                  className, lookupKey);
+                                    className, lookupKey);
                     birFunctionMap.put(pkgName + lookupKey, birFuncWrapperOrError);
                 } catch (JInteropException e) {
                     dlog.error(birFunc.pos, e.getCode(), e.getMessage());
@@ -767,10 +775,12 @@ public class JvmPackageGen {
             interopValidator.setEntryModuleValidation(isEntry);
 
             try {
-                BIRFunctionWrapper birFuncWrapperOrError =
-                        getBirFunctionWrapper(interopValidator, isEntry, orgName, moduleName, version, birFunc,
-                                              birModuleClassName, birFuncName);
-                birFunctionMap.put(pkgName + birFuncName, birFuncWrapperOrError);
+                if (!birFunctionMap.containsKey(pkgName + birFuncName)) {
+                    BIRFunctionWrapper birFuncWrapperOrError =
+                            getBirFunctionWrapper(interopValidator, isEntry, orgName, moduleName, version, birFunc,
+                                    birModuleClassName, birFuncName);
+                    birFunctionMap.put(pkgName + birFuncName, birFuncWrapperOrError);
+                }
             } catch (JInteropException e) {
                 dlog.error(birFunc.pos, e.getCode(), e.getMessage());
             }
@@ -823,7 +833,6 @@ public class JvmPackageGen {
 
     private void clearPackageGenInfo() {
 
-        birFunctionMap.clear();
         globalVarClassMap.clear();
         externClassMap.clear();
         dependentModules.clear();
