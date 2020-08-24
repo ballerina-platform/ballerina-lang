@@ -4683,10 +4683,11 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse class members.
+     * Parse class members or object constructor members.
      * <code>class-members := class-member*</code>
+     * <code>object-member := object-member*</code>
      *
-     * @param skipTypeInclusions will not accept type inclusions as valid object members
+     * @param skipTypeInclusions will not accept type inclusions as valid members
      * @return Parsed node
      */
     private STNode parseObjectMembers(boolean skipTypeInclusions) {
@@ -4708,9 +4709,10 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * <p>
-     * Parse a class member.
+     * Parse a class member or object constructor member.
      * </p>
      * <code>class-member :=  object-field | method-defn | object-type-inclusion</code>
+     * <code>object-member := object-field | method-defn</code>
      *
      * @return Parsed node
      */
