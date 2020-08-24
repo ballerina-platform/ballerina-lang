@@ -4078,7 +4078,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 // if it hasDiagnostics then its missing type desc.
                 BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
                 BLangIdentifier pkgAlias = this.createIdentifier(null, "");
-                BLangIdentifier name = this.createIdentifier((Token) type);
+                BLangIdentifier name = this.createIdentifier(((SimpleNameReferenceNode) type).name());
                 BLangNameReference nameReference = new BLangNameReference(getPosition(type), null, pkgAlias, name);
                 bLUserDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
                 bLUserDefinedType.typeName = (BLangIdentifier) nameReference.name;
