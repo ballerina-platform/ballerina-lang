@@ -51,7 +51,12 @@
           "children": [
             {
               "kind": "STRING_LITERAL",
-              "value": "b"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "b"
+                }
+              ]
             },
             {
               "kind": "COLON_TOKEN"

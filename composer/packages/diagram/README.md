@@ -1,1 +1,0 @@
-Includes a set of react components to render Ballerina Diagrams.

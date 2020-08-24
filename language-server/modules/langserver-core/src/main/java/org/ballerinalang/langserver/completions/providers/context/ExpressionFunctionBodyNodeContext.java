@@ -33,8 +33,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvider<ExpressionFunctionBodyNode> {
     public ExpressionFunctionBodyNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(ExpressionFunctionBodyNode.class);
+        super(ExpressionFunctionBodyNode.class);
     }
 
     @Override

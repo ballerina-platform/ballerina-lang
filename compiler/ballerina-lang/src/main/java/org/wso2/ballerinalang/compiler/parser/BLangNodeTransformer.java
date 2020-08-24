@@ -1649,7 +1649,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 if (valueExpr == null) {
                     BLangRecordLiteral.BLangRecordVarNameField fieldVar =
                             (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
-                    fieldVar.variableName = createIdentifier(((SpecificFieldNode) field).fieldName());
+                    fieldVar.variableName = createIdentifier((Token) ((SpecificFieldNode) field).fieldName());
                     fieldVar.pkgAlias = createIdentifier(null, "");
                     fieldVar.pos = fieldVar.variableName.pos;
                     fieldVar.readonly = specificField.readonlyKeyword().isPresent();
@@ -1687,10 +1687,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(UnaryExpressionNode unaryExprNode) {
         DiagnosticPos pos = getPosition(unaryExprNode);
         SyntaxKind expressionKind = unaryExprNode.expression().kind();
-        if (expressionKind == SyntaxKind.DECIMAL_INTEGER_LITERAL ||
-                expressionKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL ||
-                expressionKind == SyntaxKind.HEX_INTEGER_LITERAL ||
-                expressionKind == SyntaxKind.HEX_FLOATING_POINT_LITERAL) {
+        if (expressionKind == SyntaxKind.NUMERIC_LITERAL) {
             BLangNumericLiteral numericLiteral = (BLangNumericLiteral) createSimpleLiteral(unaryExprNode);
             return numericLiteral;
         }
@@ -3076,9 +3073,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 sizes.add(UNSEALED_ARRAY_INDICATOR);
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
-                if (keyExpr.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL) {
-                    sizes.add(Integer.parseInt(keyExpr.toString()));
-                } else if (keyExpr.kind() == SyntaxKind.ASTERISK_TOKEN) {
+                if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
+                    BasicLiteralNode numericLiteralNode = (BasicLiteralNode) keyExpr;
+                    if (numericLiteralNode.literalToken().kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
+                        sizes.add(Integer.parseInt(keyExpr.toString()));
+                    } else {
+                        sizes.add(Integer.parseInt(keyExpr.toString(), 16));
+                    }
+                } else if (keyExpr.kind() == SyntaxKind.ASTERISK_LITERAL) {
                     sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
                 } else {
                     // TODO : should handle the const-reference-expr
@@ -3983,29 +3985,33 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         //TODO: Verify all types, only string type tested
-        if (type == SyntaxKind.DECIMAL_INTEGER_LITERAL || type == SyntaxKind.HEX_INTEGER_LITERAL) {
-            typeTag = TypeTags.INT;
-            value = getIntegerLiteral(literal, textValue, sign);
-            originalValue = textValue;
-            bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-        } else if (type == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
-            //TODO: Check effect of mapping negative(-) numbers as unary-expr
-            typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
-            if (isFiniteType) {
-                value = textValue.replaceAll("[fd+]", "");
-                originalValue = textValue.replace("+", "");
-            } else {
-                value = textValue;
+        if (type == SyntaxKind.NUMERIC_LITERAL) {
+            SyntaxKind literalTokenKind = ((BasicLiteralNode) literal).literalToken().kind();
+            if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
+                    literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+                typeTag = TypeTags.INT;
+                value = getIntegerLiteral(literal, textValue, sign);
                 originalValue = textValue;
+                bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+            } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
+                //TODO: Check effect of mapping negative(-) numbers as unary-expr
+                typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
+                if (isFiniteType) {
+                    value = textValue.replaceAll("[fd+]", "");
+                    originalValue = textValue.replace("+", "");
+                } else {
+                    value = textValue;
+                    originalValue = textValue;
+                }
+                bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+            } else if (literalTokenKind == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN) {
+                //TODO: Check effect of mapping negative(-) numbers as unary-expr
+                typeTag = TypeTags.FLOAT;
+                value = getHexNodeValue(textValue);
+                originalValue = textValue;
+                bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
             }
-            bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-        } else if (type == SyntaxKind.HEX_FLOATING_POINT_LITERAL) {
-            //TODO: Check effect of mapping negative(-) numbers as unary-expr
-            typeTag = TypeTags.FLOAT;
-            value = getHexNodeValue(textValue);
-            originalValue = textValue;
-            bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-        } else if (type == SyntaxKind.TRUE_KEYWORD || type == SyntaxKind.FALSE_KEYWORD) {
+        } else if (type == SyntaxKind.BOOLEAN_LITERAL) {
             typeTag = TypeTags.BOOLEAN;
             value = Boolean.parseBoolean(textValue);
             originalValue = textValue;
@@ -4043,15 +4049,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             value = text;
             originalValue = textValue;
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        } else if (type == SyntaxKind.NULL_KEYWORD) {
-            typeTag = TypeTags.NIL;
-            value = null;
-            originalValue = "null";
-            bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } else if (type == SyntaxKind.NIL_LITERAL) {
+            originalValue = "()";
             typeTag = TypeTags.NIL;
             value = null;
-            originalValue = "()";
+            bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        }  else if (type == SyntaxKind.NULL_LITERAL) {
+            originalValue = "null";
+            typeTag = TypeTags.NIL;
+            value = null;
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } else if (type == SyntaxKind.BINARY_EXPRESSION) { // Should be base16 and base64
             typeTag = TypeTags.BYTE_ARRAY;
@@ -4097,20 +4103,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return bLUserDefinedType;
         } else if (type.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             // Map name reference as a type
+            if (type.hasDiagnostics()) {
+                // if it hasDiagnostics then its missing type desc.
+                BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+                BLangIdentifier pkgAlias = this.createIdentifier(null, "");
+                BLangIdentifier name = this.createIdentifier(((SimpleNameReferenceNode) type).name());
+                BLangNameReference nameReference = new BLangNameReference(getPosition(type), null, pkgAlias, name);
+                bLUserDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+                bLUserDefinedType.typeName = (BLangIdentifier) nameReference.name;
+                bLUserDefinedType.pos = getPosition(type);
+                return bLUserDefinedType;
+            }
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) type;
             return createTypeNode(nameReferenceNode.name());
-        } else if (type.kind() == SyntaxKind.TYPE_DESC) {
-            // kind can be type-desc only if its a missing token.
-            BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-            BLangIdentifier pkgAlias = this.createIdentifier(null, "");
-            BLangIdentifier name = this.createIdentifier((Token) type);
-            BLangNameReference nameReference = new BLangNameReference(getPosition(type), null, pkgAlias, name);
-            bLUserDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-            bLUserDefinedType.typeName = (BLangIdentifier) nameReference.name;
-            bLUserDefinedType.pos = getPosition(type);
-            return bLUserDefinedType;
         }
-
         return (BLangType) type.apply(this);
     }
 
@@ -4466,11 +4472,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private Object getIntegerLiteral(Node literal, String nodeValue, SyntaxKind sign) {
-        SyntaxKind type = literal.kind();
-        if (type == SyntaxKind.DECIMAL_INTEGER_LITERAL) {
+        SyntaxKind literalTokenKind = ((BasicLiteralNode) literal).literalToken().kind();
+        if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
             return parseLong(literal, nodeValue, nodeValue, 10, sign, DiagnosticCode.INTEGER_TOO_SMALL,
                     DiagnosticCode.INTEGER_TOO_LARGE);
-        } else if (type == SyntaxKind.HEX_INTEGER_LITERAL) {
+        } else if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
             String processedNodeValue = nodeValue.toLowerCase().replace("0x", "");
             return parseLong(literal, nodeValue, processedNodeValue, 16, sign, DiagnosticCode.HEXADECIMAL_TOO_SMALL,
                     DiagnosticCode.HEXADECIMAL_TOO_LARGE);
@@ -4546,14 +4552,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private boolean isSimpleLiteral(SyntaxKind syntaxKind) {
         switch (syntaxKind) {
             case STRING_LITERAL:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
+            case NUMERIC_LITERAL:
+            case BOOLEAN_LITERAL:
             case NIL_LITERAL:
-            case NULL_KEYWORD:
+            case NULL_LITERAL:
                 return true;
             default:
                 return false;
@@ -4562,7 +4564,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     static boolean isType(SyntaxKind nodeKind) {
         switch (nodeKind) {
-            case TYPE_DESC:
             case RECORD_TYPE_DESC:
             case OBJECT_TYPE_DESC:
             case NIL_TYPE_DESC:
@@ -4603,10 +4604,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private boolean isNumericLiteral(SyntaxKind syntaxKind) {
         switch (syntaxKind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case NUMERIC_LITERAL:
                 return true;
             default:
                 return false;

@@ -763,7 +763,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static SpecificFieldNode createSpecificFieldNode(
             Token readonlyKeyword,
-            Token fieldName,
+            Node fieldName,
             Token colon,
             ExpressionNode valueExpr) {
         Objects.requireNonNull(fieldName, "fieldName must not be null");
