@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
@@ -28,21 +29,25 @@ import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.common.utils.completion.BLangRecordLiteralUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -58,6 +63,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link MappingConstructorExpressionNode} context.
@@ -74,17 +81,74 @@ public class MappingConstructorExpressionNodeContext extends
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, MappingConstructorExpressionNode node)
             throws LSCompletionException {
+
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode evalNode = (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
+                || nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE)
+                ? nodeAtCursor.parent() : nodeAtCursor;
+
+        if (this.withinValueExpression(context, evalNode)) {
+            if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                return this.getExpressionsCompletionsForQNameRef(context, (QualifiedNameReferenceNode) nodeAtCursor);
+            }
+            return this.expressionCompletions(context);
+        }
+
+        if (this.withinComputedNameContext(context, evalNode)) {
+            if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                return this.getExpressionsCompletionsForQNameRef(context, (QualifiedNameReferenceNode) nodeAtCursor);
+            }
+            return getComputedNameCompletions(context);
+        }
+
         List<LSCompletionItem> completionItems = new ArrayList<>();
+
+        if (!this.hasReadonlyKW(evalNode)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
+        }
         Optional<BRecordTypeSymbol> recordSymbol = this.getRecordSymbol(context, node);
         if (recordSymbol.isPresent()) {
             BRecordType recordType = (BRecordType) recordSymbol.get().type;
             List<BField> fields = new ArrayList<>(recordType.fields.values());
-            completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
+            // TODO: Revamp the implementation
+//            completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
             completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields));
             completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields));
             completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
         }
+
         return completionItems;
+    }
+
+    private boolean withinValueExpression(LSContext context, NonTerminalNode evalNodeAtCursor) {
+        Token colon = null;
+
+        if (evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD) {
+            colon = ((SpecificFieldNode) evalNodeAtCursor).colon();
+        } else if (evalNodeAtCursor.kind() == SyntaxKind.COMPUTED_NAME_FIELD) {
+            colon = ((ComputedNameFieldNode) evalNodeAtCursor).colonToken();
+        }
+
+        if (colon == null) {
+            return false;
+        }
+
+        Integer cursorPosInTree = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int colonEnd = colon.textRange().endOffset();
+
+        return cursorPosInTree > colonEnd;
+    }
+
+    private boolean withinComputedNameContext(LSContext context, NonTerminalNode evalNodeAtCursor) {
+        if (evalNodeAtCursor.kind() != SyntaxKind.COMPUTED_NAME_FIELD) {
+            return false;
+        }
+
+        int openBracketEnd = ((ComputedNameFieldNode) evalNodeAtCursor).openBracket().textRange().endOffset();
+        int closeBracketStart = ((ComputedNameFieldNode) evalNodeAtCursor).closeBracket().textRange().startOffset();
+        Integer cursorPosInTree = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+
+        return cursorPosInTree >= openBracketEnd && cursorPosInTree <= closeBracketStart;
     }
 
     private Optional<BRecordTypeSymbol> getRecordSymbol(LSContext context, MappingConstructorExpressionNode node) {
@@ -228,5 +292,33 @@ public class MappingConstructorExpressionNodeContext extends
             return Optional.empty();
         }
         return Optional.of((BRecordTypeSymbol) bTypeSymbol.get());
+    }
+
+    private List<LSCompletionItem> getComputedNameCompletions(LSContext context) {
+        List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+
+        List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
+                .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
+                        && !(scopeEntry.symbol instanceof BOperatorSymbol))
+                .collect(Collectors.toList());
+        List<LSCompletionItem> completionItems = this.getCompletionItemList(filteredList, context);
+        completionItems.addAll(this.getPackagesCompletionItems(context));
+
+        return completionItems;
+    }
+
+    private boolean hasReadonlyKW(NonTerminalNode evalNodeAtCursor) {
+        return ((evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD)
+                && ((SpecificFieldNode) evalNodeAtCursor).readonlyKeyword().isPresent());
+    }
+
+    private List<LSCompletionItem> getExpressionsCompletionsForQNameRef(LSContext context,
+                                                                        QualifiedNameReferenceNode qNameRef) {
+        Predicate<Scope.ScopeEntry> filter = scopeEntry -> {
+            BSymbol symbol = scopeEntry.symbol;
+            return symbol instanceof BVarSymbol && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
+        };
+        List<Scope.ScopeEntry> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
+        return this.getCompletionItemList(moduleContent, context);
     }
 }
