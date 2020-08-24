@@ -150,7 +150,8 @@ class BIRTestUtils {
                                             ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
 
         KaitaiStruct constantValueInfo = actualConstantValue.constantValueInfo();
-        switch (actualConstantValue.typeTag()) {
+        Bir.TypeTagEnum typeTag = actualConstantValue.type().shape().typeTag();
+        switch (typeTag) {
             case TYPE_TAG_INT:
                 Bir.IntConstantInfo intConstantInfo = (Bir.IntConstantInfo) constantValueInfo;
                 assertConstantPoolEntry(constantPoolEntries.get(intConstantInfo.valueCpIndex()), expectedValue);
@@ -164,7 +165,7 @@ class BIRTestUtils {
                 assertConstantPoolEntry(constantPoolEntries.get(stringConstantInfo.valueCpIndex()), expectedValue);
                 break;
             default:
-                Assert.fail(String.format("Unknown constant value type: %s", actualConstantValue.typeTag().name()));
+                Assert.fail(String.format("Unknown constant value type: %s", typeTag.name()));
         }
     }
 
