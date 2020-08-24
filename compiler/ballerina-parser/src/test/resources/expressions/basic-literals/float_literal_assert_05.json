@@ -100,10 +100,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0x3eA3.4Eb2"
                     }
                   ]
@@ -153,10 +153,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0x.4Eb2"
                     }
                   ]
@@ -206,10 +206,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0X3eA3.4Eb2"
                     }
                   ]
@@ -259,10 +259,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0X.4Eb2"
                     }
                   ]
@@ -328,10 +328,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0x3eA3.4Eb2p45"
                     }
                   ]
@@ -381,10 +381,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0x3eA3.4Eb2P45"
                     }
                   ]
@@ -434,10 +434,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0x.4Eb2p45"
                     }
                   ]
@@ -487,10 +487,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0x.4Eb2P45"
                     }
                   ]
@@ -540,10 +540,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0X3eA3.4Eb2p45"
                     }
                   ]
@@ -593,10 +593,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0X3eA3.4Eb2P45"
                     }
                   ]
@@ -646,10 +646,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0X.4Eb2p45"
                     }
                   ]
@@ -699,10 +699,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0X.4Eb2P45"
                     }
                   ]
@@ -768,10 +768,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0x3eA3.4Eb2p+45"
                     }
                   ]
@@ -821,10 +821,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0x3eA3.4Eb2P-45"
                     }
                   ]
@@ -874,10 +874,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0x.4Eb2p+45"
                     }
                   ]
@@ -927,10 +927,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0x.4Eb2P-45"
                     }
                   ]
@@ -980,10 +980,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0X3eA3.4Eb2p+45"
                     }
                   ]
@@ -1033,10 +1033,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0X3eA3.4Eb2P-45"
                     }
                   ]
@@ -1086,10 +1086,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0X.4Eb2p+45"
                     }
                   ]
@@ -1139,10 +1139,10 @@
                   ]
                 },
                 {
-                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "HEX_FLOATING_POINT_LITERAL",
+                      "kind": "HEX_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "0X.4Eb2P-45"
                     }
                   ]

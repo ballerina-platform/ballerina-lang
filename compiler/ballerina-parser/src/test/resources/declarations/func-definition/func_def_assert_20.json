@@ -92,11 +92,11 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "TYPE_DESC",
+                                      "kind": "SIMPLE_NAME_REFERENCE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "TYPE_DESC",
+                                          "kind": "IDENTIFIER_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
@@ -124,7 +124,7 @@
                                       "kind": "SINGLETON_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "FALSE_KEYWORD",
+                                          "kind": "BOOLEAN_LITERAL",
                                           "children": [
                                             {
                                               "kind": "FALSE_KEYWORD"
@@ -246,10 +246,10 @@
                           ]
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "1"
                             }
                           ]
@@ -293,11 +293,11 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "TYPE_DESC",
+                                      "kind": "SIMPLE_NAME_REFERENCE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "TYPE_DESC",
+                                          "kind": "IDENTIFIER_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
@@ -319,7 +319,7 @@
                                       "kind": "SINGLETON_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "FALSE_KEYWORD",
+                                          "kind": "BOOLEAN_LITERAL",
                                           "children": [
                                             {
                                               "kind": "FALSE_KEYWORD"
