@@ -49,12 +49,12 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
     private static final int PUBLISH_INTERVAL_SECS = 10;
     private static final Logger LOGGER = LogFactory.getLogger();
 
-    private ScheduledExecutorService executorService;
-    private Task task;
-    private int maxQueueSize;
+    private final ScheduledExecutorService executorService;
+    private final Task task;
+    private final int maxQueueSize;
 
     public ChoreoJaegerReporter(int maxQueueSize) {
-        ChoreoClient choreoClient = null;
+        ChoreoClient choreoClient;
         try {
             choreoClient = ChoreoClientHolder.getChoreoClient(this);
         } catch (ChoreoClientException e) {
@@ -97,15 +97,15 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
      * Worker which handles periodically publishing metrics to Choreo.
      */
     private static class Task implements Runnable {
-        private ChoreoClient choreoClient;
-        private List<ChoreoTraceSpan> traceSpans;
+        private final ChoreoClient choreoClient;
+        private final List<ChoreoTraceSpan> traceSpans;
 
         private Task(ChoreoClient choreoClient) {
             this.choreoClient = choreoClient;
             this.traceSpans = new ArrayList<>();
         }
 
-        private synchronized void append(JaegerSpan jaegerSpan) {
+        private void append(JaegerSpan jaegerSpan) {
             Map<String, String> tags = new HashMap<>();
             for (Map.Entry<String, Object> tagEntry : jaegerSpan.getTags().entrySet()) {
                 tags.put(tagEntry.getKey(), tagEntry.getValue().toString());
@@ -126,7 +126,9 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
             long duration = jaegerSpan.getDuration() / 1000;    // Jaeger stores duration in microseconds by default
             ChoreoTraceSpan traceSpan = new ChoreoTraceSpan(spanContext.getTraceId(), spanContext.getSpanId(),
                     jaegerSpan.getServiceName(), jaegerSpan.getOperationName(), timestamp, duration, tags, references);
-            traceSpans.add(traceSpan);
+            synchronized (this) {
+                traceSpans.add(traceSpan);
+            }
         }
 
         @Override

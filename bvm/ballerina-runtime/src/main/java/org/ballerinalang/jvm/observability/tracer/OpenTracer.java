@@ -36,12 +36,11 @@ public interface OpenTracer {
      * Returns the specific tracer implementation of the analytics engine based
      * on the configuration provided.
      *
-     * @param tracerName name of the tracer
      * @param serviceName name of the service of the trace
      * @return Specific {@link Tracer} instance
      * if the configuration or tracer name is invalid.
      */
-    Tracer getTracer(String tracerName, String serviceName);
+    Tracer getTracer(String serviceName);
 
     /**
      * Returns the name of the tracer. This will be used when loading the tracer by name.
