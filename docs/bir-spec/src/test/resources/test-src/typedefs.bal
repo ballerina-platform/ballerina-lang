@@ -1,0 +1,105 @@
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+type T1 A[];
+
+type A int;
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type T2 [B, C];
+
+type B int;
+
+type C string;
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type T3 map<D>;
+
+type D int;
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type T4 E;
+
+type E string;
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type T5 record { F f = ""; };
+
+type F string;
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type T6 object { G g = ""; };
+
+type G string;
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type T7 int[]|A[]|[B, C]|map<string>|map<D>|E|int|record { F f; }|object { public G g = ""; }|error;
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, object { public G g = ""; }, error];
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type T9 H|I;
+
+type T10 J|K|T9|L;
+
+type H A[];
+
+type I [A, B];
+
+type J map<A>;
+
+type K record { F f = ""; };
+
+type L error|object { public G g = ""; };
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type T11 [T7, T10];
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type T12 xml;
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+type FB "A" | object { string f; function init(string f) { self.f = f; }};
+
+type Foo object {
+    string f;
+
+    function init(string f) {
+        self.f = f;
+    }
+};
+
+type FB2 "A" | record { string f; };
+
+type FB3 "A" | record {| string f; |};
+
+// ---------------------------------------------------------------------------------------------------------------------
+type IntArray int[];
+type Int_String [int, string];
+
+type AssertionError error;

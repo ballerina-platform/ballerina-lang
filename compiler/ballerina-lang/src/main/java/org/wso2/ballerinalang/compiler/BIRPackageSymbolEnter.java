@@ -255,6 +255,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void readTypeDefBodies(DataInputStream dataInStream) throws IOException {
+        dataInStream.readInt(); // ignore the size
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
             this.currentStructure = structureTypeSymbol;
             defineSymbols(dataInStream, rethrow(this::defineFunction));

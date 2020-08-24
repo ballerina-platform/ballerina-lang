@@ -33,4 +33,9 @@ public class BIRSpecTest {
     public void constantValueTest() {
         BIRTestUtils.assertConstants("constants.bal");
     }
+
+    @Test(description = "Test to verify BIR with type definitions")
+    public void typeDefinitionTest() {
+        BIRTestUtils.assertConstants("typedefs.bal");
+    }
 }
