@@ -109,6 +109,14 @@ public class OpenApiCmd implements BLauncherCmd {
                 e.printStackTrace();
             }
             if (this.outputPath != null) {
+                if(outputPath.equals("./")) {
+                    targetOutputPath = executionPath;
+                } else if (outputPath.startsWith("../")) {
+//                    if (outputPath.split("../").length <= 1) {
+//                        targetOutputPath =
+//                    } else {targetOutputPath = outputPath.split("../")[1].;
+//                    }
+                }
                 if (Paths.get(outputPath).isAbsolute()) {
                     targetOutputPath = Paths.get(outputPath);
                 } else {
