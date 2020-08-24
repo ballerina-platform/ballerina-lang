@@ -536,14 +536,15 @@ public class ImmutableTypeCloner {
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY,
                                            getImmutableTypeName(names, origRecordType.tsymbol.toString()),
-                                           pkgID, null, env.scope.owner, pos);
+                                           pkgID, null, env.scope.owner, symTable.builtinPos);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false, );
+                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false,
+                symTable.builtinPos);
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
-                                                             bInvokableType, pos);
+                                                             bInvokableType, symTable.builtinPos);
 
         recordSymbol.scope = new Scope(recordSymbol);
         recordSymbol.scope.define(
@@ -593,7 +594,7 @@ public class ImmutableTypeCloner {
         objectSymbol.scope = new Scope(objectSymbol);
         objectSymbol.methodScope = new Scope(objectSymbol);
 
-        defineObjectFunctions(objectSymbol, origObjectTSymbol, names);
+        defineObjectFunctions(objectSymbol, origObjectTSymbol, names, symTable);
 
         BObjectType immutableObjectType = new BObjectType(objectSymbol, origObjectType.flags | Flags.READONLY);
 
@@ -629,7 +630,8 @@ public class ImmutableTypeCloner {
     }
 
     public static void defineObjectFunctions(BObjectTypeSymbol immutableObjectSymbol,
-                                             BObjectTypeSymbol originalObjectSymbol, Names names) {
+                                             BObjectTypeSymbol originalObjectSymbol, Names names,
+                                             SymbolTable symTable) {
         List<BAttachedFunction> originalObjectAttachedFuncs = originalObjectSymbol.attachedFuncs;
         List<BAttachedFunction> immutableObjectAttachedFuncs = immutableObjectSymbol.attachedFuncs;
 
@@ -644,9 +646,10 @@ public class ImmutableTypeCloner {
                                                                                origFunc.funcName.value));
             BInvokableSymbol immutableFuncSymbol =
                     ASTBuilderUtil.duplicateFunctionDeclarationSymbol(origFunc.symbol, immutableObjectSymbol,
-                                                                      funcName, immutableObjectSymbol.pkgID);
+                                                                      funcName, immutableObjectSymbol.pkgID,
+                                                                      symTable.builtinPos);
             immutableFuncs.add(new BAttachedFunction(origFunc.funcName, immutableFuncSymbol,
-                                                     (BInvokableType) immutableFuncSymbol.type, ));
+                                                     (BInvokableType) immutableFuncSymbol.type, symTable.builtinPos));
             immutableObjectSymbol.methodScope.define(funcName, immutableFuncSymbol);
         }
         immutableObjectSymbol.attachedFuncs = immutableFuncs;

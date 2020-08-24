@@ -611,7 +611,7 @@ public class AnnotationDesugar {
     private BInvokableSymbol createInvokableSymbol(BLangFunction function, PackageID pkgID, BSymbol owner) {
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
                                                                        new Name(function.name.value),
-                                                                       pkgID, function.type, owner, true, );
+                                                                       pkgID, function.type, owner, true, function.pos);
         functionSymbol.retType = function.returnTypeNode.type;
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)

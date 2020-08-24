@@ -806,8 +806,10 @@ public class ASTBuilderUtil {
     }
 
     public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
-        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name,
-                invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist, );
+        BInvokableSymbol dupFuncSymbol =
+                Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name, invokableSymbol.pkgID,
+                                             invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist,
+                                             invokableSymbol.pos);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.restParam = invokableSymbol.restParam;
@@ -828,9 +830,10 @@ public class ASTBuilderUtil {
     }
 
     public static BInvokableSymbol duplicateFunctionDeclarationSymbol(BInvokableSymbol invokableSymbol, BSymbol owner,
-                                                                      Name newName, PackageID newPkgID) {
+                                                                      Name newName, PackageID newPkgID,
+                                                                      DiagnosticPos pos) {
         BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newPkgID,
-                                                                      null, owner, invokableSymbol.bodyExist, );
+                                                                      null, owner, invokableSymbol.bodyExist, pos);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.receiverSymbol = null;

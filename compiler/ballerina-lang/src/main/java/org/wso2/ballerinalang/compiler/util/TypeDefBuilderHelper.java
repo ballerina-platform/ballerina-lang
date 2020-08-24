@@ -114,7 +114,7 @@ public class TypeDefBuilderHelper {
                                                                         Names.INIT_FUNCTION_SUFFIX, names, symTable);
         BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.type.tsymbol);
         structureSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
-                                                             (BInvokableType) initFunction.type, );
+                                                                (BInvokableType) initFunction.type, initFunction.pos);
         recordTypeNode.initFunction = initFunction;
         structureSymbol.scope.define(structureSymbol.initializerFunc.symbol.name,
                                      structureSymbol.initializerFunc.symbol);
@@ -145,7 +145,8 @@ public class TypeDefBuilderHelper {
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                                      initFunction.type, structureTypeNode.symbol, initFunction.body != null, );
+                                      initFunction.type, structureTypeNode.symbol, initFunction.body != null,
+                                      initFunction.pos);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;

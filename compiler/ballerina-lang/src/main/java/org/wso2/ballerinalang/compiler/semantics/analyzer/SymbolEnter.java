@@ -1027,7 +1027,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                                                                    getFuncSymbolName(funcNode),
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                   funcNode.hasBody(), );
+                                                                   funcNode.hasBody(), funcNode.pos);
         funcSymbol.source = funcNode.pos.src.cUnitName;
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
@@ -1787,7 +1787,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BObjectType mutableObjectType = immutableObjectType.mutableType;
 
             ImmutableTypeCloner.defineObjectFunctions((BObjectTypeSymbol) immutableObjectType.tsymbol,
-                                                      (BObjectTypeSymbol) mutableObjectType.tsymbol, names);
+                                                      (BObjectTypeSymbol) mutableObjectType.tsymbol, names, symTable);
         }
     }
 
@@ -2339,7 +2339,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Take a copy of the symbol, with the new name, and the package ID same as the object type.
         BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateFunctionDeclarationSymbol(referencedFunc.symbol,
                                                                                         typeDef.symbol, funcName,
-                                                                                        typeDef.symbol.pkgID);
+                                                                                        typeDef.symbol.pkgID,
+                                                                                        typeRef.pos);
         defineSymbol(typeRef.pos, funcSymbol, objEnv);
 
         // Create and define the parameters and receiver. This should be done after defining the function symbol.

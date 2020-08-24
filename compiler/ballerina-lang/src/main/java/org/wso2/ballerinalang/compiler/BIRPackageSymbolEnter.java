@@ -336,8 +336,10 @@ public class BIRPackageSymbolEnter {
         int flags = dataInStream.readInt();
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
-        BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
-                this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE), );
+        BInvokableSymbol invokableSymbol =
+                Symbols.createFunctionSymbol(flags, names.fromString(funcName), this.env.pkgSymbol.pkgID, funcType,
+                                             this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE),
+                                             symTable.builtinPos);
         invokableSymbol.source = source;
         invokableSymbol.retType = funcType.retType;
 
@@ -960,7 +962,7 @@ public class BIRPackageSymbolEnter {
                         BInvokableSymbol recordInitFuncSymbol =
                                 Symbols.createFunctionSymbol(recordInitFuncFlags,
                                         initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
-                                        env.pkgSymbol, isNative, );
+                                        env.pkgSymbol, isNative, symTable.builtinPos);
                         recordInitFuncSymbol.retType = recordInitFuncType.retType;
                         recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
                                                                              recordInitFuncType, symTable.builtinPos);

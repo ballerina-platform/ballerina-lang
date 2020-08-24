@@ -594,9 +594,11 @@ public class Desugar extends BLangNodeVisitor {
         BType returnType = bLangFunction.returnTypeNode.type == null ?
                 symResolver.resolveTypeNode(bLangFunction.returnTypeNode, env) : bLangFunction.returnTypeNode.type;
         BInvokableType invokableType = new BInvokableType(new ArrayList<>(), getRestType(bLangFunction),
-                returnType, null);
+                                                          returnType, null);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
-                new Name(bLangFunction.name.value), env.enclPkg.packageID, invokableType, env.enclPkg.symbol, true, );
+                                                                       new Name(bLangFunction.name.value),
+                                                                       env.enclPkg.packageID, invokableType,
+                                                                       env.enclPkg.symbol, true, bLangFunction.pos);
         functionSymbol.retType = returnType;
         // Add parameters
         for (BLangVariable param : bLangFunction.requiredParams) {
@@ -1622,7 +1624,9 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create function symbol before visiting desugar phase for the function
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
-                new Name(function.name.value), env.enclPkg.packageID, function.type, env.enclEnv.enclVarSym, true, );
+                                                                       new Name(function.name.value),
+                                                                       env.enclPkg.packageID, function.type,
+                                                                       env.enclEnv.enclVarSym, true, function.pos);
         functionSymbol.retType = function.returnTypeNode.type;
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
@@ -1883,7 +1887,7 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
                                                                        new Name(function.name.value),
                                                                        env.enclPkg.packageID, function.type,
-                                                                       env.enclEnv.enclVarSym, true, );
+                                                                       env.enclEnv.enclVarSym, true, function.pos);
         functionSymbol.retType = function.returnTypeNode.type;
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
@@ -4292,8 +4296,11 @@ public class Desugar extends BLangNodeVisitor {
         // Create function symbol.
         BLangFunction funcNode = lambdaFunction.function;
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                new Name(funcNode.name.value), env.enclPkg.symbol.pkgID, bLangArrowFunction.funcType,
-                env.enclEnv.enclVarSym, true, );
+                                                                   new Name(funcNode.name.value),
+                                                                   env.enclPkg.symbol.pkgID,
+                                                                   bLangArrowFunction.funcType,
+                                                                   env.enclEnv.enclVarSym, true,
+                                                                   bLangArrowFunction.pos);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
 
@@ -6135,7 +6142,8 @@ public class Desugar extends BLangNodeVisitor {
     private BAttachedFunction createRecordInitFunc() {
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false, );
+                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false,
+                symTable.builtinPos);
         initFuncSymbol.retType = symTable.nilType;
         return new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol, bInvokableType, symTable.builtinPos);
     }
