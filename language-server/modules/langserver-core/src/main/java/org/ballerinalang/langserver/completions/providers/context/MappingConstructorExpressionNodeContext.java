@@ -24,6 +24,7 @@ import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -163,7 +164,7 @@ public class MappingConstructorExpressionNodeContext extends
                 && evalNode.parent().kind() != SyntaxKind.ASSIGNMENT_STATEMENT
                 && evalNode.parent().kind() != SyntaxKind.ANNOTATION) {
             if (evalNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
-                fieldNames.add(((SpecificFieldNode) evalNode).fieldName().text());
+                fieldNames.add(((Token) ((SpecificFieldNode) evalNode).fieldName()).text());
             } else if (evalNode.kind() == SyntaxKind.BLOCK_STATEMENT || evalNode.kind() == SyntaxKind.MODULE_PART) {
                 return Optional.empty();
             }
