@@ -103,3 +103,14 @@ type IntArray int[];
 type Int_String [int, string];
 
 type AssertionError error;
+
+// ---------------------------------------------------------------------------------------------------------------------
+type ACTION GET|POST;
+
+const GET = "GET";
+const POST = "POST";
+
+function testTypeConstants() returns ACTION {
+    return GET;
+}
+

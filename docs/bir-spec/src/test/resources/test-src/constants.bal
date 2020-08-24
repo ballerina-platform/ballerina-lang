@@ -15,5 +15,10 @@
 // under the License.
 
 const int a = 4;
-
 const s = "Hello";
+const nameWithoutType = "Ballerina";
+const string nameWithType = "Ballerina";
+const int CAI = 10 + 5;
+const float CAF = 10.0 + 5;
+const decimal CAD = 11.5 + 4;
+const string CAS = "hello" + "world";

@@ -110,6 +110,20 @@ class BIRTestUtils {
         }
     }
 
+    static void assertTypeDefs(String testSource) {
+        BIRCompileResult compileResult = compile(testSource);
+        BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
+        Bir actualBIR = compileResult.getActualBIR();
+
+        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
+        Bir.Module birModule = actualBIR.module();
+
+        List<BIRNode.BIRTypeDefinition> expectedTypeDefs = expectedBIR.typeDefs;
+        ArrayList<Bir.TypeDefinition> actualTypeDefinitions = birModule.typeDefinitions();
+
+        Assert.assertEquals(actualTypeDefinitions.size(), expectedTypeDefs.size());
+    }
+
     private static void assertConstantPoolEntry(Bir.ConstantPoolEntry constantPoolEntry, Object expectedValue) {
 
         switch (constantPoolEntry.tag()) {
@@ -124,9 +138,14 @@ class BIRTestUtils {
             case CP_ENTRY_SHAPE:
                 assertType(constantPoolEntry, (BType) expectedValue);
                 break;
+            case CP_ENTRY_FLOAT:
+                Bir.FloatCpInfo floatCpInfo = (Bir.FloatCpInfo) constantPoolEntry.cpInfo();
+                double expectedFloatVal = expectedValue instanceof String ? Double.parseDouble((String) expectedValue)
+                        : (Double) expectedValue;
+                Assert.assertEquals(floatCpInfo.value(), expectedFloatVal);
+                break;
             case CP_ENTRY_PACKAGE:
             case CP_ENTRY_BYTE:
-            case CP_ENTRY_FLOAT:
             case CP_ENTRY_BOOLEAN:
             default:
                 Assert.fail(String.format("Unknown constant pool entry: %s", constantPoolEntry.tag().name()));
@@ -163,6 +182,14 @@ class BIRTestUtils {
             case TYPE_TAG_STRING:
                 Bir.StringConstantInfo stringConstantInfo = (Bir.StringConstantInfo) constantValueInfo;
                 assertConstantPoolEntry(constantPoolEntries.get(stringConstantInfo.valueCpIndex()), expectedValue);
+                break;
+            case TYPE_TAG_FLOAT:
+                Bir.FloatConstantInfo floatConstantInfo = (Bir.FloatConstantInfo) constantValueInfo;
+                assertConstantPoolEntry(constantPoolEntries.get(floatConstantInfo.valueCpIndex()), expectedValue);
+                break;
+            case TYPE_TAG_DECIMAL:
+                Bir.DecimalConstantInfo decimalConstantInfo = (Bir.DecimalConstantInfo) constantValueInfo;
+                assertConstantPoolEntry(constantPoolEntries.get(decimalConstantInfo.valueCpIndex()), expectedValue);
                 break;
             default:
                 Assert.fail(String.format("Unknown constant value type: %s", typeTag.name()));

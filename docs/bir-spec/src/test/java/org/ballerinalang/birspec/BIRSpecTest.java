@@ -24,18 +24,18 @@ import org.testng.annotations.Test;
  */
 public class BIRSpecTest {
 
-    @Test(description = "Test to verify BIR with functions")
+    @Test(description = "Test to verify BIR with different type of functions")
     public void functionsTest() {
         BIRTestUtils.assertFunctions("functions.bal");
     }
 
-    @Test(description = "Test to verify BIR with constant values")
+    @Test(description = "Test to verify BIR with different type of constant values")
     public void constantValueTest() {
         BIRTestUtils.assertConstants("constants.bal");
     }
 
-    @Test(description = "Test to verify BIR with type definitions")
+    @Test(description = "Test to verify BIR with different type definitions")
     public void typeDefinitionTest() {
-        BIRTestUtils.assertConstants("typedefs.bal");
+        BIRTestUtils.assertTypeDefs("typedefs.bal");
     }
 }
