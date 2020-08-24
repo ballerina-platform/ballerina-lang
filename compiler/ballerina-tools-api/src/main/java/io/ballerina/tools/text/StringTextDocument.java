@@ -17,8 +17,6 @@
  */
 package io.ballerina.tools.text;
 
-import io.ballerina.tools.text.TextRange;
-
 import java.util.ArrayList;
 import java.util.List;
 

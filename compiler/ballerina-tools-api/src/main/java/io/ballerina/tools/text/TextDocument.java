@@ -17,8 +17,6 @@
  */
 package io.ballerina.tools.text;
 
-import io.ballerina.tools.text.LinePosition;
-
 /**
  * This is an abstract representation of a Ballerina source file (.bal).
  *
