@@ -83,10 +83,13 @@ types:
         type:
           switch-on: tag
           cases:
+            'tag_enum::cp_entry_integer': int_cp_info
+            'tag_enum::cp_entry_float': float_cp_info
+            'tag_enum::cp_entry_boolean': boolean_cp_info
             'tag_enum::cp_entry_string': string_cp_info
             'tag_enum::cp_entry_package': package_cp_info
+            'tag_enum::cp_entry_byte': byte_cp_info
             'tag_enum::cp_entry_shape': shape_cp_info
-            'tag_enum::cp_entry_integer': int_cp_info
     enums:
       tag_enum:
         1: cp_entry_integer
@@ -123,6 +126,18 @@ types:
     seq:
       - id: value
         type: s8
+  byte_cp_info:
+    seq:
+      - id: value
+        type: s4
+  float_cp_info:
+    seq:
+      - id: value
+        type: f8
+  boolean_cp_info:
+    seq:
+      - id: value
+        type: u1
   type_info:
     seq:
       - id: type_tag
@@ -178,6 +193,12 @@ types:
         type: golbal_var
         repeat: expr
         repeat-expr: golbal_var_count
+      - id: type_definition_bodies_count
+        type: s4
+      - id: type_definition_bodies
+        type: type_definition_body
+        repeat: expr
+        repeat-expr: type_definition_bodies_count
       - id: function_count
         type: s4
       - id: functions
@@ -212,6 +233,20 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+  type_definition_body:
+    seq:
+      - id: attached_functions_count
+        type: s4
+      - id: attached_functions
+        type: function
+        repeat: expr
+        repeat-expr: attached_functions_count
+      - id: referenced_types_count
+        type: s4
+      - id: referenced_types
+        type: referenced_type
+        repeat: expr
+        repeat-expr: referenced_types_count
   constant:
     seq:
       - id: name_cp_index
@@ -316,21 +351,49 @@ types:
         size: annotation_attachments_content_length
       - id: required_param_count
         type: s4
+      - id: required_params
+        type: required_param
+        repeat: expr
+        repeat-expr: required_param_count
       - id: has_rest_param
         type: u1
+      - id: rest_param_name_cp_index
+        type: s4
+        if: has_rest_param != 0
       - id: has_receiver
         type: u1
-      - id: taint_table_lenght
+      - id: reciever
+        type: reciever
+        if: has_receiver != 0
+      - id: taint_table_length
         type: s8
       - id: taint_table
         type: taint_table
-        size: taint_table_lenght
+        size: taint_table_length
       - id: doc
         type: markdown
       - id: function_body_length
         type: s8
       - id: function_body
         size: function_body_length
+  referenced_type:
+    seq:
+      - id: type_cp_index
+        type: s4
+  required_param:
+    seq:
+      - id: param_name_cp_index
+        type: s4
+      - id: flags
+        type: s4
+  reciever:
+    seq:
+      - id: kind
+        type: s1
+      - id: type_cp_index
+        type: s4
+      - id: name_cp_index
+        type: s4
   taint_table:
     seq:
       - id: row_count
