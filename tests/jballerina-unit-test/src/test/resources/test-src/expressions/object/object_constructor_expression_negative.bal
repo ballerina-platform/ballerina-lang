@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// test object reference type
-
 type SampleRec record {};
 
 var objCreatedViaConstructor = object SampleRec {};

@@ -64,17 +64,17 @@ public class ObjectConstructorTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/expressions/object/object_constructor_expression_negative.bal");
         int index = 0;
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'SampleRec' is not an object", 21, 39);
-        BAssertUtil.validateError(negativeResult, index++, "a remote function in a non client object", 24, 5);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'SampleRec' is not an object", 19, 39);
+        BAssertUtil.validateError(negativeResult, index++, "a remote function in a non client object", 22, 5);
         BAssertUtil.validateError(negativeResult, index++, "object constructor 'init' method cannot have parameters",
-                28, 5);
+                26, 5);
         BAssertUtil.validateError(negativeResult, index++, "object initializer function can not be declared as " +
-                "private", 32, 5);
-        BAssertUtil.validateError(negativeResult, index++, "missing identifier", 36, 22);
-        BAssertUtil.validateError(negativeResult, index++, "missing semicolon token", 36, 22);
-        BAssertUtil.validateError(negativeResult, index++, "invalid qualifier 'public'", 36, 29);
-        BAssertUtil.validateError(negativeResult, index++, "missing identifier", 36, 38);
-        BAssertUtil.validateError(negativeResult, index++, "invalid token '*'", 41, 6);
+                "private", 30, 5);
+        BAssertUtil.validateError(negativeResult, index++, "missing identifier", 34, 22);
+        BAssertUtil.validateError(negativeResult, index++, "missing semicolon token", 34, 22);
+        BAssertUtil.validateError(negativeResult, index++, "invalid qualifier 'public'", 34, 29);
+        BAssertUtil.validateError(negativeResult, index++, "missing identifier", 34, 38);
+        BAssertUtil.validateError(negativeResult, index++, "invalid token '*'", 39, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }
