@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
@@ -350,6 +351,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             typeDefinition.typeNode.accept(this);
         }
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        BSymbol objectSymbol = classDefinition.symbol;
+        SymbolEnv classDefEnv = SymbolEnv.createPkgLevelSymbolEnv(classDefinition, objectSymbol.scope, env);
+        classDefinition.fields.forEach(field -> analyzeNode(field, classDefEnv));
+        if (classDefinition.initFunction != null) {
+            analyzeNode(classDefinition.initFunction, classDefEnv);
+        }
+        classDefinition.functions.forEach(f -> analyzeNode(f, classDefEnv));
     }
 
     @Override
@@ -2476,10 +2488,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.IGNORED) {
                 return;
             } else if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-                returnTaintedStatus = TaintedStatus.TAINTED;
+                returnTaintedStatus = getTaintedStatusOfReceiverParam(invokableSymbol);
             }
         }
         getCurrentAnalysisState().taintedStatus = returnTaintedStatus;
+    }
+
+    private TaintedStatus getTaintedStatusOfReceiverParam(BInvokableSymbol invokableSymbol) {
+        TaintRecord taintRecordOfReceiverParam = invokableSymbol.taintTable.get(0);
+        if (taintRecordOfReceiverParam == null) {
+            return TaintedStatus.TAINTED;
+        } else {
+            return taintRecordOfReceiverParam.returnTaintedStatus;
+        }
     }
 
     private boolean restoreTableIfIgnored(BInvokableSymbol invokableSymbol, Map<Integer, TaintRecord> origTaintTable,

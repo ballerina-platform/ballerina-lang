@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -218,6 +219,27 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
                 Symbols.isFlagOn(typeDefinition.symbol.flags, Flags.DEPRECATED), typeDefinition.pos);
         validateDeprecatedParametersDocumentation(typeDefinition.markdownDocumentationAttachment, typeDefinition.pos);
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        validateParameters(classDefinition, classDefinition.fields, null, DiagnosticCode.UNDOCUMENTED_FIELD,
+                DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
+        validateReturnParameter(classDefinition, null, false);
+        validateReferences(classDefinition);
+        for (SimpleVariableNode field : classDefinition.fields) {
+            validateReferences(field);
+            validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
+                    Symbols.isFlagOn(((BLangSimpleVariable) field).symbol.flags, Flags.DEPRECATED),
+                    (DiagnosticPos) field.getPosition());
+        }
+
+        classDefinition.functions.forEach(this::analyzeNode);
+
+        validateDeprecationDocumentation(classDefinition.markdownDocumentationAttachment,
+                Symbols.isFlagOn(classDefinition.symbol.flags, Flags.DEPRECATED), classDefinition.pos);
+        validateDeprecatedParametersDocumentation(classDefinition.markdownDocumentationAttachment, classDefinition.pos);
+
     }
 
     @Override

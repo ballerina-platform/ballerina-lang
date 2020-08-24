@@ -77,17 +77,17 @@ public function generateApplicationErrorStream(string message) returns stream <r
 }
 
 function nextResult(ResultIterator iterator) returns record {}|Error? = @java:Method {
-    class: "org.ballerinalang.sql.utils.RecordIteratorUtils"
+    'class: "org.ballerinalang.sql.utils.RecordIteratorUtils"
 } external;
 
 function closeResult(ResultIterator iterator) returns Error? = @java:Method {
-    class: "org.ballerinalang.sql.utils.RecordIteratorUtils"
+    'class: "org.ballerinalang.sql.utils.RecordIteratorUtils"
 } external;
 
 function getNextQueryResult(ProcedureCallResult callResult) returns boolean|Error = @java:Method {
-    class: "org.ballerinalang.sql.utils.ProcedureCallResultUtils"
+    'class: "org.ballerinalang.sql.utils.ProcedureCallResultUtils"
 } external;
 
 function closeCallResult(ProcedureCallResult callResult) returns Error? = @java:Method {
-    class: "org.ballerinalang.sql.utils.ProcedureCallResultUtils"
+    'class: "org.ballerinalang.sql.utils.ProcedureCallResultUtils"
 } external;

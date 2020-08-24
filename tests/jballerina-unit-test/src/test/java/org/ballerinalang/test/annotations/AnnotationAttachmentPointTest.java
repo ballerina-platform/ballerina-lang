@@ -37,7 +37,7 @@ public class AnnotationAttachmentPointTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 245);
+        Assert.assertEquals(compileResult.getErrorCount(), 246);
     }
 
     @Test
@@ -425,5 +425,11 @@ public class AnnotationAttachmentPointTest {
     public void testInvalidAttachmentForTypeConversionExpr() {
         int index = 244;
         validateError(compileResult, index++, "annotation 'v16' is not allowed on type", 847, 17);
+    }
+
+    @Test
+    public void testInvalidAttachmentForClass() {
+        int index = 245;
+        validateError(compileResult, index++, "annotation 'v19' is not allowed on class", 852, 6);
     }
 }

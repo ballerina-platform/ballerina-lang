@@ -102,35 +102,35 @@ public type Headers object {
 
 function externExists(Headers headerValues, string headerName) returns boolean =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
 
 function externGet(Headers headerValues, string headerName) returns string? =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
 
 function externGetAll(Headers headerValues, string headerName) returns string[] =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
 
 function externSetEntry(Headers headerValues, string headerName, string headerValue) =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
 
 function externAddEntry(Headers headerValues, string headerName, string headerValue) =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
 
 function externRemove(Headers headerValues, string headerName) =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
 
 function externRemoveAll(Headers headerValues) =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;

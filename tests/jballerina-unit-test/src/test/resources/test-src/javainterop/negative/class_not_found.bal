@@ -23,5 +23,5 @@ public function interopWithRefTypesAndMapReturn() returns map<any> {
 }
 
 public function acceptRefTypesAndReturnMap(Person a, [int, string, Person] b, int|string|Employee c, error d, any e, anydata f, Employee g) returns map<any> = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/PublicStaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/PublicStaticMethods"
 } external;

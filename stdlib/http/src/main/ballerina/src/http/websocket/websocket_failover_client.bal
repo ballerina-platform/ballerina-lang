@@ -185,6 +185,6 @@ public type WebSocketFailoverClientConfiguration record {|
 |};
 
 function externFailoverInit(WebSocketFailoverClient wsClient) = @java:Method {
-    class: "org.ballerinalang.net.http.websocket.client.FailoverInitEndpoint",
+    'class: "org.ballerinalang.net.http.websocket.client.FailoverInitEndpoint",
     name: "initEndpoint"
 } external;

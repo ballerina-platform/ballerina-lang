@@ -36,7 +36,7 @@ type DummyImpl object {
 };
 
 public function newArrayList() returns handle = @java:Constructor {
-    class:"java.util.ArrayList"
+    'class:"java.util.ArrayList"
 } external;
 
 handle dummyHandle = newArrayList();

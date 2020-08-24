@@ -38,7 +38,7 @@ public type InvocationContext record {|
 #
 # + return - The `auth:InvocationContext` instance
 public function getInvocationContext() returns InvocationContext = @java:Method {
-    class: "org.ballerinalang.stdlib.auth.nativeimpl.GetInvocationContext"
+    'class: "org.ballerinalang.stdlib.auth.nativeimpl.GetInvocationContext"
 } external;
 
 # Sets the authentication-related values to the invocation context.

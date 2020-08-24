@@ -205,6 +205,11 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
             case ENUM_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+                // Following are module-class-defn starting tokens
+            case CLASS_KEYWORD:
+            case DISTINCT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case READONLY_KEYWORD:
                 metadata = STNodeFactory.createEmptyNode();
                 break;
             case IDENTIFIER_TOKEN:
@@ -266,6 +271,11 @@ public class BallerinaParser extends AbstractParser {
             case XMLNS_KEYWORD:
             case ENUM_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+                // Following are module-class-defn starting tokens
+            case CLASS_KEYWORD:
+            case DISTINCT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case READONLY_KEYWORD:
                 break;
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
@@ -738,7 +748,7 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
-                // ANything starts with a function keyword could be a function definition
+                // Anything starts with a function keyword could be a function definition
                 // or a module-var-decl with function type desc.
                 List<STNode> qualifiers = new ArrayList<>();
                 if (qualifier != null) {
@@ -748,6 +758,11 @@ public class BallerinaParser extends AbstractParser {
                         false, qualifiers);
             case TYPE_KEYWORD:
                 return parseModuleTypeDefinition(metadata, getQualifier(qualifier));
+            case CLASS_KEYWORD:
+            case DISTINCT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case READONLY_KEYWORD:
+                return parserClassDefinition(metadata, getQualifier(qualifier));
             case LISTENER_KEYWORD:
                 return parseListenerDeclaration(metadata, getQualifier(qualifier));
             case CONST_KEYWORD:
@@ -2348,6 +2363,101 @@ public class BallerinaParser extends AbstractParser {
                 semicolon);
     }
 
+
+    /**
+     * <p>
+     * Parse a class definition.
+     * </p>
+     * <code>module-class-defn := metadata [public] class-type-quals class identifier { class-member* }</code>
+     * <code>class-type-quals := (distinct | client | readonly)*</code>
+     *
+     * @param metadata Metadata
+     * @param qualifier Visibility qualifier
+     * @return Parsed node
+     */
+    private STNode parserClassDefinition(STNode metadata, STNode qualifier) {
+        startContext(ParserRuleContext.MODULE_CLASS_DEFINITION);
+        STNode classTypeQualifiers = parseClassTypeQualifiers();
+        STNode classKeyword = parseClassKeyword();
+        STNode className = parseClassName();
+        STNode openBrace = parseOpenBrace();
+        STNode classMembers = parseObjectMembers();
+        // TODO: Find another way
+        startContext(ParserRuleContext.OBJECT_MEMBER);
+        STNode closeBrace = parseCloseBrace();
+        endContext();
+
+        endContext();
+        return STNodeFactory.createClassDefinitionNode(metadata, qualifier, classTypeQualifiers, classKeyword,
+                className, openBrace, classMembers, closeBrace);
+    }
+
+    private STNode parseClassTypeQualifiers() {
+        STToken nextToken = peek();
+        STNode firstQualifier;
+        switch (nextToken.kind) {
+            case CLIENT_KEYWORD:
+            case READONLY_KEYWORD:
+            case DISTINCT_KEYWORD:
+                firstQualifier = consume();
+                break;
+            case CLASS_KEYWORD:
+                return STNodeFactory.createEmptyNodeList();
+            default:
+                recover(peek(), ParserRuleContext.MODULE_CLASS_DEFINITION);
+                return parseClassTypeQualifiers();
+        }
+
+        return parseClassTypeNextQualifiers(firstQualifier);
+    }
+
+    private STNode parseClassTypeNextQualifiers(STNode firstQualifier) {
+        List<STNode> qualifiers = new ArrayList<>();
+        qualifiers.add(firstQualifier);
+
+        // Parse the second and third qualifiers
+        for (int i = 0; i < 2; i++) {
+            STNode nextToken = peek();
+            if (isNodeWithSyntaxKindInList(qualifiers, nextToken.kind)) {
+                // Consume the nextToken
+                nextToken = consume();
+                updateLastNodeInListWithInvalidNode(qualifiers, nextToken,
+                        DiagnosticErrorCode.ERROR_SAME_OBJECT_TYPE_QUALIFIER);
+                continue;
+            }
+
+            STNode nextQualifier;
+            switch (nextToken.kind) {
+                case CLIENT_KEYWORD:
+                case DISTINCT_KEYWORD:
+                case READONLY_KEYWORD:
+                    nextQualifier = consume();
+                    break;
+                case CLASS_KEYWORD:
+                default:
+                    return STNodeFactory.createNodeList(qualifiers);
+            }
+            qualifiers.add(nextQualifier);
+        }
+
+        return STNodeFactory.createNodeList(qualifiers);
+    }
+
+    /**
+     * Parse class keyword.
+     *
+     * @return Parsed node
+     */
+    private STNode parseClassKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CLASS_KEYWORD) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.CLASS_KEYWORD);
+            return parseClassKeyword();
+        }
+    }
+
     /**
      * Parse type keyword.
      *
@@ -2375,6 +2485,21 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(token, ParserRuleContext.TYPE_NAME);
             return parseTypeName();
+        }
+    }
+
+    /**
+     * Parse class name.
+     *
+     * @return Parsed node
+     */
+    private STNode parseClassName() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.CLASS_NAME);
+            return parseClassName();
         }
     }
 
@@ -4558,7 +4683,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse object members.
+     * Parse class members.
+     * <code>class-members := class-member*</code>
      *
      * @param skipTypeInclusions will not accept type inclusions as valid object members
      * @return Parsed node
@@ -4580,6 +4706,14 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(objectMembers);
     }
 
+    /**
+     * <p>
+     * Parse a class member.
+     * </p>
+     * <code>class-member :=  object-field | method-defn | object-type-inclusion</code>
+     *
+     * @return Parsed node
+     */
     private STNode parseObjectMember(boolean skipTypeInclusions) {
         STNode metadata;
         STToken nextToken = peek();
@@ -4597,7 +4731,6 @@ public class BallerinaParser extends AbstractParser {
             case RESOURCE_KEYWORD:// resource qualifier is not allowed but let it pass here and validate in
                 // parseFunctionQualifiers method
                 metadata = STNodeFactory.createEmptyNode();
-
                 break;
             case DOCUMENTATION_STRING:
             case AT_TOKEN:
@@ -4683,7 +4816,7 @@ public class BallerinaParser extends AbstractParser {
      * one qualifier at-most.
      *
      * @param metadata Metadata
-     * @param visibilityQualifiers Visibility qualifiers
+     * @param visibilityQualifier Visibility qualifier
      * @return Parse object member node
      */
     private STNode parseObjectMethodOrField(STNode metadata, STNode visibilityQualifier) {
@@ -7051,6 +7184,7 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
             case FIELD_KEYWORD:
             case RECORD_KEYWORD:
+            case CLASS_KEYWORD:
                 sourceKeyword = STNodeFactory.createEmptyNode();
                 STNode firstIdent = consume();
                 return parseDualAttachPointIdent(sourceKeyword, firstIdent);
@@ -7108,6 +7242,7 @@ public class BallerinaParser extends AbstractParser {
             case RETURN_KEYWORD:
             case SERVICE_KEYWORD:
             case FIELD_KEYWORD:
+            case CLASS_KEYWORD:
                 firstIdent = consume();
                 return parseDualAttachPointIdent(sourceKeyword, firstIdent);
             default:
@@ -7141,6 +7276,7 @@ public class BallerinaParser extends AbstractParser {
             case RETURN_KEYWORD:
             case SERVICE_KEYWORD:
             case FIELD_KEYWORD:
+            case CLASS_KEYWORD:
             default: // default case should never be reached.
                 secondIdent = STNodeFactory.createEmptyNode();
                 break;

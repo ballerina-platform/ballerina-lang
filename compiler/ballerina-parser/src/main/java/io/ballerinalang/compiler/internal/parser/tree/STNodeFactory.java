@@ -2263,5 +2263,26 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression,
                 orderDirection);
     }
+
+    public static STNode createClassDefinitionNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode classTypeQualifiers,
+            STNode classKeyword,
+            STNode className,
+            STNode openBrace,
+            STNode members,
+            STNode closeBrace) {
+
+        return new STClassDefinitionNode(
+                metadata,
+                visibilityQualifier,
+                classTypeQualifiers,
+                classKeyword,
+                className,
+                openBrace,
+                members,
+                closeBrace);
+    }
 }
 

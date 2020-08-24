@@ -789,6 +789,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(orderKeyNode);
     }
 
+    public T transform(STClassDefinitionNode classDefinitionNode) {
+        return transformSyntaxNode(classDefinitionNode);
+    }
+
     // Tokens
 
     public T transform(STToken token) {

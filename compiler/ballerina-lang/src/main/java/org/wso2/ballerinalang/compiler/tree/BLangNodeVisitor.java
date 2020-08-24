@@ -936,4 +936,8 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         throw new AssertionError();
     }
+
+    public void visit(BLangClassDefinition classDefinition) {
+        throw  new AssertionError();
+    }
 }

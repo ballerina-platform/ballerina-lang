@@ -43,7 +43,7 @@ type ConnectionManager object {
 
 function externInitGlobalPool(PoolConfiguration poolConfig) =
 @java:Method {
-    class: "org.ballerinalang.net.http.clientendpoint.InitGlobalPool",
+    'class: "org.ballerinalang.net.http.clientendpoint.InitGlobalPool",
     name: "initGlobalPool"
 } external;
 

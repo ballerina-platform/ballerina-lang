@@ -65,22 +65,22 @@ public function testGetArrayLengthMethod() returns int {
 
 public function sortJavaIntArray(handle arrayValue) = @java:Method {
     name:"sort",
-    class: "java.util.Arrays",
+    'class: "java.util.Arrays",
     paramTypes:["[I"]
 } external;
 
 public function sortJavaStringArray(handle arrayValue) = @java:Method {
     name:"sort",
-    class: "java.util.Arrays",
+    'class: "java.util.Arrays",
     paramTypes:["[Ljava.lang.String;"]
 } external;
 
 public function splitString(handle receiver, handle regex) returns handle = @java:Method {
     name:"split",
-    class: "java/lang/String"
+    'class: "java/lang/String"
 } external;
 
 function wrapInt(int i) returns handle = @java:Constructor {
-        class: "java.lang.Integer",
+        'class: "java.lang.Integer",
         paramTypes: ["int"]
 } external;
