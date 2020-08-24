@@ -346,7 +346,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     // Statements
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        throw new AssertionError();
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
+        for (BLangStatement statement : blockNode.stmts) {
+            analyzeNode(statement, blockEnv);
+        }
     }
 
     @Override
@@ -407,7 +410,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        throw new AssertionError();
+        analyzeNode(returnNode.expr, env);
     }
 
     @Override
@@ -427,7 +430,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
-        throw new AssertionError();
+        analyzeNode(ifNode.expr, env);
+        analyzeNode(ifNode.body, env);
+        analyzeNode(ifNode.elseStmt, env);
     }
 
     @Override
@@ -595,7 +600,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
         BType accessType = varRefExpr.type;
 
-        if (!isModuleVarRef(varRefExpr)) {
+        if (varRefExpr.symbol.owner == env.enclInvokable.symbol) {
             return;
         }
 
@@ -1187,9 +1192,5 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         throw new AssertionError();
-    }
-
-    private boolean isModuleVarRef(BLangSimpleVarRef varRef) {
-        return varRef.symbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 }
