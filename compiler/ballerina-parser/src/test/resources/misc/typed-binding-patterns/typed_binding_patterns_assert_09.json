@@ -121,7 +121,7 @@
                       "kind": "OPEN_BRACKET_TOKEN"
                     },
                     {
-                      "kind": "ASTERISK_TOKEN",
+                      "kind": "ASTERISK_LITERAL",
                       "children": [
                         {
                           "kind": "ASTERISK_TOKEN"
@@ -952,7 +952,7 @@
                                   "kind": "OPEN_BRACKET_TOKEN"
                                 },
                                 {
-                                  "kind": "ASTERISK_TOKEN",
+                                  "kind": "ASTERISK_LITERAL",
                                   "children": [
                                     {
                                       "kind": "ASTERISK_TOKEN"

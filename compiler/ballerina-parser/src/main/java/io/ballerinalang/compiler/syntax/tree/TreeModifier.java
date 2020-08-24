@@ -777,8 +777,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             SpecificFieldNode specificFieldNode) {
         Token readonlyKeyword =
                 modifyToken(specificFieldNode.readonlyKeyword().orElse(null));
-        Token fieldName =
-                modifyToken(specificFieldNode.fieldName());
+        Node fieldName =
+                modifyNode(specificFieldNode.fieldName());
         Token colon =
                 modifyToken(specificFieldNode.colon());
         ExpressionNode valueExpr =

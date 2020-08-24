@@ -14,10 +14,10 @@
       "kind": "BINARY_EXPRESSION",
       "children": [
         {
-          "kind": "DECIMAL_INTEGER_LITERAL",
+          "kind": "NUMERIC_LITERAL",
           "children": [
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
               "value": "6"
             }
           ]
@@ -26,10 +26,10 @@
           "kind": "PLUS_TOKEN"
         },
         {
-          "kind": "DECIMAL_INTEGER_LITERAL",
+          "kind": "NUMERIC_LITERAL",
           "children": [
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
               "value": "7"
             }
           ]
