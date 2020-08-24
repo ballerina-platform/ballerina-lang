@@ -2136,9 +2136,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode receiveField : receiveFields) {
             IdentifierNode worker = receiveField.getWorkerName();
-//            String workerName = receiveField.getWorkerName().getValue();
             if (workerNames.contains(worker.getValue())){
-//                DiagnosticPos workerNamePos = (DiagnosticPos) receiveField.getWorkerName().getPosition();
                 dlog.error((DiagnosticPos) worker.getPosition(),
                         DiagnosticCode.REDUNDANT_WORKER_IDENTIFIERS_IN_MULTIPLE_RECEIVE, worker.getValue());
                 hasSemanticErrors = true;

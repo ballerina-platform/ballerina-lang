@@ -2009,11 +2009,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             int size = receiveFields.size();
             for (int i = 0; i < size; i++) {
                 Node receiveField = receiveFields.get(i);
-                BLangWorkerMultipleReceive.BLangWorkerReceiveField workerReceiveField
-                        = TreeBuilder.createReceiveFieldNode();
-                if (receiveField.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+                BLangWorkerMultipleReceive.BLangWorkerReceiveField workerReceiveField =
+                        TreeBuilder.createReceiveFieldNode();
+                if (receiveField.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE){
                     workerReceiveField.setWorkerName(createIdentifier(((SimpleNameReferenceNode) receiveField).name()));
-                } else if (receiveField.kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
+                } else if (receiveField.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE){
                     QualifiedNameReferenceNode qualifiedReceiveField = ((QualifiedNameReferenceNode) receiveField);
                     workerReceiveField.setWorkerFieldName(createIdentifier(qualifiedReceiveField.modulePrefix()));
                     workerReceiveField.setWorkerName(createIdentifier(qualifiedReceiveField.identifier()));

@@ -88,7 +88,7 @@ public class BLangWorkerMultipleReceive extends BLangExpression implements Worke
     public boolean canMoveToNext() {
 
         for (WorkerReceiveFieldNode receiveField : this.receiveFields) {
-            if (!receiveField.getHasReceived()) {
+            if (!receiveField.isCurrentReceiveFieldVisited()) {
                 return false;
             }
         }
@@ -120,64 +120,54 @@ public class BLangWorkerMultipleReceive extends BLangExpression implements Worke
         public BType workerType;
         public BType matchingSendsError;
 
-        public BLangExpression getSendExpression() {
-
-            return sendExpression;
-        }
-
         public BLangExpression sendExpression;
         public boolean hasReceived = false;
 
+        public BLangExpression getSendExpression() {
+            return sendExpression;
+        }
+
         @Override
         public void setSendExpression(BLangExpression sendExpression) {
-
             this.sendExpression = sendExpression;
         }
 
         public BLangExpression getKeyExpr() {
-
             return keyExpr;
         }
 
         @Override
         public void setWorkerName(IdentifierNode identifierNode) {
-
             this.workerIdentifier = (BLangIdentifier) identifierNode;
         }
 
         @Override
         public void setWorkerFieldName(IdentifierNode identifierNode) {
-
             this.workerFieldName = (BLangIdentifier) identifierNode;
         }
 
         @Override
         public ExpressionNode getKeyExpression() {
-
             return keyExpr;
         }
 
         @Override
         public IdentifierNode getWorkerName() {
-
             return workerIdentifier;
         }
 
         @Override
         public IdentifierNode getWorkerFieldName() {
-
             return workerFieldName;
         }
 
         @Override
-        public void setHasReceived(boolean value) {
-
-            this.hasReceived = value;
+        public void setCurrentReceiveFieldVisited() {
+            this.hasReceived = true;
         }
 
         @Override
-        public boolean getHasReceived() {
-
+        public boolean isCurrentReceiveFieldVisited() {
             return this.hasReceived;
         }
     }

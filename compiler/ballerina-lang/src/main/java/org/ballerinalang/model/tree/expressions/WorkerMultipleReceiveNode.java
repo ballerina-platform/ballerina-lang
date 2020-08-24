@@ -50,11 +50,12 @@ public interface WorkerMultipleReceiveNode extends ExpressionNode {
         IdentifierNode getWorkerFieldName();
 
         void setSendExpression(BLangExpression sendExpression);
-        public BLangExpression getSendExpression();
 
-        void setHasReceived(boolean value);
+        BLangExpression getSendExpression();
 
-        boolean getHasReceived();
+        void setCurrentReceiveFieldVisited();
+
+        boolean isCurrentReceiveFieldVisited();
 
     }
 

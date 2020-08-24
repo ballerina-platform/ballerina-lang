@@ -1962,11 +1962,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 sender = symTable.notFoundSymbol;
             }
 
-            verifyPeerCommunication(
-                    workerMultipleReceive.pos,
-                    sender,
-                    workerIdentifier.value
-                                   );
+            verifyPeerCommunication(workerMultipleReceive.pos, sender, workerIdentifier.value);
 
             String workerName = workerIdentifier.getValue();
             boolean allowedLocation = isCommunicationAllowedLocation(workerName);
@@ -3388,11 +3384,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         private boolean checkAndSetWorkerMultipleReceiveSource(BLangWorkerMultipleReceive multipleReceive,
                                                                String sourceWorkerId) {
 
-            for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode receivedWorker : multipleReceive.receiveFields) {
-                if (!receivedWorker.getHasReceived()
-                        && receivedWorker.getWorkerName().getValue().equals(sourceWorkerId)) {
-                    multipleReceive.currentReceiveFieldIndex = multipleReceive.receiveFields.indexOf(receivedWorker);
-                    receivedWorker.setHasReceived(true);
+            for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode receiveField : multipleReceive.receiveFields) {
+                if (!receiveField.isCurrentReceiveFieldVisited() &&
+                        receiveField.getWorkerName().getValue().equals(sourceWorkerId)) {
+                    multipleReceive.currentReceiveFieldIndex = multipleReceive.receiveFields.indexOf(receiveField);
+                    receiveField.setCurrentReceiveFieldVisited();
                     return true;
                 }
             }
