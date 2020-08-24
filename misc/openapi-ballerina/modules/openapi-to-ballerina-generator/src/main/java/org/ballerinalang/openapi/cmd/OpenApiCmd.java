@@ -128,21 +128,15 @@ public class OpenApiCmd implements BLauncherCmd {
                         break;
                     default:
                         generateBothFiles(generator, serviceName, resourcePath);
-
-//                        generateServiceFile(generator, serviceName, resourcePath);
-//                        generatesClientFile(generator, serviceName, resourcePath);
                         break;
                 }
             } else {
                 generateBothFiles(generator, serviceName, resourcePath);
-                //Generate Service file
-//                generateServiceFile(generator, serviceName, resourcePath);
-                //Generates Client file
-//                generatesClientFile(generator, serviceName, resourcePath);
             }
         } else {
-            throw LauncherUtils.createLauncherException("An OpenApi definition file is required to generate the " +
-                    "service. \nE.g: ballerina openapi --input <OpenApiContract>");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
+            outStream.println(commandUsageInfo);
+            return;
         }
     }
 
