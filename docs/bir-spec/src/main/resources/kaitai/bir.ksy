@@ -375,6 +375,7 @@ types:
       - id: function_body_length
         type: s8
       - id: function_body
+        type: function_body
         size: function_body_length
   referenced_type:
     seq:
@@ -400,6 +401,117 @@ types:
         type: s2
       - id: column_count
         type: s2
+  function_body:
+    seq:
+      - id: args_count
+        type: s4
+      - id: has_return_var
+        type: u1
+      - id: return_var
+        type: return_var
+        if: has_return_var != 0
+      - id: dafault_parameter_count
+        type: s4
+      - id: dafault_parameters
+        type: dafault_parameter
+        repeat: expr
+        repeat-expr: dafault_parameter_count
+      - id: local_variables_count
+        type: s4
+      - id: local_variables
+        type: local_variable
+        repeat: expr
+        repeat-expr: local_variables_count
+      - id: has_default_params_basic_blocks
+        type: u1
+      - id: default_parameter_basic_blocks_info
+        type: basic_blocks_info
+        if: has_default_params_basic_blocks != 0
+      - id: function_basic_blocks_info
+        type: basic_blocks_info
+      - id: error_table
+        type: error_table
+      - id: worker_channel_info
+        type: worker_channel
+  return_var:
+    seq:
+      - id: kind
+        type: s1
+      - id: type_cp_index
+        type: s4
+      - id: name_cp_index
+        type: s4
+  dafault_parameter:
+    seq:
+      - id: kind
+        type: s1
+      - id: type_cp_index
+        type: s4
+      - id: name_cp_index
+        type: s4
+      - id: meta_var_name_cp_index
+        type: s4
+        if: kind == 2
+      - id: has_default_expr
+        type: u1
+  local_variable:
+    seq:
+      - id: kind
+        type: s1
+      - id: type_cp_index
+        type: s4
+      - id: name_cp_index
+        type: s4
+      - id: meta_var_name_cp_index
+        type: s4
+        if: kind == 2
+      - id: enclosing_basic_block_id
+        type: enclosing_basic_block_id
+        if: kind == 1
+  error_table:
+    seq:
+      - id: error_entries_count
+        type: s4
+      - id: error_entries
+        type: error_entry
+        repeat: expr
+        repeat-expr: error_entries_count
+  error_entry:
+    seq:
+      - id: trap_bb_id_cp_index
+        type: s4
+      - id: end_bb_id_cp_index
+        type: s4
+      - id: error_operand
+        type: operand
+      - id: target_bb_id_cp_index
+        type: s4
+  worker_channel:
+    seq:
+      - id: channels_length
+        type: s4
+      - id: worker_channel_details
+        type: worker_channel_detail
+        repeat: expr
+        repeat-expr: channels_length
+  worker_channel_detail:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: channel_in_same_strand
+        type: u1
+      - id: send
+        type: u1
+  enclosing_basic_block_id:
+    seq:
+      - id: meta_var_name_cp_index
+        type: s4
+      - id: end_bb_id_cp_index
+        type: s4
+      - id: start_bb_id_cp_index
+        type: s4
+      - id: instruction_offset
+        type: s4
   position:
     seq:
       - id: s_line
@@ -412,3 +524,214 @@ types:
         type: s4
       - id: source_file_cp_index
         type: s4
+  basic_blocks_info:
+    seq:
+      - id: basic_blocks_count
+        type: s4
+      - id: basic_blocks
+        type: basic_block
+        repeat: expr
+        repeat-expr: basic_blocks_count
+  basic_block:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: instructions_count
+        type: s4
+      - id: instructions
+        type: instruction
+        repeat: expr
+        repeat-expr: instructions_count
+  instruction:
+    seq:
+      - id: position
+        type: position
+      - id: instruction_kind
+        type: s1
+        enum: instruction_kind_enum
+      - id: instruction_structure
+        type:
+          switch-on: instruction_kind
+          cases:
+            'instruction_kind_enum::instruction_kind_goto': instruction_goto
+            'instruction_kind_enum::instruction_kind_return': instruction_return
+            'instruction_kind_enum::instruction_kind_new_typedesc': instruction_new_typedesc
+            'instruction_kind_enum::instruction_kind_new_structure': instruction_new_structure
+            'instruction_kind_enum::instruction_kind_const_load': instruction_const_load
+            'instruction_kind_enum::instruction_kind_move': instruction_move
+            'instruction_kind_enum::instruction_kind_call': instruction_call
+    enums:
+      instruction_kind_enum:
+        1: instruction_kind_goto
+        2: instruction_kind_call
+        3: instruction_kind_branch
+        4: instruction_kind_return
+        5: instruction_kind_async_call
+        6: instruction_kind_wait
+        7: instruction_kind_fp_call
+        8: instruction_kind_wk_receive
+        9: instruction_kind_wk_send
+        10: instruction_kind_flush
+        11: instruction_kind_lock
+        12: instruction_kind_field_lock
+        13: instruction_kind_unlock
+        14: instruction_kind_wait_all
+        20: instruction_kind_move
+        21: instruction_kind_const_load
+        22: instruction_kind_new_structure
+        23: instruction_kind_map_store
+        24: instruction_kind_map_load
+        25: instruction_kind_new_array
+        26: instruction_kind_array_store
+        27: instruction_kind_array_load
+        28: instruction_kind_new_error
+        29: instruction_kind_type_cast
+        30: instruction_kind_is_like
+        31: instruction_kind_type_test
+        32: instruction_kind_new_instance
+        33: instruction_kind_object_store
+        34: instruction_kind_object_load
+        35: instruction_kind_panic
+        36: instruction_kind_fp_load
+        37: instruction_kind_string_load
+        38: instruction_kind_new_xml_element
+        39: instruction_kind_new_xml_text
+        40: instruction_kind_new_xml_comment
+        41: instruction_kind_new_xml_pi
+        42: instruction_kind_new_xml_seq
+        43: instruction_kind_new_xml_qname
+        44: instruction_kind_new_string_xml_qname
+        45: instruction_kind_xml_seq_store
+        46: instruction_kind_xml_seq_load
+        47: instruction_kind_xml_load
+        48: instruction_kind_xml_load_all
+        49: instruction_kind_xml_attribute_load
+        50: instruction_kind_xml_attribute_store
+        51: instruction_kind_new_table
+        52: instruction_kind_new_typedesc
+        53: instruction_kind_new_stream
+        54: instruction_kind_table_store
+        55: instruction_kind_table_load
+        61: instruction_kind_add
+        62: instruction_kind_sub
+        63: instruction_kind_mul
+        64: instruction_kind_div
+        65: instruction_kind_mod
+        66: instruction_kind_equal
+        67: instruction_kind_not_equal
+        68: instruction_kind_greater_than
+        69: instruction_kind_greater_equal
+        70: instruction_kind_less_than
+        71: instruction_kind_less_equal
+        72: instruction_kind_and
+        73: instruction_kind_or
+        74: instruction_kind_ref_equal
+        75: instruction_kind_ref_not_equal
+        76: instruction_kind_closed_range
+        77: instruction_kind_half_open_range
+        78: instruction_kind_annot_access
+        80: instruction_kind_typeof
+        81: instruction_kind_not
+        82: instruction_kind_negate
+        83: instruction_kind_bitwise_and
+        84: instruction_kind_bitwise_or
+        85: instruction_kind_bitwise_xor
+        86: instruction_kind_bitwise_left_shift
+        87: instruction_kind_bitwise_right_shift
+        88: instruction_kind_bitwise_unsigned_right_shift
+        128: instruction_kind_platform
+  instruction_const_load:
+    seq:
+      - id: type_cp_index
+        type: s4
+      - id: lhs_operand
+        type: operand
+      - id: constant_value_info
+        type:
+          switch-on: type.shape.type_tag
+          cases:
+            'type_tag_enum::type_tag_int': int_constant_info
+            'type_tag_enum::type_tag_byte': byte_constant_info
+            'type_tag_enum::type_tag_float': float_constant_info
+            'type_tag_enum::type_tag_string': string_constant_info
+            'type_tag_enum::type_tag_decimal': decimal_constant_info
+            'type_tag_enum::type_tag_boolean': boolean_constant_info
+            'type_tag_enum::type_tag_nil': nil_constant_info
+    instances:
+      type:
+        value: _root.constant_pool.constant_pool_entries[type_cp_index].cp_info.as<shape_cp_info>
+  instruction_goto:
+    seq:
+      - id: target_bb_id_name_cp_index
+        type: s4
+  instruction_move:
+    seq:
+      - id: rhs_operand
+        type: operand
+      - id: lhs_operand
+        type: operand
+  instruction_call:
+    seq:
+      - id: is_virtual
+        type: u1
+      - id: package_index
+        type: s4
+      - id: call_name_cp_index
+        type: s4
+      - id: arguments_count
+        type: s4
+      - id: arguments
+        type: operand
+        repeat: expr
+        repeat-expr: arguments_count
+      - id: has_lhs_operand
+        type: s1
+      - id: lhs_operand
+        type: operand
+        if: has_lhs_operand != 0
+      - id: then_bb_id_name_cp_index
+        type: s4
+  instruction_return:
+    seq:
+      - id: no_value
+        size: 0
+  instruction_new_typedesc:
+    seq:
+      - id: lhs_operand
+        type: operand
+      - id: type_cp_index
+        type: s4
+  instruction_new_structure:
+    seq:
+      - id: rhs_operand
+        type: operand
+      - id: lhs_operand
+        type: operand
+  operand:
+    seq:
+      - id: ignored_variable
+        type: u1
+      - id: ignored_type_cp_index
+        type: s4
+        if: ignored_variable == 1
+      - id: variable
+        type: variable
+        if: ignored_variable == 0
+  variable:
+    seq:
+      - id: kind
+        type: s1
+      - id: scope
+        type: s1
+      - id: variable_dcl_name_cp_index
+        type: s4
+      - id: global_or_constant_variable
+        type: global_variable
+        if: kind == 5 or kind == 7
+  global_variable:
+    seq:
+      - id: package_index
+        type: s4
+      - id: type_cp_index
+        type: s4
+
