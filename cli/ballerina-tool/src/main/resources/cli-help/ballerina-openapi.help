@@ -40,6 +40,9 @@ OPTIONS
             Location of the generated Ballerina source code. If this path is not specified,
             the output will be written onto the same directory from where the command is run.
 
+        (--mode) <mode-type>
+            Generate a ballerina service and client only according to the mode.
+
 SUB COMMANDS
        gen-service
            Generate a Ballerina service from the OpenAPI file. This
@@ -88,4 +91,4 @@ EXAMPLES
           $ ballerina openapi gen-contract hello -i hello_service.bal
 
        Generate both Ballerina client and service file.
-          $ballerina openapi --input petstore.yaml -o ./
+          $ballerina openapi --input petstore.yaml -o ./example

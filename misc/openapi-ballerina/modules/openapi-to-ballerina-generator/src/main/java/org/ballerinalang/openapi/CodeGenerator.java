@@ -49,13 +49,21 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.openapi.model.GenSrcFile.GenFileType;
 import static org.ballerinalang.openapi.utils.GeneratorConstants.GenType.GEN_CLIENT;
+import static org.ballerinalang.openapi.utils.GeneratorConstants.GenType.GEN_SERVICE;
 import static org.ballerinalang.openapi.utils.GeneratorConstants.MODULE_MD;
 
 /**
@@ -103,28 +111,28 @@ public class CodeGenerator {
 //        Path srcPath = CodegenUtils.getSourcePath(srcPackage, outPath);
         Path srcPath = Paths.get(outPath);
         Path implPath = CodegenUtils.getImplPath(srcPackage, srcPath);
-
-//        if (type.equals(GEN_CLIENT)) {
-//            if (srcPackage.equals("")) {
-//                srcPath = srcPath.resolve("client");
-//                implPath = implPath.resolve("client");
-//            }
-//
-//            if (Files.notExists(srcPath)) {
-//                Files.createDirectory(srcPath);
-//            }
-//
-//            if (Files.notExists(implPath)) {
-//                Files.createDirectory(implPath);
-//            }
-//
-//        }
-
         List<GenSrcFile> genFiles = generateBalSource(type, definitionPath, reldefinitionPath, serviceName);
         writeGeneratedSources(genFiles, srcPath, implPath, type);
     }
 
+    public void generateBothFiles(GenType type, String executionPath, String definitionPath,
+                          String reldefinitionPath , String serviceName, String outPath)
+            throws IOException, BallerinaOpenApiException {
+        Path srcPath = Paths.get(outPath);
+        Path implPath = CodegenUtils.getImplPath(srcPackage, srcPath);
+        List<GenSrcFile> genFiles =  new ArrayList<>();
+        genFiles.addAll(generateBalSource(GEN_SERVICE, definitionPath, reldefinitionPath, serviceName));
+        genFiles.addAll(generateBalSource(GEN_CLIENT, definitionPath, reldefinitionPath, serviceName));
+        List<GenSrcFile> newGenFiles = genFiles.stream().filter(distinctByKey(
+                GenSrcFile::getFileName)).collect(Collectors.toList());
+        writeGeneratedSources(newGenFiles, srcPath, implPath, type);
+    }
 
+    public static <T> Predicate<T> distinctByKey(
+            Function<? super T, ?> keyExtractor) {
+        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
     /**
      * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
      * Generated source will be written to a ballerina module at {@code outPath}
@@ -160,7 +168,7 @@ public class CodeGenerator {
     public void generateService(String executionPath, String definitionPath,
                                 String reldefinitionPath, String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(GenType.GEN_SERVICE, executionPath, definitionPath, reldefinitionPath, serviceName, outPath);
+        generate(GEN_SERVICE, executionPath, definitionPath, reldefinitionPath, serviceName, outPath);
     }
 
     /**
@@ -355,14 +363,15 @@ public class CodeGenerator {
         }
 
         //This will print the generated files to the console
-        if (type.equals(GenType.GEN_SERVICE)) {
+        if (type.equals(GEN_SERVICE)) {
             outStream.println("Service generated successfully and the OpenApi contract is copied to " + srcPackage
                     + "/resources. this location will be referenced throughout the ballerina project.");
         } else if (type.equals(GEN_CLIENT)) {
             outStream.println("Client generated successfully.");
         }
-        outStream.println("Following files were created. \n" +
-                "src/ \n- " + srcPackage);
+//        outStream.println("Following files were created. \n" +
+//                "src/ \n- " + srcPackage);
+        outStream.println("Following files were created. \n");
         Iterator<GenSrcFile> iterator = sources.iterator();
         while (iterator.hasNext()) {
             outStream.println("-- " + iterator.next().getFileName());
@@ -383,7 +392,7 @@ public class CodeGenerator {
 
         List<GenSrcFile> sourceFiles = new ArrayList<>();
         String srcFile = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH)
-                .replaceAll(" ", "_") + ".bal";
+                .replaceAll(" ", "_") + "Client.bal";
 
         // Generate ballerina service and resources.
         String mainContent = getContent(context, GeneratorConstants.DEFAULT_CLIENT_DIR,
@@ -406,7 +415,7 @@ public class CodeGenerator {
 
         List<GenSrcFile> sourceFiles = new ArrayList<>();
         String concatTitle = api.getBalServiceName().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_");
-        String srcFile = concatTitle + ".bal";
+        String srcFile = concatTitle + "Service.bal";
 
         String mainContent = getContent(api, GeneratorConstants.DEFAULT_TEMPLATE_DIR + "/service",
                 "balService");

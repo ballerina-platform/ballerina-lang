@@ -20,6 +20,7 @@ package org.ballerinalang.openapi.cmd;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.OpenApiMesseges;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
+import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import picocli.CommandLine;
@@ -43,12 +44,12 @@ import static org.ballerinalang.openapi.utils.GeneratorConstants.USER_DIR;
 @CommandLine.Command(
         name = "openapi",
         description = "Generates Ballerina service/client for OpenApi contract and OpenApi contract for Ballerina" +
-                "Service."
-//        subcommands = {
-//                OpenApiGenContractCmd.class,
+                "Service.",
+        subcommands = {
+                OpenApiGenContractCmd.class,
 //                OpenApiGenClientCmd.class,
 //                OpenApiGenServiceCmd.class
-//        }
+        }
 )
 public class OpenApiCmd implements BLauncherCmd {
     private static final String CMD_NAME = "openapi";
@@ -65,6 +66,9 @@ public class OpenApiCmd implements BLauncherCmd {
     @CommandLine.Option(names = {"-o", "--output"}, description = "Location of the generated Ballerina service, " +
             "client and model files.")
     private String outputPath;
+
+    @CommandLine.Option(names = {"--mode"}, description = "Generate only service file or client file")
+    private String mode;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -83,10 +87,6 @@ public class OpenApiCmd implements BLauncherCmd {
     public void execute() {
         //User notification of using an experimental tool
         outStream.println(OpenApiMesseges.EXPERIMENTAL_FEATURE);
-        //Check if cli help argument is present
-//        if (argList == null) {
-//            helpFlag = true;
-//        }
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
             outStream.println(commandUsageInfo);
@@ -97,11 +97,9 @@ public class OpenApiCmd implements BLauncherCmd {
             //Check if an OpenApi definition is provided
             if (argList == null) {
                 throw LauncherUtils.createLauncherException("An OpenApi definition file is required to generate the " +
-                        "service. \nE.g: ballerina openapi --input <OpenApiContract> -o /.");
+                        "service. \nE.g: ballerina openapi --input <OpenApiContract>");
             }
-            //Generate Service file
             CodeGenerator generator = new CodeGenerator();
-
             final File openApiFile = new File(argList.get(0));
             String serviceName = openApiFile.getName();
             Path resourcePath = null;
@@ -119,30 +117,76 @@ public class OpenApiCmd implements BLauncherCmd {
             } else {
                 targetOutputPath = executionPath;
             }
-            try {
-                assert resourcePath != null;
-                generator.generateService(executionPath.toString(), resourcePath.toString(),
-                        targetOutputPath.toString(), serviceName.split("\\.")[0] , targetOutputPath.toString());
-            } catch (IOException | BallerinaOpenApiException e) {
-                throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
-                        "contract at " + argList.get(0) + ". " + e.getMessage() + ".");
-            }
-            //Generates Client file
-            String clientName = serviceName.split("\\.")[0] + "Client";
-            try {
-                generator.generateClient(executionPath.toString(), resourcePath.toString(), clientName,
-                        targetOutputPath.toString());
-            } catch (IOException | BallerinaOpenApiException e) {
-                if (e.getLocalizedMessage() != null) {
-                    throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
-                } else {
-                    throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
-                }
+            //if service mode on
+            if (this.mode != null) {
+                switch (mode) {
+                    case "service":
+                        generateServiceFile(generator, serviceName, resourcePath);
+                        break;
+                    case "client":
+                        generatesClientFile(generator, serviceName, resourcePath);
+                        break;
+                    default:
+                        generateBothFiles(generator, serviceName, resourcePath);
 
+//                        generateServiceFile(generator, serviceName, resourcePath);
+//                        generatesClientFile(generator, serviceName, resourcePath);
+                        break;
+                }
+            } else {
+                generateBothFiles(generator, serviceName, resourcePath);
+                //Generate Service file
+//                generateServiceFile(generator, serviceName, resourcePath);
+                //Generates Client file
+//                generatesClientFile(generator, serviceName, resourcePath);
             }
+        } else {
+            throw LauncherUtils.createLauncherException("An OpenApi definition file is required to generate the " +
+                    "service. \nE.g: ballerina openapi --input <OpenApiContract>");
         }
     }
 
+    private void generatesClientFile(CodeGenerator generator, String serviceName, Path resourcePath) {
+
+        String clientName = serviceName.split("\\.")[0] + "Client";
+        try {
+            generator.generateClient(executionPath.toString(), resourcePath.toString(), clientName,
+                    targetOutputPath.toString());
+        } catch (IOException | BallerinaOpenApiException e) {
+            if (e.getLocalizedMessage() != null) {
+                throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+            } else {
+                throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
+            }
+
+        }
+    }
+
+    private void generateServiceFile(CodeGenerator generator, String serviceName, Path resourcePath) {
+
+        try {
+            assert resourcePath != null;
+            Path relativeResourcePath = Paths.get(executionPath.toString(), serviceName);
+            generator.generateService(executionPath.toString(), resourcePath.toString(),
+                    relativeResourcePath.toString(), serviceName.split("\\.")[0] , targetOutputPath.toString());
+        } catch (IOException | BallerinaOpenApiException e) {
+            throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
+                    "contract at " + argList.get(0) + ". " + e.getMessage() + ".");
+        }
+    }
+    private void generateBothFiles(CodeGenerator generator, String serviceName, Path resourcePath) {
+
+        try {
+            assert resourcePath != null;
+            Path relativeResourcePath = Paths.get(executionPath.toString(), serviceName);
+            generator.generateBothFiles(
+                    GeneratorConstants.GenType.GEN_BOTH, executionPath.toString(), resourcePath.toString(),
+                    relativeResourcePath.toString(), serviceName.split("\\.")[0] , targetOutputPath.toString());
+        } catch (IOException | BallerinaOpenApiException e) {
+            throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
+                    "contract at " + argList.get(0) + ". " + e.getMessage() + ".");
+        }
+    }
     @Override
     public String getName() {
         return CMD_NAME;
