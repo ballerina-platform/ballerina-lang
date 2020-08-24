@@ -65,7 +65,7 @@ public class BIRBinaryWriter {
     public byte[] serialize() {
         ByteBuf birbuf = Unpooled.buffer();
         BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp);
-        BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, typeWriter, cp, this);
+        BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, cp, this);
 
 
         // Write the package details in the form of constant pool entry
@@ -91,8 +91,6 @@ public class BIRBinaryWriter {
         writeAnnotations(birbuf, typeWriter, insWriter, birPackage.annotations);
 
         // Write the constant pool entries.
-        // TODO Only one constant pool is available for now. This will change in future releases
-        // TODO e.g., strtab, shstrtab, rodata.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream dataOut = new DataOutputStream(baos)) {
             dataOut.write(cp.serialize());
@@ -231,8 +229,7 @@ public class BIRBinaryWriter {
         typeWriter.writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
 
         ByteBuf birbuf = Unpooled.buffer();
-        BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp);
-        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, funcTypeWriter, cp, this);
+        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, cp, this);
 
         // Arg count
         birbuf.writeInt(birFunction.argsCount);
@@ -262,19 +259,22 @@ public class BIRBinaryWriter {
             writeType(birbuf, localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
             // skip compiler added vars and only write metaVarName for user added vars
-            if (localVar.kind.equals(VarKind.LOCAL) || localVar.kind.equals(VarKind.ARG)) {
+            if (localVar.kind.equals(VarKind.ARG)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
             }
             // add enclosing basic block id
             if (localVar.kind.equals(VarKind.LOCAL)) {
+                birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
                 birbuf.writeInt(addStringCPEntry(localVar.endBB != null ? localVar.endBB.id.value : ""));
                 birbuf.writeInt(addStringCPEntry(localVar.startBB != null ? localVar.startBB.id.value : ""));
                 birbuf.writeInt(localVar.insOffset);
             }
         }
 
+        // Write a boolean flag to indicate presence of parameter default bb's
+        birbuf.writeBoolean(!birFunction.parameters.isEmpty());
         // Write basic blocks related to parameter default values
-        birFunction.parameters.values().stream().filter(bbList -> !bbList.isEmpty()).forEach(funcInsWriter::writeBBs);
+        birFunction.parameters.values().forEach(funcInsWriter::writeBBs);
 
         // Write basic blocks
         funcInsWriter.writeBBs(birFunction.basicBlocks);
