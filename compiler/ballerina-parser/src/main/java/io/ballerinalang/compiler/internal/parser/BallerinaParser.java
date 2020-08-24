@@ -4370,7 +4370,7 @@ public class BallerinaParser extends AbstractParser {
         STNode objectTypeQualifiers = parseObjectTypeQualifiers();
         STNode objectKeyword = parseObjectKeyword();
         STNode openBrace = parseOpenBrace();
-        STNode objectMembers = parseObjectMembers();
+        STNode objectMembers = parseObjectMembers(false);
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createObjectTypeDescriptorNode(objectTypeQualifiers, objectKeyword, openBrace,
@@ -4384,8 +4384,8 @@ public class BallerinaParser extends AbstractParser {
      * <code>object-constructor-expr :=
      *    [annots] [client] object [type-reference] {
      *       object-member*
-     *    }
-     * object-member := object-field | method-defn</code>
+     *    }</code>
+     * <code>object-member := object-field | method-defn</code>
      *
      * @param annots annotations attached to object constructor
      * @return Parsed object constructor expression node
@@ -4396,7 +4396,7 @@ public class BallerinaParser extends AbstractParser {
         STNode objectKeyword = parseObjectKeyword();
         STNode typeReference = parseObjectConstructorExpressionTypeReference();
         STNode openBrace = parseOpenBrace();
-        STNode objectMembers = parseObjectMembers();
+        STNode objectMembers = parseObjectMembers(true);
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createObjectConstructorExpressionNode(annots,
@@ -4470,7 +4470,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACE_TOKEN:
                 return STNodeFactory.createEmptyNode();
             default:
-                recover(nextToken, ParserRuleContext.OBJECT_CONSTRUCTOR);
+                recover(nextToken, ParserRuleContext.OBJECT_KEYWORD);
                 return parseObjectConstructorExpressionTypeReference();
         }
         return typeReference;
@@ -4560,13 +4560,14 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse object members.
      *
+     * @param skipTypeInclusions will not accept type inclusions as valid object members
      * @return Parsed node
      */
-    private STNode parseObjectMembers() {
+    private STNode parseObjectMembers(boolean skipTypeInclusions) {
         ArrayList<STNode> objectMembers = new ArrayList<>();
         while (!isEndOfObjectTypeNode()) {
             startContext(ParserRuleContext.OBJECT_MEMBER);
-            STNode member = parseObjectMember();
+            STNode member = parseObjectMember(skipTypeInclusions);
             endContext();
 
             // Null member indicates the end of object members
@@ -4579,7 +4580,7 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(objectMembers);
     }
 
-    private STNode parseObjectMember() {
+    private STNode parseObjectMember(boolean skipTypeInclusions) {
         STNode metadata;
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -4609,13 +4610,13 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 recover(peek(), ParserRuleContext.OBJECT_MEMBER_START);
-                return parseObjectMember();
+                return parseObjectMember(skipTypeInclusions);
         }
 
-        return parseObjectMemberWithoutMeta(metadata);
+        return parseObjectMemberWithoutMeta(metadata, skipTypeInclusions);
     }
 
-    private STNode parseObjectMemberWithoutMeta(STNode metadata) {
+    private STNode parseObjectMemberWithoutMeta(STNode metadata, boolean skipTypeInclusions) {
         STNode member;
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -4623,12 +4624,6 @@ public class BallerinaParser extends AbstractParser {
             case CLOSE_BRACE_TOKEN:
                 // TODO report metadata
                 return null;
-            case ASTERISK_TOKEN:
-                STNode asterisk = consume();
-                STNode type = parseTypeReference();
-                STNode semicolonToken = parseSemicolon();
-                member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
-                break;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
                 STNode visibilityQualifier = parseObjectMemberVisibility();
@@ -4641,6 +4636,19 @@ public class BallerinaParser extends AbstractParser {
                 // parseFunctionQualifiers method
                 member = parseObjectMethod(metadata, new ArrayList<>());
                 break;
+            case ASTERISK_TOKEN:
+                STNode asterisk;
+                STNode type;
+                if (skipTypeInclusions) {
+                    asterisk = null;
+                    type = parseTypeReference();
+                } else {
+                    asterisk = consume();
+                    type = parseTypeReference();
+                }
+                STNode semicolonToken = parseSemicolon();
+                member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
+                break;
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     member = parseObjectField(metadata, STNodeFactory.createEmptyNode());
@@ -4648,7 +4656,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 recover(peek(), ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA, metadata);
-                return parseObjectMemberWithoutMeta(metadata);
+                return parseObjectMemberWithoutMeta(metadata, skipTypeInclusions);
         }
 
         return member;

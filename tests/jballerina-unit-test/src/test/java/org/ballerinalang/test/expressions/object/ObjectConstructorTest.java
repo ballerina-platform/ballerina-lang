@@ -70,6 +70,11 @@ public class ObjectConstructorTest {
                 28, 5);
         BAssertUtil.validateError(negativeResult, index++, "object initializer function can not be declared as " +
                 "private", 32, 5);
+        BAssertUtil.validateError(negativeResult, index++, "missing identifier", 36, 22);
+        BAssertUtil.validateError(negativeResult, index++, "missing semicolon token", 36, 22);
+        BAssertUtil.validateError(negativeResult, index++, "invalid qualifier 'public'", 36, 29);
+        BAssertUtil.validateError(negativeResult, index++, "missing identifier", 36, 38);
+        BAssertUtil.validateError(negativeResult, index++, "invalid token '*'", 41, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }

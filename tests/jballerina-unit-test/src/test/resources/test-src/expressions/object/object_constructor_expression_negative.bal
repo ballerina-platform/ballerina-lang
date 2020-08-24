@@ -32,3 +32,11 @@ var objVariable = object {
     private function init() {
     }
 };
+
+var invalidKeyWord = public object {};
+
+type MO object {};
+
+var testObjectWithTypeReference = object {
+    *MO;
+};
