@@ -114,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -620,6 +621,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = panicNode;
     }
 
+    public void visit(BLangDo doNode) {
+        doNode.body = rewrite(doNode.body, env);
+        result = doNode;
+    }
+
+
+
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl, env);
@@ -640,6 +648,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFail failNode) {
+        if (failNode.exprStmt != null) {
+            failNode.exprStmt = rewrite(failNode.exprStmt, env);
+        }
         result = failNode;
     }
 
@@ -665,6 +676,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         whileNode.expr = rewriteExpr(whileNode.expr);
         whileNode.body = rewrite(whileNode.body, env);
+        if (whileNode.onFailClause != null) {
+            whileNode.onFailClause = rewrite(whileNode.onFailClause, env);
+        }
         result = whileNode;
     }
 
@@ -687,6 +701,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody = rewrite(transactionNode.transactionBody, env);
+        if (transactionNode.onFailClause != null) {
+            transactionNode.onFailClause = rewrite(transactionNode.onFailClause, env);
+        }
         result = transactionNode;
     }
 

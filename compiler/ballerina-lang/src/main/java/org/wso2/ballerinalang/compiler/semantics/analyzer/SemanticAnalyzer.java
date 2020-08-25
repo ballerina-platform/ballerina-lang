@@ -2384,13 +2384,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             //not-possible
             return;
         }
-
-        // Create a new block environment for the onfail node's body.
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(onFailClause.body, env);
+        // Create a new block environment for the onfail node.
+        SymbolEnv onFailEnv = SymbolEnv.createOnFailEnv(onFailClause, env);
         // Check onfail node's variables and set types.
         handleDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
-                onFailClause.isDeclaredWithVar, blockEnv);
-        analyzeStmt(onFailClause.body, blockEnv);
+                onFailClause.isDeclaredWithVar, onFailEnv);
+        analyzeStmt(onFailClause.body, onFailEnv);
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         if (!types.isAssignable(onFailVarNode.type, symTable.errorType)) {
             dlog.error(onFailVarNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, onFailVarNode.type);
@@ -2417,10 +2416,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangDo doNode) {
         SymbolEnv narrowedEnv = SymbolEnv.createTypeNarrowedEnv(doNode, env);
-        analyzeStmt(doNode.body, narrowedEnv);
         if (doNode.onFailClause != null) {
-            this.analyzeNode(doNode.onFailClause, env);
+            this.analyzeNode(doNode.onFailClause, narrowedEnv);
         }
+        analyzeStmt(doNode.body, narrowedEnv);
     }
 
     @Override

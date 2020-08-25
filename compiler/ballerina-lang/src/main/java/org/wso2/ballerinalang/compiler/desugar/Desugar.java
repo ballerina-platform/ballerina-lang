@@ -2909,7 +2909,7 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol onFailVarSymbol = new BVarSymbol(0, names.fromString("$onFailFunc$"),
                 env.scope.owner.pkgID, onFailFunc.type, onFailFunc.function.symbol);
         BLangSimpleVariable onFailLambdaVariable = ASTBuilderUtil.createVariable(onFailClause.pos, "$onFailFunc$",
-                onFailFunc.type, onFailFunc, onFailVarSymbol);
+                onFailFunc.type, rewrite(onFailFunc, env), onFailVarSymbol);
         BLangSimpleVariableDef onFailLambdaVariableDef = ASTBuilderUtil.createVariableDef(onFailClause.pos,
                 onFailLambdaVariable);
         BLangSimpleVarRef onFailFuncRef = new BLangSimpleVarRef.BLangLocalVarRef(onFailLambdaVariable.symbol);
@@ -3176,9 +3176,9 @@ public class Desugar extends BLangNodeVisitor {
     protected BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, String functionNamePrefix,
                                                      List<BLangSimpleVariable> lambdaFunctionVariable,
                                                      TypeNode returnType, List<BLangStatement> fnBodyStmts,
-                                                     SymbolEnv env, Scope trxScope) {
+                                                     SymbolEnv env, Scope bodyScope) {
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
-        body.scope = trxScope;
+        body.scope = bodyScope;
         SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
         body.stmts = rewriteStmt(fnBodyStmts, bodyEnv);
         return createLambdaFunction(pos, functionNamePrefix, lambdaFunctionVariable, returnType, body);

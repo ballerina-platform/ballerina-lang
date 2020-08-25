@@ -2399,7 +2399,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (env.enclEnv.node != null && ((env.enclEnv.node.getKind() == NodeKind.TRANSACTION) ||
                 (env.enclEnv.node.getKind() == NodeKind.RETRY) || (env.enclEnv.node.getKind() == NodeKind.ON_FAIL))) {
-            // if enclosing env's node is a transaction or retry
+            // if enclosing env's node is a transaction, retry or a on-fail
             return env.enclEnv;
         }
 
@@ -2416,8 +2416,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (env.enclEnv.node != null && ((env.enclEnv.node.getKind() == NodeKind.TRANSACTION) ||
-                (env.enclEnv.node.getKind() == NodeKind.RETRY))) {
-            // if enclosing env's node is a transaction or retry
+                (env.enclEnv.node.getKind() == NodeKind.RETRY) || (env.enclEnv.node.getKind() == NodeKind.ON_FAIL))) {
+            // if enclosing env's node is a transaction, retry or on-fail
             return env.enclEnv;
         }
 
