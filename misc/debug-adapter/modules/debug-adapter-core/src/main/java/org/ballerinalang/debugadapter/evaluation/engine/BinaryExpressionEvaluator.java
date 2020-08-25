@@ -87,6 +87,11 @@ public class BinaryExpressionEvaluator extends Evaluator {
                 return div(lVar, rVar);
             case PERCENT_TOKEN:
                 return mod(lVar, rVar);
+            case LT_TOKEN:
+            case GT_TOKEN:
+            case LT_EQUAL_TOKEN:
+            case GT_EQUAL_TOKEN:
+                return compare(lVar, rVar, operatorType);
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operatorType);
         }
@@ -238,6 +243,53 @@ public class BinaryExpressionEvaluator extends Evaluator {
         } else {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
         }
+    }
+
+    private BExpressionValue compare(BVariable lVar, BVariable rVar, SyntaxKind operator) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int <=> int
+            boolean result;
+            switch (operator) {
+                case LT_TOKEN:
+                    result = Long.parseLong(lVar.computeValue()) < Long.parseLong(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case GT_TOKEN:
+                    result = Long.parseLong(lVar.computeValue()) > Long.parseLong(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case LT_EQUAL_TOKEN:
+                    result = Long.parseLong(lVar.computeValue()) <= Long.parseLong(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case GT_EQUAL_TOKEN:
+                    result = Long.parseLong(lVar.computeValue()) >= Long.parseLong(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+            }
+        } else if ((lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.FLOAT)
+                || (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.INT)
+                || lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.FLOAT) {
+            // int <=> float or float <=> float
+            boolean result;
+            switch (operator) {
+                case LT_TOKEN:
+                    result = Double.parseDouble(lVar.computeValue()) < Double.parseDouble(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case GT_TOKEN:
+                    result = Double.parseDouble(lVar.computeValue()) > Double.parseDouble(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case LT_EQUAL_TOKEN:
+                    result = Double.parseDouble(lVar.computeValue()) <= Double.parseDouble(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case GT_EQUAL_TOKEN:
+                    result = Double.parseDouble(lVar.computeValue()) >= Double.parseDouble(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+            }
+        } else if (lVar.getBType() == BVariableType.DECIMAL || rVar.getBType() == BVariableType.DECIMAL) {
+            // Todo - Add support for
+            // decimal <=> decimal
+            // decimal <=>  int or int <=> decimal
+            // decimal <=> float or float <=> decimal
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+        }
+        throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
     }
 
     private EvaluationException createUnsupportedOperationException(BVariable lVar, BVariable rVar,
