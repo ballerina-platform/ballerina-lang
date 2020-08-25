@@ -42,36 +42,26 @@
           "kind": "LIST",
           "children": [
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
               "value": "5"
             },
             {
-              "kind": "IMPORT_SUB_VERSION",
-              "children": [
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "4"
-                }
-              ]
+              "kind": "DOT_TOKEN"
             },
             {
-              "kind": "IMPORT_SUB_VERSION",
-              "children": [
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+              "value": "4"
+            },
+            {
+              "kind": "DOT_TOKEN"
+            },
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+              "value": "0",
+              "trailingMinutiae": [
                 {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "0",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ]
             }

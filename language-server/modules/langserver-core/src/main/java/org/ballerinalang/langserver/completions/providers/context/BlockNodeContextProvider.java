@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,14 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -28,7 +32,10 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -37,6 +44,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -47,12 +55,40 @@ import java.util.stream.IntStream;
  * @since 2.0.0
  */
 public class BlockNodeContextProvider<T extends Node> extends AbstractCompletionProvider<T> {
-    public BlockNodeContextProvider(Kind kind) {
-        super(kind);
+
+    public BlockNodeContextProvider(Class<T> attachmentPoint) {
+        super(attachmentPoint);
     }
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, T node) throws LSCompletionException {
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            /*
+            Covers the following
+            Ex: function test() {
+                    module:<cursor>
+                    module:a<cursor>
+                }
+             */
+            QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            Predicate<Scope.ScopeEntry> filter = scopeEntry -> {
+                BSymbol symbol = scopeEntry.symbol;
+                return !CommonUtil.isInvalidSymbol(symbol)
+                        && (symbol instanceof BTypeSymbol || symbol instanceof BInvokableSymbol)
+                        && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
+            };
+            List<Scope.ScopeEntry> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
+            return this.getCompletionItemList(moduleContent, context);
+        }
+        
+        /*
+        Covers the following
+        Ex: function test() {
+                <cursor>
+                i<cursor>
+            }
+         */
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(getStaticCompletionItems(context));
         completionItems.addAll(getStatementCompletionItems(context, node));

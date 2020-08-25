@@ -38,9 +38,9 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<TypeTestExpressionNode> {
+
     public TypeTestExpressionNodeContext() {
-        super(Kind.EXPRESSION);
-        this.attachmentPoints.add(TypeTestExpressionNode.class);
+        super(TypeTestExpressionNode.class);
     }
 
     @Override

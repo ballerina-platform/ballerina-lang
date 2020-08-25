@@ -98,15 +98,17 @@ public class CompletionUtil {
 
         while ((reference != null)) {
             provider = providers.get(reference.getClass());
-            if (provider != null && provider.onPreValidation(reference)) {
+            if (provider != null && provider.onPreValidation(ctx, reference)) {
                 break;
             }
             reference = reference.parent();
         }
 
-        if (provider == null) {
+        if (provider == null || ctx.get(CompletionKeys.RESOLVER_CHAIN).contains(provider.getClass())) {
             return completionItems;
         }
+        ctx.get(CompletionKeys.RESOLVER_CHAIN).add(provider.getClass());
+        
         return provider.getCompletions(ctx, reference);
     }
 

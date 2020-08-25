@@ -47,7 +47,7 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
         // Check signature child count
         FunctionSignatureNode signature = firstFunctionNode.functionSignature();
         int actualSignatureChildCount = signature.children().size();
-        Assert.assertEquals(actualSignatureChildCount, 5);
+        Assert.assertEquals(actualSignatureChildCount, 6);
 
         // The 'public' keyword and the return type desc is missing in the second function
         FunctionDefinitionNode secondFunctionNode = (FunctionDefinitionNode) modulePartNode.members().get(1);
@@ -56,7 +56,7 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
         // Check signature child count
         signature = secondFunctionNode.functionSignature();
         actualSignatureChildCount = signature.children().size();
-        Assert.assertEquals(actualSignatureChildCount, 4);
+        Assert.assertEquals(actualSignatureChildCount, 5);
     }
 
     @Test

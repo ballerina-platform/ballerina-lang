@@ -16,8 +16,11 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -34,21 +37,23 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<FunctionBodyBlockNode> {
     public FunctionBodyBlockNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(FunctionBodyBlockNode.class);
+        super(FunctionBodyBlockNode.class);
     }
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, FunctionBodyBlockNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletions(context, node));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        if (nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
+        }
 
         return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(FunctionBodyBlockNode node) {
+    public boolean onPreValidation(LSContext context, FunctionBodyBlockNode node) {
         return !node.openBraceToken().isMissing() && !node.closeBraceToken().isMissing();
     }
 }

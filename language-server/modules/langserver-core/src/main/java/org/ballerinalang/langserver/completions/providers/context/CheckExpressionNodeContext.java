@@ -33,8 +33,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class CheckExpressionNodeContext extends AbstractCompletionProvider<CheckExpressionNode> {
     public CheckExpressionNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(CheckExpressionNode.class);
+        super(CheckExpressionNode.class);
     }
 
     @Override
