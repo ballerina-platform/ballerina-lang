@@ -174,19 +174,12 @@ public class DocumentationLexer extends AbstractLexer {
     }
 
     /**
-     * Reset leading trivia.
-     */
-    private void resetLeadingTrivia() {
-        this.leadingTriviaList = new ArrayList<>(0);
-    }
-
-    /**
      * Process and return trailing trivia.
      *
      * @return Trailing trivia
      */
     private STNode processTrailingTrivia() {
-        List<STNode> triviaList = new ArrayList<>(10);
+        List<STNode> triviaList = new ArrayList<>(INITIAL_TRIVIA_CAPACITY);
         processSyntaxTrivia(triviaList, false);
         return STNodeFactory.createNodeList(triviaList);
     }
@@ -317,8 +310,6 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getDocumentationSyntaxToken(SyntaxKind kind) {
         STNode leadingTrivia = getLeadingTrivia();
-        resetLeadingTrivia();
-
         STNode trailingTrivia = processTrailingTrivia();
         // check for end of line minutiae and terminate current documentation mode.
         int bucketCount = trailingTrivia.bucketCount();
@@ -330,7 +321,6 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind kind) {
         STNode leadingTrivia = getLeadingTrivia();
-        resetLeadingTrivia();
 
         // We reach here only for the hash token, minus token and backtick token in the documentation mode.
         // Trivia for those tokens can only be an end of line.
@@ -352,7 +342,6 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getDocumentationLiteral(SyntaxKind kind) {
         STNode leadingTrivia = getLeadingTrivia();
-        resetLeadingTrivia();
 
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
@@ -367,7 +356,6 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getDocumentationDescriptionToken() {
         STNode leadingTrivia = getLeadingTrivia();
-        resetLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createLiteralValueToken(SyntaxKind.DOCUMENTATION_DESCRIPTION, lexeme, leadingTrivia,
@@ -376,7 +364,6 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getIdentifierToken() {
         STNode leadingTrivia = getLeadingTrivia();
-        resetLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);

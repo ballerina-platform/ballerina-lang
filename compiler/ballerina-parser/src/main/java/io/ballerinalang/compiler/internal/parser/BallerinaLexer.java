@@ -328,7 +328,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Trailing trivia
      */
     private STNode processTrailingTrivia() {
-        List<STNode> triviaList = new ArrayList<>(10);
+        List<STNode> triviaList = new ArrayList<>(INITIAL_TRIVIA_CAPACITY);
         processSyntaxTrivia(triviaList, false);
         return STNodeFactory.createNodeList(triviaList);
     }
