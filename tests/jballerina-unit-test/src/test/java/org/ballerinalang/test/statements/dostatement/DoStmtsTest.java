@@ -38,7 +38,7 @@ public class DoStmtsTest {
 
     @Test
     public void testRetry() {
-        BRunUtil.invoke(programFile, "testOnFail");
+        BRunUtil.invoke(programFile, "testOnFailStatement");
     }
 
 }

@@ -2920,7 +2920,9 @@ public class Desugar extends BLangNodeVisitor {
                 onFailFuncRef, onFailFuncRef.symbol, symTable.anyOrErrorType);
         if (onFailClause.statementBlockReturns) {
             //  return <TypeCast>$onFailFunc$();
-            BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(onFailClause.pos, onFailLambdaInvocation);
+            BLangInvokableNode encInvokable = env.enclInvokable;
+            BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(onFailClause.pos,
+                    addConversionExprIfRequired(onFailLambdaInvocation, encInvokable.returnTypeNode.type));
             onFailFuncBlock.stmts.add(returnStmt);
         } else {
             BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
