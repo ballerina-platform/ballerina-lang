@@ -5749,6 +5749,7 @@ public class Desugar extends BLangNodeVisitor {
                 patternBlockFailureCase.stmts.add(returnStmt);
             } else {
                 BLangFail failExpressionNode = (BLangFail) TreeBuilder.createFailNode();
+                failExpressionNode.expr = patternFailureCaseVarRef;
                 BLangStatementExpression expression = ASTBuilderUtil.createStatementExpression(onFailFuncBlock,
                         ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
                 BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();

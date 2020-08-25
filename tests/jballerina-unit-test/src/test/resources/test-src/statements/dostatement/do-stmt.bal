@@ -1,5 +1,3 @@
-//import ballerina/io;
-
 type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
@@ -10,6 +8,13 @@ function testOnFailStatement() {
 
     string testReturnWithinOnFailRes = testReturnWithinOnFail();
     assertEquality("Before failure throw-> Error caught !", testReturnWithinOnFailRes);
+
+     string|error testOnFailWithCheckExprRes = testOnFailWithCheckExpr();
+     if(testOnFailWithCheckExprRes is string) {
+         assertEquality("Before failure throw-> Error caught ! -> Execution continues...", testOnFailWithCheckExprRes);
+     } else {
+          panic error("Expected error to be caught. Hence, test failed.");
+     }
 
 }
 
@@ -38,6 +43,25 @@ function testReturnWithinOnFail() returns string  {
       str += "-> Error caught !";
       return str;
    }
+}
+
+function testOnFailWithCheckExpr () returns string|error {
+   string str = "";
+   do {
+     error err = error("custom error", message = "error value");
+     str += "Before failure throw";
+     int val = check getError();
+   }
+   on fail error e {
+      str += "-> Error caught ! ";
+   }
+   str += "-> Execution continues...";
+   return str;
+}
+
+function getError()  returns int|error {
+    error err = error("Custom Error");
+    return err;
 }
 
 //todo @chiran check type conversion with return type
