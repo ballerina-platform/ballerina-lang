@@ -192,7 +192,10 @@ public class BallerinaTriggerModifyUtil {
                                 service.get().getPosition().getEndLine(),
                                 service.get().getPosition().getEndColumn()));
                     } else if (SERVICE.equalsIgnoreCase(type)) {
-                        edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "SERVICE_START_MODIFY",
+                        edits.add(BallerinaTreeModifyUtil.createTextEdit(
+                                oldTextDocument,
+                                config,
+                                "SERVICE_START_MODIFY",
                                 service.get().annAttachments.get(0).getPosition().getStartLine(),
                                 service.get().annAttachments.get(0).getPosition().getStartColumn(),
                                 service.get().getResources().get(0).getBody().getPosition().getStartLine(),

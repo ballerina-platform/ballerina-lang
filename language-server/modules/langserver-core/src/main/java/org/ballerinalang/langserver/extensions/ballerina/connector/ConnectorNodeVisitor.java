@@ -97,7 +97,7 @@ public class ConnectorNodeVisitor extends LSNodeVisitor {
             this.records.put(((BLangRecordTypeNode) typeDefinition.getTypeNode()).symbol.type.toString(),
                     typeDefinition);
         } else if (typeDefinition.getTypeNode() instanceof BLangUnionTypeNode) {
-            this.records.put(((BLangUnionTypeNode)typeDefinition.getTypeNode()).type.toString(),
+            this.records.put(((BLangUnionTypeNode) typeDefinition.getTypeNode()).type.toString(),
                     typeDefinition);
         }
     }
