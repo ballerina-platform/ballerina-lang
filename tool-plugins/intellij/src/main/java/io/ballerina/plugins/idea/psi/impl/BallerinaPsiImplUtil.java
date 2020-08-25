@@ -28,7 +28,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.ballerina.plugins.idea.psi.BallerinaAlias;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaFunctionNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaPackageName;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
@@ -79,10 +78,6 @@ public class BallerinaPsiImplUtil {
             return null;
         }
         return ballerinaFunctionDefinition.getAnyIdentifierName().getIdentifier().getText();
-    }
-
-    public static boolean isInLocalPackage(@NotNull BallerinaFunctionNameReference nameReference) {
-        return nameReference.getPackageReference() == null;
     }
 
     /**

@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,37 +8,36 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "TYPE_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "DOCUMENTATION_STRING",
+                  "kind": "MARKDOWN_DOCUMENTATION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "HASH_TOKEN"
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "Documentation for Test annotation",
+                                  "value": " Documentation for Test annotation",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -50,7 +50,7 @@
                           ]
                         },
                         {
-                          "kind": "DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -68,19 +68,20 @@
                           ]
                         },
                         {
-                          "kind": "PARAMETER_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "PLUS_TOKEN",
+                              "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
                                   "value": " "
                                 }
-                              ]
-                            },
-                            {
-                              "kind": "PLUS_TOKEN",
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -99,19 +100,19 @@
                               ]
                             },
                             {
-                              "kind": "MINUS_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "MINUS_TOKEN"
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " "
+                                },
+                                {
                                   "kind": "DOCUMENTATION_REFERENCE",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "ANNOTATION_DOC_REFERENCE_TOKEN",
@@ -127,22 +128,20 @@
                                     },
                                     {
                                       "kind": "BACKTICK_CONTENT",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "WARNING_INVALID_DOCUMENTATION_IDENTIFIER"
+                                      ],
                                       "value": "field a"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "BACKTICK_TOKEN"
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "documentation",
+                                  "value": " documentation",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -155,19 +154,20 @@
                           ]
                         },
                         {
-                          "kind": "PARAMETER_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "PLUS_TOKEN",
+                              "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
                                   "value": " "
                                 }
-                              ]
-                            },
-                            {
-                              "kind": "PLUS_TOKEN",
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -186,19 +186,19 @@
                               ]
                             },
                             {
-                              "kind": "MINUS_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "MINUS_TOKEN"
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " "
+                                },
+                                {
                                   "kind": "DOCUMENTATION_REFERENCE",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "ANNOTATION_DOC_REFERENCE_TOKEN",
@@ -214,22 +214,20 @@
                                     },
                                     {
                                       "kind": "BACKTICK_CONTENT",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "WARNING_INVALID_DOCUMENTATION_IDENTIFIER"
+                                      ],
                                       "value": "field b"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "BACKTICK_TOKEN"
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "documentation",
+                                  "value": " documentation",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -242,19 +240,20 @@
                           ]
                         },
                         {
-                          "kind": "PARAMETER_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "PLUS_TOKEN",
+                              "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
                                   "value": " "
                                 }
-                              ]
-                            },
-                            {
-                              "kind": "PLUS_TOKEN",
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -273,19 +272,19 @@
                               ]
                             },
                             {
-                              "kind": "MINUS_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "MINUS_TOKEN"
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " "
+                                },
+                                {
                                   "kind": "DOCUMENTATION_REFERENCE",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "ANNOTATION_DOC_REFERENCE_TOKEN",
@@ -301,22 +300,20 @@
                                     },
                                     {
                                       "kind": "BACKTICK_CONTENT",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "WARNING_INVALID_DOCUMENTATION_IDENTIFIER"
+                                      ],
                                       "value": "field c"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "BACKTICK_TOKEN"
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "documentation",
+                                  "value": " documentation",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -409,13 +406,13 @@
               "kind": "METADATA",
               "children": [
                 {
-                  "kind": "DOCUMENTATION_STRING",
+                  "kind": "MARKDOWN_DOCUMENTATION",
                   "children": [
                     {
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "REFERENCE_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -424,12 +421,6 @@
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
                               ]
                             },
                             {
@@ -437,7 +428,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "BFM also recognizes "
+                                  "value": " BFM also recognizes "
                                 },
                                 {
                                   "kind": "DOCUMENTATION_REFERENCE",
@@ -446,23 +437,37 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "bar()"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
+                                      "kind": "FUNCTION_CALL",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "bar"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
                                         }
                                       ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "as an alternative to `` function `bar` ``",
+                                  "value": " as an alternative to `` function `bar` ``",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -483,6 +488,10 @@
                   "children": []
                 }
               ]
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",

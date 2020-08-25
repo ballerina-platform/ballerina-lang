@@ -43,15 +43,9 @@ public class BallerinaErrorTypeNameImpl extends ASTWrapperPsiElement implements 
   }
 
   @Override
-  @NotNull
-  public List<BallerinaTypeName> getTypeNameList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeName.class);
-  }
-
-  @Override
   @Nullable
-  public PsiElement getComma() {
-    return findChildByType(COMMA);
+  public BallerinaTypeName getTypeName() {
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
@@ -64,6 +58,12 @@ public class BallerinaErrorTypeNameImpl extends ASTWrapperPsiElement implements 
   @Nullable
   public PsiElement getLt() {
     return findChildByType(LT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getMul() {
+    return findChildByType(MUL);
   }
 
   @Override

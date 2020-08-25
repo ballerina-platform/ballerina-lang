@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.preloading;
 
-import com.google.common.base.Strings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -124,7 +123,7 @@ public class LSPUtils {
             String balSdkPath = balSdk.first;
             boolean autoDetected = balSdk.second;
 
-            if (!Strings.isNullOrEmpty(balSdkPath)) {
+            if (!BallerinaSdkUtils.stringIsNullOrEmpty(balSdkPath)) {
                 boolean success = doRegister(project, balSdkPath, autoDetected);
                 if (success && autoDetected) {
                     BallerinaPreloadingActivity.LOG.info(String.format("Auto-detected Ballerina Home: %s for the " +
@@ -300,8 +299,7 @@ public class LSPUtils {
                 // Checks if the ballerina command works.
                 String ballerinaPath = "";
                 try {
-                    ballerinaPath = execBalHomeCmd(String.format("%s %s", BALLERINA_CMD,
-                            BALLERINA_HOME_CMD));
+                    ballerinaPath = execBalHomeCmd(String.format("%s %s", BALLERINA_CMD, BALLERINA_HOME_CMD));
                 } catch (BallerinaCmdException ignored) {
                     // We do nothing here as we need to fall back for default installer based locations, since
                     // "ballerina" command might not work because of the IntelliJ issue of PATH variable might not
@@ -339,7 +337,7 @@ public class LSPUtils {
         int minorV = Integer.parseInt(getMinorVersion(balVersion));
 
         // returns true if the ballerina version >= 1.2.0.
-        return majorV == 1 && minorV >= 2;
+        return majorV >= 2 || (majorV == 1 && minorV >= 2);
     }
 
     public static boolean hasDidChangeConfigSupport(String balVersion) {
@@ -347,7 +345,7 @@ public class LSPUtils {
         int minorV = Integer.parseInt(getMinorVersion(balVersion));
 
         // returns true if the ballerina version >= 1.2.0.
-        return majorV == 1 && minorV >= 2;
+        return majorV >= 2 || (majorV == 1 && minorV >= 2);
     }
 
     private static void showInIdeaEventLog(@NotNull Project project, String message) {

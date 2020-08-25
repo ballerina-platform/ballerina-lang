@@ -44,6 +44,7 @@ public interface Project {
      *
      * @param moduleId Module Id
      * @return Path to the .balo.
+     * @throws InvalidModuleException when project does not contains the module.
      */
     public Path getBaloPath(PackageID moduleId) throws InvalidModuleException;
 }

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+{{> head }}
+
+<body class="cBallerina-io">
+    {{> bioBody }}
+    <div class="navi-wrapper">
+        <div class="navi-wrapper-content">
+            {{> logo }}
+            {{#if (showSidebarList this)}}
+                <div class="primary-list">
+                    <h3>{{#block "sidebarName"}}{{/block}}</h3>
+                    <ul>
+                        {{#block "sidebarLists"}}{{/block}}
+                    </ul>
+                </div>
+                <div class="ui divider"></div>
+            {{/if}}
+            {{> currentModule }}
+        </div>
+    </div>
+    <div class="content-wrapper pusher">
+        {{> mobMenu }}
+        <div class="main-wrapper">
+            <div id="search-impl" class="search-bar"></div>
+            <div id="main">
+            <h1>
+                <a class="breadcrumb-home" href="{{#if excludeIndex}}
+                    {{ rootPath }}{{ module.id }}/index.html
+                {{else}}
+                    {{ rootPath }}index.html{{/if}}">
+                    <img class="breadcrumb-home-icon" src="{{ rootPath }}html-template-resources/images/home.svg">
+                </a>
+                <span class="title-type">
+                    {{#if (isModulePage this)}}
+                        Module :
+                    {{/if}}
+                    {{#block "titleType"}}{{/block}}
+                    {{#unless (isModulePage this)}}
+                        -
+                    {{/unless}}
+                </span>
+                {{#if project.isSingleFile}}
+                    {{project.sourceFileName}}
+                {{else}}
+                    <a href="{{ rootPath }}{{module.id}}/index.html"><span class="modules">{{module.id}}</span></a>
+                {{/if}}
+                {{#if (addColon this)}} :
+                    {{#block "title"}}{{/block}}
+                {{/if}}
+            </h1>
+            {{#block "content"}}
+            {{/block}}
+        </div>
+        </div>
+    </div>
+</body>
+
+{{> footer }}

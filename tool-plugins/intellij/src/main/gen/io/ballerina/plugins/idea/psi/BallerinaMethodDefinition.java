@@ -24,16 +24,16 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaMethodDefinition extends PsiElement {
 
   @NotNull
-  List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
-
-  @NotNull
   BallerinaAnyIdentifierName getAnyIdentifierName();
 
   @NotNull
-  BallerinaFunctionDefinitionBody getFunctionDefinitionBody();
+  List<BallerinaNestedAnnotationAttachment> getNestedAnnotationAttachmentList();
 
   @NotNull
-  BallerinaFunctionSignature getFunctionSignature();
+  BallerinaNestedFunctionSignature getNestedFunctionSignature();
+
+  @NotNull
+  BallerinaNestedRecoverableBody getNestedRecoverableBody();
 
   @Nullable
   BallerinaDocumentationString getDocumentationString();

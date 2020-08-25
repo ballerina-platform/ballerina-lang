@@ -22,10 +22,6 @@ email:PopConfig popConfig = {
 };
 
 function testReceiveSimpleEmail(string host, string username, string password) returns email:Email|email:Error? {
-    email:PopClient|email:Error popClient = new (host, username, password, popConfig);
-    if (popClient is email:PopClient) {
-        return popClient->read();
-    } else {
-        return popClient;
-    }
+    email:PopClient popClient = new (host, username, password, popConfig);
+    return popClient->read();
 }

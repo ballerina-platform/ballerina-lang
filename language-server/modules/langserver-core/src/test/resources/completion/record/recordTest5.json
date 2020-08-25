@@ -56,6 +56,20 @@
       }
     },
     {
+      "label": "toJson()(json)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type `anydata` to `json`.\nThis does a deep copy of `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\n  \n  \n  \n**Returns** `json`   \n- representation of `v` as value of type json  \nThis panics if `v` has cycles.  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toJson()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "print()",
       "kind": "Function",
       "detail": "Function",
@@ -95,6 +109,20 @@
       },
       "sortText": "120",
       "insertText": "clone()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toJsonString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
     }
   ]

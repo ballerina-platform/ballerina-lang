@@ -27,8 +27,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
-import org.ballerinalang.packerina.task.CopyModuleJarTask;
-import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CopyObservabilitySymbolsTask;
 import org.ballerinalang.packerina.task.CopyResourcesTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
@@ -290,11 +288,9 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
-                .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
                 .addTask(new CreateJarTask())   // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
-                .addTask(new CopyModuleJarTask(false, true))
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable
                 .addTask(new PrintRunningExecutableTask(!isSingleFileBuild))   // print running executables
                 .addTask(new RunExecutableTask(programArgs))

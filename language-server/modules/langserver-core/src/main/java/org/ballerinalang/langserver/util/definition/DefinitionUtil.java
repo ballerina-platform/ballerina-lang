@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundExcepti
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -62,25 +63,23 @@ public class DefinitionUtil {
     /**
      * Get the definition.
      *
-     * @param context Definition context
+     * @param context  Definition context
+     * @param position cursor position
      * @return {@link List} List of definition locations
      * @throws WorkspaceDocumentException when couldn't find file for uri
      * @throws CompilationFailedException when compilation failed
      */
-    public static List<Location> getDefinition(LSContext context) throws WorkspaceDocumentException,
-                                                                         CompilationFailedException,
-                                                                         LSStdlibCacheException,
-                                                                         TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findtokenAtCursor(context);
-
-
+    public static List<Location> getDefinition(LSContext context, Position position)
+            throws WorkspaceDocumentException, CompilationFailedException, LSStdlibCacheException,
+                   TokenOrSymbolNotFoundException {
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
         List<BLangPackage> modules = ReferencesUtil.compileModules(context);
         SymbolReferencesModel refModel = ReferencesUtil.findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
         // If the definition list contains an item after the prepare reference mode, then return it.
         // In this case, definition is in the current compilation unit it self
         if (!refModel.getDefinitions().isEmpty()) {
             return ReferencesUtil.getLocations(Collections.singletonList(refModel.getDefinitions().get(0)),
-                    context.get(DocumentServiceKeys.SOURCE_ROOT_KEY));
+                                               context.get(DocumentServiceKeys.SOURCE_ROOT_KEY));
         }
         // If symbol at the cursor's module is a standard library module we find the module in standard library
         SymbolReferencesModel.Reference symbolAtCursor = refModel.getReferenceAtCursor();

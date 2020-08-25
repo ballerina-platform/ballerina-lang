@@ -28,26 +28,27 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
-import io.ballerina.plugins.idea.psi.BallerinaBlockFunctionBody;
+import io.ballerina.plugins.idea.psi.BallerinaCloseRecordTypeBody;
 import io.ballerina.plugins.idea.psi.BallerinaDocumentationString;
-import io.ballerina.plugins.idea.psi.BallerinaExclusiveRecordTypeDescriptor;
-import io.ballerina.plugins.idea.psi.BallerinaFieldDescriptor;
+import io.ballerina.plugins.idea.psi.BallerinaEnumBody;
+import io.ballerina.plugins.idea.psi.BallerinaEnumDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinitionBody;
 import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
-import io.ballerina.plugins.idea.psi.BallerinaInclusiveRecordTypeDescriptor;
 import io.ballerina.plugins.idea.psi.BallerinaMethodDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
+import io.ballerina.plugins.idea.psi.BallerinaMultiMemberEnumBody;
+import io.ballerina.plugins.idea.psi.BallerinaNestedRecoverableBody;
 import io.ballerina.plugins.idea.psi.BallerinaObjectMethod;
-import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
+import io.ballerina.plugins.idea.psi.BallerinaObjectTypeBody;
+import io.ballerina.plugins.idea.psi.BallerinaOpenRecordTypeBody;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
-import io.ballerina.plugins.idea.psi.BallerinaRecordLiteral;
-import io.ballerina.plugins.idea.psi.BallerinaServiceBody;
-import io.ballerina.plugins.idea.psi.BallerinaServiceConstructorExpression;
+import io.ballerina.plugins.idea.psi.BallerinaRecoverableBody;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaWorkerBody;
-import io.ballerina.plugins.idea.psi.BallerinaWorkerDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaServiceDefinitionBody;
+import io.ballerina.plugins.idea.psi.BallerinaSingleMemberEnumBody;
+import io.ballerina.plugins.idea.psi.BallerinaTypeBody;
+import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -65,14 +66,13 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             return;
         }
         buildImportFoldingRegion(descriptors, root);
-        buildObjectFoldingRegions(descriptors, root);
-        buildRecordFoldingRegions(descriptors, root);
+        buildTypeFoldingRegions(descriptors, root);
         buildFunctionFoldRegions(descriptors, root);
         buildServiceFoldRegions(descriptors, root);
-        buildWorkerFoldingRegions(descriptors, root);
         buildDocumentationFoldingRegions(descriptors, root);
         buildAnnotationFoldingRegions(descriptors, root);
         buildMultiCommentFoldingRegions(descriptors, root);
+        buildEnumFoldingRegions(descriptors, root);
     }
 
     private void buildImportFoldingRegion(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
@@ -94,51 +94,30 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
         }
     }
 
-    private void buildObjectFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
-        Collection<BallerinaObjectTypeName> objectDefinitions = PsiTreeUtil.findChildrenOfType(root,
-                BallerinaObjectTypeName.class);
-        for (BallerinaObjectTypeName objectDefinition : objectDefinitions) {
-            // Get the object body. This is used to calculate the start offset.
-            BallerinaObjectBody objectBody = PsiTreeUtil.getChildOfType(objectDefinition, BallerinaObjectBody.class);
-            if (objectBody == null) {
+    private void buildTypeFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+
+        Collection<BallerinaTypeDefinition> typeDefinitions = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaTypeDefinition.class);
+
+        for (BallerinaTypeDefinition typeDefinition : typeDefinitions) {
+            BallerinaTypeBody typeBody = PsiTreeUtil.getChildOfType(typeDefinition,
+                    BallerinaTypeBody.class);
+            if (typeBody == null) {
                 continue;
             }
-            // Add folding descriptor.
-            addFoldingDescriptor(descriptors, objectDefinition, objectBody, true);
-        }
-    }
+            BallerinaOpenRecordTypeBody openRecordBody = PsiTreeUtil.getChildOfType(typeBody,
+                    BallerinaOpenRecordTypeBody.class);
+            BallerinaCloseRecordTypeBody closeRecordBody = PsiTreeUtil.getChildOfType(typeBody,
+                    BallerinaCloseRecordTypeBody.class);
+            BallerinaObjectTypeBody objectTypeBody = PsiTreeUtil.getChildOfType(typeBody,
+                    BallerinaObjectTypeBody.class);
 
-    private void buildRecordFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
-
-        // Add folding regions for inclusive records.
-        Collection<BallerinaInclusiveRecordTypeDescriptor> inclusiveDefinitions = PsiTreeUtil.findChildrenOfType(root,
-                BallerinaInclusiveRecordTypeDescriptor.class);
-        for (BallerinaInclusiveRecordTypeDescriptor recordDefinition : inclusiveDefinitions) {
-            BallerinaFieldDescriptor firstField = PsiTreeUtil.getChildOfType(recordDefinition,
-                    BallerinaFieldDescriptor.class);
-            // Retrieves the index of the left left brace of the record.
-            if (firstField != null) {
-                PsiElement leftBrace = getPreviousElement(firstField);
-                int startOffset = leftBrace.getTextRange().getStartOffset();
-                int endOffset = recordDefinition.getTextRange().getEndOffset();
-                // Add the new folding descriptor.
-                descriptors.add(new NamedFoldingDescriptor(recordDefinition, startOffset, endOffset, null, "{...}"));
-            }
-        }
-
-        // Add folding regions for exclusive records.
-        Collection<BallerinaExclusiveRecordTypeDescriptor> exclusiveDefinitions = PsiTreeUtil.findChildrenOfType(root,
-                BallerinaExclusiveRecordTypeDescriptor.class);
-        for (BallerinaExclusiveRecordTypeDescriptor recordDefinition : exclusiveDefinitions) {
-            BallerinaFieldDescriptor firstField = PsiTreeUtil.getChildOfType(recordDefinition,
-                    BallerinaFieldDescriptor.class);
-            // Retrieves the index of the left left brace of the record.
-            if (firstField != null) {
-                PsiElement leftBrace = getPreviousElement(firstField);
-                int startOffset = leftBrace.getTextRange().getStartOffset();
-                int endOffset = recordDefinition.getTextRange().getEndOffset();
-                // Add the new folding descriptor.
-                descriptors.add(new NamedFoldingDescriptor(recordDefinition, startOffset, endOffset, null, "{...}"));
+            if (openRecordBody != null) {
+                addFoldingDescriptor(descriptors, typeDefinition, openRecordBody, false);
+            } else if (closeRecordBody != null) {
+                addFoldingDescriptor(descriptors, typeDefinition, closeRecordBody, false);
+            } else if (objectTypeBody != null) {
+                addFoldingDescriptor(descriptors, typeDefinition, objectTypeBody, false);
             }
         }
     }
@@ -154,8 +133,8 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             if (functionBodyNode == null) {
                 continue;
             }
-            BallerinaBlockFunctionBody functionBlockNode = PsiTreeUtil.getChildOfType(functionBodyNode,
-                    BallerinaBlockFunctionBody.class);
+            BallerinaRecoverableBody functionBlockNode = PsiTreeUtil.getChildOfType(functionBodyNode,
+                    BallerinaRecoverableBody.class);
             if (functionBlockNode == null) {
                 continue;
             }
@@ -173,18 +152,13 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             if (methodDefinition == null) {
                 continue;
             }
-            BallerinaFunctionDefinitionBody functionDefBody = PsiTreeUtil.getChildOfType(methodDefinition,
-                    BallerinaFunctionDefinitionBody.class);
+            BallerinaNestedRecoverableBody functionDefBody = PsiTreeUtil.getChildOfType(methodDefinition,
+                    BallerinaNestedRecoverableBody.class);
             if (functionDefBody == null) {
                 continue;
             }
-            BallerinaBlockFunctionBody blockFunctionBody = PsiTreeUtil.getChildOfType(functionDefBody,
-                    BallerinaBlockFunctionBody.class);
-            if (blockFunctionBody == null) {
-                continue;
-            }
             // Add folding descriptor.
-            addFoldingDescriptor(descriptors, objectMethod, blockFunctionBody, false);
+            addFoldingDescriptor(descriptors, objectMethod, functionDefBody, false);
         }
     }
 
@@ -194,7 +168,8 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
                 BallerinaServiceDefinition.class);
         for (BallerinaServiceDefinition serviceNode : serviceNodes) {
             // Get the service body. This is used to calculate the start offset.
-            BallerinaServiceBody serviceBody = PsiTreeUtil.getChildOfType(serviceNode, BallerinaServiceBody.class);
+            BallerinaServiceDefinitionBody serviceBody = PsiTreeUtil.getChildOfType(serviceNode,
+                    BallerinaServiceDefinitionBody.class);
             if (serviceBody == null) {
                 continue;
             }
@@ -202,31 +177,41 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             addFoldingDescriptor(descriptors, serviceNode, serviceBody, false);
         }
 
+        // Todo - Fix
         // Get all service variable nodes.
-        Collection<BallerinaServiceConstructorExpression> serviceVariableNodes = PsiTreeUtil.findChildrenOfType(root,
-                BallerinaServiceConstructorExpression.class);
-        for (BallerinaServiceConstructorExpression serviceNode : serviceVariableNodes) {
-            // Get the service body. This is used to calculate the start offset.
-            BallerinaServiceBody serviceBody = PsiTreeUtil.getChildOfType(serviceNode, BallerinaServiceBody.class);
-            if (serviceBody == null) {
-                continue;
-            }
-            // Add folding descriptor.
-            addFoldingDescriptor(descriptors, serviceNode, serviceBody, false);
-        }
+        // Collection<BallerinaServiceConstructorExpression> serviceVariableNodes = PsiTreeUtil.findChildrenOfType(root,
+        //     BallerinaServiceConstructorExpression.class);
+        // for (BallerinaServiceConstructorExpression serviceNode : serviceVariableNodes) {
+        //     // Get the service body. This is used to calculate the start offset.
+        //     BallerinaServiceBody serviceBody = PsiTreeUtil.getChildOfType(serviceNode, BallerinaServiceBody.class);
+        //     if (serviceBody == null) {
+        //         continue;
+        //     }
+        //     // Add folding descriptor.
+        //     addFoldingDescriptor(descriptors, serviceNode, serviceBody, false);
+        // }
     }
 
-    private void buildWorkerFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
-        Collection<BallerinaWorkerDefinition> workerDefinitions = PsiTreeUtil.findChildrenOfType(root,
-                BallerinaWorkerDefinition.class);
-        for (BallerinaWorkerDefinition workerDefinition : workerDefinitions) {
-            // Get the worker body. This is used to calculate the start offset.
-            BallerinaWorkerBody workerBody = PsiTreeUtil.getChildOfType(workerDefinition, BallerinaWorkerBody.class);
-            if (workerBody == null) {
+    private void buildEnumFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        // Get all enum nodes.
+        Collection<BallerinaEnumDefinition> enumNodes = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaEnumDefinition.class);
+        for (BallerinaEnumDefinition enumNode : enumNodes) {
+            // Get the enum body. This is used to calculate the start offset.
+            BallerinaEnumBody enumBody = PsiTreeUtil.getChildOfType(enumNode, BallerinaEnumBody.class);
+            if (enumBody == null) {
                 continue;
             }
-            // Add folding descriptor.
-            addFoldingDescriptor(descriptors, workerDefinition, workerBody, false);
+            BallerinaMultiMemberEnumBody multiMemberEnumBody = PsiTreeUtil.getChildOfType(enumBody,
+                    BallerinaMultiMemberEnumBody.class);
+            if (multiMemberEnumBody != null) {
+                addFoldingDescriptor(descriptors, enumNode, multiMemberEnumBody, false);
+            }
+            BallerinaSingleMemberEnumBody singleMemberEnumBody = PsiTreeUtil.getChildOfType(enumBody,
+                    BallerinaSingleMemberEnumBody.class);
+            if (singleMemberEnumBody != null) {
+                addFoldingDescriptor(descriptors, enumNode, singleMemberEnumBody, false);
+            }
         }
     }
 
@@ -251,8 +236,8 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
                 BallerinaAnnotationAttachment.class);
         for (BallerinaAnnotationAttachment annotation : annotations) {
             // Get the annotation body. This is used to calculate the start offset.
-            BallerinaRecordLiteral annotationBody = PsiTreeUtil.getChildOfType(annotation,
-                    BallerinaRecordLiteral.class);
+            BallerinaRecoverableBody annotationBody = PsiTreeUtil.getChildOfType(annotation,
+                    BallerinaRecoverableBody.class);
             if (annotationBody == null) {
                 continue;
             }

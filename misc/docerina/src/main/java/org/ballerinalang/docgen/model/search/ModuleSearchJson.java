@@ -22,11 +22,11 @@ package org.ballerinalang.docgen.model.search;
  */
 public class ModuleSearchJson {
     private String id;
-    private String searchString;
+    private String description;
 
-    public ModuleSearchJson(String id, String searchString) {
+    public ModuleSearchJson(String id, String description) {
         this.setId(id);
-        this.setSearchString(searchString);
+        this.setDescription(description);
     }
 
     public String getId() {
@@ -37,11 +37,11 @@ public class ModuleSearchJson {
         this.id = id;
     }
 
-    public String getSearchString() {
-        return searchString;
+    public String getDescription() {
+        return description;
     }
 
-    public void setSearchString(String searchString) {
-        this.searchString = searchString;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

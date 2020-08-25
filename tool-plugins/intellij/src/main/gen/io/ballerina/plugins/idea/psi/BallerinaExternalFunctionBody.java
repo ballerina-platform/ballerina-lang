@@ -29,7 +29,7 @@ public interface BallerinaExternalFunctionBody extends PsiElement {
   @NotNull
   PsiElement getAssign();
 
-  @NotNull
+  @Nullable
   PsiElement getExternal();
 
 }

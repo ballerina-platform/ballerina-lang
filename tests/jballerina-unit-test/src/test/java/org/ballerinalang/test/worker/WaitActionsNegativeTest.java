@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-@Test(groups = { "brokenOnNewParser" })
+@Test(groups = { "disableOnOldParser" })
 public class WaitActionsNegativeTest {
 
     private CompileResult resultNegative;
@@ -76,14 +76,14 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<int>', found 'future<string>'", 83, 51);
         BAssertUtil.validateError(resultNegative, index++,
-                "missing non-defaultable required record field 'f3'", 85, 45);
+                "missing non-defaultable required record field 'f3'", 85, 50);
         BAssertUtil.validateError(resultNegative, index++,
-                "missing non-defaultable required record field 'f2'", 86, 25);
+                "missing non-defaultable required record field 'f2'", 86, 30);
         BAssertUtil.validateError(resultNegative, index++,
                                   "incompatible types: expected 'sealedRec', found 'record {| int id; string name; " +
-                                          "boolean status; |}'", 87, 26);
+                                          "boolean status; |}'", 87, 31);
         BAssertUtil.validateError(resultNegative, index++,
-                "invalid field name 'status' in type 'sealedRec'", 88, 26);
+                "invalid field name 'status' in type 'sealedRec'", 88, 31);
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<int>', found 'future<string>'", 89, 55);
         BAssertUtil.validateError(resultNegative, index,

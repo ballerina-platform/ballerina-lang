@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.runconfig;
 
-import com.google.common.base.Strings;
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
@@ -138,7 +137,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
             }
         } else {
             String moduleName = configurationModule.getModuleName();
-            if (Strings.isNullOrEmpty(moduleName)) {
+            if (BallerinaSdkUtils.stringIsNullOrEmpty(moduleName)) {
                 throw new RuntimeConfigurationError(
                         ExecutionBundle.message("module.doesn.t.exist.in.project.error.text", moduleName));
             }

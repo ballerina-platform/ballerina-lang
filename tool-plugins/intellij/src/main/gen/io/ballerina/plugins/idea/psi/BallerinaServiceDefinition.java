@@ -25,10 +25,10 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 public interface BallerinaServiceDefinition extends BallerinaTopLevelDefinition {
 
   @Nullable
-  BallerinaExpressionList getExpressionList();
+  BallerinaRecoverableAttachmentContent getRecoverableAttachmentContent();
 
   @Nullable
-  BallerinaServiceBody getServiceBody();
+  BallerinaServiceDefinitionBody getServiceDefinitionBody();
 
   @Nullable
   PsiElement getIdentifier();

@@ -66,7 +66,8 @@ public class HoverProviderTest {
                 + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test Hover for current package's functions", dataProvider = "hoverCurrentPackageFuncPosition")
+    @Test(description = "Test Hover for current package's functions", dataProvider = "hoverCurrentPackageFuncPosition",
+            enabled = false)
     public void hoverForCurrentPackageFunctionTest(Position position, String expectedFile) throws IOException {
         String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
         String expected = getExpectedValue(expectedFile);
@@ -116,8 +117,8 @@ public class HoverProviderTest {
     public Object[][] getBuiltinFunctionPositions() {
         log.info("Test textDocument/hover for builtin functions");
         return new Object[][]{
-//                {new Position(43, 11), "builtin-function1.json"},
-//                {new Position(44, 19), "builtin-function2.json"},
+                {new Position(43, 11), "builtin-function1.json"},
+                {new Position(44, 19), "builtin-function2.json"},
                 {new Position(59, 60), "hoverOverConstant.json"},
                 {new Position(57, 35), "builtin-service1.json"}
         };
@@ -165,7 +166,7 @@ public class HoverProviderTest {
     public Object[][] getActionPositions() {
         log.info("Test textDocument/hover for actions");
         return new Object[][]{
-//                {new Position(65, 60), "hover-over-async-send.json"},
+                {new Position(65, 60), "hover-over-async-send.json"},
         };
     }
 

@@ -44,6 +44,7 @@ public class LexerTerminals {
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     public static final String CHECK = "check";
+    public static final String FAIL = "fail";
     public static final String CHECKPANIC = "checkpanic";
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
@@ -99,6 +100,10 @@ public class LexerTerminals {
     public static final String JOIN = "join";
     public static final String OUTER = "outer";
     public static final String EQUALS = "equals";
+    public static final String ORDER = "order";
+    public static final String BY = "by";
+    public static final String ASCENDING = "ascending";
+    public static final String DESCENDING = "descending";
 
     // For BFM only
     public static final String VARIABLE = "variable";

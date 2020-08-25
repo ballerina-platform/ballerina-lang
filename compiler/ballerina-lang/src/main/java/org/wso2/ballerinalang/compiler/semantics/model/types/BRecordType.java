@@ -39,10 +39,10 @@ public class BRecordType extends BStructureType implements RecordType {
     private static final String CLOSE_LEFT = "{|";
     private static final String SEMI = ";";
     private static final String CLOSE_RIGHT = "|}";
-    private static final String DOLLAR = "$";
     private static final String REST = "...";
     public static final String OPTIONAL = "?";
     public static final String EMPTY = "";
+    public static final String READONLY = "readonly";
     public boolean sealed;
     public BType restFieldType;
     private Optional<Boolean> isAnyData = Optional.empty();
@@ -77,12 +77,18 @@ public class BRecordType extends BStructureType implements RecordType {
     @Override
     public String toString() {
 
-        if (tsymbol.name != null && (tsymbol.name.value.isEmpty() || tsymbol.name.value.startsWith(DOLLAR))) {
+        if (shouldPrintShape(tsymbol.name)) {
             // Try to print possible shape. But this may fail with self reference hence avoid .
             StringBuilder sb = new StringBuilder();
             sb.append(RECORD).append(SPACE).append(CLOSE_LEFT);
             for (BField field : fields.values()) {
-                sb.append(SPACE).append(field.type).append(SPACE).append(field.name)
+                sb.append(SPACE);
+
+                if (Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                    sb.append(READONLY).append(SPACE);
+                }
+
+                sb.append(field.type).append(SPACE).append(field.name)
                         .append(Symbols.isOptional(field.symbol) ? OPTIONAL : EMPTY).append(SEMI);
             }
             if (sealed) {

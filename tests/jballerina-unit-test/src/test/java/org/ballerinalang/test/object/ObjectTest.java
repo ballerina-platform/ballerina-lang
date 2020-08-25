@@ -27,7 +27,6 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -689,17 +688,6 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
     }
 
-    @Test(dataProvider = "missingNativeImplFiles")
-    public void testObjectWithMissingNativeImpl(String filePath) {
-        try {
-            BCompileUtil.compileInProc(filePath);
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("native function not available: Person.printName"));
-            return;
-        }
-        Assert.fail("expected compilation to fail due to missing external implementation");
-    }
-
     @Test(description = "Test invoking object inits with union params in another object's function")
     public void testUnionsAsAnInitParam() {
         CompileResult objectTypeUnion = BCompileUtil.compile("test-src/object/object_type_union.bal");
@@ -756,14 +744,6 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjThree|InitObjOne|boolean|string)'", 129, 50);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
-    }
-
-    @DataProvider
-    public Object[][] missingNativeImplFiles() {
-        return new Object[][]{
-                {"test-src/object/object_with_missing_native_impl.bal"},
-                {"test-src/object/object_with_missing_native_impl_2.bal"}
-        };
     }
 
     @Test(description = "Test field name and method name in different namespaces")

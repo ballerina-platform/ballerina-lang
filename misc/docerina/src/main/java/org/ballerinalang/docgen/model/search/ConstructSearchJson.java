@@ -22,12 +22,12 @@ package org.ballerinalang.docgen.model.search;
  */
 public class ConstructSearchJson {
     private String id;
-    private String searchString;
+    private String description;
     private String moduleId;
 
-    public ConstructSearchJson(String id, String moduleId, String searchString) {
+    public ConstructSearchJson(String id, String moduleId, String description) {
         this.setId(id);
-        this.setSearchString(searchString);
+        this.setDescription(description);
         this.setModuleId(moduleId);
     }
 
@@ -39,12 +39,12 @@ public class ConstructSearchJson {
         this.id = id;
     }
 
-    public String getSearchString() {
-        return searchString;
+    public String getDescription() {
+        return description;
     }
 
-    public void setSearchString(String searchString) {
-        this.searchString = searchString;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getModuleId() {

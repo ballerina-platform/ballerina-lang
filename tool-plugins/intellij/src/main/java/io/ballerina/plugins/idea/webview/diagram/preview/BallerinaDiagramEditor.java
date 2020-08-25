@@ -15,7 +15,6 @@
  */
 package io.ballerina.plugins.idea.webview.diagram.preview;
 
-import com.google.common.base.Strings;
 import com.intellij.CommonBundle;
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
 import com.intellij.openapi.application.ApplicationManager;
@@ -38,6 +37,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Alarm;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.webview.diagram.preview.javafx.DiagramJavaFxHtmlPanel;
 import io.ballerina.plugins.idea.webview.diagram.settings.DiagramApplicationSettings;
 import io.ballerina.plugins.idea.webview.diagram.settings.DiagramCssSettings;
@@ -301,7 +301,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
         }
 
         String html = "";
-        if (Strings.isNullOrEmpty(myLastRenderedHtml)) {
+        if (BallerinaSdkUtils.stringIsNullOrEmpty(myLastRenderedHtml)) {
             html = BallerinaDiagramUtils.generateDiagramHtml(myFile, myPanel, myProject);
         }
 
@@ -317,7 +317,7 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
             }
 
             // If the diagram HTML is already loaded, just invoke "drawDiagram()" function to update the webview.
-            if (!Strings.isNullOrEmpty(myLastRenderedHtml)) {
+            if (!BallerinaSdkUtils.stringIsNullOrEmpty(myLastRenderedHtml)) {
                 myLastHtmlOrRefreshRequest = () -> {
                     if (myPanel == null) {
                         return;

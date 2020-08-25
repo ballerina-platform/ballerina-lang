@@ -180,7 +180,9 @@ public class BallerinaDocGenerator {
 
         // Generate project model
         Project project = getDocsGenModel(moduleDocList);
-        writeAPIDocs(project, output, excludeIndex);
+        if (!project.modules.isEmpty()) {
+            writeAPIDocs(project, output, excludeIndex);
+        }
     }
 
     public static void writeAPIDocs(Project project, String output, boolean excludeIndex) {
@@ -432,6 +434,7 @@ public class BallerinaDocGenerator {
         List<ConstructSearchJson> searchTypes = new ArrayList<>();
         List<ConstructSearchJson> searchClients = new ArrayList<>();
         List<ConstructSearchJson> searchListeners = new ArrayList<>();
+        List<ConstructSearchJson> searchAnnotations = new ArrayList<>();
 
         if (module.summary != null) {
             searchModules.add(new ModuleSearchJson(module.id, getFirstLine(module.summary)));
@@ -464,9 +467,16 @@ public class BallerinaDocGenerator {
                 searchTypes.add(new ConstructSearchJson(unionType.name, module.id,
                         getFirstLine(unionType.description))));
 
+        module.finiteTypes.forEach((finiteType) ->
+                searchTypes.add(new ConstructSearchJson(finiteType.name, module.id,
+                        getFirstLine(finiteType.description))));
+
+        module.annotations.forEach((annotation) ->
+                searchAnnotations.add(new ConstructSearchJson(annotation.name, module.id,
+                        getFirstLine(annotation.description))));
 
         SearchJson searchJson = new SearchJson(searchModules, searchObjects, searchFunctions, searchRecords,
-                searchConstants, searchErrors, searchTypes, searchClients, searchListeners);
+                searchConstants, searchErrors, searchTypes, searchClients, searchListeners, searchAnnotations);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         File jsonFile = new File(jsonPath);
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
@@ -515,6 +525,7 @@ public class BallerinaDocGenerator {
                             searchJson.getConstants().addAll(modSearchJson.getConstants());
                             searchJson.getErrors().addAll(modSearchJson.getErrors());
                             searchJson.getTypes().addAll(modSearchJson.getTypes());
+                            searchJson.getAnnotations().addAll(modSearchJson.getAnnotations());
                         } catch (IOException e) {
                             String errorMsg = String.format("API documentation generation failed. Cause: %s",
                                     e.getMessage());
@@ -613,11 +624,13 @@ public class BallerinaDocGenerator {
 
             // populate module constructs
             sortModuleConstructs(moduleDoc.bLangPackage);
-            Generator.generateModuleConstructs(module, moduleDoc.bLangPackage);
+            boolean hasPublicConstructs = Generator.generateModuleConstructs(module, moduleDoc.bLangPackage);
 
             // collect module's doc resources
-            module.resources.addAll(moduleDoc.resources);
-            moduleDocs.add(module);
+            if (hasPublicConstructs) {
+                module.resources.addAll(moduleDoc.resources);
+                moduleDocs.add(module);
+            }
         }
         project.modules = moduleDocs;
         return project;

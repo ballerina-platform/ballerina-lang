@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
@@ -245,7 +246,7 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, unresolvedValues)) {
+                if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, false, unresolvedValues)) {
                     convertibleTypes.add(targetType);
                 }
                 break;
@@ -263,7 +264,42 @@ public class TypeConverter {
         return convertibleTypes;
     }
 
-    private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType,
+    public static List<BType> getConvertibleTypesFromJson(Object value, BType targetType,
+                                                          List<TypeValuePair> unresolvedValues) {
+        List<BType> convertibleTypes = new ArrayList<>();
+
+        int targetTypeTag = targetType.getTag();
+
+        convertibleTypes.addAll(TypeConverter.getConvertibleTypes(value, targetType));
+
+        if (convertibleTypes.size() == 0) {
+            switch (targetTypeTag) {
+                case TypeTags.RECORD_TYPE_TAG:
+                    if (isConvertibleToRecordType(value, (BRecordType) targetType, true, unresolvedValues)) {
+                        convertibleTypes.add(targetType);
+                    }
+                    break;
+                case TypeTags.TABLE_TAG:
+                    if (((BTableType) targetType).getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG ||
+                            ((BTableType) targetType).getConstrainedType().getTag() == TypeTags.MAP_TAG) {
+                        convertibleTypes.add(targetType);
+                    }
+                    break;
+                case TypeTags.XML_TAG:
+                case TypeTags.XML_ELEMENT_TAG:
+                case TypeTags.XML_COMMENT_TAG:
+                case TypeTags.XML_PI_TAG:
+                case TypeTags.XML_TEXT_TAG:
+                    if (TypeChecker.getType(value).getTag() == TypeTags.STRING_TAG) {
+                        convertibleTypes.add(targetType);
+                    }
+                    break;
+            }
+        }
+        return convertibleTypes;
+    }
+
+    private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType, boolean isFromJson,
                                                      List<TypeValuePair> unresolvedValues) {
         if (!(sourceValue instanceof MapValueImpl)) {
             return false;
@@ -299,17 +335,33 @@ public class TypeConverter {
             Map.Entry valueEntry = (Map.Entry) object;
             String fieldName = valueEntry.getKey().toString();
 
-            if (targetFieldTypes.containsKey(fieldName)) {
-                if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName),
-                                        unresolvedValues).size() != 1) {
-                    return false;
-                }
-            } else if (!targetType.sealed) {
-                if (getConvertibleTypes(valueEntry.getValue(), restFieldType, unresolvedValues).size() != 1) {
+            if (isFromJson) {
+                if (targetFieldTypes.containsKey(fieldName)) {
+                    if (getConvertibleTypesFromJson(valueEntry.getValue(), targetFieldTypes.get(fieldName),
+                            unresolvedValues).size() != 1) {
+                        return false;
+                    }
+                } else if (!targetType.sealed) {
+                    if (getConvertibleTypesFromJson(valueEntry.getValue(), restFieldType,
+                            unresolvedValues).size() != 1) {
+                        return false;
+                    }
+                } else {
                     return false;
                 }
             } else {
-                return false;
+                if (targetFieldTypes.containsKey(fieldName)) {
+                    if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName),
+                            unresolvedValues).size() != 1) {
+                        return false;
+                    }
+                } else if (!targetType.sealed) {
+                    if (getConvertibleTypes(valueEntry.getValue(), restFieldType, unresolvedValues).size() != 1) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
             }
         }
         return true;

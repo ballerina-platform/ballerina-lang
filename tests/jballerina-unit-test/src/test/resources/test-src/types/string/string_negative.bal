@@ -14,18 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-string glbMultiLine = "Hello
-World!";
-
 function testMultilineStrings() {
     string s1 = "Hello
-    World!";
-
-    string s2 = "Another Hello
-            World with new line + tabs";
-
-    string s3 = "Multiple
-    Line
-    Hello
     World!";
 }

@@ -24,7 +24,6 @@ import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CreateDocsTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
@@ -84,6 +83,9 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--fromJSON", "-fromJSON"}, description = "Generate API Docs from a JSON.")
     private String jsonLoc;
 
+    @CommandLine.Option(names = {"--templatePath", "-templatePath"}, description = "Location of the custom templates.")
+    private String templateLoc;
+
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
     private String outputLoc;
 
@@ -98,8 +100,8 @@ public class DocCommand implements BLauncherCmd {
                                                               "dependencies.")
     private boolean offline;
 
-    @CommandLine.Option(names = "--new-parser", description = "Enable new parser.", hidden = true)
-    private boolean newParserEnabled;
+    @CommandLine.Option(names = "--old-parser", description = "Enable old parser.", hidden = true)
+    private boolean useOldParser;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -135,6 +137,19 @@ public class DocCommand implements BLauncherCmd {
         // validation and decide source root and source full path
         this.sourceRootPath = null != this.sourceRoot ?
                 Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
+        // set custom template path
+        if (this.templateLoc != null) {
+            Path templatePath = Paths.get(this.templateLoc).toAbsolutePath();
+            if (Files.notExists(templatePath)) {
+                CommandUtil.printError(this.errStream,
+                        "cannot find template folder " + templatePath.toString(),
+                        null,
+                        false);
+                CommandUtil.exitError(true);
+                return;
+            }
+            System.setProperty("CUSTOM_TEMPLATE_PATH", templatePath.toString());
+        }
         // combine docs
         if (this.combine) {
             BuildContext buildContext = new BuildContext(this.sourceRootPath);
@@ -282,7 +297,7 @@ public class DocCommand implements BLauncherCmd {
         options.put(SKIP_TESTS, Boolean.toString(true));
         options.put(TEST_ENABLED, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
-        options.put(NEW_PARSER_ENABLED, Boolean.toString(this.newParserEnabled));
+        options.put(NEW_PARSER_ENABLED, Boolean.toString(!this.useOldParser));
 
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
@@ -293,7 +308,6 @@ public class DocCommand implements BLauncherCmd {
         buildContext.setErr(errStream);
         
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask())   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask()) // compile the modules

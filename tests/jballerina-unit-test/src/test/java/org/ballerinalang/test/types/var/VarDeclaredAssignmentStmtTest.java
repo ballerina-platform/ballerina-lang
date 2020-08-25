@@ -144,12 +144,12 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test var in variable def.", groups = { "brokenOnNewParser" })
+    @Test(description = "Test var in variable def.", groups = { "disableOnOldParser" })
     public void testVarTypeInVariableDefStatement() {
         //var type is not not allowed in variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-type-variable-def-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting '='", 2, 12);
+        BAssertUtil.validateError(res, 0, "initializer required for variables declared with var", 2, 5);
     }
 
     @Test(groups = { "brokenOnNewParser" })
@@ -158,16 +158,20 @@ public class VarDeclaredAssignmentStmtTest {
         CompileResult res = BCompileUtil.compile("test-src/types/var/service-level-variable-def-with-var-negative.bal");
         BAssertUtil.validateError(res, 0,
                                   "mismatched input 'var'. expecting {'public', 'private', 'resource', 'function', " +
-                                          "'remote', '}', '@', DocumentationLineStart}", 4, 5);
+                                          "'remote', 'transactional', '}', '@', DocumentationLineStart}", 4, 5);
         BAssertUtil.validateError(res, 1, "extraneous input 'resource'", 6, 5);
         BAssertUtil.validateError(res, 2, "extraneous input '}'", 12, 1);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "mismatched input '.'. expecting '='", 9, 13);
+        Assert.assertEquals(res.getErrorCount(), 5);
+        BAssertUtil.validateError(res, 0, "initializer required for variables declared with var", 9, 4);
+        BAssertUtil.validateError(res, 1, "redeclared symbol 'human'", 9, 8);
+        BAssertUtil.validateError(res, 2, "missing semicolon token", 9, 13);
+        BAssertUtil.validateError(res, 3, "invalid token '.'", 9, 14);
+        BAssertUtil.validateError(res, 4, "undefined symbol 'name'", 9, 14);
     }
 
     @Test

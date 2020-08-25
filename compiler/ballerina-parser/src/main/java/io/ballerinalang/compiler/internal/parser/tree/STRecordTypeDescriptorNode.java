@@ -31,69 +31,79 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STRecordTypeDescriptorNode extends STTypeDescriptorNode {
-    public final STNode objectKeyword;
+    public final STNode recordKeyword;
     public final STNode bodyStartDelimiter;
     public final STNode fields;
+    public final STNode recordRestDescriptor;
     public final STNode bodyEndDelimiter;
 
     STRecordTypeDescriptorNode(
-            STNode objectKeyword,
+            STNode recordKeyword,
             STNode bodyStartDelimiter,
             STNode fields,
+            STNode recordRestDescriptor,
             STNode bodyEndDelimiter) {
         this(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter,
                 Collections.emptyList());
     }
 
     STRecordTypeDescriptorNode(
-            STNode objectKeyword,
+            STNode recordKeyword,
             STNode bodyStartDelimiter,
             STNode fields,
+            STNode recordRestDescriptor,
             STNode bodyEndDelimiter,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.RECORD_TYPE_DESC, diagnostics);
-        this.objectKeyword = objectKeyword;
+        this.recordKeyword = recordKeyword;
         this.bodyStartDelimiter = bodyStartDelimiter;
         this.fields = fields;
+        this.recordRestDescriptor = recordRestDescriptor;
         this.bodyEndDelimiter = bodyEndDelimiter;
 
         addChildren(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRecordTypeDescriptorNode(
-                this.objectKeyword,
+                this.recordKeyword,
                 this.bodyStartDelimiter,
                 this.fields,
+                this.recordRestDescriptor,
                 this.bodyEndDelimiter,
                 diagnostics);
     }
 
     public STRecordTypeDescriptorNode modify(
-            STNode objectKeyword,
+            STNode recordKeyword,
             STNode bodyStartDelimiter,
             STNode fields,
+            STNode recordRestDescriptor,
             STNode bodyEndDelimiter) {
         if (checkForReferenceEquality(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter)) {
             return this;
         }
 
         return new STRecordTypeDescriptorNode(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter,
                 diagnostics);
     }

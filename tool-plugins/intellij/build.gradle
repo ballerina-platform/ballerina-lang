@@ -37,6 +37,7 @@ dependencies {
     compile group: 'com.github.ballerina-platform', name: 'lsp4intellij', version: '0.94.2'
     compile group: 'com.github.jknack', name: 'handlebars', version: '4.1.2'
     configurations.compile.exclude(group: 'org.slf4j', module: 'slf4j-api')
+    configurations.compile.exclude(group: 'com.google.guava', module: 'guava')
 }
 
 apply plugin: 'java'

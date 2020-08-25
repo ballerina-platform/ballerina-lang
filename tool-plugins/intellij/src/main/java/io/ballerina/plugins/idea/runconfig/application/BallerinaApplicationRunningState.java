@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.runconfig.application;
 
-import com.google.common.base.Strings;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.process.ProcessAdapter;
@@ -145,8 +144,8 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             // Tries to get the ballerina executable path using the SDK.
             String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
             // If any sdk is not found and user has chosen to auto detect ballerina home.
-            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaProjectSettings.getStoredSettings(project).
-                    isAutodetect()) {
+            if (BallerinaSdkUtils.stringIsNullOrEmpty(balSdkPath)
+                    && BallerinaProjectSettings.getStoredSettings(project).isAutodetect()) {
                 try {
                     balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
                 } catch (BallerinaCmdException e) {
@@ -177,8 +176,8 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             // Tries to get the ballerina executable path using the SDK.
             String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
             // If any sdk is not found and user has chosen to auto detect ballerina home.
-            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaProjectSettings.getStoredSettings(project)
-                    .isAutodetect()) {
+            if (BallerinaSdkUtils.stringIsNullOrEmpty(balSdkPath)
+                    && BallerinaProjectSettings.getStoredSettings(project).isAutodetect()) {
                 try {
                     balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
                 } catch (BallerinaCmdException e) {

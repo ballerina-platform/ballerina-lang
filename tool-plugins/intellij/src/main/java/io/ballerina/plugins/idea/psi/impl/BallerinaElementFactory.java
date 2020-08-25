@@ -19,16 +19,11 @@ package io.ballerina.plugins.idea.psi.impl;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFileFactory;
-import com.intellij.psi.impl.PsiParserFacadeImpl;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
-import io.ballerina.plugins.idea.psi.BallerinaSimpleTypeName;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Element factory which creates PSI nodes.
@@ -47,32 +42,5 @@ public class BallerinaElementFactory {
         BallerinaFunctionDefinition functionDefinition = PsiTreeUtil.findChildOfType(file,
                 BallerinaFunctionDefinition.class);
         return functionDefinition.getIdentifier();
-    }
-
-    @NotNull
-    public static PsiElement createNewLine(@NotNull Project project) {
-        return PsiParserFacadeImpl.SERVICE.getInstance(project).createWhiteSpaceFromText("\n");
-    }
-
-    @NotNull
-    public static PsiElement createDoubleNewLine(@NotNull Project project) {
-        return PsiParserFacadeImpl.SERVICE.getInstance(project).createWhiteSpaceFromText("\n\n");
-    }
-
-    @NotNull
-    public static BallerinaImportDeclaration createImportDeclaration(@NotNull Project project,
-                                                                     @NotNull String importString,
-                                                                     @Nullable String alias) {
-        BallerinaFile file = createFileFromText(project, "import " + importString +
-                (alias != null ? " as " + alias : "") + ";");
-        return PsiTreeUtil.findChildOfType(file, BallerinaImportDeclaration.class);
-    }
-
-    @NotNull
-    public static PsiElement createTypeFromText(@NotNull Project project, @NotNull String type) {
-        BallerinaFile file = createFileFromText(project, "function f(){ " + type + " t; }");
-        BallerinaSimpleTypeName simpleTypeName = PsiTreeUtil.findChildOfType(file,
-                BallerinaSimpleTypeName.class);
-        return PsiTreeUtil.findChildOfType(simpleTypeName, LeafPsiElement.class);
     }
 }

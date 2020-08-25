@@ -49,4 +49,9 @@ public class WaitActionTest extends AbstractActionTest {
     public void testRecoveryInMultipleWaitAction() {
         testFile("wait-action/wait_action_source_04.bal", "wait-action/wait_action_assert_04.json");
     }
+
+    @Test
+    public void testTestActionInsideWaitAction() {
+        testFile("wait-action/wait_action_source_05.bal", "wait-action/wait_action_assert_05.json");
+    }
 }

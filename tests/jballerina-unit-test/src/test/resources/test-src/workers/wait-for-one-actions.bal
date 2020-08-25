@@ -74,7 +74,7 @@ function waitTest8() returns int {
 }
 
 function waitTest9() returns () {
-    future<()> f1 = runtime:timeout(2000);
+    future<()> f1 = start runtime:sleep(2000);
     () result = wait f1;
     return result;
 }

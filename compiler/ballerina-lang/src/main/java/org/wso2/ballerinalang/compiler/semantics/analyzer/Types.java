@@ -3432,4 +3432,65 @@ public class Types {
         }
         return hasFillerValue(type.eType);
     }
+
+    /**
+     * Get result type of the query output.
+     *
+     * @param type type of query expression.
+     * @return result type.
+     */
+    public BType resolveExprType(BType type) {
+        switch (type.tag) {
+            case TypeTags.STREAM:
+                return ((BStreamType) type).constraint;
+            case TypeTags.TABLE:
+                return ((BTableType) type).constraint;
+            case TypeTags.ARRAY:
+                return ((BArrayType) type).eType;
+            case TypeTags.UNION:
+                List<BType> exprTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
+                for (BType returnType : exprTypes) {
+                    switch (returnType.tag) {
+                        case TypeTags.STREAM:
+                            return ((BStreamType) returnType).constraint;
+                        case TypeTags.TABLE:
+                            return ((BTableType) returnType).constraint;
+                        case TypeTags.ARRAY:
+                            return ((BArrayType) returnType).eType;
+                        case TypeTags.STRING:
+                        case TypeTags.XML:
+                            return returnType;
+                    }
+                }
+            default:
+                return type;
+        }
+    }
+
+    /**
+     * Check whether a order-key expression type is a basic type.
+     *
+     * @param type type of the order-key expression.
+     * @return boolean whether the type is basic type or not.
+     */
+    public boolean isBasicType(BType type) {
+        switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+            case TypeTags.NIL:
+                return true;
+            case TypeTags.UNION:
+                if (((BUnionType) type).getMemberTypes().contains(symTable.nilType)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            default:
+                return false;
+        }
+    }
 }

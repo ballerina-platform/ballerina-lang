@@ -153,10 +153,10 @@ public function getAsBoolean(@untainted string key, boolean defaultValue = false
 #
 # + key - The key of the configuration to be retrieved
 # + return - Configuration value mapped with the given key. If there is no mapping, an empty map will be returned
-public function getAsMap(@untainted string key) returns map<anydata> {
+public function getAsMap(@untainted string key) returns map<anydata> & readonly {
     var value = get(key, MAP);
 
-    if (value is map<anydata>) {
+    if (value is map<anydata> & readonly) {
         return value;
     } else {
         error err = error("Invalid value. Expected a 'map'.");
@@ -171,8 +171,8 @@ public function getAsMap(@untainted string key) returns map<anydata> {
 #
 # + key - The key of the configuration to be retrieved
 # + return - Configuration value mapped with the given key. If there is no mapping, an empty array will be returned
-public function getAsArray(@untainted string key) returns anydata[] {
-    return <anydata[]>get(key, ARRAY);
+public function getAsArray(@untainted string key) returns anydata[] & readonly {
+    return <anydata[] & readonly>get(key, ARRAY);
 }
 
 function lookupEnvVar(string key) returns string {

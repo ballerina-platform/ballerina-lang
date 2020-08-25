@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -220,10 +215,10 @@
                                       ]
                                     },
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "NUMERIC_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                           "value": "5"
                                         }
                                       ]
@@ -296,10 +291,10 @@
                                       ]
                                     },
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "NUMERIC_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                           "value": "7"
                                         }
                                       ]
@@ -413,7 +408,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "south",
                                   "leadingMinutiae": [
                                     {
@@ -431,7 +426,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "north",
                                   "trailingMinutiae": [
                                     {
@@ -490,7 +485,7 @@
                                       "kind": "STRING_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "STRING_LITERAL",
+                                          "kind": "STRING_LITERAL_TOKEN",
                                           "value": "This is a direction"
                                         }
                                       ]
@@ -537,7 +532,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "west",
                                   "leadingMinutiae": [
                                     {
@@ -690,7 +685,7 @@
                                       "kind": "STRING_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "STRING_LITERAL",
+                                          "kind": "STRING_LITERAL_TOKEN",
                                           "value": "This is a direction with condition"
                                         }
                                       ]

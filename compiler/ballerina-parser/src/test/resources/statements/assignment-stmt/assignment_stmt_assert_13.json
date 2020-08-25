@@ -17,78 +17,80 @@
             {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
-                "kind": "BINARY_EXPRESSION",
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                 "children": [
                   {
-                    "kind": "BINARY_EXPRESSION",
-                    "children": [
-                      {
-                        "kind": "SIMPLE_NAME_REFERENCE",
-                        "children": [
-                          {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "a",
-                            "trailingMinutiae": [
-                              {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": " "
-                              }
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        "kind": "PLUS_TOKEN",
-                        "trailingMinutiae": [
-                          {
-                            "kind": "WHITESPACE_MINUTIAE",
-                            "value": " "
-                          }
-                        ]
-                      },
-                      {
-                        "kind": "SIMPLE_NAME_REFERENCE",
-                        "children": [
-                          {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b",
-                            "trailingMinutiae": [
-                              {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": " "
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "PLUS_TOKEN",
-                    "trailingMinutiae": [
-                      {
-                        "kind": "WHITESPACE_MINUTIAE",
-                        "value": " "
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "SIMPLE_NAME_REFERENCE",
-                    "children": [
-                      {
-                        "kind": "IDENTIFIER_TOKEN",
-                        "value": "c",
-                        "trailingMinutiae": [
-                          {
-                            "kind": "WHITESPACE_MINUTIAE",
-                            "value": "  "
-                          }
-                        ]
-                      }
-                    ]
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "a"
                   }
                 ]
               }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "PLUS_TOKEN"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "b"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "PLUS_TOKEN"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "c"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": "  "
             }
           ]
         }

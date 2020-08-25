@@ -22,6 +22,7 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
@@ -51,6 +52,7 @@ public class CreateExecutableTask implements Task {
 
     @Override
     public void execute(BuildContext buildContext) {
+        JarResolver jarResolver = buildContext.get(BuildContextField.JAR_RESOLVER);
         Optional<BLangPackage> modulesWithEntryPoints = buildContext.getModules().stream()
                 .filter(m -> m.symbol.entryPointExists)
                 .findAny();
@@ -62,10 +64,10 @@ public class CreateExecutableTask implements Task {
                 if (module.symbol.entryPointExists) {
                     Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
                     Path jarFromCachePath = buildContext.getJarPathFromTargetCache(module.packageID);
+                    HashSet<Path> dependencies = new HashSet<>(jarResolver.allDependencies(module));
                     try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(new BufferedOutputStream(
                             new FileOutputStream(String.valueOf(executablePath))))) {
-                        assembleExecutable(jarFromCachePath,
-                                buildContext.moduleDependencyPathMap.get(module.packageID).moduleLibs, outStream);
+                        assembleExecutable(jarFromCachePath, dependencies, outStream);
                     } catch (IOException e) {
                         throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
                     }

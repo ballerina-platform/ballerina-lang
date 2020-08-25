@@ -168,3 +168,17 @@ function testInvalidOptionalFieldUpdate() {
     Quux q = {id: 100};
     q.code = "quux";
 }
+
+function testReadOnlyModifierInStringRepresentation() {
+    record {|
+        int i;
+        string s;
+        boolean b;
+    |} a = {i: 1, s: "hello", b: false};
+
+    record {|
+        readonly int i;
+        string s;
+        readonly boolean b;
+    |} x = a;
+}

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/log;
-import ballerina/runtime;
 
 # Represents the outbound Basic Auth authenticator, which is an implementation of the `auth:OutboundAuthProvider` interface.
 # This uses the usernames and passwords provided by the Ballerina configurations to authenticate external endpoints.
@@ -47,14 +46,11 @@ public type OutboundBasicAuthProvider object {
     public function generateToken() returns string|Error {
         Credential? credential = self.credential;
         if (credential is ()) {
-            runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
-            if (authContext is runtime:AuthenticationContext) {
-                string? authToken = authContext?.authToken;
-                if (authToken is string) {
-                    return authToken;
-                }
+            string? authToken = getInvocationContext()?.token;
+            if (authToken is string) {
+                return authToken;
             }
-            return prepareError("Failed to generate basic auth token since credential config is not defined and auth token is not defined in the authentication context at invocation context.");
+            return prepareError("Failed to generate basic auth token since credential config is not defined and auth token is not defined in the invocation context.");
         } else {
             return getBasicAuthToken(credential);
         }

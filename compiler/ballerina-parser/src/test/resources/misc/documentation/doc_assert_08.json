@@ -12,15 +12,6 @@
           "kind": "TYPE_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "PUBLIC_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -83,13 +74,13 @@
                           "kind": "METADATA",
                           "children": [
                             {
-                              "kind": "DOCUMENTATION_STRING",
+                              "kind": "MARKDOWN_DOCUMENTATION",
                               "children": [
                                 {
                                   "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "DOCUMENTATION_LINE",
+                                      "kind": "MARKDOWN_DOCUMENTATION_LINE",
                                       "children": [
                                         {
                                           "kind": "HASH_TOKEN",
@@ -102,12 +93,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -115,7 +100,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "Teacher name",
+                                              "value": " Teacher name",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -189,7 +174,7 @@
                           "kind": "STRING_LITERAL",
                           "children": [
                             {
-                              "kind": "STRING_LITERAL",
+                              "kind": "STRING_LITERAL_TOKEN",
                               "value": "Saman"
                             }
                           ]
@@ -212,13 +197,13 @@
                           "kind": "METADATA",
                           "children": [
                             {
-                              "kind": "DOCUMENTATION_STRING",
+                              "kind": "MARKDOWN_DOCUMENTATION",
                               "children": [
                                 {
                                   "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "DOCUMENTATION_LINE",
+                                      "kind": "MARKDOWN_DOCUMENTATION_LINE",
                                       "children": [
                                         {
                                           "kind": "HASH_TOKEN",
@@ -231,12 +216,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -244,7 +223,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "Teacher age",
+                                              "value": " Teacher age",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -315,10 +294,10 @@
                           ]
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "15"
                             }
                           ]

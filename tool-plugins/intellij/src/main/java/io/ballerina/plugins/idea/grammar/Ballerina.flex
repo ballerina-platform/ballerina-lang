@@ -10,17 +10,17 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 %%
 
 %{
-    private boolean inXmlExpressionMode = false;
-    private boolean inXmlTagMode = false;
-    private boolean inDoubleQuotedXmlStringMode = false;
-    private boolean inSingleQuotedXmlStringMode = false;
-    private boolean inXmlPiMode = false;
-    private boolean inXmlCommentMode = false;
-
     private boolean inStringTemplate = false;
     private boolean inStringTemplateExpression = false;
+    private boolean inQueryExpression = false;
 
-   private boolean inQueryExpression = false;
+    private boolean inTransaction = false;
+    private boolean inTableType = false;
+
+    // Added as a top level definition recovery strategy(so that the closing braces will only be sent for top-level
+    // definitions)
+    private boolean inTopLevelDefinition = false;
+    private int braceCount = 0;
 
     public BallerinaLexer() {
         this((java.io.Reader)null);
@@ -74,10 +74,10 @@ BOOLEAN_LITERAL = "true" | "false"
 // Note - Invalid escaped characters should be annotated at runtime.
 // This is done becuase otherwise the string wont be identified correctly.
 // Also the strings can either be enclosed in single or double quotes or no quotes at all.
-ESCAPE_SEQUENCE = \\ [btnfr\"'\\] | {UnicodeEscape}
-STRING_CHARACTER =  [^\\\u000A\u000D] | {ESCAPE_SEQUENCE}
-STRING_CHARACTERS = {STRING_CHARACTER}+
 QUOTED_STRING_LITERAL = {DOUBLE_QUOTE} {STRING_CHARACTERS}? {DOUBLE_QUOTE}
+STRING_CHARACTERS = {STRING_CHARACTER}+
+STRING_CHARACTER =  [^\"\\\u000A\u000D] | {ESCAPE_SEQUENCE}
+ESCAPE_SEQUENCE = \\ [btnfr\"\'\\] | {UnicodeEscape}
 
 // Blob Literal
 BASE_16_BLOB_LITERAL = "base16" {WHITE_SPACE}* {BACKTICK} {HEX_GROUP}* {WHITE_SPACE}* {BACKTICK}
@@ -124,9 +124,6 @@ XML_LITERAL_START = xml[ \t\n\x0B\f\r]*`
 
 INTERPOLATION_START = "${"
 
-HEX_DIGITS = {HEX_DIGIT} ({HEX_DIGIT_OR_UNDERSCORE}* {HEX_DIGIT})?
-HEX_DIGIT_OR_UNDERSCORE = {HEX_DIGIT} | "_"
-
 //Todo - Remove after restoring xml grammar support
 // XML
 XML_ALL_CHAR = [^`]
@@ -138,7 +135,9 @@ MARKDOWN_DOCUMENTATION_LINE_START =  {HASH} {DOCUMENTATION_SPACE}?
 PARAMETER_DOCUMENTATION_START = {HASH} {DOCUMENTATION_SPACE}? {ADD} {DOCUMENTATION_SPACE}*
 RETURN_PARAMETER_DOCUMENTATION_START = {HASH} {DOCUMENTATION_SPACE}? {ADD} {DOCUMENTATION_SPACE}* {RETURN} {DOCUMENTATION_SPACE}* {SUB} {DOCUMENTATION_SPACE}*
 DEPRECATED_DOCUMENTATION = {HASH} {DOCUMENTATION_SPACE} {HASH} {DOCUMENTATION_SPACE} {DEPRECATED} {DOCUMENTATION_SPACE}*
+DEPRECATED_PARAMETER_DOCUMENTATION = {HASH} {DOCUMENTATION_SPACE} {HASH} {DOCUMENTATION_SPACE} {DEPRECATED_PARAMETERS} {DOCUMENTATION_SPACE}*
 DEPRECATED = "Deprecated"
+DEPRECATED_PARAMETERS = "Deprecated parameters"
 
 DOCUMENTATION_SPACE = [ ]
 
@@ -189,31 +188,29 @@ STRING_TEMPLATE_LITERAL_START = string[ \t\n\x0B\f\r]*`
 STRING_TEMPLATE_LITERAL_END = "`"
 STRING_LITERAL_ESCAPED_SEQUENCE = {DOLLAR}** \\ [\\'\"bnftr\{`]
 STRING_TEMPLATE_VALID_CHAR_SEQUENCE = [^`$\\] | {DOLLAR}+ [^`$\{\\] | {WHITE_SPACE} | {STRING_LITERAL_ESCAPED_SEQUENCE}
-STRING_TEMPLATE_EXPRESSION_START = {STRING_TEMPLATE_TEXT}? {INTERPOLATION_START}
+STRING_TEMPLATE_EXPRESSION_START = {INTERPOLATION_START}
 STRING_TEMPLATE_EXPRESSION_END = "}"
-STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}+ {DOLLAR}* | {DOLLAR}+
+STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}+
 DOLLAR = \$
 
-%state XML_MODE
-%state XML_TAG_MODE
-%state DOUBLE_QUOTED_XML_STRING_MODE
-%state SINGLE_QUOTED_XML_STRING_MODE
-%state XML_PI_MODE
-%state XML_COMMENT_MODE
+// used to avoid conflicts with top-level braces.
+NESTED_LEFT_BRACE = "{"
+NESTED_RIGHT_BRACE = "}"
+UNUSED_LEFT_BRACE = "{"
+UNUSED_RIGHT_BRACE = "}"
 
+%state STRING_TEMPLATE_MODE
+%state XML_MODE
 %state MARKDOWN_DOCUMENTATION_MODE
 %state MARKDOWN_PARAMETER_DOCUMENTATION_MODE
 %state SINGLE_BACKTICKED_MARKDOWN_MODE
 %state DOUBLE_BACKTICKED_MARKDOWN_MODE
 %state TRIPLE_BACKTICKED_MARKDOWN_MODE
 
-%state STRING_TEMPLATE_MODE
-
 %%
 <YYINITIAL> {
-    "__init"                                    { return OBJECT_INIT; }
+    "init"                                      { return OBJECT_INIT; }
 
-    "abort"                                     { return ABORT; }
     "aborted"                                   { return ABORTED; }
     "abstract"                                  { return ABSTRACT; }
     "annotation"                                { return ANNOTATION; }
@@ -230,15 +227,19 @@ DOLLAR = \$
     "check"                                     { return CHECK; }
     "checkpanic"                                { return CHECKPANIC; }
     "client"                                    { return CLIENT; }
-    "committed"                                 { return COMMITTED; }
+    "conflict"                                  { return CONFLICT; }
     "const"                                     { return CONST; }
     "continue"                                  { return CONTINUE; }
+    "commit"                                    { if(inTransaction) {return COMMIT;}}
 
     "decimal"                                   { return DECIMAL; }
     "default"                                   { return DEFAULT; }
+    "distinct"                                  { return DISTINCT; }
 
     "else"                                      { return ELSE; }
+    "enum"                                      { return ENUM; }
     "error"                                     { return ERROR; }
+    "equals"                                    { return JOIN_EQUALS; }
     "external"                                  { return EXTERNAL; }
 
     "field"                                     { return TYPE_FIELD; }
@@ -261,17 +262,19 @@ DOLLAR = \$
 
     "json"                                      { return JSON; }
 
+    "key"                                       { if(inTableType) { inTableType = false; return KEY; }}
     "let"                                       { return LET; }
     "listener"                                  { return LISTENER; }
+    "limit"                                     { return LIMIT; }
     "lock"                                      { return LOCK; }
 
     "map"                                       { return MAP; }
     "match"                                     { return MATCH; }
 
+    "never"                                     { return NEVER; }
     "new"                                       { return NEW; }
 
     "object"                                    { return OBJECT; }
-    "onretry"                                   { return ONRETRY; }
 
     "panic"                                     { return PANIC; }
     "parameter"                                 { return TYPE_PARAMETER; }
@@ -282,9 +285,9 @@ DOLLAR = \$
     "remote"                                    { return REMOTE; }
     "resource"                                  { return RESOURCE; }
     "retry"                                     { return RETRY; }
-    "retries"                                   { return RETRIES; }
     "return"                                    { return RETURN; }
     "returns"                                   { return RETURNS; }
+    "rollBack"                                  { return ROLLBACK; }
 
     "service"                                   { return SERVICE; }
     "source"                                    { return SOURCE; }
@@ -292,8 +295,9 @@ DOLLAR = \$
     "stream"                                    { return STREAM; }
     "string"                                    { return STRING; }
 
-    "table"                                     { return TABLE; }
-    "transaction"                               { return TRANSACTION; }
+    "table"                                     { inTableType = true; return TABLE; }
+    "transaction"                               { inTransaction = true; return TRANSACTION; }
+    "transactional"                             { return TRANSACTIONAL; }
     "trap"                                      { return TRAP; }
     "try"                                       { return TRY; }
     "type"                                      { return TYPE; }
@@ -317,24 +321,33 @@ DOLLAR = \$
     "::"                                        { return DOUBLE_COLON; }
     "."                                         { return DOT; }
     ","                                         { return COMMA; }
-    "{"                                         { return LEFT_BRACE; }
+    "{"                                         { if (inTopLevelDefinition) {
+                                                      braceCount++;
+                                                      if (braceCount==2) {
+                                                          return NESTED_LEFT_BRACE;
+                                                      }
+                                                      return IGNORED_LEFT_BRACE;
+                                                  } else {
+                                                      inTopLevelDefinition = true;
+                                                      braceCount++;
+                                                      return LEFT_BRACE;
+                                                  }
+                                                }
     "}"                                         { if (inStringTemplateExpression) {
-                                                        inStringTemplateExpression = false;
-                                                        inStringTemplate = true;
-                                                        yybegin(STRING_TEMPLATE_MODE);
-                                                        return STRING_TEMPLATE_EXPRESSION_END;
+                                                      inStringTemplateExpression = false;
+                                                      inStringTemplate = true;
+                                                      yybegin(STRING_TEMPLATE_MODE);
+                                                      return STRING_TEMPLATE_EXPRESSION_END;
+                                                  } else if (inTopLevelDefinition) {
+                                                      braceCount--;
+                                                      if (braceCount==1) {
+                                                          return NESTED_RIGHT_BRACE;
+                                                      } else if (braceCount <= 0) {
+                                                          inTopLevelDefinition = false;
+                                                          return RIGHT_BRACE;
+                                                      }
+                                                      return IGNORED_RIGHT_BRACE;
                                                   }
-                                                  if (inXmlExpressionMode) {
-                                                      inXmlExpressionMode = false;
-                                                      yybegin(XML_MODE);
-                                                      return RIGHT_BRACE;
-                                                  }
-                                                  if (inXmlCommentMode) {
-                                                      inXmlCommentMode = false;
-                                                      yybegin(XML_COMMENT_MODE);
-                                                      return RIGHT_BRACE;
-                                                  }
-                                                  return RIGHT_BRACE;
                                                 }
     "("                                         { return LEFT_PARENTHESIS; }
     ")"                                         { return RIGHT_PARENTHESIS; }
@@ -426,6 +439,7 @@ DOLLAR = \$
     {STRING_TEMPLATE_LITERAL_START}             { inStringTemplate = true; yybegin(STRING_TEMPLATE_MODE); return STRING_TEMPLATE_LITERAL_START; }
 
     {DEPRECATED_DOCUMENTATION}                   { yybegin(MARKDOWN_DOCUMENTATION_MODE); return DEPRECATED_DOCUMENTATION; }
+    {DEPRECATED_PARAMETER_DOCUMENTATION}        { yybegin(MARKDOWN_DOCUMENTATION_MODE); return DEPRECATED_PARAMETER_DOCUMENTATION; }
     {RETURN_PARAMETER_DOCUMENTATION_START}      { yybegin(MARKDOWN_DOCUMENTATION_MODE); return RETURN_PARAMETER_DOCUMENTATION_START; }
     {PARAMETER_DOCUMENTATION_START}             { yybegin(MARKDOWN_PARAMETER_DOCUMENTATION_MODE); return PARAMETER_DOCUMENTATION_START; }
     {MARKDOWN_DOCUMENTATION_LINE_START}         { yybegin(MARKDOWN_DOCUMENTATION_MODE); return MARKDOWN_DOCUMENTATION_LINE_START; }

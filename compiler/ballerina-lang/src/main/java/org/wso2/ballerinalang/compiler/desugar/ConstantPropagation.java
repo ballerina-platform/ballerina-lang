@@ -49,6 +49,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -61,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -330,6 +333,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangCheckedExpr checkedExpr) {
         checkedExpr.expr = rewrite(checkedExpr.expr);
         result = checkedExpr;
+    }
+
+    @Override
+    public void visit(BLangFailExpr failExpr) {
+        failExpr.expr = rewrite(failExpr.expr);
+        result = failExpr;
     }
 
     @Override
@@ -882,6 +891,18 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangOnClause onClause) {
         onClause.expression = rewrite(onClause.expression);
         result = onClause;
+    }
+
+    @Override
+    public void visit(BLangOrderKey orderKeyClause) {
+        orderKeyClause.expression = rewrite(orderKeyClause.expression);
+        result = orderKeyClause;
+    }
+
+    @Override
+    public void visit(BLangOrderByClause orderByClause) {
+        orderByClause.orderByKeyList.forEach(value -> rewrite((BLangNode) value));
+        result = orderByClause;
     }
 
     @Override

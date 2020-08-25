@@ -133,6 +133,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(checkExpressionNode);
     }
 
+    public void visit(STFailExpressionNode failExpressionNode) {
+        visitSyntaxNode(failExpressionNode);
+    }
+
     public void visit(STFieldAccessExpressionNode fieldAccessExpressionNode) {
         visitSyntaxNode(fieldAccessExpressionNode);
     }
@@ -181,20 +185,12 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(restParameterNode);
     }
 
-    public void visit(STExpressionListItemNode expressionListItemNode) {
-        visitSyntaxNode(expressionListItemNode);
-    }
-
     public void visit(STImportOrgNameNode importOrgNameNode) {
         visitSyntaxNode(importOrgNameNode);
     }
 
     public void visit(STImportPrefixNode importPrefixNode) {
         visitSyntaxNode(importPrefixNode);
-    }
-
-    public void visit(STImportSubVersionNode importSubVersionNode) {
-        visitSyntaxNode(importSubVersionNode);
     }
 
     public void visit(STImportVersionNode importVersionNode) {
@@ -319,10 +315,6 @@ public abstract class STNodeVisitor {
 
     public void visit(STNamedWorkerDeclarator namedWorkerDeclarator) {
         visitSyntaxNode(namedWorkerDeclarator);
-    }
-
-    public void visit(STDocumentationStringNode documentationStringNode) {
-        visitSyntaxNode(documentationStringNode);
     }
 
     public void visit(STBasicLiteralNode basicLiteralNode) {
@@ -725,10 +717,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(matchGuardNode);
     }
 
-    public void visit(STObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        visitSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public void visit(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         visitSyntaxNode(distinctTypeDescriptorNode);
     }
@@ -773,16 +761,28 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(namedArgMatchPatternNode);
     }
 
-    public void visit(STParameterDocumentationLineNode parameterDocumentationLineNode) {
-        visitSyntaxNode(parameterDocumentationLineNode);
+    public void visit(STMarkdownDocumentationNode markdownDocumentationNode) {
+        visitSyntaxNode(markdownDocumentationNode);
+    }
+
+    public void visit(STMarkdownDocumentationLineNode markdownDocumentationLineNode) {
+        visitSyntaxNode(markdownDocumentationLineNode);
+    }
+
+    public void visit(STMarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        visitSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
     public void visit(STDocumentationReferenceNode documentationReferenceNode) {
         visitSyntaxNode(documentationReferenceNode);
     }
 
-    public void visit(STDocumentationLineNode documentationLineNode) {
-        visitSyntaxNode(documentationLineNode);
+    public void visit(STOrderByClauseNode orderByClauseNode) {
+        visitSyntaxNode(orderByClauseNode);
+    }
+
+    public void visit(STOrderKeyNode orderKeyNode) {
+        visitSyntaxNode(orderKeyNode);
     }
 
     // STNodeList

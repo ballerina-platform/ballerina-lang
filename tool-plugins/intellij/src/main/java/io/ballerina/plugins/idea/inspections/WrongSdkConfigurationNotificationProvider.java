@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.inspections;
 
-import com.google.common.base.Strings;
 import com.intellij.ProjectTopics;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -64,7 +63,7 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
         MessageBusConnection connection = myProject.getMessageBus().connect(project);
         connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
             @Override
-            public void rootsChanged(ModuleRootEvent event) {
+            public void rootsChanged(@NotNull ModuleRootEvent event) {
                 notifications.updateAllNotifications();
             }
         });
@@ -101,21 +100,21 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
             } catch (BallerinaCmdException e) {
                 return createMissingSdkPanel(myProject, null);
             }
-            if (Strings.isNullOrEmpty(sdkHomePath)) {
+            if (BallerinaSdkUtils.stringIsNullOrEmpty(sdkHomePath)) {
                 return createMissingSdkPanel(myProject, null);
             }
             return null;
         }
 
         String sdkHomePath = BallerinaSdkUtils.getBallerinaSdkFor(myProject, module).getSdkPath();
-        if (Strings.isNullOrEmpty(sdkHomePath)) {
+        if (BallerinaSdkUtils.stringIsNullOrEmpty(sdkHomePath)) {
             try {
                 sdkHomePath = BallerinaSdkUtils.autoDetectSdk(myProject);
             } catch (BallerinaCmdException e) {
                 return createMissingSdkPanel(myProject, module);
             }
         }
-        if (Strings.isNullOrEmpty(sdkHomePath)) {
+        if (BallerinaSdkUtils.stringIsNullOrEmpty(sdkHomePath)) {
             return createMissingSdkPanel(myProject, module);
         }
         return null;

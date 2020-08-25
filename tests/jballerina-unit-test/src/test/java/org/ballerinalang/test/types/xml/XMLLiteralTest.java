@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
  *
  * @since 0.94
  */
+@Test(groups = { "disableOnOldParser" })
 public class XMLLiteralTest {
 
     private CompileResult result;
@@ -117,7 +118,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[3].stringValue(), "aaa11bbb22ccc{d{}e}{f{");
 
         Assert.assertTrue(returns[4] instanceof BXML);
-        Assert.assertEquals(returns[4].stringValue(), "aaa11b${bb22c}cc{d{}e}{f{");
+        Assert.assertEquals(returns[4].stringValue(), "aaa11b${bb22c\\}cc{d{}e}{f{");
 
         Assert.assertTrue(returns[5] instanceof BXML);
         Assert.assertEquals(returns[5].stringValue(), " ");
@@ -139,7 +140,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[3].stringValue(), "<!--<aaa11bbb22cccd->e->-f<<{>>>-->");
 
         Assert.assertTrue(returns[4] instanceof BXML);
-        Assert.assertEquals(returns[4].stringValue(), "<!---a-aa11b${bb22c}cc{d{}e}{f{-->");
+        Assert.assertEquals(returns[4].stringValue(), "<!---a-aa11b${bb22c\\}cc{d{}e}{f{-->");
 
         Assert.assertTrue(returns[5] instanceof BXML);
         Assert.assertEquals(returns[5].stringValue(), "<!---->");
@@ -161,7 +162,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[3].stringValue(), "<?foo <aaa11bbb22ccc??d?e>?f<<{>>>?>");
 
         Assert.assertTrue(returns[4] instanceof BXML);
-        Assert.assertEquals(returns[4].stringValue(), "<?foo ?a?aa11b${bb22c}cc{d{}e}{f{?>");
+        Assert.assertEquals(returns[4].stringValue(), "<?foo ?a?aa11b${bb22c\\}cc{d{}e}{f{?>");
     }
 
     @Test
@@ -177,8 +178,8 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[2].stringValue(), "<foo bar=\"}aaazzzbbb33&gt;22ccc{d{}e}{f{\"></foo>");
 
         Assert.assertTrue(returns[3] instanceof BXML);
-        Assert.assertEquals(returns[3].stringValue(), "<foo bar1=\"aaa{zzz}b${b&quot;b33&gt;22c}cc{d{}e}{f{\" "
-                + "bar2=\"aaa{zzz}b${b&quot;b33&gt;22c}cc{d{}e}{f{\"></foo>");
+        Assert.assertEquals(returns[3].stringValue(), "<foo bar1=\"aaa{zzz}b${b&quot;b33&gt;22c\\}cc{d{}e}{f{\" "
+                + "bar2=\"aaa{zzz}b${b&quot;b33&gt;22c\\}cc{d{}e}{f{\"></foo>");
 
         Assert.assertTrue(returns[4] instanceof BXML);
         Assert.assertEquals(returns[4].stringValue(), "<foo bar=\"\"></foo>");

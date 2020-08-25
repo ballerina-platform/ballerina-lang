@@ -25,6 +25,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test cases for HTTP cookies.
@@ -168,5 +170,14 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_12.bal"}, balFilePath);
         Assert.assertTrue(output.contains("SID003=895gd4dmnmsddd34"));
+    }
+
+    @Test(description = "Test the cookie validation when using the getCookies()")
+    public void testCookieValidation() throws BallerinaTestException {
+        Path balFilePath = Paths.get("src", "test", "resources", "http", "src", "cookie");
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
+                "cookieClient_13.bal"}, balFilePath.toAbsolutePath().toString());
+        Assert.assertTrue(output.contains("Valid cookies: user=John,asd="));
     }
 }

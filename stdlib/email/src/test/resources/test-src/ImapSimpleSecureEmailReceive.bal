@@ -22,10 +22,6 @@ email:ImapConfig imapConfig = {
 };
 
 function testReceiveSimpleEmail(string host, string username, string password) returns email:Email|email:Error? {
-    email:ImapClient|email:Error imapClient = new (host, username, password, imapConfig);
-    if (imapClient is email:ImapClient) {
-        return imapClient->read();
-    } else {
-        return imapClient;
-    }
+    email:ImapClient imapClient = new (host, username, password, imapConfig);
+    return imapClient->read();
 }

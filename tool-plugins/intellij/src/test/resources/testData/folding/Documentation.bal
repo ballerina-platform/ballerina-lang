@@ -8,7 +8,7 @@ import <fold text='...'>ballerina/io;</fold>
 #
 # + fieldOne - This is the description for the `DummyObject`'s field `fieldOne`.
 # + fieldTwo - This is the description for the `DummyObject`'s field `fieldTwo`.</fold>
-public type DummyObject abstract object <fold text='{...}'>{
+public type DummyObject <fold text='{...}'>abstract object {
 
     public string fieldOne;
     public string fieldTwo;
@@ -21,7 +21,7 @@ public type DummyObject abstract object <fold text='{...}'>{
     # + return - This is the description for the return value of
     #            `doThatOnObject` function.</fold>
     public function doThatOnObject(string paramOne) returns boolean;
-}</fold>;
+};</fold>
 
 // This is the documentation attachment for the `DummyRecord` record.
 <fold text='# ...'># `DummyRecord` is a user defined record.
@@ -29,7 +29,7 @@ public type DummyObject abstract object <fold text='{...}'>{
 #
 # + fieldOne - This is the description for `DummyRecord`'s field `fieldOne`.
 # + fieldTwo - This is the description for `DummyRecord`'s field `fieldTwo`.</fold>
-public type DummyRecord record <fold text='{...}'>{
+public type DummyRecord <fold text='{...}'>record {
     string fieldOne;
     int fieldTwo;
-}</fold>;
+};</fold>

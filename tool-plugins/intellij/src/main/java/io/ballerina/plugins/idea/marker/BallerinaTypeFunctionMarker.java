@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.marker;
 
-import com.intellij.codeHighlighting.Pass;
 import com.intellij.codeInsight.daemon.DaemonBundle;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor;
@@ -119,10 +118,7 @@ public class BallerinaTypeFunctionMarker extends LineMarkerProviderDescriptor {
     private static class BallerinaImplementedFunctionMarkerInfo extends LineMarkerInfo<PsiElement> {
         private BallerinaImplementedFunctionMarkerInfo(@NotNull PsiElement definition,
                                                        @NotNull PsiElement implementation) {
-            super(definition,
-                    definition.getTextRange(),
-                    AllIcons.Gutter.ImplementedMethod,
-                    Pass.LINE_MARKERS,
+            super(definition, definition.getTextRange(), AllIcons.Gutter.ImplementedMethod,
                     FunctionUtil.constant("Implemented function"),
                     (e, elt) -> navigateToOverridingMethod(e, ((NavigatablePsiElement) implementation)),
                     GutterIconRenderer.Alignment.RIGHT
@@ -133,10 +129,7 @@ public class BallerinaTypeFunctionMarker extends LineMarkerProviderDescriptor {
     private static class BallerinaImplementingFunctionMarkerInfo extends LineMarkerInfo<PsiElement> {
         private BallerinaImplementingFunctionMarkerInfo(@NotNull PsiElement implementation,
                                                         @NotNull PsiElement definition) {
-            super(implementation,
-                    implementation.getTextRange(),
-                    AllIcons.Gutter.ImplementingMethod,
-                    Pass.LINE_MARKERS,
+            super(implementation, implementation.getTextRange(), AllIcons.Gutter.ImplementingMethod,
                     FunctionUtil.constant("Implementing function"),
                     (e, elt) -> navigateToOverridingMethod(e, ((NavigatablePsiElement) definition)),
                     GutterIconRenderer.Alignment.RIGHT
@@ -144,8 +137,7 @@ public class BallerinaTypeFunctionMarker extends LineMarkerProviderDescriptor {
         }
     }
 
-    private static void navigateToOverridingMethod(MouseEvent e, @NotNull NavigatablePsiElement method/*, boolean
-    acceptSelf*/) {
+    private static void navigateToOverridingMethod(MouseEvent e, @NotNull NavigatablePsiElement method) {
         PsiElementListNavigator.openTargets(e, new NavigatablePsiElement[]{method},
                 DaemonBundle.message("navigation.title.super.method", method.getText()),
                 DaemonBundle.message("navigation.findUsages.title.super.method", method.getText()),

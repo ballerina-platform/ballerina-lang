@@ -3,6 +3,8 @@ lexer grammar BallerinaLexer;
 @members {
     boolean inStringTemplate = false;
     boolean inQueryExpression = false;
+    boolean inTransaction = false;
+    boolean inTableType = false;
 }
 
 // Reserved words
@@ -31,10 +33,12 @@ CHANNEL     : 'channel' ;
 ABSTRACT    : 'abstract' ;
 CLIENT      : 'client' ;
 CONST       : 'const' ;
+ENUM        : 'enum' ;
 TYPEOF      : 'typeof';
 SOURCE      : 'source' ;
-ON          : 'on' ;
+ON          : 'on';
 FIELD       : 'field' ;
+DISTINCT    : 'distinct' ;
 
 TYPE_INT        : 'int' ;
 TYPE_BYTE       : 'byte' ;
@@ -46,7 +50,7 @@ TYPE_ERROR      : 'error' ;
 TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
-TYPE_TABLE      : 'table' ;
+TYPE_TABLE      : 'table' { inTableType = true; } ;
 TYPE_STREAM     : 'stream' ;
 TYPE_ANY        : 'any' ;
 TYPE_DESC       : 'typedesc' ;
@@ -54,10 +58,12 @@ TYPE            : 'type' ;
 TYPE_FUTURE     : 'future' ;
 TYPE_ANYDATA    : 'anydata' ;
 TYPE_HANDLE     : 'handle' ;
+TYPE_READONLY   : 'readonly' ;
+TYPE_NEVER      : 'never' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
-OBJECT_INIT : '__init' ;
+OBJECT_INIT : 'init' ;
 IF          : 'if' ;
 MATCH       : 'match' ;
 ELSE        : 'else' ;
@@ -67,6 +73,7 @@ CONTINUE    : 'continue' ;
 BREAK       : 'break' ;
 FORK        : 'fork' ;
 JOIN        : 'join' ;
+OUTER       : 'outer' ;
 SOME        : 'some' ;
 ALL         : 'all' ;
 TRY         : 'try' ;
@@ -76,13 +83,12 @@ THROW       : 'throw' ;
 PANIC       : 'panic' ;
 TRAP        : 'trap' ;
 RETURN      : 'return' ;
-TRANSACTION : 'transaction' ;
-ABORT       : 'abort' ;
+TRANSACTION : 'transaction' { inTransaction = true; } ;
 RETRY       : 'retry' ;
-ONRETRY     : 'onretry' ;
-RETRIES     : 'retries' ;
-COMMITTED   : 'committed' ;
 ABORTED     : 'aborted' ;
+COMMIT      : {inTransaction}? 'commit' ;
+ROLLBACK    : 'rollback' ;
+TRANSACTIONAL   : 'transactional' ;
 WITH        : 'with' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
@@ -101,7 +107,12 @@ SELECT      : {inQueryExpression}? 'select' { inQueryExpression = false; } ;
 DO          : {inQueryExpression}? 'do' { inQueryExpression = false; } ;
 WHERE       : {inQueryExpression}? 'where' ;
 LET         : 'let' ;
+CONFLICT    : 'conflict' ;
+JOIN_EQUALS : 'equals';
+LIMIT       : 'limit' ;
 DEPRECATED  : 'Deprecated';
+KEY         : {inTableType}? 'key' { inTableType = false; };
+DEPRECATED_PARAMETERS  : 'Deprecated parameters';
 
 // Separators
 
@@ -492,6 +503,10 @@ DeprecatedDocumentation
     :   HASH DocumentationSpace HASH DocumentationSpace DEPRECATED DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
     ;
 
+DeprecatedParametersDocumentation
+    :   HASH DocumentationSpace HASH DocumentationSpace DEPRECATED_PARAMETERS DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
 // Whitespace and comments
 
 WS
@@ -591,7 +606,7 @@ DoubleBacktickEnd
 mode TRIPLE_BACKTICKED_DOCUMENTATION;
 
 TripleBacktickContent
-    :   ((~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n])? (DocumentationLineStart (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n]?)+
+    :   ((~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n])? (WS? DocumentationLineStart (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n]?)+
     |   (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])+
     ;
 

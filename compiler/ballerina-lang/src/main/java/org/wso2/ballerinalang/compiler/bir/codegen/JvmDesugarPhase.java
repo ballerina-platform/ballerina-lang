@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DESUGARED_BB_ID_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunction;
@@ -70,15 +71,18 @@ public class JvmDesugarPhase {
         for (BIRVariableDcl localVar : localVars) {
             updatedVars.add(index, localVar);
             index += 1;
-            if (localVar instanceof BIRFunctionParameter) {
-                // An additional boolean arg is gen for each function parameter.
-                String argName = "%syn" + nameIndex;
-                nameIndex += 1;
-                BIRFunctionParameter booleanVar = new BIRFunctionParameter(null, booleanType,
-                        new Name(argName), VarScope.FUNCTION, VarKind.ARG, "", false);
-                updatedVars.add(index, booleanVar);
-                index += 1;
+
+            if (!(localVar instanceof BIRFunctionParameter)) {
+                continue;
             }
+
+            // An additional boolean arg is gen for each function parameter.
+            String argName = "%syn" + nameIndex;
+            nameIndex += 1;
+            BIRFunctionParameter booleanVar = new BIRFunctionParameter(null, booleanType,
+                    new Name(argName), VarScope.FUNCTION, VarKind.ARG, "", false);
+            updatedVars.add(index, booleanVar);
+            index += 1;
         }
         currentFunc.localVars = updatedVars;
     }
@@ -100,7 +104,7 @@ public class JvmDesugarPhase {
 
         List<BIRBasicBlock> basicBlocks = new ArrayList<>();
 
-        BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, "desugaredBB", jvmMethodGen);
+        BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, jvmMethodGen);
 
         int paramCounter = 0;
         DiagnosticPos pos = currentFunc.pos;
@@ -117,7 +121,7 @@ public class JvmDesugarPhase {
                 for (BIRBasicBlock defaultBB : bbArray) {
                     basicBlocks.add(getBasicBlock(defaultBB));
                 }
-                BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, "desugaredBB", jvmMethodGen);
+                BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, jvmMethodGen);
                 nextBB.terminator = new Branch(pos, boolRef, trueBB, falseBB);
 
                 BIRBasicBlock lastBB = getBasicBlock(bbArray.get(bbArray.size() - 1));
@@ -201,7 +205,7 @@ public class JvmDesugarPhase {
         BIRVariableDcl receiver = func.receiver;
 
         // Rename the function name by appending the record name to it.
-        // This done to avoid frame class name overlappings.
+        // This done to avoid frame class name overlapping.
         func.name = new Name(cleanupFunctionName(toNameString(recordType) + func.name.value));
 
         // change the kind of receiver to 'ARG'

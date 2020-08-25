@@ -87,6 +87,34 @@ function testListConstructorWithJsonACET() {
     assertEquality(TYPEDESC_ARRAY_JSON, ta.toString());
 }
 
+function testTypeWithReadOnlyInUnionCET() {
+    [int, string] tp = [1, "ballerina"];
+    readonly|(int|[int, string])[] val = [1, [1, "foo"], tp, tp];
+
+    assertEquality(true, <any> val is (int|[int, string])[]);
+    assertEquality(false, val is (int|[int, string])[] & readonly);
+
+    (int|[int, string])[] arr = <(int|[int, string])[]> val;
+
+    assertEquality(1, arr[0]);
+    assertEquality(true, arr[1] is [int, string]);
+    assertEquality(<[int, string]> [1, "foo"], arr[1]);
+    assertEquality(tp, arr[2]);
+    assertEquality(tp, arr[3]);
+
+    // Updates should be allowed.
+    arr[0] = tp;
+    [int, string] tempTup = <[int, string]> arr[1];
+    tempTup[0] = 2;
+    tempTup = <[int, string]> arr[2];
+    tempTup[0] = 3;
+
+    assertEquality(<[int, string]> [3, "ballerina"], arr[0]);
+    assertEquality(<[int, string]> [3, "ballerina"], arr[2]);
+    assertEquality(<[int, string]> [3, "ballerina"], arr[3]);
+    assertEquality(<[int, string]> [2, "foo"], arr[1]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

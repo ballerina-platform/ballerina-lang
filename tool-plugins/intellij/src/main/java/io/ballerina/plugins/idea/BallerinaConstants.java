@@ -21,7 +21,6 @@ import com.intellij.openapi.wm.ToolWindowId;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
-import java.util.regex.Pattern;
 
 /**
  * Contains constants related to Ballerina plugin.
@@ -46,8 +45,6 @@ public class BallerinaConstants {
     public static final String BALLERINA_VERSION_FILE_PATH = "bin/version.txt";
     @NonNls
     public static final String BALLERINA_NEW_VERSION_FILE_PATH = "lib/version.txt";
-
-    public static final Pattern BALLERINA_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+(\\.\\d+)?(-.+)?)");
 
     public static final NotificationGroup BALLERINA_NOTIFICATION_GROUP =
             NotificationGroup.balloonGroup("Ballerina plugin notifications");

@@ -1,4 +1,0 @@
-function testServiceAnnotAccess() returns boolean {
-     
-                                                                     
-}

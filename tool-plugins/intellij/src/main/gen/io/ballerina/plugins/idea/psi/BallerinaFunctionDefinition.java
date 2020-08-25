@@ -46,9 +46,9 @@ public interface BallerinaFunctionDefinition extends BallerinaTopLevelDefinition
   PsiElement getRemote();
 
   @Nullable
-  PsiElement getIdentifier();
+  PsiElement getTransactional();
 
   @Nullable
-  String getName();
+  PsiElement getIdentifier();
 
 }

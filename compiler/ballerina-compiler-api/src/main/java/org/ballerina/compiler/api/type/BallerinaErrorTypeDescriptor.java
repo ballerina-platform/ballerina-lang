@@ -25,13 +25,6 @@ package org.ballerina.compiler.api.type;
 public interface BallerinaErrorTypeDescriptor extends BallerinaTypeDescriptor {
 
     /**
-     * Get the reason type descriptor.
-     *
-     * @return {@link BallerinaTypeDescriptor} reason
-     */
-    BallerinaTypeDescriptor getReason();
-
-    /**
      * Get the detail type descriptor.
      *
      * @return {@link BallerinaTypeDescriptor} detail

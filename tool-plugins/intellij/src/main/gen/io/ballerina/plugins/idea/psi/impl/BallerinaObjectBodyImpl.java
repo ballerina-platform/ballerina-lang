@@ -42,22 +42,4 @@ public class BallerinaObjectBodyImpl extends ASTWrapperPsiElement implements Bal
     else super.accept(visitor);
   }
 
-  @Override
-  @NotNull
-  public List<BallerinaObjectFieldDefinition> getObjectFieldDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectFieldDefinition.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaObjectMethod> getObjectMethodList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectMethod.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaTypeReference> getTypeReferenceList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeReference.class);
-  }
-
 }

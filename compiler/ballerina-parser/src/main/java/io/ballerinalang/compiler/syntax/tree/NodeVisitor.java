@@ -143,6 +143,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(checkExpressionNode);
     }
 
+    public void visit(FailExpressionNode failExpressionNode) {
+        visitSyntaxNode(failExpressionNode);
+    }
+
     public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
         visitSyntaxNode(fieldAccessExpressionNode);
     }
@@ -191,20 +195,12 @@ public abstract class NodeVisitor {
         visitSyntaxNode(restParameterNode);
     }
 
-    public void visit(ExpressionListItemNode expressionListItemNode) {
-        visitSyntaxNode(expressionListItemNode);
-    }
-
     public void visit(ImportOrgNameNode importOrgNameNode) {
         visitSyntaxNode(importOrgNameNode);
     }
 
     public void visit(ImportPrefixNode importPrefixNode) {
         visitSyntaxNode(importPrefixNode);
-    }
-
-    public void visit(ImportSubVersionNode importSubVersionNode) {
-        visitSyntaxNode(importSubVersionNode);
     }
 
     public void visit(ImportVersionNode importVersionNode) {
@@ -329,10 +325,6 @@ public abstract class NodeVisitor {
 
     public void visit(NamedWorkerDeclarator namedWorkerDeclarator) {
         visitSyntaxNode(namedWorkerDeclarator);
-    }
-
-    public void visit(DocumentationStringNode documentationStringNode) {
-        visitSyntaxNode(documentationStringNode);
     }
 
     public void visit(BasicLiteralNode basicLiteralNode) {
@@ -735,10 +727,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(matchGuardNode);
     }
 
-    public void visit(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        visitSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public void visit(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         visitSyntaxNode(distinctTypeDescriptorNode);
     }
@@ -783,16 +771,28 @@ public abstract class NodeVisitor {
         visitSyntaxNode(namedArgMatchPatternNode);
     }
 
-    public void visit(ParameterDocumentationLineNode parameterDocumentationLineNode) {
-        visitSyntaxNode(parameterDocumentationLineNode);
+    public void visit(MarkdownDocumentationNode markdownDocumentationNode) {
+        visitSyntaxNode(markdownDocumentationNode);
+    }
+
+    public void visit(MarkdownDocumentationLineNode markdownDocumentationLineNode) {
+        visitSyntaxNode(markdownDocumentationLineNode);
+    }
+
+    public void visit(MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        visitSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
     public void visit(DocumentationReferenceNode documentationReferenceNode) {
         visitSyntaxNode(documentationReferenceNode);
     }
 
-    public void visit(DocumentationLineNode documentationLineNode) {
-        visitSyntaxNode(documentationLineNode);
+    public void visit(OrderByClauseNode orderByClauseNode) {
+        visitSyntaxNode(orderByClauseNode);
+    }
+
+    public void visit(OrderKeyNode orderKeyNode) {
+        visitSyntaxNode(orderKeyNode);
     }
 
     // Tokens

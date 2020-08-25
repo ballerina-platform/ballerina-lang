@@ -29,6 +29,9 @@ public class BallerinaProjectSettingsComponent implements PersistentStateCompone
 
     private BallerinaProjectSettings settings = new BallerinaProjectSettings();
 
+    private BallerinaProjectSettingsComponent() {
+    }
+
     @Override
     public BallerinaProjectSettings getState() {
         return settings;

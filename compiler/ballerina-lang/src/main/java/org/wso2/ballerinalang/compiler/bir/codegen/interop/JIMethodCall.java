@@ -47,6 +47,16 @@ public class JIMethodCall extends BIRTerminator {
 
     @Override
     public void accept(BIRVisitor visitor) {
+        // Do nothing
+    }
 
+    @Override
+    public BIROperand[] getRhsOperands() {
+        return args.toArray(new BIROperand[0]);
+    }
+
+    @Override
+    public BIRBasicBlock[] getNextBasicBlocks() {
+        return new BIRBasicBlock[0];
     }
 }

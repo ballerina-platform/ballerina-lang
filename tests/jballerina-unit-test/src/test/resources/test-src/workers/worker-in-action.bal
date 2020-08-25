@@ -44,7 +44,7 @@ public type Client object {
     public function register(typedesc<any> serviceType) {
     }
 
-    public function start() {
+    public function 'start() {
     }
 
     public function getCallerActions() returns ABCClient {

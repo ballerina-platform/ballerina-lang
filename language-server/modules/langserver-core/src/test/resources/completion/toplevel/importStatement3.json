@@ -174,14 +174,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "rabbitmq",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "rabbitmq",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "lang.future",
       "kind": "Module",
       "detail": "Module",
@@ -251,14 +243,6 @@
       "detail": "Module",
       "sortText": "110",
       "insertText": "transactions",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "nats",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "nats",
       "insertTextFormat": "Snippet"
     },
     {

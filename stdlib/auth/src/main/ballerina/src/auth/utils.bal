@@ -18,7 +18,6 @@ import ballerina/cache;
 import ballerina/lang.'array as arrays;
 import ballerina/lang.'string as strings;
 import ballerina/log;
-import ballerina/runtime;
 import ballerina/stringutils;
 
 # Default charset to be used with password hashing.
@@ -69,44 +68,6 @@ public function extractUsernameAndPassword(string credential) returns [string, s
         }
     } else {
         return prepareError(fromBytesResults.message(), fromBytesResults);
-    }
-}
-
-# Sets the authentication-related values (scheme, auth token) to the authentication context of the invocation context.
-# ```ballerina
-# auth:setAuthenticationContext("jwt", "<credential>");
-# ```
-#
-# + scheme - Auth scheme (`JWT`, `LDAP`, `OAuth2`, `Basic`, etc.)
-# + authToken - Auth token (credential)
-public function setAuthenticationContext(string scheme, string authToken) {
-    runtime:InvocationContext invocationContext = runtime:getInvocationContext();
-    invocationContext.authenticationContext = {
-        scheme: scheme,
-        authToken: authToken
-    };
-}
-
-# Sets the authentication-related values (user ID, username, scopes, claims) to the principal of the invocation context.
-#
-# + userId - User ID of the authenticated user
-# + username - Username of the authenticated user
-# + claims - Claims of the authenticated user
-# + scopes - Authenticated user scopes
-public function setPrincipal(public string? userId = (), public string? username = (), public string[]? scopes = (),
-                             public map<any>? claims = ()) {
-    runtime:InvocationContext invocationContext = runtime:getInvocationContext();
-    if (!(userId is ()) && userId != "") {
-        invocationContext.principal.userId = userId;
-    }
-    if (!(username is ()) && username != "") {
-        invocationContext.principal.username = username;
-    }
-    if (!(scopes is ())) {
-        invocationContext.principal.scopes = scopes;
-    }
-    if (!(claims is ())) {
-        invocationContext.principal.claims = claims;
     }
 }
 

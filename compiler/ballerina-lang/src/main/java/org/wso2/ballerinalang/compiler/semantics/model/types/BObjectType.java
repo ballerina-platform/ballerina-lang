@@ -36,12 +36,12 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     private static final String OBJECT = "object";
     private static final String SPACE = " ";
-    private static final String DOLLAR = "$";
     private static final String PUBLIC = "public";
     private static final String PRIVATE = "private";
     private static final String LEFT_CURL = "{";
     private static final String RIGHT_CURL = "}";
     private static final String SEMI_COLON = ";";
+    private static final String READONLY = "readonly";
 
     public BIntersectionType immutableType;
     public BObjectType mutableType = null;
@@ -72,15 +72,21 @@ public class BObjectType extends BStructureType implements ObjectType {
     @Override
     public String toString() {
 
-        if (tsymbol.name.value.startsWith(DOLLAR)) {
+        if (shouldPrintShape(tsymbol.name)) {
             StringBuilder sb = new StringBuilder();
             sb.append(OBJECT).append(SPACE).append(LEFT_CURL);
             for (BField field : fields.values()) {
-                if (Symbols.isFlagOn(field.symbol.flags, Flags.PUBLIC)) {
+                int flags = field.symbol.flags;
+                if (Symbols.isFlagOn(flags, Flags.PUBLIC)) {
                     sb.append(SPACE).append(PUBLIC);
-                } else if (Symbols.isFlagOn(field.symbol.flags, Flags.PRIVATE)) {
+                } else if (Symbols.isFlagOn(flags, Flags.PRIVATE)) {
                     sb.append(SPACE).append(PRIVATE);
                 }
+
+                if (Symbols.isFlagOn(flags, Flags.READONLY)) {
+                    sb.append(SPACE).append(READONLY);
+                }
+
                 sb.append(SPACE).append(field.type).append(SPACE).append(field.name).append(";");
             }
             BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) this.tsymbol;
@@ -93,6 +99,11 @@ public class BObjectType extends BStructureType implements ObjectType {
                 sb.append(SPACE).append(fun).append(SEMI_COLON);
             }
             sb.append(SPACE).append(RIGHT_CURL);
+
+            if (Symbols.isFlagOn(tsymbol.flags, Flags.READONLY)) {
+                sb.append(" & readonly");
+            }
+
             return sb.toString();
         }
         return this.tsymbol.toString();

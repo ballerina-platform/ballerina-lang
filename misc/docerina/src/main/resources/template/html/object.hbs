@@ -1,86 +1,62 @@
-<!DOCTYPE html>
-<html>
+{{#partial "sidebarName" }}
+    Objects
+{{/partial}}
 
-{{> head }}
+{{#partial "sidebarLists" }}
+    {{#each module.objects}}
+        <li {{#equals object.name name}}class="active"{{/equals}}>
+            <a href="{{name}}.html" onclick="menuLinkClick()">{{name}}</a>
+        </li>
+    {{/each}}
+{{/partial}}
 
-<body class="cBallerina-io">
-    {{> bioBody }}
-    <div class="navi-wrapper">
-        <div class="navi-wrapper-content">
-            {{> logo }}
-            <div class="primary-list">
-                <h3>Objects</h3>
-                <ul>
-                    {{#each module.objects}}
-                        <li {{#equals object.name name}}class="active"{{/equals}}>
-                            <a href="{{name}}.html" onclick="menuLinkClick()">{{name}}</a>
-                        </li>
+{{#partial "titleType" }}
+    Object
+{{/partial}}
+{{#partial "title" }}
+    <span class="objects {{#if object.isDeprecated}}strike{{/if}}">{{ object.name }}</span>
+{{/partial}}
+
+{{#partial "content" }}
+    <p>
+        {{#if object.isDeprecated}}
+            <span class="stab">Deprecated</span>
+        {{/if}}
+        {{{ object.description }}}
+    </p>
+
+    <div class="constants">
+        <div class="method-sum">
+            {{#if object.initMethod}}
+                {{#object.initMethod}}
+                {{> initMethod }}
+                {{/object.initMethod}}
+            {{/if}}
+
+        
+            {{#if object.otherMethods}}
+                <h2>Methods</h2>
+                <div class="method-list">
+                    {{#each object.otherMethods}}
+                        {{> methodSignature }}
                     {{/each}}
-                </ul>
-            </div>
-            <div class="ui divider"></div>
-            {{> currentModule }}
-        </div>
-    </div>
-    <div class="content-wrapper pusher">
-        {{> mobMenu }}
-
-        <div class="main-wrapper">
-            <div id="search-impl" class="search-bar"></div>
-            <div id="main">
-            <h1>
-                {{> breadcrumb }}
-                <span class="title-type">Object - </span>
-                {{#if project.isSingleFile}}
-                    {{project.sourceFileName}}
-                {{else}}
-                    <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
-                {{/if}} :
-                <span class="objects {{#if object.isDeprecated}}strike{{/if}}">{{ object.name }}</span>
-            </h1>
-            <p>
-                {{#if object.isDeprecated}}
-                    <span class="stab">Deprecated</span>
-                {{/if}}
-                {{{ object.description }}}
-            </p>
-
-            <div class="constants">
-                <div class="method-sum">
-                    {{#if object.initMethod}}
-                        {{#object.initMethod}}
-                        {{> initMethod }}
-                        {{/object.initMethod}}
-                    {{/if}}
-
-                
-                    {{#if object.otherMethods}}
-                        <h2>Methods</h2>
-                        <div class="method-list">
-                            {{#each object.otherMethods}}
-                                {{> methodSignature }}
-                            {{/each}}
-                        </div>
-                    {{/if}}
-
-                    {{#if object.fields}}
-                        {{#object}}
-                            <h2>Fields</h2>
-                                {{> fields }}
-                        {{/object}}
-                    {{/if}}
                 </div>
+            {{/if}}
 
-                {{#if object.otherMethods }}
-                    {{#each object.otherMethods }}
-                        {{> method }}
-                    {{/each}}
-                {{/if}}
-            </div>
+            {{#if object.fields}}
+                {{#object}}
+                    <h2>Fields</h2>
+                        {{> fields }}
+                {{/object}}
+            {{/if}}
         </div>
-        </div>
+
+        {{#if object.otherMethods }}
+            {{#each object.otherMethods }}
+                {{> method }}
+            {{/each}}
+        {{/if}}
     </div>
+{{/partial}}
 
-</body>
-
-{{> footer }}
+{{> layout}}

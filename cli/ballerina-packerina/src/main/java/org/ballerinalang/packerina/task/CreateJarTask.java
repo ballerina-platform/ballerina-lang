@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_CACHE_DIR_NAME;
 
@@ -46,24 +44,12 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_
  */
 public class CreateJarTask implements Task {
 
-    private boolean skipCopyLibsFromDist = false;
-
-    public CreateJarTask() {
-
-    }
-
-    public CreateJarTask(boolean skipCopyLibsFromDist) {
-
-        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
-    }
-
     @Override
     public void execute(BuildContext buildContext) {
         // This will avoid initializing Config registry during jar creation.
         ConfigRegistry.getInstance().setInitialized(true);
         Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
         String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
-        Path runtimeJar = getRuntimeAllJar(buildContext);
 
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         PackageCache packageCache = PackageCache.getInstance(context);
@@ -79,14 +65,8 @@ public class CreateJarTask implements Task {
                 continue;
             }
 
-            PackageID packageID = bLangPackage.packageID;
-
-            HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(packageID).moduleLibs;
-            if (!skipCopyLibsFromDist) {
-                moduleDependencies.add(runtimeJar);
-            }
             // write module child imports jars
-            writeImportJar(jarFileWriter, bLangPackage.symbol.imports, sourceRoot, buildContext, runtimeJar,
+            writeImportJar(jarFileWriter, bLangPackage.symbol.imports, sourceRoot, buildContext,
                     alreadyImportedModuleSet, balHomePath);
 
             // get the jar path of the module.
@@ -101,7 +81,7 @@ public class CreateJarTask implements Task {
                 for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
                     // write its child imports jar file to cache
                     writeImportJar(jarFileWriter, testPkg.symbol.imports, sourceRoot, buildContext,
-                            runtimeJar, alreadyImportedModuleSet, balHomePath);
+                            alreadyImportedModuleSet, balHomePath);
 
                     // get the jar path of the module.
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
@@ -116,7 +96,7 @@ public class CreateJarTask implements Task {
     }
 
     private void writeImportJar(JarFileWriter jarFileWriter, List<BPackageSymbol> imports, Path sourceRoot,
-                                BuildContext buildContext, Path runtimeJar, Set<PackageID> alreadyImportedModuleSet,
+                                BuildContext buildContext, Set<PackageID> alreadyImportedModuleSet,
                                 String balHomePath) {
 
         for (BPackageSymbol bimport : imports) {
@@ -142,26 +122,11 @@ public class CreateJarTask implements Task {
             } else {
                 jarFilePath = buildContext.getJarPathFromHomeCache(id);
             }
-            writeImportJar(jarFileWriter, bimport.imports, sourceRoot,
-                    buildContext, runtimeJar, alreadyImportedModuleSet, balHomePath);
-            if (bimport.bir != null && buildContext.moduleDependencyPathMap.containsKey(id)) {
-                HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id).moduleLibs;
-                if (!skipCopyLibsFromDist) {
-                    moduleDependencySet.add(runtimeJar);
-                }
+            writeImportJar(jarFileWriter, bimport.imports, sourceRoot, buildContext, alreadyImportedModuleSet,
+                    balHomePath);
+            if (bimport.bir != null) {
                 jarFileWriter.write(bimport, jarFilePath);
             }
         }
-    }
-
-    private Path getRuntimeAllJar(BuildContext buildContext) {
-
-        if (skipCopyLibsFromDist) {
-            return null;
-        }
-        String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
-        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
-        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        return Paths.get(balHomePath, "bre", "lib", runtimeJarName);
     }
 }

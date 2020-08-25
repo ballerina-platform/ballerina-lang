@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.extensions.ballerina.traces;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.commons.trace.TraceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

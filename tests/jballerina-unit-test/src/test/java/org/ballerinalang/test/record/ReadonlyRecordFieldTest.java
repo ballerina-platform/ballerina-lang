@@ -59,6 +59,8 @@ public class ReadonlyRecordFieldTest {
         validateError(result, index++, "incompatible types: expected 'OptionalId', found 'map<(map<int>|boolean)>'",
                       159, 23);
         validateError(result, index++, "cannot update 'readonly' record field 'code' in 'Quux'", 169, 5);
+        validateError(result, index++, "incompatible types: expected 'record {| readonly int i; string s; readonly " +
+                "boolean b; |}', found 'record {| int i; string s; boolean b; |}'", 183, 12);
         assertEquals(result.getErrorCount(), index);
     }
 }

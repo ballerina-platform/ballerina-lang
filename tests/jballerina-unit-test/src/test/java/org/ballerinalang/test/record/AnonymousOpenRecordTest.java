@@ -84,6 +84,11 @@ public class AnonymousOpenRecordTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test
+    public void testAnonRecordAsRestFieldOfAnonRecord() {
+        BRunUtil.invoke(compileResult, "testAnonRecordAsRestFieldOfAnonRecord");
+    }
+
     @Test(description = "Test Code analyzer execution on Anonymous records")
     public void testCodeAnalyzerRunningOnAnonymousRecordsForDeprecatedFunctionAnnotation() {
         BAssertUtil.validateWarning(compileResult, 0, "usage of construct 'Test()' is deprecated", 69, 17);

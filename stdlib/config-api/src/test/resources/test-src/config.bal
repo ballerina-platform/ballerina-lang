@@ -52,6 +52,14 @@ function testGetAsArray3(string key) returns map<anydata>[] {
     }
 }
 
+function testGetAsStringArray(string key) returns string[] {
+    return <string[] & readonly>config:getAsArray(key);
+}
+
+function testGetAsStringMap(string key) returns map<string> {
+    return <map<string> & readonly>config:getAsMap(key);
+}
+
 type IntArray int[];
 type AnyMapArray map<anydata>[];
 

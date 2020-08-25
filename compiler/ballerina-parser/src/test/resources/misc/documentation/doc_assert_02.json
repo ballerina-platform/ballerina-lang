@@ -12,15 +12,6 @@
           "kind": "TYPE_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "PUBLIC_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -79,13 +70,13 @@
                           "kind": "METADATA",
                           "children": [
                             {
-                              "kind": "DOCUMENTATION_STRING",
+                              "kind": "MARKDOWN_DOCUMENTATION",
                               "children": [
                                 {
                                   "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "DOCUMENTATION_LINE",
+                                      "kind": "MARKDOWN_DOCUMENTATION_LINE",
                                       "children": [
                                         {
                                           "kind": "HASH_TOKEN",
@@ -98,12 +89,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -111,7 +96,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "name of the person",
+                                              "value": " name of the person",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -175,13 +160,13 @@
                           "kind": "METADATA",
                           "children": [
                             {
-                              "kind": "DOCUMENTATION_STRING",
+                              "kind": "MARKDOWN_DOCUMENTATION",
                               "children": [
                                 {
                                   "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "DOCUMENTATION_LINE",
+                                      "kind": "MARKDOWN_DOCUMENTATION_LINE",
                                       "children": [
                                         {
                                           "kind": "HASH_TOKEN",
@@ -194,12 +179,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -207,7 +186,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "age of the person",
+                                              "value": " age of the person",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -271,13 +250,13 @@
                           "kind": "METADATA",
                           "children": [
                             {
-                              "kind": "DOCUMENTATION_STRING",
+                              "kind": "MARKDOWN_DOCUMENTATION",
                               "children": [
                                 {
                                   "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "DOCUMENTATION_LINE",
+                                      "kind": "MARKDOWN_DOCUMENTATION_LINE",
                                       "children": [
                                         {
                                           "kind": "HASH_TOKEN",
@@ -290,12 +269,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -303,7 +276,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "country code of the person",
+                                              "value": " country code of the person",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",

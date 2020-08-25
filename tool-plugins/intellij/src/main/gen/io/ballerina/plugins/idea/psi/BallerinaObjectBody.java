@@ -23,13 +23,4 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaObjectBody extends PsiElement {
 
-  @NotNull
-  List<BallerinaObjectFieldDefinition> getObjectFieldDefinitionList();
-
-  @NotNull
-  List<BallerinaObjectMethod> getObjectMethodList();
-
-  @NotNull
-  List<BallerinaTypeReference> getTypeReferenceList();
-
 }

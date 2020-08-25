@@ -15,29 +15,23 @@
               "kind": "METADATA",
               "children": [
                 {
-                  "kind": "DOCUMENTATION_STRING",
+                  "kind": "MARKDOWN_DOCUMENTATION",
                   "children": [
                     {
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "REFERENCE_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "HASH_TOKEN"
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "test backtick reference "
+                                  "value": " test backtick reference "
                                 },
                                 {
                                   "kind": "DOCUMENTATION_REFERENCE",
@@ -65,23 +59,17 @@
                           ]
                         },
                         {
-                          "kind": "REFERENCE_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "HASH_TOKEN"
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "test reference with special keyword: "
+                                  "value": " test reference with special keyword: "
                                 },
                                 {
                                   "kind": "DOCUMENTATION_REFERENCE",
@@ -99,23 +87,22 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "x"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "x"
                                         }
                                       ]
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "and "
+                                  "value": " and "
                                 },
                                 {
                                   "kind": "DOCUMENTATION_REFERENCE",
@@ -133,8 +120,13 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "y"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "y"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -160,6 +152,10 @@
                   "children": []
                 }
               ]
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",

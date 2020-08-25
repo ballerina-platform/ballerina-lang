@@ -50,6 +50,9 @@ OPTIONS
        -excludeIndex, --excludeIndex
            Prevents project index from being generated.
 
+       -templatePath, --templatePath
+           Path to custom template folder.
+
 
 EXAMPLES
        Generate API documentation for all modules in the current project.
@@ -63,3 +66,6 @@ EXAMPLES
 
        Generate API documentation using a JSON.
           $ ballerina doc -fromJSON target/apidocs/api-doc-data.json
+
+       Generate API documentation using a custom templates.
+          $ ballerina doc -a -templatePath ../templates

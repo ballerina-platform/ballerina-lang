@@ -75,7 +75,7 @@ function workerActionSecTest() {
         }
     }
     worker w2 {
-        print(<- w1);
+        print("w1");
         string msg = "default";
         if (true) {
             msg = <- w1;
@@ -216,6 +216,7 @@ type ObjFuncUsingWorkersAsFutureValues object {
                     _ = wait wix; // illegal peer worker ref within a worker
                     _ = wait wx; // illegal peer worker ref within a worker
                     function (future<int>) returns future<int> f = (a) => wx; // illegal peer worker ref within a worker
+                    future<int> p = start bar();
                     future<int> wxRef = f(p);
                 }
             }
@@ -227,9 +228,10 @@ type ObjFuncUsingWorkersAsFutureValues object {
         }
         return wait wy;
     }
+
 };
 
-future<int> p = start bar();
+
 
 function bar() returns int {
     return  1;

@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implements BallerinaSimpleTypeName {
+public class BallerinaSimpleTypeNameImpl extends ASTWrapperPsiElement implements BallerinaSimpleTypeName {
 
   public BallerinaSimpleTypeNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -43,24 +44,6 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
 
   @Override
   @Nullable
-  public BallerinaAnyDataTypeName getAnyDataTypeName() {
-    return findChildByClass(BallerinaAnyDataTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaAnyTypeName getAnyTypeName() {
-    return findChildByClass(BallerinaAnyTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaHandleTypeName getHandleTypeName() {
-    return findChildByClass(BallerinaHandleTypeName.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaNilLiteral getNilLiteral() {
     return findChildByClass(BallerinaNilLiteral.class);
   }
@@ -73,12 +56,6 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
 
   @Override
   @Nullable
-  public BallerinaTypeDescTypeName getTypeDescTypeName() {
-    return findChildByClass(BallerinaTypeDescTypeName.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaValueTypeName getValueTypeName() {
     return findChildByClass(BallerinaValueTypeName.class);
   }
@@ -87,6 +64,42 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
   @Nullable
   public PsiElement getNullLiteral() {
     return findChildByType(NULL_LITERAL);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getAny() {
+    return findChildByType(ANY);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getAnydata() {
+    return findChildByType(ANYDATA);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getHandle() {
+    return findChildByType(HANDLE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getNever() {
+    return findChildByType(NEVER);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getReadonly() {
+    return findChildByType(READONLY);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getTypedesc() {
+    return findChildByType(TYPEDESC);
   }
 
 }

@@ -29,7 +29,7 @@ public interface BallerinaTypeDescReferenceTypeName extends PsiElement {
   @Nullable
   PsiElement getGt();
 
-  @NotNull
+  @Nullable
   PsiElement getLt();
 
   @NotNull

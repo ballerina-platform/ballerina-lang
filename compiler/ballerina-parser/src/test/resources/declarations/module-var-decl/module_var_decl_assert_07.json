@@ -98,15 +98,18 @@
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "s2",
-                    "trailingMinutiae": [
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
                       {
-                        "kind": "WHITESPACE_MINUTIAE",
-                        "value": " "
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "s2"
                       }
                     ]
                   }
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ],
               "trailingMinutiae": [
@@ -120,7 +123,7 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "STRING_LITERAL_TOKEN",
                   "value": "http://hello1.com"
                 }
               ]
@@ -230,15 +233,18 @@
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "s2",
-                    "trailingMinutiae": [
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
                       {
-                        "kind": "WHITESPACE_MINUTIAE",
-                        "value": " "
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "s2"
                       }
                     ]
                   }
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ],
               "trailingMinutiae": [
@@ -252,7 +258,7 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "STRING_LITERAL_TOKEN",
                   "value": "http://hello2.com"
                 }
               ]

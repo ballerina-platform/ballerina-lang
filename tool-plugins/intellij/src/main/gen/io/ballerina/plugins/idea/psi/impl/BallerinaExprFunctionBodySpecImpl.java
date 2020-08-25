@@ -43,15 +43,15 @@ public class BallerinaExprFunctionBodySpecImpl extends ASTWrapperPsiElement impl
   }
 
   @Override
-  @Nullable
-  public BallerinaExpression getExpression() {
-    return findChildByClass(BallerinaExpression.class);
-  }
-
-  @Override
   @NotNull
   public PsiElement getEqualGt() {
     return findNotNullChildByType(EQUAL_GT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIdentifier() {
+    return findChildByType(IDENTIFIER);
   }
 
 }

@@ -29,7 +29,4 @@ public interface BallerinaTopLevelDefinition extends PsiElement {
     @Nullable
     @Override
     Icon getIcon(int flags);
-
-    @Nullable
-    PsiElement getIdentifier();
 }

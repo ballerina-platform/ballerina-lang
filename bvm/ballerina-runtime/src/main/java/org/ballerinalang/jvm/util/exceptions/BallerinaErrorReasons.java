@@ -72,8 +72,12 @@ public class BallerinaErrorReasons {
 
     public static final String CONSTRUCT_FROM_CONVERSION_ERROR = getModulePrefixedReason(TYPEDESC_LANG_LIB,
                                                                                          "ConversionError");
+    public static final String VALUE_LANG_LIB_CONVERSION_ERROR = getModulePrefixedReason(VALUE_LANG_LIB,
+                                                                                         "ConversionError");
     public static final String CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR =
             getModulePrefixedReason(TYPEDESC_LANG_LIB, "CyclicValueReferenceError");
+    public static final String VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR =
+            getModulePrefixedReason(VALUE_LANG_LIB, "CyclicValueReferenceError");
     public static final String MERGE_JSON_ERROR = getModulePrefixedReason(VALUE_LANG_LIB, "MergeJsonError");
     public static final String STRING_OPERATION_ERROR = getModulePrefixedReason(STRING_LANG_LIB,
                                                                                 "StringOperationError");

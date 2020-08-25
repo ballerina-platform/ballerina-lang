@@ -44,14 +44,14 @@ public class BallerinaFunctionSignatureImpl extends ASTWrapperPsiElement impleme
 
   @Override
   @Nullable
-  public BallerinaFormalParameterList getFormalParameterList() {
-    return findChildByClass(BallerinaFormalParameterList.class);
+  public BallerinaRecoverableParameterContent getRecoverableParameterContent() {
+    return findChildByClass(BallerinaRecoverableParameterContent.class);
   }
 
   @Override
   @Nullable
-  public BallerinaReturnParameter getReturnParameter() {
-    return findChildByClass(BallerinaReturnParameter.class);
+  public BallerinaRecoverableReturnType getRecoverableReturnType() {
+    return findChildByClass(BallerinaRecoverableReturnType.class);
   }
 
   @Override
@@ -61,9 +61,15 @@ public class BallerinaFunctionSignatureImpl extends ASTWrapperPsiElement impleme
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getRightParenthesis() {
-    return findNotNullChildByType(RIGHT_PARENTHESIS);
+    return findChildByType(RIGHT_PARENTHESIS);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getReturns() {
+    return findChildByType(RETURNS);
   }
 
 }

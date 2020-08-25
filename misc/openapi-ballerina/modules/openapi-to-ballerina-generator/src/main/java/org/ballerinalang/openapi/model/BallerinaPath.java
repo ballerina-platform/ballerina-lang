@@ -22,6 +22,7 @@ import io.swagger.v3.oas.models.PathItem;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.utils.CodegenUtils;
 
+import java.io.PrintStream;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -43,6 +44,7 @@ public class BallerinaPath implements BallerinaOpenApiObject<BallerinaPath, Path
     private String description;
     private Set<Map.Entry<String, BallerinaOperation>> operations;
     private Set<Map.Entry<String, OperationCategory>> sameResourceOperations;
+    private static final PrintStream outStream = System.err;
 
     public BallerinaPath() {
         this.operations = new LinkedHashSet<>();
@@ -77,7 +79,11 @@ public class BallerinaPath implements BallerinaOpenApiObject<BallerinaPath, Path
 
             // Add operation ID if there is no operationID
             if (operationI.getValue().getOperationId() == null) {
-                operationI.getValue().setOperationId(CodegenUtils.generateOperationId(openAPI));
+                String resName = CodegenUtils.generateOperationId(openAPI);
+                String pathName = BallerinaOpenApi.getPathName();
+                operationI.getValue().setOperationId(resName);
+                outStream.println("warning : `" + resName + "` is used as the resource name since the " +
+                        "operation id is missing for " + pathName + " " + operationI.getKey());
             }
 
             operation = new BallerinaOperation().buildContext(operationI.getValue(), openAPI);

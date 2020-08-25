@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.2.0</version>
+    <version>2.0.0-SwanLake-Preview1</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -13,14 +13,14 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li> Added "Goto Definition" support for ballerina standard libraries.
-        <li> Added ballerina 1.2.0 syntax support.
-        <li> Fixed plugin error due to an NPE in language client during listener disposing events. </li>
+        <li> Added plugin support for new swan lake syntax. </li>
+        <li> Introduced new simplified plugin settings view. </li>
+        <li> Added ballerina debugger UI improvements. </li>
       </ul>
     ]]>
     </change-notes>
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="182"/>
+    <idea-version since-build="192"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->

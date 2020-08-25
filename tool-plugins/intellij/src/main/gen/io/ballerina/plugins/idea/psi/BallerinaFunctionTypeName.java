@@ -23,21 +23,6 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaFunctionTypeName extends PsiElement {
 
-  @Nullable
-  BallerinaParameterList getParameterList();
-
-  @Nullable
-  BallerinaParameterTypeNameList getParameterTypeNameList();
-
-  @Nullable
-  BallerinaReturnParameter getReturnParameter();
-
-  @NotNull
-  PsiElement getLeftParenthesis();
-
-  @Nullable
-  PsiElement getRightParenthesis();
-
   @NotNull
   PsiElement getFunction();
 

@@ -39,6 +39,10 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.test.MultiModuleTestDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.build.MultiModuleBuildDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.ServiceDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.LanguageConstructDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationTest"/>
         </classes>
     </test>
 </suite>

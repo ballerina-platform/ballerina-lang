@@ -72,3 +72,36 @@ function testCodeAnalyzerRunningOnAnonymousRecordsForDeprecatedFunctionAnnotatio
 
 @deprecated
 function Test() returns int { return 0;}
+
+function testAnonRecordAsRestFieldOfAnonRecord() {
+    record {|
+        string s;
+        record {| int i; |}...;
+    |} rec = {
+        s: "anon record",
+        "a": {
+            i: 1
+        },
+        "b": {
+            i: 2
+        }
+    };
+    any a = rec;
+
+    assertEquality(true, a is record {| string s; record {| int i; |}...; |});
+
+    record {| string s; record {| int i; |}...; |} rec2 = <record {| string s; record {| int i; |}...; |}> a;
+
+    assertEquality("anon record", rec2.s);
+    assertEquality(1, rec2["a"]?.i);
+    assertEquality(2, rec2["b"]?.i);
+    assertEquality((), rec2["c"]?.i);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

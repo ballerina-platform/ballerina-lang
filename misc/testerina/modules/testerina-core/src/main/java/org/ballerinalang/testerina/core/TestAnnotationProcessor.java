@@ -19,9 +19,11 @@ package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -68,7 +70,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String AFTER_SUITE_ANNOTATION_NAME = "AfterSuite";
     private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
-    private static final String MOCK_ANNOTATION_NAME = "MockFn";
+    private static final String MOCK_ANNOTATION_NAME = "Mock";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
@@ -77,8 +79,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
     private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
+    private static final String AFTER_SUITE_ALWAYS_RUN_FIELD_NAME = "alwaysRun";
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
-    private static final String MOCK_FN = "Mock";
+    private static final String MOCK_FN_DELIMITER = "~";
+    private static final String BEFORE_GROUPS_ANNOTATION_NAME = "BeforeGroups";
+    private static final String AFTER_GROUPS_ANNOTATION_NAME = "AfterGroups";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private boolean enabled = true;
@@ -98,10 +103,10 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     @Override
     public void init(DiagnosticLog diagnosticLog) {
         this.diagnosticLog = diagnosticLog;
-        this.typeChecker = Types.getInstance(compilerContext);
-        this.symbolResolver = SymbolResolver.getInstance(compilerContext);
         this.packageEnvironmentMap = SymbolTable.getInstance(compilerContext).pkgEnvMap;
         this.packageCache = PackageCache.getInstance(compilerContext);
+        this.typeChecker = Types.getInstance(compilerContext);
+        this.symbolResolver = SymbolResolver.getInstance(compilerContext);
 
         if (TesterinaRegistry.getInstance().isTestSuitesCompiled()) {
             enabled = false;
@@ -112,7 +117,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     public void setCompilerContext(CompilerContext context) {
         this.compilerContext = context;
     }
-    
+
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
         if (!enabled) {
@@ -123,10 +128,19 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         TestSuite suite = registry.getTestSuites().get(packageName);
         // Check if the registry contains a test suite for the package
         if (suite == null) {
-            // Add a test suite to the registry if it does not contain one pertaining to the package name
-            suite = registry.getTestSuites().computeIfAbsent(packageName, func ->
-                    new TestSuite(parent.packageID.name.value, packageName, parent.packageID.orgName.value,
-                                  parent.packageID.version.value));
+            //Set testable flag for single bal file execution
+            if ((Names.DOT.getValue()).equals(packageName)) {
+                parent.flagSet.add(Flag.TESTABLE);
+            }
+            // Skip adding test suite if no tests are available in the tests path
+            if (parent.getFlags().contains(Flag.TESTABLE)) {
+                // Add a test suite to the registry if it does not contain one pertaining to the package name
+                suite = registry.getTestSuites().computeIfAbsent(packageName, func ->
+                        new TestSuite(parent.packageID.name.value, packageName, parent.packageID.orgName.value,
+                                parent.packageID.version.value));
+            } else {
+                return;
+            }
         }
         // Remove the duplicated annotations.
         annotations = annotations.stream().distinct().collect(Collectors.toList());
@@ -138,16 +152,165 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             if (BEFORE_SUITE_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addBeforeSuiteFunction(functionName);
             } else if (AFTER_SUITE_ANNOTATION_NAME.equals(annotationName)) {
-                suite.addAfterSuiteFunction(functionName);
+                AtomicBoolean alwaysRun = new AtomicBoolean(false);
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+                    attributes.forEach(field -> {
+                        BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                        String name = attributeNode.getKey().toString();
+                        BLangExpression valueExpr = attributeNode.getValue();
+                        if (AFTER_SUITE_ALWAYS_RUN_FIELD_NAME.equals(name) &&
+                                Boolean.TRUE.toString().equals(valueExpr.toString())) {
+                            alwaysRun.set(true);
+                        }
+                    });
+                }
+                suite.addAfterSuiteFunction(functionName, alwaysRun);
+            } else if (BEFORE_GROUPS_ANNOTATION_NAME.equals(annotationName)) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+
+                    for (RecordLiteralNode.RecordField field : attributes) {
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                            BLangExpression valueExpr = attributeNode.getValue();
+                            if (valueExpr instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
+                                suite.addBeforeGroupsFunction(functionName,
+                                        values.exprs.stream().map(node -> node.toString())
+                                                .collect(Collectors.toList()));
+                            }
+                        }
+
+                    }
+                }
+            } else if (AFTER_GROUPS_ANNOTATION_NAME.equals(annotationName)) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+
+                    for (RecordLiteralNode.RecordField field : attributes) {
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                            BLangExpression valueExpr = attributeNode.getValue();
+                            if (valueExpr instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
+                                suite.addAfterGroupFunction(functionName,
+                                        values.exprs.stream().map(node -> node.toString())
+                                                .collect(Collectors.toList()));
+                            }
+                        }
+
+                    }
+                }
             } else if (BEFORE_EACH_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addBeforeEachFunction(functionName);
             } else if (AFTER_EACH_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addAfterEachFunction(functionName);
-            } else if (MOCK_FN.equals(annotationName)) {
+            } else if (TEST_ANNOTATION_NAME.equals(annotationName)) {
+                Test test = new Test();
+                test.setTestName(functionName);
+                AtomicBoolean shouldSkip = new AtomicBoolean();
+                AtomicBoolean groupsFound = new AtomicBoolean();
+                List<String> groups = registry.getGroups();
+                boolean shouldIncludeGroups = registry.shouldIncludeGroups();
+
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+                    for (RecordLiteralNode.RecordField field : attributes) {
+                        String name;
+                        BLangExpression valueExpr;
+
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                            name = attributeNode.getKey().toString();
+                            valueExpr = attributeNode.getValue();
+                        } else {
+                            BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                    (BLangRecordLiteral.BLangRecordVarNameField) field;
+                            name = varNameField.variableName.value;
+                            valueExpr = varNameField;
+                        }
+
+                        // Check if enable property is present in the annotation
+                        if (TEST_ENABLE_ANNOTATION_NAME.equals(name) && "false".equals(valueExpr
+                                .toString())) {
+                            // If enable is false, disable the test, no further processing is needed
+                            shouldSkip.set(true);
+                            continue;
+                        }
+
+                        // check if groups attribute is present in the annotation
+                        if (GROUP_ANNOTATION_NAME.equals(name)) {
+                            if (valueExpr instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
+                                test.setGroups(values.exprs.stream().map(node -> node.toString())
+                                        .collect(Collectors.toList()));
+                                suite.addTestToGroups(test);
+
+                                // Check whether user has provided a group list
+                                if (groups != null && !groups.isEmpty()) {
+                                    boolean isGroupPresent = isGroupAvailable(groups, test.getGroups());
+                                    if (shouldIncludeGroups) {
+                                        // include only if the test belong to one of these groups
+                                        if (!isGroupPresent) {
+                                            // skip the test if this group is not defined in this test
+                                            shouldSkip.set(true);
+                                            continue;
+                                        }
+                                    } else {
+                                        // exclude only if the test belong to one of these groups
+                                        if (isGroupPresent) {
+                                            // skip if this test belongs to one of the excluded groups
+                                            shouldSkip.set(true);
+                                            continue;
+                                        }
+                                    }
+                                    groupsFound.set(true);
+                                }
+                            }
+                        }
+                        if (VALUE_SET_ANNOTATION_NAME.equals(name)) {
+                            test.setDataProvider(valueExpr.toString());
+                        }
+
+                        if (BEFORE_FUNCTION.equals(name)) {
+                            test.setBeforeTestFunction(valueExpr.toString());
+                        }
+
+                        if (AFTER_FUNCTION.equals(name)) {
+                            test.setAfterTestFunction(valueExpr.toString());
+                        }
+
+                        if (DEPENDS_ON_FUNCTIONS.equals(name)) {
+                            if (valueExpr instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
+                                values.exprs.stream().map(node -> node.toString()).forEach
+                                        (test::addDependsOnTestFunction);
+                            }
+                        }
+                    }
+                }
+                if (groups != null && !groups.isEmpty() && !groupsFound.get() && shouldIncludeGroups) {
+                    // if the user has asked to run only a specific list of groups and this test doesn't have
+                    // that group, we should skip the test
+                    shouldSkip.set(true);
+                }
+                if (!shouldSkip.get()) {
+                    suite.addTests(test);
+                }
+            } else if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
                 String[] vals = new String[2];
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;
-                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                     List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getFields();
                     attributes.forEach(field -> {
@@ -175,7 +338,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                             vals[1] = value;
                         }
                     });
-                    
+
                     // Check if Function in annotation is empty
                     if (vals[1].isEmpty()) {
                         diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
@@ -208,161 +371,54 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     //Creating a bLangTestablePackage to add a mock function
                     BLangTestablePackage bLangTestablePackage =
                             (BLangTestablePackage) ((BLangFunction) functionNode).parent;
-                    bLangTestablePackage.addMockFunction(functionToMockID + MOCK_ANNOTATION_DELIMITER + vals[1],
-                                                         functionName);
-                }
-            } else if (TEST_ANNOTATION_NAME.equals(annotationName)) {
-                Test test = new Test();
-                test.setTestName(functionName);
-                AtomicBoolean shouldSkip = new AtomicBoolean();
-                AtomicBoolean groupsFound = new AtomicBoolean();
-                List<String> groups = registry.getGroups();
-                boolean shouldIncludeGroups = registry.shouldIncludeGroups();
+                    bLangTestablePackage.addMockFunction(functionToMockID + MOCK_FN_DELIMITER + vals[1],
+                            functionName);
 
-                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
-                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
-                            .getExpression()).getFields();
-
-                    attributes.forEach(field -> {
-                        String name;
-                        BLangExpression valueExpr;
-
-                        if (field.isKeyValueField()) {
-                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
-                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                            name = attributeNode.getKey().toString();
-                            valueExpr = attributeNode.getValue();
-                        } else {
-                            BLangRecordLiteral.BLangRecordVarNameField varNameField =
-                                    (BLangRecordLiteral.BLangRecordVarNameField) field;
-                            name = varNameField.variableName.value;
-                            valueExpr = varNameField;
-                        }
-
-                        // Check if enable property is present in the annotation
-                        if (TEST_ENABLE_ANNOTATION_NAME.equals(name) && "false".equals(valueExpr
-                                .toString())) {
-                            // If enable is false, disable the test, no further processing is needed
-                            shouldSkip.set(true);
-                            return;
-                        }
-
-                        // check if groups attribute is present in the annotation
-                        if (GROUP_ANNOTATION_NAME.equals(name)) {
-                            if (valueExpr instanceof BLangListConstructorExpr) {
-                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
-                                test.setGroups(values.exprs.stream().map(node -> node.toString())
-                                                           .collect(Collectors.toList()));
-                                // Check whether user has provided a group list
-                                if (groups != null && !groups.isEmpty()) {
-                                    boolean isGroupPresent = isGroupAvailable(groups, test.getGroups());
-                                    if (shouldIncludeGroups) {
-                                        // include only if the test belong to one of these groups
-                                        if (!isGroupPresent) {
-                                            // skip the test if this group is not defined in this test
-                                            shouldSkip.set(true);
-                                            return;
-                                        }
-                                    } else {
-                                        // exclude only if the test belong to one of these groups
-                                        if (isGroupPresent) {
-                                            // skip if this test belongs to one of the excluded groups
-                                            shouldSkip.set(true);
-                                            return;
-                                        }
-                                    }
-                                    groupsFound.set(true);
-                                }
-                            }
-                        }
-                        if (VALUE_SET_ANNOTATION_NAME.equals(name)) {
-                            test.setDataProvider(valueExpr.toString());
-                        }
-
-                        if (BEFORE_FUNCTION.equals(name)) {
-                            test.setBeforeTestFunction(valueExpr.toString());
-                        }
-
-                        if (AFTER_FUNCTION.equals(name)) {
-                            test.setAfterTestFunction(valueExpr.toString());
-                        }
-
-                        if (DEPENDS_ON_FUNCTIONS.equals(name)) {
-                            if (valueExpr instanceof BLangListConstructorExpr) {
-                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
-                                values.exprs.stream().map(node -> node.toString()).forEach
-                                        (test::addDependsOnTestFunction);
-                            }
-                        }
-                    });
-                }
-                if (groups != null && !groups.isEmpty() && !groupsFound.get() && shouldIncludeGroups) {
-                    // if the user has asked to run only a specific list of groups and this test doesn't have
-                    // that group, we should skip the test
-                    shouldSkip.set(true);
-                }
-                if (!shouldSkip.get()) {
-                    suite.addTests(test);
                 }
             } else {
                 // disregard this annotation
             }
         }
-
     }
 
     // Extract mock function information
     @Override
     public void process(SimpleVariableNode simpleVariableNode, List<AnnotationAttachmentNode> annotations) {
-        annotations = annotations.stream().distinct().collect(Collectors.toList());
+        parent = (BLangPackage) ((BLangSimpleVariable) simpleVariableNode).parent;
+        String packageName = getPackageName(parent);
 
+        annotations = annotations.stream().distinct().collect(Collectors.toList());
+        // Iterate through all the annotations
         for (AnnotationAttachmentNode attachmentNode : annotations) {
             String annotationName = attachmentNode.getAnnotationName().getValue();
-            // Check if the annotation name is Mock
+
             if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
-                String type = ((BLangUserDefinedType) ((BLangSimpleVariable) simpleVariableNode).typeNode)
-                        .typeName.getValue();
-
+                String type = ((BLangUserDefinedType) ((BLangSimpleVariable) simpleVariableNode).typeNode).
+                        typeName.getValue();
+                // Check if the simpleVariableNode that the annotation is attached to is in fact the MockFunction object
                 if (type.equals("MockFunction")) {
-                    String[] vals = new String[2];
-                    // Extract function to mock name
-                    if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                    String mockFnObjectName = simpleVariableNode.getName().getValue();
+                    String[] annotationValues = new String[2]; // [0] - moduleName, [1] - functionName
+                    annotationValues[0] = packageName; // Set default value of the annotation as the current package
+
+                    if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                         // Get list of attributes in the Mock annotation
-                        List<RecordLiteralNode.RecordField> attributes =
+                        List<RecordLiteralNode.RecordField> fields =
                                 ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();
-                        attributes.forEach(field -> {
-                            String name;
-                            BLangExpression valueExpr;
 
-                            if (field.isKeyValueField()) {
-                                BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
-                                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                                name = attributeNode.getKey().toString();
-                                valueExpr = attributeNode.getValue();
-                            } else {
-                                BLangRecordLiteral.BLangRecordVarNameField varNameField =
-                                        (BLangRecordLiteral.BLangRecordVarNameField) field;
-                                name = varNameField.variableName.value;
-                                valueExpr = varNameField;
-                            }
+                        setAnnotationValues(fields, annotationValues, attachmentNode);
 
-                            String value = valueExpr.toString();
+                        PackageID functionToMockID = getPackageID(annotationValues[0]);
 
-                            if (FUNCTION.equals(name)) {
-                                vals[0] = value;
-                            }
+                        validateFunctionName(annotationValues[1], functionToMockID, attachmentNode);
 
-                            validateFunctionName(vals[0], simpleVariableNode, attachmentNode);
+                        BLangTestablePackage bLangTestablePackage =
+                                (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
 
-                            // Mock Function object name
-                            String mockFunctionObject = simpleVariableNode.getName().getValue();
-
-                            //Add values to the BLangTestablePackage somehow
-                            BLangTestablePackage bLangTestablePackage =
-                                    (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
-
-                            bLangTestablePackage.addMockFunction(vals[0], mockFunctionObject);
-                        });
+                        // Value added to the map '<packageId> # <functionToMock> --> <MockFnObjectName>`
+                        bLangTestablePackage.addMockFunction(
+                                functionToMockID + MOCK_ANNOTATION_DELIMITER + annotationValues[1],
+                                mockFnObjectName);
                     }
                 } else {
                     // Throw an error saying its not a MockFunction object
@@ -373,29 +429,39 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         }
     }
 
-    /**
-     * Get the function type by iterating through the packageEnvironmentMap.
-     * @param pkgEnvMap map of BPackageSymbol and its respective SymbolEnv
-     * @param packageID Fully qualified package ID of the respective function
-     * @param functionName Name of the function
-     * @return Function type if found, null if not found
-     */
-    private BType getFunctionType(Map<BPackageSymbol, SymbolEnv> pkgEnvMap, PackageID packageID, String functionName) {
-        // Symbol resolver, Pass the acquired package Symbol from package cache
-        for (Map.Entry<BPackageSymbol, SymbolEnv> entry : pkgEnvMap.entrySet()) {
-            // Multiple packages may be present with same name, so all entries must be checked
-            if (entry.getKey().pkgID.equals(packageID)) {
-                BSymbol symbol = symbolResolver.lookupSymbolInMainSpace(entry.getValue(), new Name(functionName));
-                if (!symbol.getType().toString().equals("other")) {
-                    return symbol.getType();
+    // Iterate through each field and assign the annotation values for moduleName and functionName
+    private void setAnnotationValues(List<RecordLiteralNode.RecordField> fields, String[] annotationValues,
+                                     AnnotationAttachmentNode attachmentNode) {
+        // Iterate through each field and assign the annotation values for moduleName and functionName
+        fields.forEach(field -> {
+            String name;
+            BLangExpression valueExpr;
+
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                name = attributeNode.getKey().toString();
+                valueExpr = attributeNode.getValue();
+
+                String value = valueExpr.toString();
+
+                if (MODULE.equals(name)) {
+                    value = formatPackageName(value);
+                    annotationValues[0] = value;
+                } else if (FUNCTION.equals(name)) {
+                    annotationValues[1] = value;
                 }
+
+            } else {
+                diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                        "Annotation fields must be key-value pairs");
             }
-        }
-        return null;
+        });
     }
 
     /**
      * Returns a PackageID for the passed moduleName.
+     *
      * @param moduleName Module name passed via function annotation
      * @return Module packageID
      */
@@ -411,6 +477,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
      * Formats the package name obtained from the mock annotation.
      * Checks for empty, '.', or single module names and replaces them.
      * Ballerina modules and fully qualified packages are simply returned
+     *
      * @param value package name
      * @return formatted package name
      */
@@ -419,53 +486,47 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         if (value.isEmpty() || value.equals(Names.DOT.value)) {
             value = parent.packageID.toString();
 
-        // If value does NOT contain 'ballerina/' then it could be fully qualified
+            // If value does NOT contain 'ballerina/' then it could be fully qualified
         } else if (!value.contains(Names.ORG_NAME_SEPARATOR.value) && !value.contains(Names.VERSION_SEPARATOR.value)) {
             value = new PackageID(parent.packageID.orgName, new Name(value),
-                                  parent.packageID.version).toString();
+                    parent.packageID.version).toString();
         }
         return value;
     }
 
     /**
      * Validates the function name provided in the annotation.
-     * @param functionName Function to mock
-     * @param variableNode  MockFunction object variable node
-     * @param attachmentNode  MockFunction object attachment node
+     *
+     * @param functionName   Name of the function to mock
+     * @param attachmentNode MockFunction object attachment node
      */
-    private void validateFunctionName(String functionName, SimpleVariableNode variableNode,
+    private void validateFunctionName(String functionName, PackageID functionToMockID,
                                       AnnotationAttachmentNode attachmentNode) {
-        PackageID packageID = ((BLangTestablePackage) ((BLangSimpleVariable) variableNode).parent).packageID;
 
-        if (functionName == null) {
+        if (functionToMockID == null) {
             diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
-                    "Function name cannot be empty");
+                    "could not find module specified ");
         } else {
-            // Iterate through package map entries
-            for (Map.Entry<BPackageSymbol, SymbolEnv> entry : this.packageEnvironmentMap.entrySet()) {
-
-                // Consider both instances of the current package
-                if (entry.getKey().pkgID.equals(packageID)) {
-                    // Check if the current package has the function name
-                    if (entry.getValue().scope.entries.containsKey(new Name(functionName))) {
-
-                        // Functions within a test package are not allowed to be mocked
-                        if (entry.getValue().scope.entries.containsKey(new Name("test"))) {
-                            diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR,
-                                    attachmentNode.getPosition(),
-                                    "Function \'" + functionName +
-                                            "\' defined within the tests folder cannot be mocked");
+            if (functionName == null) {
+                diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                        "Function name cannot be empty");
+            } else {
+                // Iterate through package map entries
+                for (Map.Entry<BPackageSymbol, SymbolEnv> entry : this.packageEnvironmentMap.entrySet()) {
+                    if (entry.getKey().pkgID.equals(functionToMockID)) {
+                        // Check if the current package has the function name
+                        if (entry.getValue().scope.entries.containsKey(new Name(functionName))) {
+                            // Exit validate function if the function exists in the entry
+                            return;
                         }
-
-                        // Exit validate function if the function exists in the entry
-                        return;
                     }
                 }
-            }
 
-            // If it reaches this part, then the function has'nt been found in both packages
-            diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
-                    "Function \'" + functionName + "\' cannot be found in the current package");
+                // If it reaches this part, then the function has'nt been found in both packages
+                diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                        "Function \'" + functionName + "\' cannot be found in the package \'"
+                                + functionToMockID.toString());
+            }
         }
     }
 
@@ -499,4 +560,26 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         }
         return packageInfo.getInstructions().length;
     }*/
+
+    /**
+     * Get the function type by iterating through the packageEnvironmentMap.
+     *
+     * @param pkgEnvMap    map of BPackageSymbol and its respective SymbolEnv
+     * @param packageID    Fully qualified package ID of the respective function
+     * @param functionName Name of the function
+     * @return Function type if found, null if not found
+     */
+    private BType getFunctionType(Map<BPackageSymbol, SymbolEnv> pkgEnvMap, PackageID packageID, String functionName) {
+        // Symbol resolver, Pass the acquired package Symbol from package cache
+        for (Map.Entry<BPackageSymbol, SymbolEnv> entry : pkgEnvMap.entrySet()) {
+            // Multiple packages may be present with same name, so all entries must be checked
+            if (entry.getKey().pkgID.equals(packageID)) {
+                BSymbol symbol = symbolResolver.lookupSymbolInMainSpace(entry.getValue(), new Name(functionName));
+                if (!symbol.getType().toString().equals("other")) {
+                    return symbol.getType();
+                }
+            }
+        }
+        return null;
+    }
 }

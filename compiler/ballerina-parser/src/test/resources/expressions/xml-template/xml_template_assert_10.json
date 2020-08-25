@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -166,20 +161,31 @@
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
-                                            "kind": "INTERPOLATION",
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                             "children": [
                                               {
                                                 "kind": "INTERPOLATION_START_TOKEN"
-                                              },
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
                                               {
-                                                "kind": "SIMPLE_NAME_REFERENCE",
-                                                "children": [
-                                                  {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "y"
-                                                  }
-                                                ]
-                                              },
+                                                "kind": "IDENTIFIER_TOKEN",
+                                                "value": "y"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
                                               {
                                                 "kind": "CLOSE_BRACE_TOKEN"
                                               }
@@ -203,11 +209,17 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "isMissing": true,
+                                          "kind": "XML_SIMPLE_NAME",
                                           "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_IDENTIFIER"
+                                              ]
+                                            }
                                           ]
                                         },
                                         {
@@ -267,36 +279,53 @@
                                   "kind": "SLASH_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true,
+                                  "kind": "XML_SIMPLE_NAME",
                                   "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER",
-                                    "ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES"
-                                  ],
-                                  "leadingMinutiae": [
+                                  "children": [
                                     {
-                                      "kind": "INVALID_NODE_MINUTIAE",
-                                      "invalidNode": {
-                                        "kind": "INTERPOLATION",
-                                        "children": [
-                                          {
-                                            "kind": "INTERPOLATION_START_TOKEN"
-                                          },
-                                          {
-                                            "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_IDENTIFIER",
+                                        "ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES"
+                                      ],
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
+                                              {
+                                                "kind": "INTERPOLATION_START_TOKEN"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                             "children": [
                                               {
                                                 "kind": "IDENTIFIER_TOKEN",
                                                 "value": "y"
                                               }
                                             ]
-                                          },
-                                          {
-                                            "kind": "CLOSE_BRACE_TOKEN"
                                           }
-                                        ]
-                                      }
+                                        },
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
+                                              {
+                                                "kind": "CLOSE_BRACE_TOKEN"
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
                                     }
                                   ]
                                 },

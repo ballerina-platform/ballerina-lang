@@ -22,7 +22,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
-import java.util.List;
+import java.util.HashSet;
 
 /**
  * Contains methods to resolve the module jars and native libraries.
@@ -37,9 +37,13 @@ public interface JarResolver {
 
     Path moduleTestJar(BLangPackage bLangPackage);
 
-    List<Path> nativeDependencies(PackageID packageID);
+    HashSet<Path> nativeDependencies(PackageID packageID);
 
-    List<Path> nativeDependenciesForTests(PackageID packageID);
+    HashSet<Path> nativeDependenciesForTests(PackageID packageID);
 
-    List<Path> allDependencies(BLangPackage bLangPackage);
+    HashSet<Path> allDependencies(BLangPackage bLangPackage);
+
+    HashSet<Path> allTestDependencies(BLangPackage bLangPackage);
+
+    Path getRuntimeJar();
 }

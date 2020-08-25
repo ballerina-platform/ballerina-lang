@@ -27,7 +27,7 @@ public class ChoreoErrors {
 
     public static ChoreoClientException getUnavailableError() {
         return new ChoreoClientException(
-                new ChoreoError(ChoreoError.Code.UNAVAILABLE, "Choreo services are not available.", null)
+                new ChoreoError(ChoreoError.Code.UNAVAILABLE, "Choreo services are not accessible.", null)
         );
     }
 

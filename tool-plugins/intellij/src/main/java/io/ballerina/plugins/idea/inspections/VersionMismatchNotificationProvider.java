@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.inspections;
 
-import com.google.common.base.Strings;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
@@ -35,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getMajorVersion;
 import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getMinorVersion;
+import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.stringIsNullOrEmpty;
 
 /**
  * Provides wrong module type message if the ballerina file is not in a Ballerina module.
@@ -68,13 +68,13 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
         String sdkVersion = BallerinaSdkService.getInstance(myProject).getSdkVersion(module);
         String pluginVersion = BallerinaSdkUtils.getBallerinaPluginVersion();
 
-        if (!Strings.isNullOrEmpty(sdkVersion) && !Strings.isNullOrEmpty(pluginVersion)) {
+        if (!stringIsNullOrEmpty(sdkVersion) && !stringIsNullOrEmpty(pluginVersion)) {
             // Compares the major and minor version numbers between the ballerina sdk and the plugin.
             if (!getMajorVersion(sdkVersion).equals(getMajorVersion(pluginVersion))
                     || !getMinorVersion(sdkVersion).equals(getMinorVersion(pluginVersion))) {
                 return createPanel(module, sdkVersion, pluginVersion, false);
             }
-        } else if (Strings.isNullOrEmpty(sdkVersion)) {
+        } else if (stringIsNullOrEmpty(sdkVersion)) {
             // Compares auto-detected ballerina version with the plugin version.
             String autoDetectedBalHome = "";
             try {
@@ -83,7 +83,7 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
                 // no operation.
             }
             sdkVersion = BallerinaSdkUtils.retrieveBallerinaVersion(autoDetectedBalHome);
-            if (!Strings.isNullOrEmpty(sdkVersion) && !Strings.isNullOrEmpty(pluginVersion)) {
+            if (!stringIsNullOrEmpty(sdkVersion) && !stringIsNullOrEmpty(pluginVersion)) {
                 // Compares the major and minor version numbers between the auto detected ballerina version and
                 // the plugin.
                 if (!getMajorVersion(sdkVersion).equals(getMajorVersion(pluginVersion))

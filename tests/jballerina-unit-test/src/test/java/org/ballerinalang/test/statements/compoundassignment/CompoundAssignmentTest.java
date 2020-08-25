@@ -417,7 +417,7 @@ public class CompoundAssignmentTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 305);
     }
 
-    @Test(description = "Test compound operator negative cases.", groups = "brokenOnNewParser")
+    @Test(description = "Test compound operator negative cases.", groups = "disableOnOldParser")
     public void testCompoundAssignmentNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
@@ -425,15 +425,12 @@ public class CompoundAssignmentTest {
         Assert.assertEquals(compileResult.getErrorCount(), 22);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 13, 5);
-        BAssertUtil.validateError(compileResult, i++, "invocations are not supported on the left hand side of an " +
-                "assignment", 20, 5);
-        BAssertUtil.validateError(compileResult, i++, "invocations are not supported on the left hand side of an " +
-                "assignment", 25, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 20, 14);
+        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 25, 14);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'string' and 'int'", 35, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'string' and 'int'", 41, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and '(int|error)'", 47, 5);
-        BAssertUtil.validateError(compileResult, i++, "invocations are not supported on the left hand side of an " +
-                "assignment", 53, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 53, 14);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'json' and 'string'", 59, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and 'string'", 65, 5);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'float'", 72, 10);
@@ -447,7 +444,6 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 132, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 140, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int'", 150, 11);
-        BAssertUtil.validateError(compileResult, i, "invocations are not supported on the left hand side of an " +
-                "assignment", 156, 5);
+        BAssertUtil.validateError(compileResult, i, "invalid expr in compound assignment lhs", 156, 18);
     }
 }

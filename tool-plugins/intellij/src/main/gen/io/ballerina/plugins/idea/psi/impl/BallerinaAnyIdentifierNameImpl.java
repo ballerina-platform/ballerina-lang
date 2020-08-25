@@ -43,15 +43,9 @@ public class BallerinaAnyIdentifierNameImpl extends ASTWrapperPsiElement impleme
   }
 
   @Override
-  @Nullable
-  public BallerinaReservedWord getReservedWord() {
-    return findChildByClass(BallerinaReservedWord.class);
-  }
-
-  @Override
-  @Nullable
+  @NotNull
   public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

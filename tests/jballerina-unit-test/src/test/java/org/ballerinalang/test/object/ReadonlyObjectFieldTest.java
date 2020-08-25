@@ -55,6 +55,8 @@ public class ReadonlyObjectFieldTest {
         validateError(result, index++, "incompatible types: expected 'Person', found 'Undergraduate'", 160, 17);
         validateError(result, index++, "incompatible types: expected 'Person', found 'Graduate'", 163, 17);
         validateError(result, index++, "incompatible types: expected 'Person', found 'AbstractPerson'", 166, 17);
+        validateError(result, index++, "incompatible types: expected 'object { readonly int i; string s; readonly " +
+                "boolean b; }', found 'object { int i; string s; boolean b; }'", 180, 11);
         assertEquals(result.getErrorCount(), index);
     }
 }

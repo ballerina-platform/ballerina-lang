@@ -44,26 +44,26 @@ public class BallerinaMethodDefinitionImpl extends ASTWrapperPsiElement implemen
 
   @Override
   @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
-  }
-
-  @Override
-  @NotNull
   public BallerinaAnyIdentifierName getAnyIdentifierName() {
     return findNotNullChildByClass(BallerinaAnyIdentifierName.class);
   }
 
   @Override
   @NotNull
-  public BallerinaFunctionDefinitionBody getFunctionDefinitionBody() {
-    return findNotNullChildByClass(BallerinaFunctionDefinitionBody.class);
+  public List<BallerinaNestedAnnotationAttachment> getNestedAnnotationAttachmentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaNestedAnnotationAttachment.class);
   }
 
   @Override
   @NotNull
-  public BallerinaFunctionSignature getFunctionSignature() {
-    return findNotNullChildByClass(BallerinaFunctionSignature.class);
+  public BallerinaNestedFunctionSignature getNestedFunctionSignature() {
+    return findNotNullChildByClass(BallerinaNestedFunctionSignature.class);
+  }
+
+  @Override
+  @NotNull
+  public BallerinaNestedRecoverableBody getNestedRecoverableBody() {
+    return findNotNullChildByClass(BallerinaNestedRecoverableBody.class);
   }
 
   @Override

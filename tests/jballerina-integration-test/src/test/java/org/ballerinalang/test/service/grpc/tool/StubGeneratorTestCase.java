@@ -108,12 +108,12 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithDependency.proto",
                  outputDirPath, "helloWorldWithDependency_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 10);
+        assertEquals(compileResult.getDiagnostics().length, 8);
         assertEquals(compileResult.getDiagnostics()[0].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:15:34:: unknown type 'HelloRequest'");
         assertEquals(compileResult.getDiagnostics()[1].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:15:90:: unknown type 'HelloResponse'");
-        assertEquals(compileResult.getDiagnostics()[5].toString(),
+        assertEquals(compileResult.getDiagnostics()[4].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:26:86:: unknown type 'ByeResponse'");
     }
 

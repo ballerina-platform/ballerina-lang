@@ -26,6 +26,9 @@ public interface BallerinaDocumentationString extends PsiElement {
   @Nullable
   BallerinaDeprecatedAnnotationDocumentationLine getDeprecatedAnnotationDocumentationLine();
 
+  @Nullable
+  BallerinaDeprecatedParametersDocumentationLine getDeprecatedParametersDocumentationLine();
+
   @NotNull
   List<BallerinaDocumentationLine> getDocumentationLineList();
 

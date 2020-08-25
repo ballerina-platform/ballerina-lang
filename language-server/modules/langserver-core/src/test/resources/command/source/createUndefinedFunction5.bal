@@ -24,4 +24,11 @@ function foo(string filePath) returns error? {
     printThis(nanVal.isNaN());
     Fruit fruit = new Fruit();
     printField(fruit.name());
+
+    record {
+      string recField = "";
+    } testRec = {};
+    record {
+      int recField = 1;
+    } testRec2 = thisIsANewFunction(testRec);
 }

@@ -16,7 +16,6 @@
 
 import ballerina/http;
 import ballerina/config;
-import ballerina/io;
 
 http:ClientConfiguration sslProtocolClientConfig = {
     secureSocket: {
@@ -30,18 +29,18 @@ http:ClientConfiguration sslProtocolClientConfig = {
     }
 };
 
-public function main (string... args) {
+public function testSslProtocol() returns string {
     http:Client clientEP = new("https://localhost:9249", sslProtocolClientConfig);
     http:Request req = new;
     var resp = clientEP->get("/protocol/protocolResource");
     if (resp is http:Response) {
         var payload = resp.getTextPayload();
         if (payload is string) {
-            io:println(payload);
+            return <@untainted> payload;
         } else {
-            io:println(payload.message());
+            return <@untainted> payload.message();
         }
     } else {
-        io:println(resp.message());
+        return <@untainted> resp.message();
     }
 }

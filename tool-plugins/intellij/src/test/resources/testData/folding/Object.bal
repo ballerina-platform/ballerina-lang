@@ -1,4 +1,4 @@
-type Person object <fold text='{...}'>{
+type Person <fold text='{...}'>object {
     public int age;
     public string firstName;
     public string lastName;
@@ -6,4 +6,4 @@ type Person object <fold text='{...}'>{
     function getFullName() returns string;
 
     function checkAndModifyAge(int condition, int a);
-}</fold>;
+};</fold>

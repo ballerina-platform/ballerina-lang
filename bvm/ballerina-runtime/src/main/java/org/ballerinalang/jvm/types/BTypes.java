@@ -79,6 +79,7 @@ public class BTypes {
             new BUnionType(Arrays.asList(typeElement, typeComment, typeProcessingInstruction, typeText)),
             new BPackage(null, null, null));
     public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, new BPackage(null, null, null), false);
+    public static BType typeJsonArray = new BArrayType(typeJSON);
     public static BType typeReadonlyJSON = new BJSONType(TypeConstants.READONLY_JSON_TNAME,
                                                          new BPackage(null, null, null), true);
     public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, new BPackage(null, null, null), false);

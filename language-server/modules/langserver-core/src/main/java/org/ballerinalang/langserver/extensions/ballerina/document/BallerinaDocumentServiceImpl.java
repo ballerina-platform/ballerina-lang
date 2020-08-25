@@ -32,11 +32,12 @@ import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
@@ -49,9 +50,12 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.model.GenSrcFile;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
@@ -91,8 +95,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
-    public static final LSContext.Key<SyntaxTree> UPDATED_SYNTAX_TREE = new LSContext.Key<>();
-//    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
+    public static final LSContext.Key<String> UPDATED_SOURCE = new LSContext.Key<>();
 
     public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
@@ -275,10 +278,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                     .withCommonParams(null, fileUri, documentManager)
                     .build();
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class,
-                    false, false, true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
             reply.setAst(getTreeForContent(astContext));
-            reply.setParseSuccess(reply.getAst() != null);
+            reply.setParseSuccess(isParseSuccess(astContext));
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
@@ -287,6 +289,28 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             lock.ifPresent(Lock::unlock);
         }
         return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    private boolean isParseSuccess(LSContext astContext) {
+        BLangPackage bLangPackage = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        if (bLangPackage != null) {
+            List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
+            CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+            if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
+                diagnostics = ((CollectDiagnosticListener) compilerContext
+                        .get(DiagnosticListener.class)).getDiagnostics();
+            }
+            return !diagnostics.stream().anyMatch(diagnostic -> {
+                DiagnosticCode code = diagnostic.getCode();
+                return (code == DiagnosticCode.SYNTAX_ERROR)
+                        || (code == DiagnosticCode.INVALID_TOKEN)
+                        || (code == DiagnosticCode.MISSING_TOKEN)
+                        || (code == DiagnosticCode.EXTRANEOUS_INPUT)
+                        || (code == DiagnosticCode.MISMATCHED_INPUT)
+                        || (code == DiagnosticCode.INVALID_SHIFT_OPERATOR);
+            });
+        }
+        return false;
     }
 
     @Override
@@ -300,7 +324,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
-            TextDocument doc = TextDocuments.from(documentManager.getFileContent(compilationPath));
+            TextDocument doc = documentManager.getTree(compilationPath).textDocument();
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
             SyntaxTree syntaxTree = SyntaxTree.from(doc, compilationPath.toString());
             ModulePartNode modulePartNode = syntaxTree.rootNode();
@@ -331,7 +355,10 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(), fileUri,
                     compilationPath, documentManager);
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
-            ModulePartNode modulePartNode = astContext.get(UPDATED_SYNTAX_TREE).rootNode();
+            String fileContent = astContext.get(UPDATED_SOURCE);
+            TextDocument textDocument = TextDocuments.from(fileContent);
+            SyntaxTree syntaxTree = SyntaxTree.from(textDocument, compilationPath.toString());
+            ModulePartNode modulePartNode = syntaxTree.rootNode();
             reply.setSyntaxTree(mapGenerator.transform(modulePartNode));
             reply.setParseSuccess(reply.getSyntaxTree() != null);
         } catch (Throwable e) {
@@ -355,21 +382,29 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         }
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
+        String oldContent = "";
         try {
+            oldContent = documentManager.getFileContent(compilationPath);
             LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(),
                     fileUri, compilationPath, documentManager);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
-                    LSCustomErrorStrategy.class, false, false,
-                    true);
-            reply.setSource(astContext.get(UPDATED_SYNTAX_TREE).toString());
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
+            reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
-            reply.setParseSuccess(reply.getAst() != null);
+            reply.setParseSuccess(isParseSuccess(astContext));
         } catch (Throwable e) {
-//            logger.error(e.getMessage(), e);
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
             logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         } finally {
+            if (!reply.isParseSuccess()) {
+                try {
+                    TextDocumentContentChangeEvent changeEvent = new TextDocumentContentChangeEvent(oldContent);
+                    documentManager.updateFile(compilationPath, Collections.singletonList(changeEvent));
+                } catch (WorkspaceDocumentException e) {
+                    logError("Failed to revert file content.", e, request.getDocumentIdentifier(),
+                            (Position) null);
+                }
+            }
             lock.ifPresent(Lock::unlock);
         }
         return CompletableFuture.supplyAsync(() -> reply);
@@ -386,21 +421,29 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         }
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
+        String oldContent = "";
         try {
+            oldContent = documentManager.getFileContent(compilationPath);
             LSContext astContext = BallerinaTriggerModifyUtil.modifyTrigger(request.getType(), request.getConfig(),
                     fileUri, compilationPath, documentManager);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
-                    LSCustomErrorStrategy.class, false,
-                    false, true);
-            reply.setSource(astContext.get(UPDATED_SYNTAX_TREE).toString());
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
+            reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
-            reply.setParseSuccess(true);
+            reply.setParseSuccess(isParseSuccess(astContext));
         } catch (Throwable e) {
-//            logger.error(e.getMessage(), e);
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
             logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         } finally {
+            if (!reply.isParseSuccess()) {
+                try {
+                    TextDocumentContentChangeEvent changeEvent = new TextDocumentContentChangeEvent(oldContent);
+                    documentManager.updateFile(compilationPath, Collections.singletonList(changeEvent));
+                } catch (WorkspaceDocumentException e) {
+                    logError("Failed to revert file content.", e, request.getDocumentIdentifier(),
+                            (Position) null);
+                }
+            }
             lock.ifPresent(Lock::unlock);
         }
         return CompletableFuture.supplyAsync(() -> reply);

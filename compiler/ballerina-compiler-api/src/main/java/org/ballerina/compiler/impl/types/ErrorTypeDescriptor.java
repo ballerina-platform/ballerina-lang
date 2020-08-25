@@ -31,25 +31,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
  */
 public class ErrorTypeDescriptor extends BallerinaTypeDesc {
 
-    private BallerinaTypeDescriptor reason;
-
     private BallerinaTypeDescriptor detail;
 
     public ErrorTypeDescriptor(ModuleID moduleID,
                                BErrorType errorType) {
         super(TypeDescKind.ERROR, moduleID, errorType);
-    }
-
-    /**
-     * Get the reason type descriptor.
-     *
-     * @return {@link BallerinaTypeDescriptor} reason
-     */
-    public BallerinaTypeDescriptor getReason() {
-        if (this.reason == null) {
-            this.reason = TypesFactory.getTypeDescriptor(((BErrorType) this.getBType()).getReasonType());
-        }
-        return this.reason;
     }
 
     /**

@@ -27,7 +27,7 @@ public interface BallerinaObjectFieldDefinition extends PsiElement {
   List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
 
   @Nullable
-  BallerinaExpression getExpression();
+  BallerinaObjectFieldDefinitionContent getObjectFieldDefinitionContent();
 
   @NotNull
   BallerinaTypeName getTypeName();
@@ -36,15 +36,12 @@ public interface BallerinaObjectFieldDefinition extends PsiElement {
   BallerinaDocumentationString getDocumentationString();
 
   @Nullable
-  PsiElement getAssign();
-
-  @Nullable
   PsiElement getComma();
 
   @Nullable
   PsiElement getSemicolon();
 
-  @Nullable
+  @NotNull
   PsiElement getIdentifier();
 
   @Nullable
@@ -52,5 +49,8 @@ public interface BallerinaObjectFieldDefinition extends PsiElement {
 
   @Nullable
   PsiElement getPublic();
+
+  @Nullable
+  PsiElement getReadonly();
 
 }

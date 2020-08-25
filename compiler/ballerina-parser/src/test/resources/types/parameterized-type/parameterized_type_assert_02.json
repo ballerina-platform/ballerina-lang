@@ -2,15 +2,6 @@
   "kind": "MODULE_VAR_DECL",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
@@ -20,22 +11,27 @@
               "kind": "MAP_KEYWORD"
             },
             {
-              "kind": "LT_TOKEN"
-            },
-            {
-              "kind": "STRING_TYPE_DESC",
+              "kind": "TYPE_PARAMETER",
               "children": [
                 {
-                  "kind": "STRING_KEYWORD"
-                }
-              ]
-            },
-            {
-              "kind": "GT_TOKEN",
-              "trailingMinutiae": [
+                  "kind": "LT_TOKEN"
+                },
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "STRING_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "GT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }

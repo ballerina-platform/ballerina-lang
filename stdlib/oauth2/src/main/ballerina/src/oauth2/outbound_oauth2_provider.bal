@@ -18,7 +18,6 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/runtime;
 import ballerina/time;
 
 # Represents the grant type configs supported for OAuth2.
@@ -91,14 +90,11 @@ public type OutboundOAuth2Provider object {
     public function generateToken() returns @tainted (string|auth:Error) {
         GrantTypeConfig? oauth2ProviderConfig = self.oauth2ProviderConfig;
         if (oauth2ProviderConfig is ()) {
-            runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
-            if (authContext is runtime:AuthenticationContext) {
-                string? authToken = authContext?.authToken;
-                if (authToken is string) {
-                    return authToken;
-                }
+            string? authToken = auth:getInvocationContext()?.token;
+            if (authToken is string) {
+                return authToken;
             }
-            return prepareAuthError("Failed to generate OAuth2 token since OAuth2 provider config is not defined and auth token is not defined in the authentication context at invocation context.");
+            return prepareAuthError("Failed to generate OAuth2 token since OAuth2 provider config is not defined and OAuth2 token is not defined at auth:InvocationContext.");
         } else {
             string|Error authToken = generateOAuth2Token(oauth2ProviderConfig, self.oauth2CacheEntry);
             if (authToken is string) {

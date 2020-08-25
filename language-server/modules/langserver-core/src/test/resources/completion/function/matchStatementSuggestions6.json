@@ -1123,29 +1123,6 @@
       ]
     },
     {
-      "label": "ballerina/rabbitmq",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "rabbitmq",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/rabbitmq;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.map",
       "kind": "Module",
       "detail": "Module",
@@ -1165,29 +1142,6 @@
             }
           },
           "newText": "import ballerina/lang.'map;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/nats",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "nats",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/nats;\n"
         }
       ]
     },

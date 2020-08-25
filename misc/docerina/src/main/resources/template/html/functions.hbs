@@ -1,72 +1,49 @@
-<!DOCTYPE html>
-<html>
+{{#partial "sidebarName" }}
+    Functions
+{{/partial}}
 
-{{> head }}
+{{#partial "sidebarLists" }}
+    {{#each module.functions}}
+        <li {{#equals functions.name name}}class="active"{{/equals}}>
+            <a href="#{{name}}" onclick="menuLinkClick()">{{name}}</a>
+        </li>
+    {{/each}}
+{{/partial}}
 
-<body class="cBallerina-io">
-    {{> bioBody }}
-    <div class="navi-wrapper">
-        <div class="navi-wrapper-content">
-            {{> logo }}
-            <div class="primary-list">
-                <h3>Functions</h3>
-                <ul>
-                    {{#each module.functions}}
-                        <li {{#equals functions.name name}}class="active"{{/equals}}>
-                            <a href="#{{name}}" onclick="menuLinkClick()">{{name}}</a>
-                        </li>
-                    {{/each}}
-                </ul>
-            </div>
-            <div class="ui divider"></div>
-            {{> currentModule }}
-        </div>
-    </div>
-    <div class="content-wrapper pusher">
-        {{> mobMenu }}
-        <div class="main-wrapper">
-            <div id="search-impl" class="search-bar"></div>
-            <div id="main">
-            <h1>
-                {{> breadcrumb }}
-                <span class="title-type">Functions - </span>
-                {{#if project.isSingleFile}}
-                    {{project.sourceFileName}}
-                {{else}}
-                    <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
-                {{/if}}
-            </h1>
-            <div class="constants">
-                <table class="ui table row-border details-table">
-                    <tbody>
-                        {{#each functions}}
-                            <tr>
-                                <td width="30%"><a class="functions {{#if isDeprecated}}strike{{/if}}" href="#{{name}}">{{name}}</a></td>
-                                <td width="70%">
-                                    <div class="function-desc">
-                                        {{#if isDeprecated}}
-                                            <span class="stab">Deprecated</span>
-                                        {{/if}}
-                                        {{{ editDescription description }}}
-                                    </div>
-                                </td>
-                            </tr>
-                        {{/each}}
-                    </tbody>
-                </table>
+
+{{#partial "titleType" }}
+    Functions
+{{/partial}}
+
+{{#partial "content" }}
+    <div class="constants">
+        <table class="ui table row-border details-table">
+            <tbody>
+                {{#each functions}}
+                    <tr>
+                        <td width="30%"><a class="functions {{#if isDeprecated}}strike{{/if}}" href="#{{name}}">{{name}}</a></td>
+                        <td width="70%">
+                            <div class="function-desc">
+                                {{#if isDeprecated}}
+                                    <span class="stab">Deprecated</span>
+                                {{/if}}
+                                {{{ editDescription description }}}
+                            </div>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        <div>
+            {{#if functions}}
                 <div>
-                    {{#if functions}}
-                        <div>
-                            {{#each functions}}
-                                {{> method }}
-                            {{/each}}
-                        </div>
-                    {{/if}}
+                    {{#each functions}}
+                        {{> method }}
+                    {{/each}}
                 </div>
-            </div>
-            </div>
+            {{/if}}
         </div>
     </div>
-</body>
+{{/partial}}
 
-{{> footer }}
+{{> layout}}

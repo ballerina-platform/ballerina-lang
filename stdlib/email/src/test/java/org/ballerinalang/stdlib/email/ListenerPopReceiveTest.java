@@ -70,7 +70,7 @@ public class ListenerPopReceiveTest {
         startServer();
     }
 
-    @Test(description = "Test for receiving an email with simple parameters")
+    @Test(description = "Test for receiving an email with simple parameters", enabled = false)
     public void testReceiveSimpleEmail() throws MessagingException, InterruptedException {
         compileBallerinaScript();
         sendEmail();
@@ -80,7 +80,8 @@ public class ListenerPopReceiveTest {
 
     @Test(
             description = "Test for receiving an email with simple parameters",
-            dependsOnMethods = "testReceiveSimpleEmail"
+            dependsOnMethods = "testReceiveSimpleEmail",
+            enabled = false
     )
     public void testReceiveError() throws InterruptedException {
         compileBallerinaScript();

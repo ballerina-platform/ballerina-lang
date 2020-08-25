@@ -25,22 +25,13 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 public interface BallerinaConstantDefinition extends BallerinaTopLevelDefinition {
 
   @Nullable
-  BallerinaConstantExpression getConstantExpression();
-
-  @Nullable
-  BallerinaTypeName getTypeName();
-
-  @Nullable
-  PsiElement getAssign();
+  BallerinaRecoverableConstantContent getRecoverableConstantContent();
 
   @Nullable
   PsiElement getSemicolon();
 
   @NotNull
   PsiElement getConst();
-
-  @Nullable
-  PsiElement getIdentifier();
 
   @Nullable
   PsiElement getPublic();

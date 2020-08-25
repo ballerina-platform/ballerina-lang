@@ -255,7 +255,7 @@ function waitTest22() returns int|string|error {
 }
 
 function waitTest23() returns int|string|() {
-    future<()> f1 = runtime:timeout(50);
+    future<()> f1 = start runtime:sleep(50);
     future<int> f2 = @strand{thread:"any"} start add_1(5, 2);
     future<string> f3 = @strand{thread:"any"} start greet();
     int|string|() result = wait f1 | f2 | f3;

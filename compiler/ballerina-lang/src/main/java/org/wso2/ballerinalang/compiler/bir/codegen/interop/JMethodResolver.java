@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -94,7 +95,7 @@ class JMethodResolver {
         // 3) Filter out the constructors or methods that have the same number of
         //      parameters as the number of constraints
         int paramCount = getBFuncParamCount(jMethodRequest, jMethods);
-        jMethods = resolveByParamCount(jMethods, paramCount);
+        jMethods = resolveByParamCount(jMethods, paramCount, jMethodRequest.receiverType);
 
         // 4) If the above list is zero then throw an error
         if (jMethods.isEmpty()) {
@@ -116,14 +117,22 @@ class JMethodResolver {
 
         return getExecutables(declaringClass, methodName, kind)
                 .stream()
-                .map(executable -> JMethod.build(kind, executable))
+                .map(executable -> JMethod.build(kind, executable, null))
                 .collect(Collectors.toList());
     }
 
-    private List<JMethod> resolveByParamCount(List<JMethod> jMethods, int paramCount) {
+    private List<JMethod> resolveByParamCount(List<JMethod> jMethods, int paramCount, BType receiverType) {
 
         return jMethods.stream()
-                .filter(jMethod -> jMethod.getParamTypes().length == paramCount)
+                .filter(jMethod -> {
+                    if (jMethod.getParamTypes().length == paramCount) {
+                        return true;
+                    } else if (receiverType != null && jMethod.getParamTypes().length == paramCount + 1) {
+                        jMethod.setReceiverType(receiverType);
+                        return true;
+                    }
+                    return false;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -144,7 +153,7 @@ class JMethodResolver {
         }
 
         JMethod jMethod = resolveExactMethod(jMethodRequest.declaringClass, jMethodRequest.methodName,
-                jMethodRequest.kind, jMethodRequest.paramTypeConstraints);
+                jMethodRequest.kind, jMethodRequest.paramTypeConstraints, jMethodRequest.receiverType);
         if (jMethod == JMethod.NO_SUCH_METHOD) {
             return resolveMatchingMethod(jMethodRequest, jMethods);
         }
@@ -214,10 +223,22 @@ class JMethodResolver {
 
         Class<?>[] jParamTypes = jMethod.getParamTypes();
         BType[] bParamTypes = jMethodRequest.bParamTypes;
+        int bParamCount = bParamTypes.length;
         int i = 0;
+        int j = 0;
+        if (jMethod.getReceiverType() != null) {
+            Class<?> jParamType = jParamTypes[0];
+            BType bParamType = jMethod.getReceiverType();
+            if (!isValidParamBType(jParamTypes[0], bParamType, jMethodRequest)) {
+                throw getNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
+                                           jMethodRequest.declaringClass);
+            }
+            bParamCount = bParamCount + 1;
+            j++;
+        }
 
         if (jMethod.isInstanceMethod()) {
-            if (bParamTypes.length != jParamTypes.length + 1) {
+            if (bParamCount != jParamTypes.length + 1) {
                 throw getParamCountMismatchError(jMethodRequest);
             }
 
@@ -227,13 +248,13 @@ class JMethodResolver {
                         jMethodRequest.declaringClass);
             }
             i++;
-        } else if (bParamTypes.length != jParamTypes.length) {
+        } else if (bParamCount != jParamTypes.length) {
             throw getParamCountMismatchError(jMethodRequest);
         }
 
-        for (int j = 0; j < jParamTypes.length; i++, j++) {
+        for (int k = j; k < jParamTypes.length; i++, k++) {
             BType bParamType = bParamTypes[i];
-            Class<?> jParamType = jParamTypes[j];
+            Class<?> jParamType = jParamTypes[k];
             if (!isValidParamBType(jParamType, bParamType, jMethodRequest)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
                         jMethodRequest.declaringClass);
@@ -342,6 +363,8 @@ class JMethodResolver {
                         }
                     }
                     return true;
+                case TypeTags.INTERSECTION:
+                    return isValidParamBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -484,6 +507,8 @@ class JMethodResolver {
                         }
                     }
                     return false;
+                case TypeTags.INTERSECTION:
+                    return isValidReturnBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -525,7 +550,8 @@ class JMethodResolver {
     }
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,
-                                       ParamTypeConstraint[] constraints) {
+                                       ParamTypeConstraint[] constraints,
+                                       BType receiverType) {
 
         Class<?>[] paramTypes = new Class<?>[constraints.length];
         for (int constraintIndex = 0; constraintIndex < constraints.length; constraintIndex++) {
@@ -535,8 +561,7 @@ class JMethodResolver {
         Executable executable = (kind == JMethodKind.CONSTRUCTOR) ? resolveConstructor(clazz, paramTypes) :
                 resolveMethod(clazz, name, paramTypes);
         if (executable != null) {
-            return JMethod.build(kind, (kind == JMethodKind.CONSTRUCTOR) ? resolveConstructor(clazz, paramTypes) :
-                    resolveMethod(clazz, name, paramTypes));
+            return JMethod.build(kind, executable, receiverType);
         } else {
             return JMethod.NO_SUCH_METHOD;
         }
@@ -545,6 +570,14 @@ class JMethodResolver {
     private JMethod resolveMatchingMethod(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
 
         ParamTypeConstraint[] constraints = jMethodRequest.paramTypeConstraints;
+        int constraintsSize, paramTypesInitialIndex;
+        if (jMethodRequest.receiverType != null) {
+            constraintsSize = constraints.length + 1;
+            paramTypesInitialIndex = 1;
+        } else {
+            constraintsSize = constraints.length;
+            paramTypesInitialIndex = 0;
+        }
         List<JMethod> resolvedJMethods = new ArrayList<>();
         if (constraints.length > 0) {
             for (JMethod jMethod : jMethods) {
@@ -552,13 +585,14 @@ class JMethodResolver {
                 Class<?>[] formalParamTypes = jMethod.getParamTypes();
 
                 // skip if the given constraint params are not of the same size as method's params
-                if (constraints.length != formalParamTypes.length) {
+                if (constraintsSize != formalParamTypes.length) {
                     continue;
                 }
 
-                for (int paramIndex = 0; paramIndex < formalParamTypes.length; paramIndex++) {
+                for (int paramIndex = paramTypesInitialIndex, constraintIndex = 0; paramIndex < formalParamTypes.length;
+                     paramIndex++, constraintIndex++) {
                     Class<?> formalParamType = formalParamTypes[paramIndex];
-                    if (formalParamType.isAssignableFrom(constraints[paramIndex].get())) {
+                    if (formalParamType.isAssignableFrom(constraints[constraintIndex].get())) {
                         continue;
                     }
                     resolved = false;

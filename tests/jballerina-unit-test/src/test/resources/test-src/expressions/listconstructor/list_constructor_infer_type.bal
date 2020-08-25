@@ -84,6 +84,67 @@ function testInferDifferentRecordsInTuple() {
     assertEquality(40, rec2.age);
 }
 
+function testInferringForReadOnly() {
+    string str = "hello";
+    boolean b = true;
+
+    readonly rd1 =[1, str];
+
+    assertEquality(true, rd1 is [int, string] & readonly);
+    [int, string] arr1 = <[int, string] & readonly> rd1;
+
+    var fn = function() {
+        arr1[0] = 12;
+    };
+    error? res = trap fn();
+    assertEquality(true, res is error);
+
+    error err = <error> res;
+    assertEquality("modification not allowed on readonly value", err.detail()["message"]);
+
+    Foo & readonly foo = {
+        s: "May",
+        i: 20
+    };
+    readonly rd2 = [1, [b, false], foo, foo];
+
+    assertEquality(true, rd2 is [int, [boolean, boolean], Foo, Foo & readonly] & readonly);
+    assertEquality(false, rd2 is [int, [boolean, boolean], abstract object {} & readonly, Foo & readonly] & readonly);
+    [int, [boolean, boolean], Foo, Foo] arr2 = <[int, [boolean, boolean], Foo, Foo] & readonly> rd2;
+
+    fn = function() {
+        arr2[0] = 2;
+    };
+    res = trap fn();
+    assertEquality(true, res is error);
+
+    err = <error> res;
+    assertEquality("modification not allowed on readonly value", err.detail()["message"]);
+}
+
+function testInferringForReadOnlyInUnion() {
+    Foo & readonly foo = {
+        s: "May",
+        i: 20
+    };
+    boolean b = true;
+
+    readonly|(Foo|int)[] rd = [1, [b, false], foo, foo];
+
+    assertEquality(true, rd is [int, [boolean, boolean], Foo, Foo & readonly] & readonly);
+    assertEquality(false, rd is [int, [boolean, boolean], abstract object {} & readonly, Foo & readonly] & readonly);
+    [int, [boolean, boolean], Foo, Foo] arr = <[int, [boolean, boolean], Foo, Foo] & readonly> rd;
+
+    var fn = function() {
+        arr[0] = 2;
+    };
+    error? res = trap fn();
+    assertEquality(true, res is error);
+
+    error err = <error> res;
+    assertEquality("modification not allowed on readonly value", err.detail()["message"]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
