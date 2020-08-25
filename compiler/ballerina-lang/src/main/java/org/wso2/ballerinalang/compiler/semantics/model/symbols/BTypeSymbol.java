@@ -33,7 +33,7 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
     public BTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                        DiagnosticPos pos) {
-        super(symTag, flags, name, pkgID, type, owner, pos);
+        super(symTag, flags, name, pkgID, type, owner, pos, );
         this.isLabel = false;
     }
 

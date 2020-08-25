@@ -42,7 +42,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     public TaintabilityAllowance taintabilityAllowance = TaintabilityAllowance.IGNORED;
 
     public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos) {
-        super(VARIABLE, flags, name, pkgID, type, owner, pos);
+        super(VARIABLE, flags, name, pkgID, type, owner, pos, );
     }
 
     @Override

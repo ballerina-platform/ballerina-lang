@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -168,8 +169,9 @@ public class Symbols {
                                                  String nsURI,
                                                  PackageID pkgID,
                                                  BSymbol owner,
-                                                 DiagnosticPos pos) {
-        return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos);
+                                                 DiagnosticPos pos,
+                                                 SymbolOrigin origin) {
+        return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos, origin);
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {

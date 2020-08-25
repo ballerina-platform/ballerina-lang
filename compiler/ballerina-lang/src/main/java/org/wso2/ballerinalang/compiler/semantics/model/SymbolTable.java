@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
@@ -216,8 +217,8 @@ public class SymbolTable {
         this.rootPkgSymbol.scope = this.rootScope;
         this.rootPkgSymbol.pos = this.builtinPos;
 
-        this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
-                                          rootPkgSymbol.pkgID, noType, rootPkgSymbol, builtinPos);
+        this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID, noType,
+                                          rootPkgSymbol, builtinPos, SymbolOrigin.VIRTUAL);
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
         initializeType(byteType, TypeKind.BYTE.typeName());
