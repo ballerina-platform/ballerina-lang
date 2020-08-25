@@ -19,10 +19,13 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.clauses.OrderKeyNode;
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -35,8 +38,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
-import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -44,9 +45,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
-import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -80,17 +78,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -101,7 +92,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
@@ -114,22 +104,20 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -172,6 +160,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -250,10 +239,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTestablePackage testablePkgNode) {
-    }
-
-    @Override
     public void visit(BLangCompilationUnit compUnit) {
     }
 
@@ -287,23 +272,28 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExternalFunctionBody body) {
-        // do nothing
     }
 
     @Override
     public void visit(BLangService serviceNode) {
-        throw new AssertionError();
-    }
+        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
+        for (BLangExpression attachedExpr : serviceNode.attachedExprs) {
+            analyzeNode(attachedExpr, serviceEnv);
+        }
 
+        for (BLangFunction resourceFunction : serviceNode.resourceFunctions) {
+            analyzeNode(resourceFunction, serviceEnv);
+        }
+    }
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        throw new AssertionError();
+        analyzeNode(typeDefinition.typeNode, env);
     }
 
     @Override
     public void visit(BLangConstant constant) {
-        throw new AssertionError();
+        analyzeNode(constant.expr, env);
     }
 
     @Override
@@ -320,46 +310,26 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIdentifier identifierNode) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        throw new AssertionError();
+        BLangExpression expr = annAttachmentNode.expr;
+        if (expr != null) {
+            analyzeNode(expr, env);
+        }
     }
 
-    @Override
-    public void visit(BLangTableKeySpecifier tableKeySpecifierNode) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangTableKeyTypeConstraint tableKeyTypeConstraint) {
-        throw new AssertionError();
-    }
-
-    // Statements
     @Override
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
         for (BLangStatement statement : blockNode.stmts) {
             analyzeNode(statement, blockEnv);
         }
-    }
-
-    @Override
-    public void visit(BLangLock.BLangLockStmt lockStmtNode) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        throw new AssertionError();
     }
 
     @Override
@@ -380,32 +350,35 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCompoundAssignment compoundAssignNode) {
-        throw new AssertionError();
+        analyzeNode(compoundAssignNode.varRef, env);
+        analyzeNode(compoundAssignNode.expr, env);
     }
 
     @Override
     public void visit(BLangRetry retryNode) {
-        throw new AssertionError();
+        analyzeNode(retryNode.retrySpec, env);
+        analyzeNode(retryNode.retryBody, env);
     }
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        throw new AssertionError();
+        analyzeNode(retryTransaction.retrySpec, env);
+        analyzeNode(retryTransaction.transaction, env);
     }
 
     @Override
     public void visit(BLangRetrySpec retrySpec) {
-        throw new AssertionError();
+        for (BLangExpression argExpr : retrySpec.argExprs) {
+            analyzeNode(argExpr, env);
+        }
     }
 
     @Override
     public void visit(BLangContinue continueNode) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangBreak breakNode) {
-        throw new AssertionError();
     }
 
     @Override
@@ -415,12 +388,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPanic panicNode) {
-        throw new AssertionError();
+        analyzeNode(panicNode.expr, env);
     }
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
-        throw new AssertionError();
+        analyzeNode(xmlnsStmtNode.xmlnsDecl, env);
     }
 
     @Override
@@ -437,130 +410,143 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        throw new AssertionError();
+        for (BLangNode clause : queryAction.getQueryClauses()) {
+            analyzeNode(clause, env);
+        }
+        analyzeNode(queryAction.doClause, env);
     }
 
     @Override
     public void visit(BLangMatch matchNode) {
-        throw new AssertionError();
+        analyzeNode(matchNode.expr, env);
+        for (BLangMatch.BLangMatchBindingPatternClause patternClause : matchNode.patternClauses) {
+            analyzeNode(patternClause, env);
+        }
     }
 
     @Override
     public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        throw new AssertionError();
+        analyzeNode(patternClauseNode.variable, env);
+        analyzeNode(patternClauseNode.body, env);
     }
 
     @Override
     public void visit(BLangForeach foreach) {
-        throw new AssertionError();
+        analyzeNode(foreach.collection, env);
+        analyzeNode(foreach.body, env);
     }
 
     @Override
     public void visit(BLangFromClause fromClause) {
-        throw new AssertionError();
+        analyzeNode((BLangNode) fromClause.getVariableDefinitionNode(), env);
+        analyzeNode(fromClause.collection, env);
     }
 
     @Override
     public void visit(BLangJoinClause joinClause) {
-        throw new AssertionError();
+        analyzeNode((BLangNode) joinClause.getVariableDefinitionNode(), env);
+        analyzeNode(joinClause.collection, env);
     }
 
     @Override
     public void visit(BLangLetClause letClause) {
-        throw new AssertionError();
+        for (BLangLetVariable letVarDeclaration : letClause.letVarDeclarations) {
+            analyzeNode((BLangNode) letVarDeclaration.definitionNode, env);
+        }
     }
 
     @Override
     public void visit(BLangOnClause onClause) {
-        throw new AssertionError();
+        analyzeNode(onClause.expression, env);
     }
 
     @Override
     public void visit(BLangOrderKey orderKeyClause) {
-        throw new AssertionError();
+        analyzeNode(orderKeyClause.expression, env);
     }
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
-        throw new AssertionError();
+        for (OrderKeyNode orderKeyNode : orderByClause.orderByKeyList) {
+            analyzeNode((BLangExpression) orderKeyNode.getOrderKey(), env);
+        }
     }
 
     @Override
     public void visit(BLangSelectClause selectClause) {
-        throw new AssertionError();
+        analyzeNode(selectClause.expression, env);
     }
 
     @Override
     public void visit(BLangWhereClause whereClause) {
-        throw new AssertionError();
+        analyzeNode(whereClause.expression, env);
     }
 
     @Override
     public void visit(BLangDoClause doClause) {
-        throw new AssertionError();
+        analyzeNode(doClause.body, env);
     }
 
     @Override
     public void visit(BLangOnConflictClause onConflictClause) {
-        throw new AssertionError();
+        analyzeNode(onConflictClause.expression, env);
     }
 
     @Override
     public void visit(BLangLimitClause limitClause) {
-        throw new AssertionError();
+        analyzeNode(limitClause.expression, env);
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        throw new AssertionError();
+        analyzeNode(whileNode.expr, env);
+        analyzeNode(whileNode.body, env);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
-        throw new AssertionError();
+        analyzeNode(lockNode.body, env);
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        throw new AssertionError();
+        analyzeNode(transactionNode.transactionBody, env);
     }
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
-        throw new AssertionError();
+        analyzeNode(stmt.varRef, env);
+        analyzeNode(stmt.expr, env);
     }
 
     @Override
     public void visit(BLangRecordDestructure stmt) {
-        throw new AssertionError();
+        analyzeNode(stmt.varRef, env);
+        analyzeNode(stmt.expr, env);
     }
 
     @Override
     public void visit(BLangErrorDestructure stmt) {
-        throw new AssertionError();
+        analyzeNode(stmt.varRef, env);
+        analyzeNode(stmt.expr, env);
     }
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangRollback rollbackNode) {
-        throw new AssertionError();
+        analyzeNode(rollbackNode.expr, env);
     }
-
-    // Expressions
 
     @Override
     public void visit(BLangLiteral literalExpr) {
@@ -568,43 +554,93 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangNumericLiteral literalExpr) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        throw new AssertionError();
+        for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                if (keyValuePair.key.computedKey) {
+                    analyzeNode(keyValuePair.key.expr, env);
+                }
+                analyzeNode(keyValuePair.valueExpr, env);
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                analyzeNode((BLangRecordLiteral.BLangRecordVarNameField) field, env);
+            } else {
+                analyzeNode(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, env);
+            }
+        }
     }
 
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
-        throw new AssertionError();
+        for (BLangExpression expression : varRefExpr.expressions) {
+            analyzeNode(expression, env);
+        }
+
+        BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
+        if (restParam != null) {
+            analyzeNode(restParam, env);
+        }
     }
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
-        throw new AssertionError();
+        for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
+            analyzeNode(recordRefField.variableReference, env);
+        }
+
+        BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
+        if (restParam != null) {
+            analyzeNode(restParam, env);
+        }
     }
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        throw new AssertionError();
+        analyzeNode(varRefExpr.message, env);
+
+        BLangVariableReference cause = varRefExpr.cause;
+        if (cause != null) {
+            analyzeNode(cause, env);
+        }
+
+        for (BLangNamedArgsExpression namedArgsExpression : varRefExpr.detail) {
+            analyzeNode(namedArgsExpression, env);
+        }
+
+        BLangVariableReference restVar = varRefExpr.restVar;
+        if (restVar != null) {
+            analyzeNode(restVar, env);
+        }
+
+        BLangType typeNode = varRefExpr.typeNode;
+        if (typeNode != null) {
+            analyzeNode(typeNode, env);
+        }
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         BType accessType = varRefExpr.type;
 
-        if (varRefExpr.symbol.owner == env.enclInvokable.symbol) {
+        BSymbol symbol = varRefExpr.symbol;
+
+        if (symbol == null) {
             return;
         }
 
-        if (Symbols.isFlagOn(varRefExpr.symbol.flags, Flags.FINAL) &&
+        if (symbol.owner == env.enclInvokable.symbol) {
+            return;
+        }
+
+        if (Symbols.isFlagOn(symbol.flags, Flags.FINAL) &&
                 (types.isInherentlyImmutableType(accessType) || Symbols.isFlagOn(accessType.flags, Flags.READONLY))) {
             return;
         }
@@ -618,17 +654,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        throw new AssertionError();
+        analyzeNode(fieldAccessExpr.expr, env);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        throw new AssertionError();
+        analyzeNode(indexAccessExpr.expr, env);
+        analyzeNode(indexAccessExpr.indexExpr, env);
     }
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.ISOLATED)) {
+        BSymbol symbol = invocationExpr.symbol;
+        if (symbol == null || Symbols.isFlagOn(symbol.flags, Flags.ISOLATED)) {
             return;
         }
 
@@ -653,23 +691,29 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTypeInit connectorInitExpr) {
-        throw new AssertionError();
+    public void visit(BLangTypeInit typeInitExpr) {
+        for (BLangExpression expression : typeInitExpr.argsExpr) {
+            analyzeNode(expression, env);
+        }
     }
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        throw new AssertionError();
+        analyzeNode(ternaryExpr.expr, env);
+        analyzeNode(ternaryExpr.thenExpr, env);
+        analyzeNode(ternaryExpr.elseExpr, env);
     }
 
     @Override
-    public void visit(BLangWaitExpr awaitExpr) {
-        throw new AssertionError();
+    public void visit(BLangWaitExpr waitExpr) {
+        for (BLangExpression expression : waitExpr.exprList) {
+            analyzeNode(expression, env);
+        }
     }
 
     @Override
     public void visit(BLangTrapExpr trapExpr) {
-        throw new AssertionError();
+        analyzeNode(trapExpr.expr, env);
     }
 
     @Override
@@ -680,102 +724,124 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangElvisExpr elvisExpr) {
-        throw new AssertionError();
+        analyzeNode(elvisExpr.lhsExpr, env);
+        analyzeNode(elvisExpr.rhsExpr, env);
     }
 
     @Override
     public void visit(BLangGroupExpr groupExpr) {
-        throw new AssertionError();
+        analyzeNode(groupExpr.expression, env);
     }
 
     @Override
     public void visit(BLangLetExpression letExpr) {
-        throw new AssertionError();
+        for (BLangLetVariable letVarDeclaration : letExpr.letVarDeclarations) {
+            analyzeNode((BLangNode) letVarDeclaration.definitionNode, env);
+        }
+
+        analyzeNode(letExpr.expr, env);
     }
 
     @Override
     public void visit(BLangLetVariable letVariable) {
-        throw new AssertionError();
+        analyzeNode((BLangNode) letVariable.definitionNode.getVariable(), env);
     }
 
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
-        throw new AssertionError();
+        for (BLangExpression expr : listConstructorExpr.exprs) {
+            analyzeNode(expr, env);
+        }
     }
 
     @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral) {
-        throw new AssertionError();
+        for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
+            analyzeNode(recordLiteral, env);
+        }
     }
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
-        throw new AssertionError();
+        analyzeNode(unaryExpr.expr, env);
     }
 
     @Override
-    public void visit(BLangTypedescExpr accessExpr) {
-        throw new AssertionError();
+    public void visit(BLangTypedescExpr typedescExpr) {
+        analyzeNode(typedescExpr.typeNode, env);
     }
 
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
-        throw new AssertionError();
+        analyzeNode(conversionExpr.typeNode, env);
+        analyzeNode(conversionExpr.expr, env);
     }
 
     @Override
     public void visit(BLangXMLQName xmlQName) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-        throw new AssertionError();
+        analyzeNode(xmlAttribute.name, env);
+        analyzeNode(xmlAttribute.value, env);
     }
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        throw new AssertionError();
+        for (BLangExpression child : xmlElementLiteral.children) {
+            analyzeNode(child, env);
+        }
+
+        for (BLangXMLAttribute attribute : xmlElementLiteral.attributes) {
+            analyzeNode(attribute, env);
+        }
+
+        for (BLangXMLNS inlineNamespace : xmlElementLiteral.inlineNamespaces) {
+            analyzeNode(inlineNamespace, env);
+        }
     }
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        throw new AssertionError();
+        for (BLangExpression expr : xmlTextLiteral.textFragments) {
+            analyzeNode(expr, env);
+        }
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        throw new AssertionError();
+        for (BLangExpression textFragment : xmlCommentLiteral.textFragments) {
+            analyzeNode(textFragment, env);
+        }
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        throw new AssertionError();
+        for (BLangExpression dataFragment : xmlProcInsLiteral.dataFragments) {
+            analyzeNode(dataFragment, env);
+        }
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        throw new AssertionError();
+        for (BLangExpression textFragment : xmlQuotedString.textFragments) {
+            analyzeNode(textFragment, env);
+        }
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        throw new AssertionError();
+        for (BLangExpression expr : stringTemplateLiteral.exprs) {
+            analyzeNode(expr, env);
+        }
     }
 
     @Override
-    public void visit(BLangRawTemplateLiteral stringTemplateLiteral) {
-        throw new AssertionError();
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        for (BLangExpression insertion : rawTemplateLiteral.insertions) {
+            analyzeNode(insertion, env);
+        }
     }
 
     @Override
@@ -796,401 +862,303 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        throw new AssertionError();
+        for (BLangSimpleVariable param : bLangArrowFunction.params) {
+            analyzeNode(param, env);
+        }
+        analyzeNode(bLangArrowFunction.body, env);
     }
 
     @Override
     public void visit(BLangIntRangeExpression intRangeExpression) {
-        throw new AssertionError();
+        analyzeNode(intRangeExpression.startExpr, env);
+        analyzeNode(intRangeExpression.endExpr, env);
     }
 
     @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
-        throw new AssertionError();
+        analyzeNode(bLangVarArgsExpression.expr, env);
     }
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangIsAssignableExpr assignableExpr) {
-        throw new AssertionError();
+        analyzeNode(bLangNamedArgsExpression.expr, env);
     }
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        throw new AssertionError();
+        analyzeNode(checkedExpr.expr, env);
     }
 
     @Override
     public void visit(BLangFailExpr failExpr) {
-        throw new AssertionError();
+        analyzeNode(failExpr.expr, env);
     }
 
     @Override
     public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
-        throw new AssertionError();
+        analyzeNode(checkPanickedExpr.expr, env);
     }
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        throw new AssertionError();
+        analyzeNode(serviceConstructorExpr.serviceNode, env);
     }
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangIsLikeExpr typeTestExpr) {
-        throw new AssertionError();
+        analyzeNode(typeTestExpr.expr, env);
+        analyzeNode(typeTestExpr.typeNode, env);
     }
 
     @Override
     public void visit(BLangIgnoreExpr ignoreExpr) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
-        throw new AssertionError();
+        analyzeNode(annotAccessExpr.expr, env);
     }
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        throw new AssertionError();
+        for (BLangNode clause : queryExpr.getQueryClauses()) {
+            analyzeNode(clause, env);
+        }
     }
 
     @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        throw new AssertionError();
+        for (BLangExpression value : tableMultiKeyExpr.multiKeyIndexExprs) {
+            analyzeNode(value, env);
+        }
     }
 
     @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangCommitExpr commitExpr) {
-        throw new AssertionError();
     }
-
-    // Type nodes
 
     @Override
     public void visit(BLangValueType valueType) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangArrayType arrayType) {
-        throw new AssertionError();
+        analyzeNode(arrayType.getElementType(), env);
     }
 
     @Override
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangConstrainedType constrainedType) {
-        throw new AssertionError();
+        analyzeNode(constrainedType.constraint, env);
     }
 
     @Override
     public void visit(BLangStreamType streamType) {
-        throw new AssertionError();
+        analyzeNode(streamType.constraint, env);
+        analyzeNode(streamType.error, env);
     }
 
     @Override
     public void visit(BLangTableTypeNode tableType) {
-        throw new AssertionError();
+        analyzeNode(tableType.constraint, env);
+
+        if (tableType.tableKeyTypeConstraint != null) {
+            analyzeNode(tableType.tableKeyTypeConstraint.keyType, env);
+        }
     }
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        throw new AssertionError();
+        for (BLangVariable param : functionTypeNode.params) {
+            analyzeNode(param.typeNode, env);
+        }
+        analyzeNode(functionTypeNode.returnTypeNode, env);
     }
 
     @Override
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        throw new AssertionError();
+        for (BLangType memberTypeNode : unionTypeNode.memberTypeNodes) {
+            analyzeNode(memberTypeNode, env);
+        }
     }
 
     @Override
     public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
-        throw new AssertionError();
+        for (BLangType constituentTypeNode : intersectionTypeNode.constituentTypeNodes) {
+            analyzeNode(constituentTypeNode, env);
+        }
     }
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        throw new AssertionError();
+        SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
+
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            analyzeNode(field, objectEnv);
+        }
+
+        for (BLangSimpleVariable referencedField : objectTypeNode.referencedFields) {
+            analyzeNode(referencedField, objectEnv);
+        }
+
+        BLangFunction initFunction = objectTypeNode.initFunction;
+        if (initFunction != null) {
+            analyzeNode(initFunction, objectEnv);
+        }
+
+        for (BLangFunction function : objectTypeNode.functions) {
+            analyzeNode(function, objectEnv);
+        }
     }
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        throw new AssertionError();
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            analyzeNode(field, env);
+        }
+
+        for (BLangSimpleVariable referencedField : recordTypeNode.referencedFields) {
+            analyzeNode(referencedField, env);
+        }
+
+        BLangType restFieldType = recordTypeNode.restFieldType;
+        if (restFieldType != null) {
+            analyzeNode(restFieldType, env);
+        }
     }
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        throw new AssertionError();
+        for (BLangExpression expression : finiteTypeNode.valueSpace) {
+            analyzeNode(expression, env);
+        }
     }
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        throw new AssertionError();
+        for (BLangType memberTypeNode : tupleTypeNode.memberTypeNodes) {
+            analyzeNode(memberTypeNode, env);
+        }
+
+        analyzeNode(tupleTypeNode.restParamType, env);
     }
 
     @Override
-    public void visit(BLangErrorType errorType) {
-        throw new AssertionError();
-    }
-
-    // expressions that will used only from the Desugar phase
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableKeyAccessExpr) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlAccessExpr) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangChannelLiteral channelLiteral) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangStatementExpression bLangStatementExpression) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangMarkdownDocumentationLine bLangMarkdownDocumentationLine) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangMarkdownParameterDocumentation bLangDocumentationParameter) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangMarkdownReturnParameterDocumentation bLangMarkdownReturnParameterDocumentation) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangMarkDownDeprecationDocumentation bLangMarkDownDeprecationDocumentation) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangMarkDownDeprecatedParametersDocumentation bLangMarkDownDeprecatedParametersDocumentation) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangMarkdownDocumentation bLangMarkdownDocumentation) {
-        throw new AssertionError();
+    public void visit(BLangErrorType errorTypeNode) {
+        analyzeNode(errorTypeNode.detailType, env);
     }
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
-        throw new AssertionError();
+        analyzeNode(bLangTupleVariable.typeNode, env);
+
+        BLangExpression expr = bLangTupleVariable.expr;
+        if (expr != null) {
+            analyzeNode(expr, env);
+        }
     }
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
-        throw new AssertionError();
+        analyzeNode(bLangTupleVariableDef.var, env);
     }
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
-        throw new AssertionError();
+        analyzeNode(bLangRecordVariable.typeNode, env);
+        BLangExpression expr = bLangRecordVariable.expr;
+        if (expr != null) {
+            analyzeNode(expr, env);
+        }
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        throw new AssertionError();
+        analyzeNode(bLangRecordVariableDef.var, env);
     }
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
-        throw new AssertionError();
+        analyzeNode(bLangErrorVariable.typeNode, env);
+        analyzeNode(bLangErrorVariable.expr, env);
+
+        for (BLangErrorVariable.BLangErrorDetailEntry bLangErrorDetailEntry : bLangErrorVariable.detail) {
+            analyzeNode(bLangErrorDetailEntry.valueBindingPattern, env);
+        }
     }
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
-        throw new AssertionError();
+        analyzeNode(bLangErrorVariableDef.errorVariable, env);
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        throw new AssertionError();
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause matchStaticBindingPatternClause) {
+        analyzeNode(matchStaticBindingPatternClause.literal, env);
+        analyzeNode(matchStaticBindingPatternClause.body, env);
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause
-                              bLangMatchStmtStructuredBindingPatternClause) {
-        throw new AssertionError();
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause matchStmtStructuredBindingPatternClause) {
+        analyzeNode(matchStmtStructuredBindingPatternClause.bindingPatternVariable, env);
+
+        BLangExpression typeGuardExpr = matchStmtStructuredBindingPatternClause.typeGuardExpr;
+        if (typeGuardExpr != null) {
+            analyzeNode(typeGuardExpr, env);
+        }
+
+        analyzeNode(matchStmtStructuredBindingPatternClause.body, env);
     }
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public void visit(BLangMarkdownReferenceDocumentation bLangMarkdownReferenceDocumentation) {
-        throw new AssertionError();
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.keyValuePairs) {
+            analyzeNode(keyValuePair, env);
+        }
     }
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
-        throw new AssertionError();
-    }
+        BLangExpression keyExpr = waitKeyValue.keyExpr;
+        if (keyExpr != null) {
+            analyzeNode(keyExpr, env);
+        }
 
-    @Override
-    public void visit(BLangXMLElementFilter xmlElementFilter) {
-        throw new AssertionError();
+
+        BLangExpression valueExpr = waitKeyValue.valueExpr;
+        if (valueExpr != null) {
+            analyzeNode(valueExpr, env);
+        }
     }
 
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
-        throw new AssertionError();
     }
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        throw new AssertionError();
+        BLangExpression childIndex = xmlNavigation.childIndex;
+        if (childIndex != null) {
+            analyzeNode(childIndex, env);
+        }
     }
 }

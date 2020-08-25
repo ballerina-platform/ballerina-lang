@@ -343,10 +343,6 @@ public class CompilerDriver {
     }
 
     private BLangPackage isolationAnalyze(BLangPackage pkgNode) {
-        boolean on = false;
-        if (!on) {
-            return pkgNode;
-        }
         return this.isolationAnalyzer.analyze(pkgNode);
     }
 

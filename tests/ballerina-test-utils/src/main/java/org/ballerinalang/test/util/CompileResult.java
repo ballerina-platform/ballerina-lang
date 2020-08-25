@@ -43,6 +43,17 @@ public class CompileResult {
     }
 
     public Diagnostic[] getDiagnostics() {
+        List<Diagnostic> nonNoteDiagnostics = new ArrayList<>();
+
+        for (Diagnostic diagnostic : getAllDiagnostics()) {
+            if (diagnostic.getKind() != Diagnostic.Kind.NOTE) {
+                nonNoteDiagnostics.add(diagnostic);
+            }
+        }
+        return nonNoteDiagnostics.toArray(new Diagnostic[0]);
+    }
+
+    public Diagnostic[] getAllDiagnostics() {
         List<Diagnostic> diagnostics = this.diagnosticListener.getDiagnostics();
         diagnostics.sort(Comparator.comparing((Diagnostic d) -> d.getSource().getCompilationUnitName()).
                 thenComparingInt(d -> d.getPosition().getStartLine()));
