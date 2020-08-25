@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -220,19 +221,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        for (BLangTypeDefinition typeDefinition : pkgNode.typeDefinitions) {
+            analyzeNode(typeDefinition.typeNode, env);
+        }
+
         for (BLangFunction function : pkgNode.functions) {
-            boolean prevMarkedIsolated = this.markedIsolated;
-            boolean prevInferredIsolated = this.inferredIsolated;
-
-            markedIsolated = Symbols.isFlagOn(function.symbol.flags, Flags.ISOLATED);
             analyzeNode(function, env);
-
-            if (this.inferredIsolated && !Symbols.isFlagOn(function.symbol.flags, Flags.WORKER)) {
-                dlog.note(function.pos, DiagnosticCode.FUNCTION_CAN_BE_MARKED_ISOLATED, function.name);
-            }
-
-            this.inferredIsolated = prevInferredIsolated;
-            this.markedIsolated = prevMarkedIsolated;
         }
 
         pkgNode.completedPhases.add(CompilerPhase.ISOLATION_ANALYZE);
@@ -252,8 +246,20 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        boolean prevMarkedIsolated = this.markedIsolated;
+        boolean prevInferredIsolated = this.inferredIsolated;
+
+        markedIsolated = Symbols.isFlagOn(funcNode.symbol.flags, Flags.ISOLATED);
+
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         analyzeNode(funcNode.body, funcEnv);
+
+        if (!this.markedIsolated && this.inferredIsolated && !Symbols.isFlagOn(funcNode.symbol.flags, Flags.WORKER)) {
+            dlog.note(funcNode.pos, DiagnosticCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
+        }
+
+        this.inferredIsolated = prevInferredIsolated;
+        this.markedIsolated = prevMarkedIsolated;
     }
 
     @Override
@@ -293,12 +299,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
+        BLangType typeNode = constant.typeNode;
+        if (typeNode != null) {
+            analyzeNode(typeNode, env);
+        }
+
         analyzeNode(constant.expr, env);
     }
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-//        analyzeNode(varNode.typeNode, env);
+        analyzeNode(varNode.typeNode, env);
 
         BLangExpression expr = varNode.expr;
         if (expr == null) {
@@ -631,12 +642,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BType accessType = varRefExpr.type;
 
         BSymbol symbol = varRefExpr.symbol;
+        BLangInvokableNode enclInvokable = env.enclInvokable;
 
-        if (symbol == null) {
+        if (symbol == null || enclInvokable == null) {
             return;
         }
 
-        if (symbol.owner == env.enclInvokable.symbol) {
+        if (symbol.owner == enclInvokable.symbol) {
             return;
         }
 
