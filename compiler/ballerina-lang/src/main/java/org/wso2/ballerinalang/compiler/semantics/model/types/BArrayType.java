@@ -40,7 +40,6 @@ public class BArrayType extends BType implements ArrayType {
     public BType eType;
     public BIntersectionType immutableType;
 
-    public BLangExpression sizeExpression;// to aid in handling size as constant reference.
     public int size = -1;
 
     public BArrayState state = BArrayState.UNSEALED;
@@ -53,20 +52,6 @@ public class BArrayType extends BType implements ArrayType {
     public BArrayType(BType elementType, BTypeSymbol tsymbol) {
         super(TypeTags.ARRAY, tsymbol);
         this.eType = elementType;
-    }
-
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, BLangExpression sizeExpression, BArrayState state) {
-        super(TypeTags.ARRAY, tsymbol);
-        this.eType = elementType;
-        this.sizeExpression = sizeExpression;
-        this.state = state;
-    }
-
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, BLangExpression sizeExpression, BArrayState state, int flags) {
-        super(TypeTags.ARRAY, tsymbol, flags);
-        this.eType = elementType;
-        this.sizeExpression = sizeExpression;
-        this.state = state;
     }
 
     public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state) {
@@ -83,12 +68,8 @@ public class BArrayType extends BType implements ArrayType {
         this.state = state;
     }
 
-    public BLangExpression getSizeExpression(){return sizeExpression;}
-
     @Override
-    public int getSize() {
-        return size;
-    }
+    public int getSize() {return size;}
 
     @Override
     public BType getElementType() {
