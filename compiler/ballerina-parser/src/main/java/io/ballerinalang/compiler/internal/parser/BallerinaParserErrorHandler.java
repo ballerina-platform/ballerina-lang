@@ -915,8 +915,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.FUNCTION_KEYWORD;
                     break;
                 case IDENT_AFTER_OBJECT_IDENT:
-                    hasMatch = nextToken.kind == SyntaxKind.TYPE_KEYWORD ||
-                            nextToken.kind == SyntaxKind.FUNCTION_KEYWORD || nextToken.kind == SyntaxKind.FIELD_KEYWORD;
+                    hasMatch = nextToken.kind == SyntaxKind.FUNCTION_KEYWORD ||
+                            nextToken.kind == SyntaxKind.FIELD_KEYWORD;
                     break;
                 case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                     hasMatch = isSingleKeywordAttachPointIdent(nextToken.kind);
@@ -4607,9 +4607,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ANNOT_DECL_RHS:
                 return SyntaxKind.ON_KEYWORD;
             case ATTACH_POINT_IDENT:
-            case IDENT_AFTER_OBJECT_IDENT:
             case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                 return SyntaxKind.TYPE_KEYWORD;
+            case IDENT_AFTER_OBJECT_IDENT:
+                return SyntaxKind.FUNCTION_KEYWORD;
             case FIELD_IDENT:
                 return SyntaxKind.FIELD_KEYWORD;
             case FUNCTION_IDENT:

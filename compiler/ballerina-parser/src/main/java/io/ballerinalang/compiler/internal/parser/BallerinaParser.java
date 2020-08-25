@@ -6976,7 +6976,8 @@ public class BallerinaParser extends AbstractParser {
      * dual-attach-point := [source] dual-attach-point-ident
      * <br/><br/>
      * dual-attach-point-ident :=
-     *     [object] type
+     *     type
+     *     | class
      *     | [object|resource] function
      *     | parameter
      *     | return
@@ -7207,7 +7208,6 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseIdentAfterObjectIdent() {
         STToken token = peek();
         switch (token.kind) {
-            case TYPE_KEYWORD:
             case FUNCTION_KEYWORD:
             case FIELD_KEYWORD:
                 return consume();
