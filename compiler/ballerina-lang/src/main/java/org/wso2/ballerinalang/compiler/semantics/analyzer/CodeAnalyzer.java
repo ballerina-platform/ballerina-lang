@@ -263,6 +263,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Names names;
     private SymbolEnv env;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
+    private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
+    private final Stack<BType> onFailErrorType = new Stack<>();
     private boolean isJSONContext;
     private boolean enableExperimentalFeatures;
     private int commitCount;
@@ -1379,16 +1381,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDo doNode) {
+        this.errorTypes.push(new LinkedHashSet<>());
         boolean statementReturns = this.statementReturns;
         boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(doNode);
-        if (doNode.onFailClause != null) {
-            analyzeNode(doNode.onFailClause, env);
+        if(doNode.onFailClause != null) {
+            this.failureHandled = true;
         }
         analyzeNode(doNode.body, env);
         this.statementReturns = statementReturns;
         this.failureHandled = failureHandled;
         this.resetLastStatement();
+        if (doNode.onFailClause != null) {
+            analyzeNode(doNode.onFailClause, env);
+        }
+        this.errorTypes.pop();
     }
 
 
@@ -1403,13 +1410,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
-        failNode.expr.type = symTable.errorType;
+        typeChecker.checkExpr(failNode.expr, env);
 
         if (!this.failureHandled && !types.isAssignable(getErrorTypes(failNode.expr.type), exprType)) {
             dlog.error(failNode.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
-        returnTypes.peek().add(exprType);
+        this.errorTypes.peek().add(getErrorTypes(failNode.expr.type));
+        this.returnTypes.peek().add(exprType);
     }
 
     @Override
@@ -2725,7 +2733,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
             dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
-
+//        this.errorTypes.peek().add(getErrorTypes(checkedExpr.expr.type));
         returnTypes.peek().add(exprType);
     }
 
@@ -2827,7 +2835,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         this.returnWithinLambdaWrappingCheckStack.push(false);
-        this.failureHandled = true;
+        BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
+//        this.failureHandled = true;
+        for (BType errorType : errorTypes.peek()) {
+            if (!types.isAssignable(errorType, onFailVarNode.type)) {
+                dlog.error(onFailVarNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, errorType, onFailClause.varType);
+            }
+        }
         analyzeNode(onFailClause.body, env);
         onFailClause.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();
@@ -3049,7 +3063,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         types.checkType(receive, send.type, receive.type);
         addImplicitCast(send.type, receive);
         NodeKind kind = receive.parent.getKind();
-        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
+        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR ||
+                kind == NodeKind.FAIL) {
             typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
         receive.sendExpression = send.expr;

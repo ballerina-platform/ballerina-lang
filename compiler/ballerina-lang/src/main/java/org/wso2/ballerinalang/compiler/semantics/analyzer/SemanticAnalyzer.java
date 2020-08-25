@@ -2385,14 +2385,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        //TODO On-Fail Need to be sub type of error
-
-        // Create a new block environment for the foreach node's body.
+        // Create a new block environment for the onfail node's body.
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(onFailClause.body, env);
-        // Check foreach node's variables and set types.
+        // Check onfail node's variables and set types.
         handleDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
                 onFailClause.isDeclaredWithVar, blockEnv);
         analyzeStmt(onFailClause.body, blockEnv);
+        BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
+        if (!types.isAssignable(onFailVarNode.type, symTable.errorType)) {
+            dlog.error(onFailVarNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, onFailVarNode.type);
+        }
     }
 
     @Override
