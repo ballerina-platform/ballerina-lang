@@ -83,12 +83,3 @@ function assertEquality(any|error expected, any|error actual) {
     panic AssertionError(ASSERTION_ERROR_REASON,
             message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
-
-function assertTrue(boolean actual) {
-    if actual === true {
-        return;
-    }
-
-    panic AssertionError(ASSERTION_ERROR_REASON,
-            message = "expected 'true', found '" + actual.toString () + "'");
-}
