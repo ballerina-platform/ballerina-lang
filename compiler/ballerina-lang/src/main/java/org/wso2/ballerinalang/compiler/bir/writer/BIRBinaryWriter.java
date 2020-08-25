@@ -459,16 +459,14 @@ public class BIRBinaryWriter {
     }
 
     private void writeAnnotAttachValue(ByteBuf annotBuf, BIRAnnotationValue annotValue) {
+        writeType(annotBuf, annotValue.type);
         if (annotValue.type.tag == TypeTags.ARRAY) {
-            writeType(annotBuf, annotValue.type);
             BIRAnnotationArrayValue annotArrayValue = (BIRAnnotationArrayValue) annotValue;
             annotBuf.writeInt(annotArrayValue.annotArrayValue.length);
             for (BIRAnnotationValue annotValueEntry : annotArrayValue.annotArrayValue) {
                 writeAnnotAttachValue(annotBuf, annotValueEntry);
             }
-
         } else if (annotValue.type.tag == TypeTags.RECORD || annotValue.type.tag == TypeTags.MAP) {
-            writeType(annotBuf, annotValue.type);
             BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) annotValue;
             annotBuf.writeInt(annotRecValue.annotValueEntryMap.size());
             for (Map.Entry<String, BIRAnnotationValue> annotValueEntry : annotRecValue.annotValueEntryMap.entrySet()) {
