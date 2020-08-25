@@ -191,6 +191,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewStructure extends BIRNonTerminator {
         public BIROperand rhsOp;
         public List<BIRMappingConstructorEntry> initialValues;
+        private BIROperand[] rhsOperands = null;
 
         public NewStructure(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, InstructionKind.NEW_STRUCTURE);
@@ -214,7 +215,27 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         @Override
         public BIROperand[] getRhsOperands() {
-            return new BIROperand[]{rhsOp};
+            if (rhsOperands == null) {
+                populateRhsOperands();
+            }
+            return rhsOperands.clone();
+        }
+
+        private void populateRhsOperands() {
+            List<BIROperand> ls = new ArrayList<>();
+            if (initialValues != null) {
+                initialValues.forEach(ent -> {
+                    ls.add(ent.getOperands()[0]);
+                    if (ent.isKeyValuePair()) {
+                        ls.add(ent.getOperands()[1]);
+                    }
+                });
+            }
+            rhsOperands = new BIROperand[ls.size() + 1];
+            for (int i = 0; i < ls.size(); i++) {
+                rhsOperands[i] = ls.get(i);
+            }
+            rhsOperands[ls.size()] = rhsOp;
         }
     }
 

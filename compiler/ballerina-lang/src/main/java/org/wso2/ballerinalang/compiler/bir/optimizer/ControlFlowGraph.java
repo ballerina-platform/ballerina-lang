@@ -77,6 +77,7 @@ public class ControlFlowGraph {
         connectNodesAcrossBasicBlocks();
     }
 
+
     private void connectNodesAcrossBasicBlocks() {
         funcBasicBlockLastNodeMap.forEach((birBasicBlock, node) -> {
             BIRTerminator terminator = birBasicBlock.terminator;
@@ -96,6 +97,17 @@ public class ControlFlowGraph {
 
     public List<Node> getNodes() {
         return nodes;
+    }
+
+    public void removeNode(BIRAbstractInstruction instruction) {
+        nodes.removeIf(node -> {
+            if (node.instruction == instruction) {
+                node.predecessors.forEach(n -> n.successors = node.successors);
+                node.successors.forEach(n -> n.predecessors = node.predecessors);
+                return true;
+            }
+            return false;
+        });
     }
 
     static class Node {
