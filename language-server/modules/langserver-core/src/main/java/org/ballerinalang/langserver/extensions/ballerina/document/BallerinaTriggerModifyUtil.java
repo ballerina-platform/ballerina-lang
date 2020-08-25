@@ -147,7 +147,7 @@ public class BallerinaTriggerModifyUtil {
                 //replace main
                 if (MAIN.equalsIgnoreCase(type)) {
                     edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START_MODIFY",
-                            mainFunction.get().getPosition().getStartLine(),
+                            mainFunction.get().getPosition().getStartLine() - 1,
                             mainFunction.get().getPosition().getStartColumn(),
                             mainFunction.get().getBody().getPosition().getStartLine(),
                             mainFunction.get().getBody().getPosition().getStartColumn() + 1));
