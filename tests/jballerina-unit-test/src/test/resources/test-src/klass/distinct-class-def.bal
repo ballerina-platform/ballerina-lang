@@ -40,6 +40,18 @@ class X {
     }
 }
 
+class Baz {
+    *Foo;
+
+    function init(int i) {
+        self.i = i;
+    }
+}
+
+class Claz {
+
+}
+
 function testDistinctAssignability() {
     Bar b = new(1);
     Foo f = b; // Can assign value of distinct subtype to a super type.
@@ -55,7 +67,18 @@ function testDistinctAssignability() {
     assertEquality(z.i, 33);
 }
 
-function assertEquality(any|error expected, any|error actual) {
+function testDistinctTypeIsType() {
+    Bar b = new(1);
+    Claz c = b;
+    assertEquality(c is Bar, true);
+    assertEquality(c is Foo, true);
+    assertEquality(c is Baz, true);
+
+    Baz z = new(1);
+    assertEquality(z is Bar, false);
+}
+
+function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }

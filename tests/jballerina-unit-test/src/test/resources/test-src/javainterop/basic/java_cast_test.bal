@@ -88,7 +88,7 @@ public function testJavaCastMissingAnnotation2() returns string|error {
 @java:Binding {
   'class: "java.lang.String"
 }
-public type String1 object {
+public class String1 {
 
     *java:JObject;
 
@@ -99,26 +99,26 @@ public type String1 object {
     public function toString() returns string {
         return java:jObjToString(self.jObj);
     }
-};
+}
 
 // Object Case1: Correct object
 @java:Binding {
   'class: "java.lang.Object"
 }
-public type Object1 object {
+public class Object1 {
 
     *java:JObject;
 
     public function init(handle obj) {
         self.jObj = obj;
     }
-};
+}
 
 // ArrayList Case1: Correct object
 @java:Binding {
   'class: "java.util.ArrayList"
 }
-public type ArrayList1 object {
+public class ArrayList1 {
 
     *java:JObject;
 
@@ -134,10 +134,10 @@ public type ArrayList1 object {
         Object1 obj = new(java_util_ArrayList_get(self.jObj, arg0));
         return obj;
     }
-};
+}
 
 // String Case2: object with missing annotation
-public type String2 object {
+public class String2 {
 
     *java:JObject;
 
@@ -148,23 +148,23 @@ public type String2 object {
     public function toString() returns string {
         return java:jObjToString(self.jObj);
     }
-};
+}
 
 // Object Case2: object with missing annotation
-public type Object2 object {
+public class Object2 {
 
     *java:JObject;
 
     public function init(handle obj) {
         self.jObj = obj;
     }
-};
+}
 
 // ArrayList Case2: using an Object2
 @java:Binding {
   'class: "java.util.ArrayList"
 }
-public type ArrayList2 object {
+public class ArrayList2 {
 
     *java:JObject;
 
@@ -180,13 +180,13 @@ public type ArrayList2 object {
         Object2 obj = new(java_util_ArrayList_get(self.jObj, arg0));
         return obj;
     }
-};
+}
 
 // String Case3: wrong class in annotation
 @java:Binding {
   'class: "java.lang.Str"
 }
-public type String3 object {
+public class String3 {
 
     *java:JObject;
 
@@ -197,26 +197,26 @@ public type String3 object {
     public function toString() returns string {
         return java:jObjToString(self.jObj);
     }
-};
+}
 
 // Object Case3: wrong class in annotation
 @java:Binding {
   'class: "java.lang.Objecte"
 }
-public type Object3 object {
+public class Object3 {
 
     *java:JObject;
 
     public function init(handle obj) {
         self.jObj = obj;
     }
-};
+}
 
 // ArrayList Case3: using an Object3
 @java:Binding {
   'class: "java.util.ArrayList"
 }
-public type ArrayList3 object {
+public class ArrayList3 {
 
     *java:JObject;
 
@@ -232,13 +232,13 @@ public type ArrayList3 object {
         Object3 obj = new(java_util_ArrayList_get(self.jObj, arg0));
         return obj;
     }
-};
+}
 
 // String Case4: Object with incorrect initialization type
 @java:Binding {
   'class: "java.lang.String"
 }
-public type String4 object {
+public class String4 {
 
     *java:JObject;
 
@@ -249,7 +249,7 @@ public type String4 object {
     public function toString() returns string {
         return java:jObjToString(self.jObj);
     }
-};
+}
 
 public function newArrayList1() returns ArrayList1 {
     handle obj = java_util_ArrayList_newArrayList();

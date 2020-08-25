@@ -15,7 +15,7 @@
 // under the License.
 
 # Represent the iterator type returned when `iterator` method is invoked.
-type XMLIterator object {
+class XMLIterator {
 
     private xml m;
 
@@ -28,4 +28,4 @@ type XMLIterator object {
     public function next() returns record {|
         (xml|string) value;
     |}? = external;
-};
+}

@@ -1,4 +1,4 @@
-type Iterable object {
+class Iterable {
     public function __iterator() returns abstract object {public function next() returns record {|int value;|}?;
     } {
         object {
@@ -20,7 +20,7 @@ type Iterable object {
         } sample = new;
         return sample;
     }
-};
+}
 
 public function testIterableObject() returns int[] {
     Iterable p = new Iterable();
@@ -32,7 +32,7 @@ public function testIterableObject() returns int[] {
     return integers;
 }
 
-type AnotherIterable object {
+class AnotherIterable {
     public function __iterator() returns abstract object {public function next() returns record {|Iterable value;|}?;
     } {
         object {
@@ -53,7 +53,7 @@ type AnotherIterable object {
         } sample = new;
         return sample;
     }
-};
+}
 
 public function testNestedIterableObject() returns int[] {
     AnotherIterable p = new AnotherIterable();

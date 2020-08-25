@@ -1,4 +1,4 @@
-type Iterable1 object {
+class Iterable1 {
     public function __iterator() returns abstract object {public function next() returns record {int value;}?;
     } {
         object {
@@ -20,9 +20,9 @@ type Iterable1 object {
         } sample = new;
         return sample;
     }
-};
+}
 
-type Iterable2 object {
+class Iterable2 {
     public function __iterator() returns abstract object {public function next() returns record {|int value;|};
     } {
         object {
@@ -40,9 +40,9 @@ type Iterable2 object {
         } sample = new;
         return sample;
     }
-};
+}
 
-type Iterable3 object {
+class Iterable3 {
     public function __iterator() returns abstract object {public function next() returns record {|int x;|}?;
     } {
         object {
@@ -60,9 +60,9 @@ type Iterable3 object {
         } sample = new;
         return sample;
     }
-};
+}
 
-type Iterable4 object {
+class Iterable4 {
     public function __iterator() returns abstract object {public function foo() returns record {|int value;|}?;
     } {
         object {
@@ -84,9 +84,9 @@ type Iterable4 object {
         } sample = new;
         return sample;
     }
-};
+}
 
-type Iterable5 object {
+class Iterable5 {
     public function _iterator() returns abstract object {public function next() returns record {|int value;|}?;
     } {
         object {
@@ -108,7 +108,7 @@ type Iterable5 object {
         } sample = new;
         return sample;
     }
-};
+}
 
 // ------------------- Error Related Tests -------------------
 type CustomErrorData record {|
@@ -119,7 +119,7 @@ type CustomErrorData record {|
 
 type CustomError error<CustomErrorData>;
 
-type Iterable6 object {
+class Iterable6 {
     public function __iterator() returns abstract object {public function next() returns record {|int value;|}?;
     } {
         object {
@@ -141,9 +141,9 @@ type Iterable6 object {
         } sample = new;
         return sample;
     }
-};
+}
 
-type Iterable7 object {
+class Iterable7 {
     public function __iterator() returns abstract object {public function next() returns record {|int value;|}|CustomError?;
     } {
         object {
@@ -165,9 +165,9 @@ type Iterable7 object {
         } sample = new;
         return sample;
     }
-};
+}
 
-type Iterable8 object {
+class Iterable8 {
     public function __iterator() returns abstract object {public function next() returns record {|int value;|}|error?;
     } {
         object {
@@ -189,9 +189,9 @@ type Iterable8 object {
         } sample = new;
         return sample;
     }
-};
+}
 
-type Iterable9 object {
+class Iterable9 {
     public function __iterator() returns abstract object {public function next() returns record {|int value;|}|CustomError?;
     } {
         object {
@@ -213,7 +213,7 @@ type Iterable9 object {
         } sample = new;
         return sample;
     }
-};
+}
 
 public function testIterableObject() {
     int[] integers = [];
