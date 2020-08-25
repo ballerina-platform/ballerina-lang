@@ -180,7 +180,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.ARG_END, ParserRuleContext.ASSIGN_OP };
 
     private static final ParserRuleContext[] OBJECT_FIELD_RHS =
-            { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] OBJECT_MEMBER_START =
             { ParserRuleContext.DOC_STRING, ParserRuleContext.ANNOTATIONS, ParserRuleContext.ASTERISK,
@@ -1160,6 +1160,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case EQUALS_KEYWORD:
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
+            case CLASS_KEYWORD:
                 return true;
             default:
                 return false;
@@ -3525,15 +3526,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end body block
                 return getNextRuleForCloseBraceInFuncBody();
             case SERVICE_DECL:
+            case MODULE_CLASS_DEFINITION:
                 endContext();
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case OBJECT_MEMBER:
                 endContext(); // end object member
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.MODULE_CLASS_DEFINITION) {
-                    endContext();
-                    return ParserRuleContext.TOP_LEVEL_NODE;
-                }
                 // fall through
             case RECORD_TYPE_DESCRIPTOR:
             case OBJECT_TYPE_DESCRIPTOR:
@@ -4716,6 +4713,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.JOIN_KEYWORD;
             case OUTER_KEYWORD:
                 return SyntaxKind.OUTER_KEYWORD;
+            case CLASS_KEYWORD:
+                return SyntaxKind.CLASS_KEYWORD;
             default:
                 return SyntaxKind.NONE;
         }
