@@ -40,8 +40,7 @@ import java.util.stream.Collectors;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class SyncSendActionNodeContext extends AbstractCompletionProvider<SyncSendActionNode> {
     public SyncSendActionNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(SyncSendActionNode.class);
+        super(SyncSendActionNode.class);
     }
 
     @Override

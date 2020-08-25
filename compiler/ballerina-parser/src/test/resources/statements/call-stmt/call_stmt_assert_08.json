@@ -90,7 +90,12 @@
                               "children": [
                                 {
                                   "kind": "STRING_LITERAL",
-                                  "value": "Name"
+                                  "children": [
+                                    {
+                                      "kind": "STRING_LITERAL_TOKEN",
+                                      "value": "Name"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "COLON_TOKEN"

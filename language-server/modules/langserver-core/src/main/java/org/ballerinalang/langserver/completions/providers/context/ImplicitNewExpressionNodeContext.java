@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
@@ -50,8 +51,7 @@ import java.util.Optional;
 public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider<ImplicitNewExpressionNode> {
 
     public ImplicitNewExpressionNodeContext() {
-        super(Kind.EXPRESSION);
-        this.attachmentPoints.add(ImplicitNewExpressionNode.class);
+        super(ImplicitNewExpressionNode.class);
     }
 
     @Override
@@ -83,6 +83,9 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
             case LOCAL_VAR_DECL:
                 typeDescriptor = ((VariableDeclarationNode) node.parent()).typedBindingPattern().typeDescriptor();
                 break;
+            case ASSIGNMENT_STATEMENT:
+                Node varRef = ((AssignmentStatementNode) node.parent()).varRef();
+                return this.getObjectTypeForVarRef(context, varRef);
             default:
                 return Optional.empty();
         }
@@ -91,7 +94,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
-            
+
             Optional<Scope.ScopeEntry> pkgSymbol = CommonUtil.packageSymbolFromAlias(context,
                     QNameReferenceUtil.getAlias(nameReferenceNode));
             if (!pkgSymbol.isPresent()) {
@@ -112,5 +115,22 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
 
         return scopeEntry == null || scopeEntry.symbol.kind != SymbolKind.OBJECT
                 ? Optional.empty() : Optional.of((BObjectTypeSymbol) scopeEntry.symbol);
+    }
+    
+    private Optional<BObjectTypeSymbol> getObjectTypeForVarRef(LSContext context, Node varRefNode) {
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        if (varRefNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return Optional.empty();
+        }
+        String varName = ((SimpleNameReferenceNode) varRefNode).name().text();
+        Optional<Scope.ScopeEntry> varEntry = visibleSymbols.stream()
+                .filter(entry -> entry.symbol.name.value.equals(varName))
+                .findAny();
+        
+        if (!varEntry.isPresent() || !(varEntry.get().symbol.type.tsymbol instanceof BObjectTypeSymbol)) {
+            return Optional.empty();
+        }
+        
+        return Optional.of((BObjectTypeSymbol) varEntry.get().symbol.type.tsymbol);
     }
 }

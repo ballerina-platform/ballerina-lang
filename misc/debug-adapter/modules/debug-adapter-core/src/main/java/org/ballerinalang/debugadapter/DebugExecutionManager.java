@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Debug process related low-level task executor through JDI.
@@ -80,17 +79,17 @@ public class DebugExecutionManager {
     /**
      * Evaluates a given ballerina expression w.r.t. the provided debug state(stack frame).
      */
-    public Optional<Value> evaluate(SuspendedContext context, String expression) {
+    public Value evaluate(SuspendedContext context, String expression) {
         try {
             EvaluatorBuilder exprTransformer = new EvaluatorBuilder(context);
             Evaluator evaluator = exprTransformer.build(expression);
-            return Optional.ofNullable(evaluator.evaluate().getJdiValue());
+            return evaluator.evaluate().getJdiValue();
         } catch (EvaluationException e) {
-            return Optional.ofNullable(attachedVm.mirrorOf(e.getMessage()));
+            return attachedVm.mirrorOf(e.getMessage());
         } catch (Exception e) {
             String message = EvaluationExceptionKind.PREFIX + "internal error";
             LOGGER.error(message, e);
-            return Optional.ofNullable(attachedVm.mirrorOf(message));
+            return attachedVm.mirrorOf(message);
         }
     }
 }
