@@ -187,17 +187,19 @@ public class AnnotationDesugar {
         }
 
         for (BLangSimpleVariable field : classDefinition.fields) {
-            BLangLambdaFunction paramAnnotLambda = defineAnnotations(field.annAttachments, field.pos, pkgNode, env,
-                    pkgID, owner);
-            if (paramAnnotLambda != null) {
-                if (function != null) {
-                    function = defineFunction(classDefinition.pos, pkgID, owner);
-                    mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
-                }
-
-                addInvocationToLiteral(mapLiteral, FIELD + DOT + field.name.value,
-                        field.annAttachments.get(0).pos, paramAnnotLambda);
+            BLangLambdaFunction paramAnnotLambda =
+                    defineAnnotations(field.annAttachments, field.pos, pkgNode, env, pkgID, owner);
+            if (paramAnnotLambda == null) {
+                continue;
             }
+
+            if (function != null) {
+                function = defineFunction(classDefinition.pos, pkgID, owner);
+                mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
+            }
+
+            String fieldName = FIELD + DOT + field.name.value;
+            addInvocationToLiteral(mapLiteral, fieldName, field.annAttachments.get(0).pos, paramAnnotLambda);
         }
 
         if (function != null && !mapLiteral.fields.isEmpty()) {
