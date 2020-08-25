@@ -33,8 +33,10 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
+import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
@@ -42,7 +44,9 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -91,8 +95,11 @@ public class JvmCodeGenUtil {
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
     public static final String INITIAL_MEHOD_DESC = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
 
-    private JvmCodeGenUtil() {
+    public static final String SCOPE_PREFIX = "_SCOPE_";
+    private static BirScope lastScope = null;
+    private static Set<BirScope> visitedScopesSet = new HashSet<>();
 
+    private JvmCodeGenUtil() {
     }
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
@@ -517,17 +524,49 @@ public class JvmCodeGenUtil {
             mv.visitLabel(insLabel);
             BIRInstruction inst = bb.instructions.get(i);
             if (inst != null) {
-                generateDiagnosticPos(((BIRNode) inst).pos, mv);
+                generateDiagnosticPos((BIRAbstractInstruction) inst, funcName, mv, labelGen);
                 instGen.generateInstructions(localVarOffset, asyncDataCollector, inst);
             }
         }
     }
 
+    private static void generateDiagnosticPos(BIRAbstractInstruction instruction, String funcName, MethodVisitor mv,
+            LabelGenerator labelGen) {
+
+        BirScope scope = instruction.scope;
+        if (scope != null && scope != lastScope) {
+            lastScope = scope;
+            Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id);
+            generateDiagnosticPos(instruction.pos, mv, scopeLabel);
+            storeLabelForParentScopes(scope, scopeLabel, labelGen, funcName);
+            visitedScopesSet.add(scope);
+        } else {
+            generateDiagnosticPos(instruction.pos, mv);
+        }
+    }
+
     public static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv) {
+        Label label = new Label();
+        generateDiagnosticPos(pos, mv, label);
+    }
+
+    private static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv, Label label) {
         if (pos != null && pos.sLine != 0x80000000) {
-            Label label = new Label();
             mv.visitLabel(label);
             mv.visitLineNumber(pos.sLine, label);
+        }
+    }
+
+    private static void storeLabelForParentScopes(BirScope scope, Label scopeLabel, LabelGenerator labelGen,
+            String funcName) {
+
+        BirScope parent = scope.parent;
+        if (parent != null && !visitedScopesSet.contains(parent)) {
+            String labelName = funcName + SCOPE_PREFIX + parent.id;
+            labelGen.putLabel(labelName, scopeLabel);
+            visitedScopesSet.add(parent);
+
+            storeLabelForParentScopes(parent, scopeLabel, labelGen, funcName);
         }
     }
 
