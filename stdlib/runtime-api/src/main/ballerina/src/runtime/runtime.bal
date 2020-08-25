@@ -43,6 +43,7 @@ public type Module record {|
 # ```
 # + return - The `runtime:Module` instance
 public function getCurrentModule() returns Module = @java:Method {
-    class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetCurrentModule"
+    class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetCurrentModule",
+    name: "getCurrentModule"
 } external;
 
