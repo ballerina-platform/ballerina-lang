@@ -31,7 +31,7 @@
       "kind": "BINARY_EXPRESSION",
       "children": [
         {
-          "kind": "NULL_KEYWORD",
+          "kind": "NULL_LITERAL",
           "children": [
             {
               "kind": "NULL_KEYWORD",

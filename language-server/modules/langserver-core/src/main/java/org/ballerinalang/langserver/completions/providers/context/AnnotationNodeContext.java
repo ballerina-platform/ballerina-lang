@@ -75,6 +75,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
         String finalAlias = annotRef.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE ? null
                 : ((QualifiedNameReferenceNode) annotRef).modulePrefix().text();
         Map<String, String> pkgAliasMap = context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
+                .filter(pkg -> pkg.symbol != null)
                 .collect(Collectors.toMap(pkg -> pkg.symbol.pkgID.toString(), pkg -> pkg.alias.value));
 
         LSAnnotationCache.getInstance().getAnnotationMapForType(attachedNode, context)
