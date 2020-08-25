@@ -34,7 +34,7 @@ dependencies {
     implementation project(':ballerina-file')
     // implementation project(':ballerina-grpc')
     implementation project(':ballerina-http')
-    implementation project(':ballerina-io')
+    // implementation project(':ballerina-io')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-math')
     implementation project(':ballerina-mime')
@@ -53,7 +53,7 @@ dependencies {
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.testng:testng'
 
-    interopImports project(':ballerina-io')
+    //  interopImports project(':ballerina-io')
 
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.swagger.core.v3:swagger-models'
