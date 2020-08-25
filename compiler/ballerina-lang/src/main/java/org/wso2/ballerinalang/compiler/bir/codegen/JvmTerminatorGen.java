@@ -18,7 +18,9 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -43,6 +45,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -95,6 +100,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_O
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALLER_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
@@ -145,8 +151,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.loadDefau
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.CLASS_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.NAME_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.checkCallerEnvParamForExtern;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.isBallerinaBuiltinModule;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.genVarArg;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.INTEROP_ANNOT_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.INTEROP_ANNOT_ORG;
 
 /**
  * BIR terminator instruction generator class to keep track of method visitor and index map.
@@ -240,7 +251,7 @@ public class JvmTerminatorGen {
 
     void genTerminator(BIRTerminator terminator, String moduleClassName, BIRNode.BIRFunction func,
                        String funcName, int localVarOffset, int returnVarRefIndex,
-                       BType attachedType, AsyncDataCollector asyncDataCollector) {
+                       BType attachedType, boolean hasCallerEnvParam, AsyncDataCollector asyncDataCollector) {
 
         switch (terminator.kind) {
             case LOCK:
@@ -292,7 +303,8 @@ public class JvmTerminatorGen {
                     this.genJCallTerm((JavaMethodCall) terminator, attachedType, localVarOffset);
                     return;
                 } else if (terminator instanceof JIMethodCall) {
-                    this.genJICallTerm((JIMethodCall) terminator, localVarOffset);
+                    this.genJICallTerm((JIMethodCall) terminator, localVarOffset,
+                                       hasCallerEnvParam);
                     return;
                 } else if (terminator instanceof JIConstructorCall) {
                     this.genJIConstructorTerm((JIConstructorCall) terminator,
@@ -458,7 +470,8 @@ public class JvmTerminatorGen {
         this.mv.visitLabel(notBlockedOnExternLabel);
     }
 
-    private void genJICallTerm(JIMethodCall callIns, int localVarOffset) {
+
+    private void genJICallTerm(JIMethodCall callIns, int localVarOffset, boolean hasCallerEnvParam) {
         // Load function parameters of the target Java method to the stack..
         Label blockedOnExternLabel = new Label();
         Label notBlockedOnExternLabel = new Label();
@@ -477,6 +490,9 @@ public class JvmTerminatorGen {
         this.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
 
         this.mv.visitLabel(blockedOnExternLabel);
+        if (hasCallerEnvParam) {
+            this.mv.visitVarInsn(ALOAD, localVarOffset + 1);
+        }
         boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
 
         int argIndex = 0;
@@ -651,7 +667,25 @@ public class JvmTerminatorGen {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         String lookupKey = getPackageName(orgName, moduleName, version) + methodLookupName;
+        BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
+        BInvokableSymbol funcSymbol = null;
+        BInvokableType type;
+        boolean hasCallerEnvParam = false;
+        if (functionWrapper != null) {
+            type = functionWrapper.func.type;
+            hasCallerEnvParam = functionWrapper.hasCallerEnvParam;
+        } else {
+            BPackageSymbol symbol = packageCache.getSymbol(orgName + "/" + moduleName);
+            funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
+            type = (BInvokableType) funcSymbol.type;
+            if (callIns.calleeFlags.contains(Flag.NATIVE)) {
+                hasCallerEnvParam = hasCallerEnvParam(methodName, funcSymbol, type, hasCallerEnvParam);
+            }
+        }
 
+        if (hasCallerEnvParam) {
+            genCallerEnv(callIns);
+        }
         int argsCount = callIns.args.size();
         int i = 0;
         while (i < argsCount) {
@@ -661,16 +695,12 @@ public class JvmTerminatorGen {
             i += 1;
         }
         String cleanMethodName = cleanupFunctionName(methodName);
-        BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
         String methodDesc;
         String jvmClass;
         if (functionWrapper != null) {
             jvmClass = functionWrapper.fullQualifiedClassName;
             methodDesc = functionWrapper.jvmMethodDescription;
         } else {
-            BPackageSymbol symbol = packageCache.getSymbol(orgName + "/" + moduleName);
-            BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
-            BInvokableType type = (BInvokableType) funcSymbol.type;
             ArrayList<BType> params = new ArrayList<>(type.paramTypes);
             if (type.restType != null) {
                 params.add(type.restType);
@@ -689,9 +719,56 @@ public class JvmTerminatorGen {
                                                cleanupPathSeperators(cleanupBalExt(balFileName)));
             //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
             BType retType = typeBuilder.build(type.retType);
-            methodDesc = getMethodDesc(params, retType, null, false);
+            methodDesc = getMethodDesc(params, retType, null, false, hasCallerEnvParam);
         }
-        this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
+        this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, hasCallerEnvParam);
+    }
+
+    private boolean hasCallerEnvParam(String methodName, BInvokableSymbol funcSymbol, BInvokableType type,
+                                      boolean hasCallerEnvParam) {
+        String classValue = null;
+        String methodValue = methodName;
+        for (BLangAnnotationAttachment annAttachment : funcSymbol.annAttachments) {
+            if (INTEROP_ANNOT_ORG.equals(annAttachment.annotationSymbol.pkgID.orgName.value) &&
+                    INTEROP_ANNOT_MODULE.equals(annAttachment.annotationSymbol.pkgID.name.value) &&
+                    annAttachment.expr instanceof BLangRecordLiteral) {
+                BLangRecordLiteral annotationMap = (BLangRecordLiteral) annAttachment.expr;
+                for (RecordLiteralNode.RecordField recordField : annotationMap.fields) {
+                    BLangRecordLiteral.BLangRecordKeyValueField field =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
+                    Object key = ((BLangLiteral) field.key.expr).value;
+                    if (field.valueExpr instanceof BLangLiteral) {
+                        Object value = ((BLangLiteral) field.valueExpr).value;
+                        if (key.equals(CLASS_FIELD_NAME)) {
+                            classValue = value.toString();
+                        } else if (key.equals(NAME_FIELD_NAME)) {
+                            methodValue = value.toString();
+                        }
+                    }
+                }
+            }
+        }
+        if (classValue != null && checkCallerEnvParamForExtern(jvmPackageGen.interopValidator, classValue,
+                                                               methodValue, type)) {
+            hasCallerEnvParam = true;
+        }
+        return hasCallerEnvParam;
+    }
+
+    private void genCallerEnv(BIRTerminator.Call callIns) {
+
+        mv.visitTypeInsn(NEW, CALLER_ENV);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(callIns.pos.src.pkgID.orgName.value);
+        mv.visitLdcInsn(callIns.pos.src.pkgID.name.value);
+        mv.visitLdcInsn(callIns.pos.src.pkgID.version.value);
+        mv.visitLdcInsn(callIns.pos.src.cUnitName);
+        mv.visitLdcInsn(callIns.pos.sLine);
+        mv.visitLdcInsn(callIns.pos.eLine);
+        mv.visitLdcInsn(callIns.pos.sCol);
+        mv.visitLdcInsn(callIns.pos.eCol);
+        mv.visitMethodInsn(INVOKESPECIAL, CALLER_ENV, "<init>", String.format("(L%s;L%s;L%s;L%s;IIII)V", STRING_VALUE
+                , STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
     }
 
     private void genVirtualCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset) {

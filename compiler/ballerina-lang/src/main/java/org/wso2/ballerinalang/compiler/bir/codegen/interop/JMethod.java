@@ -38,13 +38,16 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
  *
  * @since 1.2.0
  */
-class JMethod {
+public class JMethod {
 
     static final JMethod NO_SUCH_METHOD = new JMethod(null, null, null);
 
     JMethodKind kind;
     private Executable method;
+
     private BType receiverType;
+
+    private boolean callerEnvParam;
 
     private JMethod(JMethodKind kind, Executable executable, BType receiverType) {
 
@@ -107,7 +110,7 @@ class JMethod {
         }
     }
 
-    Class<?>[] getParamTypes() {
+    public Class<?>[] getParamTypes() {
 
         return method.getParameterTypes();
     }
@@ -166,5 +169,13 @@ class JMethod {
             throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
         return checkedExceptions.toArray(new Class[0]);
+    }
+
+    public boolean hasCallerEnvParam() {
+        return callerEnvParam;
+    }
+
+    public void setCallerEnvParam(boolean callerEnvParam) {
+        this.callerEnvParam = callerEnvParam;
     }
 }

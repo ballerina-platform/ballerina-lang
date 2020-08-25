@@ -346,7 +346,7 @@ class JvmValueGen {
         }
     }
 
-    private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs,
+    private void createObjectMethods(ClassWriter cw, List<BIRFunction> attachedFuncs,
                                      String moduleClassName, String typeName, BObjectType currentObjectType,
                                      AsyncDataCollector asyncDataCollector) {
 
@@ -426,7 +426,7 @@ class JvmValueGen {
             String methodSig;
 
             // use index access, since retType can be nil.
-            methodSig = getMethodDesc(paramTypes, retType, null, false);
+            methodSig = getMethodDesc(paramTypes, retType, null, false, false);
 
             // load self
             mv.visitVarInsn(ALOAD, 0);
@@ -720,7 +720,7 @@ class JvmValueGen {
         return jvmPackageGen.getBytes(cw, typeDef);
     }
 
-    private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
+    private void createRecordMethods(ClassWriter cw, List<BIRFunction> attachedFuncs, String moduleClassName,
                                      AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {

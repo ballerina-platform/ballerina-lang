@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.jvm.scheduling.CallerEnv;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BDecimal;
@@ -33,6 +34,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -111,6 +113,24 @@ class JMethodResolver {
         return jMethod;
     }
 
+    boolean checkCallerEnvParam(Class<?> clazz, String methodName, BInvokableType bFunctionType) {
+
+        int bFuncParamCount = bFunctionType.paramTypes.size();
+        if (bFunctionType.restType != null) {
+            bFuncParamCount++;
+        }
+        List<JMethod> jMethods = resolveByMethodName(clazz, methodName, JMethodKind.METHOD);
+        int paramCount = getBFuncParamCount(bFuncParamCount, jMethods);
+
+        jMethods = resolveByParamCount(jMethods, paramCount, bFunctionType.restType);
+        for (JMethod jMethod : jMethods) {
+            if (jMethod.hasCallerEnvParam() && paramCount + 1 == jMethod.getParamTypes().length) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private List<JMethod> resolveByMethodName(Class<?> declaringClass,
                                               String methodName,
                                               JMethodKind kind) {
@@ -122,18 +142,42 @@ class JMethodResolver {
     }
 
     private List<JMethod> resolveByParamCount(List<JMethod> jMethods, int paramCount, BType receiverType) {
-
-        return jMethods.stream()
-                .filter(jMethod -> {
-                    if (jMethod.getParamTypes().length == paramCount) {
-                        return true;
-                    } else if (receiverType != null && jMethod.getParamTypes().length == paramCount + 1) {
-                        jMethod.setReceiverType(receiverType);
-                        return true;
+        List<JMethod> methods = new ArrayList<>();
+        for (JMethod jMethod : jMethods) {
+            Class<?>[] paramTypes = jMethod.getParamTypes();
+            if (paramTypes.length == paramCount) {
+                methods.add(jMethod);
+            } else if (paramTypes.length == paramCount + 1) {
+                // We can have either CallerEnv parameter or receiver object as first arg.
+                if (receiverType != null) {
+                    jMethod.setReceiverType(receiverType);
+                    methods.add(jMethod);
+                } else {
+                    boolean instanceMethod = jMethod.isInstanceMethod();
+                    Class<?> paramType = paramTypes[0];
+                    if (instanceMethod && paramTypes.length > 1) {
+                        paramType = paramTypes[1];
                     }
-                    return false;
-                })
-                .collect(Collectors.toList());
+                    if (paramType.getCanonicalName().equals(CallerEnv.class.getCanonicalName())) {
+                        jMethod.setCallerEnvParam(true);
+                        methods.add(jMethod);
+                    }
+                }
+            } else if (paramTypes.length == paramCount + 2 && receiverType != null) {
+                // We can have CallerEnv parameter as first arg and receiver object as second arg as second.
+                jMethod.setReceiverType(receiverType);
+                boolean instanceMethod = jMethod.isInstanceMethod();
+                Class<?> paramType = paramTypes[0];
+                if (instanceMethod && paramTypes.length > 1) {
+                    paramType = paramTypes[1];
+                }
+                if (paramType.getCanonicalName().equals(CallerEnv.class.getCanonicalName())) {
+                    jMethod.setCallerEnvParam(true);
+                    methods.add(jMethod);
+                }
+            }
+        }
+        return methods;
     }
 
     private JMethod resolve(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
@@ -239,7 +283,11 @@ class JMethodResolver {
 
         if (jMethod.isInstanceMethod()) {
             if (bParamCount != jParamTypes.length + 1) {
-                throw getParamCountMismatchError(jMethodRequest);
+                if (jMethod.hasCallerEnvParam()) {
+                    j++;
+                } else {
+                    throw getParamCountMismatchError(jMethodRequest);
+                }
             }
 
             BType receiverType = bParamTypes[0];
@@ -249,7 +297,11 @@ class JMethodResolver {
             }
             i++;
         } else if (bParamCount != jParamTypes.length) {
-            throw getParamCountMismatchError(jMethodRequest);
+            if (jMethod.hasCallerEnvParam()) {
+                j++;
+            } else {
+                throw getParamCountMismatchError(jMethodRequest);
+            }
         }
 
         for (int k = j; k < jParamTypes.length; i++, k++) {
@@ -563,6 +615,16 @@ class JMethodResolver {
         if (executable != null) {
             return JMethod.build(kind, executable, receiverType);
         } else {
+            Class<?>[] paramTypesWithCallerEnv = new Class<?>[constraints.length + 1];
+            paramTypesWithCallerEnv[0] = CallerEnv.class;
+            System.arraycopy(paramTypes, 0, paramTypesWithCallerEnv, 1, paramTypesWithCallerEnv.length - 1);
+            executable = (kind == JMethodKind.CONSTRUCTOR) ? resolveConstructor(clazz, paramTypesWithCallerEnv) :
+                    resolveMethod(clazz, name, paramTypesWithCallerEnv);
+            if (executable != null) {
+                JMethod build = JMethod.build(kind, executable, receiverType);
+                build.setCallerEnvParam(true);
+                return build;
+            }
             return JMethod.NO_SUCH_METHOD;
         }
     }
@@ -582,15 +644,19 @@ class JMethodResolver {
         if (constraints.length > 0) {
             for (JMethod jMethod : jMethods) {
                 boolean resolved = true;
+                int callerEnvIndex = 0;
+                if (jMethod.hasCallerEnvParam()) {
+                    callerEnvIndex++;
+                }
                 Class<?>[] formalParamTypes = jMethod.getParamTypes();
 
                 // skip if the given constraint params are not of the same size as method's params
-                if (constraintsSize != formalParamTypes.length) {
+                if (constraintsSize + callerEnvIndex != formalParamTypes.length) {
                     continue;
                 }
 
-                for (int paramIndex = paramTypesInitialIndex, constraintIndex = 0; paramIndex < formalParamTypes.length;
-                     paramIndex++, constraintIndex++) {
+                for (int paramIndex = paramTypesInitialIndex + callerEnvIndex, constraintIndex = 0;
+                     paramIndex < formalParamTypes.length; paramIndex++, constraintIndex++) {
                     Class<?> formalParamType = formalParamTypes[paramIndex];
                     if (formalParamType.isAssignableFrom(constraints[constraintIndex].get())) {
                         continue;
@@ -659,6 +725,14 @@ class JMethodResolver {
             // Remove the receiver parameter in instance methods.
             bFuncParamCount = isStaticMethod ? bFuncParamCount : bFuncParamCount - 1;
         }
+        return bFuncParamCount;
+    }
+
+    private int getBFuncParamCount(int bFuncParamCount, List<JMethod> jMethods) {
+        boolean isStaticMethod = jMethods.get(0).isStatic();
+        // Remove the receiver parameter in instance methods.
+        bFuncParamCount = isStaticMethod ? bFuncParamCount : bFuncParamCount - 1;
+
         return bFuncParamCount;
     }
 

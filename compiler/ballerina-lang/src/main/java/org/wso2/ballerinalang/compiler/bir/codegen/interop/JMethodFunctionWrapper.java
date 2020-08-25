@@ -32,4 +32,12 @@ public class JMethodFunctionWrapper extends BIRFunctionWrapper implements Extern
                 functionWrapper.fullQualifiedClassName, functionWrapper.jvmMethodDescription);
         this.jMethod = jMethod;
     }
+
+    JMethodFunctionWrapper(BIRFunctionWrapper functionWrapper, JMethod jMethod, String jvmMethodDescription) {
+
+        super(functionWrapper.orgName, functionWrapper.moduleName, functionWrapper.version, functionWrapper.func,
+              functionWrapper.fullQualifiedClassName, jvmMethodDescription);
+        this.jMethod = jMethod;
+        this.hasCallerEnvParam = jMethod.hasCallerEnvParam();
+    }
 }

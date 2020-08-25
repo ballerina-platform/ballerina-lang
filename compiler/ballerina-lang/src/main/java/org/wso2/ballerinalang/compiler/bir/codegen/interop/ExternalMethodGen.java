@@ -78,8 +78,12 @@ public class ExternalMethodGen {
             genJFieldForInteropField((JFieldFunctionWrapper) extFuncWrapper, cw, birModule, jvmPackageGen,
                     jvmMethodGen, moduleClassName, serviceName, lambdaGenMetadata);
         } else {
-            jvmMethodGen.genJMethodForBFunc(birFunc, cw, birModule, moduleClassName,
-                                            attachedType, lambdaGenMetadata);
+            boolean hasCallerEnvParam = false;
+            if (extFuncWrapper instanceof JMethodFunctionWrapper) {
+                hasCallerEnvParam = ((JMethodFunctionWrapper) extFuncWrapper).jMethod.hasCallerEnvParam();
+            }
+            jvmMethodGen.genJMethodForBFunc(birFunc, cw, birModule, moduleClassName, attachedType,
+                                            hasCallerEnvParam, lambdaGenMetadata);
         }
     }
 
@@ -213,8 +217,8 @@ public class ExternalMethodGen {
         BIRVariableDcl receiver = birFunc.receiver;
         BType attachedType = receiver != null ? receiver.type : null;
         String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType, attachedType,
-                false);
-        String jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType, true);
+                                                    false, false);
+        String jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType, true, false);
 
         return new OldStyleExternalFunctionWrapper(orgName, moduleName, version, birFunc, birModuleClassName,
                                                    jvmMethodDescription, jClassName, jMethodPramTypes, jMethodVMSig);
@@ -256,6 +260,11 @@ public class ExternalMethodGen {
         }
 
         return birFuncWrapper;
+    }
+
+    public static boolean checkCallerEnvParamForExtern(InteropValidator interopValidator, String className,
+                                                       String methodName, BInvokableType bFunctionType) {
+        return interopValidator.checkCallerEnvParam(className, methodName, bFunctionType);
     }
 
 }

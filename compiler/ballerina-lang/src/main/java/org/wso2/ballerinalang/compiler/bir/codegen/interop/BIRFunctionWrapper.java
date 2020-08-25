@@ -32,6 +32,7 @@ public class BIRFunctionWrapper {
     public BIRNode.BIRFunction func;
     public String fullQualifiedClassName;
     public String jvmMethodDescription;
+    public boolean hasCallerEnvParam;
 
     public BIRFunctionWrapper(String orgName, String moduleName, String version, BIRNode.BIRFunction func,
                               String fullQualifiedClassName, String jvmMethodDescription) {
@@ -42,5 +43,10 @@ public class BIRFunctionWrapper {
         this.func = func;
         this.fullQualifiedClassName = fullQualifiedClassName;
         this.jvmMethodDescription = jvmMethodDescription;
+    }
+
+    public BIRFunctionWrapper(String orgName, String moduleName, String version, BIRNode.BIRFunction func,
+                              String fullQualifiedClassName, String jvmMethodDescription, boolean hasCallerEnvParam) {
+        this(orgName, moduleName, version, func, fullQualifiedClassName, jvmMethodDescription);
     }
 }

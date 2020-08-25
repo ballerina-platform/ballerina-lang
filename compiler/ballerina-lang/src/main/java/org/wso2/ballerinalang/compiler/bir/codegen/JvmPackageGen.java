@@ -135,14 +135,16 @@ public class JvmPackageGen {
 
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
+    public InteropValidator interopValidator;
     private final JvmMethodGen jvmMethodGen;
-    private Map<String, BIRFunctionWrapper> birFunctionMap;
+    public Map<String, BIRFunctionWrapper> birFunctionMap;
     private Map<String, String> externClassMap;
     private Map<String, String> globalVarClassMap;
     private Map<String, PackageID> dependentModules;
     private BLangDiagnosticLogHelper dlog;
 
-    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLogHelper dlog) {
+    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLogHelper dlog,
+                  InteropValidator interopValidator) {
 
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
@@ -151,8 +153,9 @@ public class JvmPackageGen {
         this.symbolTable = symbolTable;
         this.packageCache = packageCache;
         this.dlog = dlog;
-        jvmMethodGen = new JvmMethodGen(this);
+        this.jvmMethodGen = new JvmMethodGen(this);
         typeBuilder = new ResolvedTypeBuilder();
+        this.interopValidator = interopValidator;
 
         JvmCastGen.symbolTable = symbolTable;
         JvmInstructionGen.anyType = symbolTable.anyType;
@@ -370,9 +373,7 @@ public class JvmPackageGen {
             retType = typeBuilder.build(retType);
         }
 
-        String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, retType, attachedType, false);
-        String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, retType, attachedType, false);
-
+        String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, retType, attachedType, false, false);
         return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription);
     }
 

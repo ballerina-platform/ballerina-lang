@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 
 import java.lang.reflect.Field;
 
@@ -30,13 +31,13 @@ import java.lang.reflect.Field;
 public class InteropValidator {
 
     private ClassLoader classLoader;
-    private SymbolTable symbolTable;
     private boolean isEntryModuleValidation;
+    JMethodResolver methodResolver;
 
     public InteropValidator(ClassLoader classLoader, SymbolTable symbolTable) {
 
         this.classLoader = classLoader;
-        this.symbolTable = symbolTable;
+        this.methodResolver = new JMethodResolver(classLoader, symbolTable);
     }
 
     /**
@@ -49,11 +50,22 @@ public class InteropValidator {
         // Populate JMethodRequest from the BValue
         JMethodRequest jMethodRequest = JMethodRequest.build(methodValidationRequest, classLoader,
                 isEntryModuleValidation);
+        return this.methodResolver.resolve(jMethodRequest);
+    }
 
-        // Find the most specific Java method or constructor for the given request
-        JMethodResolver methodResolver = new JMethodResolver(classLoader, symbolTable);
+    /**
+     * Method that check Java interop function has caller.
+     *
+     * @param className Java interop class name
+     * @param methodName Java interop method name
+     * @param bFunctionType Java interop function type
+     * @return whether we need to pass the callenv arg or not.
+     */
+    public boolean checkCallerEnvParam(String className, String methodName,
+                                       BInvokableType bFunctionType) {
 
-        return methodResolver.resolve(jMethodRequest);
+        Class<?> clazz = JInterop.loadClass(className, classLoader);
+        return this.methodResolver.checkCallerEnvParam(clazz, methodName, bFunctionType);
     }
 
     /**

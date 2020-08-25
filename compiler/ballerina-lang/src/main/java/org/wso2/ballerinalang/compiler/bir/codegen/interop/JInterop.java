@@ -40,10 +40,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JSHO
  *
  * @since 1.2.0
  */
-class JInterop {
+public class JInterop {
 
-    static final String INTEROP_ANNOT_ORG = "ballerina";
-    static final String INTEROP_ANNOT_MODULE = "java";
+    public static final String INTEROP_ANNOT_ORG = "ballerina";
+    public static final String INTEROP_ANNOT_MODULE = "java";
 
     static final String CONSTRUCTOR_ANNOT_TAG = "Constructor";
     static final String METHOD_ANNOT_TAG = "Method";

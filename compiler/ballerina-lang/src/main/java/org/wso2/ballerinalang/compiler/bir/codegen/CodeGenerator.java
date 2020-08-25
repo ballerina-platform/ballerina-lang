@@ -108,7 +108,7 @@ public class CodeGenerator {
         }
 
         // find module dependencies path
-        Set<Path> moduleDependencies = findDependencies(bLangPackage.packageID);
+        Set<Path> moduleDependencies = findDependencies(bLangPackage);
 
         // generate module jar
         generate(bLangPackage.symbol, moduleDependencies);
@@ -131,16 +131,17 @@ public class CodeGenerator {
 
     private void generate(BPackageSymbol packageSymbol, Set<Path> moduleDependencies) {
 
-        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog);
+        ClassLoader interopValidationClassLoader = makeClassLoader(moduleDependencies);
+        InteropValidator interopValidator = new InteropValidator(interopValidationClassLoader, symbolTable);
+
+        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, interopValidator);
 
         populateExternalMap(jvmPackageGen);
 
-        ClassLoader interopValidationClassLoader = makeClassLoader(moduleDependencies);
-        InteropValidator interopValidator = new InteropValidator(interopValidationClassLoader, symbolTable);
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, interopValidator, true);
     }
 
-    private Set<Path> findDependencies(PackageID packageID) {
+    private Set<Path> findDependencies(BLangPackage bLangPackage) {
 
         Set<Path> moduleDependencies = new HashSet<>();
 
@@ -155,7 +156,7 @@ public class CodeGenerator {
         JarResolver jarResolver = compilerContext.get(JAR_RESOLVER_KEY);
 
         if (jarResolver != null) {
-            moduleDependencies.addAll(jarResolver.nativeDependencies(packageID));
+            moduleDependencies.addAll(jarResolver.allNativeDependencies(bLangPackage));
         }
 
         return moduleDependencies;

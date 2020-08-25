@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
@@ -150,7 +151,7 @@ public class InteropMethodGen {
             retType = typeBuilder.build(birFunc.type.retType);
         }
 
-        String desc = getMethodDesc(birFunc.type.paramTypes, retType, null, false);
+        String desc = getMethodDesc(birFunc.type.paramTypes, retType, null, false, false);
         int access = birFunc.receiver != null ? ACC_PUBLIC : ACC_PUBLIC + ACC_STATIC;
         MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.value, desc, null, null);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, birModule, jvmPackageGen);
@@ -199,9 +200,8 @@ public class InteropMethodGen {
 
             List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             jvmMethodGen.generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1, -1,
-                                             strandParamIndex, true, birModule, null, moduleClassName,
+                                             strandParamIndex, true, birModule, null, moduleClassName, false,
                                              asyncDataCollector);
-
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;
@@ -327,6 +327,9 @@ public class InteropMethodGen {
         if (jMethod.getReceiverType() != null) {
             jMethodParamIndex++;
             args.add(new BIROperand(birFunc.receiver));
+        }
+        if (jMethod.hasCallerEnvParam()) {
+            jMethodParamIndex++;
         }
         int paramCount = birFuncParams.size();
         while (birFuncParamIndex < paramCount) {
@@ -735,7 +738,7 @@ public class InteropMethodGen {
         }
         // Update the function wrapper only for Java interop functions
         BIRFunctionWrapper birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName,
-                version, birModuleClassName);
+                                                               version, birModuleClassName);
         if (jInteropValidationReq instanceof InteropValidationRequest.MethodValidationRequest) {
             InteropValidationRequest.MethodValidationRequest methodValidationRequest =
                     ((InteropValidationRequest.MethodValidationRequest) jInteropValidationReq);
@@ -754,6 +757,20 @@ public class InteropMethodGen {
 
         JMethod jMethod = interopValidator.validateAndGetJMethod(
                 (InteropValidationRequest.MethodValidationRequest) jMethodValidationReq);
+        if (jMethod.hasCallerEnvParam()) {
+            BIRFunction birFunction = birFuncWrapper.func;
+            BInvokableType functionTypeDesc = birFunction.type;
+            BIRVariableDcl receiver = birFunction.receiver;
+            BType attachedType = receiver != null ? receiver.type : null;
+
+            BType retType = functionTypeDesc.retType;
+            if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+                retType = typeBuilder.build(retType);
+            }
+            return new JMethodFunctionWrapper(birFuncWrapper, jMethod,
+                                              getMethodDesc(functionTypeDesc.paramTypes, retType,
+                                                            attachedType, false, true));
+        }
         return new JMethodFunctionWrapper(birFuncWrapper, jMethod);
     }
 

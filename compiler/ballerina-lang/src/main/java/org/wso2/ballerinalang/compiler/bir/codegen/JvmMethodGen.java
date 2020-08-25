@@ -138,6 +138,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALLER_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
@@ -1135,10 +1136,13 @@ public class JvmMethodGen {
         }
     }
 
-    public static String getMethodDesc(List<BType> paramTypes, BType retType, BType attachedType, boolean isExtern) {
+    public static String getMethodDesc(List<BType> paramTypes, BType retType, BType attachedType, boolean isExtern,
+                                       boolean hasCallerEnvParam) {
 
         StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
-
+        if (hasCallerEnvParam) {
+            desc.append(String.format("L%s;", CALLER_ENV));
+        }
         if (attachedType != null) {
             desc.append(getArgTypeSignature(attachedType));
         }
@@ -1657,8 +1661,8 @@ public class JvmMethodGen {
             genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
                                        moduleClassName, serviceName, asyncDataCollector);
         } else {
-            genJMethodForBFunc(birFunc, cw, birModule, moduleClassName, attachedType,
-                               asyncDataCollector);
+            genJMethodForBFunc(birFunc, cw, birModule, moduleClassName, attachedType, false, asyncDataCollector);
+
         }
     }
 
@@ -1667,6 +1671,7 @@ public class JvmMethodGen {
                                    BIRPackage module,
                                    String moduleClassName,
                                    BType attachedType,
+                                   boolean hasCallerEnvParam,
                                    AsyncDataCollector asyncDataCollector) {
 
         String currentPackageName = getPackageName(module.org.value, module.name.value, module.version.value);
@@ -1677,14 +1682,19 @@ public class JvmMethodGen {
         BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.stringType, new Name("strand"),
                 VarScope.FUNCTION, VarKind.ARG);
         int ignoreStrandVarIndex = indexMap.getIndex(strandVar);
+        if (hasCallerEnvParam) {
+            BIRVariableDcl callerEnvVar = new BIRVariableDcl(symbolTable.handleType, new Name("callerEnv"),
+                                                             VarScope.FUNCTION, VarKind.ARG);
+            indexMap.getIndex(callerEnvVar);
+        }
 
         // generate method desc
         BType retType = func.type.retType;
         if (isExternFunc(func) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
             retType = typeBuilder.build(func.type.retType);
         }
-
-        String desc = getMethodDesc(func.type.paramTypes, retType, null, false);
+        String desc;
+        desc = getMethodDesc(func.type.paramTypes, retType, null, false, hasCallerEnvParam);
         int access = ACC_PUBLIC;
         int localVarOffset;
         if (attachedType != null) {
@@ -1809,7 +1819,7 @@ public class JvmMethodGen {
 
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
                             stateVarIndex, localVarOffset, false, module, attachedType,
-                            moduleClassName, asyncDataCollector);
+                            moduleClassName, hasCallerEnvParam, asyncDataCollector);
 
         String frameName = getFrameClassName(currentPackageName, funcName, attachedType);
         mv.visitLabel(resumeLable);
@@ -1909,7 +1919,8 @@ public class JvmMethodGen {
                                     JvmInstructionGen instGen, JvmTerminatorGen termGen,
                                     BIRFunction func, int returnVarRefIndex, int stateVarIndex,
                                     int localVarOffset, boolean isArg, BIRPackage module, BType attachedType,
-                                    String moduleClassName, AsyncDataCollector asyncDataCollector) {
+                                    String moduleClassName,  boolean hasCallerEnvParam,
+                                    AsyncDataCollector asyncDataCollector) {
 
         int j = 0;
         String funcName = cleanupFunctionName(func.name.value);
@@ -1976,7 +1987,7 @@ public class JvmMethodGen {
                             module.version.value, MODULE_INIT_CLASS_NAME), MODULE_STARTED, "Z");
                 }
                 termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
-                        attachedType, asyncDataCollector);
+                        attachedType, hasCallerEnvParam, asyncDataCollector);
             }
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
@@ -2621,7 +2632,7 @@ public class JvmMethodGen {
         }
 
         mv.visitMethodInsn(INVOKESTATIC, mainClass, userMainFunc.name.value,
-                getMethodDesc(paramTypes, returnType, null, false), false);
+                           getMethodDesc(paramTypes, returnType, null, false, false), false);
         JvmInstructionGen.addBoxInsn(mv, returnType);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);

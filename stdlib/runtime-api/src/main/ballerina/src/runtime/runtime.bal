@@ -26,3 +26,23 @@ public function sleep(int millis) = @java:Method {
     class: "org.ballerinalang.stdlib.runtime.nativeimpl.Sleep"
 } external;
 
+# Represents the `runtime:Module`.
+#
+# + orgName - Module organization name
+# + name - Module name
+# + version - Module version
+public type Module record {|
+    string orgName;
+    string name;
+    string 'version;
+|};
+
+# Provides the current module information.
+# ```ballerina
+# runtime:Module module = runtime:getCurrentModule();
+# ```
+# + return - The `runtime:Module` instance
+public function getCurrentModule() returns Module = @java:Method {
+    class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetCurrentModule"
+} external;
+
