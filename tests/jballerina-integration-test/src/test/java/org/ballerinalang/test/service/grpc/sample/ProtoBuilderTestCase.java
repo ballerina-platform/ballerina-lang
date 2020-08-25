@@ -110,7 +110,7 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
         CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
                 "unary_service_with_annotation.bal", false, false);
         Assert.assertEquals(result.getErrorCount(), 1);
-        Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg,
+        Assert.assertEquals(((BDiagnostic) result.getErrorAndWarnDiagnostics()[0]).msg,
                 "Root descriptor and/or the descriptor map function is missing");
     }
 
@@ -120,7 +120,7 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
         CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
                 "service_with_checkedexpr.bal", false, false);
         Assert.assertEquals(result.getErrorCount(), 1);
-        Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg,
+        Assert.assertEquals(((BDiagnostic) result.getErrorAndWarnDiagnostics()[0]).msg,
                 "Root descriptor and/or the descriptor map function is missing");
     }
 
@@ -130,7 +130,7 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
         CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
                 "streaming_service_with_annotation.bal", false, false);
         Assert.assertEquals(result.getErrorCount(), 1);
-        Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg,
+        Assert.assertEquals(((BDiagnostic) result.getErrorAndWarnDiagnostics()[0]).msg,
                 "Root descriptor and/or the descriptor map function is missing");
     }
 

@@ -152,7 +152,7 @@ public class CompilerPluginTest {
 
     private static void validateCompilerErrors(CompileResult compileResult, String expectedMessage) {
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(), expectedMessage);
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().clone()[0].getMessage(), expectedMessage);
     }
 
     @AfterClass(alwaysRun = true)

@@ -42,10 +42,10 @@ public class CompileResult {
         this.diagnosticListener = diagnosticListener;
     }
 
-    public Diagnostic[] getDiagnostics() {
+    public Diagnostic[] getErrorAndWarnDiagnostics() {
         List<Diagnostic> nonNoteDiagnostics = new ArrayList<>();
 
-        for (Diagnostic diagnostic : getAllDiagnostics()) {
+        for (Diagnostic diagnostic : getDiagnostics()) {
             if (diagnostic.getKind() != Diagnostic.Kind.NOTE) {
                 nonNoteDiagnostics.add(diagnostic);
             }
@@ -53,7 +53,7 @@ public class CompileResult {
         return nonNoteDiagnostics.toArray(new Diagnostic[0]);
     }
 
-    public Diagnostic[] getAllDiagnostics() {
+    public Diagnostic[] getDiagnostics() {
         List<Diagnostic> diagnostics = this.diagnosticListener.getDiagnostics();
         diagnostics.sort(Comparator.comparing((Diagnostic d) -> d.getSource().getCompilationUnitName()).
                 thenComparingInt(d -> d.getPosition().getStartLine()));
@@ -91,7 +91,7 @@ public class CompileResult {
             builder.append("Compilation Successful");
         } else {
             builder.append("Compilation Failed:\n");
-            for (Diagnostic diag : this.getDiagnostics()) {
+            for (Diagnostic diag : this.getErrorAndWarnDiagnostics()) {
                 builder.append(diag + "\n");
             }
         }

@@ -51,7 +51,8 @@ public class ErrorServiceTestCase extends BaseTest {
                 "service_without_port.bal", false, false);
         Assert.assertEquals(result.getErrorCount(), 1);
         Assert.assertEquals(
-                result.getDiagnostics()[0].getMessage(), "missing required parameter 'port' in call to 'new'()");
+                result.getErrorAndWarnDiagnostics()[0].getMessage(),
+                "missing required parameter 'port' in call to 'new'()");
     }
 
     @Test(description = "Test case for running unary service with same port", enabled = false)

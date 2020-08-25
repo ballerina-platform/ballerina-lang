@@ -71,7 +71,7 @@ public class StubGeneratorTestCase {
     @Test
     public void testUnaryHelloWorld() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorld.proto", outputDirPath, "helloWorld_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 13,
@@ -89,7 +89,7 @@ public class StubGeneratorTestCase {
     public void testDirectoryWithSpace() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult(Paths.get("a b", "helloWorld.proto").toString(),
                 outputDirPath.resolve("a b"), "helloWorld_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 13,
@@ -108,12 +108,12 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithDependency.proto",
                  outputDirPath, "helloWorldWithDependency_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 8);
-        assertEquals(compileResult.getDiagnostics()[0].toString(),
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 8);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics()[0].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:15:34:: unknown type 'HelloRequest'");
-        assertEquals(compileResult.getDiagnostics()[1].toString(),
+        assertEquals(compileResult.getErrorAndWarnDiagnostics()[1].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:15:90:: unknown type 'HelloResponse'");
-        assertEquals(compileResult.getDiagnostics()[4].toString(),
+        assertEquals(compileResult.getErrorAndWarnDiagnostics()[4].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:26:86:: unknown type 'ByeResponse'");
     }
 
@@ -122,7 +122,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithEnum.proto", outputDirPath,
                 "helloWorldWithEnum_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 11,
                 "Expected type definitions not found in compile results.");
         validateEnumNode(compileResult);
@@ -138,7 +138,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithNestedEnum.proto",
                 outputDirPath, "helloWorldWithNestedEnum_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 11,
                 "Expected type definitions not found in compile results.");
         validateEnumNode(compileResult);
@@ -154,7 +154,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithNestedMessage.proto",
                 outputDirPath, "helloWorldWithNestedMessage_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
                 "Expected type definitions not found in compile results.");
     }
@@ -164,7 +164,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithMap.proto",
                 outputDirPath, "helloWorldWithMap_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
     }
@@ -174,7 +174,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithReservedNames.proto",
                 outputDirPath, "helloWorldWithReservedNames_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
     }
@@ -186,7 +186,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithInvalidDependency.proto",
                 outputDirPath, "helloWorldWithInvalidDependency_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 1);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
     }
 
     @Test(description = "Test service stub generation tool for package service")
@@ -194,7 +194,7 @@ public class StubGeneratorTestCase {
             ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithPackage.proto",
                 outputDirPath, "helloWorldWithPackage_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 13,
@@ -219,7 +219,7 @@ public class StubGeneratorTestCase {
             grpcCmd1.execute();
             Path sourceFileRoot = Paths.get("temp", "helloWorld_pb.bal");
             CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toAbsolutePath().toString());
-            assertEquals(compileResult.getDiagnostics().length, 0);
+            assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
             assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                     "Expected type definitions not found in compile results.");
             assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 13,
@@ -243,7 +243,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldClientStreaming.proto",
                 outputDirPath, "helloWorldClientStreaming_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
                 "Expected type definitions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 6,
@@ -261,7 +261,7 @@ public class StubGeneratorTestCase {
             ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldServerStreaming.proto",
                 outputDirPath, "helloWorldServerStreaming_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
                 "Expected type definitions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 6,
@@ -278,7 +278,7 @@ public class StubGeneratorTestCase {
     public void testStandardDataTypes() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldString.proto",
                 outputDirPath, "helloWorldString_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 3,
                 "Expected type definitions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 7,
@@ -304,7 +304,7 @@ public class StubGeneratorTestCase {
         grpcCmd1.execute();
         Path sourceFileRoot = Paths.get(TMP_DIRECTORY_PATH, "grpc", "client", "helloWorld_pb.bal");
         CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 13,
@@ -355,7 +355,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("oneof_field_service.proto",
                 outputDirPath, "oneof_field_service_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
                 "Expected type definitions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 36,
@@ -374,7 +374,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGateway.proto",
                 "helloWorldGateway");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
@@ -393,7 +393,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithBody.proto",
                 "helloWorldGatewayWithBody");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
@@ -412,7 +412,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithPrimitiveInput.proto",
                 "helloWorldGatewayWithPrimitiveInput");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
@@ -431,7 +431,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithRepeatedField.proto",
                 "helloWorldGatewayWithRepeatedField");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
@@ -450,7 +450,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithoutPath.proto",
                 "helloWorldGatewayWithoutPath");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
@@ -469,7 +469,7 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("anydata.proto", outputDirPath,
                 "anydata_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 5,
                 "Expected type definitions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 9,
@@ -504,7 +504,7 @@ public class StubGeneratorTestCase {
         assertFalse(Files.exists(sampleStubFile));
 
         CompileResult compileResult = BCompileUtil.compileOnly(sampleServiceFile.toString());
-        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
                 "Expected constants count not found." +
                         ((BLangPackage) compileResult.getAST()).constants.size()

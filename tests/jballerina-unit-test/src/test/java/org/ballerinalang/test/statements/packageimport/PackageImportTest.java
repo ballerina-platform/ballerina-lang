@@ -38,7 +38,7 @@ public class PackageImportTest {
     public void testDuplicatePackageImports() {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length > 0);
+        Assert.assertTrue(result.getErrorAndWarnDiagnostics().length > 0);
         BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/math'", 4, 1);
     }
 
@@ -46,7 +46,7 @@ public class PackageImportTest {
     public void testImportSamePkgWithDifferentAlias() {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/import-same-pkg-with-different-alias.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 0);
     }
 
     @Test

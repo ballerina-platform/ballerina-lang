@@ -47,8 +47,8 @@ public class ResourceReturnTypeTest {
                 "resource_with_invalid_return_type.bal");
         CompileResult result = BCompileUtil.compileOffline(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(result.getErrorCount(), 5);
-        Assert.assertEquals(result.getDiagnostics().length, 5);
-        Assert.assertEquals(result.getDiagnostics()[0].getMessage(), "invalid resource function return type " +
-                "'int', expected a subtype of 'error?' containing '()'");
+        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 5);
+        Assert.assertEquals(result.getErrorAndWarnDiagnostics()[0].getMessage(), "invalid resource function return " +
+                "type 'int', expected a subtype of 'error?' containing '()'");
     }
 }

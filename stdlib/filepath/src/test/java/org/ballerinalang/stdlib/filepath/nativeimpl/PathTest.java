@@ -63,7 +63,7 @@ public class PathTest {
     public void setup() {
         Path sourceFilePath = Paths.get("src", "test", "resources", "test-src", "path_test.bal");
         fileOperationProgramFile = BCompileUtil.compile(sourceFilePath.toAbsolutePath().toString());
-        Diagnostic[] diagnostics = fileOperationProgramFile.getDiagnostics();
+        Diagnostic[] diagnostics = fileOperationProgramFile.getErrorAndWarnDiagnostics();
         for (Diagnostic diag : diagnostics) {
             log.error(diag.getMessage());
         }

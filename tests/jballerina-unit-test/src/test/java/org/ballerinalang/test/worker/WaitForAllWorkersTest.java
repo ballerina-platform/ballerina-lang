@@ -40,7 +40,7 @@ public class WaitForAllWorkersTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/wait_for_all_workers.bal");
-        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
+        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getErrorAndWarnDiagnostics()).toString());
     }
 
     @Test(description = "Test to see if worker continues to run even when default worker has finished")

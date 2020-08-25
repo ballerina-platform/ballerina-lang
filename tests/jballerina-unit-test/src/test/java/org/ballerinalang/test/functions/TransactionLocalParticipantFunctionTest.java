@@ -46,7 +46,7 @@ public class TransactionLocalParticipantFunctionTest {
 
     @Test (enabled = false)
     public void testTransactionAnnotatedFunction() {
-        Diagnostic[] diagnostics = result.getDiagnostics();
+        Diagnostic[] diagnostics = result.getErrorAndWarnDiagnostics();
         Assert.assertTrue(diagnostics.length == 0, "Transaction annotation error");
     }
 
