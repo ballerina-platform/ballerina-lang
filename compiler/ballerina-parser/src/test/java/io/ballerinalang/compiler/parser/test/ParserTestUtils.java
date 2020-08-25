@@ -293,14 +293,6 @@ public class ParserTestUtils {
     }
 
     private static void assertNonTerminalNode(JsonObject json, STNode tree) {
-        // TODO This is an error in the syntax tree structure
-        // Here we get a MissingToken, but we should get a non-terminal node instead.
-        // This case is reported in this issue, https://github.com/ballerina-platform/ballerina-lang/issues/23902
-        // TODO Remove the following if condition once the above issue is fixed.
-        if (tree.isMissing()) {
-            return;
-        }
-
         JsonArray children = json.getAsJsonArray(CHILDREN_FIELD);
         int size = children.size();
         int j = 0;
@@ -356,15 +348,15 @@ public class ParserTestUtils {
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifierToken) token).text;
-            case STRING_LITERAL:
+            case STRING_LITERAL_TOKEN:
                 String val = token.text();
                 int stringLen = val.length();
                 int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;
                 return val.substring(1, lastCharPosition);
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
             case PARAMETER_NAME:
             case BACKTICK_CONTENT:
             case DEPRECATION_LITERAL:
@@ -794,14 +786,22 @@ public class ParserTestUtils {
                 return SyntaxKind.BINARY_EXPRESSION;
             case "STRING_LITERAL":
                 return SyntaxKind.STRING_LITERAL;
-            case "DECIMAL_INTEGER_LITERAL":
-                return SyntaxKind.DECIMAL_INTEGER_LITERAL;
-            case "HEX_INTEGER_LITERAL":
-                return SyntaxKind.HEX_INTEGER_LITERAL;
-            case "DECIMAL_FLOATING_POINT_LITERAL":
-                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
-            case "HEX_FLOATING_POINT_LITERAL":
-                return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
+            case "STRING_LITERAL_TOKEN":
+                return SyntaxKind.STRING_LITERAL_TOKEN;
+            case "NUMERIC_LITERAL":
+                return SyntaxKind.NUMERIC_LITERAL;
+            case "BOOLEAN_LITERAL":
+                return SyntaxKind.BOOLEAN_LITERAL;
+            case "DECIMAL_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
+            case "HEX_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
+            case "DECIMAL_FLOATING_POINT_LITERAL_TOKEN":
+                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN;
+            case "HEX_FLOATING_POINT_LITERAL_TOKEN":
+                return SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN;
+            case "ASTERISK_LITERAL":
+                return SyntaxKind.ASTERISK_LITERAL;
             case "FUNCTION_CALL":
                 return SyntaxKind.FUNCTION_CALL;
             case "POSITIONAL_ARG":
@@ -832,6 +832,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_TEST_EXPRESSION;
             case "NIL_LITERAL":
                 return SyntaxKind.NIL_LITERAL;
+            case "NULL_LITERAL":
+                return SyntaxKind.NULL_LITERAL;
             case "SIMPLE_NAME_REFERENCE":
                 return SyntaxKind.SIMPLE_NAME_REFERENCE;
             case "TRAP_EXPRESSION":
@@ -956,8 +958,6 @@ public class ParserTestUtils {
                 return SyntaxKind.INVALID_EXPRESSION_STATEMENT;
 
             // Types
-            case "TYPE_DESC":
-                return SyntaxKind.TYPE_DESC;
             case "INT_TYPE_DESC":
                 return SyntaxKind.INT_TYPE_DESC;
             case "FLOAT_TYPE_DESC":

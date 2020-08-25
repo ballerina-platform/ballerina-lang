@@ -596,7 +596,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         STNode majorVersion;
         switch (nextToken.kind) {
-            case DECIMAL_INTEGER_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
                 majorVersion = parseMajorVersion();
                 break;
             default:
@@ -645,7 +645,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseDecimalIntLiteral(ParserRuleContext context) {
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.DECIMAL_INTEGER_LITERAL) {
+        if (nextToken.kind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
             return consume();
         } else {
             recover(peek(), context);
@@ -1649,7 +1649,6 @@ public class BallerinaParser extends AbstractParser {
      * </p>
      * If the preceding token is <code>?</code> then it is an optional type descriptor
      *
-     * @param tokenKind Next token kind
      * @param context Current context
      * @param isInConditionalExpr
      * @return Parsed node
@@ -1771,12 +1770,12 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseSimpleTypeDescriptor() {
-        STToken node = peek();
-        if (isSimpleType(node.kind)) {
+        STToken nextToken = peek();
+        if (isSimpleType(nextToken.kind)) {
             STToken token = consume();
             return createBuiltinSimpleNameReference(token);
         } else {
-            recover(node, ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
+            recover(nextToken, ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
             return parseSimpleTypeDescriptor();
         }
     }
@@ -2639,8 +2638,18 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTypeReference() {
         STNode typeReference = parseTypeDescriptor(ParserRuleContext.TYPE_REFERENCE);
-        if (typeReference.kind == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                typeReference.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (typeReference.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            if (typeReference.hasDiagnostics()) {
+                // When a missing type desc is recovered, diagnostic code will be missing type desc.
+                // Since this is type ref context we correct the error message by creating a new missing token
+                STNode emptyNameReference = STNodeFactory.createSimpleNameReferenceNode
+                        (SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                                DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER));
+                return emptyNameReference;
+            }
+            return typeReference;
+        }
+        if (typeReference.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return typeReference;
         }
 
@@ -2994,15 +3003,14 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
             case IDENTIFIER_TOKEN:
                 // Can be a singleton type or expression.
-            case NIL_LITERAL:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case STRING_LITERAL_TOKEN:
             case NULL_KEYWORD:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
             case STRING_KEYWORD:
             case XML_KEYWORD:
                 // These are statement starting tokens that has ambiguity between
@@ -3290,14 +3298,14 @@ public class BallerinaParser extends AbstractParser {
         // add it to all the other places as well.
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case STRING_LITERAL_TOKEN:
             case NULL_KEYWORD:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 return parseBasicLiteral();
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF, isInConditionalExpr);
@@ -3396,14 +3404,14 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isValidExprStart(SyntaxKind tokenKind) {
         switch (tokenKind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case STRING_LITERAL_TOKEN:
             case NULL_KEYWORD:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
             case IDENTIFIER_TOKEN:
             case OPEN_PAREN_TOKEN:
             case CHECK_KEYWORD:
@@ -3922,7 +3930,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseKeyExpr(boolean isRhsExpr) {
         if (!isRhsExpr && peek().kind == SyntaxKind.ASTERISK_TOKEN) {
-            return STNodeFactory.createBasicLiteralNode(SyntaxKind.ASTERISK_TOKEN, consume());
+            return STNodeFactory.createBasicLiteralNode(SyntaxKind.ASTERISK_LITERAL, consume());
         }
 
         return parseExpression(isRhsExpr);
@@ -4169,9 +4177,38 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
+
     private STNode parseBasicLiteral() {
-        STToken literalToken = consume();
-        return STNodeFactory.createBasicLiteralNode(literalToken.kind, literalToken);
+        STNode literalToken = consume();
+        return parseBasicLiteral(literalToken);
+    }
+
+    private STNode parseBasicLiteral(STNode literalToken) {
+        SyntaxKind nodeKind;
+        switch (literalToken.kind) {
+            case NULL_KEYWORD:
+                nodeKind = SyntaxKind.NULL_LITERAL;
+                break;
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+                nodeKind = SyntaxKind.BOOLEAN_LITERAL;
+                break;
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
+                nodeKind = SyntaxKind.NUMERIC_LITERAL;
+                break;
+            case STRING_LITERAL_TOKEN:
+                nodeKind = SyntaxKind.STRING_LITERAL;
+                break;
+            case ASTERISK_TOKEN:
+                nodeKind = SyntaxKind.ASTERISK_LITERAL;
+                break;
+            default:
+                nodeKind = literalToken.kind;
+        }
+        return STNodeFactory.createBasicLiteralNode(nodeKind, literalToken);
     }
 
     /**
@@ -5306,7 +5343,7 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 STNode readonlyKeyword = STNodeFactory.createEmptyNode();
                 return parseSpecificFieldWithOptionalValue(readonlyKeyword);
-            case STRING_LITERAL:
+            case STRING_LITERAL_TOKEN:
                 readonlyKeyword = STNodeFactory.createEmptyNode();
                 return parseQualifiedSpecificField(readonlyKeyword);
             // case FINAL_KEYWORD:
@@ -5333,7 +5370,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseSpecificField(STNode readonlyKeyword) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            case STRING_LITERAL:
+            case STRING_LITERAL_TOKEN:
                 return parseQualifiedSpecificField(readonlyKeyword);
             case IDENTIFIER_TOKEN:
                 return parseSpecificFieldWithOptionalValue(readonlyKeyword);
@@ -5395,12 +5432,14 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseStringLiteral() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.STRING_LITERAL) {
-            return consume();
+        STNode stringLiteral;
+        if (token.kind == SyntaxKind.STRING_LITERAL_TOKEN) {
+            stringLiteral =  consume();
         } else {
-            recover(token, ParserRuleContext.STRING_LITERAL);
+            recover(token, ParserRuleContext.STRING_LITERAL_TOKEN);
             return parseStringLiteral();
         }
+        return parseBasicLiteral(stringLiteral);
     }
 
     /**
@@ -6167,8 +6206,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseArrayLength() {
         STToken token = peek();
         switch (token.kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
             case ASTERISK_TOKEN:
                 return parseBasicLiteral();
             case CLOSE_BRACKET_TOKEN:
@@ -6477,12 +6516,17 @@ public class BallerinaParser extends AbstractParser {
         // Validate the array length expression
         STNode lengthExpr = lengthExprs.get(0);
         switch (lengthExpr.kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case ASTERISK_TOKEN:
+            case ASTERISK_LITERAL:
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
                 break;
+            case NUMERIC_LITERAL:
+                SyntaxKind innerChildKind = lengthExpr.childInBucket(0).kind;
+                if (innerChildKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
+                        innerChildKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+                    break;
+                }
+                //fall through
             default:
                 STNode newOpenBracketWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(
                         indexedExpr.openBracket, lengthExpr, DiagnosticErrorCode.ERROR_INVALID_ARRAY_LENGTH);
@@ -7206,11 +7250,11 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseSimpleConstExprInternal() {
         switch (peek().kind) {
-            case STRING_LITERAL:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case STRING_LITERAL_TOKEN:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
@@ -7454,11 +7498,6 @@ public class BallerinaParser extends AbstractParser {
             case READONLY_KEYWORD:
             case DISTINCT_KEYWORD:
                 return true;
-            case TYPE_DESC:
-                // This is a special case. TYPE_DESC is only return from
-                // error recovery. when a type is missing. Hence we treat it as
-                // a simple type
-                return true;
             default:
                 return false;
         }
@@ -7499,7 +7538,7 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD:
                 return SyntaxKind.ERROR_TYPE_DESC;
             default:
-                return SyntaxKind.TYPE_DESC;
+                return SyntaxKind.TYPE_REFERENCE;
         }
     }
 
@@ -9646,14 +9685,14 @@ public class BallerinaParser extends AbstractParser {
         STNode literal;
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 literal = parseBasicLiteral();
                 break;
             default: // decimal integer literal
-                literal = parseDecimalIntLiteral(ParserRuleContext.DECIMAL_INTEGER_LITERAL);
-                literal = STNodeFactory.createBasicLiteralNode(literal.kind, literal);
+                literal = parseDecimalIntLiteral(ParserRuleContext.DECIMAL_INTEGER_LITERAL_TOKEN);
+                literal = STNodeFactory.createBasicLiteralNode(SyntaxKind.NUMERIC_LITERAL, literal);
         }
         return STNodeFactory.createUnaryExpressionNode(operator, literal);
     }
@@ -9661,11 +9700,11 @@ public class BallerinaParser extends AbstractParser {
     private boolean isSingletonTypeDescStart(SyntaxKind tokenKind, boolean inTypeDescCtx) {
         STToken nextNextToken = getNextNextToken(tokenKind);
         switch (tokenKind) {
-            case STRING_LITERAL:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case STRING_LITERAL_TOKEN:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
@@ -9683,10 +9722,10 @@ public class BallerinaParser extends AbstractParser {
 
     static boolean isIntOrFloat(STToken token) {
         switch (token.kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 return true;
             default:
                 return false;
@@ -9719,14 +9758,14 @@ public class BallerinaParser extends AbstractParser {
     private boolean isValidExpressionStart(SyntaxKind nextTokenKind, int nextTokenIndex) {
         nextTokenIndex++;
         switch (nextTokenKind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case STRING_LITERAL_TOKEN:
             case NULL_KEYWORD:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 SyntaxKind nextNextTokenKind = peek(nextTokenIndex).kind;
                 return nextNextTokenKind == SyntaxKind.SEMICOLON_TOKEN || nextNextTokenKind == SyntaxKind.COMMA_TOKEN ||
                         nextNextTokenKind == SyntaxKind.CLOSE_BRACKET_TOKEN ||
@@ -11454,11 +11493,11 @@ public class BallerinaParser extends AbstractParser {
             case FALSE_KEYWORD:
             case PLUS_TOKEN:
             case MINUS_TOKEN:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
-            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
+            case STRING_LITERAL_TOKEN:
                 return parseSimpleConstExpr();
             case IDENTIFIER_TOKEN:
                 // If it is an identifier it can be functional match pattern or const pattern
@@ -11876,11 +11915,11 @@ public class BallerinaParser extends AbstractParser {
             case FALSE_KEYWORD:
             case PLUS_TOKEN:
             case MINUS_TOKEN:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
-            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
+            case STRING_LITERAL_TOKEN:
             case VAR_KEYWORD:
             case OPEN_BRACKET_TOKEN:
             case OPEN_BRACE_TOKEN:
@@ -12057,15 +12096,14 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
 
             // Can be a singleton type or expression.
-            case NIL_LITERAL:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case STRING_LITERAL_TOKEN:
             case NULL_KEYWORD:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 STNode basicLiteral = parseBasicLiteral();
                 return parseTypedBindingPatternOrExprRhs(basicLiteral, allowAssignment);
             default:
@@ -12193,7 +12231,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isDefiniteTypeDesc(SyntaxKind kind) {
-        return kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 && kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0;
+        return kind.compareTo(SyntaxKind.RECORD_TYPE_DESC) >= 0 && kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0;
     }
 
     private boolean isDefiniteExpr(SyntaxKind kind) {
@@ -12260,15 +12298,14 @@ public class BallerinaParser extends AbstractParser {
                 typeOrExpr = parseTypedDescOrExprStartsWithOpenBracket();
                 break;
             // Can be a singleton type or expression.
-            case NIL_LITERAL:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case STRING_LITERAL_TOKEN:
             case NULL_KEYWORD:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 STNode basicLiteral = parseBasicLiteral();
                 return parseTypeDescOrExprRhs(basicLiteral);
             default:
@@ -12288,15 +12325,11 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isExpression(SyntaxKind kind) {
         switch (kind) {
-            case BASIC_LITERAL:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
-            case NULL_KEYWORD:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case NUMERIC_LITERAL:
+            case STRING_LITERAL_TOKEN:
+            case NIL_LITERAL:
+            case NULL_LITERAL:
+            case BOOLEAN_LITERAL:
                 return true;
             default:
                 return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
@@ -12454,14 +12487,10 @@ public class BallerinaParser extends AbstractParser {
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
             case NIL_LITERAL:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
+            case NULL_LITERAL:
+            case NUMERIC_LITERAL:
             case STRING_LITERAL:
-            case NULL_KEYWORD:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case BOOLEAN_LITERAL:
             case BRACKETED_LIST:
                 return true;
             case BINARY_EXPRESSION:
@@ -12499,14 +12528,10 @@ public class BallerinaParser extends AbstractParser {
     private boolean isAllBasicLiterals(STNode node) {
         switch (node.kind) {
             case NIL_LITERAL:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
+            case NULL_LITERAL:
+            case NUMERIC_LITERAL:
             case STRING_LITERAL:
-            case NULL_KEYWORD:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case BOOLEAN_LITERAL:
                 return true;
             case BINARY_EXPRESSION:
                 STBinaryExpressionNode binaryExpr = (STBinaryExpressionNode) node;
@@ -12545,10 +12570,7 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isNumericLiteral(STNode node) {
         switch (node.kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case NUMERIC_LITERAL:
                 return true;
             default:
                 return false;
@@ -13268,10 +13290,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseBracketedListMember(boolean isTypedBindingPattern) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
             case ASTERISK_TOKEN:
-            case STRING_LITERAL:
+            case STRING_LITERAL_TOKEN:
                 return parseBasicLiteral();
             case CLOSE_BRACKET_TOKEN:
                 return STNodeFactory.createEmptyNode();
@@ -13570,7 +13592,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         switch (memberNode.kind) {
-            case ASTERISK_TOKEN:
+            case ASTERISK_LITERAL:
                 return SyntaxKind.ARRAY_TYPE_DESC;
             case CAPTURE_BINDING_PATTERN:
             case LIST_BINDING_PATTERN:
@@ -13581,8 +13603,7 @@ public class BallerinaParser extends AbstractParser {
             case QUALIFIED_NAME_REFERENCE: // a qualified-name-ref can only be a type-ref
             case REST_TYPE:
                 return SyntaxKind.TUPLE_TYPE_DESC;
-            case DECIMAL_INTEGER_LITERAL: // member is a const expression. could be array-type or member-access
-            case HEX_INTEGER_LITERAL:
+            case NUMERIC_LITERAL: // member is a const expression. could be array-type or member-access
             case SIMPLE_NAME_REFERENCE: // member is a simple type-ref/var-ref
             case BRACKETED_LIST: // member is again ambiguous
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
@@ -13911,7 +13932,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseStmtStartsWithTupleTypeOrExprRhs(STNode annots, STNode tupleTypeOrListConst, boolean isRoot) {
-        if (tupleTypeOrListConst.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
+        if (tupleTypeOrListConst.kind.compareTo(SyntaxKind.RECORD_TYPE_DESC) >= 0 &&
                 tupleTypeOrListConst.kind.compareTo(SyntaxKind.TYPEDESC_TYPE_DESC) <= 0) {
             STNode finalKeyword = STNodeFactory.createEmptyNode();
             STNode typedBindingPattern =
@@ -13991,15 +14012,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private SyntaxKind getStmtStartBracketedListType(STNode memberNode) {
-        if (memberNode.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
+        if (memberNode.kind.compareTo(SyntaxKind.RECORD_TYPE_DESC) >= 0 &&
                 memberNode.kind.compareTo(SyntaxKind.TYPEDESC_TYPE_DESC) <= 0) {
             return SyntaxKind.TUPLE_TYPE_DESC;
         }
 
         switch (memberNode.kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case ASTERISK_TOKEN:
+            case NUMERIC_LITERAL:
+            case ASTERISK_LITERAL:
                 return SyntaxKind.ARRAY_TYPE_DESC;
             case CAPTURE_BINDING_PATTERN:
             case LIST_BINDING_PATTERN:
@@ -14412,7 +14432,7 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 readonlyKeyword = STNodeFactory.createEmptyNode();
                 return parseIdentifierRhsInStmtStartingBrace(readonlyKeyword);
-            case STRING_LITERAL:
+            case STRING_LITERAL_TOKEN:
                 STNode key = parseStringLiteral();
                 if (peek().kind == SyntaxKind.COLON_TOKEN) {
                     readonlyKeyword = STNodeFactory.createEmptyNode();
@@ -14420,7 +14440,6 @@ public class BallerinaParser extends AbstractParser {
                     STNode valueExpr = parseExpression();
                     return STNodeFactory.createSpecificFieldNode(readonlyKeyword, key, colon, valueExpr);
                 }
-                key = STNodeFactory.createBasicLiteralNode(key.kind, key);
                 switchContext(ParserRuleContext.BLOCK_STMT);
                 startContext(ParserRuleContext.AMBIGUOUS_STMT);
                 STNode expr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, key, false, true);
@@ -14447,7 +14466,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
                 return parseIdentifierRhsInStmtStartingBrace(readonlyKeyword);
-            case STRING_LITERAL:
+            case STRING_LITERAL_TOKEN:
                 if (peek(2).kind == SyntaxKind.COLON_TOKEN) {
                     STNode key = parseStringLiteral();
                     STNode colon = parseColon();
@@ -14684,7 +14703,7 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 STNode key = parseIdentifier(ParserRuleContext.MAPPING_FIELD_NAME);
                 return parseMappingFieldRhs(key);
-            case STRING_LITERAL:
+            case STRING_LITERAL_TOKEN:
                 STNode readonlyKeyword = STNodeFactory.createEmptyNode();
                 key = parseStringLiteral();
                 STNode colon = parseColon();
@@ -15135,15 +15154,10 @@ public class BallerinaParser extends AbstractParser {
         switch (expression.kind) {
             case INDEXED_EXPRESSION:
                 return parseArrayTypeDescriptorNode((STIndexedExpressionNode) expression);
-            case BASIC_LITERAL:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
+            case NUMERIC_LITERAL:
+            case BOOLEAN_LITERAL:
             case STRING_LITERAL:
-            case NULL_KEYWORD:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case NULL_LITERAL:
                 return STNodeFactory.createSingletonTypeDescriptorNode(expression);
             case TYPE_REFERENCE_TYPE_DESC:
                 // TODO: this is a temporary workaround
