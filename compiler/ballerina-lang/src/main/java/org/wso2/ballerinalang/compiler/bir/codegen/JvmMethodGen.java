@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
-import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -206,16 +205,11 @@ public class JvmMethodGen {
     private final SymbolTable symbolTable;
     private final BUnionType errorOrNilType;
 
-    private BirScope lastScope;
-    private Set<BirScope> visitedScopesSet;
-
     JvmMethodGen(JvmPackageGen jvmPackageGen) {
 
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
         this.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
-        this.lastScope = null;
-        this.visitedScopesSet = new HashSet<>();
     }
 
     public void genJMethodForBFunc(BIRFunction func, ClassWriter cw, BIRPackage module, String moduleClassName,
@@ -356,9 +350,8 @@ public class JvmMethodGen {
             }
             // local vars have visible range information
             if (localVar.kind == VarKind.LOCAL) {
-                int insOffset = localVar.insOffset;
                 if (localVar.startBB != null) {
-                    startLabel = labelGen.getLabel(funcName + localVar.startBB.id.value + "ins" + insOffset);
+                    startLabel = labelGen.getLabel(funcName + JvmCodeGenUtil.SCOPE_PREFIX + localVar.insScope.id);
                 }
                 if (localVar.endBB != null) {
                     endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
@@ -374,7 +367,8 @@ public class JvmMethodGen {
 
     private boolean isLocalOrArg(BIRVariableDcl localVar) {
         boolean synArg = localVar.type.tag == TypeTags.BOOLEAN && localVar.name.value.startsWith("%syn");
-        return !synArg && (localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG);
+        return !synArg && (localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG)
+                && !localVar.isGeneratedInDesugar;
     }
 
     private boolean isCompilerAddedVars(String metaVarName) {
