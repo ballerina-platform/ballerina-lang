@@ -103,8 +103,8 @@ public class CompilerDriver {
     private final IsolationAnalyzer isolationAnalyzer;
     private boolean isToolingCompilation;
 
-    public static CompilerDriver getInstance(CompilerContext context) {
 
+    public static CompilerDriver getInstance(CompilerContext context) {
         CompilerDriver compilerDriver = context.get(COMPILER_DRIVER_KEY);
         if (compilerDriver == null) {
             compilerDriver = new CompilerDriver(context);
@@ -113,7 +113,6 @@ public class CompilerDriver {
     }
 
     private CompilerDriver(CompilerContext context) {
-
         context.put(COMPILER_DRIVER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
@@ -141,7 +140,6 @@ public class CompilerDriver {
     }
 
     public BLangPackage compilePackage(BLangPackage packageNode) {
-
         compilePackageSymbol(packageNode.symbol);
         return packageNode;
     }
@@ -196,7 +194,6 @@ public class CompilerDriver {
         symResolver.reloadErrorAndDependentTypes();
 
         if (langLib.equals(INTERNAL)) {
-            symbolTable.defineOperators();
             symbolTable.langInternalModuleSymbol = getLangModuleFromSource(INTERNAL);
             return; // Nothing else to load.
         }
@@ -232,8 +229,6 @@ public class CompilerDriver {
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symResolver.loadCloneableType();
         }
-//        symResolver.loadJSONAndDependentTypes();
-//        symResolver.loadCloneableType();
         symResolver.reloadIntRangeType();
 
         // Now load each module.
@@ -243,7 +238,6 @@ public class CompilerDriver {
     // Private methods
 
     private void compilePackageSymbol(BPackageSymbol packageSymbol) {
-
         BLangPackage pkgNode = this.pkgCache.get(packageSymbol.pkgID);
         if (pkgNode == null) {
             // This is a package loaded from a BALO.
@@ -270,7 +264,6 @@ public class CompilerDriver {
     }
 
     private void compile(BLangPackage pkgNode) {
-
         if (this.stopCompilation(pkgNode, CompilerPhase.TYPE_CHECK)) {
             return;
         }
@@ -334,37 +327,30 @@ public class CompilerDriver {
     }
 
     private BLangPackage codeGen(BLangPackage pkgNode) {
-
         return this.codeGenerator.generate(pkgNode);
     }
 
     private void generateObservabilityData(BLangPackage pkgNode) {
-
         this.observabilitySymbolCollector.process(pkgNode);
     }
 
     public BLangPackage define(BLangPackage pkgNode) {
-
         return this.symbolEnter.definePackage(pkgNode);
     }
 
     private BLangPackage typeCheck(BLangPackage pkgNode) {
-
         return this.semAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage documentationAnalyze(BLangPackage pkgNode) {
-
         return this.documentationAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage codeAnalyze(BLangPackage pkgNode) {
-
         return this.codeAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage dataflowAnalyze(BLangPackage pkgNode) {
-
         return this.dataflowAnalyzer.analyze(pkgNode);
     }
 
@@ -373,22 +359,18 @@ public class CompilerDriver {
     }
 
     private BLangPackage taintAnalyze(BLangPackage pkgNode) {
-
         return this.taintAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage propagateConstants(BLangPackage pkgNode) {
-
         return this.constantPropagation.perform(pkgNode);
     }
 
     private BLangPackage annotationProcess(BLangPackage pkgNode) {
-
         return this.compilerPluginRunner.runPlugins(pkgNode);
     }
 
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {
-
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
@@ -396,7 +378,6 @@ public class CompilerDriver {
     }
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
-
         return (!isToolingCompilation && nextPhase == CompilerPhase.CODE_ANALYZE) ||
                 nextPhase == CompilerPhase.TAINT_ANALYZE ||
                 nextPhase == CompilerPhase.COMPILER_PLUGIN ||
@@ -405,8 +386,8 @@ public class CompilerDriver {
 
     private BPackageSymbol getLangModuleFromSource(PackageID modID) {
 
-        BLangPackage pkg = pkgLoader.loadAndDefinePackage(modID);
-        pkg = documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkg)));
+        BLangPackage pkg = taintAnalyze(
+                documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));
         if (dlog.getErrorCount() > 0) {
             return null;
         }
