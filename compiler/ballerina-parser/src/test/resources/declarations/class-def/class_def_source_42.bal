@@ -1,4 +1,4 @@
-class Student
+client Student {
 
     public function foo() {
 
