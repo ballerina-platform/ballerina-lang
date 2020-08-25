@@ -39,6 +39,8 @@ public interface JarResolver {
 
     HashSet<Path> nativeDependencies(PackageID packageID);
 
+    HashSet<Path> allNativeDependencies(BLangPackage bLangPackage);
+
     HashSet<Path> nativeDependenciesForTests(PackageID packageID);
 
     HashSet<Path> allDependencies(BLangPackage bLangPackage);
