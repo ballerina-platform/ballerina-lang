@@ -126,6 +126,10 @@ public abstract class BIRNode {
         public BIRBasicBlock endBB;
         public BIRBasicBlock startBB;
         public int insOffset;
+        public boolean isGeneratedInDesugar;
+
+        // Stores the scope of the current instruction with respect to local variables.
+        public BirScope insScope;
 
         public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope,
                               VarKind kind, String metaVarName) {
@@ -135,6 +139,7 @@ public abstract class BIRNode {
             this.scope = scope;
             this.kind = kind;
             this.metaVarName = metaVarName;
+            this.isGeneratedInDesugar = false;
         }
 
         public BIRVariableDcl(BType type, Name name, VarScope scope, VarKind kind) {

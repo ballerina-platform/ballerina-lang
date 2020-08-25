@@ -1991,7 +1991,7 @@ public class Desugar extends BLangNodeVisitor {
         //create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
         String name = "tuple";
         final BLangSimpleVariable tuple = ASTBuilderUtil.createVariable(tupleDestructure.pos, name, runTimeType, null,
-                new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, runTimeType,
+                new BVarSymbol(Flags.DESTRUCTURED, names.fromString(name), this.env.scope.owner.pkgID, runTimeType,
                         this.env.scope.owner));
         tuple.expr = tupleDestructure.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(tupleDestructure.pos,

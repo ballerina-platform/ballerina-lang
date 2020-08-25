@@ -133,4 +133,8 @@ public enum Flag {
      * Indicates flagged node is a distinct type.
      */
     DISTINCT,
+    /**
+     * Indicates a variable added during destructuring.
+     */
+    DESTRUCTURED,
 }
