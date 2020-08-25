@@ -147,6 +147,15 @@ public class JarResolverImpl implements JarResolver {
     }
 
     @Override
+    public HashSet<Path> allNativeDependencies(BLangPackage bLangPackage) {
+        HashSet<PackageID> alreadyImportedSet = new HashSet<>();
+        PackageID pkgId = bLangPackage.packageID;
+        HashSet<Path> modulePlatformLibs = new HashSet<>(nativeDependencies(pkgId));
+        copyNativeDependenciesForImportedLibs(bLangPackage.symbol.imports, modulePlatformLibs, alreadyImportedSet);
+        return modulePlatformLibs;
+    }
+
+    @Override
     public HashSet<Path> nativeDependenciesForTests(PackageID packageID) {
         HashSet<Path> testPlatformLibs = new HashSet<>(nativeDependencies(packageID));
         List<Library> libraries = manifest.getPlatform().libraries;
@@ -224,6 +233,19 @@ public class JarResolverImpl implements JarResolver {
                 alreadyImportedSet.add(pkgId);
                 moduleDependencySet.addAll(nativeDependencies(pkgId));
                 copyImportedLibs(importSymbol.pkgID, importSymbol.imports, moduleDependencySet, alreadyImportedSet);
+            }
+        }
+    }
+
+    private void copyNativeDependenciesForImportedLibs(List<BPackageSymbol> imports,
+                                                       HashSet<Path> moduleDependencySet,
+                                                       HashSet<PackageID> alreadyImportedSet) {
+        for (BPackageSymbol importSymbol : imports) {
+            PackageID pkgId = importSymbol.pkgID;
+            if (!alreadyImportedSet.contains(pkgId)) {
+                alreadyImportedSet.add(pkgId);
+                moduleDependencySet.addAll(nativeDependencies(pkgId));
+                copyNativeDependenciesForImportedLibs(importSymbol.imports, moduleDependencySet, alreadyImportedSet);
             }
         }
     }
