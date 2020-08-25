@@ -36,8 +36,6 @@ import org.ballerinalang.openapi.utils.CodegenUtils;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;
 import org.ballerinalang.openapi.utils.TypeExtractorUtil;
-import org.ballerinalang.tool.LauncherUtils;
-import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,11 +47,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -64,7 +60,6 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.openapi.model.GenSrcFile.GenFileType;
 import static org.ballerinalang.openapi.utils.GeneratorConstants.GenType.GEN_CLIENT;
 import static org.ballerinalang.openapi.utils.GeneratorConstants.GenType.GEN_SERVICE;
-import static org.ballerinalang.openapi.utils.GeneratorConstants.MODULE_MD;
 
 /**
  * This class generates Ballerina Services/Clients for a provided OAS definition.
@@ -315,14 +310,9 @@ public class CodeGenerator {
         if (Files.exists(srcPath)) {
             final File[] listFiles = new File(String.valueOf(srcPath)).listFiles();
             if (listFiles != null) {
-                Arrays.stream(listFiles).forEach(file -> {
-                    for (GenSrcFile gFile : sources) {
-                        if (file.getName().equals(gFile.getFileName())) {
-                            file.delete();
-                            break;
-                        }
-                    }
-                });
+                Arrays.stream(listFiles)
+                        .filter(file -> sources.stream().anyMatch(gFile -> file.getName().equals(gFile.getFileName())))
+                        .forEach(File::delete);
             }
         }
 //        // Remove old generated files - if any - before regenerate
@@ -369,9 +359,7 @@ public class CodeGenerator {
         } else if (type.equals(GEN_CLIENT)) {
             outStream.println("Client generated successfully.");
         }
-//        outStream.println("Following files were created. \n" +
-//                "src/ \n- " + srcPackage);
-        outStream.println("Following files were created. \n");
+        outStream.println("Following files were created.");
         Iterator<GenSrcFile> iterator = sources.iterator();
         while (iterator.hasNext()) {
             outStream.println("-- " + iterator.next().getFileName());

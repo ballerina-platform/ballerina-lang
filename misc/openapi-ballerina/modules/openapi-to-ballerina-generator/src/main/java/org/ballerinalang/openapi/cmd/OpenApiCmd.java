@@ -106,7 +106,7 @@ public class OpenApiCmd implements BLauncherCmd {
             try {
                 resourcePath = Paths.get(openApiFile.getCanonicalPath());
             } catch (IOException e) {
-                e.printStackTrace();
+                throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
             }
             targetOutputPath = executionPath;
             if (this.outputPath != null) {

@@ -32,7 +32,7 @@ public class GeneratorConstants {
     public enum GenType {
         GEN_SERVICE("gen_service"),
         GEN_CLIENT("gen_client"),
-        GEN_BOTH( "gen_both");
+        GEN_BOTH("gen_both");
 
         private String name;
 
