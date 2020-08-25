@@ -193,7 +193,7 @@ public class AnnotationDesugar {
                 continue;
             }
 
-            if (function != null) {
+            if (function == null) {
                 function = defineFunction(classDefinition.pos, pkgID, owner);
                 mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
             }
