@@ -15,7 +15,7 @@
                         "character": 10
                     }
                 },
-                "newText": "(int|string|error) fooResult = foo();\n    if (fooResult is int) {\n\n    } else if (fooResult is string) {\n\n    } else {\n\n    }"
+                "newText": "(int|string|error) fooResult \u003d foo();\n\t\t\t\tif (fooResult is int) {\n\n\t\t\t\t} else if (fooResult is string) {\n\n\t\t\t\t} else {\n\n\t\t\t\t}"
             }
         ]
     }

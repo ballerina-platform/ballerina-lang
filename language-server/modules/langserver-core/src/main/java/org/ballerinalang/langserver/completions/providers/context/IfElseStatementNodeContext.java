@@ -38,8 +38,7 @@ import java.util.stream.Collectors;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfElseStatementNode> {
     public IfElseStatementNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(IfElseStatementNode.class);
+        super(IfElseStatementNode.class);
     }
 
     @Override

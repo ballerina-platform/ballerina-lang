@@ -39,8 +39,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class NamedWorkerDeclarationNodeContext extends AbstractCompletionProvider<NamedWorkerDeclarationNode> {
     public NamedWorkerDeclarationNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(NamedWorkerDeclarationNode.class);
+        super(NamedWorkerDeclarationNode.class);
     }
 
     @Override

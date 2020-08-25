@@ -119,7 +119,7 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
+                      "kind": "STRING_LITERAL_TOKEN",
                       "hasDiagnostics": true,
                       "diagnostics": [
                         "ERROR_MISSING_DOUBLE_QUOTE"
@@ -204,7 +204,7 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
+                      "kind": "STRING_LITERAL_TOKEN",
                       "value": "how are you?"
                     }
                   ]
