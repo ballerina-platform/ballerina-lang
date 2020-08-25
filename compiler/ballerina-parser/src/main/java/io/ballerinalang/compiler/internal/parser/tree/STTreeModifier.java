@@ -1794,13 +1794,15 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STFunctionalBindingPatternNode transform(
-            STFunctionalBindingPatternNode functionalBindingPatternNode) {
-        STNode typeReference = modifyNode(functionalBindingPatternNode.typeReference);
-        STNode openParenthesis = modifyNode(functionalBindingPatternNode.openParenthesis);
-        STNode argListBindingPatterns = modifyNode(functionalBindingPatternNode.argListBindingPatterns);
-        STNode closeParenthesis = modifyNode(functionalBindingPatternNode.closeParenthesis);
-        return functionalBindingPatternNode.modify(
+    public STErrorBindingPatternNode transform(
+            STErrorBindingPatternNode errorBindingPatternNode) {
+        STNode errorKeyword = modifyNode(errorBindingPatternNode.errorKeyword);
+        STNode typeReference = modifyNode(errorBindingPatternNode.typeReference);
+        STNode openParenthesis = modifyNode(errorBindingPatternNode.openParenthesis);
+        STNode argListBindingPatterns = modifyNode(errorBindingPatternNode.argListBindingPatterns);
+        STNode closeParenthesis = modifyNode(errorBindingPatternNode.closeParenthesis);
+        return errorBindingPatternNode.modify(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,

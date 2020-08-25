@@ -2221,22 +2221,25 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRestBindingPatternNode.createUnlinkedFacade();
     }
 
-    public static FunctionalBindingPatternNode createFunctionalBindingPatternNode(
+    public static ErrorBindingPatternNode createErrorBindingPatternNode(
+            Token errorKeyword,
             Node typeReference,
             Token openParenthesis,
             SeparatedNodeList<BindingPatternNode> argListBindingPatterns,
             Token closeParenthesis) {
+        Objects.requireNonNull(errorKeyword, "errorKeyword must not be null");
         Objects.requireNonNull(typeReference, "typeReference must not be null");
         Objects.requireNonNull(openParenthesis, "openParenthesis must not be null");
         Objects.requireNonNull(argListBindingPatterns, "argListBindingPatterns must not be null");
         Objects.requireNonNull(closeParenthesis, "closeParenthesis must not be null");
 
-        STNode stFunctionalBindingPatternNode = STNodeFactory.createFunctionalBindingPatternNode(
+        STNode stErrorBindingPatternNode = STNodeFactory.createErrorBindingPatternNode(
+                errorKeyword.internalNode(),
                 typeReference.internalNode(),
                 openParenthesis.internalNode(),
                 argListBindingPatterns.underlyingListNode().internalNode(),
                 closeParenthesis.internalNode());
-        return stFunctionalBindingPatternNode.createUnlinkedFacade();
+        return stErrorBindingPatternNode.createUnlinkedFacade();
     }
 
     public static NamedArgBindingPatternNode createNamedArgBindingPatternNode(
