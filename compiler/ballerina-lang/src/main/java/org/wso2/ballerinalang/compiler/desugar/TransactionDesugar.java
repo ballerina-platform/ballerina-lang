@@ -284,7 +284,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
         //   rollbackTransaction(transactionBlockId1, <error?> result1);
         // }
         createRollbackIfFailed(transactionNode.pos, transactionBlockStmt, resultSymbol);
-        transactionBlockStmt.isBreakable = true;
         return transactionBlockStmt;
     }
 

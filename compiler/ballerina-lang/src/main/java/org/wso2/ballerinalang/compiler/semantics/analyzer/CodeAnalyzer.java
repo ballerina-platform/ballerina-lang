@@ -539,6 +539,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithinLambdaWrappingCheckStack.push(false);
         this.transactionCount++;
         if (transactionNode.onFailClause != null) {
+            transactionNode.transactionBody.isBreakable = true;
             analyzeNode(transactionNode.onFailClause, env);
         }
         analyzeNode(transactionNode.transactionBody, env);
@@ -622,6 +623,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithinLambdaWrappingCheckStack.pop();
 
         if (retryNode.onFailClause != null) {
+            retryNode.retryBody.isBreakable = true;
             analyzeNode(retryNode.onFailClause, env);
         }
     }
@@ -1355,6 +1357,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(foreach.collection);
 
         if (foreach.onFailClause != null) {
+            foreach.body.isBreakable = true;
             analyzeNode(foreach.onFailClause, env);
         }
     }
@@ -1366,6 +1369,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean statementReturns = this.statementReturns;
         this.checkStatementExecutionValidity(whileNode);
         if (whileNode.onFailClause != null) {
+            whileNode.body.isBreakable = true;
             analyzeNode(whileNode.onFailClause, env);
         }
         this.loopCount++;
@@ -1393,6 +1397,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.failureHandled = failureHandled;
         this.resetLastStatement();
         if (doNode.onFailClause != null) {
+            doNode.body.isBreakable = true;
             analyzeNode(doNode.onFailClause, env);
         }
         this.errorTypes.pop();
@@ -1430,6 +1435,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.withinLockBlock = previousWithinLockBlock;
 
         if (lockNode.onFailClause != null) {
+            lockNode.body.isBreakable = true;
             analyzeNode(lockNode.onFailClause, env);
         }
     }

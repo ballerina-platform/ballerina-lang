@@ -2875,12 +2875,13 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangDo doNode) {
         BLangBlockStmt currentOnFailFuncBlock = this.onFailFuncBlock;
+        BLangInvocation currentOnFailLambdaInvocation = this.onFailLambdaInvocation;
         if (doNode.onFailClause != null) {
             rewrite(doNode.onFailClause, env);
         }
-        doNode.body.isBreakable = true;
         result = rewrite(doNode.body, this.env);
         this.onFailFuncBlock = currentOnFailFuncBlock;
+        this.onFailLambdaInvocation = currentOnFailLambdaInvocation;
     }
 
     @Override
@@ -2891,9 +2892,6 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol thrownErrorVarSymbol = new BVarSymbol(0, new Name("$thrownError$"),
                 env.scope.owner.pkgID, symTable.errorType, env.scope.owner);
         thrownErrorVarSymbol.closure = true;
-        //todo @chiran resolve onFailClause.varType
-//        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailClause.pos, "$thrownError$",
-//                onFailClause.varType, null, thrownErrorVarSymbol);
         BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailClause.pos, "$thrownError$",
                 onFailErrorVariableDef.var.type, null, thrownErrorVarSymbol);
         BLangLambdaFunction onFailFunc = createLambdaFunction(onFailClause.pos, "$onFailFunc$",
@@ -3057,7 +3055,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt currentOnFailFuncBlock = this.onFailFuncBlock;
         whileNode.expr = rewriteExpr(whileNode.expr);
         whileNode.body = rewrite(whileNode.body, env);
-        whileNode.body.isBreakable = true;
         result = whileNode;
         this.onFailFuncBlock = currentOnFailFuncBlock;
     }
