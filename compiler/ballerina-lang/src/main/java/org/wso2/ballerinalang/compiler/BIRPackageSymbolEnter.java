@@ -78,8 +78,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -392,7 +397,7 @@ public class BIRPackageSymbolEnter {
 
         // Read annotation attachments
         // Skip annotation attachments for now
-        dataInStream.skip(dataInStream.readLong());
+        readFunctionAnnotations(dataInStream, invokableSymbol);
 
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, dataInStream);
@@ -405,6 +410,70 @@ public class BIRPackageSymbolEnter {
         dataInStream.skip(dataInStream.readLong()); // read and skip method body
 
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
+    }
+
+    private void readFunctionAnnotations(DataInputStream dataInStream,
+                                         BInvokableSymbol invokableSymbol) throws IOException {
+
+        dataInStream.readLong();
+        int annotAttachmentsSize = dataInStream.readInt();
+        List<BLangAnnotationAttachment> annAttachments = new ArrayList<>(annotAttachmentsSize);
+        for (int i = 0; i < annotAttachmentsSize; i++) {
+            PackageCPEntry pkgCpEntry = (PackageCPEntry) this.env.constantPool[dataInStream.readInt()];
+            String orgName = ((StringCPEntry) this.env.constantPool[pkgCpEntry.orgNameCPIndex]).value;
+            String pkgName = ((StringCPEntry) this.env.constantPool[pkgCpEntry.pkgNameCPIndex]).value;
+            String pkgVersion = ((StringCPEntry) this.env.constantPool[pkgCpEntry.versionCPIndex]).value;
+            PackageID pkgId = createPackageID(orgName, pkgName, pkgVersion);
+            skipPosition(dataInStream);
+            BLangAnnotationAttachment annAttachment = new BLangAnnotationAttachment();
+            BLangIdentifier annotationName = new BLangIdentifier();
+            BLangIdentifier pkgAlias = new BLangIdentifier();
+            String annonName = getStringCPEntryValue(dataInStream);
+            annotationName.value = annonName;
+            pkgAlias.setValue(pkgId.toString());
+            annAttachment.annotationName = annotationName;
+            annAttachment.pkgAlias = pkgAlias;
+            int annotAttachValuesSize = dataInStream.readInt();
+            annAttachment.annotationSymbol = new BAnnotationSymbol(new Name(annonName), 0, new HashSet<>(), pkgId,
+                                                                   null, null);
+            for (int j = 0; j < annotAttachValuesSize; j++) {
+                annAttachment.expr = readAnnotAttachValue(dataInStream);
+            }
+            annAttachments.add(annAttachment);
+        }
+        invokableSymbol.annAttachments = annAttachments;
+    }
+
+    private BLangExpression readAnnotAttachValue(DataInputStream dataInStream) throws IOException {
+
+        BType annotationType = readBType(dataInStream);
+        if (annotationType.tag == TypeTags.ARRAY) {
+            int annotationArraySize = dataInStream.readInt();
+            List<BLangExpression> expressions = new ArrayList<>(annotationArraySize);
+            for (int k = 0; k < annotationArraySize; k++) {
+                expressions.add(readAnnotAttachValue(dataInStream));
+            }
+            return new BLangListConstructorExpr.BLangArrayLiteral(null, expressions, annotationType);
+        } else if (annotationType.tag == TypeTags.RECORD || annotationType.tag == TypeTags.MAP) {
+            int annotationMapSize = dataInStream.readInt();
+            BLangRecordLiteral annotationMap = new BLangRecordLiteral(null, annotationType);
+            annotationMap.fields = new ArrayList<>(annotationMapSize);
+            for (int k = 0; k < annotationMapSize; k++) {
+                BLangRecordLiteral.BLangRecordKeyValueField field =
+                        new BLangRecordLiteral.BLangRecordKeyValueField();
+                BLangLiteral recordKey = new BLangLiteral();
+                recordKey.setValue(getStringCPEntryValue(dataInStream));
+                field.key = new BLangRecordLiteral.BLangRecordKey(recordKey);
+                field.valueExpr = readAnnotAttachValue(dataInStream);
+                annotationMap.fields.add(field);
+            }
+            return annotationMap;
+        } else {
+            BLangConstantValue value = readConstLiteralValue(dataInStream);
+            BLangLiteral bLangLiteral = new BLangLiteral();
+            bLangLiteral.setValue(value);
+            return bLangLiteral;
+        }
     }
 
     private void skipPosition(DataInputStream dataInStream) throws IOException {
