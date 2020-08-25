@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.internal.parser;
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
 import java.util.ArrayDeque;
@@ -34,7 +35,7 @@ import java.util.List;
  */
 public abstract class AbstractLexer {
 
-    protected List<STNode> leadingTriviaList;
+    protected List<STNode> leadingTriviaList = new ArrayList<>(10);
     private Collection<STNodeDiagnostic> diagnostics = new ArrayList<>();
     protected CharReader reader;
     protected ParserMode mode;
@@ -115,5 +116,11 @@ public abstract class AbstractLexer {
 
     protected void reportLexerError(DiagnosticCode diagnosticCode, Object... args) {
         diagnostics.add(SyntaxErrors.createDiagnostic(diagnosticCode, args));
+    }
+
+    protected STNode getLeadingTrivia() {
+        STNode trivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        this.leadingTriviaList = new ArrayList<>(0);
+        return trivia;
     }
 }

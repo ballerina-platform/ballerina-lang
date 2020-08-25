@@ -17,7 +17,6 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
-
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticWarningCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
@@ -34,10 +33,12 @@ import java.util.List;
  */
 public class DocumentationLexer extends AbstractLexer {
 
-    private enum BacktickReferenceMode { NO_KEYWORD, SPECIAL_KEYWORD, FUNCTION_KEYWORD }
+    private enum BacktickReferenceMode {
+        NO_KEYWORD, SPECIAL_KEYWORD, FUNCTION_KEYWORD
+    }
 
     private BacktickReferenceMode referenceMode = BacktickReferenceMode.NO_KEYWORD;
-    private static final char[] deprecatedChars = {'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd' };
+    private static final char[] deprecatedChars = { 'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd' };
 
     // Used only for backtick content validation
     private int lookAheadNumber = 0;
@@ -62,11 +63,9 @@ public class DocumentationLexer extends AbstractLexer {
                 token = readDocumentationInitToken();
                 break;
             case DOCUMENTATION:
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = readDocumentationToken();
                 break;
             case DOCUMENTATION_INTERNAL:
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = readDocumentationInternalToken();
                 break;
             case DOCUMENTATION_PARAMETER:
@@ -78,11 +77,9 @@ public class DocumentationLexer extends AbstractLexer {
                 token = readDocumentationReferenceTypeToken();
                 break;
             case DOCUMENTATION_BACKTICK_CONTENT:
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = readDocumentationBacktickContentToken();
                 break;
             case DOCUMENTATION_BACKTICK_EXPR:
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = readDocumentationBacktickExprToken();
                 break;
             default:
@@ -319,21 +316,20 @@ public class DocumentationLexer extends AbstractLexer {
     }
 
     private STToken getDocumentationSyntaxToken(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         resetLeadingTrivia();
 
         STNode trailingTrivia = processTrailingTrivia();
         // check for end of line minutiae and terminate current documentation mode.
         int bucketCount = trailingTrivia.bucketCount();
-        if (bucketCount > 0 &&
-                trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
+        if (bucketCount > 0 && trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
             endMode();
         }
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
     private STToken getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         resetLeadingTrivia();
 
         // We reach here only for the hash token, minus token and backtick token in the documentation mode.
@@ -355,7 +351,7 @@ public class DocumentationLexer extends AbstractLexer {
     }
 
     private STToken getDocumentationLiteral(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         resetLeadingTrivia();
 
         String lexeme = getLexeme();
@@ -363,15 +359,14 @@ public class DocumentationLexer extends AbstractLexer {
 
         // Check for end of line minutiae and terminate the current documentation mode.
         int bucketCount = trailingTrivia.bucketCount();
-        if (bucketCount > 0 &&
-                trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
+        if (bucketCount > 0 && trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
             endMode();
         }
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
     private STToken getDocumentationDescriptionToken() {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         resetLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
@@ -380,7 +375,7 @@ public class DocumentationLexer extends AbstractLexer {
     }
 
     private STToken getIdentifierToken() {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         resetLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
@@ -657,7 +652,7 @@ public class DocumentationLexer extends AbstractLexer {
             if (LexerTerminals.RETURN.equals(getLexeme())) {
                 token = getDocumentationSyntaxToken(SyntaxKind.RETURN_KEYWORD);
             } else {
-                token =  getDocumentationLiteral(SyntaxKind.PARAMETER_NAME);
+                token = getDocumentationLiteral(SyntaxKind.PARAMETER_NAME);
             }
             // If the parameter name is not followed by a minus token, switch the mode.
             if (peek() != LexerTerminals.MINUS) {
@@ -819,6 +814,7 @@ public class DocumentationLexer extends AbstractLexer {
             hasMatch = false;
         }
     }
+
     private void processCloseParenthesis() {
         int nextChar = getLookAheadChar();
         if (nextChar == LexerTerminals.CLOSE_PARANTHESIS) {
