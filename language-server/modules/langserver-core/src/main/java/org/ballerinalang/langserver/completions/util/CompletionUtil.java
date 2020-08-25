@@ -104,9 +104,11 @@ public class CompletionUtil {
             reference = reference.parent();
         }
 
-        if (provider == null) {
+        if (provider == null || ctx.get(CompletionKeys.RESOLVER_CHAIN).contains(provider.getClass())) {
             return completionItems;
         }
+        ctx.get(CompletionKeys.RESOLVER_CHAIN).add(provider.getClass());
+        
         return provider.getCompletions(ctx, reference);
     }
 

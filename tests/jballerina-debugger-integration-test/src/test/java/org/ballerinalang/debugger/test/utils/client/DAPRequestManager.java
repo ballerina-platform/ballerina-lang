@@ -23,6 +23,8 @@ import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.ContinueResponse;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.DisconnectArguments;
+import org.eclipse.lsp4j.debug.EvaluateArguments;
+import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.LoadedSourceEventArguments;
 import org.eclipse.lsp4j.debug.ModuleEventArguments;
@@ -68,6 +70,7 @@ public class DAPRequestManager {
     private static final int TIMEOUT_STACK_TRACE = 2000;
     private static final int TIMEOUT_SCOPES = 2000;
     private static final int TIMEOUT_VARIABLES = 2000;
+    private static final int TIMEOUT_EVALUATE = 5000;
     private static final int TIMEOUT_STEP_OVER = 5000;
     private static final int TIMEOUT_STEP_IN = 10000;
     private static final int TIMEOUT_STEP_OUT = 5000;
@@ -156,6 +159,15 @@ public class DAPRequestManager {
         if (checkStatus()) {
             CompletableFuture<VariablesResponse> resp = server.variables(args);
             return resp.get(TIMEOUT_VARIABLES, TimeUnit.MILLISECONDS);
+        } else {
+            throw new IllegalStateException("DAP request manager is not active");
+        }
+    }
+
+    public EvaluateResponse evaluate(EvaluateArguments args) throws Exception {
+        if (checkStatus()) {
+            CompletableFuture<EvaluateResponse> resp = server.evaluate(args);
+            return resp.get(TIMEOUT_EVALUATE, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }

@@ -47,8 +47,9 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class RightArrowActionNodeContext<T extends Node> extends AbstractCompletionProvider<T> {
-    public RightArrowActionNodeContext(Kind kind) {
-        super(kind);
+
+    public RightArrowActionNodeContext(Class<T> attachmentPoint) {
+        super(attachmentPoint);
     }
 
     protected List<LSCompletionItem> getFilteredItems(LSContext context, ExpressionNode node) {
