@@ -100,6 +100,6 @@ returns sql:ProcedureCallResult|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.CallUtils"
 } external;
 
-function close(Client mysqlClient) returns sql:Error? = @java:Method {
+function close(Client sqlClient) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.ClientUtils"
 } external;
