@@ -583,40 +583,19 @@ class JMethodResolver {
             }
         }
 
-        if (this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType)) {
-            return true;
-        }
+        return isAssignableFrom(BError.class, jType) ||
+                isAssignableFrom(BFunctionPointer.class, jType) ||
+                isAssignableFrom(BObject.class, jType) ||
+                isAssignableFrom(BTypedesc.class, jType) ||
+                isAssignableFrom(BHandle.class, jType) ||
+                isAssignableFrom(BXML.class, jType) ||
+                this.isValidListType(jType, jMethodRequest) ||
+                isAssignableFrom(BMap.class, jType) ||
+                isAssignableFrom(TableValue.class, jType);
+    }
 
-        if (this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName()).isAssignableFrom(jType)) {
-            return true;
-        }
-
-        if (this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType)) {
-            // Service and Object.
-            return true;
-        }
-
-        if (this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType)) {
-            return true;
-        }
-
-        if (this.classLoader.loadClass(BHandle.class.getCanonicalName()).isAssignableFrom(jType)) {
-            return true;
-        }
-
-        if (this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType)) {
-            return true;
-        }
-
-        if (this.isValidListType(jType, jMethodRequest)) {
-            return true;
-        }
-
-        if (this.classLoader.loadClass(BMap.class.getCanonicalName()).isAssignableFrom(jType)) {
-            return true;
-        }
-
-        return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
+    private boolean isAssignableFrom(Class<?> targetType, Class<?> jType) throws ClassNotFoundException {
+        return this.classLoader.loadClass(targetType.getCanonicalName()).isAssignableFrom(jType);
     }
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,
