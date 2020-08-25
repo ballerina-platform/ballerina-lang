@@ -41,14 +41,6 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public Set<AttachPoint> points;
     public int maskedPoints;
 
-    @Deprecated // TODO: Remove
-    public BAnnotationSymbol(Name name, int flags, int maskedPoints, PackageID pkgID, BType type,
-                             BSymbol owner) {
-        super(ANNOTATION, flags, name, pkgID, type, owner, null);
-        this.maskedPoints = maskedPoints;
-        this.points = new HashSet<>();
-    }
-
     public BAnnotationSymbol(Name name, int flags, Set<AttachPoint> points, PackageID pkgID,
                              BType type, BSymbol owner, DiagnosticPos pos) {
         super(ANNOTATION, flags, name, pkgID, type, owner, pos);

@@ -535,7 +535,6 @@ public class BIRPackageSymbolEnter {
 
         BType annotationType = readBType(dataInStream);
 
-        // TODO: check if we need to persist position info
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),
                                                                             this.env.pkgSymbol.pkgID, null,
                                                                             this.env.pkgSymbol, symTable.builtinPos);

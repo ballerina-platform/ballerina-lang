@@ -485,17 +485,6 @@ public class ASTBuilderUtil {
         return varRef;
     }
 
-    // TODO: Remove
-    static BLangSimpleVarRef createIgnoreVariableRef(DiagnosticPos pos, SymbolTable symTable) {
-        final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.pos = pos;
-        varRef.variableName = createIdentifier(pos, Names.IGNORE.value);
-        varRef.symbol = new BVarSymbol(0, Names.IGNORE, symTable.rootPkgSymbol.scope.owner.pkgID, symTable.noType,
-                                       symTable.rootPkgSymbol.scope.owner, pos);
-        varRef.type = symTable.noType;
-        return varRef;
-    }
-
     public static BLangSimpleVariable createVariable(DiagnosticPos pos,
                                                      String name,
                                                      BType type,
@@ -781,20 +770,6 @@ public class ASTBuilderUtil {
         argExpr.name.value = argName;
         argExpr.expr = expr;
         return argExpr;
-    }
-
-    // TODO: remove this
-    public static BVarSymbol duplicateVarSymbol(BVarSymbol varSymbol) {
-        BVarSymbol dupVarSymbol = new BVarSymbol(varSymbol.flags, varSymbol.name,
-                                                 varSymbol.pkgID, varSymbol.type, varSymbol.owner, varSymbol.pos);
-        dupVarSymbol.tainted = varSymbol.tainted;
-        dupVarSymbol.closure = varSymbol.closure;
-        dupVarSymbol.markdownDocumentation = varSymbol.markdownDocumentation;
-        dupVarSymbol.scope = varSymbol.scope;
-        dupVarSymbol.type = varSymbol.type;
-        dupVarSymbol.kind = varSymbol.kind;
-
-        return dupVarSymbol;
     }
 
     private static IdentifierNode createIdentifier(String value) {

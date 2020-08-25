@@ -6861,33 +6861,6 @@ public class TypeChecker extends BLangNodeVisitor {
         return matchExprTypes;
     }
 
-    // TODO: remove
-    private BSymbol getFunctionPointerCallSymbol(BLangInvocation iExpr) {
-        if (iExpr.expr == null) {
-            // shouldn't reach here
-            return symTable.notFoundSymbol;
-        }
-
-        BSymbol varSymbol = ((BLangVariableReference) iExpr.expr).symbol;
-        if (varSymbol == null) {
-            return symTable.notFoundSymbol;
-        }
-
-        BType varType = varSymbol.type;
-        if (varType.tag != TypeTags.INVOKABLE) {
-            return symTable.notFoundSymbol;
-        }
-
-        if (varSymbol.kind != SymbolKind.FUNCTION) {
-            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, 0, varSymbol.name, env.enclPkg.symbol.pkgID, varType,
-                    env.scope.owner, symTable.builtinPos);
-            varSymbol.kind = SymbolKind.FUNCTION;
-        }
-
-        iExpr.symbol = varSymbol;
-        return varSymbol;
-    }
-
     private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {
         if (encounteredTypes.contains(type)) {
             return false;

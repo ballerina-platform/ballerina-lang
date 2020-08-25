@@ -26,8 +26,6 @@ dependencies {
 
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-
-    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - Compiler API'
