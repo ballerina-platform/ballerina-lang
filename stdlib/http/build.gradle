@@ -85,6 +85,7 @@ dependencies {
     interopImports project(':ballerina-reflect')
     interopImports project(':ballerina-runtime-api')
     interopImports project(':ballerina-mime')
+    interopImports project(':ballerina-auth')
 
     // transitive
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
