@@ -2055,7 +2055,7 @@ public class Desugar extends BLangNodeVisitor {
         String name = "tuple";
         final BLangSimpleVariable tuple =
                 ASTBuilderUtil.createVariable(tupleDestructure.pos, name, runTimeType, null,
-                                              new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
+                                              new BVarSymbol(Flags.DESTRUCTURED, names.fromString(name), this.env.scope.owner.pkgID,
                                                              runTimeType, this.env.scope.owner, tupleDestructure.pos,
                                                              VIRTUAL));
         tuple.expr = tupleDestructure.expr;
