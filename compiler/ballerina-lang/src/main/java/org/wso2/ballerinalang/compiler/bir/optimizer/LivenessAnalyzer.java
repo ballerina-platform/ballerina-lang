@@ -89,27 +89,21 @@ public class LivenessAnalyzer {
         boolean changed = false;
         Set<BIRNode.BIRVariableDcl> in = liveIns.get(node);
         Set<BIRNode.BIRVariableDcl> out = liveOuts.get(node);
-        for (BIROperand use : node.instruction.getRhsOperands()) {
+        for (BIROperand use : BirOptimizerUtil.getUse(node.instruction)) {
             changed |= in.add(use.variableDcl);
         }
-        BIRNode.BIRVariableDcl def = getDef(node);
+        BIROperand defOp = BirOptimizerUtil.getDef(node.instruction);
+
+        BIRNode.BIRVariableDcl def = null;
+        if (defOp != null) {
+            def = defOp.variableDcl;
+        }
         boolean removed = out.remove(def);
         changed |= in.addAll(out);
         if (removed) {
             out.add(def);
         }
         return changed;
-    }
-
-    private BIRNode.BIRVariableDcl getDef(ControlFlowGraph.Node node) {
-        BIRNode.BIRVariableDcl def = null;
-        if (node.instruction.lhsOp != null) {
-            BIRNode.BIRVariableDcl variableDcl = node.instruction.lhsOp.variableDcl;
-            if (!(variableDcl instanceof BIRNode.BIRGlobalVariableDcl)) {
-                def = variableDcl;
-            }
-        }
-        return def;
     }
 
     /**

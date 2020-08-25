@@ -443,7 +443,7 @@ public abstract class BIRNode {
 
         @Override
         public String toString() {
-            return String.valueOf(type) + " " + String.valueOf(name);
+            return type + " " + name;
         }
 
         @Override
@@ -757,6 +757,8 @@ public abstract class BIRNode {
         public boolean isKeyValuePair() {
             return true;
         }
+
+        public abstract BIROperand[] getOperands();
     }
 
     /**
@@ -772,6 +774,11 @@ public abstract class BIRNode {
         public BIRMappingConstructorKeyValueEntry(BIROperand keyOp, BIROperand valueOp) {
             this.keyOp = keyOp;
             this.valueOp = valueOp;
+        }
+
+        @Override
+        public BIROperand[] getOperands() {
+            return new BIROperand[]{keyOp, valueOp};
         }
     }
 
@@ -791,6 +798,11 @@ public abstract class BIRNode {
         @Override
         public boolean isKeyValuePair() {
             return false;
+        }
+
+        @Override
+        public BIROperand[] getOperands() {
+            return new BIROperand[]{exprOp};
         }
     }
 }
