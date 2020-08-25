@@ -246,74 +246,99 @@
                                               ]
                                             },
                                             {
-                                              "kind": "SEMICOLON_TOKEN",
+                                              "kind": "EQUAL_TOKEN",
                                               "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_MISSING_SEMICOLON_TOKEN"
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "METHOD_DECLARATION",
-                                          "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            },
-                                            {
-                                              "kind": "FUNCTION_KEYWORD",
-                                              "leadingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": "            "
-                                                },
-                                                {
-                                                  "kind": "END_OF_LINE_MINUTIAE",
-                                                  "value": "\n"
-                                                },
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": "            "
-                                                }
-                                              ],
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
+                                                "ERROR_MISSING_EQUAL_TOKEN"
                                               ]
                                             },
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "isMissing": true,
+                                              "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                                               "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_FUNCTION_NAME"
-                                              ]
-                                            },
-                                            {
-                                              "kind": "FUNCTION_SIGNATURE",
                                               "children": [
-                                                {
-                                                  "kind": "OPEN_PAREN_TOKEN"
-                                                },
                                                 {
                                                   "kind": "LIST",
                                                   "children": []
                                                 },
                                                 {
-                                                  "kind": "CLOSE_PAREN_TOKEN",
-                                                  "trailingMinutiae": [
+                                                  "kind": "FUNCTION_KEYWORD",
+                                                  "leadingMinutiae": [
                                                     {
                                                       "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": " "
+                                                      "value": "            "
                                                     },
                                                     {
                                                       "kind": "END_OF_LINE_MINUTIAE",
                                                       "value": "\n"
+                                                    },
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": "            "
+                                                    }
+                                                  ],
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "FUNCTION_SIGNATURE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "OPEN_PAREN_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": []
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_PAREN_TOKEN",
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": " "
+                                                        },
+                                                        {
+                                                          "kind": "END_OF_LINE_MINUTIAE",
+                                                          "value": "\n"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "FUNCTION_BODY_BLOCK",
+                                                  "hasDiagnostics": true,
+                                                  "children": [
+                                                    {
+                                                      "kind": "OPEN_BRACE_TOKEN",
+                                                      "isMissing": true,
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_MISSING_OPEN_BRACE_TOKEN"
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": []
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_BRACE_TOKEN",
+                                                      "leadingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": "            "
+                                                        }
+                                                      ],
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "END_OF_LINE_MINUTIAE",
+                                                          "value": "\n"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -336,7 +361,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "            "
+                                          "value": "        "
                                         }
                                       ],
                                       "trailingMinutiae": [
@@ -381,7 +406,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "        "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -399,12 +424,6 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-          "leadingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": "    "
-            }
-          ],
           "trailingMinutiae": [
             {
               "kind": "END_OF_LINE_MINUTIAE",
