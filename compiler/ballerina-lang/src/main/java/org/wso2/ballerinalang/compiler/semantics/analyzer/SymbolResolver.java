@@ -883,6 +883,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             BArrayType arrType;
             if (arrayTypeNode.sizes.length == 0) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
+                arrayTypeSymbol.type = arrType;
+                markParameterizedType(arrType, arrType.eType);
             } else {
                     BLangExpression size = arrayTypeNode.sizes[i];
                     if(size instanceof BLangLiteral){
@@ -891,67 +893,45 @@ public class SymbolResolver extends BLangNodeVisitor {
                                 ((Integer)(((BLangLiteral)size).getValue()) == OPEN_SEALED_ARRAY_INDICATOR) ?
                                         new BArrayType(resultType, arrayTypeSymbol, (Integer)(((BLangLiteral)size).getValue()), BArrayState.OPEN_SEALED) :
                                         new BArrayType(resultType, arrayTypeSymbol, (Integer)(((BLangLiteral)size).getValue()), BArrayState.CLOSED_SEALED);
+                        arrayTypeSymbol.type = arrType;
+                        markParameterizedType(arrType, arrType.eType);
                     }
                     else {
                         Name pkgAlias = names.fromIdNode(((BLangSimpleVarRef) size).pkgAlias);
                         Name typeName = names.fromIdNode(((BLangSimpleVarRef) size).variableName);
-                        BSymbol sizeSymbol = symTable.notFoundSymbol;
 
-                        sizeSymbol = lookupMainSpaceSymbolInPackage(size.pos, env, pkgAlias, typeName);
+                        BSymbol sizeSymbol = lookupMainSpaceSymbolInPackage(size.pos, env, pkgAlias, typeName);
 
-                        if (sizeSymbol != symTable.notFoundSymbol) {
+                        if (!(symTable.notFoundSymbol.equals(sizeSymbol))) {
                             if (sizeSymbol.tag == SymTag.CONSTANT) {
                                 long length = (long) ((BConstantSymbol) sizeSymbol).value.value;
                                 BType lengthLiteralType = ((BConstantSymbol) sizeSymbol).literalType;
                                 if (lengthLiteralType.tag == TypeTags.INT) {
                                     arrType = new BArrayType(resultType, arrayTypeSymbol, (int) length, BArrayState.CLOSED_SEALED);
+                                    arrayTypeSymbol.type = arrType;
+                                    markParameterizedType(arrType, arrType.eType);
                                 } else {
-                                    arrType = new BArrayType(resultType, arrayTypeSymbol, Constants.INVALID_SIZE_REFERENCE_INDICATOR, BArrayState.CLOSED_SEALED);
-                                    dlog.error(size.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE_TYPE, size);
+//                                    arrType = new BArrayType(resultType, arrayTypeSymbol, Constants.INVALID_SIZE_REFERENCE_INDICATOR, BArrayState.CLOSED_SEALED);
+                                    arrayTypeSymbol.type = symTable.semanticError;
+                                    dlog.error(arrayTypeNode.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE_TYPE, ((BConstantSymbol) sizeSymbol).literalType);
                                 }
                             } else {
-                                arrType = new BArrayType(resultType, arrayTypeSymbol, Constants.INVALID_SIZE_REFERENCE_INDICATOR, BArrayState.CLOSED_SEALED);
-                                dlog.error(size.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE, size);
+//                                arrType = new BArrayType(resultType, arrayTypeSymbol, Constants.INVALID_SIZE_REFERENCE_INDICATOR, BArrayState.CLOSED_SEALED);
+                                arrayTypeSymbol.type = symTable.semanticError;
+                                dlog.error(arrayTypeNode.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE, sizeSymbol.name);
                             }
                         }
                         else {
-                            arrType = new BArrayType(resultType, arrayTypeSymbol, Constants.INVALID_SIZE_REFERENCE_INDICATOR, BArrayState.CLOSED_SEALED);
-                            dlog.error(size.pos, DiagnosticCode.ARRAY_SIZE_REFERENCE_NOT_DEFINED, size);
+//                            arrType = new BArrayType(resultType, arrayTypeSymbol, Constants.INVALID_SIZE_REFERENCE_INDICATOR, BArrayState.CLOSED_SEALED);
+                            arrayTypeSymbol.type = symTable.semanticError;
+                            dlog.error(arrayTypeNode.pos, DiagnosticCode.ARRAY_SIZE_REFERENCE_NOT_DEFINED, sizeSymbol.name);
                         }
                     }
             }
-            resultType = arrayTypeSymbol.type = arrType;
-            markParameterizedType(arrType, arrType.eType);
+            resultType = arrayTypeSymbol.type;
+//            markParameterizedType(arrType, arrType.eType);
         }
     }
-
-
-//    public void visit(BLangArrayType arrayTypeNode) {
-//        // The value of the dimensions field should always be >= 1
-//        // If sizes is null array is unsealed
-//        resultType = resolveTypeNode(arrayTypeNode.elemtype, env, diagCode);
-//        if (resultType == symTable.noType) {
-//            return;
-//        }
-//        for (int i = 0; i < arrayTypeNode.dimensions; i++) {
-//            BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
-//                    env.enclPkg.symbol.pkgID, null, env.scope.owner);
-//            BArrayType arrType;
-//            if (arrayTypeNode.sizes.length == 0) {
-//                arrType = new BArrayType(resultType, arrayTypeSymbol);
-//            } else {
-//                int size = arrayTypeNode.sizes[i];
-//                arrType = (size == UNSEALED_ARRAY_INDICATOR) ?
-//                        new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
-//                        (size == OPEN_SEALED_ARRAY_INDICATOR) ?
-//                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
-//                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
-//            }
-//            resultType = arrayTypeSymbol.type = arrType;
-//
-//            markParameterizedType(arrType, arrType.eType);
-//        }
-//    }
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
         LinkedHashSet<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
