@@ -116,7 +116,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
     private ResolvedTypeBuilder typeBuilder;
-    private TypeChecker typeChecker;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -138,7 +137,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.typeBuilder = new ResolvedTypeBuilder();
-        this.typeChecker = TypeChecker.getInstance(context);
     }
 
     public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {

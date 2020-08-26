@@ -569,28 +569,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             });
         }
 
-
-//        if (lhsType.tag == TypeTags.ARRAY){
-//            BLangExpression arrayLength = ((BArrayType)lhsType).sizeExpression;
-//            if( arrayLength != null){
-//                typeChecker.checkExpr(arrayLength, env);
-//                BSymbol sizeSymbol = ((BLangSimpleVarRef)arrayLength).symbol;
-//                if(sizeSymbol.tag == SymTag.CONSTANT) {
-//                    long length = (long)((BConstantSymbol)sizeSymbol).value.value;
-//                    BType lengthLiteralType = ((BConstantSymbol)sizeSymbol).literalType;
-//                    if(lengthLiteralType.tag == TypeTags.INT){
-//
-//                    }
-//                    else{
-//                        dlog.error(arrayLength.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE_TYPE, arrayLength);
-//                    }
-//                }
-//                else{
-//                    dlog.error(arrayLength.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE, arrayLength);
-//                }
-//            }
-//        }
-
         validateAnnotationAttachmentCount(varNode.annAttachments);
 
         validateWorkerAnnAttachments(varNode.expr);

@@ -37,8 +37,6 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
 
     public BLangExpression[] sizes = new BLangExpression[0];
 
-//    public int[] sizes = new int[0];
-
     public BLangArrayType() {
     }
 
@@ -56,11 +54,6 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
     public BLangExpression[] getSizes() {
         return sizes;
     }
-
-//    @Override
-//    public int[] getSizes() {
-//        return sizes;
-//    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
