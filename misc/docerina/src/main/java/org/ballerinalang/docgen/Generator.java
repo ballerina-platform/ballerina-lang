@@ -321,11 +321,9 @@ public class Generator {
         }
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
         List<DefaultableVariable> fields = getFields(recordType, recordType.fields, documentationNode, module);
-        // only add records that are not empty
-        if (!fields.isEmpty()) {
-            module.records.add(new Record(recordName, description(typeDefinition),
-                    isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, fields));
-        }
+        module.records.add(new Record(recordName, description(typeDefinition),
+                isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, recordType.sealed,
+                fields));
     }
 
     private static List<DefaultableVariable> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
