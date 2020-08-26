@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
@@ -539,7 +538,7 @@ public class ImmutableTypeCloner {
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY,
                                            getImmutableTypeName(names, origRecordType.tsymbol.toString()),
-                                           pkgID, null, env.scope.owner, pos);
+                                           pkgID, null, env.scope.owner, pos, SOURCE);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(

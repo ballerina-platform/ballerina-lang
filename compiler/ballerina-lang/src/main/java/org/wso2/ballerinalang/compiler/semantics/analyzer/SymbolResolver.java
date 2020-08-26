@@ -987,7 +987,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     : EnumSet.noneOf(Flag.class);
             BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
                                                                         env.enclPkg.symbol.pkgID, null,
-                                                                        env.scope.owner, recordTypeNode.pos);
+                                                                        env.scope.owner, recordTypeNode.pos, SOURCE);
             BRecordType recordType = new BRecordType(recordSymbol);
             recordSymbol.type = recordType;
             recordTypeNode.symbol = recordSymbol;

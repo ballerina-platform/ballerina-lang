@@ -1188,7 +1188,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0,
                                                                                 names.fromString(ANONYMOUS_RECORD_NAME),
                                                                                 env.enclPkg.symbol.pkgID, null,
-                                                                                env.scope.owner, recordVar.pos);
+                                                                                env.scope.owner, recordVar.pos, SOURCE);
                     recordVarType = (BRecordType) symTable.recordType;
 
                     LinkedHashMap<String, BField> fields =
@@ -1561,7 +1561,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(ANONYMOUS_RECORD_NAME),
                                                                     env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                    recordVar.pos);
+                                                                    recordVar.pos, SOURCE);
         //TODO check below field position
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {

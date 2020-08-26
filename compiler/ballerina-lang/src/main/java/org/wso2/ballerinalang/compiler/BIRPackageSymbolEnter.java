@@ -948,7 +948,8 @@ public class BIRPackageSymbolEnter {
                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                                                                                 names.fromString(recordName),
                                                                                 env.pkgSymbol.pkgID, null,
-                                                                                env.pkgSymbol, symTable.builtinPos);
+                                                                                env.pkgSymbol, symTable.builtinPos,
+                                                                                COMPILED_SOURCE);
                     recordSymbol.flags |= flags;
                     recordSymbol.scope = new Scope(recordSymbol);
                     BRecordType recordType = new BRecordType(recordSymbol, recordSymbol.flags);

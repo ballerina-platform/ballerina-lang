@@ -644,7 +644,8 @@ public class TypeParamAnalyzer {
         BRecordTypeSymbol expTSymbol = (BRecordTypeSymbol) expType.tsymbol;
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(expTSymbol.flags, expTSymbol.name,
                                                                     expTSymbol.pkgID, null,
-                                                                    expType.tsymbol.scope.owner, expTSymbol.pos);
+                                                                    expType.tsymbol.scope.owner, expTSymbol.pos,
+                                                                    VIRTUAL);
         recordSymbol.scope = new Scope(recordSymbol);
         recordSymbol.initializerFunc = expTSymbol.initializerFunc;
 

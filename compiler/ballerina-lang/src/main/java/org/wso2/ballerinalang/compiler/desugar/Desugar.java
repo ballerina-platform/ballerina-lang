@@ -6010,7 +6010,8 @@ public class Desugar extends BLangNodeVisitor {
 
             BRecordTypeSymbol recordSymbol =
                     Symbols.createRecordSymbol(0, names.fromString("$anonRecordType$" + recordCount++),
-                                               env.enclPkg.symbol.pkgID, null, env.scope.owner, recordVariable.pos);
+                                               env.enclPkg.symbol.pkgID, null, env.scope.owner, recordVariable.pos,
+                                               VIRTUAL);
             recordSymbol.initializerFunc = createRecordInitFunc();
             recordSymbol.scope = new Scope(recordSymbol);
             recordSymbol.scope.define(
@@ -6111,7 +6112,7 @@ public class Desugar extends BLangNodeVisitor {
                 SymTag.RECORD,
                 Flags.PUBLIC,
                 names.fromString("$anonErrorType$" + errorNo + "$detailType"),
-                env.enclPkg.symbol.pkgID, null, null, pos);
+                env.enclPkg.symbol.pkgID, null, null, pos, VIRTUAL);
 
         detailRecordTypeSymbol.initializerFunc = createRecordInitFunc();
         detailRecordTypeSymbol.scope = new Scope(detailRecordTypeSymbol);

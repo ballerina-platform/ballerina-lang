@@ -79,8 +79,10 @@ public class Symbols {
                                                        PackageID pkgID,
                                                        BType type,
                                                        BSymbol owner,
-                                                       DiagnosticPos pos) {
-        BRecordTypeSymbol typeSymbol = new BRecordTypeSymbol(SymTag.RECORD, flags, name, pkgID, type, owner, pos);
+                                                       DiagnosticPos pos,
+                                                       SymbolOrigin origin) {
+        BRecordTypeSymbol typeSymbol = new BRecordTypeSymbol(SymTag.RECORD, flags, name, pkgID, type, owner, pos,
+                                                             origin);
         typeSymbol.kind = SymbolKind.RECORD;
         return typeSymbol;
     }
