@@ -790,6 +790,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.ASSIGNMENT_STATEMENT)) &&
                 simpleNameReferenceNode.parent().children().get(0).equals(simpleNameReferenceNode)) ||
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.TYPED_BINDING_PATTERN) ||
+                simpleNameReferenceNode.parent().kind().equals(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) ||
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.ARRAY_TYPE_DESC)) {
             addSpaces = true;
         }
@@ -2118,10 +2119,10 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         return recordFieldWithDefaultValueNode.modify()
                 .withTypeName(typeName)
-                .withFieldName(formatToken(fieldName, 1, 1, 0, 0))
+                .withFieldName(formatToken(fieldName, 1, 0, 0, 0))
                 .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
                 .withExpression(expression)
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
