@@ -436,7 +436,9 @@ public class FormattingTreeModifier extends TreeModifier {
         if (builtinSimpleNameReferenceNode.parent() != null &&
                 (builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.FUNCTION_CALL) ||
                 (builtinSimpleNameReferenceNode.parent().parent() != null) &&
-                        builtinSimpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.FROM_CLAUSE))) {
+                builtinSimpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.FROM_CLAUSE) ||
+                (builtinSimpleNameReferenceNode.parent().parent() != null) &&
+                builtinSimpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.PARAMETERIZED_TYPE_DESC))) {
             addSpaces = false;
         }
         int startCol = getStartColumn(builtinSimpleNameReferenceNode, builtinSimpleNameReferenceNode.kind(), addSpaces);
@@ -1211,7 +1213,9 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public NilTypeDescriptorNode transform(NilTypeDescriptorNode nilTypeDescriptorNode) {
         boolean addSpaces = true;
-        if (nilTypeDescriptorNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
+        if (nilTypeDescriptorNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC) ||
+                (nilTypeDescriptorNode.parent() != null) &&
+                        nilTypeDescriptorNode.parent().kind().equals(SyntaxKind.TYPE_PARAMETER)) {
             addSpaces = false;
         }
         int startColumn = getStartColumn(nilTypeDescriptorNode, nilTypeDescriptorNode.kind(), addSpaces);
@@ -3426,7 +3430,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public Token transform(Token token) {
-        if (token.kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
+        if (token.kind().equals(SyntaxKind.PUBLIC_KEYWORD) || token.kind().equals(SyntaxKind.COMMA_TOKEN)) {
             return formatToken(token, 0, 1, 0, 0);
         }
         return token;
