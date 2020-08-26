@@ -37,8 +37,8 @@ public class BConstantSymbol extends BVarSymbol implements ConstantSymbol {
     public BType literalType;
 
     public BConstantSymbol(int flags, Name name, PackageID pkgID, BType literalType, BType type, BSymbol owner,
-                           DiagnosticPos pos) {
-        super(flags, name, pkgID, type, owner, pos, );
+                           DiagnosticPos pos, SymbolOrigin origin) {
+        super(flags, name, pkgID, type, owner, pos, origin);
         this.tag = CONSTANT;
         this.literalType = literalType;
     }

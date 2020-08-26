@@ -593,7 +593,7 @@ public class BIRPackageSymbolEnter {
         // Create the constant symbol.
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
                                                              this.env.pkgSymbol.pkgID, null, type, enclScope.owner,
-                                                             symTable.builtinPos, );
+                                                             symTable.builtinPos, COMPILED_SOURCE);
 
         defineMarkDownDocAttachment(constantSymbol, docBytes);
 

@@ -1131,7 +1131,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         return new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                                   symTable.semanticError, symTable.noType, env.scope.owner, constant.pos, );
+                                   symTable.semanticError, symTable.noType, env.scope.owner, constant.pos, SOURCE);
     }
 
     @Override
