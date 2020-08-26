@@ -913,24 +913,26 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
-                if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
-                    if (objectTypeNode.initFunction == null) {
-                        if (bLangFunction.requiredParams.size() != 0) {
-                            dlog.error(bLangFunction.pos, DiagnosticCode.OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS);
-                            continue;
-                        }
-                        bLangFunction.objInitFunction = true;
-                        objectTypeNode.initFunction = bLangFunction;
-                    } else {
-                        objectTypeNode.addFunction(bLangFunction);
-                    }
-                } else {
+                if (!Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
                     objectTypeNode.addFunction(bLangFunction);
+                    continue;
                 }
+                if (objectTypeNode.initFunction != null) {
+                    objectTypeNode.addFunction(bLangFunction);
+                    continue;
+                }
+                if (bLangFunction.requiredParams.size() != 0) {
+                    dlog.error(bLangFunction.pos, DiagnosticCode.OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS);
+                    continue;
+                }
+                bLangFunction.objInitFunction = true;
+                objectTypeNode.initFunction = bLangFunction;
             } else if (nodeKind == NodeKind.VARIABLE) {
                 objectTypeNode.addField((BLangSimpleVariable) bLangNode);
             } else if (nodeKind == NodeKind.USER_DEFINED_TYPE) {
-                objectTypeNode.addTypeReference((BLangType) bLangNode);
+                // This is for object-type-inclusion and should never reach here from parser for
+                // object-constructor-expression
+                throw new RuntimeException("Syntax kind is not supported: " + nodeKind);
             }
         }
 
