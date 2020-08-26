@@ -89,7 +89,7 @@ class LineMap {
             // Using >>> handle the case when the sum of left and right is greater than
             // the maximum positive int value (2^31 - 1)
             // FYI: https://ai.googleblog.com/2006/06/extra-extra-read-all-about-it-nearly.html
-            int middle = (left + right) >>> 2;
+            int middle = (left + right) >>> 1;
             int startOffset = textLines[middle].startOffset();
             int endOffset = textLines[middle].endOffsetWithNewLines();
             if (startOffset <= position && position < endOffset) {
