@@ -73,7 +73,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
 
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 150));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 154));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();
@@ -132,9 +132,9 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         assertExpression(context, streamVar, "stream<int>", "stream");
         // never variable test
         assertExpression(context, neverVar, "", "xml");
-        // Todo - Enable after fixing
         // json variable test
-        // assertExpression(context, jsonVar, "object", "json");
+        assertExpression(context, jsonVar, "object", "json");
+        // Todo - Enable after fixing
         // anonymous object variable test (AnonPerson object)
         // assertVariable(context, anonObjectVar, "AnonPerson", "object");
     }
@@ -252,6 +252,25 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
     }
 
     @Test
+    public void fieldAccessEvaluationTest() throws BallerinaTestException {
+        // objects fields
+        assertExpression(context, objectVar + ".address", "No 20, Palm grove", "string");
+        // record fields
+        assertExpression(context, recordVar + ".age", "20", "int");
+        // json fields
+        assertExpression(context, jsonVar + ".name", "apple", "string");
+        // nested field access (chain access)
+        assertExpression(context, recordVar + ".grades.maths", "80", "int");
+    }
+
+    @Test
+    public void methodCallEvaluationTest() throws BallerinaTestException {
+        // object methods
+        assertExpression(context, objectVar + ".getSum(34,56)", "90", "int");
+        // Todo - add lang-lib functions related tests, after the implementation
+    }
+
+    @Test
     public void expressionEvaluationNegativeTest() throws BallerinaTestException {
         // empty expressions
         assertEvaluationError(context, "  ", EvaluationExceptionKind.EMPTY.getString());
@@ -265,13 +284,19 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         assertEvaluationError(context, String.format("%s + %s", intVar, stringVar),
                 String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
                         "'+' operation is not supported for types: 'int' and 'string'"));
+        // undefined variables
+        assertEvaluationError(context, "x", String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(), "x"));
+        // undefined field access
+        assertEvaluationError(context, jsonVar + ".undefined",
+                String.format(EvaluationExceptionKind.FIELD_NOT_FOUND.getString(), "undefined", jsonVar));
+        // undefined object methods
+        assertEvaluationError(context, objectVar + ".undefined()",
+                String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(), "undefined"));
         // Todo - Enable
         // assignment statements
         // assertEvaluationError(context, "int x = 5;", "");
-        // undefined variables
-        // assertEvaluationError(context, "x", String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getReason()
-        //     .getString(), "~x - UNARY_EXPRESSION"));
-        // Todo - Add negative tests for function invocations related errors.
+
+        // Todo - Add negative tests for function invocations related errors. (invalid argument validation, etc.).
     }
 
     @AfterClass
