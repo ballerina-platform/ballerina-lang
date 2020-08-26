@@ -108,6 +108,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
 /**
@@ -566,7 +567,8 @@ public class BIRPackageSymbolEnter {
 
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),
                                                                             this.env.pkgSymbol.pkgID, null,
-                                                                            this.env.pkgSymbol, symTable.builtinPos);
+                                                                            this.env.pkgSymbol, symTable.builtinPos,
+                                                                            COMPILED_SOURCE);
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
 
         defineMarkDownDocAttachment(annotationSymbol, readDocBytes(dataInStream));

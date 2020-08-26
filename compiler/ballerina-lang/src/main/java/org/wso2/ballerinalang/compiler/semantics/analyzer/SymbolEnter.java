@@ -389,7 +389,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                             annotationNode.getAttachPoints(),
                                                                             names.fromIdNode(annotationNode.name),
                                                                             env.enclPkg.symbol.pkgID, null,
-                                                                            env.scope.owner, annotationNode.pos);
+                                                                            env.scope.owner, annotationNode.pos,
+                                                                            SOURCE);
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
         if (isDeprecated(annotationNode.annAttachments)) {

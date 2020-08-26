@@ -92,8 +92,9 @@ public class Symbols {
 
     public static BAnnotationSymbol createAnnotationSymbol(int flags, Set<AttachPoint> points, Name name,
                                                            PackageID pkgID, BType type, BSymbol owner,
-                                                           DiagnosticPos pos) {
-        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, points, pkgID, type, owner, pos);
+                                                           DiagnosticPos pos, SymbolOrigin origin) {
+        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, points, pkgID, type, owner, pos,
+                                                                   origin);
         annotationSymbol.kind = SymbolKind.ANNOTATION;
         return annotationSymbol;
     }
@@ -143,7 +144,7 @@ public class Symbols {
         if (type != null && type.tag == TypeTags.INVOKABLE) {
             return createInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos);
         }
-        return new BTypeSymbol(symTag, flags, name, pkgID, type, owner, pos);
+        return new BTypeSymbol(symTag, flags, name, pkgID, type, owner, pos, );
     }
 
     public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,
