@@ -3596,8 +3596,12 @@ public class FormattingTreeModifier extends TreeModifier {
         LineRange range = node.lineRange();
         LinePosition startPos = range.startLine();
         LinePosition endPos = range.endLine();
+        int startOffset = startPos.offset();
+        if (node.kind().equals(SyntaxKind.FUNCTION_DEFINITION)) {
+            startOffset = (startOffset / 4) * 4;
+        }
         return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
-                startPos.offset(), endPos.offset());
+                startOffset, endPos.offset());
     }
 
     /**
