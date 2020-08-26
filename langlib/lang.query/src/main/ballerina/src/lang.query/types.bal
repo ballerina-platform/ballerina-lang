@@ -58,7 +58,7 @@ type _Frame record {|
     (any|error|())...;
 |};
 
-type _StreamPipeline object {
+class _StreamPipeline {
     _StreamFunction streamFunction;
     typedesc<Type> resType;
 
@@ -117,9 +117,9 @@ type _StreamPipeline object {
         var strm = internal:construct(self.resType, itrObj);
         return strm;
     }
-};
+}
 
-type _InitFunction object {
+class _InitFunction {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
@@ -174,9 +174,9 @@ type _InitFunction object {
             return lang_stream:iterator(collection);
         }
     }
-};
+}
 
-type _InputFunction object {
+class _InputFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -208,9 +208,9 @@ type _InputFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _NestedFromFunction object {
+class _NestedFromFunction {
     *_StreamFunction;
     _Iterator? itr;
 
@@ -290,9 +290,9 @@ type _NestedFromFunction object {
         }
         panic error("Unsuppored collection", message = "unsuppored collection type.");
     }
-};
+}
 
-type _LetFunction object {
+class _LetFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -322,9 +322,9 @@ type _LetFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _InnerJoinFunction object {
+class _InnerJoinFunction {
     *_StreamFunction;
 
     function (_Frame _frame) returns boolean onCondition;
@@ -379,9 +379,9 @@ type _InnerJoinFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _OuterJoinFunction object {
+class _OuterJoinFunction {
     *_StreamFunction;
 
     function (_Frame _frame) returns boolean onCondition;
@@ -448,9 +448,9 @@ type _OuterJoinFunction object {
         }
         return nilFrame;
     }
-};
+}
 
-type _FilterFunction object {
+class _FilterFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -481,9 +481,9 @@ type _FilterFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _OrderByFunction object {
+class _OrderByFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -514,9 +514,9 @@ type _OrderByFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _SelectFunction object {
+class _SelectFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -549,9 +549,9 @@ type _SelectFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _DoFunction object {
+class _DoFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -584,9 +584,9 @@ type _DoFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _LimitFunction object {
+class _LimitFunction {
     *_StreamFunction;
 
     # Desugared function to limit the number of results
@@ -618,9 +618,9 @@ type _LimitFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type StreamOrderBy object {
+class StreamOrderBy {
     anydata[][] sortFields = [];
     boolean[] sortTypes = [];
 
@@ -783,4 +783,4 @@ type StreamOrderBy object {
         }
         return result;
     }
-};
+}

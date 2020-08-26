@@ -101,48 +101,49 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
 
     // Recovery tests
 
-//    @Test
-//    public void testMissingCloseBrace() {
-//        test("class-def/class_def_source_05.bal", "class-def/class_def_assert_05.json");
-//    }
-//
-//    @Test
-//    public void testMissingOpenBrace() {
-//        test("class-def/class_def_source_06.bal", "class-def/class_def_assert_06.json");
-//    }
-//
-//    @Test
-//    public void testMissingObjectKeyword() {
-//        test("class-def/class_def_source_07.bal", "class-def/class_def_assert_07.json");
-//    }
-//
-//    @Test
-//    public void testObjectMembersWithExtraTokens() {
-//        test("class-def/class_def_source_08.bal", "class-def/class_def_assert_08.json");
-//    }
-//
-//    @Test
-//    public void testObjectFieldWithMissingEqual() {
-//        test("class-def/class_def_source_09.bal", "class-def/class_def_assert_09.json");
-//    }
-//
-//    @Test
-//    public void testNestedObjectRecovery() {
-//        test("class-def/class_def_source_10.bal", "class-def/class_def_assert_10.json");
-//    }
-//
-//    @Test
-//    public void testMissingTypeReference() {
-//        test("class-def/class_def_source_13.bal", "class-def/class_def_assert_13.json");
-//    }
-//
-//    @Test
-//    public void testDuplicateClientQualifier() {
-//        test("class-def/class_def_source_18.bal", "class-def/class_def_assert_18.json");
-//    }
-//
-//    @Test
-//    public void testDuplicateClientQualifiers() {
-//        test("class-def/class_def_source_35.bal", "class-def/class_def_assert_35.json");
-//    }
+    @Test
+    public void testMissingCloseBrace() {
+        testFile("class-def/class_def_source_05.bal", "class-def/class_def_assert_05.json");
+    }
+
+    @Test
+    public void testMissingOpenBrace() {
+        testFile("class-def/class_def_source_06.bal", "class-def/class_def_assert_06.json");
+    }
+
+    @Test
+    public void testMissingClassKeyword() {
+        testFile("class-def/class_def_source_07.bal", "class-def/class_def_assert_07.json");
+        testFile("class-def/class_def_source_42.bal", "class-def/class_def_assert_42.json");
+    }
+
+    @Test
+    public void testObjectMembersWithExtraTokens() {
+        testFile("class-def/class_def_source_08.bal", "class-def/class_def_assert_08.json");
+    }
+
+    @Test
+    public void testObjectFieldWithMissingEqual() {
+        testFile("class-def/class_def_source_09.bal", "class-def/class_def_assert_09.json");
+    }
+
+    @Test
+    public void testNestedObjectRecovery() {
+        testFile("class-def/class_def_source_10.bal", "class-def/class_def_assert_10.json");
+    }
+
+    @Test
+    public void testMissingTypeReference() {
+        testFile("class-def/class_def_source_13.bal", "class-def/class_def_assert_13.json");
+    }
+
+    @Test
+    public void testDuplicateClientQualifier() {
+        testFile("class-def/class_def_source_18.bal", "class-def/class_def_assert_18.json");
+    }
+
+    @Test
+    public void testDuplicateClientQualifiers() {
+        testFile("class-def/class_def_source_35.bal", "class-def/class_def_assert_35.json");
+    }
 }

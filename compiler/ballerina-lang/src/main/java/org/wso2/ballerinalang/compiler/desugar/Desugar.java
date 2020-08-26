@@ -765,7 +765,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {
-        for (TopLevelNode topLevelNode : topLevelNodes) {
+        for (int i = 0, topLevelNodesSize = topLevelNodes.size(); i < topLevelNodesSize; i++) {
+            TopLevelNode topLevelNode = topLevelNodes.get(i);
             if (topLevelNode.getKind() == NodeKind.CLASS_DEFN) {
                 ((BLangClassDefinition) topLevelNode).accept(this);
             }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.test.klass;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -30,40 +27,47 @@ import org.testng.annotations.Test;
 
 /**
  * Test cases for class in ballerina.
+ * @since 2.0
  */
 public class ClassTest {
 
     private CompileResult compileResult;
+    private CompileResult distinctCompUnit;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/klass/simple_class.bal");
+        distinctCompUnit = BCompileUtil.compile("test-src/klass/distinct-class-def.bal");
     }
 
-    @Test(description = "Test Basic object as struct")
+    @Test
     public void testBasicStructAsObject() {
         BRunUtil.invoke(compileResult, "testSimpleObjectAsStruct");
     }
 
-    @Test(description = "Test Basic object as struct")
+    @Test
     public void testBasicStructAsObjectObjectInitExprWithoutName() {
         BRunUtil.invoke(compileResult, "testSimpleObjectAsStructWithNew");
     }
 
-    @Test(description = "Test Basic object as struct")
+    @Test
     public void testUsingClassValueAsRecordField() {
         BRunUtil.invoke(compileResult, "testUsingClassValueAsRecordField");
     }
 
-    @Test(description = "Test Basic object as struct")
+    @Test
     public void testTypeRef() {
         BRunUtil.invoke(compileResult, "testTypeRefInClass");
     }
 
     @Test
     public void testSimpleDistinctClass() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/klass/distinct-class-def.bal");
-        BRunUtil.invoke(compileResult, "testDistinctAssignability");
+        BRunUtil.invoke(distinctCompUnit, "testDistinctAssignability");
+    }
+
+    @Test
+    public void testRuntimeIsTypeCheckWithDistinctObjectTypes() {
+        BRunUtil.invoke(distinctCompUnit, "testDistinctTypeIsType");
     }
 
     @Test(description = "Class definition negative")

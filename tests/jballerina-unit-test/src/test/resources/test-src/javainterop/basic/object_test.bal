@@ -16,7 +16,7 @@
 
 import ballerina/java;
 
-public type Person object {
+public class Person {
 
     string name;
 
@@ -82,7 +82,7 @@ public type Person object {
      public function floor(float a) returns float = @java:Method {
              'class: "java/lang/Math"
      } external;
-};
+}
 
 function getBIntFromJInt(handle receiver) returns int = @java:Method {
     name:"longValue",

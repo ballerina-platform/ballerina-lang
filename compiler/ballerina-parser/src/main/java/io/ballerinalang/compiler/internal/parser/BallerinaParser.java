@@ -2386,8 +2386,6 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.OBJECT_MEMBER);
         STNode closeBrace = parseCloseBrace();
         endContext();
-
-        endContext();
         return STNodeFactory.createClassDefinitionNode(metadata, qualifier, classTypeQualifiers, classKeyword,
                 className, openBrace, classMembers, closeBrace);
     }
@@ -2404,7 +2402,7 @@ public class BallerinaParser extends AbstractParser {
             case CLASS_KEYWORD:
                 return STNodeFactory.createEmptyNodeList();
             default:
-                recover(peek(), ParserRuleContext.MODULE_CLASS_DEFINITION);
+                recover(peek(), ParserRuleContext.MODULE_CLASS_DEFINITION_START);
                 return parseClassTypeQualifiers();
         }
 
