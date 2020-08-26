@@ -47,15 +47,14 @@ public class FromJsonDecimalString {
 
     public static Object fromJsonDecimalString(Strand strand, BString value) {
 
-        JSONParser.fromJsonDecimalStringMode = true;
+        JSONParser.NonStringValueProcessingMode mode = JSONParser.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING;
+
         String str = value.getValue();
         if (str.equals("null")) {
             return null;
         }
         try {
-            Object json = JSONParser.parse(str);
-            JSONParser.fromJsonDecimalStringMode = false;
-            return json;
+            return JSONParser.parse(str, mode);
         } catch (BallerinaException e) {
             return BallerinaErrors.createError("{ballerina}FromJsonDecimalStringError", e.getMessage());
         }

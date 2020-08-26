@@ -47,15 +47,14 @@ public class FromJsonFloatString {
 
     public static Object fromJsonFloatString(Strand strand, BString value) {
 
-        JSONParser.fromJsonFloatStringMode = true;
+        JSONParser.NonStringValueProcessingMode mode = JSONParser.NonStringValueProcessingMode.FROM_JSON_FLOAT_STRING;
+
         String str = value.getValue();
         if (str.equals("null")) {
             return null;
         }
         try {
-            Object json = JSONParser.parse(str);
-            JSONParser.fromJsonFloatStringMode = false;
-            return json;
+            return JSONParser.parse(str, mode);
         } catch (BallerinaException e) {
             return BallerinaErrors.createError("{ballerina}FromJsonFloatStringError", e.getMessage());
         }

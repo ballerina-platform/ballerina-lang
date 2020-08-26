@@ -46,8 +46,6 @@ import java.util.Deque;
  */
 @SuppressWarnings("unchecked")
 public class JSONParser {
-    public static boolean fromJsonFloatStringMode;
-    public static boolean fromJsonDecimalStringMode;
 
     private static ThreadLocal<StateMachine> tlStateMachine = new ThreadLocal<StateMachine>() {
         @Override
@@ -55,6 +53,13 @@ public class JSONParser {
             return new StateMachine();
         }
     };
+
+    /**
+     * Represents the modes which process numeric values.
+     */
+    public enum NonStringValueProcessingMode {
+        FROM_JSON_STRING, FROM_JSON_FLOAT_STRING, FROM_JSON_DECIMAL_STRING
+    }
 
     /**
      * Parses the contents in the given {@link InputStream} and returns a json.
@@ -96,6 +101,18 @@ public class JSONParser {
         return parse(new StringReader(jsonStr));
     }
 
+    /**
+     * Parses the contents in the given string and returns a json.
+     *
+     * @param jsonStr the string which contains the JSON content
+     * @param mode    set the mode which process numeric values
+     * @return JSON structure
+     * @throws BallerinaException for any parsing error
+     */
+    public static Object parse(String jsonStr, NonStringValueProcessingMode mode) throws BallerinaException {
+        return parse(new StringReader(jsonStr), mode);
+    }
+
     private static Object changeForBString(Object jsonObj) {
         if (jsonObj instanceof String) {
             return StringUtils.fromString((String) jsonObj);
@@ -112,6 +129,26 @@ public class JSONParser {
      */
     public static Object parse(Reader reader) throws BallerinaException {
         StateMachine sm = tlStateMachine.get();
+        try {
+            return sm.execute(reader);
+        } finally {
+            // Need to reset the state machine before leaving. Otherwise references to the created
+            // JSON values will be maintained and the java GC will not happen properly.
+            sm.reset();
+        }
+    }
+
+    /**
+     * Parses the contents in the given {@link Reader} and returns a json.
+     *
+     * @param reader reader which contains the JSON content
+     * @param mode   set the mode which process numeric values
+     * @return JSON structure
+     * @throws BallerinaException for any parsing error
+     */
+    public static Object parse(Reader reader, NonStringValueProcessingMode mode) throws BallerinaException {
+        StateMachine sm = tlStateMachine.get();
+        sm.mode = mode;
         try {
             return sm.execute(reader);
         } finally {
@@ -184,6 +221,7 @@ public class JSONParser {
                 new StringFieldUnicodeHexProcessingState();
         private static final State STRING_VALUE_UNICODE_HEX_PROCESSING_STATE =
                 new StringValueUnicodeHexProcessingState();
+        private static NonStringValueProcessingMode mode = NonStringValueProcessingMode.FROM_JSON_STRING;
 
         private Object currentJsonNode;
         private Deque<Object> nodesStack;
@@ -207,6 +245,7 @@ public class JSONParser {
             this.currentJsonNode = null;
             this.line = 1;
             this.column = 0;
+            this.mode = NonStringValueProcessingMode.FROM_JSON_STRING;
             this.nodesStack = new ArrayDeque<>();
             this.fieldNames = new ArrayDeque<>();
         }
@@ -811,19 +850,22 @@ public class JSONParser {
             if (str.indexOf('.') >= 0) {
                 char ch = str.charAt(0);
                 try {
-                    if (ch == '-' && !fromJsonDecimalStringMode && isZero(str)) {
-                        double doubleValue = Double.parseDouble(str);
-                        setValueToJsonType(type, doubleValue);
-                    } else if (fromJsonFloatStringMode) {
-                        double doubleValue = Double.parseDouble(str);
-                        setValueToJsonType(type, doubleValue);
-                    } else {
-                        DecimalValue decimalValue = new DecimalValue(str);
-                        setValueToJsonType(type, decimalValue);
+                    switch (mode) {
+                        case FROM_JSON_FLOAT_STRING:
+                            setValueToJsonType(type, Double.parseDouble(str));
+                            break;
+                        case FROM_JSON_DECIMAL_STRING:
+                            setValueToJsonType(type, new DecimalValue(str));
+                            break;
+                        default:
+                            if (ch == '-' && isZero(str)) {
+                                setValueToJsonType(type, Double.parseDouble(str));
+                            } else {
+                                setValueToJsonType(type, new DecimalValue(str));
+                            }
+                            break;
                     }
                 } catch (NumberFormatException ignore) {
-                    fromJsonFloatStringMode = false;
-                    fromJsonDecimalStringMode = false;
                     throw new JsonParserException("unrecognized token '" + str + "'");
                 }
             } else {
@@ -875,22 +917,22 @@ public class JSONParser {
                     }
                 } else {
                     try {
-                        if (ch == '-' && !fromJsonDecimalStringMode && isZero(str)) {
-                            double doubleValue = Double.parseDouble(str);
-                            setValueToJsonType(type, doubleValue);
-                        } else if (fromJsonFloatStringMode) {
-                            double doubleValue = Double.parseDouble(str);
-                            setValueToJsonType(type, doubleValue);
-                        } else if (fromJsonDecimalStringMode) {
-                            DecimalValue decimalValue = new DecimalValue(str);
-                            setValueToJsonType(type, decimalValue);
-                        } else {
-                            Long longValue = Long.parseLong(str);
-                            setValueToJsonType(type, longValue);
+                        switch (mode) {
+                            case FROM_JSON_FLOAT_STRING:
+                                setValueToJsonType(type, Double.parseDouble(str));
+                                break;
+                            case FROM_JSON_DECIMAL_STRING:
+                                setValueToJsonType(type, new DecimalValue(str));
+                                break;
+                            default:
+                                if (ch == '-' && isZero(str)) {
+                                    setValueToJsonType(type, Double.parseDouble(str));
+                                } else {
+                                    setValueToJsonType(type, Long.parseLong(str));
+                                }
+                                break;
                         }
                     } catch (NumberFormatException ignore) {
-                        fromJsonFloatStringMode = false;
-                        fromJsonDecimalStringMode = false;
                         throw new JsonParserException("unrecognized token '" + str + "'");
                     }
                 }
