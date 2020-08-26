@@ -58,7 +58,7 @@ public class BPackageSymbol extends BTypeSymbol {
     public boolean entryPointExists = false;
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner, DiagnosticPos pos) {
-        super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos);
+        super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos, );
         this.type = new BPackageType(this);
     }
 

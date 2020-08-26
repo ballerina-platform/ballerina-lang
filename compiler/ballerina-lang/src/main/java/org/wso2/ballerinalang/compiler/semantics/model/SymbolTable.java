@@ -74,6 +74,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * @since 0.94
  */
@@ -220,28 +223,28 @@ public class SymbolTable {
         this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID, noType,
                                           rootPkgSymbol, builtinPos, SymbolOrigin.VIRTUAL);
         // Initialize built-in types in Ballerina
-        initializeType(intType, TypeKind.INT.typeName());
-        initializeType(byteType, TypeKind.BYTE.typeName());
-        initializeType(floatType, TypeKind.FLOAT.typeName());
-        initializeType(decimalType, TypeKind.DECIMAL.typeName());
-        initializeType(stringType, TypeKind.STRING.typeName());
-        initializeType(booleanType, TypeKind.BOOLEAN.typeName());
-        initializeType(jsonType, TypeKind.JSON.typeName());
-        initializeType(xmlType, TypeKind.XML.typeName());
-        initializeType(streamType, TypeKind.STREAM.typeName());
-        initializeType(tableType, TypeKind.TABLE.typeName());
-        initializeType(mapType, TypeKind.MAP.typeName());
-        initializeType(mapStringType, TypeKind.MAP.typeName());
-        initializeType(mapAnydataType, TypeKind.MAP.typeName());
-        initializeType(futureType, TypeKind.FUTURE.typeName());
-        initializeType(anyType, TypeKind.ANY.typeName());
-        initializeType(anydataType, TypeKind.ANYDATA.typeName());
-        initializeType(nilType, TypeKind.NIL.typeName());
-        initializeType(neverType, TypeKind.NEVER.typeName());
-        initializeType(anyServiceType, TypeKind.SERVICE.typeName());
-        initializeType(handleType, TypeKind.HANDLE.typeName());
-        initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
-        initializeType(readonlyType, TypeKind.READONLY.typeName());
+        initializeType(intType, TypeKind.INT.typeName(), BUILTIN);
+        initializeType(byteType, TypeKind.BYTE.typeName(), BUILTIN);
+        initializeType(floatType, TypeKind.FLOAT.typeName(), BUILTIN);
+        initializeType(decimalType, TypeKind.DECIMAL.typeName(), BUILTIN);
+        initializeType(stringType, TypeKind.STRING.typeName(), BUILTIN);
+        initializeType(booleanType, TypeKind.BOOLEAN.typeName(), BUILTIN);
+        initializeType(jsonType, TypeKind.JSON.typeName(), BUILTIN);
+        initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
+        initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
+        initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
+        initializeType(mapType, TypeKind.MAP.typeName(), VIRTUAL); // TODO: Do we need these map types to be defined?
+        initializeType(mapStringType, TypeKind.MAP.typeName(), VIRTUAL);
+        initializeType(mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
+        initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
+        initializeType(anyType, TypeKind.ANY.typeName(), BUILTIN);
+        initializeType(anydataType, TypeKind.ANYDATA.typeName(), BUILTIN);
+        initializeType(nilType, TypeKind.NIL.typeName(), BUILTIN);
+        initializeType(neverType, TypeKind.NEVER.typeName(), BUILTIN);
+        initializeType(anyServiceType, TypeKind.SERVICE.typeName(), BUILTIN);
+        initializeType(handleType, TypeKind.HANDLE.typeName(), BUILTIN);
+        initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
+        initializeType(readonlyType, TypeKind.READONLY.typeName(), BUILTIN);
 
         // Define subtypes
         initializeTSymbol(signed32IntType, Names.SIGNED32, PackageID.INT);
@@ -361,18 +364,18 @@ public class SymbolTable {
         this.predeclaredModules = Collections.unmodifiableMap(modules);
     }
 
-    private void initializeType(BType type, String name) {
-        initializeType(type, names.fromString(name));
+    private void initializeType(BType type, String name, SymbolOrigin origin) {
+        initializeType(type, names.fromString(name), origin);
     }
 
-    private void initializeType(BType type, Name name) {
+    private void initializeType(BType type, Name name, SymbolOrigin origin) {
         defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, rootPkgSymbol.pkgID, type, rootPkgSymbol,
-                                         builtinPos));
+                                         builtinPos, origin));
     }
 
     private void initializeTSymbol(BType type, Name name, PackageID packageID) {
-
-        type.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, packageID, type, rootPkgSymbol, builtinPos);
+        type.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, packageID, type, rootPkgSymbol, builtinPos,
+                                       BUILTIN);
     }
 
     private void defineType(BType type, BTypeSymbol tSymbol) {

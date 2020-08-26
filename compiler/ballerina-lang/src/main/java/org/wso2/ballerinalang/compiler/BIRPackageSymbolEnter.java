@@ -109,6 +109,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
 /**
@@ -737,7 +738,7 @@ public class BIRPackageSymbolEnter {
                 varType.paramSymbol = paramsMap.get(varType.name);
                 varType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | varType.paramSymbol.flags,
                                                   varType.paramSymbol.name, varType.paramSymbol.pkgID, varType,
-                                                  invSymbol, varType.paramSymbol.pos);
+                                                  invSymbol, varType.paramSymbol.pos, VIRTUAL);
                 break;
             case TypeTags.MAP:
             case TypeTags.XML:
