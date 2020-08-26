@@ -125,4 +125,4 @@ public const annotation FieldData FieldSet on source external;
 #   'class: "java.io.File"
 # }
 # ```
-public const annotation ObjectData Binding on object type;
+public const annotation ObjectData Binding on object type, class;

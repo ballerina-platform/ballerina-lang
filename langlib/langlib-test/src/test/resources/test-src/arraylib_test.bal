@@ -289,14 +289,14 @@ function testUnshift() returns int[] {
     return s;
 }
 
-type Obj object {
+class Obj {
     int i;
     int j;
     function init(int i, int j) {
         self.i = i;
         self.j = j;
     }
-};
+}
 
 function testUnshiftTypeWithoutFillerValues () returns Obj[] {
     Obj[] arr = [];

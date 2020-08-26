@@ -368,7 +368,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineMembers(typDefs, pkgEnv);
 
         // Add distinct type information
-        defineDistinctClassDefinitions(typDefs);
+        defineDistinctClassAndObjectDefinitions(typDefs);
 
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
@@ -394,11 +394,36 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .forEach(varSymbol -> varSymbol.tag = SymTag.ENDPOINT);
     }
 
-    private void defineDistinctClassDefinitions(List<BLangNode> typDefs) {
-        for (BLangNode typeDef : typDefs) {
-            if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
-                populateDistinctTypeIdsFromIncludedTypeReferences((BLangClassDefinition) typeDef);
+    private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
+        for (BLangNode node : typDefs) {
+            if (node.getKind() == NodeKind.CLASS_DEFN) {
+                populateDistinctTypeIdsFromIncludedTypeReferences((BLangClassDefinition) node);
+            } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
+                populateDistinctTypeIdsFromIncludedTypeReferences((BLangTypeDefinition) node);
             }
+        }
+    }
+
+    private void populateDistinctTypeIdsFromIncludedTypeReferences(BLangTypeDefinition typeDefinition) {
+        if (!typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT)) {
+            return;
+        }
+
+        if (typeDefinition.typeNode.type.tag != TypeTags.OBJECT) {
+            return;
+        }
+
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
+        BTypeIdSet typeIdSet = ((BObjectType) objectTypeNode.type).typeIdSet;
+
+        for (BLangType typeRef : objectTypeNode.typeRefs) {
+            if (typeRef.type.tag != TypeTags.OBJECT) {
+                continue;
+            }
+            BObjectType refType = (BObjectType) typeRef.type;
+
+            typeIdSet.primary.addAll(refType.typeIdSet.primary);
+            typeIdSet.secondary.addAll(refType.typeIdSet.secondary);
         }
     }
 
@@ -1088,6 +1113,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
                 typeDefinition.typeNode.type = distinctType;
                 definedType = distinctType;
+            } else if (definedType.getKind() == TypeKind.OBJECT) {
+                BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) definedType,
+                        typeDefSymbol);
+                typeDefinition.typeNode.type = distinctType;
+                definedType = distinctType;
             } else if (definedType.getKind() == TypeKind.UNION) {
                 validateUnionForDistinctType((BUnionType) definedType, typeDefinition.pos);
             } else {
@@ -1131,6 +1161,22 @@ public class SymbolEnter extends BLangNodeVisitor {
             // constructors are only defined for named types.
             defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
         }
+    }
+
+    private BObjectType getDistinctObjectType(BLangTypeDefinition typeDefinition, BObjectType definedType,
+                                              BTypeSymbol typeDefSymbol) {
+        BObjectType definedObjType = definedType;
+        // Create a new type for distinct type definition such as `type FooErr distinct BarErr;`
+        // `typeDefSymbol` is different to `definedObjType.tsymbol` in a type definition statement that use
+        // already defined type as the base type.
+        if (definedObjType.tsymbol != typeDefSymbol) {
+            BObjectType objType = new BObjectType(typeDefSymbol);
+            typeDefSymbol.type = objType;
+            definedObjType = objType;
+        }
+        boolean isPublicType = typeDefinition.flagSet.contains(Flag.PUBLIC);
+        definedObjType.typeIdSet = calculateTypeIdSet(typeDefinition, isPublicType, definedType.typeIdSet);
+        return definedObjType;
     }
 
     private void validateUnionForDistinctType(BUnionType definedType, DiagnosticPos pos) {
