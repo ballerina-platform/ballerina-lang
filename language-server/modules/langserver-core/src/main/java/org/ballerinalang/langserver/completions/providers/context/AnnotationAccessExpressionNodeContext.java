@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.AnnotAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -49,7 +48,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Completion provider for {@link AnnotationNode} context.
+ * Completion provider for {@link AnnotAccessExpressionNode} context.
  *
  * @since 2.0.0
  */
