@@ -87,9 +87,12 @@ public abstract class BCompoundVariable implements BVariable {
         return childVariables;
     }
 
-    public Value getChildByName(String name) {
+    public Value getChildByName(String name) throws DebugVariableException {
         if (childVariables == null) {
             childVariables = computeChildVariables();
+        }
+        if (!childVariables.containsKey(name)) {
+            throw new DebugVariableException("No child variables found with name: '" + name + "'");
         }
         return childVariables.get(name);
     }

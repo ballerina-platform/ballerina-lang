@@ -22,16 +22,15 @@ package org.ballerinalang.debugadapter.evaluation;
  * @since 2.0.0
  */
 public enum EvaluationExceptionKind {
-    // function invocation related exceptions.
-    FUNCTION_NOT_FOUND("No functions are found with name: '%s'"),
-    OBJECT_METHOD_NOT_FOUND("No object methods are found with name: '%s'"),
+
+    FUNCTION_NOT_FOUND("Undefined function '%s'"),
+    OBJECT_METHOD_NOT_FOUND("Undefined object method '%s'"),
+    FIELD_NOT_FOUND("Undefined field '%s' in `%s`"),
+    VARIABLE_NOT_FOUND("Undefined variable '%s'"),
     FUNCTION_EXECUTION_ERROR("Error occurred when executing method: '%s'"),
     STRAND_NOT_FOUND("Error occurred when trying to get the parent strand instance for executing the method: %s"),
     INVALID_ARGUMENT("Unsupported/invalid argument found: %s"),
-    // name reference resolving related exceptions.
-    VARIABLE_NOT_FOUND("No variables are found with name: '%s'"),
     VARIABLE_EXECUTION_ERROR("Internal error occurred when processing variable: '%s'"),
-    // other exceptions.
     BLOCK_EVALUATION("Block expressions/statements are not supported"),
     EMPTY("Empty expressions cannot be evaluated."),
     INVALID("Invalid expression: '%s'"),

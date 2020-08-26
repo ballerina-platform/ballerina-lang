@@ -25,6 +25,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.DebugVariableException;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 /**
@@ -52,13 +53,16 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
             if (resultVar.getBType() != BVariableType.OBJECT && resultVar.getBType() != BVariableType.RECORD &&
                     resultVar.getBType() != BVariableType.JSON) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Field " +
-                        "access is not supported on type '" + resultVar.getBType() + "'."));
+                        "access is not supported on type '" + resultVar.getBType().getString() + "'."));
             }
             String fieldName = syntaxNode.fieldName().toSourceCode().trim();
             Value fieldValue = ((BCompoundVariable) resultVar).getChildByName(fieldName);
             return new BExpressionValue(context, fieldValue);
         } catch (EvaluationException e) {
             throw e;
+        } catch (DebugVariableException e) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.FIELD_NOT_FOUND.getString(),
+                    syntaxNode.fieldName().toSourceCode().trim(), syntaxNode.expression().toSourceCode().trim()));
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));
