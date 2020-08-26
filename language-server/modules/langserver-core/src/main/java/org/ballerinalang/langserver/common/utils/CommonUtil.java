@@ -15,7 +15,13 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -59,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -555,9 +562,9 @@ public class CommonUtil {
 
     /**
      * Get the module symbol associated with the given alias.
-     * 
+     *
      * @param context Language server operation context
-     * @param alias alias value
+     * @param alias   alias value
      * @return {@link Optional} scope entry for the module symbol
      */
     public static Optional<Scope.ScopeEntry> packageSymbolFromAlias(LSContext context, String alias) {
@@ -931,6 +938,66 @@ public class CommonUtil {
 
         return new ImmutablePair<>(insertText.toString(), signature.toString());
     }
+
+    /**
+     * Get the expression entry, given the node.
+     *
+     * @param context        language server context
+     * @param expressionNode expression node
+     * @return {@link Optional} scope entry for the node
+     */
+    public static Optional<Scope.ScopeEntry> getExpressionEntry(LSContext context, Node expressionNode) {
+        List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+
+        switch (expressionNode.kind()) {
+            case SIMPLE_NAME_REFERENCE:
+                String nameRef = ((SimpleNameReferenceNode) expressionNode).name().text();
+                return visibleSymbols.stream()
+                        .filter(scopeEntry -> scopeEntry.symbol.name.getValue().equals(nameRef))
+                        .findAny();
+            case FUNCTION_CALL:
+                NameReferenceNode refName = ((FunctionCallExpressionNode) expressionNode).functionName();
+                if (refName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                    String alias = ((QualifiedNameReferenceNode) refName).modulePrefix().text();
+                    String fName = ((QualifiedNameReferenceNode) refName).identifier().text();
+
+                    Optional<Scope.ScopeEntry> moduleEntry = CommonUtil.packageSymbolFromAlias(context, alias);
+                    if (!moduleEntry.isPresent()) {
+                        return Optional.empty();
+                    }
+                    BPackageSymbol pkgSymbol = (BPackageSymbol) moduleEntry.get().symbol;
+                    return pkgSymbol.scope.entries.values().stream()
+                            .filter(scopeEntry -> scopeEntry.symbol instanceof BInvokableSymbol
+                                    && scopeEntry.symbol.getName().getValue().equals(fName))
+                            .findAny();
+                } else if (refName.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                    String funcName = ((SimpleNameReferenceNode) refName).name().text();
+                    return visibleSymbols.stream()
+                            .filter(scopeEntry -> scopeEntry.symbol instanceof BInvokableSymbol
+                                    && scopeEntry.symbol.name.getValue().equals(funcName))
+                            .findAny();
+                }
+            default:
+                break;
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Get the type of the given symbol.
+     * 
+     * @param symbol symbol to evaluate
+     * @return {@link BType} of the symbol
+     */
+    public static BType getTypeOfSymbol(BSymbol symbol) {
+        if (symbol instanceof BInvokableSymbol) {
+            return ((BInvokableSymbol) symbol).getReturnType();
+        }
+        
+        return symbol.type;
+    }
+    
 
     /**
      * Get visible worker symbols from context.

@@ -15,9 +15,12 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -53,5 +56,13 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         typeItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
 
         return typeItems;
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, TypeDefinitionNode node) {
+        TextRange typeKWRange = node.typeKeyword().textRange();
+        int cursorPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        
+        return typeKWRange.endOffset() < cursorPosition;
     }
 }
