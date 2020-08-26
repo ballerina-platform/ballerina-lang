@@ -1769,10 +1769,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                         unresolvedTypes);
         }
 
-        // TODO: needed for ballerina-lang:annotations:createBalo
-        if (symTable.cloneableType == null) {
-            symResolver.loadCloneableType(env);
-        }
         return types.isAssignable(type, symTable.cloneableType);
     }
 

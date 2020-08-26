@@ -65,8 +65,6 @@ public class Names {
     public static final Name STRING = new Name("string");
     public static final Name VALUE = new Name("value");
     public static final Name XML = new Name("xml");
-    public static final Name JSON_TYPE = new Name("jsonType");
-    public static final Name ANYDATA_TYPE = new Name("anydataType");
     public static final Name JSON = new Name("json");
     public static final Name ANYDATA = new Name("anydata");
     public static final Name UTILS_PACKAGE = new Name("utils");
@@ -103,7 +101,6 @@ public class Names {
     public static final Name NEVER = new Name("never");
     public static final Name RAW_TEMPLATE = new Name("RawTemplate");
     public static final Name CLONEABLE = new Name("Cloneable");
-    public static final Name CLONEABLE_TYPE = new Name("CloneableUnion");
 
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);

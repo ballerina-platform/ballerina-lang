@@ -148,9 +148,11 @@ public class CompilerDriver {
         // This logic interested in loading lang modules from source. For others we can load from balo.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
-            symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
+            symResolver.loadCloneableType();
             symResolver.loadAnydataAndDependentTypes();
             symResolver.loadJSONAndDependentTypes();
+            symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
+            symResolver.reloadErrorAndDependentTypes();
             symResolver.reloadIntRangeType();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
@@ -170,8 +172,6 @@ public class CompilerDriver {
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
             symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
-            symResolver.reloadErrorAndDependentTypes();
-            symResolver.loadCloneableType();
             symbolTable.loadPredeclaredModules();
             symResolver.loadFunctionalConstructors();
             return;
@@ -189,17 +189,21 @@ public class CompilerDriver {
 
         // Other lang modules requires annotation module. Hence loading it first.
         symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+        symResolver.reloadErrorAndDependentTypes();
         symResolver.loadAnydataAndDependentTypes();
         symResolver.loadJSONAndDependentTypes();
-        symResolver.reloadErrorAndDependentTypes();
+        symResolver.loadCloneableType();
 
         if (langLib.equals(INTERNAL)) {
             symbolTable.langInternalModuleSymbol = getLangModuleFromSource(INTERNAL);
+            symResolver.loadCloneableType();
             return; // Nothing else to load.
         }
 
         // Other lang modules requires internal module. Hence loading it.
+
         symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
+        symResolver.loadCloneableType();
 
         if (langLib.equals(QUERY)) {
             // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
@@ -221,13 +225,8 @@ public class CompilerDriver {
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
         }
 
-        if (langLib.equals(VALUE)) {
-            symResolver.loadJSONAndDependentTypes();
-        }
-
         if (langLib.equals(ERROR)) {
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
-            symResolver.loadCloneableType();
         }
         symResolver.reloadIntRangeType();
 

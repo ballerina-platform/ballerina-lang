@@ -858,14 +858,12 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void loadAnydataAndDependentTypes() {
-
-        ScopeEntry entry = symTable.langAnnotationModuleSymbol.scope.lookup(Names.ANYDATA_TYPE);
+        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.ANYDATA);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                 entry = entry.next;
                 continue;
             }
-            symTable.rootPkgSymbol.scope.renameTypeSymbol(Names.ANYDATA_TYPE, Names.ANYDATA);
             BUnionType type = (BUnionType) entry.symbol.type;
             symTable.anydataType = new BAnydataType(type);
             symTable.arrayAnydataType = new BArrayType(symTable.anydataType);
@@ -879,9 +877,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void loadJSONAndDependentTypes() {
-
-        boolean loadedFromAnnotationModule = false;
-        ScopeEntry entry = symTable.langAnnotationModuleSymbol.scope.lookup(Names.JSON);
+        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.JSON);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                 entry = entry.next;
@@ -889,31 +885,24 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             BUnionType type = (BUnionType) entry.symbol.type;
             symTable.jsonType = new BJSONType(type);
-            loadedFromAnnotationModule = true;
-            break;
-        }
-
-        if (!loadedFromAnnotationModule) {
-            entry = symTable.langAnnotationModuleSymbol.scope.lookup(Names.JSON_TYPE);
-            while (entry != NOT_FOUND_ENTRY) {
-                if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                    entry = entry.next;
-                    continue;
-                }
-                symTable.rootPkgSymbol.scope.renameTypeSymbol(Names.JSON_TYPE, Names.JSON);
-                symTable.langAnnotationModuleSymbol.scope.renameTypeSymbol(Names.JSON_TYPE, Names.JSON);
-                BUnionType type = (BUnionType) entry.symbol.type;
-                symTable.jsonType = new BJSONType(type);
-                break;
-            }
-        }
-
-        if (symTable.jsonType != null) {
             symTable.mapJsonType = new BMapType(TypeTags.MAP, symTable.jsonType, null);
             symTable.arrayJsonType = new BArrayType(symTable.jsonType);
             return;
         }
         throw new IllegalStateException("built-in 'json' type not found");
+    }
+
+    public void loadCloneableType() {
+        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.cloneableType = (BUnionType) entry.symbol.type;
+            return;
+        }
+        throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");
     }
 
     public void reloadIntRangeType() {
@@ -945,25 +934,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
         throw new IllegalStateException("'lang.object:RawTemplate' type not found");
-    }
-
-    public void loadCloneableType() {
-        if (symTable.cloneableType != null) {
-            return;
-        }
-
-        if (symTable.langValueModuleSymbol != null) {
-            ScopeEntry entry = symTable.langValueModuleSymbol.scope.lookup(Names.CLONEABLE);
-            while (entry != NOT_FOUND_ENTRY) {
-                if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                    entry = entry.next;
-                    continue;
-                }
-                symTable.cloneableType = (BUnionType) entry.symbol.type;
-                return;
-            }
-        }
-        throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");
     }
 
     // visit type nodes
@@ -1838,41 +1808,5 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return types.getTypeIntersection(lhsType, rhsType);
-    }
-
-    public void loadCloneableType(SymbolEnv env) {
-
-        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE);
-        while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                entry = entry.next;
-                continue;
-            }
-            System.out.println("mloadCloneableType ##### KRV 1");
-            symTable.cloneableType = (BUnionType) entry.symbol.type;
-            break;
-        }
-        if (symTable.cloneableType == null) {
-            entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE_TYPE);
-            while (entry != NOT_FOUND_ENTRY) {
-                if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                    entry = entry.next;
-                    continue;
-                }
-                symTable.rootPkgSymbol.scope.renameTypeSymbol(Names.CLONEABLE_TYPE, Names.CLONEABLE);
-                if (symTable.langValueModuleSymbol != null) {
-                    symTable.langValueModuleSymbol.scope.renameTypeSymbol(Names.CLONEABLE_TYPE, Names.CLONEABLE);
-                }
-                System.out.println("loadCloneableType ##### KRV 2");
-                symTable.cloneableType = (BUnionType) entry.symbol.type;
-                break;
-            }
-        }
-        if (symTable.cloneableType != null) {
-            symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
-            symTable.errorType = new BErrorType(null, symTable.detailType);
-            return;
-        }
-        throw new IllegalStateException("built-in Cloneable type not found");
     }
 }

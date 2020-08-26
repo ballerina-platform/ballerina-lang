@@ -15,10 +15,10 @@
 // under the License.
 
 # Denotes anydata type
-public type anydataType ()|boolean|int|float|decimal|string|xml|anydataType[]|map<anydataType>|table<map<anydataType>>;
+public type 'anydata ()|boolean|int|float|decimal|string|xml|'anydata[]|map<'anydata>|table<map<'anydata>>;
 
 # Denotes json type
-public type jsonType ()|boolean|int|float|decimal|string|jsonType[]|map<jsonType>;
+public type 'json ()|boolean|int|float|decimal|string|'json[]|map<'json>;
 
 # Denote that the return value is tainted.
 public const annotation tainted on parameter, return, source listener, source var, source type;

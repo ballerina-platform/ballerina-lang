@@ -31,16 +31,6 @@ import java.util.LinkedHashSet;
  */
 public class BJSONType extends BUnionType implements SelectivelyImmutableReferenceType {
 
-    private BJSONType(int tag, BTypeSymbol tsymbol) {
-        super(tsymbol, new LinkedHashSet<>(), true, false);
-        this.tag = tag;
-    }
-
-    public BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable) {
-        super(tsymbol, new LinkedHashSet<>(), nullable, false);
-        this.tag = tag;
-    }
-
     public BJSONType(BJSONType bjsonType, boolean nullable) {
         super(bjsonType.tsymbol, bjsonType.getMemberTypes(), nullable, false);
         this.tag = TypeTags.JSON;
