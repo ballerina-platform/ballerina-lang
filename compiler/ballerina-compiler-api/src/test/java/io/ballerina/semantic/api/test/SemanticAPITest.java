@@ -57,6 +57,6 @@ public class SemanticAPITest {
         BLangPackage pkg = (BLangPackage) result.getAST();
         SemanticModel model = new SemanticModel(pkg.compUnits.get(0), pkg, context);
         List<BCompiledSymbol> symbols = model.lookupSymbols(LinePosition.from(3, 14));
-        throw new AssertionError("ERROR");
+//        throw new AssertionError("ERROR");
     }
 }
