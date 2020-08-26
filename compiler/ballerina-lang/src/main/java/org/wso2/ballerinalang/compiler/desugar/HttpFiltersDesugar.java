@@ -233,7 +233,7 @@ public class HttpFiltersDesugar {
         BLangSimpleVariable filterContextVar = ASTBuilderUtil.createVariable(
                 resourceNode.pos, filterContextVarName, filterContextType, filterInitNode,
                 new BVarSymbol(0, names.fromString(filterContextVarName), resourceNode.symbol.pkgID, filterContextType,
-                               resourceNode.symbol, resourceNode.pos));
+                               resourceNode.symbol, resourceNode.pos, ));
         filterContextVar.typeNode = filterContextUserDefinedType;
         addStatementToResourceBody(resourceNode.body,
                                    ASTBuilderUtil.createVariableDef(resourceNode.pos, filterContextVar), 0);
@@ -372,7 +372,7 @@ public class HttpFiltersDesugar {
 
         BLangSimpleVarRef unionFilterRef = ASTBuilderUtil.createVariableRef(
                 resourceNode.pos, new BVarSymbol(0, new Name(filterVarName), resourceNode.symbol.pkgID, filterUnionType,
-                                                 resourceNode.symbol, resourceNode.pos));
+                                                 resourceNode.symbol, resourceNode.pos, ));
         unionFilterRef.variableName = ASTBuilderUtil.createIdentifier(resourceNode.pos, filterVarName);
         unionFilterRef.type = filterType;
         unionFilterRef.pos = resourceNode.pos;

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -41,8 +42,9 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
      */
     public TaintabilityAllowance taintabilityAllowance = TaintabilityAllowance.IGNORED;
 
-    public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos) {
-        super(VARIABLE, flags, name, pkgID, type, owner, pos, );
+    public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos,
+                      SymbolOrigin origin) {
+        super(VARIABLE, flags, name, pkgID, type, owner, pos, origin);
     }
 
     @Override

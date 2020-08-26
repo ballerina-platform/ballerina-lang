@@ -589,7 +589,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (isIgnoredOrEmpty(varNode)) {
             // Fake symbol to prevent runtime failures down the line.
             varNode.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID, symTable.anyType, env.scope.owner,
-                                            varNode.pos);
+                                            varNode.pos, );
         }
 
         BType lhsType = varNode.symbol.type;
@@ -1545,7 +1545,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     BUnionType.create(null, memberTypes) : memberTypes.iterator().next();
             BField field = new BField(names.fromString(fieldName), recordVar.pos,
                                       new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                                     fieldType, recordSymbol, recordVar.pos));
+                                                     fieldType, recordSymbol, recordVar.pos, ));
             fields.put(field.name.value, field);
         }
         return fields;
@@ -1568,7 +1568,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             String fieldName = bLangRecordVariableKeyValue.key.value;
             BField bField = new BField(names.fromString(fieldName), recordVar.pos,
                                        new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                                      fieldType, recordSymbol, recordVar.pos));
+                                                      fieldType, recordSymbol, recordVar.pos, ));
             fields.put(fieldName, bField);
         }
 

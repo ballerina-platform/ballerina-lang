@@ -1131,7 +1131,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         return new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                                   symTable.semanticError, symTable.noType, env.scope.owner, constant.pos);
+                                   symTable.semanticError, symTable.noType, env.scope.owner, constant.pos, );
     }
 
     @Override
@@ -2013,7 +2013,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                              env.scope.owner, pos);
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
-            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, pos);
+            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, pos, );
             if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
             }

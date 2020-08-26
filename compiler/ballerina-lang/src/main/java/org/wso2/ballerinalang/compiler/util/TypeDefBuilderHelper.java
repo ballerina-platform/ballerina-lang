@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.util;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -68,7 +67,7 @@ public class TypeDefBuilderHelper {
         for (BField field : recordType.fields.values()) {
             BVarSymbol symbol = field.symbol;
             if (symbol == null) {
-                symbol = new BVarSymbol(Flags.PUBLIC, field.name, packageID, symTable.pureType, null, field.pos);
+                symbol = new BVarSymbol(Flags.PUBLIC, field.name, packageID, symTable.pureType, null, field.pos, );
             }
 
             BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
@@ -136,7 +135,7 @@ public class TypeDefBuilderHelper {
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
                                                    env.enclPkg.symbol.pkgID, structureTypeNode.type, null,
-                                                   structureTypeNode.pos);
+                                                   structureTypeNode.pos, );
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);

@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 public class BServiceSymbol extends BVarSymbol {
 
     public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos) {
-        super(flags, name, pkgID, type, owner, pos);
+        super(flags, name, pkgID, type, owner, pos, );
         this.tag = SymTag.SERVICE;
     }
 }

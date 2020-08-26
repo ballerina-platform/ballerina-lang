@@ -178,7 +178,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private int blockClosureMapCount = 1;
 
     static {
-        CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null);
+        CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null, );
     }
 
     public static ClosureDesugar getInstance(CompilerContext context) {
@@ -1109,7 +1109,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
      */
     private BVarSymbol createMapSymbol(String mapName, SymbolEnv symbolEnv) {
         return new BVarSymbol(0, names.fromString(mapName), symbolEnv.scope.owner.pkgID,
-                              symTable.mapAllType, symbolEnv.scope.owner, symTable.builtinPos);
+                              symTable.mapAllType, symbolEnv.scope.owner, symTable.builtinPos, );
     }
 
     /**

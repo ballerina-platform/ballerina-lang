@@ -65,7 +65,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
                             BType type,
                             BSymbol owner,
                             DiagnosticPos pos) {
-        super(flags, name, pkgID, type, owner, pos);
+        super(flags, name, pkgID, type, owner, pos, );
         this.tag = tag;
         this.params = new ArrayList<>();
         this.annAttachments = new ArrayList<>();

@@ -166,7 +166,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 uniqueId);
         BType transactionBlockIDType = symTable.stringType;
         BVarSymbol transactionBlockIDVarSymbol = new BVarSymbol(0, new Name("transactionBlockId" + uniqueId),
-                env.scope.owner.pkgID, transactionBlockIDType, env.scope.owner, pos);
+                env.scope.owner.pkgID, transactionBlockIDType, env.scope.owner, pos, );
         BLangSimpleVariable transactionBlockIDVariable = ASTBuilderUtil.createVariable(pos, "transactionBlockId"
                         + uniqueId, transactionBlockIDType, transactionBlockIDLiteral, transactionBlockIDVarSymbol);
         transactionBlockIDVariable.symbol.closure = true;
@@ -176,7 +176,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         //boolean $shouldCleanUp$ = false;
         BVarSymbol shouldCleanUpSymbol = new BVarSymbol(0, new Name("$shouldCleanUp$" + uniqueId),
-                env.scope.owner.pkgID, symTable.booleanType, env.scope.owner, pos);
+                env.scope.owner.pkgID, symTable.booleanType, env.scope.owner, pos, );
         BLangSimpleVariable shouldCleanUpVariable = ASTBuilderUtil.createVariable(pos, "$shouldCleanUp$"
                         + uniqueId, symTable.booleanType,
                 ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false), shouldCleanUpSymbol);
@@ -196,7 +196,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         //string transactionId = "";
         BType transactionIDType = symTable.stringType;
         BVarSymbol transactionIDVarSymbol = new BVarSymbol(0, new Name("transactionId" + uniqueId),
-                env.scope.owner.pkgID, transactionIDType, env.scope.owner, pos);
+                env.scope.owner.pkgID, transactionIDType, env.scope.owner, pos, );
         BLangSimpleVariable transactionIDVariable = ASTBuilderUtil.createVariable(pos, "transactionId" + uniqueId,
                 transactionIDType, ASTBuilderUtil.createLiteral(pos, symTable.stringType, ""), transactionIDVarSymbol);
         BLangSimpleVariableDef transactionIDVariableDef = ASTBuilderUtil.createVariableDef(pos,
@@ -238,7 +238,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         //    <"Content in transaction block goes here">
         //  };
         BVarSymbol transactionVarSymbol = new BVarSymbol(0, names.fromString("$trxFunc$"),
-                env.scope.owner.pkgID, trxMainFunc.type, trxMainFunc.function.symbol, pos);
+                env.scope.owner.pkgID, trxMainFunc.type, trxMainFunc.function.symbol, pos, );
         BLangSimpleVariable transactionLambdaVariable = ASTBuilderUtil.createVariable(pos, "trxFunc",
                 trxMainFunc.type, trxMainFunc, transactionVarSymbol);
         BLangSimpleVariableDef transactionLambdaVariableDef = ASTBuilderUtil.createVariableDef(pos,
@@ -257,7 +257,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         trxMainFunc.capturedClosureEnv = env;
 
         BVarSymbol resultSymbol = new BVarSymbol(0, new Name("result" + uniqueId),
-                env.scope.owner.pkgID, symTable.anyOrErrorType, env.scope.owner, pos);
+                env.scope.owner.pkgID, symTable.anyOrErrorType, env.scope.owner, pos, );
         BLangSimpleVariable resultVariable = ASTBuilderUtil.createVariable(pos, "result" + uniqueId,
                 symTable.anyOrErrorType, transactionLambdaInvocation, resultSymbol);
         BLangSimpleVariableDef trxFuncVarDef = ASTBuilderUtil.createVariableDef(pos,
@@ -325,7 +325,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 TRANSACTION_INFO_RECORD);
         BType infoRecordType = BUnionType.create(null, infoRecordSymbol.type, symTable.nilType);
         BVarSymbol prevAttemptVarSymbol = new BVarSymbol(0, new Name("prevAttempt" + uniqueId),
-                env.scope.owner.pkgID, infoRecordType, env.scope.owner, pos);
+                env.scope.owner.pkgID, infoRecordType, env.scope.owner, pos, );
         prevAttemptVarSymbol.closure = true;
         return ASTBuilderUtil.createVariable(pos, "prevAttempt" + uniqueId, infoRecordType, null,
                 prevAttemptVarSymbol);
@@ -426,7 +426,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionCleanerInvocation.argExprs = new ArrayList<>();
 
         BVarSymbol isTransactionFailedVarSymbol = new BVarSymbol(0, new Name("isFailed"),
-                env.scope.owner.pkgID, symTable.booleanType, env.scope.owner, pos);
+                env.scope.owner.pkgID, symTable.booleanType, env.scope.owner, pos, );
         BLangSimpleVariable isTransactionFailedVariable = ASTBuilderUtil.createVariable(pos, "isFailed",
                 symTable.booleanType, transactionCleanerInvocation, isTransactionFailedVarSymbol);
         BLangSimpleVariableDef isTransactionFailedVariableDef = ASTBuilderUtil.createVariableDef(pos,
@@ -449,7 +449,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BType commitReturnType = BUnionType.create(null, symTable.stringType, symTable.errorType);
 
         BVarSymbol commitTransactionVarSymbol = new BVarSymbol(0, new Name("commitResult"),
-                env.scope.owner.pkgID, commitReturnType, env.scope.owner, pos);
+                env.scope.owner.pkgID, commitReturnType, env.scope.owner, pos, );
         BLangSimpleVariable commitResultVariable = ASTBuilderUtil.createVariable(pos, "commitResult",
                 commitReturnType, commitTransactionInvocation, commitTransactionVarSymbol);
         BLangSimpleVariableDef commitResultVariableDef = ASTBuilderUtil.createVariableDef(pos, commitResultVariable);
@@ -524,7 +524,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private BLangSimpleVariableDef createCommitResultVarDef(SymbolEnv env, DiagnosticPos pos) {
         BLangExpression nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
         BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$outputVar$"),
-                env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner, pos);
+                env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner, pos, );
         BLangSimpleVariable outputVariable =
                 ASTBuilderUtil.createVariable(pos, "$outputVar$", symTable.errorOrNilType,
                         nilLiteral, outputVarSymbol);
