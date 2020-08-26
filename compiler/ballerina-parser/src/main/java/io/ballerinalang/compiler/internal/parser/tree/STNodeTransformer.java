@@ -221,6 +221,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(objectTypeDescriptorNode);
     }
 
+    public T transform(STObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        return transformSyntaxNode(objectConstructorExpressionNode);
+    }
+
     public T transform(STRecordTypeDescriptorNode recordTypeDescriptorNode) {
         return transformSyntaxNode(recordTypeDescriptorNode);
     }

@@ -117,6 +117,7 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
@@ -298,6 +299,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -900,6 +902,95 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return deSugarTypeAsUserDefType(objectTypeNode);
     }
 
+    public BLangObjectTypeNode createObjectExpressionBody(NodeList<Node> members) {
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        objectTypeNode.flagSet.add(Flag.ANONYMOUS);
+
+        for (Node node : members) {
+            BLangNode bLangNode = node.apply(this);
+            NodeKind nodeKind =  bLangNode.getKind();
+            if (nodeKind == NodeKind.FUNCTION) {
+                BLangFunction bLangFunction = (BLangFunction) bLangNode;
+                bLangFunction.attachedFunction = true;
+                bLangFunction.flagSet.add(Flag.ATTACHED);
+                if (!Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
+                    objectTypeNode.addFunction(bLangFunction);
+                    continue;
+                }
+                if (objectTypeNode.initFunction != null) {
+                    objectTypeNode.addFunction(bLangFunction);
+                    continue;
+                }
+                if (bLangFunction.requiredParams.size() != 0) {
+                    dlog.error(bLangFunction.pos, DiagnosticCode.OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS);
+                    continue;
+                }
+                bLangFunction.objInitFunction = true;
+                objectTypeNode.initFunction = bLangFunction;
+            } else if (nodeKind == NodeKind.VARIABLE) {
+                objectTypeNode.addField((BLangSimpleVariable) bLangNode);
+            } else if (nodeKind == NodeKind.USER_DEFINED_TYPE) {
+                dlog.error(bLangNode.pos, DiagnosticCode.OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS);
+            }
+        }
+
+        objectTypeNode.isAnonymous = true;
+        return objectTypeNode;
+    }
+
+    @Override
+    public BLangNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+
+        DiagnosticPos pos = getPositionWithoutMetadata(objectConstructorExpressionNode);
+
+        BLangObjectTypeNode objectTypeNode = createObjectExpressionBody(objectConstructorExpressionNode.members());
+        objectTypeNode.pos = pos;
+        BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression(objectTypeNode);
+        objectCtorExpression.pos = pos;
+
+        Optional<TypeDescriptorNode> typeReference = objectConstructorExpressionNode.typeReference();
+        typeReference.ifPresent(typeReferenceNode -> {
+            objectCtorExpression.addTypeReference(createTypeNode(typeReferenceNode));
+        });
+
+        BLangTypeDefinition bLTypeDef = createTypeDefinitionWithTypeNode(objectTypeNode);
+
+        NodeList<Token> objectConstructorQualifierList = objectConstructorExpressionNode.objectTypeQualifiers();
+        for (Token qualifier : objectConstructorQualifierList) {
+            if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
+                objectTypeNode.flagSet.add(Flag.CLIENT);
+                objectCtorExpression.isClient = true;
+            } else {
+                throw new RuntimeException("Syntax kind is not supported: " + qualifier.kind());
+            }
+        }
+        bLTypeDef.annAttachments = applyAll(objectConstructorExpressionNode.annotations());
+        addToTop(bLTypeDef);
+
+        BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        BLangUserDefinedType userDefinedType = createUserDefinedType(pos,
+                identifier, bLTypeDef.name);
+
+        BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
+        initNode.pos = pos;
+        initNode.userDefinedType = userDefinedType;
+
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        BLangIdentifier pkgAlias = createIdentifier(pos, "");
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, identifier);
+
+        invocationNode.name = (BLangIdentifier) nameReference.name;
+        invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+
+        initNode.argsExpr.addAll(invocationNode.argExprs);
+        initNode.initInvocation = invocationNode;
+
+        objectCtorExpression.objectTypeNode = objectTypeNode;
+        objectCtorExpression.typeInit = initNode;
+        return initNode;
+    }
+
     @Override
     public BLangNode transform(ObjectFieldNode objFieldNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(objFieldNode.fieldName(), objFieldNode.typeName(),
@@ -1332,7 +1423,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bodyNode.pos = pos;
         bLFunction.body = bodyNode;
 
-//        attachAnnotations(function, annCount, false);
         bLFunction.pos = pos;
 
         bLFunction.addFlag(Flag.LAMBDA);

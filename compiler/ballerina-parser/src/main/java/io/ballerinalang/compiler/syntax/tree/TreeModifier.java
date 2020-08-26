@@ -860,6 +860,33 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public ObjectConstructorExpressionNode transform(
+            ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        NodeList<AnnotationNode> annotations =
+                modifyNodeList(objectConstructorExpressionNode.annotations());
+        NodeList<Token> objectTypeQualifiers =
+                modifyNodeList(objectConstructorExpressionNode.objectTypeQualifiers());
+        Token objectKeyword =
+                modifyToken(objectConstructorExpressionNode.objectKeyword());
+        TypeDescriptorNode typeReference =
+                modifyNode(objectConstructorExpressionNode.typeReference().orElse(null));
+        Token openBraceToken =
+                modifyToken(objectConstructorExpressionNode.openBraceToken());
+        NodeList<Node> members =
+                modifyNodeList(objectConstructorExpressionNode.members());
+        Token closeBraceToken =
+                modifyToken(objectConstructorExpressionNode.closeBraceToken());
+        return objectConstructorExpressionNode.modify(
+                annotations,
+                objectTypeQualifiers,
+                objectKeyword,
+                typeReference,
+                openBraceToken,
+                members,
+                closeBraceToken);
+    }
+
+    @Override
     public RecordTypeDescriptorNode transform(
             RecordTypeDescriptorNode recordTypeDescriptorNode) {
         Token recordKeyword =

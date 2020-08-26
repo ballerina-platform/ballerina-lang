@@ -299,6 +299,7 @@ public enum SyntaxKind {
     XML_NAME_PATTERN_CHAIN(1335),
     XML_ATOMIC_NAME_PATTERN(1336),
     FAIL_EXPRESSION(1337),
+    OBJECT_CONSTRUCTOR(1338),
 
     // Type descriptors
     TYPE_DESC(2000),

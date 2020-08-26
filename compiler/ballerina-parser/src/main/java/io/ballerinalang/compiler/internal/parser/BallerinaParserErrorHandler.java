@@ -3603,6 +3603,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case INTERPOLATION:
                 endContext();
                 return ParserRuleContext.TEMPLATE_MEMBER;
+            case OBJECT_CONSTRUCTOR:
             case MULTI_RECEIVE_WORKERS:
             case MULTI_WAIT_FIELDS:
             case SERVICE_CONSTRUCTOR_EXPRESSION:
