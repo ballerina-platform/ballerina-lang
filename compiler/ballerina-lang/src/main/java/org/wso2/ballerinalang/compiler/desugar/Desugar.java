@@ -4483,7 +4483,7 @@ public class Desugar extends BLangNodeVisitor {
         final int updatedFlags = Flags.unset(tSymbol.flags, Flags.ABSTRACT);
         BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(updatedFlags, objectClassName,
                                                                     env.enclPkg.packageID, null, env.enclPkg.symbol,
-                                                                    pos);
+                                                                    pos, VIRTUAL);
 
         // Create a new concrete, class type for the provided abstract object type
         BObjectType objectClassType = new BObjectType(classTSymbol, updatedFlags);

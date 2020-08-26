@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
@@ -72,6 +73,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 
 /**
  * Helper class to create a clone of it.
@@ -589,7 +592,7 @@ public class ImmutableTypeCloner {
         BObjectTypeSymbol objectSymbol =
                 Symbols.createObjectSymbol(origObjectTSymbol.flags | Flags.READONLY,
                                            getImmutableTypeName(names, origObjectTSymbol.toString()),
-                                           pkgID, null, env.scope.owner, pos);
+                                           pkgID, null, env.scope.owner, pos, SOURCE);
 
         objectSymbol.scope = new Scope(objectSymbol);
         objectSymbol.methodScope = new Scope(objectSymbol);

@@ -965,7 +965,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
-                env.enclPkg.symbol.pkgID, null, env.scope.owner, objectTypeNode.pos);
+                env.enclPkg.symbol.pkgID, null, env.scope.owner, objectTypeNode.pos, SOURCE);
         BObjectType objectType;
         if (flags.contains(Flag.SERVICE)) {
             objectType = new BServiceType(objectSymbol);

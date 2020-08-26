@@ -33,7 +33,7 @@ public class BRecordTypeSymbol extends BStructureTypeSymbol {
 
     public BRecordTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                              DiagnosticPos pos) {
-        super(SymbolKind.RECORD, symTag, flags, name, pkgID, type, owner, pos);
+        super(SymbolKind.RECORD, symTag, flags, name, pkgID, type, owner, pos, );
     }
 
     @Override

@@ -688,7 +688,7 @@ public class TypeParamAnalyzer {
         BObjectTypeSymbol actObjectSymbol = Symbols.createObjectSymbol(expType.tsymbol.flags,
                                                                        expType.tsymbol.name, expType.tsymbol.pkgID,
                                                                        null, expType.tsymbol.scope.owner,
-                                                                       expType.tsymbol.pos);
+                                                                       expType.tsymbol.pos, VIRTUAL);
         BObjectType objectType = new BObjectType(actObjectSymbol);
         actObjectSymbol.type = objectType;
         actObjectSymbol.scope = new Scope(actObjectSymbol);

@@ -1220,7 +1220,8 @@ public class BIRPackageSymbolEnter {
                     BObjectTypeSymbol objectSymbol = Symbols.createObjectSymbol(objFlags,
                                                                                 names.fromString(objName),
                                                                                 env.pkgSymbol.pkgID, null,
-                                                                                env.pkgSymbol, symTable.builtinPos);
+                                                                                env.pkgSymbol, symTable.builtinPos,
+                                                                                COMPILED_SOURCE);
                     objectSymbol.scope = new Scope(objectSymbol);
                     objectSymbol.methodScope = new Scope(objectSymbol);
                     BObjectType objectType;
