@@ -435,11 +435,21 @@ public class FormattingTreeModifier extends TreeModifier {
         boolean addSpaces = true;
         if (builtinSimpleNameReferenceNode.parent() != null &&
                 (builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.FUNCTION_CALL) ||
+                builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.TYPE_CAST_PARAM) ||
+                builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC) ||
+                (builtinSimpleNameReferenceNode.parent().parent() != null &&
+                builtinSimpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.PARAMETERIZED_TYPE_DESC) &&
+                builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC)) ||
                 (builtinSimpleNameReferenceNode.parent().parent() != null) &&
                 builtinSimpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.FROM_CLAUSE) ||
                 (builtinSimpleNameReferenceNode.parent().parent() != null) &&
                 builtinSimpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.PARAMETERIZED_TYPE_DESC))) {
             addSpaces = false;
+        }
+        if ((builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC) &&
+                !builtinSimpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.TYPE_CAST_PARAM) &&
+                builtinSimpleNameReferenceNode.parent().children().get(0).equals(builtinSimpleNameReferenceNode))) {
+            addSpaces = true;
         }
         int startCol = getStartColumn(builtinSimpleNameReferenceNode, builtinSimpleNameReferenceNode.kind(), addSpaces);
         Token name = getToken(builtinSimpleNameReferenceNode.name());
@@ -779,6 +789,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (((simpleNameReferenceNode.parent().kind().equals(SyntaxKind.ASYNC_SEND_ACTION) ||
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.ASSIGNMENT_STATEMENT)) &&
                 simpleNameReferenceNode.parent().children().get(0).equals(simpleNameReferenceNode)) ||
+                simpleNameReferenceNode.parent().kind().equals(SyntaxKind.TYPED_BINDING_PATTERN) ||
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.ARRAY_TYPE_DESC)) {
             addSpaces = true;
         }
