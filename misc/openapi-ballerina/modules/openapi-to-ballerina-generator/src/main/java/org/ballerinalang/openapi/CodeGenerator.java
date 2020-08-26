@@ -110,7 +110,7 @@ public class CodeGenerator {
         writeGeneratedSources(genFiles, srcPath, implPath, type);
     }
 
-    public void generateBothFiles(GenType type, String executionPath, String definitionPath,
+    public void generateBothFiles(GenType type, String definitionPath,
                           String reldefinitionPath , String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
         Path srcPath = Paths.get(outPath);

@@ -133,8 +133,8 @@ public class OpenApiCmd implements BLauncherCmd {
     private void ballerinaToOpenApi(String fileName) {
         final File balFile = new File(fileName);
         String serviceName = service;
-        Path resourcePath = getResourcePath(balFile);
         getTargetOutputPath();
+        Path resourcePath = getResourcePath(balFile, this.targetOutputPath.toString());
         //ballerina openapi -i service.bal --serviceName serviceName --module exampleModul -o ./
         // Check service name it is mandatory
         if (module != null) {
@@ -148,12 +148,14 @@ public class OpenApiCmd implements BLauncherCmd {
                 throw LauncherUtils.createLauncherException("Error occurred when exporting openapi file. " +
                         "\n" + e.getMessage());
             }
-        } else {
+        } else if (serviceName != null){
             try {
                 OpenApiConverterUtils.generateOAS3Definitions(resourcePath, targetOutputPath, serviceName);
             } catch (IOException | OpenApiConverterException e){
                 throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
             }
+        } else {
+            throw LauncherUtils.createLauncherException(OpenApiMesseges.CONTRACT_SERVICE_MANDATORY);
         }
     }
 
@@ -165,18 +167,21 @@ public class OpenApiCmd implements BLauncherCmd {
         CodeGenerator generator = new CodeGenerator();
         final File openApiFile = new File(fileName);
         String serviceName = openApiFile.getName();
-        Path resourcePath = getResourcePath(openApiFile);
         getTargetOutputPath();
-        switch (mode) {
-            case "service":
-                generateServiceFile(generator, serviceName, resourcePath);
-                break;
-            case "client":
-                generatesClientFile(generator, serviceName, resourcePath);
-                break;
-            default:
-                generateBothFiles(generator, serviceName, resourcePath);
-                break;
+        Path resourcePath = getResourcePath(openApiFile, this.targetOutputPath.toString());
+        if (mode != null) {
+            switch (mode) {
+                case "service":
+                    generateServiceFile(generator, serviceName, resourcePath);
+                    break;
+                case "client":
+                    generatesClientFile(generator, serviceName, resourcePath);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            generateBothFiles(generator, serviceName, resourcePath);
         }
     }
 
@@ -185,14 +190,18 @@ public class OpenApiCmd implements BLauncherCmd {
      * @param resourceFile
      * @return path of given resource file
      */
-    private Path getResourcePath(File resourceFile) {
+    private Path getResourcePath(File resourceFile, String targetOutputPath) {
         Path resourcePath = null;
+        Path relativePath = null;
         try {
             resourcePath = Paths.get(resourceFile.getCanonicalPath());
+            relativePath =
+                    Paths.get(new File(targetOutputPath).toURI().relativize(new File(resourcePath.toString()).toURI())
+                            .getPath());
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
         }
-        return resourcePath;
+        return relativePath;
     }
 
     /**
@@ -256,10 +265,12 @@ public class OpenApiCmd implements BLauncherCmd {
     private void generateBothFiles(CodeGenerator generator, String serviceName, Path resourcePath) {
         try {
             assert resourcePath != null;
-            Path relativeResourcePath = Paths.get(executionPath.toString(), serviceName);
+            Path relativeResourcePath =
+                    Paths.get(new File(executionPath.toString()).toURI().relativize(new File(resourcePath.toString()).toURI())
+                    .getPath());
             generator.generateBothFiles(
-                    GeneratorConstants.GenType.GEN_BOTH, executionPath.toString(), resourcePath.toString(),
-                    relativeResourcePath.toString(), serviceName.split("\\.")[0] , targetOutputPath.toString());
+                    GeneratorConstants.GenType.GEN_BOTH, relativeResourcePath.toString(),
+                    resourcePath.toString(), serviceName.split("\\.")[0] , targetOutputPath.toString());
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
                     "contract at " + argList.get(0) + ". " + e.getMessage() + ".");
