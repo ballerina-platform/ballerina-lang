@@ -23,7 +23,6 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -161,6 +160,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
@@ -1363,9 +1363,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (errorType.detailType.getKind() == TypeKind.RECORD || errorType.detailType.getKind() == TypeKind.MAP) {
             return validateErrorVariable(errorVariable, errorType);
         } else if (errorType.detailType.getKind() == TypeKind.UNION) {
+            // TODO: Verify with Dhananjaya that the origin is correct
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                                                                     env.enclPkg.packageID, symTable.errorType,
-                                                                    env.scope.owner, errorVariable.pos);
+                                                                    env.scope.owner, errorVariable.pos, SOURCE);
             // TODO: detail type need to be a union representing all details of members of `errorType`
             errorVariable.type = new BErrorType(errorTypeSymbol, symTable.detailType);
             return validateErrorVariable(errorVariable);

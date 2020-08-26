@@ -61,6 +61,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * This class consists of utility methods which operate on TypeParams (Parametric types).
  *
@@ -737,7 +739,7 @@ public class TypeParamAnalyzer {
                                                            symTable.errorType.tsymbol.flags,
                                                            symTable.errorType.tsymbol.name,
                                                            symTable.errorType.tsymbol.pkgID,
-                                                           null, null, symTable.builtinPos);
+                                                           null, null, symTable.builtinPos, VIRTUAL);
         BErrorType errorType = new BErrorType(typeSymbol, detailType);
         typeSymbol.type = errorType;
         return errorType;

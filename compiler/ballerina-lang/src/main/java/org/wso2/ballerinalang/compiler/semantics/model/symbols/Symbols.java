@@ -84,8 +84,8 @@ public class Symbols {
     }
 
     public static BErrorTypeSymbol createErrorSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
-                                                     DiagnosticPos pos) {
-        BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner, pos);
+                                                     DiagnosticPos pos, SymbolOrigin origin) {
+        BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner, pos, origin);
         typeSymbol.kind = SymbolKind.ERROR;
         return typeSymbol;
     }

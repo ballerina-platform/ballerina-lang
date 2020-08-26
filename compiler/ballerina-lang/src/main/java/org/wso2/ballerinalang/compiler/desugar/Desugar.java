@@ -266,6 +266,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createExpressionStmt;
@@ -6061,7 +6062,7 @@ public class Desugar extends BLangNodeVisitor {
                     Flags.PUBLIC,
                     names.fromString("$anonErrorType$" + errorCount++),
                     env.enclPkg.symbol.pkgID,
-                    null, null, errorVariable.pos);
+                    null, null, errorVariable.pos, VIRTUAL);
             BType detailType;
             if ((errorVariable.detail == null || errorVariable.detail.isEmpty()) && errorVariable.restDetail != null) {
                 detailType = symTable.detailType;

@@ -1148,7 +1148,7 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.ERROR:
                     BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
                                                                    env.pkgSymbol.pkgID, null, env.pkgSymbol.owner,
-                                                                   symTable.builtinPos);
+                                                                   symTable.builtinPos, COMPILED_SOURCE);
                     BErrorType errorType = new BErrorType(errorSymbol);
                     addShapeCP(errorType, cpI);
                     compositeStack.push(errorType);
