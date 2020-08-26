@@ -2939,6 +2939,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.BINDING_PATTERN;
             case CONFLICT_KEYWORD:
             case LIMIT_KEYWORD:
+            case EQUALS_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case OUTER_KEYWORD:
                 return ParserRuleContext.JOIN_KEYWORD;

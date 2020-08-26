@@ -2764,7 +2764,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        analyzeExpr(onClause.expression);
+        analyzeExpr(onClause.lhsExpr);
+        analyzeExpr(onClause.rhsExpr);
     }
 
     @Override

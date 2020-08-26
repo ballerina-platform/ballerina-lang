@@ -508,6 +508,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseConflictKeyword();
             case JOIN_KEYWORD:
                 return parseJoinKeyword();
+            case EQUALS_KEYWORD:
+                return parseEqualsKeyword();
             default:
                 return resumeSyntaxTokenParsing(context, args);
         }
@@ -10549,6 +10551,21 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse equals keyword.
+     *
+     * @return Parsed node
+     */
+    private STNode parseEqualsKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.EQUALS_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.EQUALS_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
     private boolean isEndOfIntermediateClause(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case CLOSE_BRACE_TOKEN:
@@ -10946,14 +10963,7 @@ public class BallerinaParser extends AbstractParser {
         // within the from-clause, due to the precedence.
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         endContext();
-
-        STNode onCondition;
-        nextToken = peek();
-        if (nextToken.kind == SyntaxKind.ON_KEYWORD) {
-            onCondition = parseOnClause(isRhsExpr);
-        } else {
-            onCondition = STNodeFactory.createEmptyNode();
-        }
+        STNode onCondition = parseOnClause(isRhsExpr);
         return STNodeFactory.createJoinClauseNode(outerKeyword, joinKeyword, typedBindingPattern, inKeyword, expression,
                 onCondition);
     }
@@ -10969,8 +10979,10 @@ public class BallerinaParser extends AbstractParser {
         STNode onKeyword = parseOnKeyword();
         // note that parsing expression includes following.
         // equals-expr := expression `equals` expression
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
-        return STNodeFactory.createOnClauseNode(onKeyword, expression);
+        STNode lhsExpression = parseExpression(OperatorPrecedence.EQUALITY, isRhsExpr, false);
+        STNode equalsKeyword = parseEqualsKeyword();
+        STNode rhsExpression = parseExpression(OperatorPrecedence.EQUALITY, isRhsExpr, false);
+        return STNodeFactory.createOnClauseNode(onKeyword, lhsExpression, equalsKeyword, rhsExpression);
     }
 
     /**

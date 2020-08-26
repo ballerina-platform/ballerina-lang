@@ -28,7 +28,11 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  */
 public interface OnClauseNode extends Node {
 
-    ExpressionNode getExpression();
+    ExpressionNode getLeftExpression();
 
-    void setExpression(ExpressionNode expression);
+    void setLeftExpression(ExpressionNode expression);
+
+    ExpressionNode getRightExpression();
+
+    void setRightExpression(ExpressionNode expression);
 }
