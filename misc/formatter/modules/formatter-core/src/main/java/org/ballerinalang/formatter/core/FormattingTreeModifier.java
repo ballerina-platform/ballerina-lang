@@ -477,9 +477,14 @@ public class FormattingTreeModifier extends TreeModifier {
             functionBodyBlockNode = functionBodyBlockNode.modify()
                     .withNamedWorkerDeclarator(namedWorkerDeclarator).apply();
         }
+        int trailingNewLines = 2;
+        if (functionBodyBlockNode.parent() != null && functionBodyBlockNode.parent().parent() != null &&
+                functionBodyBlockNode.parent().parent().kind().equals(SyntaxKind.SERVICE_BODY)) {
+            trailingNewLines = 1;
+        }
         return functionBodyBlockNode.modify()
                 .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0, 1))
-                .withCloseBraceToken(formatToken(functionBodyCloseBrace, startColumn, 0, 0, 2))
+                .withCloseBraceToken(formatToken(functionBodyCloseBrace, startColumn, 0, 0, trailingNewLines))
                 .withStatements(statements)
                 .apply();
     }
@@ -571,7 +576,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withMetadata(metadata).apply();
         }
         return serviceDeclarationNode.modify()
-                .withServiceKeyword(formatToken(serviceKeyword, 0, 0, 1, 0))
+                .withServiceKeyword(formatToken(serviceKeyword, 0, 0, 0, 0))
                 .withServiceName((IdentifierToken) formatToken(serviceName, 1, 0, 0, 0))
                 .withOnKeyword(formatToken(onKeyword, 1, 0, 0, 0))
                 .withExpressions(expressions)
@@ -588,7 +593,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token closeBraceToken = getToken(serviceBodyNode.closeBraceToken());
         NodeList<Node> resources = this.modifyNodeList(serviceBodyNode.resources());
         return serviceBodyNode.modify()
-                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 1))
+                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 2))
                 .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 1))
                 .withResources(resources)
                 .apply();
@@ -781,7 +786,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
                 .withExpression(expression)
                 .withMethodName(methodName)
-                .withRightArrowToken(formatToken(rightArrowToken, 0, 0, 0, 0))
+                .withRightArrowToken(formatToken(rightArrowToken, 1, 1, 0, 0))
                 .apply();
     }
 
@@ -1151,7 +1156,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(checkExpressionNode)) {
             return checkExpressionNode;
         }
-        int startColumn = getStartColumn(checkExpressionNode, checkExpressionNode.kind(), false);
+        boolean addSpaces = false;
+        if (checkExpressionNode.parent() != null &&
+                checkExpressionNode.parent().kind().equals(SyntaxKind.ACTION_STATEMENT)) {
+            addSpaces = true;
+        }
+        int startColumn = getStartColumn(checkExpressionNode, checkExpressionNode.kind(), addSpaces);
         Token checkKeyword = getToken(checkExpressionNode.checkKeyword());
         ExpressionNode expressionNode = this.modifyNode(checkExpressionNode.expression());
         return checkExpressionNode.modify()
@@ -3455,9 +3465,11 @@ public class FormattingTreeModifier extends TreeModifier {
     public Token transform(Token token) {
         if (token.kind().equals(SyntaxKind.PUBLIC_KEYWORD) || token.kind().equals(SyntaxKind.COMMA_TOKEN)) {
             return formatToken(token, 0, 1, 0, 0);
-        }
-        if (token.parent() != null && token.parent().kind().equals(SyntaxKind.IMPORT_DECLARATION)) {
+        } else if (token.parent() != null && token.parent().kind().equals(SyntaxKind.IMPORT_DECLARATION)) {
             return formatToken(token, 0, 0, 0, 0);
+        } else if (token.kind().equals(SyntaxKind.RESOURCE_KEYWORD)) {
+            int startCol = getStartColumn(token, token.kind(), true);
+            return formatToken(token, startCol, 1, 0, 0);
         }
         return token;
     }
@@ -3566,6 +3578,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     parentKind == SyntaxKind.POSITIONAL_ARG ||
                     parentKind == SyntaxKind.BINARY_EXPRESSION ||
                     parentKind == SyntaxKind.RETURN_STATEMENT ||
+                    parentKind == SyntaxKind.REMOTE_METHOD_CALL_ACTION ||
                     parentKind.equals(SyntaxKind.FIELD_ACCESS) ||
                     (parentKind == SyntaxKind.FUNCTION_CALL && parent.parent() != null &&
                             parent.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT)) {
