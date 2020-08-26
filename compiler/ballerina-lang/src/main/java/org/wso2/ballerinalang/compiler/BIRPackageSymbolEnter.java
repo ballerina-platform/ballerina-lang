@@ -463,14 +463,15 @@ public class BIRPackageSymbolEnter {
         List<BVarSymbol> params = new ArrayList<>();
         for (BType paramType : invokableType.paramTypes) {
             BVarSymbol varSymbol = new BVarSymbol(paramType.flags, Names.EMPTY, //TODO: should be written/read to BIR
-                                                  this.env.pkgSymbol.pkgID, paramType, null, symTable.builtinPos, );
+                                                  this.env.pkgSymbol.pkgID, paramType, null, symTable.builtinPos,
+                                                  COMPILED_SOURCE);
             params.add(varSymbol);
         }
         tsymbol.params = params;
 
         if (invokableType.restType != null) {
             tsymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.pkgSymbol.pkgID, invokableType.restType, null,
-                                               symTable.builtinPos, );
+                                               symTable.builtinPos, COMPILED_SOURCE);
         }
 
         tsymbol.returnType = invokableType.retType;
@@ -661,7 +662,7 @@ public class BIRPackageSymbolEnter {
                                              COMPILED_SOURCE);
         } else {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
-                                       enclScope.owner, symTable.builtinPos, );
+                                       enclScope.owner, symTable.builtinPos, COMPILED_SOURCE);
             if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
             }
@@ -683,7 +684,7 @@ public class BIRPackageSymbolEnter {
             int flags = dataInStream.readInt();
             BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(paramName), this.env.pkgSymbol.pkgID,
                                                   invokableType.paramTypes.get(i), invokableSymbol,
-                                                  symTable.builtinPos, );
+                                                  symTable.builtinPos, COMPILED_SOURCE);
             varSymbol.defaultableParam = ((flags & Flags.OPTIONAL) == Flags.OPTIONAL);
             invokableSymbol.params.add(varSymbol);
         }
@@ -691,7 +692,8 @@ public class BIRPackageSymbolEnter {
         if (dataInStream.readBoolean()) { //if rest param exist
             String paramName = getStringCPEntryValue(dataInStream);
             invokableSymbol.restParam = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
-                                                       invokableType.restType, invokableSymbol, symTable.builtinPos, );
+                                                       invokableType.restType, invokableSymbol, symTable.builtinPos,
+                                                       COMPILED_SOURCE);
         }
 
         if (Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.PARAMETERIZED)) {
@@ -979,7 +981,8 @@ public class BIRPackageSymbolEnter {
 
                         BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                                               recordSymbol.pkgID, fieldType,
-                                                              recordSymbol.scope.owner, symTable.builtinPos, );
+                                                              recordSymbol.scope.owner, symTable.builtinPos,
+                                                              COMPILED_SOURCE);
 
                         defineMarkDownDocAttachment(varSymbol, docBytes);
 
@@ -1258,7 +1261,8 @@ public class BIRPackageSymbolEnter {
                         BType fieldType = readTypeFromCp();
                         BVarSymbol objectVarSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                                                     objectSymbol.pkgID, fieldType,
-                                                                    objectSymbol.scope.owner, symTable.builtinPos, );
+                                                                    objectSymbol.scope.owner, symTable.builtinPos,
+                                                                    COMPILED_SOURCE);
 
                         defineMarkDownDocAttachment(objectVarSymbol, docBytes);
 

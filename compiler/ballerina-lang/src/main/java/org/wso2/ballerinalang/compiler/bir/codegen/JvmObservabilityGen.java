@@ -230,7 +230,7 @@ class JvmObservabilityGen {
             invokableSymbol.kind = SymbolKind.FUNCTION;
             invokableSymbol.params = asyncCallIns.args.stream()
                     .map(arg -> new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
-                                               invokableSymbol, arg.pos, ))
+                                               invokableSymbol, arg.pos, VIRTUAL))
                     .collect(Collectors.toList());
             invokableSymbol.scope = new Scope(invokableSymbol);
             invokableSymbol.params.forEach(param -> invokableSymbol.scope.define(param.name, param));

@@ -476,7 +476,7 @@ public class ImmutableTypeCloner {
             Name origFieldName = origField.name;
             BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | Flags.READONLY,
                                                              origFieldName, pkgID, immutableFieldType,
-                                                             immutableStructureSymbol, origField.pos, );
+                                                             immutableStructureSymbol, origField.pos, SOURCE);
             if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;

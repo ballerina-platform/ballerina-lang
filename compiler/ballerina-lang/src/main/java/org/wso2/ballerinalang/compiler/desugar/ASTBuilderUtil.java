@@ -150,7 +150,7 @@ public class ASTBuilderUtil {
 
     static void defineVariable(BLangSimpleVariable variable, BSymbol targetSymbol, Names names) {
         variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), targetSymbol.pkgID, variable.type,
-                                         targetSymbol, variable.pos, );
+                                         targetSymbol, variable.pos, VIRTUAL);
         targetSymbol.scope.define(variable.symbol.name, variable.symbol);
     }
 
@@ -839,7 +839,7 @@ public class ASTBuilderUtil {
 
     private static BVarSymbol duplicateParamSymbol(BVarSymbol paramSymbol, BInvokableSymbol owner) {
         BVarSymbol newParamSymbol = new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID,
-                                                   paramSymbol.type, owner, paramSymbol.pos, );
+                                                   paramSymbol.type, owner, paramSymbol.pos, paramSymbol.origin);
         newParamSymbol.tainted = paramSymbol.tainted;
         newParamSymbol.defaultableParam = paramSymbol.defaultableParam;
         newParamSymbol.markdownDocumentation = paramSymbol.markdownDocumentation;

@@ -654,7 +654,7 @@ public class TypeParamAnalyzer {
             BField field = new BField(expField.name, expField.pos,
                                       new BVarSymbol(0, expField.name, env.enclPkg.packageID,
                                                      getMatchingBoundType(expField.type, env, resolvedTypes),
-                                                     env.scope.owner, expField.pos, ));
+                                                     env.scope.owner, expField.pos, VIRTUAL));
             fields.put(field.name.value, field);
             recordSymbol.scope.define(expField.name, field.symbol);
         }
@@ -699,7 +699,7 @@ public class TypeParamAnalyzer {
             BField field = new BField(expField.name, expField.pos,
                                       new BVarSymbol(expField.symbol.flags, expField.name, env.enclPkg.packageID,
                                                      getMatchingBoundType(expField.type, env, resolvedTypes),
-                                                     env.scope.owner, expField.pos, ));
+                                                     env.scope.owner, expField.pos, VIRTUAL));
             objectType.fields.put(field.name.value, field);
             objectType.tsymbol.scope.define(expField.name, field.symbol);
         }

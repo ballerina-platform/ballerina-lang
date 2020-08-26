@@ -64,7 +64,7 @@ public class FunctionalConstructorBuilder {
     }
 
     private FunctionalConstructorBuilder addParam(String name, BType type, boolean isDefaultable) {
-        BVarSymbol paramSymbol = new BVarSymbol(0, new Name(name), langlibPkg.pkgID, type, null, pos, );
+        BVarSymbol paramSymbol = new BVarSymbol(0, new Name(name), langlibPkg.pkgID, type, null, pos, BUILTIN);
         paramSymbol.defaultableParam = isDefaultable;
         params.add(paramSymbol);
         return this;
