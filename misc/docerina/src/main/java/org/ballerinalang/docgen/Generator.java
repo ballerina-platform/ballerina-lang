@@ -252,6 +252,10 @@ public class Generator {
         if (functionNode.getParameters().size() > 0) {
             for (BLangSimpleVariable param : functionNode.getParameters()) {
                 DefaultableVariable variable = getVariable(functionNode, param, module);
+                if (param.typeNode instanceof BLangUserDefinedType &&
+                        ((BLangUserDefinedType) param.typeNode).typeName.value.contains("$anonType$")) {
+                    module.linkedAnonObjects.add(((BLangUserDefinedType) param.typeNode).typeName.value);
+                }
                 parameters.add(variable);
             }
         }
