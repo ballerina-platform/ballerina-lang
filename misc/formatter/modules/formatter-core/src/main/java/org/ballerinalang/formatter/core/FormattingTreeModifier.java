@@ -2877,10 +2877,16 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(waitActionNode)) {
             return waitActionNode;
         }
+        boolean addSpaces = false;
+        if (waitActionNode.parent().parent() != null &&
+                waitActionNode.parent().parent().kind().equals(SyntaxKind.FUNCTION_BODY_BLOCK)) {
+            addSpaces = true;
+        }
+        int startCol = getStartColumn(waitActionNode, waitActionNode.kind(), addSpaces);
         Token waitKeyword = getToken(waitActionNode.waitKeyword());
         Node waitFutureExpr = this.modifyNode(waitActionNode.waitFutureExpr());
         return waitActionNode.modify()
-                .withWaitKeyword(formatToken(waitKeyword, 1, 1, 0, 0))
+                .withWaitKeyword(formatToken(waitKeyword, addSpaces ? startCol : 1, 1, 0, 0))
                 .withWaitFutureExpr(waitFutureExpr)
                 .apply();
     }
