@@ -1210,10 +1210,15 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public NilTypeDescriptorNode transform(NilTypeDescriptorNode nilTypeDescriptorNode) {
+        boolean addSpaces = true;
+        if (nilTypeDescriptorNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
+            addSpaces = false;
+        }
+        int startColumn = getStartColumn(nilTypeDescriptorNode, nilTypeDescriptorNode.kind(), addSpaces);
         Token openParenToken = getToken(nilTypeDescriptorNode.openParenToken());
         Token closeParenToken = getToken(nilTypeDescriptorNode.closeParenToken());
         return nilTypeDescriptorNode.modify()
-                .withOpenParenToken(formatToken(openParenToken, 0, 0, 0, 0))
+                .withOpenParenToken(formatToken(openParenToken, startColumn, 0, 0, 0))
                 .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
                 .apply();
     }
