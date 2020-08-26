@@ -243,6 +243,11 @@ public class FormattingTreeModifier extends TreeModifier {
     private FormattingOptions formattingOptions;
     private LineRange lineRange;
 
+    FormattingTreeModifier(FormattingOptions formattingOptions, LineRange lineRange) {
+        this.formattingOptions = formattingOptions;
+        this.lineRange = lineRange;
+    }
+
     @Override
     public ImportDeclarationNode transform(ImportDeclarationNode importDeclarationNode) {
         if (!isInLineRange(importDeclarationNode)) {
@@ -761,9 +766,16 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(simpleNameReferenceNode)) {
             return simpleNameReferenceNode;
         }
+        boolean addSpaces = false;
+        if ((simpleNameReferenceNode.parent().kind().equals(SyntaxKind.ASYNC_SEND_ACTION) ||
+                simpleNameReferenceNode.parent().kind().equals(SyntaxKind.ASSIGNMENT_STATEMENT)) &&
+                simpleNameReferenceNode.parent().children().get(0).equals(simpleNameReferenceNode)) {
+            addSpaces = true;
+        }
+        int startCol = getStartColumn(simpleNameReferenceNode, simpleNameReferenceNode.kind(), addSpaces);
         Token name = getToken(simpleNameReferenceNode.name());
         return simpleNameReferenceNode.modify()
-                .withName(formatToken(name, 0, 0, 0, 0))
+                .withName(formatToken(name, startCol, 0, 0, 0))
                 .apply();
     }
 
@@ -933,7 +945,11 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(blockStatementNode)) {
             return blockStatementNode;
         }
-        int startColumn = getStartColumn(blockStatementNode, blockStatementNode.kind(), false);
+        boolean addSpaces = false;
+        if (blockStatementNode.parent().kind().equals(SyntaxKind.NAMED_WORKER_DECLARATION)) {
+            addSpaces = true;
+        }
+        int startColumn = getStartColumn(blockStatementNode, blockStatementNode.kind(), addSpaces);
         Token openBraceToken = getToken(blockStatementNode.openBraceToken());
         Token closeBraceToken = getToken(blockStatementNode.closeBraceToken());
         NodeList<StatementNode> statements = this.modifyNodeList(blockStatementNode.statements());
@@ -1581,6 +1597,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(namedWorkerDeclarationNode)) {
             return namedWorkerDeclarationNode;
         }
+        int startCol = getStartColumn(namedWorkerDeclarationNode, namedWorkerDeclarationNode.kind(), true);
         NodeList<AnnotationNode> annotations = this.modifyNodeList(namedWorkerDeclarationNode.annotations());
         Token workerKeyword = getToken(namedWorkerDeclarationNode.workerKeyword());
         IdentifierToken workerName = this.modifyNode(namedWorkerDeclarationNode.workerName());
@@ -1593,7 +1610,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         return namedWorkerDeclarationNode.modify()
                 .withAnnotations(annotations)
-                .withWorkerKeyword(formatToken(workerKeyword, 0, 0, 0, 0))
+                .withWorkerKeyword(formatToken(workerKeyword, startCol, 1, 0, 0))
                 .withWorkerName(workerName)
                 .withWorkerBody(workerBody)
                 .apply();
@@ -2750,7 +2767,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token leftArrow = getToken(receiveActionNode.leftArrow());
         SimpleNameReferenceNode receiveWorkers = this.modifyNode(receiveActionNode.receiveWorkers());
         return receiveActionNode.modify()
-                .withLeftArrow(formatToken(leftArrow, 1, 1, 0, 0))
+                .withLeftArrow(formatToken(leftArrow, 0, 1, 0, 0))
                 .withReceiveWorkers(receiveWorkers)
                 .apply();
     }
@@ -3533,9 +3550,20 @@ public class FormattingTreeModifier extends TreeModifier {
     private int getStartColumn(Node node, SyntaxKind syntaxKind, boolean addSpaces) {
         Node parent = getParent(node, syntaxKind);
         if (parent != null) {
-            return getPosition(parent).sCol + (addSpaces ? 4 : 0);
+            return getPosition(parent).sCol + (addSpaces ? getIndentation(node, 0) : 0);
         }
         return 0;
+    }
+
+    private int getIndentation(Node node, int indentation) {
+        if (node == null) {
+            return indentation;
+        }
+        if (node.parent() != null && (node.parent().kind().equals(SyntaxKind.BLOCK_STATEMENT) ||
+                node.parent().kind().equals(SyntaxKind.FUNCTION_BODY_BLOCK))) {
+            indentation += formattingOptions.getTabSize();
+        }
+        return getIndentation(node.parent(), indentation);
     }
 
     private boolean isInLineRange(Node node) {
@@ -3559,17 +3587,5 @@ public class FormattingTreeModifier extends TreeModifier {
             return true;
         }
         return false;
-    }
-
-    public FormattingOptions getFormattingOptions() {
-        return formattingOptions;
-    }
-
-    void setFormattingOptions(FormattingOptions formattingOptions) {
-        this.formattingOptions = formattingOptions;
-    }
-
-    void setLineRange(LineRange lineRange) {
-        this.lineRange = lineRange;
     }
 }

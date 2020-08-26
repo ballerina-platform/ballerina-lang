@@ -1,5 +1,5 @@
 type Person object {
-   string fname;
+   string fname = "o";
 
    function init(string fname) {
        self.fname = fname;

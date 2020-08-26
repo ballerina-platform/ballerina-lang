@@ -68,11 +68,8 @@ public class Formatter {
     public static String format(String source, FormattingOptions options) {
         TextDocument textDocument = TextDocuments.from(source);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        FormattingTreeModifier treeModifier = new FormattingTreeModifier();
+        FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, null);
         ModulePartNode newModulePart = treeModifier.transform((ModulePartNode) syntaxTree.rootNode());
-        if (options != null) {
-            treeModifier.setFormattingOptions(options);
-        }
         return syntaxTree.modifyWith(newModulePart).toSourceCode();
     }
 
@@ -86,12 +83,8 @@ public class Formatter {
      * @return The modified SyntaxTree after formatting changes
      */
     public static SyntaxTree format(SyntaxTree syntaxTree, LineRange range, FormattingOptions options) {
-        FormattingTreeModifier treeModifier = new FormattingTreeModifier();
+        FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, range);
         ModulePartNode modulePartNode = syntaxTree.rootNode();
-        treeModifier.setLineRange(range);
-        if (options != null) {
-            treeModifier.setFormattingOptions(options);
-        }
         return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
     }
 
@@ -103,11 +96,8 @@ public class Formatter {
      * @return The modified SyntaxTree after formatting changes
      */
     public static SyntaxTree format(SyntaxTree syntaxTree, FormattingOptions options) {
-        FormattingTreeModifier treeModifier = new FormattingTreeModifier();
+        FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, null);
         ModulePartNode modulePartNode = syntaxTree.rootNode();
-        if (options != null) {
-            treeModifier.setFormattingOptions(options);
-        }
         return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
     }
 }
