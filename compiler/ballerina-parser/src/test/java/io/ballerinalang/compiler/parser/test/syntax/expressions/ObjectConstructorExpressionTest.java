@@ -55,6 +55,12 @@ public class ObjectConstructorExpressionTest extends AbstractExpressionsTest {
                 "object-constructor/object-constructor-with-methods.json");
     }
 
+    @Test
+    public void testObjectConstructorWithTypeReference() {
+        testFile("object-constructor/object-constructor-with-type-reference.bal",
+                "object-constructor/object-constructor-with-type-reference.json");
+    }
+
     // Recovery tests
 
     @Test
