@@ -43,8 +43,6 @@ dependencies {
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
     dist 'info.picocli:picocli:4.0.1'
-    dist 'org.apache.kafka:kafka-clients:2.3.1'
-    dist 'org.apache.kafka:kafka_2.11:2.3.1'
     dist 'io.ballerina.messaging:broker-auth:0.970.0'
     dist 'io.ballerina.messaging:broker-common:0.970.0'
     dist 'io.ballerina.messaging:broker-coordination:0.970.0'
@@ -100,7 +98,6 @@ dependencies {
     dist project(':ballerina-grpc')
     dist project(':ballerina-sql')
     dist project(':ballerina-jdbc')
-    dist project(':ballerina-mysql')
     dist project(':ballerina-http')
     dist project(':ballerina-openapi')
     dist project(':ballerina-io')
@@ -122,7 +119,6 @@ dependencies {
     dist project(':metrics-extensions:ballerina-metrics-extension')
     dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
-    dist project(':ballerina-kafka')
     dist project(':ballerina-stringutils')
     dist project(':ballerina-oauth2')
     dist project(':ballerina-xmlutils')

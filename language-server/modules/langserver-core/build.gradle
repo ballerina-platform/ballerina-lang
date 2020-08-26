@@ -71,7 +71,6 @@ dependencies {
     implementation project(':ballerina-time')
     implementation project(':ballerina-transactions')
     implementation project(':ballerina-sql')
-    implementation project(':ballerina-mysql')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-tool')
 
@@ -126,7 +125,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 
     dependency 'com.h2database:h2:1.4.199'

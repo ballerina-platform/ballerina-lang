@@ -272,7 +272,6 @@
             <class name="org.ballerinalang.test.observability.tracing.CustomTracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>
-            <class name="org.ballerinalang.test.observability.metrics.KafkaMetricsTestCase"/>
         </classes>
     </test>
 
@@ -339,13 +338,6 @@
             <class name="org.ballerinalang.test.listener.LaunchListenerTestCase"/>
         </classes>
     </test>
-
-<!--    <test name="ballerina-kafka-tests" parallel="false">-->
-<!--        <parameter name="enableJBallerinaTests" value="true" />-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.kafka.KafkaSerializerDeserializerTest" />-->
-<!--        </classes>-->
-<!--    </test>-->
 
     <test name="ballerina-testerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
