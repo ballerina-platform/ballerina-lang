@@ -804,9 +804,15 @@ public class FormattingTreeModifier extends TreeModifier {
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.ASSIGNMENT_STATEMENT)) &&
                 simpleNameReferenceNode.parent().children().get(0).equals(simpleNameReferenceNode)) ||
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.TYPED_BINDING_PATTERN) ||
+                simpleNameReferenceNode.parent().kind().equals(SyntaxKind.OPTIONAL_TYPE_DESC) ||
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) ||
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.ARRAY_TYPE_DESC)) {
             addSpaces = true;
+        }
+        if ((simpleNameReferenceNode.parent().parent() != null &&
+                simpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.OBJECT_FIELD) &&
+                ((ObjectFieldNode) simpleNameReferenceNode.parent().parent()).visibilityQualifier().isPresent())) {
+            addSpaces = false;
         }
         int startCol = getStartColumn(simpleNameReferenceNode, simpleNameReferenceNode.kind(), addSpaces);
         Token name = getToken(simpleNameReferenceNode.name());
@@ -2108,7 +2114,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         if (questionMarkToken != null) {
             recordFieldNode = recordFieldNode.modify()
-                    .withQuestionMarkToken(formatToken(questionMarkToken, 1, 1, 0, 0)).apply();
+                    .withQuestionMarkToken(formatToken(questionMarkToken, 0, 0, 0, 0)).apply();
         }
         return recordFieldNode.modify()
                 .withTypeName(typeName)
