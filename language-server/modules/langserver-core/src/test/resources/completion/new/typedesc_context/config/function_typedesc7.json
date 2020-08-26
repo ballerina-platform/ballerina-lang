@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 19,
+    "character": 44
+  },
+  "source": "typedesc_context/source/function_typedesc7.bal",
+  "items": [
+    {
+      "label": "returns",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "returns ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

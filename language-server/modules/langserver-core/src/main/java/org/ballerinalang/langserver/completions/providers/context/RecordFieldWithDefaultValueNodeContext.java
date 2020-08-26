@@ -51,9 +51,9 @@ import java.util.function.Predicate;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class RecordFieldWithDefaultValueNodeContext extends
         AbstractCompletionProvider<RecordFieldWithDefaultValueNode> {
+    
     public RecordFieldWithDefaultValueNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(RecordFieldWithDefaultValueNode.class);
+        super(RecordFieldWithDefaultValueNode.class);
     }
 
     @Override

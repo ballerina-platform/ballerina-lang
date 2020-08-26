@@ -76,11 +76,11 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "TYPE_DESC",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "TYPE_DESC",
+                                  "kind": "IDENTIFIER_TOKEN",
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
@@ -101,7 +101,7 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "STRING_LITERAL",
+                                      "kind": "STRING_LITERAL_TOKEN",
                                       "hasDiagnostics": true,
                                       "diagnostics": [
                                         "ERROR_MISSING_DOUBLE_QUOTE"
@@ -198,11 +198,11 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "TYPE_DESC",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "TYPE_DESC",
+                                  "kind": "IDENTIFIER_TOKEN",
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
@@ -223,7 +223,7 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "STRING_LITERAL",
+                                      "kind": "STRING_LITERAL_TOKEN",
                                       "hasDiagnostics": true,
                                       "diagnostics": [
                                         "ERROR_MISSING_DOUBLE_QUOTE"

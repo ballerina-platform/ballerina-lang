@@ -87,7 +87,7 @@
                   ]
                 },
                 {
-                  "kind": "TRUE_KEYWORD",
+                  "kind": "BOOLEAN_LITERAL",
                   "children": [
                     {
                       "kind": "TRUE_KEYWORD",
@@ -174,10 +174,10 @@
                               ]
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "4"
                                 }
                               ]
@@ -221,7 +221,7 @@
                               ]
                             },
                             {
-                              "kind": "FALSE_KEYWORD",
+                              "kind": "BOOLEAN_LITERAL",
                               "children": [
                                 {
                                   "kind": "FALSE_KEYWORD",
@@ -310,10 +310,10 @@
                                           ]
                                         },
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "NUMERIC_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                               "value": "4"
                                             }
                                           ]
