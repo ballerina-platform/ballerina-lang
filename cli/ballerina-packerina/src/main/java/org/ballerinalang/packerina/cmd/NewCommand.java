@@ -18,13 +18,15 @@
 
 package org.ballerinalang.packerina.cmd;
 
-
+import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,14 +52,23 @@ public class NewCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Option(names = {"--list", "-l"})
+    private boolean list = false;
+
+    @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
+            "default: main")
+    private String template = "main";
+
     public NewCommand() {
-        userDir = Paths.get(System.getProperty("user.dir"));
+        userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         errStream = System.err;
+        CommandUtil.initJarFs();
     }
 
     public NewCommand(Path userDir, PrintStream errStream) {
         this.userDir = userDir;
         this.errStream = errStream;
+        CommandUtil.initJarFs();
     }
 
     @Override
@@ -68,6 +79,15 @@ public class NewCommand implements BLauncherCmd {
             errStream.println(commandUsageInfo);
             return;
         }
+
+        if (list) {
+            errStream.println("Available templates:");
+            for (String template : CommandUtil.getTemplates()) {
+                errStream.println("    - " + template);
+            }
+            return;
+        }
+
         // Check if the project name is given
         if (null == argList) {
             CommandUtil.printError(errStream,
@@ -85,8 +105,8 @@ public class NewCommand implements BLauncherCmd {
                     true);
             return;
         }
-
-        Path path = userDir.resolve(argList.get(0));
+        String packageName = argList.get(0);
+        Path path = userDir.resolve(packageName);
         // Check if the directory or file exists with the given project name
         if (Files.exists(path)) {
             CommandUtil.printError(errStream,
@@ -106,12 +126,18 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
+        if (!ProjectUtils.validatePkgName(packageName)) {
+            errStream.println("error: invalid package name : " + packageName);
+            return;
+        }
+
         try {
+            // add argument (package)
             Files.createDirectories(path);
-            CommandUtil.initProject(path);
+            CommandUtil.initPackage(path, template, errStream);
         } catch (AccessDeniedException e) {
             errStream.println("error: Error occurred while creating project : " + "Insufficient Permission");
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             errStream.println("error: Error occurred while creating project : " + e.getMessage());
             return;
         }
@@ -140,5 +166,4 @@ public class NewCommand implements BLauncherCmd {
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
     }
-
 }

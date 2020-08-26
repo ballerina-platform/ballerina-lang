@@ -1,5 +1,6 @@
 [project]
-org-name= "ORG_NAME"
+org= "ORG_NAME"
+name= "PKG_NAME"
 version= "0.1.0"
 
 [build-options]

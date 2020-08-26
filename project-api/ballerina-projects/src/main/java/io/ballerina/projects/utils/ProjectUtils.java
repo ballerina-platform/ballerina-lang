@@ -17,11 +17,14 @@
  */
 package io.ballerina.projects.utils;
 
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -107,6 +110,43 @@ public class ProjectUtils {
                 .resolve(ProjectConstants.JSON_CACHE_DIR_NAME));
 
         return targetDir;
+    }
+
+    /**
+     * Guess organization name based on user name in system.
+     *
+     * @return organization name
+     */
+    public static String guessOrgName() {
+        String guessOrgName = System.getProperty(ProjectConstants.USER_DIR);
+        if (guessOrgName == null) {
+            guessOrgName = "my_org";
+        } else {
+            guessOrgName = guessOrgName.toLowerCase(Locale.getDefault());
+        }
+        return guessOrgName;
+    }
+
+    /**
+     * Guess package name with valid pattern.
+     * @param packageName package name
+     * @return package name
+     */
+    public static String guessPkgName (String packageName) {
+        if (!validatePkgName(packageName)) {
+            return packageName.replaceAll("-", "_");
+
+        }
+        return packageName;
+    }
+
+    /**
+     * Check of given path is a valid ballerina project.
+     * @param path project path
+     * @return true if a project
+     */
+    public static boolean isProject(Path path) {
+        return Files.exists(path.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
     }
 }
 

@@ -18,14 +18,29 @@
 
 package org.ballerinalang.packerina.cmd;
 
+import io.ballerina.projects.utils.FileUtils;
+import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.tool.util.BCompileUtil;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Packerina command util.
@@ -33,6 +48,25 @@ import java.util.Locale;
  * @since 1.0.0
  */
 public class CommandUtil {
+
+    private static FileSystem jarFs;
+    private static Map<String, String> env;
+
+    public static void initJarFs() {
+        URI uri = null;
+        try {
+            uri = CommandUtil.class.getClassLoader().getResource("create_cmd_templates").toURI();
+            if (uri.toString().contains("!")) {
+                final String[] array = uri.toString().split("!");
+                if (null == jarFs) {
+                    env = new HashMap<>();
+                    jarFs = FileSystems.newFileSystem(URI.create(array[0]), env);
+                }
+            }
+        } catch (URISyntaxException | IOException e) {
+            throw new AssertionError();
+        }
+    }
 
     /**
      * Guess organization name based on user name in system.
@@ -115,11 +149,104 @@ public class CommandUtil {
             String defaultGitignore = BCompileUtil.readFileAsString("new_cmd_defaults/gitignore");
 
             // replace manifest org with a guessed value.
-            defaultManifest = defaultManifest.replaceAll("ORG_NAME", CommandUtil.guessOrgName());
+            defaultManifest = defaultManifest.replaceAll("ORG_NAME", ProjectUtils.guessOrgName());
 
             Files.write(manifest, defaultManifest.getBytes("UTF-8"));
             Files.write(gitignore, defaultGitignore.getBytes("UTF-8"));
-
     }
 
+    /**
+     * Initialize a new ballerina project in the given path.
+     * @param path project path
+     * @param template package template
+     * @throws IOException  If any IO exception occurred
+     * @throws URISyntaxException If any URISyntaxException occurred
+     */
+    public static void initPackage(Path path, String template, PrintStream errStream) throws IOException,
+            URISyntaxException {
+        // We will be creating following in the project directory
+        // - Ballerina.toml
+        // - Package.md
+        // - Module.md
+        // - main.bal
+        // - resources
+        // - tests
+        //      - main_test.bal
+        //      - resources/
+        // - .gitignore       <- git ignore file
+
+        if (getTemplates().contains(template)) {
+            applyTemplate(path, template);
+        } else {
+            errStream.println("template not found");
+            return;
+        }
+
+        Path manifest = path.resolve(ProjectConstants.BALLERINA_TOML);
+        Path packageMD = path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+        Path gitignore = path.resolve(".gitignore");
+
+        String defaultManifest = FileUtils.readFileAsString("new_cmd_defaults" + File.separator +
+                "manifest.toml");
+        String defaultPackageMD = FileUtils.readFileAsString("new_cmd_defaults" + File.separator + "Package.md");
+        String defaultGitignore = FileUtils.readFileAsString("new_cmd_defaults" + File.separator + "gitignore");
+
+        // replace manifest org and name with a guessed value.
+        defaultManifest = defaultManifest.replaceAll("ORG_NAME", guessOrgName()).
+                replaceAll("PKG_NAME", ProjectUtils.guessPkgName(path.getFileName().toString()));
+
+        Files.write(manifest, defaultManifest.getBytes("UTF-8"));
+        Files.write(packageMD, defaultPackageMD.getBytes("UTF-8"));
+        Files.write(gitignore, defaultGitignore.getBytes("UTF-8"));
+    }
+
+    public static List<String> getTemplates() {
+        try {
+            Path templateDir = getTemplatePath();
+            Stream<Path> walk = Files.walk(templateDir, 1);
+
+            List<String> templates = walk.filter(Files::isDirectory)
+                    .filter(directory -> !templateDir.equals(directory))
+                    .filter(directory -> directory.getFileName() != null)
+                    .map(directory -> directory.getFileName())
+                    .map(fileName -> fileName.toString())
+                    .collect(Collectors.toList());
+
+            if (null != jarFs) {
+                return templates.stream().map(t -> t
+                        .replace(jarFs.getSeparator(), ""))
+                        .collect(Collectors.toList());
+            } else {
+                return templates;
+            }
+
+        } catch (IOException | URISyntaxException e) {
+            // we will return an empty list if error.
+            return new ArrayList<String>();
+        }
+    }
+
+    private static Path getTemplatePath() throws URISyntaxException {
+        try {
+            URI uri = CommandUtil.class.getClassLoader().getResource("create_cmd_templates").toURI();
+            if (uri.toString().contains("!")) {
+                final String[] array = uri.toString().split("!");
+                return jarFs.getPath(array[1]);
+            } else {
+                return Paths.get(uri);
+            }
+        } catch (URISyntaxException e) {
+            throw new URISyntaxException("failed to get template path", e.getMessage());
+        }
+    }
+
+    private static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
+        Path templateDir = getTemplatePath().resolve(template);
+
+        try {
+            Files.walkFileTree(templateDir, new AddCommand.Copy(templateDir, modulePath));
+        } catch (IOException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
 }

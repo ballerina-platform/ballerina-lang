@@ -27,6 +27,7 @@ public class ProjectConstants {
     public static final String BLANG_SOURCE_EXT = ".bal";
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
+    public static final String PACKAGE_MD_FILE_NAME = "Package.md";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";

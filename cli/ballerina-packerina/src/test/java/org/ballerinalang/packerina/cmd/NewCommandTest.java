@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-
 /**
  * Test cases for ballerina new command.
  *
@@ -36,30 +35,36 @@ public class NewCommandTest extends CommandTest {
 
     @Test(description = "Initialize a new empty project")
     public void testNewCommand() throws IOException {
-        String[] args = {"project-name"};
+        String[] args = {"project_name"};
         NewCommand newCommand = new NewCommand(tmpDir, printStream);
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
         // Check with spec
-        // project-name/
+        // project_name/
         // - Ballerina.toml
-        // - src/
-        // - tests/
-        // -- *.bal           <- integration test code
-        // -- resources/      <- integration test resources
+        // - Package.md
+        // - Module.md
+        // - main.bal
+        // - resources
+        // - tests
+        //      - main_test.bal
+        //      - resources/
         // - .gitignore       <- git ignore file
 
-        Path projectPath = tmpDir.resolve("project-name");
+        Path projectPath = tmpDir.resolve("project_name");
         Assert.assertTrue(Files.exists(projectPath));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
-        Assert.assertTrue(Files.exists(projectPath.resolve("src")));
-        Assert.assertTrue(Files.isDirectory(projectPath.resolve("src")));
-        //Path integrationTestPath = projectPath.resolve("tests");
-        //Assert.assertTrue(Files.exists(integrationTestPath));
-        //Assert.assertTrue(Files.isDirectory(integrationTestPath));
-        //Assert.assertTrue(Files.exists(integrationTestPath.resolve("resources")));
-        //Assert.assertTrue(Files.isDirectory(integrationTestPath.resolve("resources")));
+        Path testPath = projectPath.resolve("tests");
+        Assert.assertTrue(Files.exists(testPath));
+        Assert.assertTrue(Files.isDirectory(testPath));
+        Assert.assertTrue(Files.exists(testPath.resolve("resources")));
+        Assert.assertTrue(Files.isDirectory(testPath.resolve("resources")));
         Assert.assertTrue(Files.exists(projectPath.resolve(".gitignore")));
+        Path resourcePath = projectPath.resolve("resources");
+        Assert.assertTrue(Files.exists(resourcePath));
+        Assert.assertTrue(Files.isDirectory(resourcePath));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Module.md")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Package.md")));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
     }
@@ -122,6 +127,21 @@ public class NewCommandTest extends CommandTest {
                 + "' already exists"));
     }
 
+    @Test(description = "Test new list")
+    public void testAddCommandList() throws IOException {
+        // Test if no arguments was passed in
+        String[] args = {"--list"};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        String output = readOutput();
+        Assert.assertTrue(output.contains("Available templates:"));
+        Assert.assertTrue(output.contains("main"));
+        Assert.assertTrue(output.contains("service"));
+        Assert.assertTrue(output.contains("lib"));
+    }
+
     @Test(description = "Test if initializing inside a sub directory")
     public void testNewCommandInsideProject() throws IOException {
         // Test if no arguments was passed in
@@ -142,6 +162,5 @@ public class NewCommandTest extends CommandTest {
                 "Project created in sub directory");
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("src").resolve("subdir")));
     }
-
     // Test if a path given to new command
 }

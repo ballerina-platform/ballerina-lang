@@ -19,15 +19,18 @@
 package org.ballerinalang.packerina.cmd;
 
 
+import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.ballerinalang.packerina.cmd.Constants.INIT_COMMAND;
 
@@ -43,14 +46,25 @@ public class InitCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Parameters
+    private List<String> argList;
+
+    @CommandLine.Option(names = {"--list", "-l"})
+    private boolean list = false;
+
+    @CommandLine.Option(names = {"--template", "-t"})
+    private String template = "main";
+
     public InitCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
         errStream = System.err;
+        CommandUtil.initJarFs();
     }
 
     public InitCommand(Path userDir, PrintStream errStream) {
         this.userDir = userDir;
         this.errStream = errStream;
+        CommandUtil.initJarFs();
     }
 
     @Override
@@ -61,9 +75,17 @@ public class InitCommand implements BLauncherCmd {
             errStream.println(commandUsageInfo);
             return;
         }
+//        todo: verify this is required
+        if (list) {
+            errStream.println("Available templates:");
+            for (String template : CommandUtil.getTemplates()) {
+                errStream.println("    - " + template);
+            }
+            return;
+        }
 
         // If the current directory is a ballerina project ignore.
-        if (ProjectDirs.isProject(this.userDir)) {
+        if (ProjectUtils.isProject(this.userDir)) {
             CommandUtil.printError(errStream,
                     "Directory is already a ballerina project",
                     null,
@@ -71,10 +93,32 @@ public class InitCommand implements BLauncherCmd {
             return;
         }
 
+        // Check if one argument is given and not more than one argument.
+        if (argList != null && argList.size() > 0) {
+            if (!(1 == argList.size())) {
+                CommandUtil.printError(errStream,
+                        "too many arguments.",
+                        "ballerina init <project-name>",
+                        true);
+                return;
+            }
+
+            String packageName = argList.get(0);
+            Path path = userDir.resolve(packageName);
+            // Check if the directory or file exists with the given project name
+            if (Files.exists(path)) {
+                CommandUtil.printError(errStream,
+                        "destination '" + path.toString() + "' already exists",
+                        "ballerina init <project-name>",
+                        true);
+                return;
+            }
+        }
+
         // Check if there is a ballerina project in sub level.
 
         // Check if the command is executed inside a ballerina project
-        Path projectRoot = ProjectDirs.findProjectRoot(this.userDir);
+        Path projectRoot = ProjectUtils.findProjectRoot(this.userDir);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
                     "Directory is already within a ballerina project :" + projectRoot.toString(),
@@ -83,11 +127,22 @@ public class InitCommand implements BLauncherCmd {
             return;
         }
 
+        if (!ProjectUtils.validatePkgName(this.userDir.getFileName().toString())) {
+            errStream.println("warning: invalid package name. Modified package name : " +
+                    ProjectUtils.guessPkgName(this.userDir.getFileName().toString()));
+        }
+
         try {
-            CommandUtil.initProject(this.userDir);
+            Path path = this.userDir;
+            if (argList != null && argList.size() > 0) {
+                path = userDir.resolve(argList.get(0));
+                Files.createDirectories(path);
+            }
+
+            CommandUtil.initPackage(path, template, errStream);
         } catch (AccessDeniedException e) {
             errStream.println("error: Error occurred while initializing project : " + "Access Denied");
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             errStream.println("error: Error occurred while initializing project : " + e.getMessage());
             return;
         }
