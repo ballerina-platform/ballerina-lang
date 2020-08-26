@@ -440,6 +440,10 @@ public class FormattingTreeModifier extends TreeModifier {
                 (builtinSimpleNameReferenceNode.parent().parent() != null &&
                 builtinSimpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.PARAMETERIZED_TYPE_DESC) &&
                 builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC)) ||
+                (builtinSimpleNameReferenceNode.parent().parent() != null &&
+                builtinSimpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.LOCAL_VAR_DECL) &&
+                builtinSimpleNameReferenceNode.parent().parent().children().get(1)
+                        .equals(builtinSimpleNameReferenceNode.parent())) ||
                 (builtinSimpleNameReferenceNode.parent().parent() != null) &&
                 builtinSimpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.FROM_CLAUSE) ||
                 (builtinSimpleNameReferenceNode.parent().parent() != null) &&
@@ -625,6 +629,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(variableDeclarationNode)) {
             return variableDeclarationNode;
         }
+        int startColumn = getStartColumn(variableDeclarationNode, variableDeclarationNode.kind(), true);
         Token semicolonToken = getToken(variableDeclarationNode.semicolonToken());
         Token equalToken = getToken(variableDeclarationNode.equalsToken().orElse(null));
         Token finalToken = getToken(variableDeclarationNode.finalKeyword().orElse(null));
@@ -638,7 +643,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         if (finalToken != null) {
             variableDeclarationNode = variableDeclarationNode.modify()
-                    .withFinalKeyword(formatToken(finalToken, 0, 0, 0, 0)).apply();
+                    .withFinalKeyword(formatToken(finalToken, startColumn, 1, 0, 0)).apply();
         }
         if (initializer != null) {
             variableDeclarationNode = variableDeclarationNode.modify()
