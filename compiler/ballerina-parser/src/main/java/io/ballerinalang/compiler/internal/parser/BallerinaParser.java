@@ -2381,7 +2381,9 @@ public class BallerinaParser extends AbstractParser {
         STNode classKeyword = parseClassKeyword();
         STNode className = parseClassName();
         STNode openBrace = parseOpenBrace();
-        STNode classMembers = parseObjectMembers();
+        STNode classMembers = parseObjectMembers(false);
+        // TODO: Find another way
+        startContext(ParserRuleContext.OBJECT_MEMBER);
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createClassDefinitionNode(metadata, qualifier, classTypeQualifiers, classKeyword,
@@ -3452,6 +3454,9 @@ public class BallerinaParser extends AbstractParser {
                 return parseLetExpression(isRhsExpr);
             case BACKTICK_TOKEN:
                 return parseTemplateExpression();
+            case CLIENT_KEYWORD:
+            case OBJECT_KEYWORD:
+                return parseObjectConstructorExpression(annots);
             case XML_KEYWORD:
                 STToken nextNextToken = getNextNextToken(nextToken.kind);
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
@@ -4488,13 +4493,40 @@ public class BallerinaParser extends AbstractParser {
         STNode objectTypeQualifiers = parseObjectTypeQualifiers();
         STNode objectKeyword = parseObjectKeyword();
         STNode openBrace = parseOpenBrace();
-        STNode objectMembers = parseObjectMembers();
+        STNode objectMembers = parseObjectMembers(false);
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createObjectTypeDescriptorNode(objectTypeQualifiers, objectKeyword, openBrace,
                 objectMembers, closeBrace);
     }
 
+    /**
+     * <p>
+     * Parse object constructor expression.
+     * </p>
+     * <code>object-constructor-expr :=
+     *    [annots] [client] object [type-reference] {
+     *       object-member*
+     *    }</code>
+     * <code>object-member := object-field | method-defn</code>
+     *
+     * @param annots annotations attached to object constructor
+     * @return Parsed object constructor expression node
+     */
+    private STNode parseObjectConstructorExpression(STNode annots) {
+        startContext(ParserRuleContext.OBJECT_CONSTRUCTOR);
+        STNode objectTypeQualifier = parseObjectConstructorExpressionQualifier();
+        STNode objectKeyword = parseObjectKeyword();
+        STNode typeReference = parseObjectConstructorExpressionTypeReference();
+        STNode openBrace = parseOpenBrace();
+        STNode objectMembers = parseObjectMembers(true);
+        STNode closeBrace = parseCloseBrace();
+        endContext();
+        return STNodeFactory.createObjectConstructorExpressionNode(annots,
+                objectTypeQualifier, objectKeyword, typeReference, openBrace, objectMembers, closeBrace);
+    }
+
+    /**
     /**
      * Parse object type qualifiers.
      *
@@ -4521,6 +4553,50 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return parseObjectTypeNextQualifiers(firstQualifier);
+    }
+
+    /**
+     /**
+     * Parse object constructor expression type qualifiers.
+     *
+     * @return Parsed qualifier list with only client or empty node list
+     */
+    private STNode parseObjectConstructorExpressionQualifier() {
+        STNode qualifier;
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case CLIENT_KEYWORD:
+                qualifier = parseClientKeyword();
+                break;
+            case OBJECT_KEYWORD:
+                return STNodeFactory.createEmptyNodeList();
+            default:
+                recover(nextToken, ParserRuleContext.OBJECT_CONSTRUCTOR);
+                return parseObjectConstructorExpressionQualifier();
+        }
+        return qualifier;
+    }
+
+    /**
+     /**
+     * Parse object constructor expression type reference.
+     *
+     * @return Parsed type reference or empty node
+     */
+    private STNode parseObjectConstructorExpressionTypeReference() {
+        STNode typeReference;
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case IDENTIFIER_TOKEN:
+                typeReference = parseTypeReference();
+                break;
+            case OPEN_BRACE_TOKEN:
+                return STNodeFactory.createEmptyNode();
+            default:
+                recover(nextToken, ParserRuleContext.OBJECT_KEYWORD);
+                return parseObjectConstructorExpressionTypeReference();
+        }
+        return typeReference;
     }
 
     private STNode parseObjectTypeNextQualifiers(STNode firstQualifier) {
@@ -4605,16 +4681,18 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse class members.
+     * Parse class members or object constructor members.
      * <code>class-members := class-member*</code>
+     * <code>object-member := object-member*</code>
      *
+     * @param skipTypeInclusions will not accept type inclusions as valid members
      * @return Parsed node
      */
-    private STNode parseObjectMembers() {
+    private STNode parseObjectMembers(boolean skipTypeInclusions) {
         ArrayList<STNode> objectMembers = new ArrayList<>();
         while (!isEndOfObjectTypeNode()) {
             startContext(ParserRuleContext.OBJECT_MEMBER);
-            STNode member = parseObjectMember();
+            STNode member = parseObjectMember(skipTypeInclusions);
             endContext();
 
             // Null member indicates the end of object members
@@ -4629,13 +4707,14 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * <p>
-     * Parse a class member.
+     * Parse a class member or object constructor member.
      * </p>
      * <code>class-member :=  object-field | method-defn | object-type-inclusion</code>
+     * <code>object-member := object-field | method-defn</code>
      *
      * @return Parsed node
      */
-    private STNode parseObjectMember() {
+    private STNode parseObjectMember(boolean skipTypeInclusions) {
         STNode metadata;
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -4664,13 +4743,13 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 recover(peek(), ParserRuleContext.OBJECT_MEMBER_START);
-                return parseObjectMember();
+                return parseObjectMember(skipTypeInclusions);
         }
 
-        return parseObjectMemberWithoutMeta(metadata);
+        return parseObjectMemberWithoutMeta(metadata, skipTypeInclusions);
     }
 
-    private STNode parseObjectMemberWithoutMeta(STNode metadata) {
+    private STNode parseObjectMemberWithoutMeta(STNode metadata, boolean skipTypeInclusions) {
         STNode member;
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -4678,12 +4757,6 @@ public class BallerinaParser extends AbstractParser {
             case CLOSE_BRACE_TOKEN:
                 // TODO report metadata
                 return null;
-            case ASTERISK_TOKEN:
-                STNode asterisk = consume();
-                STNode type = parseTypeReference();
-                STNode semicolonToken = parseSemicolon();
-                member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
-                break;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
                 STNode visibilityQualifier = parseObjectMemberVisibility();
@@ -4696,6 +4769,19 @@ public class BallerinaParser extends AbstractParser {
                 // parseFunctionQualifiers method
                 member = parseObjectMethod(metadata, new ArrayList<>());
                 break;
+            case ASTERISK_TOKEN:
+                STNode asterisk;
+                STNode type;
+                if (skipTypeInclusions) {
+                    asterisk = null;
+                    type = parseTypeReference();
+                } else {
+                    asterisk = consume();
+                    type = parseTypeReference();
+                }
+                STNode semicolonToken = parseSemicolon();
+                member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
+                break;
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     member = parseObjectField(metadata, STNodeFactory.createEmptyNode());
@@ -4703,7 +4789,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 recover(peek(), ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA, metadata);
-                return parseObjectMemberWithoutMeta(metadata);
+                return parseObjectMemberWithoutMeta(metadata, skipTypeInclusions);
         }
 
         return member;
@@ -6316,7 +6402,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse annotation list with at least one annotation.
-     * 
+     *
      * @return Annotation list
      */
     private STNode parseAnnotations() {
@@ -12905,7 +12991,7 @@ public class BallerinaParser extends AbstractParser {
      * <code>
      * rest-binding-pattern := ... variable-name
      * </code>
-     * 
+     *
      * @return Rest binding pattern node
      */
     private STNode parseRestBindingPattern() {
@@ -13080,7 +13166,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse error binding pattern node.
      * <p>
      * <code>functional-binding-pattern := error ( arg-list-binding-pattern )</code>
-     * 
+     *
      * @return Error binding pattern node.
      */
     private STNode parseErrorBindingPattern() {
@@ -13097,7 +13183,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/><br/>
      * functionally-constructible-type-reference := error | type-reference
      * </code>
-     * 
+     *
      * @param typeDesc Functionally constructible type reference
      * @return Functional binding pattern node.
      */
@@ -13161,7 +13247,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse arg binding pattern.
      * <p>
      * <code>
-     * arg-list-binding-pattern := positional-arg-binding-patterns [, other-arg-binding-patterns] 
+     * arg-list-binding-pattern := positional-arg-binding-patterns [, other-arg-binding-patterns]
      *                             | other-arg-binding-patterns
      * <br/><br/>
      * positional-arg-binding-patterns := positional-arg-binding-pattern (, positional-arg-binding-pattern)*
@@ -13174,7 +13260,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/><br/>
      * named-arg-binding-pattern := arg-name = binding-pattern
      * </code>
-     * 
+     *
      * @return Arg binding pattern
      */
     private STNode parseArgBindingPattern() {

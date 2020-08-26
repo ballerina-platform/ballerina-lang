@@ -100,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -2033,5 +2034,17 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.initFunction = clone(source.initFunction);
         clone.generatedInitFunction = clone(source.generatedInitFunction);
         clone.receiver = clone(source.receiver);
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression source) {
+        BLangObjectTypeNode objectTypeNode = clone(source.objectTypeNode);
+        BLangObjectConstructorExpression clone = new BLangObjectConstructorExpression(objectTypeNode);
+
+        clone.pos = source.pos;
+        clone.referenceType = clone(source.referenceType);
+        clone.typeInit = clone(source.typeInit);
+
+        source.cloneRef = clone;
     }
 }
