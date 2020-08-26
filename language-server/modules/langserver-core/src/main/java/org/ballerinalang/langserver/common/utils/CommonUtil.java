@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
-import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
@@ -65,7 +64,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -977,6 +975,7 @@ public class CommonUtil {
                                     && scopeEntry.symbol.name.getValue().equals(funcName))
                             .findAny();
                 }
+                break;
             default:
                 break;
         }
@@ -986,7 +985,7 @@ public class CommonUtil {
 
     /**
      * Get the type of the given symbol.
-     * 
+     *
      * @param symbol symbol to evaluate
      * @return {@link BType} of the symbol
      */
@@ -994,10 +993,10 @@ public class CommonUtil {
         if (symbol instanceof BInvokableSymbol) {
             return ((BInvokableSymbol) symbol).getReturnType();
         }
-        
+
         return symbol.type;
     }
-    
+
 
     /**
      * Get visible worker symbols from context.

@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -62,7 +61,7 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
     public boolean onPreValidation(LSContext context, TypeDefinitionNode node) {
         TextRange typeKWRange = node.typeKeyword().textRange();
         int cursorPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
-        
+
         return typeKWRange.endOffset() < cursorPosition;
     }
 }

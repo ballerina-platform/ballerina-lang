@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -122,8 +121,8 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
     /**
      * When given a statement/ node then find the parent.
      * As an example for an else-if statement, the root is the parent if statement when consider the positioning
-     * 
-     * @param node              Node to find the parent
+     *
+     * @param node Node to find the parent
      * @return {@link Node}     Parent of the node
      */
     private Node getParentNode(Node node) {
