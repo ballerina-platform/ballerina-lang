@@ -992,7 +992,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
                                                                    names.fromIdNode(serviceNode.name),
                                                                    env.enclPkg.symbol.pkgID, serviceNode.type,
-                                                                   env.scope.owner, serviceNode.name.pos);
+                                                                   env.scope.owner, serviceNode.name.pos, SOURCE);
         serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
 
         BType serviceObjectType = serviceNode.serviceTypeDefinition.symbol.type;

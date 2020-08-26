@@ -119,8 +119,9 @@ public class Symbols {
                                                      PackageID pkgID,
                                                      BType type,
                                                      BSymbol owner,
-                                                     DiagnosticPos pos) {
-        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner, pos);
+                                                     DiagnosticPos pos,
+                                                     SymbolOrigin origin) {
+        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner, pos, origin);
         serviceSymbol.kind = SymbolKind.SERVICE;
         return serviceSymbol;
     }
