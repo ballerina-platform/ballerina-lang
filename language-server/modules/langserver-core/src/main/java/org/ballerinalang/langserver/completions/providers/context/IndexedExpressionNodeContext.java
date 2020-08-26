@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -31,26 +31,28 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import java.util.List;
 
 /**
- * Completion provider for {@link ListConstructorExpressionNode} context.
+ * Completion Provider for {@link IndexedExpressionNode} context.
  *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class ListConstructorExpressionNodeContext extends AbstractCompletionProvider<ListConstructorExpressionNode> {
-    public ListConstructorExpressionNodeContext() {
-        super(ListConstructorExpressionNode.class);
+public class IndexedExpressionNodeContext extends AbstractCompletionProvider<IndexedExpressionNode> {
+    public IndexedExpressionNodeContext() {
+        super(IndexedExpressionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ListConstructorExpressionNode node)
+    public List<LSCompletionItem> getCompletions(LSContext context, IndexedExpressionNode node)
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            List<Scope.ScopeEntry> entries = QNameReferenceUtil.getExpressionContextEntries(context,
-                    (QualifiedNameReferenceNode) nodeAtCursor);
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            List<Scope.ScopeEntry> entries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
 
             return this.getCompletionItemList(entries, context);
         }
+
         return this.expressionCompletions(context);
     }
 }
