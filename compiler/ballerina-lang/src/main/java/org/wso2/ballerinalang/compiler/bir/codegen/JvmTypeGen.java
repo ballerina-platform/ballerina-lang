@@ -863,13 +863,12 @@ class JvmTypeGen {
         mv.visitTypeInsn(ANEWARRAY, BTYPE);
         int i = 0;
         for (BType memberType : members) {
-            BType mType = getType(memberType);
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
 
             // Load the member type
-            loadType(mv, mType);
+            loadType(mv, memberType);
 
             // Add the member to the array
             mv.visitInsn(AASTORE);
