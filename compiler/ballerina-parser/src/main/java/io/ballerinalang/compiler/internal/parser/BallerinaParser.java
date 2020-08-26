@@ -9114,8 +9114,8 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.EQUALS_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.EQUALS_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.EQUALS_KEYWORD);
+            return parseEqualsKeyword();
         }
     }
 

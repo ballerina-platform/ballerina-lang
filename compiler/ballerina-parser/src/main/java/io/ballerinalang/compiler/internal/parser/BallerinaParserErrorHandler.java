@@ -2730,6 +2730,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.CONFLICT_KEYWORD;
                 } else if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
                     return ParserRuleContext.EXPRESSION;
+                } else if (parentCtx == ParserRuleContext.JOIN_CLAUSE) {
+                    return ParserRuleContext.EXPRESSION;
                 }
                 return ParserRuleContext.LISTENERS_LIST;
             case RESOURCE_KEYWORD:
