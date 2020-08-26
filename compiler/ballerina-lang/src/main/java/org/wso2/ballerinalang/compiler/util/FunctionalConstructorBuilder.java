@@ -90,8 +90,8 @@ public class FunctionalConstructorBuilder {
         invokableTSymbol.params = params;
         invokableTSymbol.returnType = constructedType;
         BInvokableType invokableType = new BInvokableType(paramTypes, constructedType, invokableTSymbol);
-        BConstructorSymbol symbol = new BConstructorSymbol(Flags.PUBLIC, new Name(name),
-                langlibPkg.pkgID, invokableType, langlibPkg, pos);
+        BConstructorSymbol symbol = new BConstructorSymbol(Flags.PUBLIC, new Name(name), langlibPkg.pkgID,
+                                                           invokableType, langlibPkg, pos, BUILTIN);
         symbol.params = params;
         symbol.kind = SymbolKind.FUNCTIONAL_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
