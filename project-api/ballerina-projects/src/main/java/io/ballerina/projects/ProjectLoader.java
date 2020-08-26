@@ -39,12 +39,17 @@ public class ProjectLoader {
      */
     public static Project loadProject(Path path) {
         Path absProjectPath = Optional.of(path.toAbsolutePath()).get();
-
+        Path projectRoot;
         if (absProjectPath.toFile().isDirectory()) {
-            return BuildProject.loadProject(absProjectPath);
+            if (ProjectConstants.MODULES_ROOT.equals(Optional.of(absProjectPath.getParent()).get().toFile().getName())) {
+                projectRoot = Optional.of(Optional.of(absProjectPath.getParent()).get().getParent()).get();
+            } else {
+                projectRoot = absProjectPath;
+            }
+            return BuildProject.loadProject(projectRoot);
         }
         // check if the file is a source file in the default module
-        Path projectRoot =  Optional.of(absProjectPath.getParent()).get();
+        projectRoot = Optional.of(absProjectPath.getParent()).get();
         if (hasBallerinaToml(projectRoot)) {
             return BuildProject.loadProject(projectRoot);
         }
