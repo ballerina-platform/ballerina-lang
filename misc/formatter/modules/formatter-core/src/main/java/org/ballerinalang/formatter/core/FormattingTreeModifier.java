@@ -334,7 +334,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         int startCol = getStartColumn(identifier, identifier.kind(), addSpaces);
         Token identifierToken = getToken(identifier);
-        return (IdentifierToken) formatToken(identifierToken, startCol, 0, 0, 0);
+        return (IdentifierToken) formatToken(identifierToken, addSpaces ? startCol : 0, 0, 0, 0);
     }
 
     @Override
@@ -3449,6 +3449,9 @@ public class FormattingTreeModifier extends TreeModifier {
     public Token transform(Token token) {
         if (token.kind().equals(SyntaxKind.PUBLIC_KEYWORD) || token.kind().equals(SyntaxKind.COMMA_TOKEN)) {
             return formatToken(token, 0, 1, 0, 0);
+        }
+        if (token.parent() != null && token.parent().kind().equals(SyntaxKind.IMPORT_DECLARATION)) {
+            return formatToken(token, 0, 0, 0, 0);
         }
         return token;
     }
