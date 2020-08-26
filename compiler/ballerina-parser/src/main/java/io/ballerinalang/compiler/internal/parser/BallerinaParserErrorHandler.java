@@ -286,9 +286,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] PARAMETER_START =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.TYPE_DESC_IN_PARAM };
 
-    private static final ParserRuleContext[] PARAMETER_WITHOUT_ANNOTS =
-            { ParserRuleContext.TYPE_DESC_IN_PARAM };
-
     private static final ParserRuleContext[] REQUIRED_PARAM_NAME_RHS =
             { ParserRuleContext.PARAM_END, ParserRuleContext.ASSIGN_OP };
 
@@ -1220,7 +1217,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CONST_DECL_RHS:
             case ARRAY_LENGTH:
             case PARAMETER_START:
-            case PARAMETER_WITHOUT_ANNOTS:
             case STMT_START_WITH_EXPR_RHS:
             case EXPR_STMT_RHS:
             case EXPRESSION_STATEMENT_START:
@@ -1479,9 +1475,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case PARAMETER_START:
                 alternativeRules = PARAMETER_START;
-                break;
-            case PARAMETER_WITHOUT_ANNOTS:
-                alternativeRules = PARAMETER_WITHOUT_ANNOTS;
                 break;
             case ANNOT_DECL_OPTIONAL_TYPE:
                 alternativeRules = ANNOT_DECL_OPTIONAL_TYPE;
@@ -2422,6 +2415,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
             case SLASH_LT_TOKEN:
                 return ParserRuleContext.XML_NAME_PATTERN;
+            case PARAMETER_WITHOUT_ANNOTS:
+                return ParserRuleContext.TYPE_DESC_IN_PARAM;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
 
