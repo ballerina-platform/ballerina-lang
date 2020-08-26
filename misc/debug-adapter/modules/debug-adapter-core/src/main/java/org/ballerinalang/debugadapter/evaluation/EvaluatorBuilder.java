@@ -142,9 +142,8 @@ public class EvaluatorBuilder extends NodeVisitor {
         // Todo - add rest
         supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
         // basic literal
-        supportedSyntax.add(SyntaxKind.BASIC_LITERAL);
-        supportedSyntax.add(SyntaxKind.DECIMAL_INTEGER_LITERAL);
-        supportedSyntax.add(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+        supportedSyntax.add(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN);
+        supportedSyntax.add(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
         supportedSyntax.add(SyntaxKind.TRUE_KEYWORD);
         supportedSyntax.add(SyntaxKind.FALSE_KEYWORD);
         supportedSyntax.add(SyntaxKind.STRING_LITERAL);

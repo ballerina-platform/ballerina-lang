@@ -645,7 +645,7 @@
                                                           "hasDiagnostics": true,
                                                           "children": [
                                                             {
-                                                              "kind": "STRING_LITERAL",
+                                                              "kind": "STRING_LITERAL_TOKEN",
                                                               "hasDiagnostics": true,
                                                               "diagnostics": [
                                                                 "ERROR_INVALID_ESCAPE_SEQUENCE",
