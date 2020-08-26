@@ -885,6 +885,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
                 arrayTypeSymbol.type = arrType;
                 markParameterizedType(arrType, arrType.eType);
+                resultType = arrayTypeSymbol.type;
+
             } else {
                     BLangExpression size = arrayTypeNode.sizes[i];
                     if(size instanceof BLangLiteral){
@@ -895,6 +897,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                                         new BArrayType(resultType, arrayTypeSymbol, (Integer)(((BLangLiteral)size).getValue()), BArrayState.CLOSED_SEALED);
                         arrayTypeSymbol.type = arrType;
                         markParameterizedType(arrType, arrType.eType);
+                        resultType = arrayTypeSymbol.type;
+
                     }
                     else {
                         Name pkgAlias = names.fromIdNode(((BLangSimpleVarRef) size).pkgAlias);
@@ -904,32 +908,29 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                         if (!(symTable.notFoundSymbol.equals(sizeSymbol))) {
                             if (sizeSymbol.tag == SymTag.CONSTANT) {
-                                long length = (long) ((BConstantSymbol) sizeSymbol).value.value;
                                 BType lengthLiteralType = ((BConstantSymbol) sizeSymbol).literalType;
                                 if (lengthLiteralType.tag == TypeTags.INT) {
+                                    long length = (long) ((BConstantSymbol) sizeSymbol).value.value;
                                     arrType = new BArrayType(resultType, arrayTypeSymbol, (int) length, BArrayState.CLOSED_SEALED);
                                     arrayTypeSymbol.type = arrType;
                                     markParameterizedType(arrType, arrType.eType);
+                                    resultType = arrayTypeSymbol.type;
+
                                 } else {
-//                                    arrType = new BArrayType(resultType, arrayTypeSymbol, Constants.INVALID_SIZE_REFERENCE_INDICATOR, BArrayState.CLOSED_SEALED);
-                                    arrayTypeSymbol.type = symTable.semanticError;
                                     dlog.error(arrayTypeNode.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE_TYPE, ((BConstantSymbol) sizeSymbol).literalType);
+                                    resultType = symTable.semanticError;
                                 }
                             } else {
-//                                arrType = new BArrayType(resultType, arrayTypeSymbol, Constants.INVALID_SIZE_REFERENCE_INDICATOR, BArrayState.CLOSED_SEALED);
-                                arrayTypeSymbol.type = symTable.semanticError;
-                                dlog.error(arrayTypeNode.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE, sizeSymbol.name);
+                                dlog.error(arrayTypeNode.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE, sizeSymbol);
+                                resultType = symTable.semanticError;
                             }
                         }
                         else {
-//                            arrType = new BArrayType(resultType, arrayTypeSymbol, Constants.INVALID_SIZE_REFERENCE_INDICATOR, BArrayState.CLOSED_SEALED);
-                            arrayTypeSymbol.type = symTable.semanticError;
-                            dlog.error(arrayTypeNode.pos, DiagnosticCode.ARRAY_SIZE_REFERENCE_NOT_DEFINED, sizeSymbol.name);
+                            dlog.error(arrayTypeNode.pos, DiagnosticCode.ARRAY_SIZE_REFERENCE_NOT_DEFINED, size);
+                            resultType = symTable.semanticError;
                         }
                     }
             }
-            resultType = arrayTypeSymbol.type;
-//            markParameterizedType(arrType, arrType.eType);
         }
     }
 
