@@ -17,7 +17,6 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
@@ -534,15 +533,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         List<Variable> variables = new ArrayList<>();
         List<LocalVariableProxyImpl> localVariableProxies = stackFrame.visibleVariables();
         for (LocalVariableProxyImpl localVar : localVariableProxies) {
-            String varType;
-            try {
-                varType = localVar.getType().name();
-            } catch (ClassNotLoadedException e) {
-                varType = localVar.toString();
-            }
             String name = localVar.name();
             Value value = stackFrame.getValue(localVar);
-            BVariable variable = VariableFactory.getVariable(suspendedContext, name, value, varType);
+            BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
             if (variable == null) {
                 continue;
             } else if (variable instanceof BSimpleVariable) {
