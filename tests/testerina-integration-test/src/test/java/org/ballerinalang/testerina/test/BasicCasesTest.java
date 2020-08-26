@@ -46,25 +46,31 @@ public class BasicCasesTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(dependsOnMethods = "testAssertTrue", enabled = false)
+    @Test(dependsOnMethods = "testAssertTrue")
     public void testAllExceptAssertTrue() throws BallerinaTestException {
         String msg1 = "15 passing";
-        String msg2 = "39 passing";
-        String msg3 = "2 passing";
+        String msg2 = "1 passing";
+        String msg3 = "87 passing";
         String msg4 = "3 passing";
-        String msg5 = "8 passing";
+        String msg5 = "2 passing";
+        String msg6 = "3 passing";
+        String msg7 = "8 passing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
         LogLeecher clientLeecher4 = new LogLeecher(msg4);
         LogLeecher clientLeecher5 = new LogLeecher(msg5);
+        LogLeecher clientLeecher6 = new LogLeecher(msg6);
+        LogLeecher clientLeecher7 = new LogLeecher(msg7);
         balClient.runMain("test", new String[]{"--disable-groups", "p1", "--all", "--", "--user.name=waruna"}, null,
                           new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3,
-                        clientLeecher4, clientLeecher5}, projectPath);
+                        clientLeecher4, clientLeecher5, clientLeecher6, clientLeecher7}, projectPath);
         clientLeecher1.waitForText(400000);
         clientLeecher2.waitForText(400000);
         clientLeecher3.waitForText(400000);
         clientLeecher4.waitForText(400000);
         clientLeecher5.waitForText(400000);
+        clientLeecher6.waitForText(400000);
+        clientLeecher7.waitForText(400000);
     }
 }
