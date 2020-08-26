@@ -479,7 +479,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
     }
 
-    // private methods
 
     private void addCpAndWriteString(String string) {
         buf.writeInt(addStringCPEntry(string));

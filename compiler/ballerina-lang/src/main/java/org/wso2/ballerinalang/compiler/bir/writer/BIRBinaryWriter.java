@@ -427,9 +427,8 @@ public class BIRBinaryWriter {
         buf.writeInt(cp.addShapeCPEntry(type));
     }
 
-    void writeAnnotAttachments(ByteBuf buff,
-                                       BIRInstructionWriter insWriter,
-                                       List<BIRAnnotationAttachment> annotAttachments) {
+    void writeAnnotAttachments(ByteBuf buff, BIRInstructionWriter insWriter,
+                               List<BIRAnnotationAttachment> annotAttachments) {
         ByteBuf annotBuf = Unpooled.buffer();
         annotBuf.writeInt(annotAttachments.size());
         for (BIRAnnotationAttachment annotAttachment : annotAttachments) {

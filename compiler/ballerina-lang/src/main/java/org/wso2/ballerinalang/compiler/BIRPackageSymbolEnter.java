@@ -131,6 +131,8 @@ public class BIRPackageSymbolEnter {
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
 
+    private static final int SERVICE_TYPE_TAG = 51;
+
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
@@ -184,14 +186,8 @@ public class BIRPackageSymbolEnter {
             BPackageSymbol pkgSymbol = definePackage(dataInStream);
             this.env = prevEnv;
             return pkgSymbol;
-        } catch (IOException e) {
-            // TODO dlog.error();
-            throw new BLangCompilerException(e.getMessage(), e);
-            //            return null;
         } catch (Throwable e) {
-            // TODO format error
             throw new BLangCompilerException(e.getMessage(), e);
-            //            return null;
         }
     }
 
@@ -408,12 +404,9 @@ public class BIRPackageSymbolEnter {
     }
 
     private void skipPosition(DataInputStream dataInStream) throws IOException {
-        // TODO find a better way to skip this
-        dataInStream.readInt();
-        dataInStream.readInt();
-        dataInStream.readInt();
-        dataInStream.readInt();
-        dataInStream.readInt();
+        for (int i = 0; i < 5; i++) {
+            dataInStream.readInt();
+        }
     }
 
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
@@ -889,7 +882,6 @@ public class BIRPackageSymbolEnter {
     }
 
     private class BIRTypeReader {
-        public static final int SERVICE_TYPE_TAG = 51;
         private DataInputStream inputStream;
 
         public BIRTypeReader(DataInputStream inputStream) {
