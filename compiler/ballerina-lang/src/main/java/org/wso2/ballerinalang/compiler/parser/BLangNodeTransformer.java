@@ -930,9 +930,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else if (nodeKind == NodeKind.VARIABLE) {
                 objectTypeNode.addField((BLangSimpleVariable) bLangNode);
             } else if (nodeKind == NodeKind.USER_DEFINED_TYPE) {
-                // This is for object-type-inclusion and should never reach here from parser for
-                // object-constructor-expression
-                throw new RuntimeException("Syntax kind is not supported: " + nodeKind);
+                dlog.error(bLangNode.pos, DiagnosticCode.OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS);
             }
         }
 

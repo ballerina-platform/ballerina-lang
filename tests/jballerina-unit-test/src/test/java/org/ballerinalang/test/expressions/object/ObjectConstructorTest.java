@@ -61,6 +61,7 @@ public class ObjectConstructorTest {
 
     @Test
     public void testObjectConstructorNegative() {
+
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/expressions/object/object_constructor_expression_negative.bal");
         int index = 0;
@@ -75,6 +76,8 @@ public class ObjectConstructorTest {
         BAssertUtil.validateError(negativeResult, index++, "invalid qualifier 'public'", 34, 29);
         BAssertUtil.validateError(negativeResult, index++, "missing identifier", 34, 38);
         BAssertUtil.validateError(negativeResult, index++, "invalid token '*'", 39, 6);
+        BAssertUtil.validateError(negativeResult, index++, "object constructor does not support type reference members",
+                39, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }

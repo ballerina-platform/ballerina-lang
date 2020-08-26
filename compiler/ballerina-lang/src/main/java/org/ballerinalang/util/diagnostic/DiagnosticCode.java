@@ -92,6 +92,7 @@ public enum DiagnosticCode {
     MISSING_REQUIRED_PARAMETER("missing.required.parameter"),
     MISSING_REQUIRED_ARG_ERROR_MESSAGE("missing.required.parameter.error.message"),
     OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS("object.constructor.init.function.cannot.have.parameters"),
+    OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS("object.constructor.does.not.support.type.reference.members"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_SPREAD_OP("incompatible.types.spread.op"),
