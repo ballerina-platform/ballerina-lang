@@ -5004,7 +5004,7 @@ public class Desugar extends BLangNodeVisitor {
                                                   new BInvokableType(Lists.of(binaryExpr.lhsExpr.type,
                                                                               binaryExpr.rhsExpr.type),
                                                                      annotAccessExpr.type, null), null,
-                                                  symTable.builtinPos);
+                                                  symTable.builtinPos, VIRTUAL);
         result = rewriteExpr(binaryExpr);
     }
 

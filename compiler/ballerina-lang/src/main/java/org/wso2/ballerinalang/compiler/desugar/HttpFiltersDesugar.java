@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -84,6 +85,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 
@@ -421,12 +423,12 @@ public class HttpFiltersDesugar {
                                                  null);
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
                 names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
-                symTable.builtinPos);
+                symTable.builtinPos, VIRTUAL);
         BLangUnaryExpr unaryExpr = ASTBuilderUtil.createUnaryExpr(
                 resourceNode.pos, filterRequestInvocation, symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
         BOperatorSymbol andOperatorSymbol = new BOperatorSymbol(
                 names.fromString(OperatorKind.AND.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
-                symTable.builtinPos);
+                symTable.builtinPos, VIRTUAL);
         BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(
                 resourceNode.pos, filterTypeCheckExpr, unaryExpr, symTable.booleanType, OperatorKind.AND,
                 andOperatorSymbol);

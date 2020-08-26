@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.util.Names.CLEAN_UP_TRANSACTION;
 import static org.wso2.ballerinalang.compiler.util.Names.CURRENT_TRANSACTION_INFO;
 import static org.wso2.ballerinalang.compiler.util.Names.END_TRANSACTION;
@@ -350,7 +352,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionErrorCheckGroupExpr.type = symTable.booleanType;
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()),
                                                                 symTable.rootPkgSymbol.pkgID, errorType,
-                                                                symTable.rootPkgSymbol, symTable.builtinPos);
+                                                                symTable.rootPkgSymbol, symTable.builtinPos, VIRTUAL);
         transactionErrorCheckGroupExpr.expression = ASTBuilderUtil.createUnaryExpr(pos, testExpr,
                 symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
 
@@ -497,7 +499,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
                                                  null);
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
                 names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
-                symTable.builtinPos);
+                symTable.builtinPos, VIRTUAL);
         failureValidationGroupExpr.expression = ASTBuilderUtil.createUnaryExpr(pos, failureValidationExprVarRef,
                 symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
         failureValidationIf.expr = failureValidationGroupExpr;

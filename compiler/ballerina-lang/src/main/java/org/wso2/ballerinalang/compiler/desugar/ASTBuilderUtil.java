@@ -100,6 +100,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * Some utils methods for building AST nodes at desugar phase.
  *
@@ -573,7 +575,7 @@ public class ASTBuilderUtil {
         assignableExpr.targetType = targetType;
         assignableExpr.type = type;
         assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
-                null, targetType, null, opSymPos);
+                                                      null, targetType, null, opSymPos, VIRTUAL);
         return assignableExpr;
     }
 
