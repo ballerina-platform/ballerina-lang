@@ -40,6 +40,12 @@ OPTIONS
             Mode type can be service or client. Generate a ballerina service and client only
             according to the mode. This is optional input.
 
+        (-m| --module) <module name>
+            This use when ballerina file convert to openapi contract
+
+        (-s| --serviceName) <service name>
+            This use when ballerina file convert to openapi contract
+
 SUB COMMANDS
        gen-contract
            Generate a Ballerina service from an OpenAPI Specification 3.0
@@ -58,9 +64,6 @@ EXAMPLES
           $ ballerina openapi
           $ ballerina openapi -h
 
-       Print usage details of the OpenAPI sub commands.
-          $ ballerina openapi gen-contract -h
-
        Generate a Ballerina mock service with module name hellomock
        and service name hello using hello.yaml OpenAPI contract.
           $ ballerina openapi -i hello.yaml --mode service
@@ -70,7 +73,7 @@ EXAMPLES
           $ ballerina openapi -i hello.yaml --mode client
 
        Export an OpenAPI definition for hello_service.bal for the hello service.
-          $ ballerina openapi gen-contract hello -i hello_service.bal
+          $ ballerina openapi -i hello_service.bal --serviceName hello -o ./
 
        Generate both Ballerina client and service file.
           $ballerina openapi --input petstore.yaml -o ./example
