@@ -29,6 +29,6 @@ import org.wso2.ballerinalang.util.Flags;
 public class BOperatorSymbol extends BInvokableSymbol {
 
     public BOperatorSymbol(Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos) {
-        super(SymTag.INVOKABLE, Flags.PUBLIC, name, pkgID, type, owner, pos);
+        super(SymTag.INVOKABLE, Flags.PUBLIC, name, pkgID, type, owner, pos, );
     }
 }

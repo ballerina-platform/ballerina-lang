@@ -708,7 +708,7 @@ public class TypeParamAnalyzer {
             BInvokableType matchType = getMatchingFunctionBoundType(expFunc.type, env, resolvedTypes);
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(expFunc.symbol.tag, expFunc.symbol.flags,
                                                                     expFunc.symbol.name, env.enclPkg.packageID,
-                                                                    matchType, env.scope.owner, expFunc.pos);
+                                                                    matchType, env.scope.owner, expFunc.pos, VIRTUAL);
             invokableSymbol.retType = invokableSymbol.getType().retType;
             matchType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags, Names.EMPTY,
                                                          env.enclPkg.symbol.pkgID, invokableSymbol.type,

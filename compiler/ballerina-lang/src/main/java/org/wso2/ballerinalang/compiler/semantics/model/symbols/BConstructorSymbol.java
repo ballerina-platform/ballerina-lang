@@ -33,6 +33,6 @@ public class BConstructorSymbol extends BInvokableSymbol implements ConstructorS
                               PackageID pkgID,
                               BType type,
                               BSymbol owner, DiagnosticPos pos) {
-        super(SymTag.CONSTRUCTOR, flags, name, pkgID, type, owner, pos);
+        super(SymTag.CONSTRUCTOR, flags, name, pkgID, type, owner, pos, );
     }
 }

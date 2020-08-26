@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -52,6 +53,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
  * Class to generate Mock Functions.
@@ -268,7 +271,8 @@ public class MockDesugar {
                 bLangPackage.packageID,
                 generateSymbolInvokableType(),
                 bLangPackage.symbol,
-                symTable.builtinPos
+                symTable.builtinPos,
+                VIRTUAL
         );
 
         return symbol;

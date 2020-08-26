@@ -148,7 +148,7 @@ public class TypeDefBuilderHelper {
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
                                       initFunction.type, structureTypeNode.symbol, initFunction.body != null,
-                                      initFunction.pos);
+                                      initFunction.pos, VIRTUAL);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;

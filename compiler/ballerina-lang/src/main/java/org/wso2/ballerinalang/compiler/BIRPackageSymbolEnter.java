@@ -354,7 +354,7 @@ public class BIRPackageSymbolEnter {
         BInvokableSymbol invokableSymbol =
                 Symbols.createFunctionSymbol(flags, names.fromString(funcName), this.env.pkgSymbol.pkgID, funcType,
                                              this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE),
-                                             symTable.builtinPos);
+                                             symTable.builtinPos, COMPILED_SOURCE);
         invokableSymbol.source = source;
         invokableSymbol.retType = funcType.retType;
 
@@ -657,7 +657,8 @@ public class BIRPackageSymbolEnter {
             // from the varType (i.e: from InvokableType), and assumes it can have only required
             // params.
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
-                                             this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos);
+                                             this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos,
+                                             COMPILED_SOURCE);
         } else {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
                                        enclScope.owner, symTable.builtinPos, );
@@ -998,7 +999,7 @@ public class BIRPackageSymbolEnter {
                         BInvokableSymbol recordInitFuncSymbol =
                                 Symbols.createFunctionSymbol(recordInitFuncFlags,
                                         initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
-                                        env.pkgSymbol, isNative, symTable.builtinPos);
+                                        env.pkgSymbol, isNative, symTable.builtinPos, COMPILED_SOURCE);
                         recordInitFuncSymbol.retType = recordInitFuncType.retType;
                         recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
                                                                              recordInitFuncType, symTable.builtinPos);

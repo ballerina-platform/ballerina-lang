@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -784,7 +785,7 @@ public class ASTBuilderUtil {
         BInvokableSymbol dupFuncSymbol =
                 Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name, invokableSymbol.pkgID,
                                              invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist,
-                                             invokableSymbol.pos);
+                                             invokableSymbol.pos, invokableSymbol.origin);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.restParam = invokableSymbol.restParam;
@@ -806,9 +807,10 @@ public class ASTBuilderUtil {
 
     public static BInvokableSymbol duplicateFunctionDeclarationSymbol(BInvokableSymbol invokableSymbol, BSymbol owner,
                                                                       Name newName, PackageID newPkgID,
-                                                                      DiagnosticPos pos) {
+                                                                      DiagnosticPos pos, SymbolOrigin origin) {
         BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newPkgID,
-                                                                      null, owner, invokableSymbol.bodyExist, pos);
+                                                                      null, owner, invokableSymbol.bodyExist, pos,
+                                                                      origin);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.receiverSymbol = null;

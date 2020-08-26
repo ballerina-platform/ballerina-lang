@@ -108,8 +108,9 @@ public class Symbols {
                                                       PackageID pkgID,
                                                       BType type,
                                                       BSymbol owner,
-                                                      DiagnosticPos pos) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner, pos);
+                                                      DiagnosticPos pos,
+                                                      SymbolOrigin origin) {
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner, pos, origin);
         symbol.kind = SymbolKind.WORKER;
         return symbol;
     }
@@ -132,8 +133,9 @@ public class Symbols {
                                                         BType type,
                                                         BSymbol owner,
                                                         boolean bodyExist,
-                                                        DiagnosticPos pos) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner, pos);
+                                                        DiagnosticPos pos,
+                                                        SymbolOrigin origin) {
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner, pos, origin);
         symbol.bodyExist = bodyExist;
         symbol.kind = SymbolKind.FUNCTION;
         return symbol;
@@ -169,8 +171,9 @@ public class Symbols {
                                                          PackageID pkgID,
                                                          BType type,
                                                          BSymbol owner,
-                                                         DiagnosticPos pos) {
-        return new BInvokableSymbol(kind, flags, name, pkgID, type, owner, pos);
+                                                         DiagnosticPos pos,
+                                                         SymbolOrigin origin) {
+        return new BInvokableSymbol(kind, flags, name, pkgID, type, owner, pos, origin);
     }
 
     public static BXMLNSSymbol createXMLNSSymbol(Name name,
