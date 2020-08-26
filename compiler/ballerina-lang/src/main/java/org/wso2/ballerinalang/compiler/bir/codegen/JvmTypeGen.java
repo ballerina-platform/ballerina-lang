@@ -275,7 +275,8 @@ class JvmTypeGen {
         String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
-            if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.ERROR ||bType.tag == TypeTags.UNION)) {
+            if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.ERROR ||
+                    bType.tag == TypeTags.UNION)) {
                 continue;
             }
 

@@ -14,9 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'value as value;
+
 # The type to which error detail records must belong.
 public type Detail record {|
-   Cloneable...;
+   value:Cloneable...;
 |};
 
 # A type parameter that is a subtype of error `Detail` record type.

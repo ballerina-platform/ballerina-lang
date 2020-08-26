@@ -48,10 +48,10 @@ public class BUnionType extends BType implements UnionType {
     public boolean resolvingAnyData = false;
 
     private boolean nullable;
+
     private LinkedHashSet<BType> memberTypes;
     private Optional<Boolean> isAnyData = Optional.empty();
     private Optional<Boolean> isPureType = Optional.empty();
-    private boolean iteratingMembers = false; // TODO: not thread safe
 
     protected BUnionType(BTypeSymbol tsymbol, Set<BType> memberTypes, boolean nullable, boolean readonly) {
         super(TypeTags.UNION, tsymbol);
@@ -135,14 +135,6 @@ public class BUnionType extends BType implements UnionType {
      */
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-
-        // TODO: root cause and remove
-        for (Iterator<BType> iterator = types.iterator(); iterator.hasNext();) {
-            BType type = iterator.next();
-            if (type == null) {
-                iterator.remove();
-            }
-        }
 
         boolean isImmutable = true;
 

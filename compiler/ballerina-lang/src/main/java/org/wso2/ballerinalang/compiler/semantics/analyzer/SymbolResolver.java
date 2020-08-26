@@ -893,7 +893,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void loadCloneableType() {
-        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE);
+        ScopeEntry entry = symTable.langValueModuleSymbol.scope.lookup(Names.CLONEABLE);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                 entry = entry.next;
