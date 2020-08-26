@@ -28,8 +28,12 @@ public enum SymbolOrigin {
      */
     SOURCE,
     /**
-     * These are symbols which are defined internally by the compiler or symbols which are coming from a compiled
-     * source.
+     * These are symbols which are coming from a compiled source. i.e., read through the BIRPackageSymbolEnter
+     */
+    COMPILED_SOURCE,
+    /**
+     * These are symbols which are defined internally by the compiler. e.g., symbols defined in the symbol table,
+     * symbols defined in lang lib
      */
     BUILTIN,
     /**
