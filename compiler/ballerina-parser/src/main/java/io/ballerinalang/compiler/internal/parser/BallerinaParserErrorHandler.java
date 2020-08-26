@@ -554,9 +554,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] LIST_MATCH_PATTERN_MEMBER_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACKET };
 
-    private static final ParserRuleContext[] FIELD_MATCH_PATTERNS_START =
-            { ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER, ParserRuleContext.CLOSE_BRACE };
-
     private static final ParserRuleContext[] FIELD_MATCH_PATTERN_MEMBER =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.REST_MATCH_PATTERN };
 
@@ -702,7 +699,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_MATCH_PATTERNS_START:
             case LIST_MATCH_PATTERN_MEMBER:
             case LIST_MATCH_PATTERN_MEMBER_RHS:
-            case FIELD_MATCH_PATTERNS_START:
             case FIELD_MATCH_PATTERN_MEMBER:
             case FIELD_MATCH_PATTERN_MEMBER_RHS:
             case FUNC_MATCH_PATTERN_OR_CONST_PATTERN:
@@ -1310,7 +1306,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_BINDING_PATTERN:
             case ARG_BINDING_PATTERN_END:
             case ARG_BINDING_PATTERN_START_IDENT:
-            case FIELD_MATCH_PATTERNS_START:
             case FIELD_MATCH_PATTERN_MEMBER:
             case FIELD_MATCH_PATTERN_MEMBER_RHS:
             case FUNC_MATCH_PATTERN_OR_CONST_PATTERN:
@@ -1706,9 +1701,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case LIST_MATCH_PATTERN_MEMBER_RHS:
                 alternativeRules = LIST_MATCH_PATTERN_MEMBER_RHS;
-                break;
-            case FIELD_MATCH_PATTERNS_START:
-                alternativeRules = FIELD_MATCH_PATTERNS_START;
                 break;
             case FIELD_MATCH_PATTERN_MEMBER:
                 alternativeRules = FIELD_MATCH_PATTERN_MEMBER;
@@ -3187,7 +3179,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_BINDING_PATTERN:
                 return ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER;
             case MAPPING_MATCH_PATTERN:
-                return ParserRuleContext.FIELD_MATCH_PATTERNS_START;
+                return ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER;
             default:
                 return ParserRuleContext.STATEMENT;
         }

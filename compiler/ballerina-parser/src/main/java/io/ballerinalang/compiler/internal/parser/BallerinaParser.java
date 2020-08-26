@@ -11355,6 +11355,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseMatchClauses() {
         List<STNode> matchClauses = new ArrayList<>();
+        matchClauses.add(parseMatchClause());
         while (!isEndOfMatchClauses(peek().kind)) {
             STNode clause = parseMatchClause();
             matchClauses.add(clause);
