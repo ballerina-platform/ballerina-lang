@@ -223,7 +223,7 @@ public class BIRPackageSymbolEnter {
         String pkgVersion = ((StringCPEntry) this.env.constantPool[pkgCpEntry.versionCPIndex]).value;
 
         PackageID pkgId = createPackageID(orgName, pkgName, pkgVersion);
-        this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable);
+        this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable, COMPILED_SOURCE);
 
         // TODO Validate this pkdID with the requestedPackageID available in the env.
 

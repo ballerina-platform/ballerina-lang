@@ -38,15 +38,18 @@ import java.util.Set;
 public class Symbols {
 
     public static BPackageSymbol createPackageSymbol(PackageID packageID,
-                                                     SymbolTable symTable) {
-        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol, symTable.builtinPos);
+                                                     SymbolTable symTable,
+                                                     SymbolOrigin origin) {
+        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol, symTable.builtinPos, origin);
         return createPackageSymbolScope(symTable, pkgSymbol);
     }
 
     public static BPackageSymbol createPackageSymbol(PackageID packageID,
                                                      SymbolTable symTable,
-                                                     int flags) {
-        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol, flags, symTable.builtinPos);
+                                                     int flags,
+                                                     SymbolOrigin origin) {
+        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol, flags, symTable.builtinPos,
+                                                      origin);
         return createPackageSymbolScope(symTable, pkgSymbol);
     }
 

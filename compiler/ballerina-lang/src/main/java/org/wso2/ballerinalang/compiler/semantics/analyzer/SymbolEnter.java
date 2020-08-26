@@ -256,9 +256,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create PackageSymbol
         BPackageSymbol pkgSymbol;
         if (Symbols.isFlagOn(Flags.asMask(pkgNode.flagSet), Flags.TESTABLE)) {
-            pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable, Flags.asMask(pkgNode.flagSet));
+            pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable, Flags.asMask(pkgNode.flagSet),
+                                                    SOURCE);
         } else {
-            pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
+            pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable, SOURCE);
         }
         if (PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
             populateLangLibInSymTable(pkgSymbol);
@@ -2395,7 +2396,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BPackageSymbol duplicatePackagSymbol(BPackageSymbol originalSymbol) {
         BPackageSymbol copy = new BPackageSymbol(originalSymbol.pkgID, originalSymbol.owner, originalSymbol.flags,
-                                                 originalSymbol.pos);
+                                                 originalSymbol.pos, originalSymbol.origin);
         copy.initFunctionSymbol = originalSymbol.initFunctionSymbol;
         copy.startFunctionSymbol = originalSymbol.startFunctionSymbol;
         copy.stopFunctionSymbol = originalSymbol.stopFunctionSymbol;
