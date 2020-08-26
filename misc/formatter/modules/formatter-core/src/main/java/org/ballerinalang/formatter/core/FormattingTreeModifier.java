@@ -470,7 +470,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token semicolonToken = expressionStatementNode.semicolonToken();
         return expressionStatementNode.modify()
                 .withExpression(expression)
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
@@ -3396,6 +3396,14 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    @Override
+    public Token transform(Token token) {
+        if (token.kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
+            return formatToken(token, 0, 1, 0, 0);
+        }
+        return token;
+    }
+
     /**
      * Update the minutiae and return the token.
      *
@@ -3423,7 +3431,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     private MinutiaeList modifyMinutiaeList(MinutiaeList minutiaeList, int spaces, int newLines) {
         Minutiae minutiae = NodeFactory.createWhitespaceMinutiae(getWhiteSpaces(spaces, newLines));
-        return minutiaeList.add(minutiae);
+        return NodeFactory.createMinutiaeList(minutiae);
     }
 
     private String getWhiteSpaces(int column, int newLines) {
