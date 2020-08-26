@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.util;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -51,6 +52,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
  * Helper class with util methods to create type definitions.
@@ -156,7 +159,8 @@ public class TypeDefBuilderHelper {
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                          initFunction.symbol.flags,
                                                                          env.enclPkg.packageID, initFunction.type,
-                                                                         initFunction.symbol, initFunction.pos);
+                                                                         initFunction.symbol, initFunction.pos,
+                                                                         VIRTUAL);
         tsymbol.params = initFunction.symbol.params;
         tsymbol.restParam = initFunction.symbol.restParam;
         tsymbol.returnType = initFunction.symbol.retType;

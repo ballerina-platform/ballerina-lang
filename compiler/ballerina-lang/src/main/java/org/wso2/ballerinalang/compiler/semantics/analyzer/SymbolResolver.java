@@ -1374,7 +1374,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         bInvokableType.flags = flags;
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                                                                          env.enclPkg.symbol.pkgID, bInvokableType,
-                                                                         env.scope.owner, pos);
+                                                                         env.scope.owner, pos, SOURCE);
 
         tsymbol.params = params;
         tsymbol.restParam = restParam;

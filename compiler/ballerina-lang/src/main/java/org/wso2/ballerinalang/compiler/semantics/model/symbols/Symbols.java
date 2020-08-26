@@ -142,7 +142,7 @@ public class Symbols {
                                                BSymbol owner,
                                                DiagnosticPos pos) {
         if (type != null && type.tag == TypeTags.INVOKABLE) {
-            return createInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos);
+            return createInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, );
         }
         return new BTypeSymbol(symTag, flags, name, pkgID, type, owner, pos, );
     }
@@ -152,8 +152,9 @@ public class Symbols {
                                                                  PackageID pkgID,
                                                                  BType type,
                                                                  BSymbol owner,
-                                                                 DiagnosticPos pos) {
-        return new BInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos);
+                                                                 DiagnosticPos pos,
+                                                                 SymbolOrigin origin) {
+        return new BInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, origin);
     }
 
     public static BInvokableSymbol createInvokableSymbol(int kind,

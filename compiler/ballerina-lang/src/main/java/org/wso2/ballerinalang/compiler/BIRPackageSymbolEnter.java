@@ -541,7 +541,8 @@ public class BIRPackageSymbolEnter {
                                                        bInvokableType.retType, null);
         clonedType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                bInvokableType.flags, env.pkgSymbol.pkgID, null,
-                                                               env.pkgSymbol.owner, symTable.builtinPos);
+                                                               env.pkgSymbol.owner, symTable.builtinPos,
+                                                               COMPILED_SOURCE);
         clonedType.flags = bInvokableType.flags;
         //TODO: tsymbol param values should be read from bir and added here
         return clonedType;

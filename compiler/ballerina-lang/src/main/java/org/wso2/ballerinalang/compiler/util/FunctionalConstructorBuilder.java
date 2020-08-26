@@ -33,6 +33,8 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
+
 /**
  * Build functional constructor symbol.
  *
@@ -84,7 +86,7 @@ public class FunctionalConstructorBuilder {
 
         BInvokableTypeSymbol invokableTSymbol = new BInvokableTypeSymbol(SymTag.CONSTRUCTOR, Flags.PUBLIC,
                                                                          langlibPkg.pkgID, constructedType,
-                                                                         langlibPkg, pos);
+                                                                         langlibPkg, pos, BUILTIN);
         invokableTSymbol.params = params;
         invokableTSymbol.returnType = constructedType;
         BInvokableType invokableType = new BInvokableType(paramTypes, constructedType, invokableTSymbol);

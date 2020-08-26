@@ -680,7 +680,7 @@ public class TypeParamAnalyzer {
         return new BInvokableType(paramTypes, restType, getMatchingBoundType(expType.retType, env, resolvedTypes),
                                   Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, expType.flags,
                                                                     env.enclPkg.symbol.pkgID, expType, env.scope.owner,
-                                                                    expType.tsymbol.pos));
+                                                                    expType.tsymbol.pos, VIRTUAL));
     }
 
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
