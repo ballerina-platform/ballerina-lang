@@ -904,7 +904,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                   arrayTypeNode.pos);
+                                                                   arrayTypeNode.pos, SOURCE);
             BArrayType arrType;
             if (arrayTypeNode.sizes.length == 0) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
@@ -933,7 +933,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                                                                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
-                                                               env.scope.owner, unionTypeNode.pos);
+                                                               env.scope.owner, unionTypeNode.pos, SOURCE);
 
         if (memberTypes.contains(symTable.noType)) {
             resultType = symTable.noType;
@@ -1019,7 +1019,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                                                       typeSymbol.pkgID, streamType, typeSymbol.owner,
-                                                      streamTypeNode.pos);
+                                                      streamTypeNode.pos, SOURCE);
 
         markParameterizedType(streamType, constraintType);
         if (error != null) {
@@ -1042,7 +1042,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                      typeSymbol.name, env.enclPkg.symbol.pkgID, tableType,
-                                                     env.scope.owner, tableTypeNode.pos);
+                                                     env.scope.owner, tableTypeNode.pos, SOURCE);
         tableType.constraintPos = tableTypeNode.constraint.pos;
 
         if (tableTypeNode.tableKeyTypeConstraint != null) {
@@ -1067,7 +1067,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                                                                 Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY,
                                                                 env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                finiteTypeNode.pos);
+                                                                finiteTypeNode.pos, SOURCE);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : finiteTypeNode.valueSpace) {
@@ -1092,7 +1092,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                                                                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
-                                                               env.scope.owner, tupleTypeNode.pos);
+                                                               env.scope.owner, tupleTypeNode.pos, SOURCE);
 
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
@@ -1165,7 +1165,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                                                            typeSymbol.pkgID, constrainedType, typeSymbol.owner,
-                                                           constrainedTypeNode.pos);
+                                                           constrainedTypeNode.pos, SOURCE);
         markParameterizedType(constrainedType, constraintType);
         resultType = constrainedType;
     }

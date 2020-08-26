@@ -809,7 +809,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
             definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
                                                            Names.EMPTY, env.enclPkg.symbol.pkgID, definedType,
-                                                           env.scope.owner, typeDefinition.pos);
+                                                           env.scope.owner, typeDefinition.pos, SOURCE);
         }
 
         typeDefinition.precedence = this.typePrecedence++;

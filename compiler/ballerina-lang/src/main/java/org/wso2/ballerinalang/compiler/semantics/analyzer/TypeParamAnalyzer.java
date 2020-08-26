@@ -712,7 +712,7 @@ public class TypeParamAnalyzer {
             invokableSymbol.retType = invokableSymbol.getType().retType;
             matchType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags, Names.EMPTY,
                                                          env.enclPkg.symbol.pkgID, invokableSymbol.type,
-                                                         env.scope.owner, invokableSymbol.pos);
+                                                         env.scope.owner, invokableSymbol.pos, VIRTUAL);
             actObjectSymbol.attachedFuncs.add(
                     new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos));
             String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,

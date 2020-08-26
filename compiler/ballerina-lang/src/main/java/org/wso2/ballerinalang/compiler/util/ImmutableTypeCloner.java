@@ -74,6 +74,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
  * Helper class to create a clone of it.
@@ -666,12 +667,12 @@ public class ImmutableTypeCloner {
         if (env == null) {
             return Symbols.createTypeSymbol(originalTSymbol.tag, originalTSymbol.flags | Flags.READONLY,
                                             getImmutableTypeName(names, originalTSymbol), pkgId, null, owner,
-                                            originalTSymbol.pos);
+                                            originalTSymbol.pos, SOURCE);
         }
 
         return Symbols.createTypeSymbol(originalTSymbol.tag, originalTSymbol.flags | Flags.READONLY,
                                         getImmutableTypeName(names, originalTSymbol), env.enclPkg.symbol.pkgID, null,
-                                        env.scope.owner, originalTSymbol.pos);
+                                        env.scope.owner, originalTSymbol.pos, SOURCE);
     }
 
     private static Name getImmutableTypeName(Names names, BTypeSymbol originalTSymbol) {
@@ -695,7 +696,7 @@ public class ImmutableTypeCloner {
                                                                       Flags.asMask(EnumSet.of(Flag.PUBLIC,
                                                                                               Flag.READONLY)),
                                                                       Names.EMPTY, pkgId, null, owner,
-                                                                      symTable.builtinPos);
+                                                                      symTable.builtinPos, VIRTUAL);
 
         LinkedHashSet<BType> constituentTypes = new LinkedHashSet<BType>() {{
             add(nonReadOnlyType);
