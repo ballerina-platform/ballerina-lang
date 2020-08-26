@@ -75,11 +75,16 @@ public class BallerinaTreeModifyUtil {
         put("SERVICE_CALL_CHECK", "$TYPE $VARIABLE = checkpanic $CALLER.$FUNCTION($PARAMS);\n");
         put("SERVICE_CALL", "$TYPE $VARIABLE = $CALLER.$FUNCTION($PARAMS);\n");
         put("MAIN_START", "$COMMENTpublic function main() {\n");
+        put("MAIN_START_MODIFY", "$COMMENTpublic function main() {");
         put("MAIN_END", "\n}\n");
         put("SERVICE_START", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
                 "service $SERVICE on new http:Listener($PORT) {\n" +
                 "@http:ResourceConfig {\n\tmethods: [$METHODS],\npath: \"/$RES_PATH\"\n}\n" +
                 "    resource function $RESOURCE(http:Caller caller, http:Request req) {\n\n");
+        put("SERVICE_START_MODIFY", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
+                "service $SERVICE on new http:Listener($PORT) {\n" +
+                "@http:ResourceConfig {\n\tmethods: [$METHODS],\npath: \"/$RES_PATH\"\n}\n" +
+                "    resource function $RESOURCE(http:Caller caller, http:Request req) {");
         put("SERVICE_END",
                 "    }\n" +
                         "}\n");
