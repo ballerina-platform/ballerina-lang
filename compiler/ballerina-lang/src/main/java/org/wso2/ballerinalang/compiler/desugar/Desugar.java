@@ -4940,10 +4940,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangMatchTypedBindingPatternClause patternSuccessCase =
                 getSafeAssignSuccessPattern(checkedExprVar.pos, checkedExprVar.symbol.type, true,
                                             checkedExprVar.symbol, null);
-        BLangMatchTypedBindingPatternClause patternErrorCase = getSafeAssignErrorPattern(checkedExpr.pos,
-                                                                                         this.env.scope.owner,
-                                                                                         checkedExpr.equivalentErrorTypeList,
-                                                                                         isCheckPanic);
+        BLangMatchTypedBindingPatternClause patternErrorCase =
+                getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner, checkedExpr.equivalentErrorTypeList,
+                                          isCheckPanic);
 
         // Create the match statement
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos, checkedExpr.expr,
@@ -5692,8 +5691,8 @@ public class Desugar extends BLangNodeVisitor {
                                                              this.env.scope.owner, pos));
 
         //      2) Create the pattern block
-        BLangVariableReference patternFailureCaseVarRef = ASTBuilderUtil.createVariableRef(pos,
-                                                                                           patternFailureCaseVar.symbol);
+        BLangVariableReference patternFailureCaseVarRef =
+                ASTBuilderUtil.createVariableRef(pos, patternFailureCaseVar.symbol);
 
         BLangBlockStmt patternBlockFailureCase = (BLangBlockStmt) TreeBuilder.createBlockNode();
         patternBlockFailureCase.pos = pos;
