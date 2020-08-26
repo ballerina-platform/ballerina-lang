@@ -455,6 +455,10 @@ public class FormattingTreeModifier extends TreeModifier {
                 builtinSimpleNameReferenceNode.parent().children().get(0).equals(builtinSimpleNameReferenceNode))) {
             addSpaces = true;
         }
+        if ((builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.OBJECT_FIELD) &&
+                ((ObjectFieldNode) builtinSimpleNameReferenceNode.parent()).visibilityQualifier().isPresent())) {
+            addSpaces = false;
+        }
         int startCol = getStartColumn(builtinSimpleNameReferenceNode, builtinSimpleNameReferenceNode.kind(), addSpaces);
         Token name = getToken(builtinSimpleNameReferenceNode.name());
         return builtinSimpleNameReferenceNode.modify()
@@ -578,7 +582,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return serviceDeclarationNode.modify()
                 .withServiceKeyword(formatToken(serviceKeyword, 0, 0, 0, 0))
                 .withServiceName((IdentifierToken) formatToken(serviceName, 1, 0, 0, 0))
-                .withOnKeyword(formatToken(onKeyword, 1, 0, 0, 0))
+                .withOnKeyword(formatToken(onKeyword, 1, 1, 0, 0))
                 .withExpressions(expressions)
                 .withServiceBody(serviceBody)
                 .apply();
@@ -607,7 +611,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token newKeywordToken = getToken(explicitNewExpressionNode.newKeyword());
         TypeDescriptorNode typeDescriptorNode = this.modifyNode(explicitNewExpressionNode.typeDescriptor());
         return explicitNewExpressionNode.modify()
-                .withNewKeyword(formatToken(newKeywordToken, 1, 1, 0, 0))
+                .withNewKeyword(formatToken(newKeywordToken, 0, 1, 0, 0))
                 .withParenthesizedArgList(modifyNode(explicitNewExpressionNode.parenthesizedArgList()))
                 .withTypeDescriptor(typeDescriptorNode)
                 .apply();
@@ -2018,8 +2022,8 @@ public class FormattingTreeModifier extends TreeModifier {
         Token closeBrace = getToken(objectTypeDescriptorNode.closeBrace());
         return objectTypeDescriptorNode.modify()
                 .withObjectTypeQualifiers(objectTypeQualifiers)
-                .withObjectKeyword(formatToken(objectKeyword, 0, 1, 1, 0))
-                .withOpenBrace(formatToken(openBrace, 0, 0, 0, 0))
+                .withObjectKeyword(formatToken(objectKeyword, 0, 1, 0, 0))
+                .withOpenBrace(formatToken(openBrace, 0, 0, 0, 1))
                 .withMembers(members)
                 .withCloseBrace(formatToken(closeBrace, 0, 0, 0, 0))
                 .apply();
@@ -2053,6 +2057,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(objectFieldNode)) {
             return objectFieldNode;
         }
+        int startCol = getStartColumn(objectFieldNode, objectFieldNode.kind(), true);
         MetadataNode metadata = this.modifyNode(objectFieldNode.metadata().orElse(null));
         Token visibilityQualifier = getToken(objectFieldNode.visibilityQualifier().orElse(null));
         Token readonlyKeyword = getToken(objectFieldNode.readonlyKeyword().orElse(null));
@@ -2067,7 +2072,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         if (visibilityQualifier != null) {
             objectFieldNode = objectFieldNode.modify()
-                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 1, 0, 0)).apply();
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, startCol, 1, 0, 0)).apply();
         }
         if (readonlyKeyword != null) {
             objectFieldNode = objectFieldNode.modify()
@@ -2075,10 +2080,10 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         return objectFieldNode.modify()
                 .withTypeName(typeName)
-                .withFieldName(formatToken(fieldName, 1, 1, 0, 0))
+                .withFieldName(formatToken(fieldName, 1, 0, 0, 0))
                 .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
                 .withExpression(expression)
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
@@ -2536,15 +2541,17 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(implicitNewExpressionNode)) {
             return implicitNewExpressionNode;
         }
+        int trailingSpace = 0;
         Token newKeyword = getToken(implicitNewExpressionNode.newKeyword());
         ParenthesizedArgList parenthesizedArgList =
                 this.modifyNode(implicitNewExpressionNode.parenthesizedArgList().orElse(null));
         if (parenthesizedArgList != null) {
             implicitNewExpressionNode = implicitNewExpressionNode.modify()
                     .withParenthesizedArgList(parenthesizedArgList).apply();
+            trailingSpace = 1;
         }
         return implicitNewExpressionNode.modify()
-                .withNewKeyword(formatToken(newKeyword, 0, 1, 0, 0))
+                .withNewKeyword(formatToken(newKeyword, 0, trailingSpace, 0, 0))
                 .apply();
     }
 
@@ -3619,7 +3626,7 @@ public class FormattingTreeModifier extends TreeModifier {
         LinePosition startPos = range.startLine();
         LinePosition endPos = range.endLine();
         int startOffset = startPos.offset();
-        if (node.kind().equals(SyntaxKind.FUNCTION_DEFINITION)) {
+        if (node.kind().equals(SyntaxKind.FUNCTION_DEFINITION) || node.kind().equals(SyntaxKind.TYPE_DEFINITION)) {
             startOffset = (startOffset / 4) * 4;
         }
         return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
@@ -3648,8 +3655,8 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         if (node.parent() != null && (node.parent().kind().equals(SyntaxKind.BLOCK_STATEMENT) ||
                 node.parent().kind().equals(SyntaxKind.FUNCTION_BODY_BLOCK) ||
-                node.parent().kind().equals(SyntaxKind.RECORD_TYPE_DESC) ||
                 node.parent().kind().equals(SyntaxKind.LIST_CONSTRUCTOR) ||
+                node.parent().kind().equals(SyntaxKind.TYPE_DEFINITION) ||
                 node.parent().kind().equals(SyntaxKind.MAPPING_CONSTRUCTOR))) {
             indentation += formattingOptions.getTabSize();
         }
