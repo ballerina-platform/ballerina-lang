@@ -22,6 +22,23 @@ dependencies {
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.slf4j:slf4j-api'
     implementation 'org.apache.commons:commons-lang3'
+
+    testCompile 'org.testng:testng'
+}
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+    environment "testEnvironmentVariable", "EnvironmentVariable"
+    environment "user_name", "b7auser"
+    environment "password", "b7apw"
+    environment "hello_http_host", "192.168.1.11"
+    environment "hello_http_port", "5656"
+    environment "hello_cache_enabled", "true"
+    environment "hello_eviction_fac", "0.2333333"
+    environment "helloneg_http_port", "invalid port"
+    environment "helloneg_eviction_fac", "invalid eviction factor"
 }
 
 description = 'Ballerina - Config API'
