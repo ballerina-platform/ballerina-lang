@@ -46,7 +46,6 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-math')
     implementation project(':ballerina-mime')
-    implementation project(':ballerina-oauth2')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-openapi')
     implementation project(':ballerina-reflect')

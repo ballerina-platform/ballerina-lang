@@ -128,8 +128,6 @@
             <class name="org.ballerinalang.test.auth.basic.AuthzConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.basic.AuthWithCustomProvidersHandlersTest"/>
             <class name="org.ballerinalang.test.auth.basic.AuthzCacheTest"/>
-            <class name="org.ballerinalang.test.auth.oauth2.OAuth2ServiceTest"/>
-            <class name="org.ballerinalang.test.auth.oauth2.OAuth2ClientTest"/>
             <class name="org.ballerinalang.test.auth.ldap.LdapAuthStoreTest"/>
         </classes>
     </test>

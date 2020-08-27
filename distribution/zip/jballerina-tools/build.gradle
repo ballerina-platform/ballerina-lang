@@ -181,7 +181,6 @@ dependencies {
     balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
     balDoc project(path: ':ballerina-stringutils', configuration: 'balDoc')
     balDoc project(path: ':ballerina-ldap', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-oauth2', configuration: 'balDoc')
     balDoc project(path: ':ballerina-xmlutils', configuration: 'balDoc')
     balDoc project(path: ':ballerina-jsonutils', configuration: 'balDoc')
     balDoc project(path: ':ballerina-sql', configuration: 'balDoc')
