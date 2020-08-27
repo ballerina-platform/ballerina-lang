@@ -163,18 +163,6 @@ class JMethodResolver {
                         methods.add(jMethod);
                     }
                 }
-            } else if (paramTypes.length == paramCount + 2 && receiverType != null) {
-                // We can have CallerEnv parameter as first arg and receiver object as second arg as second.
-                jMethod.setReceiverType(receiverType);
-                boolean instanceMethod = jMethod.isInstanceMethod();
-                Class<?> paramType = paramTypes[0];
-                if (instanceMethod && paramTypes.length > 1) {
-                    paramType = paramTypes[1];
-                }
-                if (paramType.getCanonicalName().equals(CallerEnv.class.getCanonicalName())) {
-                    jMethod.setCallerEnvParam(true);
-                    methods.add(jMethod);
-                }
             }
         }
         return methods;
