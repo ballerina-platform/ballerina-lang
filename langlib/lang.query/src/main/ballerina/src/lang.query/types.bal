@@ -478,18 +478,6 @@ type _OuterJoinFunction object {
             pf.reset();
         }
     }
-
-    //function getNilFrame(_Frame f) returns _Frame {
-    //    _Frame nilFrame = {};
-    //    foreach var e in f.entries() {
-    //        if (e[1] is _Frame) {
-    //            nilFrame[e[0]] = self.getNilFrame(<_Frame>e[1]);
-    //        } else {
-    //            nilFrame[e[0]] = ();
-    //        }
-    //    }
-    //    return nilFrame;
-    //}
 };
 
 type _FilterFunction object {
