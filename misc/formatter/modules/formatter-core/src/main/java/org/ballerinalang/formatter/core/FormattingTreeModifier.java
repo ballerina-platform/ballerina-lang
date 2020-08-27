@@ -990,7 +990,8 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean addSpaces = false;
         if (blockStatementNode.parent().kind().equals(SyntaxKind.NAMED_WORKER_DECLARATION) ||
-                blockStatementNode.parent().kind().equals(SyntaxKind.QUERY_ACTION)) {
+                blockStatementNode.parent().kind().equals(SyntaxKind.QUERY_ACTION) ||
+                blockStatementNode.parent().kind().equals(SyntaxKind.FUNCTION_BODY_BLOCK)) {
             addSpaces = true;
         }
         int startColumn = getStartColumn(blockStatementNode, blockStatementNode.kind(), addSpaces);
@@ -1007,8 +1008,17 @@ public class FormattingTreeModifier extends TreeModifier {
         } else if (blockStatementNode.parent().kind().equals(SyntaxKind.QUERY_ACTION)) {
             trailingNewLines = 0;
         }
+        int leadingSpaces = 1;
+        int trailingOpeningLines = 1;
+        if (blockStatementNode.parent() != null && blockStatementNode.parent().kind()
+                .equals(SyntaxKind.FUNCTION_BODY_BLOCK)) {
+            if (blockStatementNode.children().size() <= 2) {
+                trailingOpeningLines = 2;
+            }
+            leadingSpaces = startColumn;
+        }
         return blockStatementNode.modify()
-                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 1))
+                .withOpenBraceToken(formatToken(openBraceToken, leadingSpaces, 0, 0, trailingOpeningLines))
                 .withCloseBraceToken(formatToken(closeBraceToken, startColumn, 0, 0, trailingNewLines))
                 .withStatements(statements)
                 .apply();
