@@ -15,12 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
+package io.ballerina.tools.text;
 
 import java.util.Objects;
 
 /**
- * The {@code LineInfo} represents a line number and a character offset from the start of the line.
+ * The {@code LinePosition} represents a line number and a character offset from the start of the line.
  *
  * @since 2.0.0
  */

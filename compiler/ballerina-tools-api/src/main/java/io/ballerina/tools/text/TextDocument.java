@@ -15,9 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
-
-import io.ballerinalang.compiler.internal.parser.CharReader;
+package io.ballerina.tools.text;
 
 /**
  * This is an abstract representation of a Ballerina source file (.bal).
@@ -31,7 +29,14 @@ public abstract class TextDocument {
 
     protected abstract LineMap populateTextLineMap();
 
-    public abstract CharReader getCharacterReader();
+    /**
+     * Returns the current text as a {@code char} array.
+     * <p>
+     * This may not be the best way to returns the characters.
+     *
+     * @return a char array
+     */
+    public abstract char[] toCharArray();
 
     public TextLine line(int line) {
         return lines().textLine(line);
