@@ -41,12 +41,12 @@ public class EnumMemberNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public Token equalToken() {
-        return childInBucket(2);
+    public Optional<Token> equalToken() {
+        return optionalChildInBucket(2);
     }
 
-    public ExpressionNode constExprNode() {
-        return childInBucket(3);
+    public Optional<ExpressionNode> constExprNode() {
+        return optionalChildInBucket(3);
     }
 
     @Override
@@ -108,8 +108,8 @@ public class EnumMemberNode extends NonTerminalNode {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
             this.identifier = oldNode.identifier();
-            this.equalToken = oldNode.equalToken();
-            this.constExprNode = oldNode.constExprNode();
+            this.equalToken = oldNode.equalToken().orElse(null);
+            this.constExprNode = oldNode.constExprNode().orElse(null);
         }
 
         public EnumMemberNodeModifier withMetadata(
