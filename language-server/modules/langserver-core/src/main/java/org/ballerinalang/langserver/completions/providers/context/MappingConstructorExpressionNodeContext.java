@@ -124,7 +124,7 @@ public class MappingConstructorExpressionNodeContext extends
         Token colon = null;
 
         if (evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD) {
-            colon = ((SpecificFieldNode) evalNodeAtCursor).colon();
+            colon = ((SpecificFieldNode) evalNodeAtCursor).colon().orElse(null);
         } else if (evalNodeAtCursor.kind() == SyntaxKind.COMPUTED_NAME_FIELD) {
             colon = ((ComputedNameFieldNode) evalNodeAtCursor).colonToken();
         }
