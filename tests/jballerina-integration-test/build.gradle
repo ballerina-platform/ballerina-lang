@@ -68,7 +68,6 @@ dependencies {
     implementation project(':ballerina-stringutils')
     implementation project(':ballerina-java')
     implementation project(':ballerina-jsonutils')
-    implementation project(':ballerina-xmlutils')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation 'org.apache.kafka:kafka-clients'
@@ -104,7 +103,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')

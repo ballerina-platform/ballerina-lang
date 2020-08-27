@@ -126,7 +126,6 @@ dependencies {
     dist project(':ballerina-stringutils')
     dist project(':ballerina-ldap')
     dist project(':ballerina-oauth2')
-    dist project(':ballerina-xmlutils')
     dist project(':ballerina-jsonutils')
 
     // Lang libs
