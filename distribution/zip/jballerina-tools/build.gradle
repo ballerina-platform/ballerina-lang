@@ -167,7 +167,6 @@ dependencies {
     balDoc project(path: ':ballerina-filepath', configuration: 'balDoc')
     balDoc project(path: ':ballerina-grpc', configuration: 'balDoc')
     balDoc project(path: ':ballerina-http', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-io', configuration: 'balDoc')
     balDoc project(path: ':ballerina-log-api', configuration: 'balDoc')
     balDoc project(path: ':ballerina-math', configuration: 'balDoc')
     balDoc project(path: ':ballerina-mime', configuration: 'balDoc')

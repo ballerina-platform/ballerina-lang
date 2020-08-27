@@ -100,7 +100,6 @@ dependencies {
     dist project(':ballerina-jdbc')
     dist project(':ballerina-http')
     dist project(':ballerina-openapi')
-    dist project(':ballerina-io')
     dist project(':ballerina-lang')
     dist project(':ballerina-log-api')
     dist project(':ballerina-logging')
