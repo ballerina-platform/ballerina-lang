@@ -50,6 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -92,18 +93,6 @@ public class CodeGenerator {
                           String reldefinitionPath , String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
 
-//        if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
-//            throw new BallerinaOpenApiException(OpenApiMesseges.GEN_CLIENT_PROJECT_ROOT);
-//        }
-
-        //Check if the selected path is a ballerina root for service generation
-        //TODO check with team for root check
-//        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(executionPath));
-//        if (type.equals(GenType.GEN_SERVICE) && projectRoot == null) {
-//            throw LauncherUtils.createUsageExceptionWithHelp(OpenApiMesseges.GEN_SERVICE_PROJECT_ROOT);
-//        }
-
-//        Path srcPath = CodegenUtils.getSourcePath(srcPackage, outPath);
         Path srcPath = Paths.get(outPath);
         Path implPath = CodegenUtils.getImplPath(srcPackage, srcPath);
         List<GenSrcFile> genFiles = generateBalSource(type, definitionPath, reldefinitionPath, serviceName);
@@ -310,9 +299,20 @@ public class CodeGenerator {
         if (Files.exists(srcPath)) {
             final File[] listFiles = new File(String.valueOf(srcPath)).listFiles();
             if (listFiles != null) {
-                Arrays.stream(listFiles)
-                        .filter(file -> sources.stream().anyMatch(gFile -> file.getName().equals(gFile.getFileName())))
-                        .forEach(File::delete);
+                for (File file : listFiles) {
+                    for (GenSrcFile gFile : sources) {
+                        if (file.getName().equals(gFile.getFileName())) {
+                            outStream.println("do you want overide the file " + file.getName() + " [Y/N]");
+                            String userInput = System.console().readLine();
+                            if (Objects.equals(userInput.toLowerCase(), "y")) {
+                                file.deleteOnExit();
+                            } else {
+                                int duplicateCount = 0;
+                                setGeneratedFileName(listFiles, gFile, duplicateCount);
+                            }
+                        }
+                    }
+                }
             }
         }
 //        // Remove old generated files - if any - before regenerate
@@ -354,8 +354,8 @@ public class CodeGenerator {
 
         //This will print the generated files to the console
         if (type.equals(GEN_SERVICE)) {
-            outStream.println("Service generated successfully and the OpenApi contract is copied to " + srcPackage
-                    + "/resources. this location will be referenced throughout the ballerina project.");
+            outStream.println("Service generated successfully and the OpenApi contract is copied to path " + srcPath
+                    + ".");
         } else if (type.equals(GEN_CLIENT)) {
             outStream.println("Client generated successfully.");
         }
@@ -364,6 +364,26 @@ public class CodeGenerator {
         while (iterator.hasNext()) {
             outStream.println("-- " + iterator.next().getFileName());
         }
+    }
+
+    /**
+     *
+     * @param listFiles
+     * @param gFile
+     * @param duplicateCount
+     */
+    private void setGeneratedFileName(File[] listFiles, GenSrcFile gFile, int duplicateCount) {
+
+        for (File listFile : listFiles) {
+            String listFileName = listFile.getName();
+            if (listFileName.contains(".") && ((listFileName.split("\\.")).length >= 2)
+                    && (listFileName.split("\\.")[0]
+                    .equals(gFile.getFileName().split("\\.")[0]))) {
+                duplicateCount = 1 + duplicateCount;
+            }
+        }
+        gFile.setFileName(gFile.getFileName().split("\\.")[0] + "." + (duplicateCount) +
+                ".bal");
     }
 
     /**
@@ -380,7 +400,7 @@ public class CodeGenerator {
 
         List<GenSrcFile> sourceFiles = new ArrayList<>();
         String srcFile = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH)
-                .replaceAll(" ", "_") + "Client.bal";
+                .replaceAll(" ", "_") + "-client.bal";
 
         // Generate ballerina service and resources.
         String mainContent = getContent(context, GeneratorConstants.DEFAULT_CLIENT_DIR,
@@ -403,7 +423,7 @@ public class CodeGenerator {
 
         List<GenSrcFile> sourceFiles = new ArrayList<>();
         String concatTitle = api.getBalServiceName().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_");
-        String srcFile = concatTitle + "Service.bal";
+        String srcFile = concatTitle + "-service.bal";
 
         String mainContent = getContent(api, GeneratorConstants.DEFAULT_TEMPLATE_DIR + "/service",
                 "balService");
