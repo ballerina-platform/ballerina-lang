@@ -42,7 +42,6 @@ dependencies {
     implementation project(':ballerina-math')
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-time')
-    implementation project(':ballerina-cache')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-lang:annotations')
@@ -58,7 +57,6 @@ dependencies {
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
