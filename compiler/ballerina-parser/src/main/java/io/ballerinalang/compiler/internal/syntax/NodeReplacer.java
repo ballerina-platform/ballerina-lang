@@ -17,11 +17,11 @@
  */
 package io.ballerinalang.compiler.internal.syntax;
 
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
-import io.ballerinalang.compiler.text.TextRange;
 
 /**
  * Replaces syntax nodes with the given replacements.

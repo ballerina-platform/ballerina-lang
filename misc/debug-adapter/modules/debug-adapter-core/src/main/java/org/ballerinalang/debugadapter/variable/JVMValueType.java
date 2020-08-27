@@ -53,7 +53,8 @@ public enum JVMValueType {
     FP_VALUE("org.ballerinalang.jvm.values.FPValue"),
     ANON_SERVICE("anonService"),
     BTYPE_OBJECT("BObjectType"),
-    BTYPE_RECORD("BRecordType");
+    BTYPE_RECORD("BRecordType"),
+    BTYPE_JSON("BJSONType");
 
     private final String value;
 
