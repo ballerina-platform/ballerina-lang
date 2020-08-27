@@ -87,6 +87,12 @@ public class BinaryExpressionEvaluator extends Evaluator {
                 return div(lVar, rVar);
             case PERCENT_TOKEN:
                 return mod(lVar, rVar);
+            case BITWISE_AND_TOKEN:
+                return bitwiseAND(lVar, rVar);
+            case PIPE_TOKEN:
+                return bitwiseOR(lVar, rVar);
+            case BITWISE_XOR_TOKEN:
+                return bitwiseXOR(lVar, rVar);
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operatorType);
         }
@@ -237,6 +243,36 @@ public class BinaryExpressionEvaluator extends Evaluator {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
         } else {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+        }
+    }
+
+    private BExpressionValue bitwiseAND(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            long result = Long.parseLong(lVar.computeValue()) & Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_AND_TOKEN);
+        }
+    }
+
+    private BExpressionValue bitwiseOR(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            long result = Long.parseLong(lVar.computeValue()) | Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PIPE_TOKEN);
+        }
+    }
+
+    private BExpressionValue bitwiseXOR(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            long result = Long.parseLong(lVar.computeValue()) ^ Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_XOR_TOKEN);
         }
     }
 
