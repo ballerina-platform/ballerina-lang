@@ -255,7 +255,6 @@ public enum ParserRuleContext {
     ARG_LIST_MATCH_PATTERN_START("arg-list-match-pattern-start"),
     ARG_MATCH_PATTERN("arg-match-pattern"),
     ARG_MATCH_PATTERN_RHS("arg-match-pattern-rhs"),
-    ERROR_FIELD_BINDING_PATTERN_START_IDENT("error-field-binding-pattern-start-ident"),
     ORDER_BY_CLAUSE("order-by-clause"),
     ORDER_KEY_LIST("order-key-list"),
     ORDER_KEY_LIST_END("order-key-list-end"),

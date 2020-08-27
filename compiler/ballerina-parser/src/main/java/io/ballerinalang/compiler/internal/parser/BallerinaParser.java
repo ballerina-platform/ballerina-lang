@@ -2893,6 +2893,12 @@ public class BallerinaParser extends AbstractParser {
                 // better error messages
             case WORKER_KEYWORD:
                 break;
+            case ERROR_KEYWORD:
+                if (peek(2).kind == SyntaxKind.OPEN_PAREN_TOKEN) {
+                    startContext(ParserRuleContext.ASSIGNMENT_STMT);
+                    return parseAssignmentStmtRhs(parseErrorBindingPattern());
+                }
+                // Fall through.
             default:
                 // Var-decl-stmt start
                 if (isTypeStartingToken(nextToken.kind)) {
@@ -3202,6 +3208,7 @@ public class BallerinaParser extends AbstractParser {
             case QUALIFIED_NAME_REFERENCE:
             case LIST_BINDING_PATTERN:
             case MAPPING_BINDING_PATTERN:
+            case ERROR_BINDING_PATTERN:
                 return true;
             case FIELD_ACCESS:
                 return isValidLVMemberExpr(((STFieldAccessExpressionNode) expression).expression);
@@ -13062,10 +13069,10 @@ public class BallerinaParser extends AbstractParser {
         int argCount = 1;
         while (!isEndOfParametersList(nextToken.kind)) {
 
-            STNode currentArg = parseErrorArgListBindingPattern();
+            STNode currentArg = parseErrorArgListBindingPattern(argCount);
             DiagnosticErrorCode errorCode = validateArgBindingPatternOrder(lastValidArgKind, currentArg.kind,
                     argCount);
-            STNode argEnd = parseArgsBindingPatternEnd();
+            STNode argEnd = parseErrorArgsBindingPatternEnd();
             if (errorCode == null) {
                 argListBindingPatterns.add(currentArg);
                 if (argEnd == null) {
@@ -13087,19 +13094,19 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(argListBindingPatterns);
     }
 
-    private STNode parseArgsBindingPatternEnd() {
+    private STNode parseErrorArgsBindingPatternEnd() {
         switch (peek().kind) {
             case COMMA_TOKEN:
-                return parseComma();
+                return consume();
             case CLOSE_PAREN_TOKEN:
                 return null;
             default:
                 recover(peek(), ParserRuleContext.ERROR_FIELD_BINDING_PATTERN_END);
-                return parseArgsBindingPatternEnd();
+                return parseErrorArgsBindingPatternEnd();
         }
     }
 
-    private STNode parseErrorArgListBindingPattern() {
+    private STNode parseErrorArgListBindingPattern(int argCount) {
         switch (peek().kind) {
             case ELLIPSIS_TOKEN:
                 return parseRestBindingPattern();
@@ -13111,29 +13118,34 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD:
                 return parseBindingPattern();
             default:
-                recover(peek(), ParserRuleContext.ERROR_FIELD_BINDING_PATTERN);
-                return parseErrorArgListBindingPattern();
+                ParserRuleContext context;
+                switch (argCount) {
+                    case 1:
+                        context = ParserRuleContext.ERROR_ARG_LIST_BINDING_PATTERN_START;
+                        break;
+                    case 2:
+                        context = ParserRuleContext.ERROR_MESSAGE_BINDING_PATTERN_RHS;
+                        break;
+                    default:
+                        context = ParserRuleContext.ERROR_FIELD_BINDING_PATTERN;
+                }
+                recover(peek(), context);
+                return parseErrorArgListBindingPattern(argCount);
         }
     }
 
     private STNode parseNamedOrSimpleArgBindingPattern() {
-        STNode argNameOrBindingPattern =
-                parseQualifiedIdentifier(ParserRuleContext.ERROR_FIELD_BINDING_PATTERN_START_IDENT);
+        STNode argNameOrSimpleBindingPattern = consume(); // We only approach here by seeing identifier.
         STToken secondToken = peek();
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
-                // TODO: Handle qualified-identifier.
-                STNode equal = parseAssignOp();
+                STNode equal = consume();
                 STNode bindingPattern = parseBindingPattern();
-                return STNodeFactory.createNamedArgBindingPatternNode(argNameOrBindingPattern, equal, bindingPattern);
-            case OPEN_PAREN_TOKEN:
-                STNode errorKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.ERROR_KEYWORD);
-                startContext(ParserRuleContext.ERROR_BINDING_PATTERN);
-                return parseErrorBindingPattern(errorKeyword, argNameOrBindingPattern);
+                return STNodeFactory.createNamedArgBindingPatternNode(argNameOrSimpleBindingPattern, equal, bindingPattern);
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
             default:
-                return createCaptureOrWildcardBP(argNameOrBindingPattern);
+                return createCaptureOrWildcardBP(argNameOrSimpleBindingPattern);
         }
     }
 

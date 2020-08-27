@@ -462,9 +462,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] ERROR_FIELD_BINDING_PATTERN_END =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
-    private static final ParserRuleContext[] ERROR_FIELD_BINDING_PATTERN_START_IDENT =
-            { ParserRuleContext.NAMED_ARG_BINDING_PATTERN, ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER };
-
     private static final ParserRuleContext[] REMOTE_CALL_OR_ASYNC_SEND_RHS =
             { ParserRuleContext.WORKER_NAME_OR_METHOD_NAME, ParserRuleContext.DEFAULT_WORKER_NAME_IN_ASYNC_SEND };
 
@@ -690,7 +687,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_MESSAGE_BINDING_PATTERN_RHS:
             case ERROR_FIELD_BINDING_PATTERN:
             case ERROR_FIELD_BINDING_PATTERN_END:
-            case ERROR_FIELD_BINDING_PATTERN_START_IDENT:
             case REMOTE_CALL_OR_ASYNC_SEND_RHS:
             case REMOTE_CALL_OR_ASYNC_SEND_END:
             case RECEIVE_FIELD_END:
@@ -1330,7 +1326,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_MESSAGE_BINDING_PATTERN_RHS:
             case ERROR_FIELD_BINDING_PATTERN:
             case ERROR_FIELD_BINDING_PATTERN_END:
-            case ERROR_FIELD_BINDING_PATTERN_START_IDENT:
             case FIELD_MATCH_PATTERNS_START:
             case FIELD_MATCH_PATTERN_MEMBER:
             case FIELD_MATCH_PATTERN_MEMBER_RHS:
@@ -1644,9 +1639,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case ERROR_FIELD_BINDING_PATTERN_END:
                 alternativeRules = ERROR_FIELD_BINDING_PATTERN_END;
-                break;
-            case ERROR_FIELD_BINDING_PATTERN_START_IDENT:
-                alternativeRules = ERROR_FIELD_BINDING_PATTERN_START_IDENT;
                 break;
             case KEY_CONSTRAINTS_RHS:
                 alternativeRules = KEY_CONSTRAINTS_RHS;
