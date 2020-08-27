@@ -33,6 +33,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.openapi.utils.GeneratorConstants.USER_DIR;
@@ -117,9 +118,12 @@ public class OpenApiCmd implements BLauncherCmd {
             // else it generates error message to enter correct input file
             String fileName = argList.get(0);
             if(fileName.endsWith(".yaml")) {
-                openApiToBallerina(fileName);
+                List<String> tag = new ArrayList<>(tags);
+                List<String> operation = new ArrayList<>(operations);
+                Filter filter = new Filter(tag, operation);
+
+                openApiToBallerina(fileName, filter);
             } else if ((fileName.endsWith(".bal")) && (service != null)) {
-//                Filter filter = new Filter();
                 ballerinaToOpenApi(fileName);
             } else {
                 throw LauncherUtils.createLauncherException(OpenApiMesseges.MESSAGE_FOR_MISSING_INPUT);
@@ -168,7 +172,7 @@ public class OpenApiCmd implements BLauncherCmd {
      * A util method for generating service and client stub using given contract file.
      * @param fileName input resource file
      */
-    private void openApiToBallerina(String fileName) {
+    private void openApiToBallerina(String fileName, Filter filter) {
         CodeGenerator generator = new CodeGenerator();
         final File openApiFile = new File(fileName);
         String serviceName;
@@ -182,16 +186,16 @@ public class OpenApiCmd implements BLauncherCmd {
         if (mode != null) {
             switch (mode) {
                 case "service":
-                    generateServiceFile(generator, serviceName, resourcePath);
+                    generateServiceFile(generator, serviceName, resourcePath, filter);
                     break;
                 case "client":
-                    generatesClientFile(generator, serviceName, resourcePath);
+                    generatesClientFile(generator, serviceName, resourcePath, filter);
                     break;
                 default:
                     break;
             }
         } else {
-            generateBothFiles(generator, serviceName, resourcePath);
+            generateBothFiles(generator, serviceName, resourcePath, filter);
         }
     }
 
@@ -234,11 +238,11 @@ public class OpenApiCmd implements BLauncherCmd {
      * @param clientName      file name uses to name the generated file
      * @param resourcePath  resource Path
      */
-    private void generatesClientFile(CodeGenerator generator, String clientName, Path resourcePath) {
+    private void generatesClientFile(CodeGenerator generator, String clientName, Path resourcePath, Filter filter) {
 
         try {
             generator.generateClient(executionPath.toString(), resourcePath.toString(), clientName,
-                    targetOutputPath.toString());
+                    targetOutputPath.toString(), filter);
         } catch (IOException | BallerinaOpenApiException e) {
             if (e.getLocalizedMessage() != null) {
                 throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
@@ -254,13 +258,13 @@ public class OpenApiCmd implements BLauncherCmd {
      * @param serviceName   service name uses for naming the generated file
      * @param resourcePath  resource Path
      */
-    private void generateServiceFile(CodeGenerator generator, String serviceName, Path resourcePath) {
+    private void generateServiceFile(CodeGenerator generator, String serviceName, Path resourcePath, Filter filter) {
 
         try {
             assert resourcePath != null;
             Path relativeResourcePath = Paths.get(executionPath.toString(), serviceName);
             generator.generateService(executionPath.toString(), resourcePath.toString(),
-                    relativeResourcePath.toString(), serviceName, targetOutputPath.toString());
+                    relativeResourcePath.toString(), serviceName, targetOutputPath.toString(), filter);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
                     "contract at " + argList.get(0) + ". " + e.getMessage() + ".");
@@ -273,7 +277,7 @@ public class OpenApiCmd implements BLauncherCmd {
      * @param fileName       service name  use for naming the files
      * @param resourcePath      resource path
      */
-    private void generateBothFiles(CodeGenerator generator, String fileName, Path resourcePath) {
+    private void generateBothFiles(CodeGenerator generator, String fileName, Path resourcePath, Filter filter) {
 
         try {
             assert resourcePath != null;
@@ -282,7 +286,7 @@ public class OpenApiCmd implements BLauncherCmd {
                     .getPath());
             generator.generateBothFiles(
                     GeneratorConstants.GenType.GEN_BOTH, relativeResourcePath.toString(),
-                    resourcePath.toString(), fileName, targetOutputPath.toString());
+                    resourcePath.toString(), fileName, targetOutputPath.toString(), filter);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
                     "contract at " + argList.get(0) + ". " + e.getMessage() + ".");

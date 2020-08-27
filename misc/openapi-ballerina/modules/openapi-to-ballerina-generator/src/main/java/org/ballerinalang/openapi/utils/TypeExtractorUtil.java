@@ -27,6 +27,7 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import org.ballerinalang.openapi.cmd.Filter;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiComponent;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiOperation;
@@ -38,6 +39,7 @@ import org.ballerinalang.openapi.typemodel.BallerinaOpenApiType;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -62,11 +64,11 @@ public class TypeExtractorUtil {
      * @return - Ballerina compatible type object
      * @throws BallerinaOpenApiException - throws exception if extraction fails.
      */
-    public static BallerinaOpenApiType extractOpenApiObject(OpenAPI apiDef) throws BallerinaOpenApiException {
+    public static BallerinaOpenApiType extractOpenApiObject(OpenAPI apiDef, Filter filter) throws BallerinaOpenApiException {
         BallerinaOpenApiType typeDef = new BallerinaOpenApiType();
 
         if (apiDef.getPaths() != null) {
-            typeDef.setPathList(extractOpenApiPaths(apiDef.getPaths()));
+            typeDef.setPathList(extractOpenApiPaths(apiDef.getPaths(), filter));
         }
 
         if (apiDef.getComponents() != null) {
@@ -87,7 +89,7 @@ public class TypeExtractorUtil {
      * @return - List of Ballerina compatible path type
      * @throws BallerinaOpenApiException - throws exception if extraction fails.
      */
-    private static List<BallerinaOpenApiPath> extractOpenApiPaths(Paths defPaths) throws BallerinaOpenApiException {
+    private static List<BallerinaOpenApiPath> extractOpenApiPaths(Paths defPaths, Filter filter) throws BallerinaOpenApiException {
         List<BallerinaOpenApiPath> paths = new ArrayList<>();
         final Iterator<Map.Entry<String, PathItem>> pathIterator = defPaths.entrySet().iterator();
 
@@ -98,7 +100,7 @@ public class TypeExtractorUtil {
             BallerinaOpenApiPath typePath = new BallerinaOpenApiPath();
 
             typePath.setPath(pathName);
-            typePath.setOperationsList(extractOpenApiOperations(pathObject.readOperationsMap(), pathName));
+            typePath.setOperationsList(extractOpenApiOperations(pathObject.readOperationsMap(), pathName, filter));
 
             paths.add(typePath);
         }
@@ -115,7 +117,7 @@ public class TypeExtractorUtil {
      * @throws BallerinaOpenApiException - throws exception if extraction fails.
      */
     public static List<BallerinaOpenApiOperation> extractOpenApiOperations(Map<PathItem.HttpMethod,
-            Operation> operationMap, String pathName) throws BallerinaOpenApiException {
+            Operation> operationMap, String pathName, Filter filter) throws BallerinaOpenApiException {
         final Iterator<Map.Entry<PathItem.HttpMethod, Operation>> opIterator = operationMap.entrySet().iterator();
         List<BallerinaOpenApiOperation> typeOpList = new ArrayList<>();
 
@@ -126,26 +128,42 @@ public class TypeExtractorUtil {
             BallerinaOpenApiOperation operation = new BallerinaOpenApiOperation();
 
             operation.setOpMethod(opMethod.toString());
+            List<String> operationTags = opObject.getTags();
+            // tag filter null operation +
+            // operation null  tag +
+            // tag and operation +
+            // tag and operation null
+            if ((filter.getTags() != null) && (filter.getOperations() == null) &&
+                    (hasTags(filter.getTags(), operationTags))) {
 
-            if (opObject.getOperationId() == null) {
-                String resName = "resource_" + nextOp.getKey().toString().toLowerCase(Locale.ENGLISH)
-                        + pathName.replaceAll("/", "_")
-                        .replaceAll("[{}]", "");
-                operation.setOpName(resName);
-                outStream.println("warning : `" + resName + "` is used as the resource name since the " +
-                        "operation id is missing for " + pathName + " " + nextOp.getKey());
+                if (opObject.getOperationId() == null) {
+                    String resName = "resource_" + nextOp.getKey().toString().toLowerCase(Locale.ENGLISH)
+                            + pathName.replaceAll("/", "_")
+                            .replaceAll("[{}]", "");
+                    operation.setOpName(resName);
+                    outStream.println("warning : `" + resName + "` is used as the resource name since the " +
+                            "operation id is missing for " + pathName + " " + nextOp.getKey());
+                } else {
+                    operation.setOpName(escapeIdentifier(
+                            opObject.getOperationId().replace(" ", "_")));
+                }
+
+                if (opObject.getParameters() != null) {
+                    operation.setParameterList(extractOpenApiParameters(opObject.getParameters()));
+                }
+
+                if (opObject.getRequestBody() != null) {
+                    operation.setRequestBody(extractOpenApiRequestBody(opObject.getRequestBody()));
+                }
+
+            } else if ((filter.getTags() == null) && (filter.getOperations() != null)) {
+
+            } else if ((filter.getTags() != null) && (filter.getOperations() != null)) {
+
             } else {
-                operation.setOpName(escapeIdentifier(
-                        opObject.getOperationId().replace(" ", "_")));
+
             }
 
-            if (opObject.getParameters() != null) {
-                operation.setParameterList(extractOpenApiParameters(opObject.getParameters()));
-            }
-
-            if (opObject.getRequestBody() != null) {
-                operation.setRequestBody(extractOpenApiRequestBody(opObject.getRequestBody()));
-            }
 
             typeOpList.add(operation);
         }
@@ -452,5 +470,9 @@ public class TypeExtractorUtil {
             throw new BallerinaOpenApiException("Invalid reference value : " + referenceVariable
                     + "\nBallerina only supports local reference values.");
         }
+    }
+
+    public static boolean hasTags(List<String> tags, List<String> operationTags) {
+        return !Collections.disjoint(tags, operationTags);
     }
 }
