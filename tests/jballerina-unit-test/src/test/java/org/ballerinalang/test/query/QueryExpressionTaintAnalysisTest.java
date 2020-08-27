@@ -56,8 +56,7 @@ public class QueryExpressionTaintAnalysisTest {
                     "query-taint-analysis-negative.bal"));
         } catch (BLangRuntimeException bLangRuntimeException) {
             throw bLangRuntimeException;
-        }
-        finally {
+        } finally {
             SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         }
 
