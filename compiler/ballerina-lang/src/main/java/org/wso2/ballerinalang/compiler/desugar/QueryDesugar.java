@@ -518,30 +518,12 @@ public class QueryDesugar extends BLangNodeVisitor {
                                            BLangVariableReference joinPipeline) {
         BLangExpression lhsExpr = (BLangExpression) joinClause.onClause.getLeftExpression();
         BLangExpression rhsExpr = (BLangExpression) joinClause.onClause.getRightExpression();
-        // create lhs key function lambda
-        // function (_Frame _frame) returns any {
-        //      returns ...;
-        // }
-        BLangReturn lhsReturnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        DiagnosticPos lhsPos = lhsExpr.pos;
-        lhsReturnNode.expr = lhsExpr;
-        lhsReturnNode.pos = lhsPos;
-        BLangLambdaFunction lhsKeyFunction = createLambdaFunction(lhsPos, getAnyTypeNode(), lhsReturnNode, false);
-        lhsKeyFunction.accept(this);
-        // create rhs key function lambda
-        // function (_Frame _frame) returns any {
-        //      returns ...;
-        // }
-        BLangReturn rhsReturnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        DiagnosticPos rhsPos = rhsExpr.pos;
-        rhsReturnNode.expr = rhsExpr;
-        rhsReturnNode.pos = rhsPos;
-        BLangLambdaFunction rhsKeyFunction = createLambdaFunction(rhsPos, getAnyTypeNode(), rhsReturnNode, false);
-        rhsKeyFunction.accept(this);
+        BLangLambdaFunction lhsKeyFunction = createKeyFunction(lhsExpr);
+        BLangLambdaFunction rhsKeyFunction = createKeyFunction(rhsExpr);
         if (joinClause.isOuterJoin) {
             List<BVarSymbol> symbols =
                     getIntroducedSymbols((BLangVariable) joinClause.variableDefinitionNode.getVariable());
-            final BLangSimpleVarRef nilFrame = defineNilFrameForType(symbols, blockStmt, rhsPos);
+            final BLangSimpleVarRef nilFrame = defineNilFrameForType(symbols, blockStmt, rhsExpr.pos);
             return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_OUTER_JOIN_FUNCTION,
                     Lists.of(joinPipeline, lhsKeyFunction, rhsKeyFunction, nilFrame), joinClause.pos);
         } else {
@@ -1046,6 +1028,24 @@ public class QueryDesugar extends BLangNodeVisitor {
             return symbols;
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Creates a lambda key function for a given expression.
+     * function (_Frame _frame) returns any {
+     * returns keyExpr;
+     * }
+     *
+     * @param expr key function expression.
+     * @return created key function lambda.
+     */
+    private BLangLambdaFunction createKeyFunction(BLangExpression expr) {
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.expr = desugar.addConversionExprIfRequired(expr, symTable.anyType);
+        returnNode.pos = expr.pos;
+        BLangLambdaFunction keyFunction = createLambdaFunction(expr.pos, getAnyTypeNode(), returnNode, false);
+        keyFunction.accept(this);
+        return keyFunction;
     }
 
     /**
