@@ -240,9 +240,6 @@ public enum Snippet {
 
     STMT_WHILE(SnippetGenerator.getWhileStatementSnippet()),
 
-    // Expression Snippets
-    EXPR_ERROR(SnippetGenerator.getErrorConstructorSnippet()),
-
     // Iterable Operation snippets
     ITR_FOREACH(SnippetGenerator.getIterableForeachSnippet()),
 
