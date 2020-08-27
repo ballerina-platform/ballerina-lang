@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.scheduling.CallerEnv;
 import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * This class contains a set of utility instance methods required for interoperability testing.

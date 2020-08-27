@@ -187,3 +187,33 @@ function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
+
+public function getCurrentModuleOrgName() returns string = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function getCurrentModuleOrgNameAndConcatArgs(int x, string s) returns string = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+
+public function testCallerEnvParams() {
+    string s1 = getCurrentModuleOrgName();
+    assertEquality(s1, "$anon");
+    string s2 = getCurrentModuleOrgNameAndConcatArgs(5, "abc");
+    assertEquality(s2, "$anon5abc");
+}
+
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.scheduling.CallerEnv;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -174,7 +175,6 @@ public class StaticMethods {
             throws JavaInteropTestCheckedException, UnsupportedOperationException, ClassNotFoundException {
 
     }
-
 
     public static Date acceptNothingReturnSomethingAndThrowsCheckedException() throws JavaInteropTestCheckedException {
         return new Date();
@@ -333,7 +333,6 @@ public class StaticMethods {
     }
     /////////////
 
-
     public static TupleValueImpl mockedNativeFuncWithOptionalParams(long a, double b, String c,
                                                                     long d, String e) {
         TupleValueImpl tuple = (TupleValueImpl) BValueCreator.createTupleValue(tupleType);
@@ -430,5 +429,13 @@ public class StaticMethods {
 
     public static boolean echoImmutableRecordField(MapValue value, BString key) {
         return value.getBooleanValue(key);
+    }
+
+    public static BString getCurrentModuleOrgName(CallerEnv callerEnv) {
+        return new BmpStringValue(callerEnv.getModule().getOrgName());
+    }
+
+    public static BString getCurrentModuleOrgNameAndConcatArgs(CallerEnv callerEnv, int x, BString s) {
+        return new BmpStringValue(callerEnv.getModule().getOrgName() + x + s.getValue());
     }
 }
