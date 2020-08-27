@@ -32,7 +32,7 @@ import java.sql.SQLException;
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
- * This contains methods to test order by clause in query expression.
+ * This contains negative tests for taint checking in query expression.
  *
  * @since Swan Lake
  */
@@ -53,15 +53,15 @@ public class QueryTaintAnalysisNegativeTests {
                 SQLDBUtils.getSQLResourceDir("query", "query-taint-analysis-data.sql"));
     }
 
-    @Test(description = "Test negative scenarios for query expr with join clause")
+    @Test
     public void testNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 6);
         int i = 0;
-        validateError(negativeResult, i++, "tainted value passed to untainted parameter 'sqlQueries'", 33, 66);
-        validateError(negativeResult, i++, "tainted value passed to untainted parameter 'sqlQueries'", 54, 66);
-        validateError(negativeResult, i++, "tainted value passed to untainted parameter 'sqlQueries'", 75, 66);
-        validateError(negativeResult, i++, "tainted value passed to untainted parameter 'sqlQueries'", 96, 66);
-        validateError(negativeResult, i++, "tainted value passed to untainted parameter 'sqlQueries'", 111, 66);
-        validateError(negativeResult, i, "tainted value passed to untainted parameter 'op'", 133, 29);
+        validateError(negativeResult, i++, "tainted value passed to untainted parameter 'sqlQueries'", 21, 67);
+        validateError(negativeResult, i++, "tainted value passed to untainted parameter 'sqlQueries'", 28, 67);
+        validateError(negativeResult, i++, "tainted value passed to untainted parameter 'sqlQueries'", 35, 67);
+        validateError(negativeResult, i++, "tainted value passed to untainted parameter 'sqlQueries'", 42, 67);
+        validateError(negativeResult, i++, "tainted value passed to untainted parameter 'sqlQueries'", 46, 67);
+        validateError(negativeResult, i, "tainted value passed to untainted parameter 'op'", 51, 31);
     }
 }

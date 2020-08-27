@@ -7,132 +7,50 @@ type Person record {|
     int age;
 |};
 
-type Employee record {|
-    int empId;
-    float salary;
-|};
-
-type PartTimeEmployee record {|
-    int partTimeEmpId;
-    string name;
-    float salary;
-    int noOfHours;
-|};
-
-function testQueryExprWithTaintedValues(string url, string user, string password)
-returns sql:ExecutionResult[]|sql:Error? {
+public function main(string url, string user, string password, string nickname1, string nickname2) returns error? {
     Person p1 = {id: 17, name: "Melina", age: 23};
     Person p2 = {id: 29, name: "Tobi", age: 46};
 
     Person[] personList = [p1, p2];
+    string[] nicknameList = [nickname1, nickname2];
 
     jdbc:Client dbClient = check new (url = url, user = user, password = password);
-    sql:ParameterizedQuery[] sqlQuery = from var person in <@tainted>personList
-                                        select `INSERT INTO Person VALUES (${person.id}, ${person.name},
-                                        ${person.age})`;
-    sql:ExecutionResult[]? result = check dbClient->batchExecute(sqlQuery);
-    return result;
+
+    sql:ParameterizedQuery[] sqlQuery1 = from var nickname in nicknameList
+                                         select `INSERT INTO Nickname VALUES (nickname)`;
+    sql:ExecutionResult[]? result1 = check dbClient->batchExecute(sqlQuery1);
+
+    sql:ParameterizedQuery[] sqlQuery2 = from var person in personList
+                                         from var nickname in nicknameList
+                                         where person.name == nickname
+                                         select `INSERT INTO Person VALUES (${person.id}, ${nickname},
+                                         ${person.age})`;
+    sql:ExecutionResult[]? result2 = check dbClient->batchExecute(sqlQuery2);
+
+    sql:ParameterizedQuery[] sqlQuery3 = from var person in personList
+                                         join var nickname in nicknameList
+                                         on person.name equals nickname
+                                         select `INSERT INTO Person VALUES (${person.id}, ${nickname},
+                                         ${person.age})`;
+    sql:ExecutionResult[]? result3 = check dbClient->batchExecute(sqlQuery3);
+
+    sql:ParameterizedQuery[] sqlQuery4 = from var person in personList
+                                         outer join var nickname in nicknameList
+                                         on person.name equals nickname
+                                         select `INSERT INTO Person VALUES (${person.id}, ${nickname},
+                                         ${person.age})`;
+    sql:ExecutionResult[]? result4 = check dbClient->batchExecute(sqlQuery4);
+
+    sql:ParameterizedQuery[] sqlQuery5 = from var nickname in (from var nm in nicknameList select nm)
+                                         select `INSERT INTO Nickname VALUES (nickname)`;
+    sql:ExecutionResult[]? result5 = check dbClient->batchExecute(sqlQuery5);
+
+    string[] opList = from var nickname in nicknameList
+                      select nickname;
+
+    var nm = getFirstNickname(opList);
 }
 
-function testQueryExprWithMultipleFromHavingTaintedValues(string url, string user, string password)
-returns sql:ExecutionResult[]|sql:Error? {
-    Person p1 = {id: 17, name: "Melina", age: 23};
-    Person p2 = {id: 29, name: "Tobi", age: 46};
-
-    Employee e1 = {empId: 17, salary: 4000.50};
-    Employee e2 = {empId: 29, salary: 5600.50};
-
-    Person[] personList = [p1, p2];
-    Employee[] employeeList = [e1, e2];
-
-    jdbc:Client dbClient = check new (url = url, user = user, password = password);
-    sql:ParameterizedQuery[] sqlQuery = from var person in personList
-                                        from var emp in <@tainted>employeeList
-                                        where person.id == emp.empId
-                                        select `INSERT INTO PartTimeEmployee VALUES (${person.id}, ${person.name},
-                                        ${emp.salary}, 8)`;
-    sql:ExecutionResult[]? result = check dbClient->batchExecute(sqlQuery);
-    return result;
-}
-
-function testQueryExprWithInnerJoinHavingTaintedValues(string url, string user, string password)
-returns sql:ExecutionResult[]|sql:Error? {
-    Person p1 = {id: 17, name: "Melina", age: 23};
-    Person p2 = {id: 29, name: "Tobi", age: 46};
-
-    Employee e1 = {empId: 17, salary: 4000.50};
-    Employee e2 = {empId: 29, salary: 5600.50};
-
-    Person[] personList = [p1, p2];
-    Employee[] employeeList = [e1, e2];
-
-    jdbc:Client dbClient = check new (url = url, user = user, password = password);
-    sql:ParameterizedQuery[] sqlQuery = from var person in personList
-                                        join var emp in <@tainted>employeeList
-                                        on person.id equals emp.empId
-                                        select `INSERT INTO PartTimeEmployee VALUES (${person.id}, ${person.name},
-                                        ${emp.salary}, 8)`;
-    sql:ExecutionResult[]? result = check dbClient->batchExecute(sqlQuery);
-    return result;
-}
-
-function testQueryExprWithOuterJoinHavingTaintedValues(string url, string user, string password)
-returns sql:ExecutionResult[]|sql:Error? {
-    Person p1 = {id: 17, name: "Melina", age: 23};
-    Person p2 = {id: 29, name: "Tobi", age: 46};
-
-    Employee e1 = {empId: 17, salary: 4000.50};
-    Employee e2 = {empId: 30, salary: 5600.50};
-
-    Person[] personList = [p1, p2];
-    Employee[] employeeList = [e1, e2];
-
-    jdbc:Client dbClient = check new (url = url, user = user, password = password);
-    sql:ParameterizedQuery[] sqlQuery = from var person in personList
-                                        outer join var emp in <@tainted>employeeList
-                                        on person.id equals emp.empId
-                                        select `INSERT INTO PartTimeEmployee VALUES (${person.id}, ${person.name},
-                                        ${emp.salary}, 8)`;
-    sql:ExecutionResult[]? result = check dbClient->batchExecute(sqlQuery);
-    return result;
-}
-
-function testQueryExprWithInnerQueryHavingTaintedValues(string url, string user, string password)
-returns sql:ExecutionResult[]|sql:Error? {
-    Person p1 = {id: 17, name: "Melina", age: 23};
-    Person p2 = {id: 29, name: "Tobi", age: 46};
-
-    Person[] personList = [p1, p2];
-
-    jdbc:Client dbClient = check new (url = url, user = user, password = password);
-    sql:ParameterizedQuery[] sqlQuery = from var person in (from var ps in <@tainted>personList select ps)
-                                        select `INSERT INTO Person VALUES (${person.id}, ${person.name},
-                                        ${person.age})`;
-    sql:ExecutionResult[]? result = check dbClient->batchExecute(sqlQuery);
-    return result;
-}
-
-function testSimpleQueryExprWithTaintedValues() returns PartTimeEmployee {
-    Person p1 = {id: 17, name: "Melina", age: 23};
-    Person p2 = {id: 29, name: "Tobi", age: 46};
-
-    Employee e1 = {empId: 17, salary: 4000.50};
-    Employee e2 = {empId: 30, salary: 5600.50};
-
-    Person[] personList = [p1, p2];
-    Employee[] employeeList = [e1, e2];
-
-    PartTimeEmployee[] op = from var person in personList
-                            from var emp in <@tainted>employeeList
-                            select {
-                                partTimeEmpId: person.id,
-                                name: person.name,
-                                salary: emp.salary,
-                                noOfHours: 12
-                            };
-    return getFirstEmployee(op);
-}
-
-function getFirstEmployee(@untainted PartTimeEmployee[] op) returns PartTimeEmployee {
+function getFirstNickname(@untainted string[] op) returns string {
     return op[0];
 }
