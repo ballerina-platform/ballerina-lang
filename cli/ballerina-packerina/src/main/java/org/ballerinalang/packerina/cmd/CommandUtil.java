@@ -175,20 +175,12 @@ public class CommandUtil {
         //      - resources/
         // - .gitignore       <- git ignore file
 
-        if (getTemplates().contains(template)) {
-            applyTemplate(path, template);
-        } else {
-            errStream.println("template not found");
-            return;
-        }
-
+        applyTemplate(path, template);
         Path manifest = path.resolve(ProjectConstants.BALLERINA_TOML);
-        Path packageMD = path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
         Path gitignore = path.resolve(".gitignore");
 
         String defaultManifest = FileUtils.readFileAsString("new_cmd_defaults" + File.separator +
                 "manifest.toml");
-        String defaultPackageMD = FileUtils.readFileAsString("new_cmd_defaults" + File.separator + "Package.md");
         String defaultGitignore = FileUtils.readFileAsString("new_cmd_defaults" + File.separator + "gitignore");
 
         // replace manifest org and name with a guessed value.
@@ -196,7 +188,6 @@ public class CommandUtil {
                 replaceAll("PKG_NAME", ProjectUtils.guessPkgName(path.getFileName().toString()));
 
         Files.write(manifest, defaultManifest.getBytes("UTF-8"));
-        Files.write(packageMD, defaultPackageMD.getBytes("UTF-8"));
         Files.write(gitignore, defaultGitignore.getBytes("UTF-8"));
     }
 
@@ -244,7 +235,7 @@ public class CommandUtil {
         Path templateDir = getTemplatePath().resolve(template);
 
         try {
-            Files.walkFileTree(templateDir, new AddCommand.Copy(templateDir, modulePath));
+            Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
         } catch (IOException e) {
             throw new IOException(e.getMessage());
         }

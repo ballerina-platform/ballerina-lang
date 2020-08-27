@@ -18,7 +18,6 @@
 
 package org.ballerinalang.packerina.cmd;
 
-
 import com.moandjiezana.toml.Toml;
 import org.ballerinalang.toml.model.Module;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -82,7 +81,7 @@ public class AddCommand implements BLauncherCmd {
         userDir = Paths.get(System.getProperty("user.dir"));
         errStream = System.err;
         homeCache = RepoUtils.createAndGetHomeReposPath();
-        initJarFs();
+        CommandUtil.initJarFs();
     }
 
     public AddCommand(Path userDir, PrintStream errStream) {
@@ -92,24 +91,8 @@ public class AddCommand implements BLauncherCmd {
     public AddCommand(Path userDir, PrintStream errStream, Path homeCache) {
         this.userDir = userDir;
         this.errStream = errStream;
-        initJarFs();
+        CommandUtil.initJarFs();
         this.homeCache = homeCache;
-    }
-
-    private void initJarFs() {
-        URI uri = null;
-        try {
-            uri = AddCommand.class.getClassLoader().getResource("create_cmd_templates").toURI();
-            if (uri.toString().contains("!")) {
-                final String[] array = uri.toString().split("!");
-                if (null == jarFs) {
-                    env = new HashMap<>();
-                    jarFs = FileSystems.newFileSystem(URI.create(array[0]), env);
-                }
-            }
-        } catch (URISyntaxException | IOException e) {
-            throw new AssertionError();
-        }
     }
 
     @Override

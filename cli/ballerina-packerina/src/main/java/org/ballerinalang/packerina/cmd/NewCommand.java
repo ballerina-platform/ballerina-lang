@@ -131,6 +131,15 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
+        // Check if the template exists
+        if (!CommandUtil.getTemplates().contains(template)) {
+            CommandUtil.printError(errStream,
+                    "Template not found, use `ballerina new --list` to view available templates.",
+                    null,
+                    false);
+            return;
+        }
+
         try {
             // add argument (package)
             Files.createDirectories(path);

@@ -1,13 +1,12 @@
 NAME
-       ballerina-new - Create a new Ballerina project at <project-path>
+       ballerina-init - Create a new Ballerina project in current directory
 
 SYNOPSIS
-       ballerina new <project-path>
+       ballerina init <project-path>
 
 
 DESCRIPTION
-       New creates a new directory and initializes a Ballerina project inside
-       that directory.
+       Init initializes a Ballerina project inside the current directory.
 
        A project is a set of logically related Ballerina modules that share
        the same 'Ballerina.toml', 'Ballerina.lock' files and the 'target'
@@ -29,7 +28,7 @@ DESCRIPTION
        'Ballerina.toml' file. It contains the organization name and the
        version. It also enables dependency management across the project.
 
-       The 'src' directory contains Ballerina modules. Use
+       The 'Modules' directory contains Ballerina modules. Use
        'ballerina add <module-name>' command to create modules.
 
        Both 'target' directory and 'Ballerina.lock' file are created during

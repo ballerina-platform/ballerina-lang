@@ -51,22 +51,60 @@ public class NewCommandTest extends CommandTest {
         //      - resources/
         // - .gitignore       <- git ignore file
 
-        Path projectPath = tmpDir.resolve("project_name");
-        Assert.assertTrue(Files.exists(projectPath));
-        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
-        Path testPath = projectPath.resolve("tests");
+        Path packageDir = tmpDir.resolve("project_name");
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve("Ballerina.toml")));
+        Path testPath = packageDir.resolve("tests");
         Assert.assertTrue(Files.exists(testPath));
         Assert.assertTrue(Files.isDirectory(testPath));
         Assert.assertTrue(Files.exists(testPath.resolve("resources")));
         Assert.assertTrue(Files.isDirectory(testPath.resolve("resources")));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".gitignore")));
-        Path resourcePath = projectPath.resolve("resources");
+        Assert.assertTrue(Files.exists(packageDir.resolve(".gitignore")));
+        Path resourcePath = packageDir.resolve("resources");
         Assert.assertTrue(Files.exists(resourcePath));
         Assert.assertTrue(Files.isDirectory(resourcePath));
-        Assert.assertTrue(Files.exists(projectPath.resolve("Module.md")));
-        Assert.assertTrue(Files.exists(projectPath.resolve("Package.md")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("Module.md")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("Package.md")));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
+    }
+
+    @Test(description = "Test new command with service template")
+    public void testAddCommandWithService() throws IOException {
+        // Test if no arguments was passed in
+        String[] args = {"servicemodule", "-t", "service"};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        Path packageDir = tmpDir.resolve("servicemodule");
+
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.isDirectory(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("Module.md")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("Package.md")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("hello_service.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("resources")));
+        Assert.assertTrue(Files.isDirectory(packageDir.resolve("resources")));
+
+        Path moduleTests = packageDir.resolve("tests");
+        Assert.assertTrue(Files.exists(moduleTests));
+        Assert.assertTrue(Files.isDirectory(moduleTests));
+        Assert.assertTrue(Files.exists(moduleTests.resolve("hello_service_test.bal")));
+        Assert.assertTrue(Files.exists(moduleTests.resolve("resources")));
+        Assert.assertTrue(Files.isDirectory(moduleTests.resolve("resources")));
+
+        Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
+    }
+
+    @Test(description = "Test new command with invalid template")
+    public void testAddCommandWithInvalidTemplate() throws IOException {
+        // Test if no arguments was passed in
+        String[] args = {"servicemodule", "-t", "invalid"};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        Assert.assertTrue(readOutput().contains("Template not found"));
     }
 
     @Test(description = "Test new command without arguments")
@@ -154,13 +192,13 @@ public class NewCommandTest extends CommandTest {
         Assert.assertTrue(Files.isDirectory(tmpDir.resolve("parent")));
 
         String[] args2 = {"subdir"};
-        newCommand = new NewCommand(tmpDir.resolve("parent").resolve("src"), printStream);
+        newCommand = new NewCommand(tmpDir.resolve("parent").resolve("sub_dir"), printStream);
         new CommandLine(newCommand).parse(args2);
         newCommand.execute();
 
         Assert.assertFalse(readOutput().contains("Created new ballerina project at subdir"),
                 "Project created in sub directory");
-        Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("src").resolve("subdir")));
+        Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_di").resolve("subdir")));
     }
     // Test if a path given to new command
 }

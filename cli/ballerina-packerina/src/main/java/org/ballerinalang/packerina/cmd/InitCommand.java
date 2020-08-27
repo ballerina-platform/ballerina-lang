@@ -52,7 +52,8 @@ public class InitCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--list", "-l"})
     private boolean list = false;
 
-    @CommandLine.Option(names = {"--template", "-t"})
+    @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
+            "default: main")
     private String template = "main";
 
     public InitCommand() {
@@ -102,17 +103,6 @@ public class InitCommand implements BLauncherCmd {
                         true);
                 return;
             }
-
-            String packageName = argList.get(0);
-            Path path = userDir.resolve(packageName);
-            // Check if the directory or file exists with the given project name
-            if (Files.exists(path)) {
-                CommandUtil.printError(errStream,
-                        "destination '" + path.toString() + "' already exists",
-                        "ballerina init <project-name>",
-                        true);
-                return;
-            }
         }
 
         // Check if there is a ballerina project in sub level.
@@ -127,9 +117,19 @@ public class InitCommand implements BLauncherCmd {
             return;
         }
 
-        if (!ProjectUtils.validatePkgName(this.userDir.getFileName().toString())) {
+        // Check if the template exists
+        if (!CommandUtil.getTemplates().contains(template)) {
+            CommandUtil.printError(errStream,
+                    "Template not found, use `ballerina init --list` to view available templates.",
+                    null,
+                    false);
+            return;
+        }
+
+        String packageName = this.userDir.getFileName().toString();
+        if (!ProjectUtils.validatePkgName(packageName)) {
             errStream.println("warning: invalid package name. Modified package name : " +
-                    ProjectUtils.guessPkgName(this.userDir.getFileName().toString()));
+                    ProjectUtils.guessPkgName(packageName));
         }
 
         try {
@@ -170,5 +170,4 @@ public class InitCommand implements BLauncherCmd {
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
     }
-
 }
