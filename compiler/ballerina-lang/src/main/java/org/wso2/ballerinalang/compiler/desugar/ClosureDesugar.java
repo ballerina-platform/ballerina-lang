@@ -701,9 +701,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody = rewrite(transactionNode.transactionBody, env);
-        if (transactionNode.onFailClause != null) {
-            transactionNode.onFailClause = rewrite(transactionNode.onFailClause, env);
-        }
         result = transactionNode;
     }
 

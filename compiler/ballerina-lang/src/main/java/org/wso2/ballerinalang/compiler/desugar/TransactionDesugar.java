@@ -220,6 +220,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangLambdaFunction trxMainFunc = desugar.createLambdaFunction(transactionNode.pos, "$trxFunc$",
                 Lists.of(trxMainFuncParamPrevAttempt), transactionReturnType, transactionNode.transactionBody.stmts,
                 env, transactionNode.transactionBody.scope);
+        ((BLangBlockFunctionBody)trxMainFunc.function.body).isBreakable = transactionNode.onFailClause != null;
 
         // transactionId = startTransaction(1, prevAttempt)
         BLangInvocation startTransactionInvocation = createStartTransactionInvocation(pos, transactionBlockIDLiteral,

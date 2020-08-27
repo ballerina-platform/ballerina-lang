@@ -507,6 +507,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        this.errorTypes.push(new LinkedHashSet<>());
+        boolean statementReturns = this.statementReturns;
         boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction statement occurred in a transactional scope
@@ -532,17 +534,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!this.withinTransactionBlock) {
             this.withinTransactionBlock = true;
         }
+        this.failureHandled = transactionNode.onFailClause != null;
 
         this.loopWithinTransactionCheckStack.push(false);
         this.returnWithinTransactionCheckStack.push(false);
         this.doneWithinTransactionCheckStack.push(false);
         this.returnWithinLambdaWrappingCheckStack.push(false);
         this.transactionCount++;
+
+        analyzeNode(transactionNode.transactionBody, env);
+        this.statementReturns = statementReturns;
+        this.failureHandled = failureHandled;
+        this.resetLastStatement();
         if (transactionNode.onFailClause != null) {
             transactionNode.transactionBody.isBreakable = true;
             analyzeNode(transactionNode.onFailClause, env);
         }
-        analyzeNode(transactionNode.transactionBody, env);
         if (commitCount < 1) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.INVALID_COMMIT_COUNT);
         }
@@ -562,12 +569,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.innerTransactionBlock = null;
         }
 
-        this.resetLastStatement();
-
         this.returnWithinTransactionCheckStack.pop();
         this.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
-        this.failureHandled = failureHandled;
+        this.errorTypes.pop();
     }
 
     @Override

@@ -37,6 +37,7 @@ public class BLangBlockFunctionBody extends BLangFunctionBody implements BlockFu
 
     public List<BLangStatement> stmts;
     public BVarSymbol mapSymbol;
+    public boolean isBreakable;
 
     public BLangBlockFunctionBody() {
         this.stmts = new ArrayList<>();

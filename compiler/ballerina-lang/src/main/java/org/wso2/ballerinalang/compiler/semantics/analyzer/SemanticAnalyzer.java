@@ -2516,11 +2516,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, env);
-        analyzeStmt(transactionNode.transactionBody, transactionEnv);
 
         if (transactionNode.onFailClause != null) {
             this.analyzeNode(transactionNode.onFailClause, env);
         }
+        analyzeStmt(transactionNode.transactionBody, transactionEnv);
     }
 
     @Override
