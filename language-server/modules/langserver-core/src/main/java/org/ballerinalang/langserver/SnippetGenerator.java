@@ -402,16 +402,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Lengthof Keyword Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getLengthofKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.LENGTHOF, "lengthof ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
-    }
-
-    /**
      * Get Lock Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -563,6 +553,18 @@ public class SnippetGenerator {
                 + CommonUtil.LINE_SEPARATOR + "};";
 
         return new SnippetBlock(ItemResolverConstants.RECORD_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Error Type Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getErrorTypeDefinitionSnippet() {
+        String snippet = "type ${1:ErrorName} error<${2:map<anydata>}>;";
+
+        return new SnippetBlock(ItemResolverConstants.ERROR_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }
 
@@ -955,6 +957,17 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Error Constructor expression Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getErrorConstructorSnippet() {
+        String snippet = "error(\"${1}\")";
+        return new SnippetBlock("error constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
+                SnippetType.SNIPPET);
+    }
+
+    /**
      * Get Panic Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1091,17 +1104,6 @@ public class SnippetGenerator {
         String snippet = "worker ${1:name} {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}";
 
         return new SnippetBlock(ItemResolverConstants.WORKER, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
-    }
-
-    /**
-     * Get Error Definition Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getErrorDefinitionSnippet() {
-        String snippet = "error ${1:name} = error(\"${2:errorCode}\", message = \"${3}\");";
-        return new SnippetBlock(ItemResolverConstants.ERROR, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }
 

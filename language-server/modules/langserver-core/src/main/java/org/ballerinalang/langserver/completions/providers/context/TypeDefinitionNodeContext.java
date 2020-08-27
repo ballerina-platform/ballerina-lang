@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -50,6 +50,7 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         // Add the type names
         List<LSCompletionItem> typeItems = this.getTypeItems(context);
         // Add the special snippets
+        typeItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR_TYPE_DESC.get()));
         typeItems.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()));
         typeItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()));
         typeItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
