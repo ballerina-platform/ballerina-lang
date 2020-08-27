@@ -16,11 +16,11 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;

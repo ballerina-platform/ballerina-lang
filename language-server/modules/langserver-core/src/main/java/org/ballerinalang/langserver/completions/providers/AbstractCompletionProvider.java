@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.langserver.completions.providers;
 
+import io.ballerina.tools.text.LinePosition;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -592,8 +592,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ERROR.get()));
-
-        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR.get()));
 
         List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
                 .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol

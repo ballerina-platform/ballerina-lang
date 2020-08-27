@@ -17,6 +17,10 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
+import io.ballerina.tools.text.TextLine;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.InvalidTokenMinutiaeNode;
@@ -27,10 +31,6 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocuments;
-import io.ballerinalang.compiler.text.TextLine;
-import io.ballerinalang.compiler.text.TextRange;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

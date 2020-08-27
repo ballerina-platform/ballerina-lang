@@ -20,8 +20,10 @@ import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeVisitor;
@@ -35,7 +37,9 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.FieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
 
 import java.util.ArrayList;
@@ -114,12 +118,9 @@ public class EvaluatorBuilder extends NodeVisitor {
     private EvaluationException builderException = null;
 
     public EvaluatorBuilder(SuspendedContext context) {
-
         this.context = context;
-
         // braced expression
         supportedSyntax.add(SyntaxKind.BRACED_EXPRESSION);
-
         // binary expression
         supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
         supportedSyntax.add(SyntaxKind.LT_TOKEN);
@@ -130,20 +131,23 @@ public class EvaluatorBuilder extends NodeVisitor {
         supportedSyntax.add(SyntaxKind.MINUS_TOKEN);
         supportedSyntax.add(SyntaxKind.ASTERISK_TOKEN);
         supportedSyntax.add(SyntaxKind.SLASH_TOKEN);
-
         // function invocation expression
         supportedSyntax.add(SyntaxKind.FUNCTION_CALL);
         supportedSyntax.add(SyntaxKind.POSITIONAL_ARG);
-
+        // method call expression
+        supportedSyntax.add(SyntaxKind.METHOD_CALL);
+        // field access expression
+        supportedSyntax.add(SyntaxKind.FIELD_ACCESS);
         // name reference
         // Todo - add rest
         supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
-
         // basic literal
-        supportedSyntax.add(SyntaxKind.STRING_LITERAL);
         supportedSyntax.add(SyntaxKind.NUMERIC_LITERAL);
-        supportedSyntax.add(SyntaxKind.BOOLEAN_LITERAL);
-
+        supportedSyntax.add(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN);
+        supportedSyntax.add(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
+        supportedSyntax.add(SyntaxKind.TRUE_KEYWORD);
+        supportedSyntax.add(SyntaxKind.FALSE_KEYWORD);
+        supportedSyntax.add(SyntaxKind.STRING_LITERAL);
         // misc
         supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
         supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
@@ -177,21 +181,23 @@ public class EvaluatorBuilder extends NodeVisitor {
 
     @Override
     public void visit(BracedExpressionNode bracedExpressionNode) {
+        visitSyntaxNode(bracedExpressionNode);
         bracedExpressionNode.expression().accept(this);
     }
 
     @Override
     public void visit(BinaryExpressionNode binaryExpressionNode) {
+        visitSyntaxNode(binaryExpressionNode);
         binaryExpressionNode.lhsExpr().accept(this);
         Evaluator lhsEvaluator = result;
         binaryExpressionNode.rhsExpr().accept(this);
         Evaluator rhsEvaluator = result;
         result = new BinaryExpressionEvaluator(context, binaryExpressionNode, lhsEvaluator, rhsEvaluator);
-        visitSyntaxNode(binaryExpressionNode);
     }
 
     @Override
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
+        visitSyntaxNode(functionCallExpressionNode);
         // Evaluates arguments.
         List<Evaluator> argEvaluators = new ArrayList<>();
         SeparatedNodeList<FunctionArgumentNode> args = functionCallExpressionNode.arguments();
@@ -207,38 +213,76 @@ public class EvaluatorBuilder extends NodeVisitor {
                         .getString(), argExprNode.toString()));
                 return;
             }
-            // Todo - should we disable GC like intellij does?
+            // Todo - should we disable GC like intellij expression evaluator does?
             argEvaluators.add(result);
         }
         result = new FunctionInvocationExpressionEvaluator(context, functionCallExpressionNode, argEvaluators);
-        visitSyntaxNode(functionCallExpressionNode);
+    }
+
+    @Override
+    public void visit(MethodCallExpressionNode methodCallExpressionNode) {
+        visitSyntaxNode(methodCallExpressionNode);
+        // visits object expression.
+        methodCallExpressionNode.expression().accept(this);
+        Evaluator expression = result;
+        // visits object method arguments.
+        List<Evaluator> argEvaluators = new ArrayList<>();
+        SeparatedNodeList<FunctionArgumentNode> args = methodCallExpressionNode.arguments();
+        // Removes argument separator nodes from the args list.
+        for (int index = args.size() - 2; index > 0; index -= 2) {
+            args.remove(index);
+        }
+        for (int idx = 0; idx < args.size(); idx++) {
+            final FunctionArgumentNode argExprNode = args.get(idx);
+            argExprNode.accept(this);
+            if (result == null) {
+                builderException = new EvaluationException(String.format(EvaluationExceptionKind.INVALID_ARGUMENT
+                        .getString(), argExprNode.toString()));
+                return;
+            }
+            // Todo - should we disable GC like intellij expression evaluator does?
+            argEvaluators.add(result);
+        }
+        result = new MethodCallExpressionEvaluator(context, expression, methodCallExpressionNode, argEvaluators);
+    }
+
+    @Override
+    public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
+        visitSyntaxNode(fieldAccessExpressionNode);
+        // visits object expression.
+        fieldAccessExpressionNode.expression().accept(this);
+        Evaluator expression = result;
+        result = new FieldAccessExpressionEvaluator(context, expression, fieldAccessExpressionNode);
     }
 
     @Override
     public void visit(PositionalArgumentNode positionalArgumentNode) {
+        visitSyntaxNode(positionalArgumentNode);
         positionalArgumentNode.expression().accept(this);
     }
 
     @Override
     public void visit(NamedArgumentNode namedArgumentNode) {
+        visitSyntaxNode(namedArgumentNode);
         namedArgumentNode.expression().accept(this);
     }
 
     @Override
     public void visit(RestArgumentNode restArgumentNode) {
+        visitSyntaxNode(restArgumentNode);
         restArgumentNode.expression().accept(this);
     }
 
     @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
-        result = new SimpleNameReferenceEvaluator(context, simpleNameReferenceNode);
         visitSyntaxNode(simpleNameReferenceNode);
+        result = new SimpleNameReferenceEvaluator(context, simpleNameReferenceNode);
     }
 
     @Override
     public void visit(BasicLiteralNode basicLiteralNode) {
-        result = new BasicLiteralEvaluator(context, basicLiteralNode);
         visitSyntaxNode(basicLiteralNode);
+        result = new BasicLiteralEvaluator(context, basicLiteralNode);
     }
 
     @Override

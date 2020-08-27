@@ -1105,17 +1105,6 @@ public class SnippetGenerator {
                                 SnippetType.SNIPPET);
     }
 
-    /**
-     * Get Error Constructor Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getErrorConstructorSnippet() {
-        String snippet = "error(\"${1:errorCode}\", message = \"${2}\");";
-        return new SnippetBlock(ItemResolverConstants.ERROR, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                SnippetType.SNIPPET);
-    }
-
     // Iterable Operations Snippets
 
     /**
