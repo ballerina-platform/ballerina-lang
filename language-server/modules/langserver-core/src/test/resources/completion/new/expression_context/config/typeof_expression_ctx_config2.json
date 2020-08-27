@@ -1129,6 +1129,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "error constructor",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "error(\"${1}\")",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testVar",
       "kind": "Variable",
       "detail": "other",

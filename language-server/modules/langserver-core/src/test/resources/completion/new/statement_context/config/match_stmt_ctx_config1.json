@@ -1192,6 +1192,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "error constructor",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "error(\"${1}\")",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "bar((string|int|boolean) i)((string|int|boolean))",
       "kind": "Function",
       "detail": "Function",
