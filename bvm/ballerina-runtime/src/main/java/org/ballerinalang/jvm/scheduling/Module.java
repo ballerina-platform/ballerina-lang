@@ -18,42 +18,57 @@
 package org.ballerinalang.jvm.scheduling;
 
 /**
- * Holds function caller environment data.
+ * This contains the module info at runtime.
  *
  * @since 2.0.0
  */
-public class CallerEnv {
+public class Module {
 
     /**
-     * Module of the method call.
+     * Organization name of module.
      */
-    private final Module module;
+    private final String orgName;
 
     /**
-     * Position of the method call.
+     * Name of module.
      */
-    private final DiagnosticPos diagnosticPos;
+    private final String name;
 
-    public CallerEnv(Module module, DiagnosticPos diagnosticPos) {
-        this.module = module;
-        this.diagnosticPos = diagnosticPos;
+    /**
+     * Version of module.
+     */
+    private final String version;
+
+    public Module(String OrgName, String name, String version) {
+        this.orgName = OrgName;
+        this.name = name;
+        this.version = version;
     }
 
     /**
-     * Gets the module that function call was initiated.
+     * Gets the module org name.
      *
-     * @return Function call module.
+     * @return Module org name.
      */
-    public Module getModule() {
-        return module;
+    public String getOrgName() {
+        return orgName;
     }
 
     /**
-     * Gets the position that function call was initiated.
+     * Gets the module name.
      *
-     * @return Function call position info.
+     * @return Module name.
      */
-    public DiagnosticPos getDiagnosticPos() {
-        return diagnosticPos;
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Gets the module version.
+     *
+     * @return Module version.
+     */
+    public String getVersion() {
+        return version;
     }
 }

@@ -102,7 +102,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALLER_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DIAGNOSTIC_POS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
@@ -125,6 +127,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
@@ -490,9 +493,7 @@ public class JvmTerminatorGen {
         this.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
 
         this.mv.visitLabel(blockedOnExternLabel);
-        if (hasCallerEnvParam) {
-            this.mv.visitVarInsn(ALOAD, localVarOffset + 1);
-        }
+
         boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
 
         int argIndex = 0;
@@ -523,6 +524,10 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(ATHROW);
             this.mv.visitLabel(elseBlockLabel);
             argIndex += 1;
+        }
+
+        if (hasCallerEnvParam) {
+            this.mv.visitVarInsn(ALOAD, localVarOffset + 1);
         }
 
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
@@ -759,16 +764,24 @@ public class JvmTerminatorGen {
 
         mv.visitTypeInsn(NEW, CALLER_ENV);
         mv.visitInsn(DUP);
+        mv.visitTypeInsn(NEW, MODULE);
+        mv.visitInsn(DUP);
         mv.visitLdcInsn(callIns.pos.src.pkgID.orgName.value);
         mv.visitLdcInsn(callIns.pos.src.pkgID.name.value);
         mv.visitLdcInsn(callIns.pos.src.pkgID.version.value);
+        mv.visitMethodInsn(INVOKESPECIAL, MODULE, CONSTRUCTOR_INIT_METHOD,
+                           String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+        mv.visitTypeInsn(NEW, DIAGNOSTIC_POS);
+        mv.visitInsn(DUP);
         mv.visitLdcInsn(callIns.pos.src.cUnitName);
         mv.visitLdcInsn(callIns.pos.sLine);
         mv.visitLdcInsn(callIns.pos.eLine);
         mv.visitLdcInsn(callIns.pos.sCol);
         mv.visitLdcInsn(callIns.pos.eCol);
-        mv.visitMethodInsn(INVOKESPECIAL, CALLER_ENV, "<init>", String.format("(L%s;L%s;L%s;L%s;IIII)V", STRING_VALUE
-                , STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, DIAGNOSTIC_POS, CONSTRUCTOR_INIT_METHOD,
+                           String.format("(L%s;IIII)V", STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, CALLER_ENV, CONSTRUCTOR_INIT_METHOD,
+                           String.format("(L%s;L%s;)V", MODULE, DIAGNOSTIC_POS), false);
     }
 
     private void genVirtualCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset) {
