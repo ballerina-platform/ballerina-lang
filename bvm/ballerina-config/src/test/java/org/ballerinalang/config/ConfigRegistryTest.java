@@ -16,9 +16,8 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.config;
+package org.ballerinalang.config;
 
-import org.ballerinalang.config.ConfigRegistry;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;

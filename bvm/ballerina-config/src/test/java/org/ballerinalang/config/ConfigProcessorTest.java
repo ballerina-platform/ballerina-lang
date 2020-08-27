@@ -16,10 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.config;
+package org.ballerinalang.config;
 
 import org.ballerinalang.bcl.parser.BConfig;
-import org.ballerinalang.config.ConfigProcessor;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
