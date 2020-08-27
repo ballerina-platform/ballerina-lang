@@ -435,6 +435,7 @@ public class FormattingTreeModifier extends TreeModifier {
         boolean addSpaces = true;
         if (builtinSimpleNameReferenceNode.parent() != null &&
                 (builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.FUNCTION_CALL) ||
+                builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.TYPE_TEST_EXPRESSION) ||
                 builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.TYPE_CAST_PARAM) ||
                 builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC) ||
                 (builtinSimpleNameReferenceNode.parent().parent() != null &&
