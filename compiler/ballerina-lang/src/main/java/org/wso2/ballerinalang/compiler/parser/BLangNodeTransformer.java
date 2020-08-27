@@ -3112,7 +3112,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangLiteral literal;
         BLangLiteral deepLiteral;
-        if (member.constExprNode() != null) {
+        if (member.constExprNode().isPresent()) {
             literal = createSimpleLiteral(member.constExprNode().orElse(null));
             deepLiteral = createSimpleLiteral(member.constExprNode().orElse(null));
         } else {
