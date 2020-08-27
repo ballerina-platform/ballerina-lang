@@ -20,8 +20,10 @@ package org.ballerinalang.test.query;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,20 +39,35 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  * @since Swan Lake
  */
 @Test(groups = {"disableOnOldParser"})
-public class QueryTaintAnalysisNegativeTests {
+public class QueryExpressionTaintAnalysisTest {
+    private CompileResult result;
     private CompileResult negativeResult;
     private static final String DB_NAME = "TEST_QUERY_TAINT_ANALYSIS";
     private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME;
     private BValue[] args = {new BString(JDBC_URL), new BString(SQLDBUtils.DB_USER),
-            new BString(SQLDBUtils.DB_PASSWORD)};
+            new BString(SQLDBUtils.DB_PASSWORD), new BString("Matty"), new BString("Tom")};
 
     @BeforeClass
     public void setup() throws SQLException {
-        negativeResult = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query",
-                "query-taint-analysis-negative.bal"));
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
+        try {
+            result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query",
+                    "query-taint-analysis.bal"));
+            negativeResult = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query",
+                    "query-taint-analysis-negative.bal"));
+        } catch (BLangRuntimeException bLangRuntimeException) {
+            throw bLangRuntimeException;
+        }
+        finally {
+            SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
+        }
+
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
                 SQLDBUtils.getSQLResourceDir("query", "query-taint-analysis-data.sql"));
+    }
+
+    @Test
+    public void testQueryExprTaintAnalysis() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "main", args);
     }
 
     @Test

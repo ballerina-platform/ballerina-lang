@@ -137,7 +137,7 @@ public class SQLDBUtils {
         try {
             return FileUtils.readFileToString(new File(fileResource.toURI()), StandardCharsets.UTF_8);
         } catch (IOException | URISyntaxException e) {
-            log.error("File reading failed", e);
+            log.error("File reading failed in path " + path, e);
         }
         return null;
     }

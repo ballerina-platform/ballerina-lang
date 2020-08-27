@@ -1637,10 +1637,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangQueryExpr queryExpr) {
         BLangInputClause inputClause = (BLangInputClause) queryExpr.getQueryClauses().get(0);
         for (BLangNode clause : queryExpr.getQueryClauses()) {
-            if (clause.getKind() == NodeKind.FROM) {
+            if (clause.getKind() == NodeKind.FROM || clause.getKind() == NodeKind.JOIN) {
                 inputClause  = (BLangInputClause) clause;
-            } else if (clause.getKind() == NodeKind.JOIN) {
-                inputClause = (BLangInputClause) clause;
             }
             ((BLangExpression) inputClause.getCollection()).accept(this);
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
