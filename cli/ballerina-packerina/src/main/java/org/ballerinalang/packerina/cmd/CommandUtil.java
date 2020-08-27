@@ -157,6 +157,7 @@ public class CommandUtil {
 
     /**
      * Initialize a new ballerina project in the given path.
+     *
      * @param path project path
      * @param template package template
      * @throws IOException  If any IO exception occurred
@@ -191,6 +192,11 @@ public class CommandUtil {
         Files.write(gitignore, defaultGitignore.getBytes("UTF-8"));
     }
 
+    /**
+     * Get the list of templates.
+     *
+     * @return list of templates
+     */
     public static List<String> getTemplates() {
         try {
             Path templateDir = getTemplatePath();
@@ -217,6 +223,12 @@ public class CommandUtil {
         }
     }
 
+    /**
+     * Get the path to the given template.
+     *
+     * @return path of the given template
+     * @throws URISyntaxException if any URISyntaxException occured
+     */
     private static Path getTemplatePath() throws URISyntaxException {
         try {
             URI uri = CommandUtil.class.getClassLoader().getResource("create_cmd_templates").toURI();
@@ -231,6 +243,14 @@ public class CommandUtil {
         }
     }
 
+    /**
+     * Apply the template to the created module.
+     *
+     * @param modulePath path to the module
+     * @param template template name
+     * @throws IOException if any IOException occurred
+     * @throws URISyntaxException if any URISyntaxException occurred
+     */
     private static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
         Path templateDir = getTemplatePath().resolve(template);
 

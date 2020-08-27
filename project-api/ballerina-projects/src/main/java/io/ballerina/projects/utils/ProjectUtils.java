@@ -135,7 +135,6 @@ public class ProjectUtils {
     public static String guessPkgName (String packageName) {
         if (!validatePkgName(packageName)) {
             return packageName.replaceAll("-", "_");
-
         }
         return packageName;
     }
