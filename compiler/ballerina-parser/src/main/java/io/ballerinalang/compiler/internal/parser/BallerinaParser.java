@@ -13013,8 +13013,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseErrorBindingPattern(STNode errorKeyword, STNode typeRef) {
-        STNode openParenthesis = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
-        STNode argListBindingPatterns = parseArgListBindingPatterns();
+        STNode openParenthesis = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
+        STNode argListBindingPatterns = parseErrorArgListBindingPatterns();
         STNode closeParenthesis = parseCloseParenthesis();
         endContext();
         return STNodeFactory.createErrorBindingPatternNode(errorKeyword, typeRef, openParenthesis,
@@ -13047,9 +13047,9 @@ public class BallerinaParser extends AbstractParser {
      * named-arg-binding-pattern := arg-name = binding-pattern
      * </code>
      *
-     * @return Arg binding pattern
+     * @return Error arg list binding patterns.
      */
-    private STNode parseArgListBindingPatterns() {
+    private STNode parseErrorArgListBindingPatterns() {
         List<STNode> argListBindingPatterns = new ArrayList<>();
         SyntaxKind lastValidArgKind = SyntaxKind.CAPTURE_BINDING_PATTERN;
         STToken nextToken = peek();
@@ -13062,9 +13062,9 @@ public class BallerinaParser extends AbstractParser {
         int argCount = 1;
         while (!isEndOfParametersList(nextToken.kind)) {
 
-            STNode currentArg = parseArgBindingPattern();
+            STNode currentArg = parseErrorArgListBindingPattern();
             DiagnosticErrorCode errorCode = validateArgBindingPatternOrder(lastValidArgKind, currentArg.kind,
-                    argCount++);
+                    argCount);
             STNode argEnd = parseArgsBindingPatternEnd();
             if (errorCode == null) {
                 argListBindingPatterns.add(currentArg);
@@ -13074,6 +13074,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 argListBindingPatterns.add(argEnd);
                 lastValidArgKind = currentArg.kind;
+                argCount++;
             } else {
                 if (argEnd != null) {
                     updateLastNodeInListWithInvalidNode(argListBindingPatterns, argEnd, null);
@@ -13093,30 +13094,31 @@ public class BallerinaParser extends AbstractParser {
             case CLOSE_PAREN_TOKEN:
                 return null;
             default:
-                recover(peek(), ParserRuleContext.ARG_BINDING_PATTERN_END);
+                recover(peek(), ParserRuleContext.ERROR_FIELD_BINDING_PATTERN_END);
                 return parseArgsBindingPatternEnd();
         }
     }
 
-    private STNode parseArgBindingPattern() {
+    private STNode parseErrorArgListBindingPattern() {
         switch (peek().kind) {
             case ELLIPSIS_TOKEN:
                 return parseRestBindingPattern();
             case IDENTIFIER_TOKEN:
-                // Identifier can means two things: either its a named-arg, or just an expression.
-                return parseNamedOrPositionalArgBindingPattern();
+                // Identifier can means two things: either its a named-arg, or its simple binding pattern.
+                return parseNamedOrSimpleArgBindingPattern();
             case OPEN_BRACKET_TOKEN:
             case OPEN_BRACE_TOKEN:
             case ERROR_KEYWORD:
                 return parseBindingPattern();
             default:
-                recover(peek(), ParserRuleContext.ARG_BINDING_PATTERN);
-                return parseArgBindingPattern();
+                recover(peek(), ParserRuleContext.ERROR_FIELD_BINDING_PATTERN);
+                return parseErrorArgListBindingPattern();
         }
     }
 
-    private STNode parseNamedOrPositionalArgBindingPattern() {
-        STNode argNameOrBindingPattern = parseQualifiedIdentifier(ParserRuleContext.ARG_BINDING_PATTERN_START_IDENT);
+    private STNode parseNamedOrSimpleArgBindingPattern() {
+        STNode argNameOrBindingPattern =
+                parseQualifiedIdentifier(ParserRuleContext.ERROR_FIELD_BINDING_PATTERN_START_IDENT);
         STToken secondToken = peek();
         switch (secondToken.kind) {
             case EQUAL_TOKEN:

@@ -505,7 +505,6 @@ public class SyntaxErrors {
             case ACCESS_EXPRESSION:
             case BINDING_PATTERN_STARTING_IDENTIFIER:
             case COMPUTED_FIELD_NAME:
-            case FUNCTIONAL_BINDING_PATTERN:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -847,6 +846,7 @@ public class SyntaxErrors {
             case TYPEDESC_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPEDESC_KEYWORD;
             case ERROR_KEYWORD:
+            case ERROR_BINDING_PATTERN:
                 return DiagnosticErrorCode.ERROR_MISSING_ERROR_KEYWORD;
             case STREAM_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_STREAM_KEYWORD;
