@@ -1910,7 +1910,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token unaryOperator = getToken(unaryExpressionNode.unaryOperator());
         ExpressionNode expression = this.modifyNode(unaryExpressionNode.expression());
         return unaryExpressionNode.modify()
-                .withUnaryOperator(formatToken(unaryOperator, 1, 1, 0, 0))
+                .withUnaryOperator(formatToken(unaryOperator, 0, 0, 0, 0))
                 .withExpression(expression)
                 .apply();
     }
