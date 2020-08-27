@@ -7,8 +7,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Init initializes a Ballerina project inside that directory. If package name is given,
-       creates a new directory and initializes a Ballerina project inside that directory.
+       Init initializes a Ballerina project inside the current directory.
 
        A project is a set of logically related Ballerina modules that share
        the same 'Ballerina.toml', 'Ballerina.lock' files and the 'target'

@@ -159,11 +159,12 @@ public class CommandUtil {
      * Initialize a new ballerina project in the given path.
      *
      * @param path project path
+     * @param packageName name of the package
      * @param template package template
      * @throws IOException  If any IO exception occurred
      * @throws URISyntaxException If any URISyntaxException occurred
      */
-    public static void initPackage(Path path, String template, PrintStream errStream) throws IOException,
+    public static void initPackage(Path path, String packageName, String template) throws IOException,
             URISyntaxException {
         // We will be creating following in the project directory
         // - Ballerina.toml
@@ -186,7 +187,7 @@ public class CommandUtil {
 
         // replace manifest org and name with a guessed value.
         defaultManifest = defaultManifest.replaceAll("ORG_NAME", guessOrgName()).
-                replaceAll("PKG_NAME", ProjectUtils.guessPkgName(path.getFileName().toString()));
+                replaceAll("PKG_NAME", ProjectUtils.guessPkgName(packageName));
 
         Files.write(manifest, defaultManifest.getBytes("UTF-8"));
         Files.write(gitignore, defaultGitignore.getBytes("UTF-8"));

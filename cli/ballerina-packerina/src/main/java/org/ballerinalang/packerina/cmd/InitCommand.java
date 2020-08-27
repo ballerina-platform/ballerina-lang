@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -125,19 +124,17 @@ public class InitCommand implements BLauncherCmd {
         }
 
         String packageName = this.userDir.getFileName().toString();
+        if (argList != null && argList.size() > 0) {
+            packageName = argList.get(0);
+        }
+
         if (!ProjectUtils.validatePkgName(packageName)) {
             errStream.println("warning: invalid package name. Modified package name : " +
                     ProjectUtils.guessPkgName(packageName));
         }
 
         try {
-            Path path = this.userDir;
-            if (argList != null && argList.size() > 0) {
-                path = userDir.resolve(argList.get(0));
-                Files.createDirectories(path);
-            }
-
-            CommandUtil.initPackage(path, template, errStream);
+            CommandUtil.initPackage(this.userDir, packageName, template);
         } catch (AccessDeniedException e) {
             errStream.println("error: Error occurred while initializing project : " + "Access Denied");
         } catch (IOException | URISyntaxException e) {

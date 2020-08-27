@@ -144,7 +144,7 @@ public class NewCommand implements BLauncherCmd {
         try {
             // add argument (package)
             Files.createDirectories(path);
-            CommandUtil.initPackage(path, template, errStream);
+            CommandUtil.initPackage(path, packageName, template);
         } catch (AccessDeniedException e) {
             errStream.println("error: Error occurred while creating project : " + "Insufficient Permission");
         } catch (IOException | URISyntaxException e) {

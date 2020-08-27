@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina.cmd;
 
+import io.ballerina.projects.utils.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
@@ -35,8 +36,10 @@ public class InitCommandTest extends CommandTest {
 
     @Test(description = "Initialize a new empty project")
     public void testInitCommandWithArg() throws IOException {
+        Path projectPath = tmpDir.resolve("sample1");
+        Files.createDirectory(projectPath);
         String[] args = {"project_name"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream);
+        InitCommand initCommand = new InitCommand(projectPath, printStream);
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
         // Check with spec
@@ -51,9 +54,9 @@ public class InitCommandTest extends CommandTest {
         //      - resources/
         // - .gitignore       <- git ignore file
 
-        Path projectPath = tmpDir.resolve("project_name");
         Assert.assertTrue(Files.exists(projectPath));
-        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Path manifestPath = projectPath.resolve("Ballerina.toml");
+        Assert.assertTrue(Files.exists(manifestPath));
         Path testPath = projectPath.resolve("tests");
         Assert.assertTrue(Files.exists(testPath));
         Assert.assertTrue(Files.isDirectory(testPath));
@@ -67,12 +70,17 @@ public class InitCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("Package.md")));
 
         Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
+
+//        String manifestContent = FileUtils.readFileAsString(manifestPath.toString());
+//        Assert.assertTrue(manifestContent.contains("project_name"));
     }
 
     @Test(description = "Initialize a new empty project within a directory")
     public void testInitCommand() throws IOException {
+        Path projectPath = tmpDir.resolve("sample2");
+        Files.createDirectory(projectPath);
         String[] args = {};
-        InitCommand initCommand = new InitCommand(tmpDir.resolve("foo"), printStream);
+        InitCommand initCommand = new InitCommand(projectPath, printStream);
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
         // Check with spec
@@ -87,7 +95,6 @@ public class InitCommandTest extends CommandTest {
         //      - resources/
         // - .gitignore       <- git ignore file
 
-        Path projectPath = tmpDir.resolve("foo");
         Assert.assertTrue(Files.exists(projectPath));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Path testPath = projectPath.resolve("tests");
@@ -108,11 +115,12 @@ public class InitCommandTest extends CommandTest {
     @Test(description = "Test init command with service template")
     public void testInitCommandWithService() throws IOException {
         // Test if no arguments was passed in
+        Path packageDir = tmpDir.resolve("sample3");
+        Files.createDirectory(packageDir);
         String[] args = {"servicemodule", "-t", "service"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream);
+        InitCommand initCommand = new InitCommand(packageDir, printStream);
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
-        Path packageDir = tmpDir.resolve("servicemodule");
 
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
