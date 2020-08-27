@@ -15,31 +15,17 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.diagnostics;
-
-import io.ballerinalang.compiler.syntax.tree.NodeLocation;
+package io.ballerina.tools.diagnostics;
 
 /**
- * Represents a message and location related to a particular {@code Diagnostic}.
- * <p>
- * A sample usage would be to record all symbol information related to duplicate symbol error.
+ * Represents a severity of a {@code Diagnostic}.
  *
  * @since 2.0.0
  */
-public class DiagnosticRelatedInformation {
-    private final NodeLocation location;
-    private final String message;
-
-    public DiagnosticRelatedInformation(NodeLocation location, String message) {
-        this.location = location;
-        this.message = message;
-    }
-
-    public NodeLocation location() {
-        return this.location;
-    }
-
-    public String message() {
-        return this.message;
-    }
+public enum DiagnosticSeverity {
+    INTERNAL,
+    HINT,
+    INFO,
+    WARNING,
+    ERROR
 }

@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.diagnostics;
+package io.ballerina.tools.diagnostics;
 
 import java.util.Collection;
 import java.util.Collections;

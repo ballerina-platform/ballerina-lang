@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
+package io.ballerina.tools.text;
 
 /**
  * The {@code LineMap} represents a collection text lines in the {@code TextDocument}.
@@ -86,7 +86,10 @@ class LineMap {
         int left = 0;
         int right = length - 1;
         while (left <= right) {
-            int middle = (left + right) / 2;
+            // Using >>> handle the case when the sum of left and right is greater than
+            // the maximum positive int value (2^31 - 1)
+            // FYI: https://ai.googleblog.com/2006/06/extra-extra-read-all-about-it-nearly.html
+            int middle = (left + right) >>> 1;
             int startOffset = textLines[middle].startOffset();
             int endOffset = textLines[middle].endOffsetWithNewLines();
             if (startOffset <= position && position < endOffset) {

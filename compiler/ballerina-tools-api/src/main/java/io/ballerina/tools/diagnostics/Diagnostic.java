@@ -15,35 +15,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
+package io.ballerina.tools.diagnostics;
 
 /**
- * Represents a text edit on a {@code TextDocument}.
+ * A diagnostic represents a compiler error, a warning or a message at a specific location in the source file.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class TextEdit {
-    private final TextRange range;
-    private final String text;
+public abstract class Diagnostic {
 
-    private TextEdit(TextRange range, String text) {
-        this.range = range;
-        this.text = text;
-    }
+    public abstract Location location();
 
-    public static TextEdit from(TextRange range, String text) {
-        return new TextEdit(range, text);
-    }
+    public abstract DiagnosticInfo diagnosticInfo();
 
-    public TextRange range() {
-        return range;
-    }
+    public abstract String message();
 
-    public String text() {
-        return text;
-    }
-
+    @Override
     public String toString() {
-        return range + text;
+        return diagnosticInfo().severity().toString() + " [" +
+                location().lineRange().filePath() + ":" + location().lineRange() + "] " + message();
     }
 }

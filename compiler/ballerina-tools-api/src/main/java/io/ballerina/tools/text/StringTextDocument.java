@@ -15,9 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
-
-import io.ballerinalang.compiler.internal.parser.CharReader;
+package io.ballerina.tools.text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +59,8 @@ class StringTextDocument extends TextDocument {
     }
 
     @Override
-    public CharReader getCharacterReader() {
-        return CharReader.fromString(text);
+    public char[] toCharArray() {
+        return this.text.toCharArray();
     }
 
     public String toString() {
