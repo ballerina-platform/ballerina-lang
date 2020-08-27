@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -105,10 +100,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25e1742"
                     }
                   ]
@@ -158,10 +153,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25E1742"
                     }
                   ]
@@ -227,10 +222,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25e+1742"
                     }
                   ]
@@ -280,10 +275,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25E-1742"
                     }
                   ]
@@ -349,10 +344,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25e1742f"
                     }
                   ]
@@ -402,10 +397,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25e1742F"
                     }
                   ]
@@ -455,10 +450,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25e1742d"
                     }
                   ]
@@ -508,10 +503,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25e1742D"
                     }
                   ]
@@ -561,10 +556,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25E1742f"
                     }
                   ]
@@ -614,10 +609,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25E1742F"
                     }
                   ]
@@ -667,10 +662,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25E1742d"
                     }
                   ]
@@ -720,10 +715,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25E1742D"
                     }
                   ]
@@ -789,10 +784,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25e+1742f"
                     }
                   ]
@@ -842,10 +837,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25e-1742F"
                     }
                   ]
@@ -895,10 +890,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25e+1742d"
                     }
                   ]
@@ -948,10 +943,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25e-1742D"
                     }
                   ]
@@ -1001,10 +996,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25E+1742f"
                     }
                   ]
@@ -1054,10 +1049,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25E-1742F"
                     }
                   ]
@@ -1107,10 +1102,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25E+1742d"
                     }
                   ]
@@ -1160,10 +1155,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25E-1742D"
                     }
                   ]

@@ -34,7 +34,7 @@ public class ObserverContext {
     /**
      * {@link Map} of properties, which is used to represent additional information required for observers.
      */
-    private Map<String, Object> properties;
+    private final Map<String, Object> properties;
 
     /**
      * {@link Map} of values (with tag as map's key and tag value as map's value),
@@ -46,13 +46,13 @@ public class ObserverContext {
      * These tags are updated before the a service resource function is hit in the runtime.
      * After that point only additional tags should be used.
      */
-    private Map<String, Tag> mainTags;
+    private final Map<String, Tag> mainTags;
 
     /**
      * This is similar to the mainTags.
      * However, this map contains all the tags added after a service resource function is hit in the runtime.
      */
-    private Map<String, Tag> additionalTags;
+    private final Map<String, Tag> additionalTags;
 
     private String serviceName;
 

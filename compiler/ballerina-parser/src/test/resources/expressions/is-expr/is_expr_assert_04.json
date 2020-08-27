@@ -3,10 +3,10 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "DECIMAL_INTEGER_LITERAL",
+      "kind": "NUMERIC_LITERAL",
       "children": [
         {
-          "kind": "DECIMAL_INTEGER_LITERAL",
+          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
           "value": "3",
           "trailingMinutiae": [
             {
@@ -21,11 +21,11 @@
       "kind": "IS_KEYWORD"
     },
     {
-      "kind": "TYPE_DESC",
+      "kind": "SIMPLE_NAME_REFERENCE",
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "TYPE_DESC",
+          "kind": "IDENTIFIER_TOKEN",
           "isMissing": true,
           "hasDiagnostics": true,
           "diagnostics": [

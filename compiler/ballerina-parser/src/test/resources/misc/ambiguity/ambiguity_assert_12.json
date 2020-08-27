@@ -12,13 +12,8 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -306,7 +301,7 @@
                                   "kind": "STRING_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "STRING_LITERAL",
+                                      "kind": "STRING_LITERAL_TOKEN",
                                       "value": "Apple",
                                       "leadingMinutiae": [
                                         {
@@ -331,7 +326,7 @@
                                       "kind": "STRING_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "STRING_LITERAL",
+                                          "kind": "STRING_LITERAL_TOKEN",
                                           "value": "Orange"
                                         }
                                       ]
@@ -346,7 +341,7 @@
                                           "kind": "STRING_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "STRING_LITERAL",
+                                              "kind": "STRING_LITERAL_TOKEN",
                                               "value": "Mango"
                                             }
                                           ]
@@ -434,7 +429,7 @@
                                       "kind": "STRING_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "STRING_LITERAL",
+                                          "kind": "STRING_LITERAL_TOKEN",
                                           "value": "Apple",
                                           "leadingMinutiae": [
                                             {
@@ -460,7 +455,7 @@
                                           "kind": "STRING_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "STRING_LITERAL",
+                                              "kind": "STRING_LITERAL_TOKEN",
                                               "value": "Orange"
                                             }
                                           ]
@@ -480,7 +475,7 @@
                                               "kind": "STRING_LITERAL",
                                               "children": [
                                                 {
-                                                  "kind": "STRING_LITERAL",
+                                                  "kind": "STRING_LITERAL_TOKEN",
                                                   "value": "Mango"
                                                 }
                                               ]

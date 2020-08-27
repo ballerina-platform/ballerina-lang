@@ -290,8 +290,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
     private BLangAssignment createPrevAttemptInfoInvocation(DiagnosticPos pos) {
         BInvokableSymbol transactionInfoInvokableSymbol =
-                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
-                CURRENT_TRANSACTION_INFO);
+                (BInvokableSymbol) getTransactionLibInvokableSymbol(CURRENT_TRANSACTION_INFO);
         BLangInvocation infoInvocation =
                 ASTBuilderUtil.createInvocationExprForMethod(pos, transactionInfoInvokableSymbol,
                         new ArrayList<>(), symResolver);
@@ -302,8 +301,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private BLangInvocation createStartTransactionInvocation(DiagnosticPos pos,
             BLangLiteral transactionBlockIDLiteral, BLangSimpleVarRef prevAttempt) {
         BInvokableSymbol startTransactionInvokableSymbol =
-                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
-                START_TRANSACTION);
+                (BInvokableSymbol) getTransactionLibInvokableSymbol(START_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionBlockIDLiteral);
         args.add(prevAttempt);
@@ -367,8 +365,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private BLangInvocation createCleanupTrxStmt(DiagnosticPos pos) {
         List<BLangExpression> args;
         BInvokableSymbol cleanupTrxInvokableSymbol =
-                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
-                 CLEAN_UP_TRANSACTION);
+                (BInvokableSymbol) getTransactionLibInvokableSymbol(CLEAN_UP_TRANSACTION);
         args = new ArrayList<>();
         args.add(transactionBlockID);
         BLangInvocation cleanupTrxInvocation = ASTBuilderUtil.
@@ -384,8 +381,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         // rollbackTransaction(transactionBlockID);
         BInvokableSymbol rollbackTransactionInvokableSymbol =
-                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
-                ROLLBACK_TRANSACTION);
+                (BInvokableSymbol) getTransactionLibInvokableSymbol(ROLLBACK_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionBlockID);
         if (rollbackNode.expr != null) {
@@ -423,8 +419,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         // Clear failures
         // boolean isFailed = getAndClearFailure();
         BInvokableSymbol transactionCleanerInvokableSymbol =
-                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
-                GET_AND_CLEAR_FAILURE_TRANSACTION);
+                (BInvokableSymbol) getTransactionLibInvokableSymbol(GET_AND_CLEAR_FAILURE_TRANSACTION);
         BLangInvocation transactionCleanerInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(pos, transactionCleanerInvokableSymbol, new ArrayList<>(), symResolver);
         transactionCleanerInvocation.argExprs = new ArrayList<>();
@@ -442,8 +437,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         // Commit expr desugar implementation
         //string|error commitResult = endTransaction(transactionID, transactionBlockID);
         BInvokableSymbol commitTransactionInvokableSymbol =
-                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
-                END_TRANSACTION);
+                (BInvokableSymbol) getTransactionLibInvokableSymbol(END_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionID);
         args.add(transactionBlockID);
@@ -560,5 +554,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
             result = ASTBuilderUtil.createStatementExpression(blockStmt,
                     ASTBuilderUtil.createLiteral(retryTrxBlock.pos, symTable.nilType, Names.NIL_VALUE));
         }
+    }
+
+    /**
+     * Load and return symbol for given name in transaction lib.
+     *
+     * @param name of the symbol.
+     * @return symbol for the function.
+     */
+    public BSymbol getTransactionLibInvokableSymbol(Name name) {
+        return symTable.langTransactionModuleSymbol.scope.lookup(name).symbol;
     }
 }

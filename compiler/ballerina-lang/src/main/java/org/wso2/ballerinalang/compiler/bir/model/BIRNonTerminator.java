@@ -69,6 +69,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{rhsOp};
+        }
     }
 
     /**
@@ -103,6 +108,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{rhsOp1, rhsOp2};
+        }
     }
 
     /**
@@ -129,6 +139,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{rhsOp};
         }
     }
 
@@ -158,6 +173,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
         }
     }
 
@@ -190,6 +210,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{rhsOp};
         }
     }
 
@@ -228,6 +253,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
     }
 
     /**
@@ -253,6 +283,17 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            BIROperand[] operands = new BIROperand[values.size() + 1];
+            int i = 0;
+            operands[i++] = sizeOp;
+            for (BIROperand operand : values) {
+                operands[i++] = operand;
+            }
+            return operands;
         }
     }
 
@@ -304,6 +345,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{keyOp, rhsOp};
+        }
     }
 
     /**
@@ -320,7 +366,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand messageOp;
         public BIROperand causeOp;
         public BIROperand detailOp;
-        
+
         public NewError(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand messageOp, BIROperand causeOp,
                         BIROperand detailOp) {
             super(pos, InstructionKind.NEW_ERROR);
@@ -334,6 +380,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{messageOp, causeOp, detailOp};
         }
     }
 
@@ -361,6 +412,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{rhsOp};
+        }
     }
 
     /**
@@ -384,6 +440,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{rhsOp};
         }
     }
 
@@ -409,11 +470,16 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{rhsOp};
+        }
     }
 
     /**
      * New XML element instruction.
-     * 
+     *
      * @since 0.995.0
      */
     public static class NewXMLElement extends BIRNonTerminator {
@@ -434,13 +500,18 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{startTagOp, defaultNsURIOp};
+        }
     }
 
     /**
      * New XML QName instruction.
      * <p>
      * e.g.: {@code ns0:foo}
-     * 
+     *
      * @since 0.995.0
      */
     public static class NewXMLQName extends BIRNonTerminator {
@@ -461,13 +532,18 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{localnameOp, nsURIOp, prefixOp};
+        }
     }
 
     /**
      * New XML QName from a string.
      * <p>
      * e.g.: {@code "{http://nsuri/}foo"}
-     * 
+     *
      * @since 0.995.0
      */
     public static class NewStringXMLQName extends BIRNonTerminator {
@@ -483,11 +559,16 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{stringQNameOP};
+        }
     }
 
     /**
      * New XML text instruction.
-     * 
+     *
      * @since 0.995.0
      */
     public static class NewXMLText extends BIRNonTerminator {
@@ -503,11 +584,16 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{textOp};
+        }
     }
 
     /**
      * New XML text instruction.
-     * 
+     *
      * @since 0.995.0
      */
     public static class NewXMLProcIns extends BIRNonTerminator {
@@ -528,11 +614,16 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{dataOp, targetOp};
+        }
     }
 
     /**
      * New XML comment instruction.
-     * 
+     *
      * @since 0.995.0
      */
     public static class NewXMLComment extends BIRNonTerminator {
@@ -549,6 +640,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{textOp};
         }
     }
 
@@ -570,6 +666,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{rhsOp};
         }
     }
 
@@ -609,6 +710,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return closureMaps.toArray(new BIROperand[0]);
+        }
     }
 
     /**
@@ -631,6 +737,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{keyColOp, dataOp};
         }
     }
 
@@ -655,6 +766,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return closureVars.toArray(new BIROperand[0]);
         }
     }
 

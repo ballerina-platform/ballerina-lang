@@ -33,24 +33,20 @@ public class RequiredParameterNode extends ParameterNode {
         super(internalNode, position, parent);
     }
 
-    public Optional<Token> leadingComma() {
-        return optionalChildInBucket(0);
-    }
-
     public NodeList<AnnotationNode> annotations() {
-        return new NodeList<>(childInBucket(1));
+        return new NodeList<>(childInBucket(0));
     }
 
     public Optional<Token> visibilityQualifier() {
-        return optionalChildInBucket(2);
+        return optionalChildInBucket(1);
     }
 
     public Node typeName() {
-        return childInBucket(3);
+        return childInBucket(2);
     }
 
     public Optional<Token> paramName() {
-        return optionalChildInBucket(4);
+        return optionalChildInBucket(3);
     }
 
     @Override
@@ -66,7 +62,6 @@ public class RequiredParameterNode extends ParameterNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "leadingComma",
                 "annotations",
                 "visibilityQualifier",
                 "typeName",
@@ -74,13 +69,11 @@ public class RequiredParameterNode extends ParameterNode {
     }
 
     public RequiredParameterNode modify(
-            Token leadingComma,
             NodeList<AnnotationNode> annotations,
             Token visibilityQualifier,
             Node typeName,
             Token paramName) {
         if (checkForReferenceEquality(
-                leadingComma,
                 annotations.underlyingListNode(),
                 visibilityQualifier,
                 typeName,
@@ -89,7 +82,6 @@ public class RequiredParameterNode extends ParameterNode {
         }
 
         return NodeFactory.createRequiredParameterNode(
-                leadingComma,
                 annotations,
                 visibilityQualifier,
                 typeName,
@@ -107,7 +99,6 @@ public class RequiredParameterNode extends ParameterNode {
      */
     public static class RequiredParameterNodeModifier {
         private final RequiredParameterNode oldNode;
-        private Token leadingComma;
         private NodeList<AnnotationNode> annotations;
         private Token visibilityQualifier;
         private Node typeName;
@@ -115,18 +106,10 @@ public class RequiredParameterNode extends ParameterNode {
 
         public RequiredParameterNodeModifier(RequiredParameterNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma().orElse(null);
             this.annotations = oldNode.annotations();
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.typeName = oldNode.typeName();
             this.paramName = oldNode.paramName().orElse(null);
-        }
-
-        public RequiredParameterNodeModifier withLeadingComma(
-                Token leadingComma) {
-            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
-            this.leadingComma = leadingComma;
-            return this;
         }
 
         public RequiredParameterNodeModifier withAnnotations(
@@ -159,7 +142,6 @@ public class RequiredParameterNode extends ParameterNode {
 
         public RequiredParameterNode apply() {
             return oldNode.modify(
-                    leadingComma,
                     annotations,
                     visibilityQualifier,
                     typeName,

@@ -60,6 +60,10 @@ public class MimeConstants {
      */
 
     public static final String CONTENT_ID = "content-id";
+    public static final String CONTENT_TYPE = "content-type";
+    public static final String CONTENT_DISPOSITION = "content-disposition";
+    public static final String CONTENT_LENGTH = "content-length";
+    public static final String CONTENT_TRANSFER_ENCODING = "content-transfer-encoding";
 
     /**
      * Content-type application/json.
@@ -120,9 +124,6 @@ public class MimeConstants {
     public static final String ENTITY_BYTE_CHANNEL = "entity_byte_channel";
     public static final String MULTIPART_ENCODER = "MultipartEncoder";
     public static final String BODY_PARTS = "body_parts";
-    public static final String ENTITY_HEADERS = "entity_headers";
-    public static final String ENTITY_TRAILER_HEADERS = "entity_trailer_headers";
-    public static final String LEADING_HEADER = "leading";
     public static final String TRANSPORT_MESSAGE = "transport_message";
     public static final String PARSE_AS_JSON = "PARSE_AS_TEXT";
 
@@ -140,6 +141,8 @@ public class MimeConstants {
     public static final BString CONTENT_ID_FIELD = StringUtils.fromString("cId");
     public static final BString SIZE_FIELD = StringUtils.fromString("cLength");
     public static final BString CONTENT_DISPOSITION_FIELD = StringUtils.fromString("cDisposition");
+    public static final BString HEADERS_MAP_FIELD = StringUtils.fromString("headerMap");
+    public static final BString HEADER_NAMES_ARRAY_FIELD = StringUtils.fromString("headerNames");
 
     public static final int FIRST_BODY_PART_INDEX = 0;
 
@@ -160,7 +163,6 @@ public class MimeConstants {
 
     public static final int FIRST_ELEMENT = 0;
 
-    public static final short ONE_BYTE = 1;
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
     public static final double MAX_THRESHOLD_PERCENTAGE = 0.1;
 

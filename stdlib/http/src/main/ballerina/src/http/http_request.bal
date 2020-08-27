@@ -64,6 +64,13 @@ public type Request object {
         return externSetReqEntity(self, e);
     }
 
+    # Sets the provided `Entity` to the request and update only the content type header in the transport message.
+    #
+    # + e - The `Entity` to be set to the request
+    function setEntityAndUpdateContentTypeHeader(mime:Entity e) {
+        return externSetReqEntityAndUpdateContentTypeHeader(self, e);
+    }
+
     # Gets the query parameters of the request as a map consisting of a string array.
     #
     # + return - String array map of the query params
@@ -107,9 +114,16 @@ public type Request object {
         return externGetReqEntity(self);
     }
 
-    //Gets the `Entity` from the request without the body. This function is exposed only to be used internally.
-    function getEntityWithoutBody() returns mime:Entity {
-        return externGetReqEntityWithoutBody(self);
+    // Gets the `Entity` from the request without the body and headers. This function is exposed only to be used
+    // internally.
+    function getEntityWithoutBodyAndHeaders() returns mime:Entity {
+        return externGetEntityWithoutBodyAndHeaders(self);
+    }
+
+    // Gets the `Entity` from the request with the body, but without headers. This function is used for Http level
+    // functions.
+    function getEntityWithBodyAndWithoutHeaders() returns mime:Entity|ClientError {
+        return externGetEntityWithBodyAndWithoutHeaders(self);
     }
 
     # Checks whether the requested header key exists in the header map.
@@ -117,8 +131,7 @@ public type Request object {
     # + headerName - The header name
     # + return - Returns true if the specified header key exists
     public function hasHeader(string headerName) returns boolean {
-        mime:Entity entity = self.getEntityWithoutBody();
-        return entity.hasHeader(headerName);
+        return externRequestHasHeader(self, headerName);
     }
 
     # Returns the value of the specified header. If the specified header key maps to multiple values, the first of
@@ -128,8 +141,7 @@ public type Request object {
     # + return - The first header value for the specified header name. Panic if the header is not found. Use the
     #            `Request.hasHeader()` beforehand to check the existence of a header.
     public function getHeader(string headerName) returns @tainted string {
-        mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeader(headerName);
+        return externRequestGetHeader(self, headerName);
     }
 
     # Gets all the header values to which the specified header key maps to.
@@ -138,8 +150,7 @@ public type Request object {
     # + return - The header values the specified header key maps to. Panic if the header is not found. Use the
     #            `Request.hasHeader()` beforehand to check the existence of a header.
     public function getHeaders(string headerName) returns @tainted string[] {
-        mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeaders(headerName);
+        return externRequestGetHeaders(self, headerName);
     }
 
     # Sets the specified header to the request. If a mapping already exists for the specified header key, the existing
@@ -148,8 +159,7 @@ public type Request object {
     # + headerName - The header name
     # + headerValue - The header value
     public function setHeader(string headerName, string headerValue) {
-        mime:Entity entity = self.getEntityWithoutBody();
-        entity.setHeader(headerName, headerValue);
+        externRequestSetHeader(self, headerName, headerValue);
     }
 
     # Adds the specified header to the request. Existing header values are not replaced. Panic if an illegal header is passed.
@@ -157,30 +167,26 @@ public type Request object {
     # + headerName - The header name
     # + headerValue - The header value
     public function addHeader(string headerName, string headerValue) {
-        mime:Entity entity = self.getEntityWithoutBody();
-        entity.addHeader(headerName, headerValue);
+        externRequestAddHeader(self, headerName, headerValue);
     }
 
     # Removes the specified header from the request.
     #
-    # + key - The header name
-    public function removeHeader(string key) {
-        mime:Entity entity = self.getEntityWithoutBody();
-        entity.removeHeader(key);
+    # + headerName - The header name
+    public function removeHeader(string headerName) {
+        externRequestRemoveHeader(self, headerName);
     }
 
     # Removes all the headers from the request.
     public function removeAllHeaders() {
-        mime:Entity entity = self.getEntityWithoutBody();
-        entity.removeAllHeaders();
+        return externRequestRemoveAllHeaders(self);
     }
 
     # Gets all the names of the headers of the request.
     #
     # + return - An array of all the header names
     public function getHeaderNames() returns @tainted string[] {
-        mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeaderNames();
+        return externRequestGetHeaderNames(self);
     }
 
     # Checks whether the client expects a `100-continue` response.
@@ -195,33 +201,25 @@ public type Request object {
     # + contentType - Content type value to be set as the `content-type` header
     # + return - Nil if successful, error in case of invalid content-type
     public function setContentType(string contentType) returns error? {
-        mime:Entity entity = self.getEntityWithoutBody();
-        var result = entity.setContentType(contentType);
-        if (result is mime:Error) {
-            string message = "Error occurred while setting content type header of the request";
-            return GenericClientError(message, result);
-        } else {
-            return;
-        }
+        return trap self.setHeader(mime:CONTENT_TYPE, contentType);
     }
 
     # Gets the type of the payload of the request (i.e: the `content-type` header value).
     #
     # + return - The `content-type` header value as a string
     public function getContentType() returns @tainted string {
-        mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getContentType();
+        return self.getHeader(mime:CONTENT_TYPE);
     }
 
     # Extracts `json` payload from the request. If the content type is not JSON, an `http:ClientError` is returned.
     #
     # + return - The `json` payload or `http:ClientError` in case of errors
     public function getJsonPayload() returns @tainted json|ClientError {
-        var result = self.getEntity();
+        var result = self.getEntityWithBodyAndWithoutHeaders();
         if (result is error) {
             return result;
         } else {
-            var payload = result.getJson();
+            var payload = externGetJson(result);
             if (payload is mime:Error) {
                 if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
@@ -239,11 +237,11 @@ public type Request object {
     #
     # + return - The `xml` payload or `http:ClientError` in case of errors
     public function getXmlPayload() returns @tainted xml|ClientError {
-        var result = self.getEntity();
+        var result = self.getEntityWithBodyAndWithoutHeaders();
         if (result is error) {
             return result;
         } else {
-            var payload = result.getXml();
+            var payload = externGetXml(result);
             if (payload is mime:Error) {
                 if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
@@ -261,11 +259,11 @@ public type Request object {
     #
     # + return - The `text` payload or `http:ClientError` in case of errors
     public function getTextPayload() returns @tainted string|ClientError {
-        var result = self.getEntity();
+        var result = self.getEntityWithBodyAndWithoutHeaders();
         if (result is error) {
             return result;
         } else {
-            var payload = result.getText();
+            var payload = externGetText(result);
             if (payload is mime:Error) {
                 if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
@@ -284,11 +282,11 @@ public type Request object {
     #
     # + return - A byte channel from which the message payload can be read or `http:ClientError` in case of errors
     public function getByteChannel() returns @tainted io:ReadableByteChannel|ClientError {
-        var result = self.getEntity();
+        var result = self.getEntityWithBodyAndWithoutHeaders();
         if (result is error) {
             return result;
         } else {
-            var payload = result.getByteChannel();
+            var payload = externGetByteChannel(result);
             if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the byte channel from the request";
                 return GenericClientError(message, payload);
@@ -302,11 +300,11 @@ public type Request object {
     #
     # + return - The byte[] representation of the message payload or `http:ClientError` in case of errors
     public function getBinaryPayload() returns @tainted byte[]|ClientError {
-        var result = self.getEntity();
+        var result = self.getEntityWithBodyAndWithoutHeaders();
         if (result is error) {
             return result;
         } else {
-            var payload = result.getByteArray();
+            var payload = externGetByteArray(result);
             if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the binary payload from the request";
                 return GenericClientError(message, payload);
@@ -320,18 +318,18 @@ public type Request object {
     #
     # + return - The map of form params or `http:ClientError` in case of errors
     public function getFormParams() returns @tainted map<string>|ClientError {
-        var mimeEntity = self.getEntity();
+        var mimeEntity = self.getEntityWithBodyAndWithoutHeaders();
         if (mimeEntity is error) {
             return mimeEntity;
         } else {
             string message = "Error occurred while retrieving form parameters from the request";
-            if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {
+            if (!self.hasHeader(mime:CONTENT_TYPE)) {
                 string errMessage = "Content-Type header is not available";
                 mime:HeaderUnavailableError typeError = mime:HeaderUnavailableError(errMessage);
                 return GenericClientError(message, typeError);
             }
             string contentTypeHeaderValue = "";
-            var mediaType = mime:getMediaType(mimeEntity.getHeader(mime:CONTENT_TYPE));
+            var mediaType = mime:getMediaType(self.getHeader(mime:CONTENT_TYPE));
             if (mediaType is mime:InvalidContentTypeError) {
                 return GenericClientError(message, mediaType);
             } else {
@@ -342,7 +340,7 @@ public type Request object {
                 mime:InvalidContentTypeError typeError = mime:InvalidContentTypeError(errorMessage);
                 return GenericClientError(message, typeError);
             }
-            var formData = mimeEntity.getText();
+            var formData = externGetText(mimeEntity);
             map<string> parameters = {};
             if (formData is error) {
                 return GenericClientError(message, formData);
@@ -396,9 +394,9 @@ public type Request object {
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `json`
     public function setJsonPayload(json payload, public string contentType = "application/json") {
-        mime:Entity entity = self.getEntityWithoutBody();
+        mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setJson(payload, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets an `xml` as the payload.
@@ -407,9 +405,9 @@ public type Request object {
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `xml`
     public function setXmlPayload(xml payload, public string contentType = "application/xml") {
-        mime:Entity entity = self.getEntityWithoutBody();
+        mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setXml(payload, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets a `string` as the payload.
@@ -418,9 +416,9 @@ public type Request object {
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `string`
     public function setTextPayload(string payload, public string contentType = "text/plain") {
-        mime:Entity entity = self.getEntityWithoutBody();
+        mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setText(payload, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets a `byte[]` as the payload.
@@ -429,9 +427,9 @@ public type Request object {
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `byte[]`
     public function setBinaryPayload(byte[] payload, public string contentType = "application/octet-stream") {
-        mime:Entity entity = self.getEntityWithoutBody();
+        mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setByteArray(payload, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Set multiparts as the payload.
@@ -440,9 +438,9 @@ public type Request object {
     # + contentType - The content type of the top level message. Set this to override the default
     #                 `content-type` header value
     public function setBodyParts(mime:Entity[] bodyParts, public string contentType = "multipart/form-data") {
-        mime:Entity entity = self.getEntityWithoutBody();
+        mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setBodyParts(bodyParts, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets the content of the specified file as the entity body of the request.
@@ -451,9 +449,9 @@ public type Request object {
     # + contentType - The content type of the specified file. Set this to override the default `content-type`
     #                 header value
     public function setFileAsPayload(string filePath, public string contentType = "application/octet-stream") {
-        mime:Entity entity = self.getEntityWithoutBody();
+        mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setFileAsEntityBody(filePath, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets a `ByteChannel` as the payload.
@@ -462,9 +460,9 @@ public type Request object {
     # + contentType - The content type of the payload. Set this to override the default `content-type`
     #                 header value
     public function setByteChannel(io:ReadableByteChannel payload, public string contentType = "application/octet-stream") {
-        mime:Entity entity = self.getEntityWithoutBody();
+        mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setByteChannel(payload, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets the request payload. Note that any string value is set as `text/plain`. To send a JSON-compatible string,
@@ -510,13 +508,13 @@ public type Request object {
             } else if (directive == ONLY_IF_CACHED) {
                 reqCC.onlyIfCached = true;
             } else if (directive.startsWith(MAX_AGE)) {
-                reqCC.maxAge = getExpirationDirectiveValue(directive);
+                reqCC.maxAge = getDirectiveValue(directive);
             } else if (directive == MAX_STALE) {
                 reqCC.maxStale = MAX_STALE_ANY_AGE;
             } else if (directive.startsWith(MAX_STALE)) {
-                reqCC.maxStale = getExpirationDirectiveValue(directive);
+                reqCC.maxStale = getDirectiveValue(directive);
             } else if (directive.startsWith(MIN_FRESH)) {
-                reqCC.minFresh = getExpirationDirectiveValue(directive);
+                reqCC.minFresh = getDirectiveValue(directive);
             }
             // non-standard directives are ignored
         }
@@ -580,6 +578,12 @@ function externSetReqEntity(Request request, mime:Entity entity) =
     name: "setEntity"
 } external;
 
+function externSetReqEntityAndUpdateContentTypeHeader(Request request, mime:Entity entity) =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "setEntityAndUpdateContentTypeHeader"
+} external;
+
 function externGetQueryParams(Request request) returns map<string[]> =
 @java:Method {
     class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
@@ -598,10 +602,16 @@ function externGetReqEntity(Request request) returns mime:Entity|ClientError =
     name: "getEntity"
 } external;
 
-function externGetReqEntityWithoutBody(Request request) returns mime:Entity =
+function externGetEntityWithoutBodyAndHeaders(Request request) returns mime:Entity =
 @java:Method {
     class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
-    name: "getEntityWithoutBody"
+    name: "getEntityWithoutBodyAndHeaders"
+} external;
+
+function externGetEntityWithBodyAndWithoutHeaders(Request request) returns mime:Entity =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "getEntityWithBodyAndWithoutHeaders"
 } external;
 
 function externCheckReqEntityBodyAvailability(Request request) returns boolean =
@@ -633,3 +643,50 @@ public const FAILED = "failed";
 
 # Not a mutual ssl connection.
 public const NONE = ();
+
+// HTTP header related external functions
+function externRequestGetHeader(Request request, string headerName, HeaderPosition position = LEADING)
+                         returns @tainted string = @java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    name: "getHeader"
+} external;
+
+function externRequestGetHeaders(Request request, string headerName, HeaderPosition position = LEADING)
+                          returns @tainted string[] = @java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    name: "getHeaders"
+} external;
+
+function externRequestGetHeaderNames(Request request, HeaderPosition position = LEADING) returns @tainted string[] =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    name: "getHeaderNames"
+} external;
+
+function externRequestAddHeader(Request request, string headerName, string headerValue, HeaderPosition position = LEADING) =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    name: "addHeader"
+} external;
+
+function externRequestSetHeader(Request request, string headerName, string headerValue, HeaderPosition position = LEADING) =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    name: "setHeader"
+} external;
+
+function externRequestRemoveHeader(Request request, string headerName, HeaderPosition position = LEADING) = @java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    name: "removeHeader"
+} external;
+
+function externRequestRemoveAllHeaders(Request request, HeaderPosition position = LEADING) = @java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    name: "removeAllHeaders"
+} external;
+
+function externRequestHasHeader(Request request, string headerName, HeaderPosition position = LEADING) returns boolean =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    name: "hasHeader"
+} external;

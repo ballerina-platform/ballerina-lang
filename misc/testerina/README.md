@@ -25,14 +25,24 @@ assertFalse(boolean expression, string message[Optional])
 Asserts that the expression is false with an optional message.
 
 ````ballerina
-assertEquals(Any actual, Any expected, string message[Optional])
+assertEquals(Anydata actual, Anydata expected, string message[Optional])
 ````
-Asserts that the actual is equal to the expected, with an optional message.
+Asserts that the actual value is equal to the expected value, with an optional message.
 
 ````ballerina
-assertNotEquals(Any actual, Any expected, string message[Optional])
+assertNotEquals(Anydata actual, Anydata expected, string message[Optional])
 ````
-Asserts that the actual is not equal to the expected, with an optional message.
+Asserts that the actual value is not equal to the expected value, with an optional message.
+
+````ballerina
+assertExactEquals(Any actual, Any expected, string message[Optional])
+````
+Asserts that the actual entity is exactly equal to the expected entity, with an optional message.
+
+````ballerina
+assertNotExactEquals(Any actual, Any expected, string message[Optional])
+````
+Asserts that the actual entity is not exactly equal to the expected entity, with an optional message.
 
 ````ballerina
 assertFail(string message)

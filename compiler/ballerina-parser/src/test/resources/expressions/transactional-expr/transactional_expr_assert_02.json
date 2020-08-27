@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -224,7 +219,7 @@
                           ]
                         },
                         {
-                          "kind": "TRUE_KEYWORD",
+                          "kind": "BOOLEAN_LITERAL",
                           "children": [
                             {
                               "kind": "TRUE_KEYWORD",
@@ -240,11 +235,11 @@
                       ]
                     },
                     {
-                      "kind": "PLUS_TOKEN",
+                      "kind": "PIPE_TOKEN",
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_MISSING_PLUS_TOKEN"
+                        "ERROR_MISSING_PIPE_TOKEN"
                       ]
                     },
                     {

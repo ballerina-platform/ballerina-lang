@@ -2,15 +2,6 @@
   "kind": "TYPE_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -39,10 +30,10 @@
               "kind": "MINUS_TOKEN"
             },
             {
-              "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+              "kind": "NUMERIC_LITERAL",
               "children": [
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                   "value": "633.2"
                 }
               ]

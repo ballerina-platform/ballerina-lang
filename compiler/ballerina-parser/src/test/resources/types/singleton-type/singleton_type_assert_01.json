@@ -2,20 +2,16 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -79,7 +75,7 @@
                           "kind": "STRING_LITERAL",
                           "children": [
                             {
-                              "kind": "STRING_LITERAL",
+                              "kind": "STRING_LITERAL_TOKEN",
                               "value": "dulmina",
                               "leadingMinutiae": [
                                 {
@@ -134,10 +130,10 @@
                       "kind": "SINGLETON_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "5",
                               "leadingMinutiae": [
                                 {
@@ -204,10 +200,10 @@
                               ]
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "5",
                                   "trailingMinutiae": [
                                     {
@@ -258,10 +254,10 @@
                       "kind": "SINGLETON_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "HEX_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "HEX_INTEGER_LITERAL",
+                              "kind": "HEX_INTEGER_LITERAL_TOKEN",
                               "value": "0x2c",
                               "leadingMinutiae": [
                                 {
@@ -316,10 +312,10 @@
                       "kind": "SINGLETON_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                              "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                               "value": "2.2",
                               "leadingMinutiae": [
                                 {
@@ -374,7 +370,7 @@
                       "kind": "SINGLETON_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "TRUE_KEYWORD",
+                          "kind": "BOOLEAN_LITERAL",
                           "children": [
                             {
                               "kind": "TRUE_KEYWORD",
@@ -431,7 +427,7 @@
                       "kind": "SINGLETON_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "FALSE_KEYWORD",
+                          "kind": "BOOLEAN_LITERAL",
                           "children": [
                             {
                               "kind": "FALSE_KEYWORD",
@@ -488,7 +484,7 @@
                       "kind": "SINGLETON_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "NULL_KEYWORD",
+                          "kind": "NULL_LITERAL",
                           "children": [
                             {
                               "kind": "NULL_KEYWORD",
@@ -606,7 +602,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "dulmina",
                                   "leadingMinutiae": [
                                     {
@@ -623,10 +619,10 @@
                           "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "6"
                             }
                           ]
@@ -684,7 +680,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "mystring",
                                   "leadingMinutiae": [
                                     {

@@ -47,8 +47,9 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class RightArrowActionNodeContext<T extends Node> extends AbstractCompletionProvider<T> {
-    public RightArrowActionNodeContext(Kind kind) {
-        super(kind);
+
+    public RightArrowActionNodeContext(Class<T> attachmentPoint) {
+        super(attachmentPoint);
     }
 
     protected List<LSCompletionItem> getFilteredItems(LSContext context, ExpressionNode node) {
@@ -92,10 +93,12 @@ public class RightArrowActionNodeContext<T extends Node> extends AbstractComplet
         } else {
             /*
             Covers the following case where a is any other variable and we suggest the workers
-            (1) a -> w<cursor>
+            (1) a -> <cursor>
+            (2) a -> w<cursor>
              */
             List<Scope.ScopeEntry> filteredWorkers = visibleSymbols.stream()
-                    .filter(scopeEntry -> (scopeEntry.symbol.flags & Flags.WORKER) == Flags.WORKER)
+                    .filter(scopeEntry -> !(scopeEntry.symbol instanceof BInvokableSymbol)
+                            && (scopeEntry.symbol.flags & Flags.WORKER) == Flags.WORKER)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(filteredWorkers, context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));

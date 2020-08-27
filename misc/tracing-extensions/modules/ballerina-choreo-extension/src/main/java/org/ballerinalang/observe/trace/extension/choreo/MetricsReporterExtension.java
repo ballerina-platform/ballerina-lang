@@ -70,7 +70,7 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
 
     @Override
     public void init() {
-        ChoreoClient choreoClient = null;
+        ChoreoClient choreoClient;
         try {
             choreoClient = ChoreoClientHolder.getChoreoClient(this);
         } catch (ChoreoClientException e) {
@@ -110,7 +110,7 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
      * Worker which handles periodically publishing metrics to Choreo.
      */
     private static class Task extends TimerTask {
-        private ChoreoClient choreoClient;
+        private final ChoreoClient choreoClient;
         private long lastCounterResetTimestamp;
 
         private Task(ChoreoClient choreoClient) {

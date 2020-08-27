@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "ANNOTATION_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -106,11 +97,17 @@
                   ]
                 },
                 {
-                  "kind": "TYPE_KEYWORD",
-                  "isMissing": true,
+                  "kind": "ANNOTATION_ATTACH_POINT",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_TYPE_KEYWORD"
+                  "children": [
+                    {
+                      "kind": "TYPE_KEYWORD",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_TYPE_KEYWORD"
+                      ]
+                    }
                   ]
                 }
               ]
