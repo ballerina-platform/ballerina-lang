@@ -39,7 +39,6 @@ dependencies {
     implementation project(':ballerina-email')
     implementation project(':ballerina-file')
     implementation project(':ballerina-filepath')
-    implementation project(':ballerina-grpc')
     implementation project(':ballerina-http')
     implementation project(':ballerina-io')
     implementation project(':ballerina-ldap')
