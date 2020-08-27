@@ -105,6 +105,7 @@ public class NewCommand implements BLauncherCmd {
                     true);
             return;
         }
+
         String packageName = argList.get(0);
         Path path = userDir.resolve(packageName);
         // Check if the directory or file exists with the given project name

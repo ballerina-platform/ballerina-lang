@@ -162,8 +162,8 @@ public class InitCommandTest extends CommandTest {
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina-init - Create a new Ballerina project in current " +
-                "directory"));
+        Assert.assertTrue(readOutput().contains("ballerina-init - Create a new Ballerina project inside current " +
+                "directory."));
     }
 
     @Test(description = "Test init command with help flag")
@@ -174,8 +174,8 @@ public class InitCommandTest extends CommandTest {
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina-init - Create a new Ballerina project in current " +
-                "directory"));
+        Assert.assertTrue(readOutput().contains("ballerina-init - Create a new Ballerina project inside current " +
+                "directory."));
     }
 
     @Test(description = "Test init list")

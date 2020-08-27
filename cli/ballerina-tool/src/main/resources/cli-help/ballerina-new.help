@@ -29,7 +29,7 @@ DESCRIPTION
        'Ballerina.toml' file. It contains the organization name and the
        version. It also enables dependency management across the project.
 
-       The 'src' directory contains Ballerina modules. Use
+       The 'modules' directory contains Ballerina modules. Use
        'ballerina add <module-name>' command to create modules.
 
        Both 'target' directory and 'Ballerina.lock' file are created during
@@ -41,3 +41,23 @@ DESCRIPTION
        use the specified versions instead of fetching the latest
        versions of modules.
 
+       A template can also be specified when creating the new project.
+       If a template is not specified, this command creates a package
+       with a 'main' template.
+
+      There are three built-in templates named: 'main', 'service' and 'lib'.
+
+OPTIONS
+     -t <template-name>, --template <template-name>
+         Create a package using a predefined template.
+
+     -l, --list
+         List built-in templates.
+
+
+EXAMPLES
+     Create a package with a 'main' template.
+        $ ballerina new hello
+
+     Create a package with a Ballerina service.
+        $ ballerina new helloservice -t service

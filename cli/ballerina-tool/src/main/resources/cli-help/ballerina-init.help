@@ -1,12 +1,14 @@
 NAME
-       ballerina-init - Create a new Ballerina project in current directory
+       ballerina-init - Create a new Ballerina project inside current directory.
 
 SYNOPSIS
-       ballerina init <project-path>
+       ballerina init
+       ballerina init <package-name>
 
 
 DESCRIPTION
-       Init initializes a Ballerina project inside the current directory.
+       Init initializes a Ballerina project inside that directory. If package name is given,
+       creates a new directory and initializes a Ballerina project inside that directory.
 
        A project is a set of logically related Ballerina modules that share
        the same 'Ballerina.toml', 'Ballerina.lock' files and the 'target'
@@ -28,7 +30,7 @@ DESCRIPTION
        'Ballerina.toml' file. It contains the organization name and the
        version. It also enables dependency management across the project.
 
-       The 'Modules' directory contains Ballerina modules. Use
+       The 'modules' directory contains Ballerina modules. Use
        'ballerina add <module-name>' command to create modules.
 
        Both 'target' directory and 'Ballerina.lock' file are created during
@@ -40,3 +42,24 @@ DESCRIPTION
        use the specified versions instead of fetching the latest
        versions of modules.
 
+       A template can also be specified when initialising the new project.
+       If a template is not specified, this command creates a package
+       with a 'main' template.
+
+      There are three built-in templates named: 'main', 'service' and 'lib'.
+
+OPTIONS
+     -t <template-name>, --template <template-name>
+         Create a package using a predefined template.
+
+     -l, --list
+         List built-in templates.
+
+
+EXAMPLES
+     Initialise a package with a 'main' template.
+        $ ballerina init
+        $ ballerina init <package-name>
+
+     Initialise a package with a Ballerina service.
+        $ ballerina init helloservice -t service

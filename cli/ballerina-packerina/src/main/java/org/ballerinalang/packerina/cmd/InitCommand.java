@@ -95,14 +95,12 @@ public class InitCommand implements BLauncherCmd {
         }
 
         // Check if one argument is given and not more than one argument.
-        if (argList != null && argList.size() > 0) {
-            if (!(1 == argList.size())) {
+        if (argList != null && !(1 == argList.size())) {
                 CommandUtil.printError(errStream,
                         "too many arguments.",
                         "ballerina init <project-name>",
                         true);
                 return;
-            }
         }
 
         // Check if there is a ballerina project in sub level.
