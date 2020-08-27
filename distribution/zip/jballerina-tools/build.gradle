@@ -183,7 +183,6 @@ dependencies {
     balDoc project(path: ':ballerina-ldap', configuration: 'balDoc')
     balDoc project(path: ':ballerina-xmlutils', configuration: 'balDoc')
     balDoc project(path: ':ballerina-jsonutils', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-sql', configuration: 'balDoc')
 
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')

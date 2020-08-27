@@ -53,7 +53,6 @@ dependencies {
     implementation project(':ballerina-task')
     implementation project(':ballerina-time')
     implementation project(':ballerina-transactions')
-    implementation project(':ballerina-sql')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-tool')
 

@@ -96,7 +96,6 @@ dependencies {
     dist project(':ballerina-file')
     dist project(':ballerina-filepath')
     dist project(':ballerina-grpc')
-    dist project(':ballerina-sql')
     dist project(':ballerina-http')
     dist project(':ballerina-openapi')
     dist project(':ballerina-io')
