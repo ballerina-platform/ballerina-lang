@@ -15,17 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.diagnostics;
 
-/**
- * Represents a severity of a {@code Diagnostic}.
- *
- * @since 2.0.0
- */
-public enum DiagnosticSeverity {
-    INTERNAL,
-    HINT,
-    INFO,
-    WARNING,
-    ERROR
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+description = 'Ballerina - Tools API'
+
+dependencies {
+    testImplementation 'org.testng:testng'
 }
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+

@@ -15,22 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.parser.test.lexer;
-
-import io.ballerina.tools.text.CharReader;
-import io.ballerinalang.compiler.internal.parser.BallerinaLexer;
-import io.ballerinalang.compiler.internal.parser.tree.STToken;
+package io.ballerina.tools.text;
 
 /**
- * An abstract class that contains utilities for {@code BallerinaLexer} tests.
- *
- * @since 2.0.0
+ * Contains a set of helper methods.
  */
-public class AbstractLexerTest {
+public class TextDocuments {
 
-    public STToken lexToken(String sourceText) {
-        CharReader charReader = CharReader.from(sourceText);
-        BallerinaLexer lexer = new BallerinaLexer(charReader);
-        return lexer.nextToken();
+    private TextDocuments() {
     }
+
+    public static TextDocument from(String text) {
+        return new StringTextDocument(text);
+    }
+
 }

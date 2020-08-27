@@ -15,22 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.parser.test.lexer;
+package io.ballerina.tools.diagnostics;
 
-import io.ballerina.tools.text.CharReader;
-import io.ballerinalang.compiler.internal.parser.BallerinaLexer;
-import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 
 /**
- * An abstract class that contains utilities for {@code BallerinaLexer} tests.
+ * The {@code Location} represent the location in {@code TextDocument}.
+ * <p>
+ * It is a combination of source file path, start and end line numbers, and start and end column numbers.
  *
  * @since 2.0.0
  */
-public class AbstractLexerTest {
+public interface Location {
 
-    public STToken lexToken(String sourceText) {
-        CharReader charReader = CharReader.from(sourceText);
-        BallerinaLexer lexer = new BallerinaLexer(charReader);
-        return lexer.nextToken();
-    }
+    LineRange lineRange();
+
+    TextRange textRange();
 }

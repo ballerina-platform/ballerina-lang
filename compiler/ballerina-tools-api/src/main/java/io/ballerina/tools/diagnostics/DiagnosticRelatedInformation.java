@@ -15,18 +15,29 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
+package io.ballerina.tools.diagnostics;
 
 /**
- * Contains a set of helper methods.
+ * Represents a message and location related to a particular {@code Diagnostic}.
+ * <p>
+ * A sample usage would be to record all symbol information related to duplicate symbol error.
+ *
+ * @since 2.0.0
  */
-public class TextDocuments {
+public class DiagnosticRelatedInformation {
+    private final Location location;
+    private final String message;
 
-    private TextDocuments() {
+    public DiagnosticRelatedInformation(Location location, String message) {
+        this.location = location;
+        this.message = message;
     }
 
-    public static TextDocument from(String text) {
-        return new StringTextDocument(text);
+    public Location location() {
+        return this.location;
     }
 
+    public String message() {
+        return this.message;
+    }
 }

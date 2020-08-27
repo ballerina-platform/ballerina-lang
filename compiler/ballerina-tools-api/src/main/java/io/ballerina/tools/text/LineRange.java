@@ -15,12 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
+package io.ballerina.tools.text;
 
 import java.util.Objects;
 
 /**
- * The {@code LineRange} represents a pair of {@code LineInfo}.
+ * The {@code LineRange} represents a pair of {@code LinePosition}.
  *
  * @since 2.0.0
  */

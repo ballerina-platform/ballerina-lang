@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerina.tools.text.CharReader;
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
@@ -64,8 +65,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STUnaryExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STUnionTypeDescriptorNode;
 import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocuments;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -8411,8 +8410,8 @@ public class BallerinaParser extends AbstractParser {
             nextToken = peek();
         }
 
-        TextDocument textDocument = TextDocuments.from(xmlStringBuilder.toString());
-        AbstractTokenReader tokenReader = new TokenReader(new XMLLexer(textDocument.getCharacterReader()));
+        CharReader charReader = CharReader.from(xmlStringBuilder.toString());
+        AbstractTokenReader tokenReader = new TokenReader(new XMLLexer(charReader));
         XMLParser xmlParser = new XMLParser(tokenReader, expressions);
         return xmlParser.parse();
     }
@@ -12006,10 +12005,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseDocumentationString(STToken documentationStringToken) {
         List<STNode> leadingTriviaList = getLeadingTriviaList(documentationStringToken.leadingMinutiae());
-        TextDocument textDocument = TextDocuments.from(documentationStringToken.text());
-
-        DocumentationLexer documentationLexer =
-                new DocumentationLexer(textDocument.getCharacterReader(), leadingTriviaList);
+        CharReader charReader = CharReader.from(documentationStringToken.text());
+        DocumentationLexer documentationLexer = new DocumentationLexer(charReader, leadingTriviaList);
         AbstractTokenReader tokenReader = new TokenReader(documentationLexer);
         DocumentationParser documentationParser = new DocumentationParser(tokenReader);
         return documentationParser.parse();
