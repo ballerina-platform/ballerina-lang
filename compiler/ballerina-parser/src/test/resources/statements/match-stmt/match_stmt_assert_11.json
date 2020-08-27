@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -198,39 +193,18 @@
                         },
                         {
                           "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN"
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
                           ]
                         },
                         {
                           "kind": "BLOCK_STATEMENT",
-                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "OPEN_BRACE_TOKEN",
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_INVALID_TOKEN"
-                              ],
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "INVALID_NODE_MINUTIAE",
-                                  "invalidNode": {
-                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                    "children": [
-                                      {
-                                        "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
-                                      }
-                                    ]
-                                  }
-                                },
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "OPEN_BRACE_TOKEN"
                             },
                             {
                               "kind": "LIST",
@@ -2379,7 +2353,7 @@
                                           "kind": "COLON_TOKEN"
                                         },
                                         {
-                                          "kind": "TRUE_KEYWORD",
+                                          "kind": "BOOLEAN_LITERAL",
                                           "children": [
                                             {
                                               "kind": "TRUE_KEYWORD"
@@ -2484,11 +2458,11 @@
                                               "kind": "PLUS_TOKEN"
                                             },
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "NUMERIC_LITERAL",
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                   "hasDiagnostics": true,
                                                   "diagnostics": [
                                                     "ERROR_INVALID_TOKEN"
@@ -2539,7 +2513,7 @@
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "STRING_LITERAL",
+                                              "kind": "STRING_LITERAL_TOKEN",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
                                                 "ERROR_INVALID_TOKEN",

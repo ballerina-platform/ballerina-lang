@@ -117,7 +117,7 @@ class JMethodResolver {
 
         return getExecutables(declaringClass, methodName, kind)
                 .stream()
-                .map(executable -> JMethod.build(kind, executable))
+                .map(executable -> JMethod.build(kind, executable, null))
                 .collect(Collectors.toList());
     }
 
@@ -153,7 +153,7 @@ class JMethodResolver {
         }
 
         JMethod jMethod = resolveExactMethod(jMethodRequest.declaringClass, jMethodRequest.methodName,
-                jMethodRequest.kind, jMethodRequest.paramTypeConstraints);
+                jMethodRequest.kind, jMethodRequest.paramTypeConstraints, jMethodRequest.receiverType);
         if (jMethod == JMethod.NO_SUCH_METHOD) {
             return resolveMatchingMethod(jMethodRequest, jMethods);
         }
@@ -550,7 +550,8 @@ class JMethodResolver {
     }
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,
-                                       ParamTypeConstraint[] constraints) {
+                                       ParamTypeConstraint[] constraints,
+                                       BType receiverType) {
 
         Class<?>[] paramTypes = new Class<?>[constraints.length];
         for (int constraintIndex = 0; constraintIndex < constraints.length; constraintIndex++) {
@@ -560,7 +561,7 @@ class JMethodResolver {
         Executable executable = (kind == JMethodKind.CONSTRUCTOR) ? resolveConstructor(clazz, paramTypes) :
                 resolveMethod(clazz, name, paramTypes);
         if (executable != null) {
-            return JMethod.build(kind, executable);
+            return JMethod.build(kind, executable, receiverType);
         } else {
             return JMethod.NO_SUCH_METHOD;
         }
@@ -569,6 +570,14 @@ class JMethodResolver {
     private JMethod resolveMatchingMethod(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
 
         ParamTypeConstraint[] constraints = jMethodRequest.paramTypeConstraints;
+        int constraintsSize, paramTypesInitialIndex;
+        if (jMethodRequest.receiverType != null) {
+            constraintsSize = constraints.length + 1;
+            paramTypesInitialIndex = 1;
+        } else {
+            constraintsSize = constraints.length;
+            paramTypesInitialIndex = 0;
+        }
         List<JMethod> resolvedJMethods = new ArrayList<>();
         if (constraints.length > 0) {
             for (JMethod jMethod : jMethods) {
@@ -576,13 +585,14 @@ class JMethodResolver {
                 Class<?>[] formalParamTypes = jMethod.getParamTypes();
 
                 // skip if the given constraint params are not of the same size as method's params
-                if (constraints.length != formalParamTypes.length) {
+                if (constraintsSize != formalParamTypes.length) {
                     continue;
                 }
 
-                for (int paramIndex = 0; paramIndex < formalParamTypes.length; paramIndex++) {
+                for (int paramIndex = paramTypesInitialIndex, constraintIndex = 0; paramIndex < formalParamTypes.length;
+                     paramIndex++, constraintIndex++) {
                     Class<?> formalParamType = formalParamTypes[paramIndex];
-                    if (formalParamType.isAssignableFrom(constraints[paramIndex].get())) {
+                    if (formalParamType.isAssignableFrom(constraints[constraintIndex].get())) {
                         continue;
                     }
                     resolved = false;

@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -141,15 +136,6 @@
                               "kind": "OBJECT_FIELD",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
-                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -187,15 +173,6 @@
                             {
                               "kind": "OBJECT_FIELD",
                               "children": [
-                                {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
                                 {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
@@ -235,15 +212,6 @@
                               "kind": "OBJECT_FIELD",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
-                                {
                                   "kind": "STRING_TYPE_DESC",
                                   "children": [
                                     {
@@ -282,13 +250,8 @@
                               "kind": "OBJECT_METHOD_DEFINITION",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
@@ -350,17 +313,17 @@
                                           ]
                                         },
                                         {
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "kind": "REQUIRED_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -386,17 +349,17 @@
                                           ]
                                         },
                                         {
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "kind": "REQUIRED_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -713,10 +676,10 @@
                               "kind": "POSITIONAL_ARG",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "NUMERIC_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                       "value": "10"
                                     }
                                   ]
@@ -762,7 +725,7 @@
                                   "kind": "STRING_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "STRING_LITERAL",
+                                      "kind": "STRING_LITERAL_TOKEN",
                                       "value": "z"
                                     }
                                   ]

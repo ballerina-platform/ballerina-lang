@@ -45,17 +45,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRAP_ERRO
  */
 public class JvmErrorGen {
 
-    private MethodVisitor mv;
-    private BIRVarToJVMIndexMap indexMap;
-    private String currentPackageName;
-    private JvmInstructionGen jvmInstructionGen;
+    private final MethodVisitor mv;
+    private final BIRVarToJVMIndexMap indexMap;
+    private final JvmInstructionGen jvmInstructionGen;
 
-    public JvmErrorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, String currentPackageName,
-                       JvmInstructionGen jvmInstructionGen) {
+    public JvmErrorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JvmInstructionGen jvmInstructionGen) {
 
         this.mv = mv;
         this.indexMap = indexMap;
-        this.currentPackageName = currentPackageName;
         this.jvmInstructionGen = jvmInstructionGen;
     }
 
@@ -73,11 +70,11 @@ public class JvmErrorGen {
 
         BIRNode.BIRVariableDcl varDcl = panicTerm.errorOp.variableDcl;
         int errorIndex = this.getJVMIndexOfVarRef(varDcl);
-        jvmInstructionGen.generateVarLoad(this.mv, varDcl, this.currentPackageName, errorIndex);
+        jvmInstructionGen.generateVarLoad(this.mv, varDcl, errorIndex);
         this.mv.visitInsn(ATHROW);
     }
 
-    void generateTryCatch(BIRNode.BIRFunction func, String funcName, BIRNode.BIRBasicBlock currentBB,
+    public void generateTryCatch(BIRNode.BIRFunction func, String funcName, BIRNode.BIRBasicBlock currentBB,
                           JvmTerminatorGen termGen, LabelGenerator labelGen) {
 
         BIRNode.BIRErrorEntry currentEE = findErrorEntry(func.errorTable, currentBB);
@@ -94,7 +91,7 @@ public class JvmErrorGen {
         if (currentEE instanceof JErrorEntry) {
             JErrorEntry jCurrentEE = ((JErrorEntry) currentEE);
             BIRNode.BIRVariableDcl retVarDcl = currentEE.errorOp.variableDcl;
-            int retIndex = this.indexMap.getIndex(retVarDcl);
+            int retIndex = this.indexMap.addToMapIfNotFoundAndGetIndex(retVarDcl);
             boolean exeptionExist = false;
             for (CatchIns catchIns : jCurrentEE.catchIns) {
                 if (ERROR_VALUE.equals(catchIns.errorClass)) {
@@ -103,11 +100,10 @@ public class JvmErrorGen {
                 Label errorValueLabel = new Label();
                 this.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, catchIns.errorClass);
                 this.mv.visitLabel(errorValueLabel);
-                this.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", String.format("(L%s;)L%s;",
-                        THROWABLE, ERROR_VALUE), false);
-                jvmInstructionGen.generateVarStore(this.mv, retVarDcl, this.currentPackageName, retIndex);
-                BIRTerminator.Return term = catchIns.term;
-                termGen.genReturnTerm(term, retIndex, func);
+                this.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError",
+                                        String.format("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+                jvmInstructionGen.generateVarStore(this.mv, retVarDcl, retIndex);
+                termGen.genReturnTerm(retIndex, func);
                 this.mv.visitJumpInsn(GOTO, jumpLabel);
             }
             if (!exeptionExist) {
@@ -137,8 +133,8 @@ public class JvmErrorGen {
         this.mv.visitLabel(errorValueLabel);
 
         BIRNode.BIRVariableDcl varDcl = currentEE.errorOp.variableDcl;
-        int lhsIndex = this.indexMap.getIndex(varDcl);
-        jvmInstructionGen.generateVarStore(this.mv, varDcl, this.currentPackageName, lhsIndex);
+        int lhsIndex = this.indexMap.addToMapIfNotFoundAndGetIndex(varDcl);
+        jvmInstructionGen.generateVarStore(this.mv, varDcl, lhsIndex);
         this.mv.visitJumpInsn(GOTO, jumpLabel);
         this.mv.visitLabel(otherErrorLabel);
         this.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, TRAP_ERROR_METHOD,
@@ -148,7 +144,6 @@ public class JvmErrorGen {
     }
 
     private int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {
-
-        return this.indexMap.getIndex(varDcl);
+        return this.indexMap.addToMapIfNotFoundAndGetIndex(varDcl);
     }
 }

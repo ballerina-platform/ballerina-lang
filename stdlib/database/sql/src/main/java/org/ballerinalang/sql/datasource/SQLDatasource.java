@@ -230,7 +230,7 @@ public class SQLDatasource {
             hikariDataSource = new HikariDataSource(config);
             Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
         } catch (Throwable t) {
-            StringBuilder message = new StringBuilder("error in sql connector configuration: " + t.getMessage() + "");
+            StringBuilder message = new StringBuilder("Error in SQL connector configuration: " + t.getMessage() + "");
             String lastCauseMessage = null;
             int count = 0;
             while (t.getCause() != null && count < 3) {

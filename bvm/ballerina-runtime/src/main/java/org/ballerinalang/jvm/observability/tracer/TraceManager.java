@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class TraceManager {
     private static final TraceManager instance = new TraceManager();
-    private TracersStore tracerStore;
+    private final TracersStore tracerStore;
 
     private TraceManager() {
         tracerStore = TracersStore.getInstance();

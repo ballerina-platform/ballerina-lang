@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -105,10 +100,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25f"
                     }
                   ]
@@ -158,10 +153,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25F"
                     }
                   ]
@@ -211,10 +206,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25d"
                     }
                   ]
@@ -264,10 +259,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                      "kind": "DECIMAL_FLOATING_POINT_LITERAL_TOKEN",
                       "value": "25D"
                     }
                   ]

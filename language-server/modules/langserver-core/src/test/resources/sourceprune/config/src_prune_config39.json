@@ -1,8 +1,0 @@
-{
-  "position": {
-    "line": 5,
-    "character": 27
-  },
-  "source": "src_prune_source39.bal",
-  "expected": "src_prune_expected39.bal"
-}

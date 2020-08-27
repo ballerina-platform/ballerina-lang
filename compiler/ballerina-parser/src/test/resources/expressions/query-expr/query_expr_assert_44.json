@@ -164,6 +164,34 @@
                           ]
                         }
                       ]
+                    },
+                    {
+                      "kind": "COMMA_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_COMMA_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "ORDER_KEY",
+                      "children": [
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "e",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
@@ -190,7 +218,7 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "e"
+              "value": "f"
             }
           ]
         }

@@ -20,12 +20,13 @@ package org.ballerinalang.langserver.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.semantichighlighter.SemanticHighlightingParams;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -152,15 +153,14 @@ public class TestUtil {
     /**
      * Get semantic highlighting response.
      *
-     * @param filePath        Path of the Bal file
+     * @param docManager Document manager
+     * @param filePath   Path of the Bal file
      * @return {@link SemanticHighlightingParams}   Response as SemanticHighlightingParams
      */
-    public static SemanticHighlightingParams getHighlightingResponse(Path filePath)
-            throws CompilationFailedException, IOException {
+    public static SemanticHighlightingParams getHighlightingResponse(
+            WorkspaceDocumentManager docManager, Path filePath) throws CompilationFailedException {
 
         String docUri = filePath.toUri().toString();
-        byte[] encodedContent = Files.readAllBytes(filePath);
-        WorkspaceDocumentManager docManager = WorkspaceDocumentManagerImpl.getInstance();
         SemanticHighlightingParams semanticHighlightingParams = null;
 
         Path compilationPath;
@@ -170,23 +170,13 @@ public class TestUtil {
             compilationPath = null;
         }
         if (compilationPath != null) {
-            String content = new String(encodedContent);
             Optional<Lock> lock = docManager.lockFile(compilationPath);
             try {
-                docManager.openFile(Paths.get(new URL(docUri).toURI()), content);
                 LSContext context = new DocumentServiceOperationContext
                         .ServiceOperationContextBuilder(LSContextOperation.TXT_DID_OPEN)
                         .withCommonParams(null, docUri, docManager)
                         .build();
                 semanticHighlightingParams = SemanticHighlightProvider.getHighlights(context, docManager);
-            } catch (WorkspaceDocumentException e) {
-                String msg = "Document Manager encountered error!";
-                TextDocumentIdentifier identifier = new TextDocumentIdentifier(docUri);
-                logError(msg, e, identifier, (Position) null);
-            } catch (URISyntaxException e) {
-                String msg = "URI syntax error!";
-                TextDocumentIdentifier identifier = new TextDocumentIdentifier(docUri);
-                logError(msg, e, identifier, (Position) null);
             } catch (HighlightingFailedException e) {
                 String msg = "Semantic highlighting failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(docUri);
@@ -383,14 +373,25 @@ public class TestUtil {
         serviceEndpoint.notify("textDocument/didClose", new DidCloseTextDocumentParams(documentIdentifier));
     }
 
+
     /**
      * Initialize the language server instance to use.
      *
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever() {
+        return initializeLanguageSeverAndGetDocManager().getLeft();
+    }
+
+    /**
+     * Initialize the language server instance to use.
+     *
+     * @return {@link Endpoint}     Service Endpoint
+     */
+    public static Pair<Endpoint, WorkspaceDocumentManager> initializeLanguageSeverAndGetDocManager() {
         LSPackageLoader.clearHomeRepoPackages();
-        Endpoint endpoint = ServiceEndpoints.toEndpoint(new BallerinaLanguageServer());
+        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+        Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
         InitializeParams params = new InitializeParams();
         ClientCapabilities capabilities = new ClientCapabilities();
         TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities();
@@ -409,7 +410,7 @@ public class TestUtil {
         params.setCapabilities(capabilities);
         endpoint.request("initialize", params);
 
-        return endpoint;
+        return new ImmutablePair<>(endpoint, languageServer.getDocumentManager());
     }
 
     /**

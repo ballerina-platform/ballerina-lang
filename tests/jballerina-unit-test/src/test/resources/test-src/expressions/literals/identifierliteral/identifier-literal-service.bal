@@ -12,7 +12,7 @@ listener http:MockListener testEP = new(9090);
               maxAge : 1
           }
 }
-service 'sample\ Service on testEP{
+service 'sample\ Service on testEP {
 
     @http:ResourceConfig {
         methods:["GET"],

@@ -35,13 +35,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -52,8 +49,9 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public abstract class FieldAccessContext<T extends Node> extends AbstractCompletionProvider<T> {
-    public FieldAccessContext(Kind kind) {
-        super(kind);
+
+    public FieldAccessContext(Class<T> attachmentPoint) {
+        super(attachmentPoint);
     }
 
     /**
@@ -105,7 +103,10 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                 String mName = ((SimpleNameReferenceNode) ((MethodCallExpressionNode) expr)
                         .methodName()).name().text();
                 return filtered.stream()
-                        .filter(scopeEntry -> scopeEntry.symbol.getName().getValue().equals(mName))
+                        .filter(scopeEntry -> {
+                            String[] nameComps = scopeEntry.symbol.getName().getValue().split("\\.");
+                            return nameComps[nameComps.length - 1].equals(mName);
+                        })
                         .findFirst()
                         .map(entry -> this.getEntriesForSymbol(mName, ((BInvokableSymbol) entry.symbol).retType, ctx))
                         .orElseGet(ArrayList::new);
@@ -134,7 +135,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
         Types types = Types.getInstance(compilerContext);
-        Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
+        List<Scope.ScopeEntry> entries = new ArrayList<>();
 
         /*
         LangLib checks also contains a check for the object type tag. But we skip and instead extract the entries
@@ -142,30 +143,29 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
          */
         if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
-            entries.putAll(FilterUtils.getObjectMethodsAndFields(context, objectTypeSymbol, symbolName));
-            entries.putAll(FilterUtils.getLangLibScopeEntries(symbolType, symbolTable, types));
-            return entries.values().stream()
+            entries.addAll(FilterUtils.getObjectMethodsAndFields(context, objectTypeSymbol, symbolName));
+            entries.addAll(FilterUtils.getLangLibScopeEntries(symbolType, symbolTable, types));
+            return entries.stream()
                     .filter(entry -> (!(entry.symbol instanceof BInvokableSymbol))
                             || ((entry.symbol.flags & Flags.REMOTE) != Flags.REMOTE))
                     .collect(Collectors.toList());
         } else if (symbolType instanceof BUnionType) {
-            entries.putAll(FilterUtils.getInvocationsAndFieldsForUnionType((BUnionType) symbolType, context));
+            entries.addAll(FilterUtils.getInvocationsAndFieldsForUnionType((BUnionType) symbolType, context));
         } else if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
-            entries.putAll(FilterUtils.getLangLibScopeEntries(symbolType, symbolTable, types));
-            Map<Name, Scope.ScopeEntry> filteredEntries = symbolType.tsymbol.scope.entries;
+            entries.addAll(FilterUtils.getLangLibScopeEntries(symbolType, symbolTable, types));
+            List<Scope.ScopeEntry> filteredEntries = new ArrayList<>(symbolType.tsymbol.scope.entries.values());
             // For the optional field access expression, the following will be skipped.
             if (symbolType.tsymbol instanceof BRecordTypeSymbol && this.removeOptionalFields()) {
-                filteredEntries.entrySet()
-                        .removeIf(entry -> (entry.getValue().symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL);
+                filteredEntries.removeIf(entry -> (entry.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL);
             }
-            entries.putAll(filteredEntries);
+            entries.addAll(filteredEntries);
         } else {
-            entries.putAll(FilterUtils.getLangLibScopeEntries(symbolType, symbolTable, types));
+            entries.addAll(FilterUtils.getLangLibScopeEntries(symbolType, symbolTable, types));
         }
         /*
         Here we add the BTypeSymbol check to skip the anyData and similar types suggested from lang lib scope entries
          */
-        return entries.values().stream()
+        return entries.stream()
                 .filter(entry -> (!(entry.symbol instanceof BTypeSymbol))
                         && ((!(entry.symbol instanceof BInvokableSymbol))
                         || ((entry.symbol.flags & Flags.REMOTE) != Flags.REMOTE)))

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -51,24 +53,29 @@ import java.util.stream.Collectors;
 public class AnnotationNodeContext extends AbstractCompletionProvider<AnnotationNode> {
 
     public AnnotationNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(AnnotationNode.class);
+        super(AnnotationNode.class);
     }
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, AnnotationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         SyntaxKind attachedNode = node.parent().parent().kind();
-        if (attachedNode == SyntaxKind.FUNCTION_DEFINITION
-                && ((FunctionDefinitionNode) node.parent().parent()).visibilityQualifier().isPresent()
-                && ((FunctionDefinitionNode) node.parent().parent()).visibilityQualifier().get().kind()
-                == SyntaxKind.RESOURCE_KEYWORD) {
-            attachedNode = SyntaxKind.RESOURCE_KEYWORD;
+
+        if (attachedNode == SyntaxKind.FUNCTION_DEFINITION) {
+            NodeList<Token> qualifierList = ((FunctionDefinitionNode) node.parent().parent()).qualifierList();
+            for (Token qualifier : qualifierList) {
+                if (qualifier.kind() == SyntaxKind.RESOURCE_KEYWORD) {
+                    attachedNode = SyntaxKind.RESOURCE_KEYWORD;
+                    break;
+                }
+            }
         }
+
         Node annotRef = node.annotReference();
         String finalAlias = annotRef.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE ? null
                 : ((QualifiedNameReferenceNode) annotRef).modulePrefix().text();
         Map<String, String> pkgAliasMap = context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
+                .filter(pkg -> pkg.symbol != null)
                 .collect(Collectors.toMap(pkg -> pkg.symbol.pkgID.toString(), pkg -> pkg.alias.value));
 
         LSAnnotationCache.getInstance().getAnnotationMapForType(attachedNode, context)
@@ -153,5 +160,10 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
         });
 
         return completionItems;
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, AnnotationNode node) {
+        return !node.atToken().isMissing();
     }
 }

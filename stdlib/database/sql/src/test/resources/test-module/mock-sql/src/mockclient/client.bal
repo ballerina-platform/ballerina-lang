@@ -22,7 +22,7 @@ public type Client client object {
     }
 
     public remote function query(@untainted string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowType = ())
-    returns @tainted stream<record{}, sql:Error> {
+    returns @tainted stream <record {}, sql:Error> {
         if (self.clientActive) {
             return nativeQuery(self, sqlQuery, rowType);
         } else {
@@ -50,6 +50,15 @@ public type Client client object {
         }
     }
 
+    public remote function call(@untainted string|sql:ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes = [])
+    returns sql:ProcedureCallResult|sql:Error {
+        if (self.clientActive) {
+            return nativeCall(self, sqlQuery, rowTypes);
+        } else {
+            return sql:ApplicationError("JDBC Client is already closed, hence further operations are not allowed");
+        }
+    }
+
     public function close() returns sql:Error? {
         self.clientActive = false;
         return close(self);
@@ -71,8 +80,8 @@ returns sql:Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.ClientUtils"
 } external;
 
-function nativeQuery(Client sqlClient, string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowtype)
-returns stream<record{}, sql:Error> = @java:Method {
+function nativeQuery(Client sqlClient, string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowType)
+returns stream <record {}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;
 
@@ -84,6 +93,11 @@ returns sql:ExecutionResult|sql:Error = @java:Method {
 function nativeBatchExecute(Client sqlClient, sql:ParameterizedQuery[] sqlQueries)
 returns sql:ExecutionResult[]|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
+} external;
+
+function nativeCall(Client sqlClient, string|sql:ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes)
+returns sql:ProcedureCallResult|sql:Error = @java:Method {
+    class: "org.ballerinalang.sql.utils.CallUtils"
 } external;
 
 function close(Client mysqlClient) returns sql:Error? = @java:Method {
