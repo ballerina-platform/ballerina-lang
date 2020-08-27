@@ -225,6 +225,15 @@ public abstract class AbstractParserErrorHandler {
         return grandParent;
     }
 
+    protected ParserRuleContext getGreatGrandParentContext() {
+        ParserRuleContext parent = this.ctxStack.pop();
+        ParserRuleContext grandParent = this.ctxStack.pop();
+        ParserRuleContext greatGrandParent = this.ctxStack.peek();
+        this.ctxStack.push(grandParent);
+        this.ctxStack.push(parent);
+        return greatGrandParent;
+    }
+
     /**
      * Search for matching token sequences within the given alternative paths, and find the most optimal solution.
      *

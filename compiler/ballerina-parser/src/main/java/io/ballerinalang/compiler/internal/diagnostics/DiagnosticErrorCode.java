@@ -240,7 +240,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     // Expression followed by the start keyword must be a func-call, a method-call or a remote-method-call
     ERROR_INVALID_EXPRESSION_IN_START_ACTION("BCE207", "error.invalid.expression.in.start.action"),
     // Cannot have the  same qualifier twice
-    ERROR_SAME_OBJECT_TYPE_QUALIFIER("BCE208", "error.same.object.type.qualifier"),
+    ERROR_SAME_CLASS_TYPE_QUALIFIER("BCE208", "error.same.class.type.qualifier"),
     ERROR_DUPLICATE_OBJECT_METHOD_QUALIFIER("BCE209", "error.duplicate.object.method.qualifier"),
     ERROR_QUALIFIER_NOT_ALLOWED("BCE211", "error.qualifier.not.allowed"),
     // Mapping constructor expression cannot be used as a wait expression

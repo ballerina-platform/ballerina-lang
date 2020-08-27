@@ -28,7 +28,7 @@ public class ObjectConstructorExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testSmallestObjectConstructor() {
-        test("object {}","object-constructor/object-constructor-smallest.json");
+        test("object {}", "object-constructor/object-constructor-smallest.json");
     }
 
     @Test
