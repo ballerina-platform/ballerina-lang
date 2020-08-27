@@ -63,14 +63,6 @@
     },
     {
       "label": "error",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "error ${1:name} = error(\"${2:errorCode}\", message = \"${3}\");",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
       "kind": "Event",
       "detail": "error",
       "sortText": "200",

@@ -279,7 +279,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ENUM.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
 
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_MAIN_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE.get()));

@@ -100,8 +100,6 @@ public enum Snippet {
 
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
 
-    DEF_ERROR(SnippetGenerator.getErrorDefinitionSnippet()),
-
     DEF_REMOTE_FUNCTION(SnippetGenerator.getRemoteFunctionSnippet()),
 
     DEF_INIT_FUNCTION(SnippetGenerator.getInitFunctionSnippet()),

@@ -1094,17 +1094,6 @@ public class SnippetGenerator {
                                 SnippetType.SNIPPET);
     }
 
-    /**
-     * Get Error Definition Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getErrorDefinitionSnippet() {
-        String snippet = "error ${1:name} = error(\"${2:errorCode}\", message = \"${3}\");";
-        return new SnippetBlock(ItemResolverConstants.ERROR, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
-    }
-
     // Iterable Operations Snippets
 
     /**
