@@ -47,6 +47,15 @@ public class BasicCasesTest extends BaseTestCase {
     }
 
     @Test(dependsOnMethods = "testAssertTrue")
+    public void testJavaInterops() throws BallerinaTestException {
+        String msg = "1 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"interops"}, null, new String[]{}, new LogLeecher[]{clientLeecher},
+                          projectPath);
+        clientLeecher.waitForText(20000);
+    }
+
+    @Test(dependsOnMethods = "testAssertTrue")
     public void testAllExceptAssertTrue() throws BallerinaTestException {
         String msg1 = "15 passing";
         String msg2 = "1 passing";
