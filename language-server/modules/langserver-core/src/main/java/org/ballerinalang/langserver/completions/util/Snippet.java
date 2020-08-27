@@ -46,6 +46,8 @@ public enum Snippet {
 
     DEF_CLOSED_RECORD_TYPE_DESC(SnippetGenerator.getClosedRecordTypeDescSnippet()),
 
+    DEF_ERROR_TYPE_DESC(SnippetGenerator.getErrorTypeDefinitionSnippet()),
+
     DEF_RESOURCE_HTTP(SnippetGenerator.getResourceDefinitionSnippet()),
 
     DEF_RESOURCE_COMMON(SnippetGenerator.getCommonResourceDefinitionSnippet()),
@@ -100,8 +102,6 @@ public enum Snippet {
 
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
 
-    DEF_ERROR(SnippetGenerator.getErrorDefinitionSnippet()),
-
     DEF_REMOTE_FUNCTION(SnippetGenerator.getRemoteFunctionSnippet()),
 
     DEF_INIT_FUNCTION(SnippetGenerator.getInitFunctionSnippet()),
@@ -116,10 +116,13 @@ public enum Snippet {
 
     DEF_DETACH_FUNCTION(SnippetGenerator.getDetachFunctionSnippet()),
 
+    
     // Expressions Snippets
     EXPR_MATCH(SnippetGenerator.getMatchExpressionSnippet()),
-    
-    
+
+    EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
+
+
     // Keyword Snippets
     KW_ON(SnippetGenerator.getOnSnippet()),
 
@@ -291,7 +294,7 @@ public enum Snippet {
     BUILTIN_DETAIL(SnippetGenerator.getBuiltinDetailSnippet()),
 
     BUILTIN_REASON(SnippetGenerator.getBuiltinReasonSnippet()),
-    
+
     // Iterable operators' lambda function parameters
     ITR_ON_MAP_PARAMS(SnippetGenerator.getIterableOnMapParamSnippet()),
 
