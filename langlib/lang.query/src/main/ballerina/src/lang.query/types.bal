@@ -379,6 +379,7 @@ type _InnerJoinFunction object {
             } else {
                 // Move to next lhs frame
                 self.lhsFrame = ();
+                self.rhsCandidates = ();
                 return self.process();
             }
         }
