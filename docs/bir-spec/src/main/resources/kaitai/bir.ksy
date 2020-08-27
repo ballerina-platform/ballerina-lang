@@ -345,10 +345,8 @@ types:
         type: s4
       - id: type_cp_index
         type: s4
-      - id: annotation_attachments_content_length
-        type: s8
-      - id: annotation_attachments
-        size: annotation_attachments_content_length
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
       - id: required_param_count
         type: s4
       - id: required_params
@@ -377,6 +375,12 @@ types:
       - id: function_body
         type: function_body
         size: function_body_length
+  annotation_attachments_content:
+    seq:
+      - id: annotation_attachments_content_length
+        type: s8
+      - id: annotation_attachments
+        size: annotation_attachments_content_length
   referenced_type:
     seq:
       - id: type_cp_index
@@ -410,12 +414,12 @@ types:
       - id: return_var
         type: return_var
         if: has_return_var != 0
-      - id: dafault_parameter_count
+      - id: default_parameter_count
         type: s4
-      - id: dafault_parameters
-        type: dafault_parameter
+      - id: default_parameters
+        type: default_parameter
         repeat: expr
-        repeat-expr: dafault_parameter_count
+        repeat-expr: default_parameter_count
       - id: local_variables_count
         type: s4
       - id: local_variables
@@ -426,7 +430,8 @@ types:
         type: u1
       - id: default_parameter_basic_blocks_info
         type: basic_blocks_info
-        if: has_default_params_basic_blocks != 0
+        repeat: expr
+        repeat-expr: default_parameter_count
       - id: function_basic_blocks_info
         type: basic_blocks_info
       - id: error_table
@@ -441,7 +446,7 @@ types:
         type: s4
       - id: name_cp_index
         type: s4
-  dafault_parameter:
+  default_parameter:
     seq:
       - id: kind
         type: s1
@@ -498,9 +503,9 @@ types:
     seq:
       - id: name_cp_index
         type: s4
-      - id: channel_in_same_strand
+      - id: is_channel_in_same_strand
         type: u1
-      - id: send
+      - id: is_send
         type: u1
   enclosing_basic_block_id:
     seq:
@@ -554,12 +559,78 @@ types:
           switch-on: instruction_kind
           cases:
             'instruction_kind_enum::instruction_kind_goto': instruction_goto
-            'instruction_kind_enum::instruction_kind_return': instruction_return
-            'instruction_kind_enum::instruction_kind_new_typedesc': instruction_new_typedesc
-            'instruction_kind_enum::instruction_kind_new_structure': instruction_new_structure
-            'instruction_kind_enum::instruction_kind_const_load': instruction_const_load
-            'instruction_kind_enum::instruction_kind_move': instruction_move
             'instruction_kind_enum::instruction_kind_call': instruction_call
+            'instruction_kind_enum::instruction_kind_branch': instruction_branch
+            'instruction_kind_enum::instruction_kind_return': instruction_return
+            'instruction_kind_enum::instruction_kind_async_call': instruction_async_call
+            'instruction_kind_enum::instruction_kind_wait': instruction_wait
+            'instruction_kind_enum::instruction_kind_fp_call': instruction_fp_call
+            'instruction_kind_enum::instruction_kind_wk_receive': instruction_wk_receive
+            'instruction_kind_enum::instruction_kind_wk_send': instruction_wk_send
+            'instruction_kind_enum::instruction_kind_flush': instruction_flush
+            'instruction_kind_enum::instruction_kind_lock': instruction_lock
+            'instruction_kind_enum::instruction_kind_unlock': instruction_unlock
+            'instruction_kind_enum::instruction_kind_field_lock': instruction_field_lock
+            'instruction_kind_enum::instruction_kind_move': instruction_move
+            'instruction_kind_enum::instruction_kind_const_load': instruction_const_load
+            'instruction_kind_enum::instruction_kind_new_structure': instruction_new_structure
+            'instruction_kind_enum::instruction_kind_map_store': instruction_map_store
+            'instruction_kind_enum::instruction_kind_map_load': instruction_map_load
+            'instruction_kind_enum::instruction_kind_new_array': instruction_new_array
+            'instruction_kind_enum::instruction_kind_array_store': instruction_array_store
+            'instruction_kind_enum::instruction_kind_array_load': instruction_array_load
+            'instruction_kind_enum::instruction_kind_type_cast': instruction_type_cast
+            'instruction_kind_enum::instruction_kind_is_like': instruction_is_like
+            'instruction_kind_enum::instruction_kind_type_test': instruction_type_test
+            'instruction_kind_enum::instruction_kind_new_instance': instruction_new_instance
+            'instruction_kind_enum::instruction_kind_object_store': instruction_object_store
+            'instruction_kind_enum::instruction_kind_object_load': instruction_object_load
+            'instruction_kind_enum::instruction_kind_panic': instruction_panic
+            'instruction_kind_enum::instruction_kind_fp_load': instruction_fp_load
+            'instruction_kind_enum::instruction_kind_string_load': instruction_string_load
+            'instruction_kind_enum::instruction_kind_new_xml_element': instruction_new_xml_element
+            'instruction_kind_enum::instruction_kind_new_xml_text': instruction_new_xml_text
+            'instruction_kind_enum::instruction_kind_new_xml_comment': instruction_new_xml_comment
+            'instruction_kind_enum::instruction_kind_new_xml_pi': instruction_new_xml_process_ins
+            'instruction_kind_enum::instruction_kind_new_xml_qname': instruction_new_xml_qname
+            'instruction_kind_enum::instruction_kind_new_string_xml_qname': instruction_new_string_xml_qname
+            'instruction_kind_enum::instruction_kind_xml_seq_store': instruction_xml_seq_store
+            'instruction_kind_enum::instruction_kind_xml_seq_load': instruction_xml_seq_load
+            'instruction_kind_enum::instruction_kind_xml_load': instruction_xml_load
+            'instruction_kind_enum::instruction_kind_xml_load_all': instruction_xml_load_all
+            'instruction_kind_enum::instruction_kind_xml_attribute_load': instruction_xml_attribute_load
+            'instruction_kind_enum::instruction_kind_xml_attribute_store': instruction_xml_attribute_store
+            'instruction_kind_enum::instruction_kind_new_table': instruction_new_table
+            'instruction_kind_enum::instruction_kind_new_typedesc': instruction_new_typedesc
+            'instruction_kind_enum::instruction_kind_table_store': instruction_table_store
+            'instruction_kind_enum::instruction_kind_table_load': instruction_table_load
+            'instruction_kind_enum::instruction_kind_add': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_sub': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_mul': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_div': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_mod': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_equal': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_not_equal': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_greater_than': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_greater_equal': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_less_than': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_less_equal': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_and': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_or': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_ref_equal': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_ref_not_equal': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_closed_range': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_half_open_range': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_annot_access': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_typeof': instruction_unary_operation
+            'instruction_kind_enum::instruction_kind_not': instruction_unary_operation
+            'instruction_kind_enum::instruction_kind_negate': instruction_unary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_and': instruction_unary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_or': instruction_unary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_xor': instruction_unary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_left_shift': instruction_unary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_right_shift': instruction_unary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_unsigned_right_shift': instruction_unary_operation
     enums:
       instruction_kind_enum:
         1: instruction_kind_goto
@@ -672,6 +743,12 @@ types:
         type: operand
   instruction_call:
     seq:
+      - id: call_instruction_info
+        type: call_instruction_info
+      - id: then_bb_id_name_cp_index
+        type: s4
+  call_instruction_info:
+    seq:
       - id: is_virtual
         type: u1
       - id: package_index
@@ -689,8 +766,6 @@ types:
       - id: lhs_operand
         type: operand
         if: has_lhs_operand != 0
-      - id: then_bb_id_name_cp_index
-        type: s4
   instruction_return:
     seq:
       - id: no_value
@@ -702,6 +777,338 @@ types:
       - id: type_cp_index
         type: s4
   instruction_new_structure:
+    seq:
+      - id: rhs_operand
+        type: operand
+      - id: lhs_operand
+        type: operand
+  instruction_type_cast:
+    seq:
+      - id: rhs_operand
+        type: operand
+      - id: lhs_operand
+        type: operand
+      - id: type_cp_index
+        type: s4
+      - id: is_check_types
+        type: u1
+  instruction_new_array:
+    seq:
+      - id: type_cp_index
+        type: s4
+      - id: lhs_operand
+        type: operand
+      - id: size_operand
+        type: operand
+  instruction_branch:
+    seq:
+      - id: branch_operand
+        type: operand
+      - id: true_bb_id_name_cp_index
+        type: s4
+      - id: false_bb_id_name_cp_index
+        type: s4
+  instruction_async_call:
+    seq:
+      - id: call_instruction_info
+        type: call_instruction_info
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
+      - id: then_bb_id_name_cp_index
+        type: s4
+  instruction_wait:
+    seq:
+      - id: wait_expressions_count
+        type: s4
+      - id: wait_expressions
+        type: operand
+        repeat: expr
+        repeat-expr: wait_expressions_count
+      - id: lhs_operand
+        type: operand
+      - id: then_bb_id_name_cp_index
+        type: s4
+  instruction_fp_call:
+    seq:
+      - id: fp_operand
+        type: operand
+      - id: fp_arguments_count
+        type: s4
+      - id: fp_arguments
+        type: operand
+        repeat: expr
+        repeat-expr: fp_arguments_count
+      - id: has_lhs_operand
+        type: s1
+      - id: lhs_operand
+        type: operand
+        if: has_lhs_operand == 1
+      - id: is_asynch
+        type: u1
+      - id: then_bb_id_name_cp_index
+        type: s4
+  instruction_wk_receive:
+    seq:
+      - id: worker_name_cp_index
+        type: s4
+      - id: lhs_operand
+        type: operand
+      - id: is_same_strand
+        type: u1
+      - id: then_bb_id_name_cp_index
+        type: s4
+  instruction_wk_send:
+    seq:
+      - id: channel_name_cp_index
+        type: s4
+      - id: worker_data_operand
+        type: operand
+      - id: is_same_strand
+        type: u1
+      - id: is_synch
+        type: u1
+      - id: lhs_operand
+        type: operand
+        if: is_synch == 1
+      - id: then_bb_id_name_cp_index
+        type: s4
+  instruction_flush:
+    seq:
+      - id: worker_channel_detail
+        type: worker_channel
+      - id: lhs_operand
+        type: operand
+      - id: then_bb_id_name_cp_index
+        type: s4
+  instruction_lock:
+    seq:
+      - id: lock_bb_id_name_cp_index
+        type: s4
+  instruction_unlock:
+    seq:
+      - id: unlock_bb_id_name_cp_index
+        type: s4
+  instruction_field_lock:
+    seq:
+      - id: lock_var_name_cp_index
+        type: s4
+      - id: field_name_cp_index
+        type: s4
+      - id: lock_bb_id_name_cp_index
+        type: s4
+  instruction_map_store:
+    seq:
+      - id: map_store
+        type: index_access
+  instruction_array_store:
+    seq:
+      - id: array_store
+        type: index_access
+  instruction_map_load:
+    seq:
+      - id: is_optional_field_access
+        type: u1
+      - id: is_filling_read
+        type: u1
+      - id: map_load
+        type: index_access
+  instruction_array_load:
+    seq:
+      - id: is_optional_field_access
+        type: u1
+      - id: is_filling_read
+        type: u1
+      - id: array_load
+        type: index_access
+  index_access:
+    seq:
+      - id: lhs_operand
+        type: operand
+      - id: key_operand
+        type: operand
+      - id: rhs_operand
+        type: operand
+  instruction_is_like:
+    seq:
+      - id: type_cp_index
+        type: s4
+      - id: lhs_operand
+        type: operand
+      - id: rhs_operand
+        type: operand
+  instruction_type_test:
+    seq:
+      - id: type_cp_index
+        type: s4
+      - id: lhs_operand
+        type: operand
+      - id: rhs_operand
+        type: operand
+  instruction_new_instance:
+    seq:
+      - id: is_external_definition
+        type: u1
+      - id: external_type_defintion_info
+        type: external_type_defintion_info
+        if: is_external_definition == 1
+      - id: definition_index
+        type: s4
+        if: is_external_definition == 0
+      - id: lhs_operand
+        type: operand
+  external_type_defintion_info:
+    seq:
+      - id: external_pkg_id_cp_index
+        type: s4
+      - id: object_name_cp_index
+        type: s4
+  instruction_object_store:
+    seq:
+      - id: object_store
+        type: index_access
+  instruction_object_load:
+    seq:
+      - id: object_load
+        type: index_access
+  instruction_panic:
+    seq:
+      - id: error_operand
+        type: operand
+  instruction_fp_load:
+    seq:
+      - id: lhs_operand
+        type: operand
+      - id: pkg_index_cp_index
+        type: s4
+      - id: function_name_cp_index
+        type: s4
+      - id: return_type_cp_index
+        type: s4
+      - id: closure_maps_size
+        type: s4
+      - id: closure_map_operand
+        type: operand
+        repeat: expr
+        repeat-expr: closure_maps_size
+      - id: fp_load_function_params_count
+        type: s4
+      - id: fp_load_function_params
+        type: fp_load_function_param
+        repeat: expr
+        repeat-expr: fp_load_function_params_count
+  fp_load_function_param:
+    seq:
+      - id: kind
+        type: s1
+      - id: type_cp_index
+        type: s4
+      - id: name_cp_index
+        type: s4
+  instruction_string_load:
+    seq:
+      - id: string_load
+        type: index_access
+  instruction_new_xml_element:
+    seq:
+      - id: lhs_operand
+        type: operand
+      - id: start_tag_operand
+        type: operand
+      - id: default_ns_uri_operand
+        type: operand
+  instruction_new_xml_text:
+    seq:
+      - id: lhs_operand
+        type: operand
+      - id: text_operand
+        type: operand
+  instruction_new_xml_qname:
+    seq:
+      - id: lhs_operand
+        type: operand
+      - id: local_name_operand
+        type: operand
+      - id: ns_uri_operand
+        type: operand
+      - id: prefix_operand
+        type: operand
+  instruction_new_xml_comment:
+    seq:
+      - id: lhs_operand
+        type: operand
+      - id: text_operand
+        type: operand
+  instruction_new_xml_process_ins:
+    seq:
+      - id: lhs_operand
+        type: operand
+      - id: data_operand
+        type: operand
+      - id: target_operand
+        type: operand
+  instruction_new_string_xml_qname:
+    seq:
+      - id: lhs_operand
+        type: operand
+      - id: string_qname_operand
+        type: operand
+  instruction_xml_seq_store:
+    seq:
+      - id: xml_seq_store
+        type: xml_access
+  instruction_xml_seq_load:
+    seq:
+      - id: xml_seq_load
+        type: index_access
+  instruction_xml_load:
+    seq:
+      - id: xml_load
+        type: index_access
+  instruction_xml_load_all:
+    seq:
+      - id: xml_load_all
+        type: xml_access
+  instruction_xml_attribute_load:
+    seq:
+      - id: xml_attribute_load
+        type: index_access
+  instruction_xml_attribute_store:
+    seq:
+      - id: xml_attribute_store
+        type: index_access
+  xml_access:
+    seq:
+      - id: lhs_operand
+        type: operand
+      - id: rhs_operand
+        type: operand
+  instruction_new_table:
+    seq:
+      - id: type_cp_index
+        type: s4
+      - id: lhs_operand
+        type: operand
+      - id: key_column_operand
+        type: operand
+      - id: data_operand
+        type: operand
+  instruction_table_store:
+    seq:
+      - id: table_store
+        type: index_access
+  instruction_table_load:
+    seq:
+      - id: table_load
+        type: index_access
+  instruction_binary_operation:
+    seq:
+      - id: rhs_operand_one
+        type: operand
+      - id: rhs_operand_two
+        type: operand
+      - id: lhs_operand
+        type: operand
+  instruction_unary_operation:
     seq:
       - id: rhs_operand
         type: operand
