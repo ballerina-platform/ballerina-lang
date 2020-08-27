@@ -28,7 +28,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -68,7 +70,9 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         boolean isLastStatement = this.isNodeLastStatement(bLangBlockStmt, blockOwner, node);
         boolean isWithinScopeAfterLastChild = this.isWithinScopeAfterLastChildNode(treeVisitor, isLastStatement,
                 nodeELine, nodeECol, line, col);
-        if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol) || isWithinScopeAfterLastChild) {
+        if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol) || isWithinScopeAfterLastChild
+                || ((node instanceof BLangSimpleVariableDef || node instanceof BLangExpressionStmt)
+                && line == nodeSLine && col <= nodeECol)) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
@@ -117,8 +121,8 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
     /**
      * When given a statement/ node then find the parent.
      * As an example for an else-if statement, the root is the parent if statement when consider the positioning
-     * 
-     * @param node              Node to find the parent
+     *
+     * @param node Node to find the parent
      * @return {@link Node}     Parent of the node
      */
     private Node getParentNode(Node node) {

@@ -1177,14 +1177,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "error(\"${1:errorCode}\", message = \"${2}\");",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "STRING_VAL_TWO",
       "kind": "Variable",
       "detail": "string",
