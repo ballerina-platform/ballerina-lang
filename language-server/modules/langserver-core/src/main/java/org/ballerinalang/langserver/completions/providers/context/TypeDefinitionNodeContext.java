@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
