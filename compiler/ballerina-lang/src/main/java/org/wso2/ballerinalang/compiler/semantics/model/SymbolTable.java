@@ -356,6 +356,16 @@ public class SymbolTable {
         modules.put(Names.ERROR, this.langErrorModuleSymbol);
         modules.put(Names.OBJECT, this.langObjectModuleSymbol);
         modules.put(Names.XML, this.langXmlModuleSymbol);
+        modules.put(Names.INT, this.langIntModuleSymbol);
+        modules.put(Names.FLOAT, this.langFloatModuleSymbol);
+        modules.put(Names.DECIMAL, this.langDecimalModuleSymbol);
+        modules.put(Names.BOOLEAN, this.langBooleanModuleSymbol);
+        modules.put(Names.FUTURE, this.langFutureModuleSymbol);
+        modules.put(Names.MAP, this.langMapModuleSymbol);
+        modules.put(Names.STREAM, this.langStreamModuleSymbol);
+        modules.put(Names.STRING, this.langStringModuleSymbol);
+        modules.put(Names.TABLE, this.langTableModuleSymbol);
+        modules.put(Names.TYPEDESC, this.langTypedescModuleSymbol);
 
         this.predeclaredModules = Collections.unmodifiableMap(modules);
     }
