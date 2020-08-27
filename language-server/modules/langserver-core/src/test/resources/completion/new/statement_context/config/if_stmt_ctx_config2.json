@@ -62,14 +62,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Event",
-      "detail": "error",
-      "sortText": "200",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",

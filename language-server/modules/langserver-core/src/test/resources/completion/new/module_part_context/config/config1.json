@@ -234,6 +234,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "type <ErrorName> error<?>",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "type ${1:ErrorName} error<${2:map<anydata>}>;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "float",
       "kind": "Unit",
       "detail": "Float",
