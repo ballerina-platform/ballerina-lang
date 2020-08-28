@@ -1465,6 +1465,24 @@
       }
     },
     {
+      "label": "doTask(int a, int c)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c"
+        }
+      },
+      "sortText": "120",
+      "insertText": "doTask(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "a",
       "kind": "Variable",
       "detail": "int",

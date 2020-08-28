@@ -21,7 +21,6 @@ import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -57,7 +56,7 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
             /*
             Covers the completions when the cursor is within the parameter context
              */
-            if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 List<Scope.ScopeEntry> typesInModule = QNameReferenceUtil.getTypesInModule(context,
                         ((QualifiedNameReferenceNode) nodeAtCursor));
                 return this.getCompletionItemList(typesInModule, context);

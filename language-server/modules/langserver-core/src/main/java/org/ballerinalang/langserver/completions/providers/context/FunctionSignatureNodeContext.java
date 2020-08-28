@@ -74,7 +74,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 return completionItems;
             }
             
-            if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 /*
                 Covers the Following
                 (1) function(mod:<cursor>)

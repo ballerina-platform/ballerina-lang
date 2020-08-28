@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -45,7 +44,7 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
     public List<LSCompletionItem> getCompletions(LSContext context, ListConstructorExpressionNode node)
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             List<Scope.ScopeEntry> entries = QNameReferenceUtil.getExpressionContextEntries(context,
                     (QualifiedNameReferenceNode) nodeAtCursor);
 

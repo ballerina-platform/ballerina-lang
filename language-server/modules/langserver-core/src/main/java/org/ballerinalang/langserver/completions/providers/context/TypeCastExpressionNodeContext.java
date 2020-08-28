@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -25,33 +25,44 @@ import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Completion Provider for {@link IndexedExpressionNode} context.
+ * Completion provider for {@link TypeCastExpressionNode} context.
  *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class IndexedExpressionNodeContext extends AbstractCompletionProvider<IndexedExpressionNode> {
-    public IndexedExpressionNodeContext() {
-        super(IndexedExpressionNode.class);
+public class TypeCastExpressionNodeContext extends AbstractCompletionProvider<TypeCastExpressionNode> {
+    public TypeCastExpressionNodeContext() {
+        super(TypeCastExpressionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, IndexedExpressionNode node)
+    public List<LSCompletionItem> getCompletions(LSContext context, TypeCastExpressionNode node)
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Scope.ScopeEntry> entries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-
-            return this.getCompletionItemList(entries, context);
+            return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
         }
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getTypeItems(context));
 
-        return this.expressionCompletions(context);
+        return completionItems;
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, TypeCastExpressionNode node) {
+        /*
+        Resolves the completions within the type cast expression only if the cursor is within the <>. Otherwise will be
+        handled by the parent context. Because the expressions are to be suggested at the expression context.
+         */
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int gtTokenEnd = node.gtToken().textRange().endOffset();
+
+        return cursor <= gtTokenEnd;
     }
 }

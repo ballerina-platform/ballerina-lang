@@ -45,8 +45,7 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
             return new ArrayList<>();
         }
 
-        return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor(),
-                node.initializer().get());
+        return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
     }
 
     @Override

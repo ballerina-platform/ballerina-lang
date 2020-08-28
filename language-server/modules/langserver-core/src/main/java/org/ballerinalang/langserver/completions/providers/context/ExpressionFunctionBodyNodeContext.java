@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -27,7 +26,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,7 +43,7 @@ public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvide
     public List<LSCompletionItem> getCompletions(LSContext ctx, ExpressionFunctionBodyNode node)
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
@@ -59,7 +57,7 @@ public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvide
         }
         int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
         int rightArrowEnd = node.rightDoubleArrow().textRange().endOffset();
-        
+
         return cursor >= rightArrowEnd;
     }
 }
