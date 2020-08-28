@@ -168,6 +168,7 @@ import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
 import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
@@ -823,6 +824,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
+        typeDefSymbol.pos = typeDefinition.name.pos;
 
         boolean distinctFlagPresent = isDistinctFlagPresent(typeDefinition);
 
@@ -844,6 +846,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.flags &= getPublicFlagResetingMask(typeDefinition.flagSet, typeDefinition.typeNode);
         if (isDeprecated(typeDefinition.annAttachments)) {
             typeDefSymbol.flags |= Flags.DEPRECATED;
+        }
+
+        // Reset origin for anonymous types
+        if (Symbols.isFlagOn(typeDefSymbol.flags, Flags.ANONYMOUS)) {
+            typeDefSymbol.origin = VIRTUAL;
         }
 
         if (typeDefinition.annAttachments.stream()
@@ -1036,6 +1043,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
         funcNode.type = funcSymbol.type;
+
+        // Reset origin if it's the generated function node for a lambda
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.LAMBDA)) {
+            funcSymbol.origin = VIRTUAL;
+        }
 
         if (isDeprecated(funcNode.annAttachments)) {
             funcSymbol.flags |= Flags.DEPRECATED;
