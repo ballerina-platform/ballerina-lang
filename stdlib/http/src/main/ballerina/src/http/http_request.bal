@@ -30,7 +30,7 @@ import ballerina/time;
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
 # + mutualSslHandshake - A record providing mutual ssl handshake results.
-public type Request object {
+public class Request {
 
     public string rawPath = "";
     public string method = "";
@@ -564,7 +564,7 @@ public type Request object {
         }
         return cookiesInRequest;
     }
-};
+}
 
 function externCreateNewReqEntity(Request request) returns mime:Entity =
 @java:Method {

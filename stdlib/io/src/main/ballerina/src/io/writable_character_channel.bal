@@ -17,13 +17,13 @@
 import ballerina/java;
 
 # Represents a channel which could be used to write characters through a given WritableCharacterChannel.
-public type WritableCharacterChannel object {
+public class WritableCharacterChannel {
 
     private WritableByteChannel bChannel;
     private string charset;
 
     # Constructs a `WritableByteChannel` from a given `WritableByteChannel` and `Charset`.
-    # 
+    #
     # + bChannel - The `WritableByteChannel`, which would be used to write the characters
     # + charset - The character set, which would be used to encode the given bytes to characters
     public function init(WritableByteChannel bChannel, string charset) {
@@ -86,7 +86,7 @@ public type WritableCharacterChannel object {
     public function close() returns Error? {
         return closeWritableCharacterChannel(self);
     }
-};
+}
 
 function initWritableCharacterChannel(WritableCharacterChannel characterChannel, WritableByteChannel byteChannel,
                                       string charset) = @java:Method {

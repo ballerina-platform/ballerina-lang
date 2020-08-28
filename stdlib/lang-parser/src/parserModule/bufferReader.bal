@@ -19,7 +19,7 @@ import ballerina/log;
 
 const END_OF_FILE = "";
 
-public type BufferReader object {
+public class BufferReader {
     //size of the character array
     private int capacity;
     //pointer which reads the character array
@@ -38,7 +38,7 @@ public type BufferReader object {
     }
 
     # Buffer is filled character by character based on the capacity defined
-    # 
+    #
     # + return - error?
     function fillBuffer() returns error? {
         while (self.bufferSize < self.capacity) {
@@ -57,7 +57,7 @@ public type BufferReader object {
 
     # BufferReader functions as a circular buffer,
     # i:e when one character is consumed, another is filled to the buffer
-    # 
+    #
     # + return - string
     function consume() returns string {
         string currChar = self.characterArray[self.readPointer];
@@ -74,7 +74,7 @@ public type BufferReader object {
     }
 
     # Method to store the characters in buffers for the ones which were consumed.
-    # 
+    #
     # + return - error?
     function storeCharacter() returns error? {
         self.characterArray[self.readPointer] = check self.sourceChannel.read(1);
@@ -91,4 +91,4 @@ public type BufferReader object {
         int lookAhead = (self.readPointer - 1 + lookAheadCount) % self.capacity;
         return self.characterArray[lookAhead];
     }
-};
+}

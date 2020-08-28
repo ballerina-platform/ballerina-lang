@@ -28,7 +28,7 @@
 #                   must be validated with the origin server.
 # + privateFields - Optional fields for the `private` directive. A cache can omit the fields specified and store
 #                   the rest of the response.
-public type ResponseCacheControl object {
+public class ResponseCacheControl {
 
     public boolean mustRevalidate = false;
     public boolean noCache = false;
@@ -92,7 +92,7 @@ public type ResponseCacheControl object {
 
         return buildCommaSeparatedString(directives);
     }
-};
+}
 
 function setResponseCacheControlHeader(Response response) {
     var responseCacheControl = response.cacheControl;

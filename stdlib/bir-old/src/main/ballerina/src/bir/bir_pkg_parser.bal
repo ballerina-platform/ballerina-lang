@@ -16,7 +16,7 @@
 
 import ballerina/stringutils;
 
-public type PackageParser object {
+public class PackageParser {
     BirChannelReader reader;
     boolean symbolsOnly;
 
@@ -34,7 +34,7 @@ public type PackageParser object {
             typeValue: typeValue,
             name: { value: name },
             kind: kind
-        };
+        }
 
         return dcl;
     }

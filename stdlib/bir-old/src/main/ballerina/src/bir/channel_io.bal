@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/lang.'string as strings;
 
 // TODO: move to DataChannel native impl
-public type ChannelReader object {
+public class ChannelReader {
     io:ReadableByteChannel byteChannel;
     io:ReadableDataChannel dataChannel;
 
@@ -81,7 +81,7 @@ public type ChannelReader object {
         int value = self.readInt32();
         return <byte> value;
     }
-};
+}
 
 function bytesToInt(byte[] b) returns int {
     int ff = 255;

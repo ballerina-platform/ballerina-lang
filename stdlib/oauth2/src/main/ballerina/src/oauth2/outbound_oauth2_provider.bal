@@ -62,7 +62,7 @@ type GrantTypeConfig ClientCredentialsGrantConfig|PasswordGrantConfig|DirectToke
 #     }
 # });
 # ```
-public type OutboundOAuth2Provider object {
+public class OutboundOAuth2Provider {
 
     *auth:OutboundAuthProvider;
 
@@ -78,7 +78,7 @@ public type OutboundOAuth2Provider object {
             accessToken: "",
             refreshToken: "",
             expTime: 0
-        };
+        }
     }
 
 # Generate a token for the OAuth2 authentication.

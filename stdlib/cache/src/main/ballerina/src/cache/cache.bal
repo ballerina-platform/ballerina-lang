@@ -58,7 +58,7 @@ service cleanupService = service {
 
 # The `cache:Cache` object, which is used for all the cache-related operations. It is not recommended to insert `()`
 # as the value of the cache since it doesn't make any sense to cache a nil.
-public type Cache object {
+public class Cache {
 
     *AbstractCache;
 
@@ -242,7 +242,7 @@ public type Cache object {
     public function capacity() returns int {
         return self.capacity;
     }
-};
+}
 
 function evict(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy, int capacity, float evictionFactor) {
     int evictionKeysCount = <int>(capacity * evictionFactor);

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type FuncBodyParser object {
+public class FuncBodyParser {
     BirChannelReader reader;
     map<VariableDcl> localVarMap;
     TypeDef?[] typeDefs;
@@ -44,7 +44,7 @@ public type FuncBodyParser object {
 
     private function createGOTO(DiagnosticPos pos, BasicBlock thenBB) returns Terminator {
         TerminatorKind kind = TERMINATOR_GOTO;
-        GOTO goto = {pos:pos, kind:kind, targetBB:thenBB};
+        GOTO goto = {pos:pos, kind:kind, targetBB:thenBB}
         return goto;
     }
 

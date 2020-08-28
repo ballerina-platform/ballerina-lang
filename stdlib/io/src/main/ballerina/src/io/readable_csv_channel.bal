@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Represents a ReadableCSVChannel which could be used to read records from CSV file.
-public type ReadableCSVChannel object {
+public class ReadableCSVChannel {
     private ReadableTextRecordChannel? dc;
 
     # Constructs a CSV channel from a CharacterChannel to read/write CSV records.
@@ -109,7 +109,7 @@ public type ReadableCSVChannel object {
     returns @tainted table<record {}>|Error {
         return getTableExtern(self, structType, fieldNames);
     }
-};
+}
 
 function getTableExtern(ReadableCSVChannel csvChannel, typedesc<record {}> structType, public string[] fieldNames)
             returns @tainted table<record {}>|Error = @java:Method {

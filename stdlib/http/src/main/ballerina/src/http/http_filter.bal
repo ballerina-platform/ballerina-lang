@@ -46,7 +46,7 @@ public type ResponseFilter abstract object {
 # + serviceName - Name of the service
 # + resourceName - Name of the resource
 # + attributes - Attributes to share between filters
-public type FilterContext object {
+public class FilterContext {
 
     private service serviceRef;
     private string serviceName = "";
@@ -84,4 +84,4 @@ public type FilterContext object {
     public function getResourceName() returns string {
         return self.resourceName;
     }
-};
+}

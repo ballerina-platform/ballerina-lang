@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Provides the actions to read/write header values in a gRPC request/response message.
-public type Headers object {
+public class Headers {
 
 # Checks whether the requested header exists.
 # ```ballerina
@@ -98,7 +98,7 @@ public type Headers object {
     public function removeAll() {
         return externRemoveAll(self);
     }
-};
+}
 
 function externExists(Headers headerValues, string headerName) returns boolean =
 @java:Method {
