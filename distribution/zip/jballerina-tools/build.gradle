@@ -165,7 +165,6 @@ dependencies {
     balDoc project(path: ':ballerina-time', configuration: 'balDoc')
     balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
     balDoc project(path: ':ballerina-stringutils', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-jsonutils', configuration: 'balDoc')
 
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
