@@ -1378,7 +1378,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         DiagnosticPos workerNamePos = getPosition(namedWorkerDeclNode.workerName());
         // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
         BLangSimpleVariable var = new SimpleVarBuilder()
-                .with(workerLambdaName)
+                .with(workerLambdaName, workerNamePos)
                 .setExpression(lambdaExpr)
                 .isDeclaredWithVar()
                 .isFinal()
@@ -1419,7 +1419,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangSimpleVariable invoc = new SimpleVarBuilder()
-                .with(workerName)
+                .with(workerName, workerNamePos)
                 .isDeclaredWithVar()
                 .isWorkerVar()
                 .setExpression(bLInvocation)
