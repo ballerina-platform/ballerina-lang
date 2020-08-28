@@ -207,6 +207,10 @@ types:
         repeat-expr: function_count
       - id: annotations_size
         type: s4
+      - id: annotations
+        type: annotation
+        repeat: expr
+        repeat-expr: annotations_size
   golbal_var:
     seq:
       - id: kind
@@ -247,6 +251,28 @@ types:
         type: referenced_type
         repeat: expr
         repeat-expr: referenced_types_count
+  annotation:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s4
+      - id: attach_points_count
+        type: s4
+      - id: attach_points
+        type: attach_point
+        repeat: expr
+        repeat-expr: attach_points_count
+      - id: annotation_type_cp_index
+        type: s4
+      - id: doc
+        type: markdown
+  attach_point:
+    seq:
+      - id: point_name_cp_index
+        type: s4
+      - id: is_source
+        type: u1
   constant:
     seq:
       - id: name_cp_index
@@ -327,12 +353,28 @@ types:
       - id: length
         type: s4
       - id: has_doc
+        type: u1
+      - id: markdown_content
         type: markdown_content
-        size: length
+        if: has_doc == 1
   markdown_content:
     seq:
-      - id: has_doc
-        type: u1
+      - id: description_cp_index
+        type: s4
+      - id: return_value_description_cp_index
+        type: s4
+      - id: parameters_count
+        type: s4
+      - id: parameters
+        type: markdown_parameter
+        repeat: expr
+        repeat-expr: parameters_count
+  markdown_parameter:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: description_cp_index
+        type: s4
   function:
     seq:
       - id: position
@@ -367,7 +409,6 @@ types:
         type: s8
       - id: taint_table
         type: taint_table
-        size: taint_table_length
       - id: doc
         type: markdown
       - id: function_body_length
@@ -379,8 +420,63 @@ types:
     seq:
       - id: annotation_attachments_content_length
         type: s8
+      - id: attachments_count
+        type: s4
       - id: annotation_attachments
-        size: annotation_attachments_content_length
+        type: annotation_attachment
+        repeat: expr
+        repeat-expr: attachments_count
+  annotation_attachment:
+    seq:
+      - id: package_id_cp_index
+        type: s4
+      - id: position
+        type: position
+      - id: tag_reference_cp_index
+        type: s4
+      - id: attach_values_count
+        type: s4
+      - id: attache_values
+        type: attach_value
+        repeat: expr
+        repeat-expr: attach_values_count
+  attach_value:
+    seq:
+      - id: attach_value_type_cp_index
+        type: s4
+      - id: attach_value_value_info
+        type:
+          switch-on: attach_type.shape.type_tag
+          cases:
+            'type_tag_enum::type_tag_array': attach_value_array
+            'type_tag_enum::type_tag_map': attach_value_map
+            'type_tag_enum::type_tag_record': attach_value_map
+            _: constant_value
+    instances:
+      attach_type:
+        value: _root.constant_pool.constant_pool_entries[attach_value_type_cp_index].cp_info.as<shape_cp_info>
+  attach_value_array:
+    seq:
+      - id: array_value_length
+        type: s4
+      - id: array_values
+        type: attach_value
+        repeat: expr
+        repeat-expr: array_value_length
+  attach_value_map:
+    seq:
+      - id: map_entries_count
+        type: s4
+      - id: map_entries
+        type: attach_value_map_entry
+        repeat: expr
+        repeat-expr: map_entries_count
+  attach_value_map_entry:
+    seq:
+      - id: key_name_cp_index
+        type: s4
+      - id: key_value_info
+        type: attach_value
   referenced_type:
     seq:
       - id: type_cp_index
@@ -405,6 +501,22 @@ types:
         type: s2
       - id: column_count
         type: s2
+      - id: taint_table_size
+        type: s4
+      - id: taint_table_entries
+        type: taint_table_entry
+        repeat: expr
+        repeat-expr: taint_table_size
+  taint_table_entry:
+    seq:
+      - id: param_index
+        type: s2
+      - id: taint_record_size
+        type: s4
+      - id: taint_record
+        type: s1
+        repeat: expr
+        repeat-expr: taint_record_size
   function_body:
     seq:
       - id: args_count
@@ -426,8 +538,6 @@ types:
         type: local_variable
         repeat: expr
         repeat-expr: local_variables_count
-      - id: has_default_params_basic_blocks
-        type: u1
       - id: default_parameter_basic_blocks_info
         type: basic_blocks_info
         repeat: expr
