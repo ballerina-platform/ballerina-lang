@@ -1335,6 +1335,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bodyNode.stmts = blockStmt.stmts;
         bodyNode.pos = pos;
         bLFunction.body = bodyNode;
+        bLFunction.internal = true;
 
 //        attachAnnotations(function, annCount, false);
         bLFunction.pos = pos;
@@ -1372,6 +1373,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
         lambdaExpr.pos = pos;
+        lambdaExpr.internal = true;
 
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
 
@@ -1389,6 +1391,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         var.pos = pos;
         lamdaWrkr.setVariable(var);
         lamdaWrkr.isWorker = true;
+        lamdaWrkr.internal = var.internal = true;
         if (namedWorkerDeclNode.parent().kind() == SyntaxKind.FORK_STATEMENT) {
             lamdaWrkr.isInFork = true;
             lamdaWrkr.var.flagSet.add(Flag.FORKED);

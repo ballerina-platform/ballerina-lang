@@ -265,6 +265,7 @@ public class NodeCloner extends BLangNodeVisitor {
             sourceNode.accept(this);
             result = sourceNode.cloneRef;
             result.pos = sourceNode.pos;
+            result.internal = sourceNode.internal;
             result.addWS(source.getWS());
             result.type = sourceNode.type;
         }
