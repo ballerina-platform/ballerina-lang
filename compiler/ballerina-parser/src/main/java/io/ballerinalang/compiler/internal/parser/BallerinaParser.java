@@ -918,7 +918,8 @@ public class BallerinaParser extends AbstractParser {
                 return funcDef;
             case OPEN_PAREN_TOKEN:
                 funcSignature = parseFuncSignature(true);
-                return parseReturnTypeDescRhs(metadata, functionKeyword, funcSignature, isObjectMethod, qualifiers);
+                return parseReturnTypeDescRhs(metadata, functionKeyword, funcSignature, qualifiers, isObjectMethod,
+                        isObjectMemberDescriptor);
             default:
                 STToken token = peek();
                 recover(token, ParserRuleContext.FUNCTION_KEYWORD_RHS, metadata, functionKeyword, isObjectMethod,
@@ -969,7 +970,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseReturnTypeDescRhs(STNode metadata, STNode functionKeyword, STNode funcSignature,
-                                          boolean isObjectMethod, STNode qualifiers) {
+                                          STNode qualifiers, boolean isObjectMethod, boolean isObjectMemberDescriptor) {
         STNodeList qualifierList = (STNodeList) qualifiers;
         switch (peek().kind) {
             // var-decl with function type
@@ -986,10 +987,10 @@ public class BallerinaParser extends AbstractParser {
                     STNode fieldName = parseVariableName();
                     if (qualifierList.isEmpty()) {
                         return parseObjectFieldRhs(metadata, STNodeFactory.createEmptyNode(), readonlyQualifier,
-                                typeDesc, fieldName, false);
+                                typeDesc, fieldName, isObjectMemberDescriptor);
                     } else {
                         return parseObjectFieldRhs(metadata, qualifiers.childInBucket(0), readonlyQualifier, typeDesc,
-                                fieldName, false);
+                                fieldName, isObjectMemberDescriptor);
                     }
                 }
 
@@ -1017,7 +1018,7 @@ public class BallerinaParser extends AbstractParser {
         funcSignature = validateAndGetFuncParams((STFunctionSignatureNode) funcSignature);
 
         STNode funcDef = createFuncDefOrMethodDecl(metadata, functionKeyword, name, funcSignature, qualifiers,
-                isObjectMethod, false);
+                isObjectMethod, isObjectMemberDescriptor);
         endContext();
         return funcDef;
     }

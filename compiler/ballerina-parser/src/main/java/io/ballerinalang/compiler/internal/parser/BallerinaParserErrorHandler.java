@@ -4375,6 +4375,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
             case FUNC_NAME:
+            case CLASS_NAME:
             case FUNCTION_KEYWORD_RHS:
             case VARIABLE_NAME:
             case TYPE_NAME_OR_VAR_NAME:
