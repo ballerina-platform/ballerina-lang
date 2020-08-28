@@ -71,7 +71,6 @@ dependencies {
     distBal project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-openapi', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-system', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-task', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-time', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-java', configuration: 'baloImplementation')
