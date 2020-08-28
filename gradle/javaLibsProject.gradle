@@ -87,7 +87,6 @@ dependencies {
 
     dist project(':ballerina-auth')
     dist project(':ballerina-cli-utils')
-    dist project(':ballerina-config-api')
     dist project(':ballerina-core')
     dist project(':ballerina-crypto')
     dist project(':ballerina-cache')
