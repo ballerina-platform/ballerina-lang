@@ -4709,18 +4709,18 @@ public class BallerinaParser extends AbstractParser {
                 member = parseObjectMethod(metadata, new ArrayList<>(), isObjectMemberDescriptor);
                 break;
             case ASTERISK_TOKEN:
-                STNode asterisk;
-                STNode type;
-                if (skipTypeInclusions) {
-                    asterisk = null;
-                    type = parseTypeReference();
-                } else {
-                    asterisk = consume();
-                    type = parseTypeReference();
+                if (!skipTypeInclusions) {
+                    STNode asterisk = consume();
+                    STNode type = parseTypeReference();
+                    STNode semicolonToken = parseSemicolon();
+                    member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
+                    break;
+                } else if (peek(2).kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                    // In order to provide better recovery when a type-inclusion is used in object-constructor-expr
+                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectMemberDescriptor);
+                    break;
                 }
-                STNode semicolonToken = parseSemicolon();
-                member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
-                break;
+                // Else fall through
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectMemberDescriptor);
