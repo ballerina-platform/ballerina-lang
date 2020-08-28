@@ -46,7 +46,7 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            List<Scope.ScopeEntry> entries = QNameReferenceUtil.expressionContextEntries(context,
+            List<Scope.ScopeEntry> entries = QNameReferenceUtil.getExpressionContextEntries(context,
                     (QualifiedNameReferenceNode) nodeAtCursor);
 
             return this.getCompletionItemList(entries, context);

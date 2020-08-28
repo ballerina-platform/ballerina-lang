@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.eclipse.lsp4j.CodeLens;

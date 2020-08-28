@@ -111,7 +111,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
 //                {"functionParamAnnotationBodyCompletion4.json", "function"},
 //                {"completionWithTupleVariableDef.json", "function"},
 //                {"completionWithinComments.json", "function"}, // Revamp needed
-                {"completionWithinLiterals.json", "function"},
+//                {"completionWithinLiterals.json", "function"},
 //                {"assignmentStmt1.json", "function"},
 //                {"assignmentStmt2.json", "function"},
 //                {"assignmentStmt3.json", "function"},
