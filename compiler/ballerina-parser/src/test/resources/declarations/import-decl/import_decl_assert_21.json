@@ -87,7 +87,7 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
               "hasDiagnostics": true,
               "diagnostics": [
                 "ERROR_INVALID_TOKEN"

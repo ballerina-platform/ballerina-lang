@@ -22,6 +22,8 @@ import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
+import io.ballerinalang.compiler.syntax.tree.Minutiae;
+import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
@@ -36,6 +38,8 @@ import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Predicate;
 
 /**
@@ -109,6 +113,32 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(minusOrSlashCounter.transform(newRoot), new Integer(4));
     }
 
+    @Test
+    public void testSeparatedListNodeNonSeperatorModification() {
+        SyntaxTree syntaxTree = parseFile("separated_node_list_modify.bal");
+        ModulePartNode oldRoot = syntaxTree.rootNode();
+
+        IdentifierModifier identifierModifier = new IdentifierModifier();
+        ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(identifierModifier);
+
+        String expectedStr = getFileContentAsString("separated_node_list_modify_assert.bal");
+        String actualStr = newRoot.toString();
+        Assert.assertEquals(actualStr, expectedStr);
+    }
+
+    @Test
+    public void testSeparatedListNodeAllNodeModification() {
+        SyntaxTree syntaxTree = parseFile("separated_node_list_modify_all_nodes.bal");
+        ModulePartNode oldRoot = syntaxTree.rootNode();
+
+        WhiteSpaceMinutiaeRemover whiteSpaceMinutiaeRemover = new WhiteSpaceMinutiaeRemover();
+        ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(whiteSpaceMinutiaeRemover);
+
+        String expectedStr = getFileContentAsString("separated_node_list_modify_all_nodes_assert.bal");
+        String actualStr = newRoot.toString();
+        Assert.assertEquals(actualStr, expectedStr);
+    }
+
     /**
      * An implementation of {@code TreeModifier} that modify all variable declaration statements.
      */
@@ -138,6 +168,45 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         public IdentifierToken transform(IdentifierToken identifier) {
             return identifier.modify(identifier.text() + "_new");
         }
+    }
+
+    /**
+     * An implementation of {@code TreeModifier} that removes all white space minutiae from all tokens.
+     */
+    private static class WhiteSpaceMinutiaeRemover extends TreeModifier {
+
+        @Override
+        public Token transform(Token token) {
+            Predicate<Minutiae> minutiaePredicate = minutiae -> minutiae.kind() == SyntaxKind.WHITESPACE_MINUTIAE;
+
+            MinutiaeList oldLeadingMinutiae = token.leadingMinutiae();
+            MinutiaeList oldTrailingMinutiae = token.trailingMinutiae();
+
+            Collection<Minutiae> matchingLeadingMinutiae = getMatchingMinutiae(oldLeadingMinutiae, minutiaePredicate);
+            Collection<Minutiae> matchingTrailingMinutiae = getMatchingMinutiae(oldTrailingMinutiae, minutiaePredicate);
+
+            MinutiaeList newLeadingMinutiae = oldLeadingMinutiae.removeAll(matchingLeadingMinutiae);
+            MinutiaeList newTrailingMinutiae = oldTrailingMinutiae.removeAll(matchingTrailingMinutiae);
+
+            return token.modify(newLeadingMinutiae, newTrailingMinutiae);
+        }
+
+        @Override
+        public IdentifierToken transform(IdentifierToken identifierToken) {
+            return (IdentifierToken) this.transform((Token) identifierToken);
+        }
+    }
+
+    private static Collection<Minutiae> getMatchingMinutiae(MinutiaeList leadingMinutiae,
+                                                            Predicate<Minutiae> predicate) {
+        Collection<Minutiae> c = new ArrayList<>();
+        for (int i = 0; i < leadingMinutiae.size(); i++) {
+            Minutiae minutiae = leadingMinutiae.get(i);
+            if (predicate.test(minutiae)) {
+                c.add(minutiae);
+            }
+        }
+        return c;
     }
 
     /**

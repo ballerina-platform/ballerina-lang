@@ -37,7 +37,7 @@ public class SpecificFieldNode extends MappingFieldNode {
         return optionalChildInBucket(0);
     }
 
-    public Token fieldName() {
+    public Node fieldName() {
         return childInBucket(1);
     }
 
@@ -70,7 +70,7 @@ public class SpecificFieldNode extends MappingFieldNode {
 
     public SpecificFieldNode modify(
             Token readonlyKeyword,
-            Token fieldName,
+            Node fieldName,
             Token colon,
             ExpressionNode valueExpr) {
         if (checkForReferenceEquality(
@@ -100,7 +100,7 @@ public class SpecificFieldNode extends MappingFieldNode {
     public static class SpecificFieldNodeModifier {
         private final SpecificFieldNode oldNode;
         private Token readonlyKeyword;
-        private Token fieldName;
+        private Node fieldName;
         private Token colon;
         private ExpressionNode valueExpr;
 
@@ -120,7 +120,7 @@ public class SpecificFieldNode extends MappingFieldNode {
         }
 
         public SpecificFieldNodeModifier withFieldName(
-                Token fieldName) {
+                Node fieldName) {
             Objects.requireNonNull(fieldName, "fieldName must not be null");
             this.fieldName = fieldName;
             return this;

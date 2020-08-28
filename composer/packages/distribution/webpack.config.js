@@ -5,7 +5,6 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
     entry: {
         composer: './src/index.ts',
-        apiEditor: './src/api-editor.ts',
     },
     output: {
         path: path.resolve(__dirname, 'build'),

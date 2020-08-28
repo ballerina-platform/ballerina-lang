@@ -45,7 +45,7 @@ public class ReturnStatementNodeContext extends AbstractCompletionProvider<Retur
     public List<LSCompletionItem> getCompletions(LSContext context, ReturnStatementNode node)
             throws LSCompletionException {
         if (node.expression().isPresent() && node.expression().get().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            List<Scope.ScopeEntry> entries = QNameReferenceUtil.expressionContextEntries(context,
+            List<Scope.ScopeEntry> entries = QNameReferenceUtil.getExpressionContextEntries(context,
                     (QualifiedNameReferenceNode) node.expression().get());
 
             return this.getCompletionItemList(entries, context);
