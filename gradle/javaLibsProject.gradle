@@ -89,7 +89,6 @@ dependencies {
     dist project(':ballerina-core')
     dist project(':ballerina-crypto')
     dist project(':ballerina-cache')
-    dist project(':ballerina-email')
     dist project(':ballerina-file')
     dist project(':ballerina-filepath')
     dist project(':ballerina-sql')

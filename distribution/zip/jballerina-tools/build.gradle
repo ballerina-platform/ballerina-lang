@@ -158,7 +158,6 @@ dependencies {
 
     balDoc project(path: ':ballerina-cache', configuration: 'balDoc')
     balDoc project(path: ':ballerina-crypto', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-email', configuration: 'balDoc')
     balDoc project(path: ':ballerina-file', configuration: 'balDoc')
     balDoc project(path: ':ballerina-filepath', configuration: 'balDoc')
     balDoc project(path: ':ballerina-http', configuration: 'balDoc')
