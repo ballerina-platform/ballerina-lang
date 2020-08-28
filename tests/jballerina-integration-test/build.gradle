@@ -61,7 +61,6 @@ dependencies {
     implementation project(':ballerina-time')
     implementation project(':ballerina-filepath')
     implementation project(':ballerina-observability')
-    implementation project(':ballerina-ldap')
     implementation project(':ballerina-task')
     implementation project(':ballerina-stringutils')
     implementation project(':ballerina-java')
@@ -96,7 +95,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
@@ -115,7 +113,6 @@ dependencies {
     testCompile 'org.hsqldb:hsqldb'
     testCompile 'com.h2database:h2'
     testCompile 'io.ballerina.messaging:broker-amqp'
-    testCompile 'org.apache.directory.server:apacheds-all'
     testCompile 'org.apache.commons:commons-text'
     testCompile 'org.testng:testng'
 

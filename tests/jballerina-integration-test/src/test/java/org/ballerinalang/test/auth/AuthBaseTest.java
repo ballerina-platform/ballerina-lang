@@ -20,7 +20,6 @@ package org.ballerinalang.test.auth;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.auth.ldap.EmbeddedDirectoryServer;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -37,8 +36,6 @@ import java.nio.file.Paths;
 public class AuthBaseTest extends BaseTest {
 
     protected static BServerInstance basicAuthServerInstance;
-    protected static BServerInstance ldapAuthServerInstance;
-    private static EmbeddedDirectoryServer embeddedDirectoryServer;
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws Exception {
@@ -46,7 +43,6 @@ public class AuthBaseTest extends BaseTest {
                 20009, 20010, 20011};
         int[] jwtAuthRequiredPorts = new int[]{20100, 20101, 20102, 20103, 20104, 20105, 20106, 20107, 20108,
                 20109, 20110, 20111, 20112, 20113, 20114, 20115, 20116, 20117, 20199};
-        int[] ldapAuthRequiredPorts = new int[]{20300};
 
         String keyStore = StringEscapeUtils.escapeJava(
                 Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaKeystore.p12").toAbsolutePath()
@@ -59,29 +55,19 @@ public class AuthBaseTest extends BaseTest {
                                            "auth").getAbsolutePath();
         String usersTomlPath = basePath + File.separator + "src" + File.separator + "basic" + File.separator +
                 "users.toml";
-        String usersLdifPath = basePath + File.separator + "src" + File.separator + "ldap" + File.separator +
-                "users.ldif";
-
-        embeddedDirectoryServer = new EmbeddedDirectoryServer();
-        embeddedDirectoryServer.startLdapServer(20399, usersLdifPath);
 
         String[] args = new String[]{"--b7a.config.file=" + usersTomlPath, "--keystore=" + keyStore,
                 "--truststore=" + trustStore};
 
         basicAuthServerInstance = new BServerInstance(balServer);
-        ldapAuthServerInstance = new BServerInstance(balServer);
 
         basicAuthServerInstance.startServer(basePath, "basic", null, args, basicAuthRequiredPorts);
-        ldapAuthServerInstance.startServer(basePath, "ldap", null, args, ldapAuthRequiredPorts);
     }
 
     @AfterGroups(value = "auth-test", alwaysRun = true)
     public void cleanup() throws Exception {
-        embeddedDirectoryServer.stopLdapService();
         basicAuthServerInstance.removeAllLeechers();
         basicAuthServerInstance.shutdownServer();
-        ldapAuthServerInstance.removeAllLeechers();
-        ldapAuthServerInstance.shutdownServer();
     }
 
     protected void assertOK(HttpResponse response) {
