@@ -86,34 +86,7 @@ class _StreamPipeline {
     }
 
     public function getStream() returns stream <Type, error?> {
-        object {
-            public _StreamPipeline pipeline;
-            public typedesc<Type> outputType;
-
-            function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
-                self.pipeline = pipeline;
-                self.outputType = outputType;
-            }
-
-            public function next() returns record {|Type value;|}|error? {
-                _StreamPipeline p = self.pipeline;
-                _Frame|error? f = p.next();
-                if (f is _Frame) {
-                    Type v = <Type>f["$value$"];
-                    // Add orderKey and orderDirection values to respective arrays.
-                    if ((!(f["$orderKey$"] is ())) && (!(f["$orderDirection$"] is ()))) {
-                        anydata[] orKey = <anydata[]>f["$orderKey$"];
-                        // Need to keep the stream value to sort the stream.
-                        orKey.push(<anydata>v);
-                        orderFieldValsArr.push(orKey);
-                        orderDirectionsArr = <boolean[]>f["$orderDirection$"];
-                    }
-                    return internal:setNarrowType(self.outputType, {value: v});
-                } else {
-                    return f;
-                }
-            }
-        } itrObj = new (self, self.resType);
+        IterHelper itrObj = new (self, self.resType);
         var strm = internal:construct(self.resType, itrObj);
         return strm;
     }

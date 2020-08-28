@@ -41,34 +41,7 @@ type Type1 any|error;
 # + return - new stream only containing members of `stm` for which `func` evaluates to true
 public function filter(stream<Type,ErrorType> stm, function(Type val) returns boolean func)
    returns stream<Type,ErrorType>  {
-    object {
-        public stream<Type, ErrorType> strm;
-        public any func;
-
-        public function init(stream<Type, ErrorType> strm, function(Type val) returns boolean func) {
-            self.strm = strm;
-            self.func = func;
-        }
-
-        public function next() returns record {|Type value;|}|ErrorType? {
-            // while loop is required to continue filtering until we find a value which matches the filter or ().
-            while(true) {
-                var nextVal = next(self.strm);
-                if (nextVal is ()) {
-                    return ();
-                } else if (nextVal is error) {
-                    return nextVal;
-                } else {
-                    var value = nextVal?.value;
-                    function(any|error) returns boolean func = internal:getFilterFunc(self.func);
-                    if (func(value)) {
-                        return nextVal;
-                    }
-                }
-            }
-            return ();
-        }
-    } itrObj = new(stm, func);
+    FilterSupport itrObj = new(stm, func);
     return internal:construct(internal:getElementType(typeof stm), itrObj);
 }
 
@@ -100,30 +73,7 @@ public function next(stream<Type, ErrorType> strm) returns record {| Type value;
 # + return - new stream containing result of applying `func` to each member of `stm` in order
 public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type1 func)
    returns stream<Type1,ErrorType> {
-    object {
-       public stream<Type, ErrorType> strm;
-       public any func;
-
-       public function init(stream<Type, ErrorType> strm, function(Type val) returns Type1 func) {
-           self.strm = strm;
-           self.func = func;
-       }
-
-       public function next() returns record {|Type value;|}|ErrorType? {
-           var nextVal = next(self.strm);
-           if (nextVal is ()) {
-               return ();
-           } else {
-               function(any | error) returns any | error mappingFunc = internal:getMapFunc(self.func);
-               if (nextVal is error) {
-                    return nextVal;
-               } else {
-                    var value = mappingFunc(nextVal.value);
-                    return internal:setNarrowType(typeof value, {value : value});
-               }
-           }
-       }
-    } iteratorObj = new(stm, func);
+    MapSupport  iteratorObj = new(stm, func);
     return internal:construct(internal:getReturnType(func), iteratorObj);
 }
 

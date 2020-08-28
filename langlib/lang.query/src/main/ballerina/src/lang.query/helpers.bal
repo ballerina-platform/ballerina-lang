@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.__internal as internal;
 import ballerina/lang.'xml;
 
 function createPipeline(
@@ -189,3 +190,32 @@ function checkNaN(float x) returns boolean = external;
 
 // TODO: This for debugging purposes, remove once completed.
 function print(any|error? data) = external;
+
+class IterHelper {
+    public _StreamPipeline pipeline;
+    public typedesc<Type> outputType;
+
+    function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
+      self.pipeline = pipeline;
+      self.outputType = outputType;
+    }
+
+    public function next() returns record {|Type value;|}|error? {
+        _StreamPipeline p = self.pipeline;
+        _Frame|error? f = p.next();
+        if (f is _Frame) {
+            Type v = <Type>f["$value$"];
+            // Add orderKey and orderDirection values to respective arrays.
+            if ((!(f["$orderKey$"] is ())) && (!(f["$orderDirection$"] is ()))) {
+                anydata[] orKey = <anydata[]>f["$orderKey$"];
+                // Need to keep the stream value to sort the stream.
+                orKey.push(<anydata>v);
+                orderFieldValsArr.push(orKey);
+                orderDirectionsArr = <boolean[]>f["$orderDirection$"];
+            }
+            return internal:setNarrowType(self.outputType, {value: v});
+        } else {
+            return f;
+        }
+    }
+}
