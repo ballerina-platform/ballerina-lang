@@ -74,9 +74,10 @@ public enum ParserRuleContext {
     NAMED_OR_POSITIONAL_ARG_RHS("named-or-positional-arg"),
     ARG_END("arg-end"),
     OBJECT_TYPE_DESCRIPTOR("object-type-desc"),
-    OBJECT_CONSTRUCTOR("object-constructor"),
     OBJECT_MEMBER("object-member"),
+    CLASS_MEMBER_START("class-member-start"),
     OBJECT_MEMBER_START("object-member-start"),
+    CLASS_MEMBER_WITHOUT_METADATA("class-member-without-metadata"),
     OBJECT_MEMBER_WITHOUT_METADATA("object-member-without-metadata"),
     OBJECT_FUNC_OR_FIELD("object-func-or-field"),
     OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY("object-func-or-field-without-visibility"),
@@ -518,6 +519,9 @@ public enum ParserRuleContext {
     XML_STEP_START("xml-step-start"),
     VARIABLE_REF_RHS("variable-ref-rhs"),
     ORDER_CLAUSE_END("order-clause-end"),
+    OBJECT_CONSTRUCTOR("object-constructor"),
+    OBJECT_CONSTRUCTOR_START("object-constructor-start"),
+    OBJECT_CONSTRUCTOR_TYPE_REF("object-constructor-type-ref"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

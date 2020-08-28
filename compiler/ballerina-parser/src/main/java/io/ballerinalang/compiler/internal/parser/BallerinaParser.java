@@ -4518,7 +4518,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseObjectConstructorExpression(STNode annots) {
         startContext(ParserRuleContext.OBJECT_CONSTRUCTOR);
-        STNode objectTypeQualifier = parseObjectTypeQualifiers(ParserRuleContext.OBJECT_CONSTRUCTOR);
+        STNode objectTypeQualifier = parseObjectTypeQualifiers(ParserRuleContext.OBJECT_TYPE_QUALIFIER);
         STNode objectKeyword = parseObjectKeyword();
         STNode typeReference = parseObjectConstructorTypeReference();
         STNode openBrace = parseOpenBrace();
@@ -4570,7 +4570,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACE_TOKEN:
                 return STNodeFactory.createEmptyNode();
             default:
-                recover(nextToken, ParserRuleContext.OBJECT_KEYWORD);
+                recover(nextToken, ParserRuleContext.OBJECT_CONSTRUCTOR_TYPE_REF);
                 return parseObjectConstructorTypeReference();
         }
         return typeReference;
@@ -4667,7 +4667,14 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                recover(peek(), ParserRuleContext.OBJECT_MEMBER_START);
+                ParserRuleContext recoveryCtx;
+                if (skipTypeInclusions) {
+                    recoveryCtx = ParserRuleContext.OBJECT_MEMBER_START;
+                } else {
+                    recoveryCtx = ParserRuleContext.CLASS_MEMBER_START;
+                }
+
+                recover(peek(), recoveryCtx);
                 return parseObjectMember(skipTypeInclusions, isObjectMemberDescriptor);
         }
 
@@ -4719,7 +4726,14 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                recover(peek(), ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA, metadata);
+                ParserRuleContext recoveryCtx;
+                if (skipTypeInclusions) {
+                    recoveryCtx = ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA;
+                } else {
+                    recoveryCtx = ParserRuleContext.CLASS_MEMBER_WITHOUT_METADATA;
+                }
+
+                recover(peek(), recoveryCtx, metadata);
                 return parseObjectMemberWithoutMeta(metadata, skipTypeInclusions, isObjectMemberDescriptor);
         }
 
