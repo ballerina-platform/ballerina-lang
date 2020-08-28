@@ -23,6 +23,7 @@ ballerina-reflect-0.5.0.jar                                                     
 ballerina-mime-1.0.0.jar                                                                            jar            apache2
 ballerina-lang.map-1.1.0-java.jar                                                                   jar            apache2
 ballerina-lang.decimal-1.0.0-java.jar                                                               jar            apache2
+ballerina-email-0.6.0-java.jar                                                                      jar            apache2
 ballerina-crypto-1.0.0-java.jar                                                                     jar            apache2
 metrics-core-3.1.0.jar                                                                              bundle         apache2
 bcpkix-jdk15on-1.61.jar                                                                             bundle         bouncy
