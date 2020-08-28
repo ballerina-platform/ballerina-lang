@@ -17,12 +17,12 @@
 */
 package org.wso2.ballerinalang.compiler.parser;
 
-import io.ballerinalang.compiler.diagnostics.Diagnostic;
-import io.ballerinalang.compiler.diagnostics.DiagnosticSeverity;
-import io.ballerinalang.compiler.syntax.tree.NodeLocation;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.LinePosition;
-import io.ballerinalang.compiler.text.LineRange;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
@@ -282,7 +282,7 @@ public class Parser {
         }
     }
 
-    private DiagnosticPos getPosition(NodeLocation location, BDiagnosticSource diagnosticSource) {
+    private DiagnosticPos getPosition(Location location, BDiagnosticSource diagnosticSource) {
         if (location == null) {
             return null;
         }

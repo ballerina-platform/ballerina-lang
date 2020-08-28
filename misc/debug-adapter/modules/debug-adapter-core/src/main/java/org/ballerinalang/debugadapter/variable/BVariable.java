@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.variable;
 
+import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
 
@@ -59,4 +60,11 @@ public interface BVariable {
      * @return value of the variable instance, in string form.
      */
     String computeValue();
+
+    /**
+     * Returns the corresponding jvm runtime value of this ballerina variable instance, as a JDI value.
+     *
+     * @return the corresponding jvm runtime value of this ballerina variable instance
+     */
+    Value getJvmValue();
 }

@@ -39,7 +39,7 @@ public class BExpressionValue {
 
     public BVariableType getType() {
         if (bVariable == null) {
-            bVariable = VariableFactory.getVariable(context, jdiValue, jdiValue.type().name(), "Temp Var");
+            bVariable = VariableFactory.getVariable(context, jdiValue);
         }
         return bVariable.getBType();
     }
