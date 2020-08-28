@@ -42,6 +42,7 @@ dependencies {
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-system')
     implementation project(':ballerina-openapi')
+    implementation project(':ballerina-task')
     implementation project(':ballerina-time')
     implementation project(':ballerina-transactions')
     implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
