@@ -47,33 +47,6 @@ public class BasicCasesTest extends BaseTestCase {
     }
 
     @Test(dependsOnMethods = "testAssertTrue")
-    public void testJavaInterops() throws BallerinaTestException {
-        String msg = "1 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"interops"}, null, new String[]{}, new LogLeecher[]{clientLeecher},
-                          projectPath);
-        clientLeecher.waitForText(20000);
-    }
-
-    @Test()
-    public void testAnnotationAccess() throws BallerinaTestException {
-        String msg = "3 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"annotation-access"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
-    }
-
-    @Test()
-    public void testAnnotations() throws BallerinaTestException {
-        String msg = "15 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"annotations"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
-    }
-
-    @Test(dependsOnMethods = "testAssertTrue")
     public void testAssertions() throws BallerinaTestException {
         String msg = "87 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -82,7 +55,25 @@ public class BasicCasesTest extends BaseTestCase {
         clientLeecher.waitForText(40000);
     }
 
-    @Test()
+    @Test(dependsOnMethods = "testAssertions")
+    public void testAnnotationAccess() throws BallerinaTestException {
+        String msg = "3 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"annotation-access"}, null,
+                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(40000);
+    }
+
+    @Test(dependsOnMethods = "testAssertions")
+    public void testJavaInterops() throws BallerinaTestException {
+        String msg = "1 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"interops"}, null, new String[]{}, new LogLeecher[]{clientLeecher},
+                          projectPath);
+        clientLeecher.waitForText(20000);
+    }
+
+    @Test(dependsOnMethods = "testAssertions")
     public void testBeforeAfter() throws BallerinaTestException {
         String msg = "2 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -91,7 +82,7 @@ public class BasicCasesTest extends BaseTestCase {
         clientLeecher.waitForText(40000);
     }
 
-    @Test()
+    @Test(dependsOnMethods = "testAssertions")
     public void testBeforeEachAfterEach() throws BallerinaTestException {
         String msg = "3 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -100,7 +91,7 @@ public class BasicCasesTest extends BaseTestCase {
         clientLeecher.waitForText(40000);
     }
 
-    @Test()
+    @Test(dependsOnMethods = "testAssertions")
     public void testConfigApiTest() throws BallerinaTestException {
         String msg = "1 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -109,14 +100,22 @@ public class BasicCasesTest extends BaseTestCase {
         clientLeecher.waitForText(40000);
     }
 
-    @Test()
+    @Test(dependsOnMethods = "testBeforeAfter")
     public void testDependsOn() throws BallerinaTestException {
         String msg = "8 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"dependsOn"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(40000);
+    }
 
+    @Test(dependsOnMethods = "testDependsOn")
+    public void testAnnotations() throws BallerinaTestException {
+        String msg = "15 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"annotations"}, null,
+                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(40000);
     }
 
 }
