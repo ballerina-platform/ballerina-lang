@@ -17,8 +17,9 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.text.LineRange;
-import io.ballerinalang.compiler.text.TextRange;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 
 /**
  * The {@code NodeLocation} represent the location of a {@code Node} in source code.
@@ -27,7 +28,7 @@ import io.ballerinalang.compiler.text.TextRange;
  *
  * @since 2.0.0
  */
-public class NodeLocation {
+public class NodeLocation implements Location {
     private final Node node;
 
     NodeLocation(Node node) {

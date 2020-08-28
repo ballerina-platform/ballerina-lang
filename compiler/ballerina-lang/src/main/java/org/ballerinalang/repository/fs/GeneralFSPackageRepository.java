@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.repository.fs;
 
+import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageEntity;

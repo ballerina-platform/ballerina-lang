@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -52,7 +51,7 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
 
         List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         Optional<Node> arrayLength = node.arrayLength();
-        if (arrayLength.isPresent() && arrayLength.get().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (arrayLength.isPresent() && this.onQualifiedNameIdentifier(context, arrayLength.get())) {
             Predicate<Scope.ScopeEntry> predicate = scopeEntry -> scopeEntry.symbol instanceof BConstantSymbol
                     && ((BConstantSymbol) scopeEntry.symbol).literalType.getKind() == TypeKind.INT
                     && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;

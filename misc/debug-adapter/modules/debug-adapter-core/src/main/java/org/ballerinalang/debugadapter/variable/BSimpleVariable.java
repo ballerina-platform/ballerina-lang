@@ -54,6 +54,12 @@ public abstract class BSimpleVariable implements BVariable {
         return type;
     }
 
+
+    @Override
+    public Value getJvmValue() {
+        return jvmValue;
+    }
+
     @Override
     public Variable getDapVariable() {
         if (dapVariable == null) {

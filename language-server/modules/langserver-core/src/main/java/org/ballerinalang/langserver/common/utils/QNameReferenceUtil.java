@@ -48,7 +48,8 @@ public class QNameReferenceUtil {
      * @param qNameRef qualified name reference
      * @return {@link List} of completion items
      */
-    public static List<Scope.ScopeEntry> expressionContextEntries(LSContext ctx, QualifiedNameReferenceNode qNameRef) {
+    public static List<Scope.ScopeEntry> getExpressionContextEntries(LSContext ctx,
+                                                                     QualifiedNameReferenceNode qNameRef) {
         String moduleAlias = QNameReferenceUtil.getAlias(qNameRef);
         Optional<Scope.ScopeEntry> moduleSymbol = CommonUtil.packageSymbolFromAlias(ctx, moduleAlias);
         return moduleSymbol.map(entry -> ((BPackageSymbol) entry.symbol).scope.entries.values()

@@ -86,14 +86,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "error ${1:name} = error(\"${2:errorCode}\", message = \"${3}\");",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "function",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -239,6 +231,14 @@
       "detail": "Snippet",
       "sortText": "240",
       "insertText": "type ${1:RecordName} record {|\n\t${2}\n|};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type <ErrorName> error<?>",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "type ${1:ErrorName} error<${2:map<anydata>}>;",
       "insertTextFormat": "Snippet"
     },
     {
