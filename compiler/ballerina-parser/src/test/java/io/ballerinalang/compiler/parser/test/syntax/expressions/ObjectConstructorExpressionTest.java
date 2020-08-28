@@ -65,7 +65,31 @@ public class ObjectConstructorExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testObjectConstructorWithFieldsNegative() {
-        testFile("object-constructor/object-constructor-with-object-fields-negative.bal",
-                "object-constructor/object-constructor-with-object-fields-negative.json");
+        testFile("object-constructor/object_constructor_source_06.bal",
+                "object-constructor/object_constructor_assert_06.json");
+        testFile("object-constructor/object_constructor_source_07.bal",
+                "object-constructor/object_constructor_assert_07.json");
+    }
+
+    @Test
+    public void testObjectConstructorForMissingOpenCloseBraces() {
+        testFile("object-constructor/object_constructor_source_01.bal",
+                "object-constructor/object_constructor_assert_01.json");
+        testFile("object-constructor/object_constructor_source_02.bal",
+                "object-constructor/object_constructor_assert_02.json");
+    }
+
+    @Test
+    public void testObjectConstructorForObjectKeywordRecovery() {
+        testFile("object-constructor/object_constructor_source_03.bal",
+                "object-constructor/object_constructor_assert_03.json");
+        testFile("object-constructor/object_constructor_source_04.bal",
+                "object-constructor/object_constructor_assert_04.json");
+    }
+
+    @Test
+    public void testObjectConstructorTypeReferenceRecovery() {
+        testFile("object-constructor/object_constructor_source_05.bal",
+                "object-constructor/object_constructor_assert_05.json");
     }
 }
