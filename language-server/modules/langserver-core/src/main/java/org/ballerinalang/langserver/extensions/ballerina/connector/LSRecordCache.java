@@ -54,16 +54,16 @@ public class LSRecordCache {
         recordASTs = new HashMap<>();
     }
 
-    public void addRecordAST(String org, String module, String version, String record,
+    public void addRecordAST(String org, String module, String version, String record, String beta,
                                    JsonElement ast) {
-        this.recordASTs.put(createKey(org, module, version, record), ast);
+        this.recordASTs.put(createKey(org, module, version, record, beta), ast);
     }
 
-    public JsonElement getRecordAST(String org, String module, String version, String record) {
-        return this.recordASTs.get(createKey(org, module, version, record));
+    public JsonElement getRecordAST(String org, String module, String version, String record, String beta) {
+        return this.recordASTs.get(createKey(org, module, version, record, beta));
     }
 
-    private String createKey(String org, String module, String version, String record) {
-        return org + "-" + module + "-" + version + "-" + record;
+    private String createKey(String org, String module, String version, String record, String beta) {
+        return org + "-" + module + "-" + version + "-" + record + "-" + beta;
     }
 }

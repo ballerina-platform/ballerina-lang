@@ -30,13 +30,15 @@ public class BallerinaConnectorRequest {
     private String version = "";
     private String name;
     private String displayName;
+    private String beta;
 
-    public BallerinaConnectorRequest(String org, String module, String version, String name, String displayName) {
+    public BallerinaConnectorRequest(String org, String module, String version, String name, String displayName, String beta) {
         this.org = org;
         this.module = module;
         this.version = version;
         this.name = name;
         this.displayName = displayName;
+        this.beta = beta;
     }
 
     public String getOrg() {
@@ -59,6 +61,10 @@ public class BallerinaConnectorRequest {
         return displayName;
     }
 
+    public String getBeta() {
+        return beta;
+    }
+
     @Override
     public String toString() {
         return "BallerinaConnectorRequest{" +
@@ -66,6 +72,7 @@ public class BallerinaConnectorRequest {
                 ", module='" + module + '\'' +
                 ", version='" + version + '\'' +
                 ", name='" + name + '\'' +
+                ", beta='" + beta + '\'' +
                 '}';
     }
 }
