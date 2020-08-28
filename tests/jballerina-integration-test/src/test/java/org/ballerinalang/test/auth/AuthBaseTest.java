@@ -36,7 +36,6 @@ import java.nio.file.Paths;
 public class AuthBaseTest extends BaseTest {
 
     protected static BServerInstance basicAuthServerInstance;
-    protected static BServerInstance oauth2ServerInstance;
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws Exception {
@@ -44,7 +43,6 @@ public class AuthBaseTest extends BaseTest {
                 20009, 20010, 20011};
         int[] jwtAuthRequiredPorts = new int[]{20100, 20101, 20102, 20103, 20104, 20105, 20106, 20107, 20108,
                 20109, 20110, 20111, 20112, 20113, 20114, 20115, 20116, 20117, 20199};
-        int[] oauth2RequiredPorts = new int[]{20200, 20201, 20298, 20299};
 
         String keyStore = StringEscapeUtils.escapeJava(
                 Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaKeystore.p12").toAbsolutePath()
@@ -62,18 +60,14 @@ public class AuthBaseTest extends BaseTest {
                 "--truststore=" + trustStore};
 
         basicAuthServerInstance = new BServerInstance(balServer);
-        oauth2ServerInstance = new BServerInstance(balServer);
 
         basicAuthServerInstance.startServer(basePath, "basic", null, args, basicAuthRequiredPorts);
-        oauth2ServerInstance.startServer(basePath, "oauth2", null, args, oauth2RequiredPorts);
     }
 
     @AfterGroups(value = "auth-test", alwaysRun = true)
     public void cleanup() throws Exception {
         basicAuthServerInstance.removeAllLeechers();
         basicAuthServerInstance.shutdownServer();
-        oauth2ServerInstance.removeAllLeechers();
-        oauth2ServerInstance.shutdownServer();
     }
 
     protected void assertOK(HttpResponse response) {
