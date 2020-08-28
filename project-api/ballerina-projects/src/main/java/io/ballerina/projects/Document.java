@@ -18,14 +18,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * {@code Document} represents a Ballerina source file(.bal).
@@ -35,7 +28,6 @@ import java.nio.file.Paths;
 public class Document {
     private final DocumentContext documentContext;
     private final Module module;
-    private SyntaxTree syntaxTree;
 
     Document(DocumentContext documentContext, Module module) {
         this.documentContext = documentContext;
@@ -55,21 +47,10 @@ public class Document {
     }
     
     public SyntaxTree syntaxTree() {
-        if (this.syntaxTree == null) {
-            Path documentPath = Paths.get(documentId().documentPath());
-            try {
-                String text = new String(Files.readAllBytes(documentPath), StandardCharsets.UTF_8);
-                TextDocument textDocument = TextDocuments.from(text);
-                this.syntaxTree = SyntaxTree.from(textDocument);
-            } catch (IOException e) {
-                throw new RuntimeException("unable to parse file: " + documentPath);
-            }
-        }
-        
-        return this.syntaxTree;
+        return this.documentContext.syntaxTree();
     }
 
     public TextDocument textDocument() {
-        return null;
+        return this.documentContext.textDocument();
     }
 }
