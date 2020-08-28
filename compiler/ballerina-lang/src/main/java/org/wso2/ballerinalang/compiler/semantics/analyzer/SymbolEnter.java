@@ -631,6 +631,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         classDefinition.precedence = this.typePrecedence++;
+        if (symResolver.checkForUniqueSymbol(classDefinition.pos, env, tSymbol)) {
+            env.scope.define(tSymbol.name, tSymbol);
+        }
         env.scope.define(tSymbol.name, tSymbol);
     }
 
