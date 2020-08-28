@@ -3037,7 +3037,8 @@
                 },
                 {
                     "name": "typeReference",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 },
                 {
                     "name": "openParenthesis",

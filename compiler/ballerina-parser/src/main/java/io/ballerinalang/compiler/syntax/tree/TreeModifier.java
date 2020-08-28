@@ -2267,7 +2267,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token errorKeyword =
                 modifyToken(errorBindingPatternNode.errorKeyword());
         Node typeReference =
-                modifyNode(errorBindingPatternNode.typeReference());
+                modifyNode(errorBindingPatternNode.typeReference().orElse(null));
         Token openParenthesis =
                 modifyToken(errorBindingPatternNode.openParenthesis());
         SeparatedNodeList<BindingPatternNode> argListBindingPatterns =

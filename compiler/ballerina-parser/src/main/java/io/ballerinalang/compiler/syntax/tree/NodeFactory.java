@@ -2228,14 +2228,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             SeparatedNodeList<BindingPatternNode> argListBindingPatterns,
             Token closeParenthesis) {
         Objects.requireNonNull(errorKeyword, "errorKeyword must not be null");
-        Objects.requireNonNull(typeReference, "typeReference must not be null");
         Objects.requireNonNull(openParenthesis, "openParenthesis must not be null");
         Objects.requireNonNull(argListBindingPatterns, "argListBindingPatterns must not be null");
         Objects.requireNonNull(closeParenthesis, "closeParenthesis must not be null");
 
         STNode stErrorBindingPatternNode = STNodeFactory.createErrorBindingPatternNode(
                 errorKeyword.internalNode(),
-                typeReference.internalNode(),
+                getOptionalSTNode(typeReference),
                 openParenthesis.internalNode(),
                 argListBindingPatterns.underlyingListNode().internalNode(),
                 closeParenthesis.internalNode());

@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -36,8 +37,8 @@ public class ErrorBindingPatternNode extends BindingPatternNode {
         return childInBucket(0);
     }
 
-    public Node typeReference() {
-        return childInBucket(1);
+    public Optional<Node> typeReference() {
+        return optionalChildInBucket(1);
     }
 
     public Token openParenthesis() {
@@ -115,7 +116,7 @@ public class ErrorBindingPatternNode extends BindingPatternNode {
         public ErrorBindingPatternNodeModifier(ErrorBindingPatternNode oldNode) {
             this.oldNode = oldNode;
             this.errorKeyword = oldNode.errorKeyword();
-            this.typeReference = oldNode.typeReference();
+            this.typeReference = oldNode.typeReference().orElse(null);
             this.openParenthesis = oldNode.openParenthesis();
             this.argListBindingPatterns = oldNode.argListBindingPatterns();
             this.closeParenthesis = oldNode.closeParenthesis();
