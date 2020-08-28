@@ -52,7 +52,6 @@ dependencies {
     dist project(':ballerina-choreo-extension-rt')
 
     distBal project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-email', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-filepath', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-observability', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-openapi', configuration: 'baloImplementation')
@@ -83,7 +82,6 @@ dependencies {
     distBal project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-crypto', configuration: 'balSource')
-    balSource project(path: ':ballerina-email', configuration: 'balSource')
     balSource project(path: ':ballerina-filepath', configuration: 'balSource')
     balSource project(path: ':ballerina-observability', configuration: 'balSource')
     balSource project(path: ':ballerina-openapi', configuration: 'balSource')
