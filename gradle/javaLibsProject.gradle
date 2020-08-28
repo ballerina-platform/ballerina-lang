@@ -93,7 +93,6 @@ dependencies {
     dist project(':ballerina-filepath')
     dist project(':ballerina-openapi')
     dist project(':ballerina-lang')
-    dist project(':ballerina-log-api')
     dist project(':ballerina-logging')
     dist project(':ballerina-observability')
     dist project(':ballerina-time')
