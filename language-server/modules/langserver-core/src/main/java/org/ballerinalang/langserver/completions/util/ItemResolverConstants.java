@@ -65,6 +65,7 @@ public class ItemResolverConstants {
     public static final String STRING = "string";
     public static final String XML = "xml";
     public static final String LET = "let";
+    public static final String KEY = "key";
     public static final String SERVICE_WEBSOCKET = "service/webSocket";
     public static final String SERVICE_WEBSOCKET_CLIENT = "service/webSocketClient";
     public static final String SERVICE_WEBSUB = "service/webSub";
