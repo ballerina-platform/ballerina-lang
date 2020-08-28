@@ -81,8 +81,8 @@ public class DebugExecutionManager {
      */
     public Value evaluate(SuspendedContext context, String expression) {
         try {
-            EvaluatorBuilder exprTransformer = new EvaluatorBuilder(context);
-            Evaluator evaluator = exprTransformer.build(expression);
+            EvaluatorBuilder evalBuilder = new EvaluatorBuilder(context);
+            Evaluator evaluator = evalBuilder.build(expression);
             return evaluator.evaluate().getJdiValue();
         } catch (EvaluationException e) {
             return attachedVm.mirrorOf(e.getMessage());

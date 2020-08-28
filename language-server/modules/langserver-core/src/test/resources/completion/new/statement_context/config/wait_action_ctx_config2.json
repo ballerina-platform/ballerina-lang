@@ -1192,11 +1192,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
+      "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "240",
-      "insertText": "error(\"${1:errorCode}\", message = \"${2}\");",
+      "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
     },
     {

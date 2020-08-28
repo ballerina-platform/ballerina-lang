@@ -65,6 +65,11 @@ public abstract class BCompoundVariable implements BVariable {
     }
 
     @Override
+    public Value getJvmValue() {
+        return jvmValue;
+    }
+
+    @Override
     public Variable getDapVariable() {
         if (dapVariable == null) {
             dapVariable = new Variable();
@@ -80,5 +85,15 @@ public abstract class BCompoundVariable implements BVariable {
             childVariables = computeChildVariables();
         }
         return childVariables;
+    }
+
+    public Value getChildByName(String name) throws DebugVariableException {
+        if (childVariables == null) {
+            childVariables = computeChildVariables();
+        }
+        if (!childVariables.containsKey(name)) {
+            throw new DebugVariableException("No child variables found with name: '" + name + "'");
+        }
+        return childVariables.get(name);
     }
 }
