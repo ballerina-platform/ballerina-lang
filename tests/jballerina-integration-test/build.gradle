@@ -84,7 +84,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')

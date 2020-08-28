@@ -155,14 +155,11 @@ dependencies {
     balxBir project(path: ':ballerina-java', configuration: 'bir')
     balxBir project(path: ':ballerina-java-arrays', configuration: 'bir')
 
-
-    balDoc project(path: ':ballerina-cache', configuration: 'balDoc')
     balDoc project(path: ':ballerina-crypto', configuration: 'balDoc')
     balDoc project(path: ':ballerina-email', configuration: 'balDoc')
     balDoc project(path: ':ballerina-file', configuration: 'balDoc')
     balDoc project(path: ':ballerina-filepath', configuration: 'balDoc')
     balDoc project(path: ':ballerina-log-api', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-math', configuration: 'balDoc')
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
     balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
     balDoc project(path: ':ballerina-task', configuration: 'balDoc')
