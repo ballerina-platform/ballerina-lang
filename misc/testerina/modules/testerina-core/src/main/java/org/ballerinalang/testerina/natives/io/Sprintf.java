@@ -31,9 +31,9 @@ import org.ballerinalang.jvm.values.utils.StringUtils;
 import java.util.IllegalFormatConversionException;
 
 /**
- * Extern function ballerina/test#sprintf.
+ * External function ballerina/test#sprintf.
  *
- * @since swan-lake
+ * @since 2.0.0
  */
 public class Sprintf {
 
