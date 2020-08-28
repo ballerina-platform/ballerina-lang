@@ -37,6 +37,7 @@ dependencies {
     implementation project(':ballerina-http')
     implementation project(':ballerina-http')
     implementation project(':ballerina-openapi')
+    implementation project(':ballerina-transactions')
     implementation project(':ballerina-filepath')
     testCompile 'org.testng:testng'
 }
