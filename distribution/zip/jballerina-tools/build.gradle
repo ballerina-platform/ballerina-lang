@@ -160,7 +160,6 @@ dependencies {
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
     balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
     balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-stringutils', configuration: 'balDoc')
 
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
