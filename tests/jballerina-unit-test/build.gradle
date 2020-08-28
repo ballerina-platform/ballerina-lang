@@ -38,7 +38,6 @@ dependencies {
     implementation project(':ballerina-java')
     implementation project(':ballerina-java-arrays')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-jsonutils')
     implementation project(':docerina')
 
     implementation 'com.h2database:h2'
@@ -73,13 +72,11 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-java-arrays', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 }
 
