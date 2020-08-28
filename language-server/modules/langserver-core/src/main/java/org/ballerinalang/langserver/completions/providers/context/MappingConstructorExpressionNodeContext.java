@@ -88,14 +88,14 @@ public class MappingConstructorExpressionNodeContext extends
                 ? nodeAtCursor.parent() : nodeAtCursor;
 
         if (this.withinValueExpression(context, evalNode)) {
-            if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 return this.getExpressionsCompletionsForQNameRef(context, (QualifiedNameReferenceNode) nodeAtCursor);
             }
             return this.expressionCompletions(context);
         }
 
         if (this.withinComputedNameContext(context, evalNode)) {
-            if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 return this.getExpressionsCompletionsForQNameRef(context, (QualifiedNameReferenceNode) nodeAtCursor);
             }
             return getComputedNameCompletions(context);
@@ -165,7 +165,7 @@ public class MappingConstructorExpressionNodeContext extends
                         })
                         .map(scopeEntry -> (BRecordTypeSymbol) scopeEntry.symbol)
                         .findFirst();
-            } else if (typeDesc.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            } else if (this.onQualifiedNameIdentifier(context, typeDesc)) {
                 QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) typeDesc;
                 String modulePrefix = QNameReferenceUtil.getAlias(nameRef);
                 String recName = nameRef.identifier().text();
@@ -267,7 +267,7 @@ public class MappingConstructorExpressionNodeContext extends
         if (annotRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             searchableEntries = visibleSymbols;
             annotationName = ((SimpleNameReferenceNode) annotRef).name().text();
-        } else if (annotRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        } else if (this.onQualifiedNameIdentifier(context, annotRef)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) annotRef;
             Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context,
                     QNameReferenceUtil.getAlias(qNameRef));
