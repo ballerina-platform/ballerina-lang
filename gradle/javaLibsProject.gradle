@@ -96,7 +96,6 @@ dependencies {
     dist project(':ballerina-log-api')
     dist project(':ballerina-logging')
     dist project(':ballerina-observability')
-    dist project(':ballerina-task')
     dist project(':ballerina-time')
     dist project(':ballerina-tool')
     dist project(':ballerina-transactions')
