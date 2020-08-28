@@ -156,7 +156,6 @@ dependencies {
     balxBir project(path: ':ballerina-java-arrays', configuration: 'bir')
 
     balDoc project(path: ':ballerina-crypto', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-filepath', configuration: 'balDoc')
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
     balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
     balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
