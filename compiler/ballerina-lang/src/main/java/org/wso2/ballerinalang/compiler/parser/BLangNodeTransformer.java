@@ -1051,6 +1051,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
         BLangExprFunctionBody bLExprFunctionBody = (BLangExprFunctionBody) TreeBuilder.createExprFunctionBodyNode();
         bLExprFunctionBody.expr = createExpression(expressionFunctionBodyNode.expression());
+        bLExprFunctionBody.pos = getPosition(expressionFunctionBodyNode);
         return bLExprFunctionBody;
     }
 
