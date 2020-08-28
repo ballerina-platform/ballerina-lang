@@ -88,7 +88,6 @@ dependencies {
 //    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
 //    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
 
-    dist project(':ballerina-auth')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-config-api')
     dist project(':ballerina-core')
