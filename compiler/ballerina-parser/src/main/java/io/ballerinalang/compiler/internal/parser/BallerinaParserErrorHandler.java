@@ -4343,6 +4343,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ACCESS_EXPRESSION:
             case BINDING_PATTERN_STARTING_IDENTIFIER:
             case COMPUTED_FIELD_NAME:
+            case SIMPLE_BINDING_PATTERN:
+            case ERROR_FIELD_BINDING_PATTERN:
+            case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -4413,6 +4416,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_LIST_END:
                 return SyntaxKind.CLOSE_PAREN_TOKEN;
             case COMMA:
+            case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
                 return SyntaxKind.COMMA_TOKEN;
             case OPEN_BRACE:
                 return SyntaxKind.OPEN_BRACE_TOKEN;

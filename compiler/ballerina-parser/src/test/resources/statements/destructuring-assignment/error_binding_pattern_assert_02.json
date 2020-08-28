@@ -91,7 +91,7 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTIONAL_BINDING_PATTERN",
+                          "kind": "ERROR_BINDING_PATTERN",
                           "children": [
                             {
                               "kind": "ERROR_TYPE_DESC",
@@ -220,8 +220,17 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTIONAL_BINDING_PATTERN",
+                          "kind": "ERROR_BINDING_PATTERN",
                           "children": [
+                            {
+                              "kind": "ERROR_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
@@ -357,7 +366,7 @@
                               ]
                             },
                             {
-                              "kind": "FUNCTIONAL_BINDING_PATTERN",
+                              "kind": "ERROR_BINDING_PATTERN",
                               "children": [
                                 {
                                   "kind": "ERROR_TYPE_DESC",
@@ -491,8 +500,17 @@
                               ]
                             },
                             {
-                              "kind": "FUNCTIONAL_BINDING_PATTERN",
+                              "kind": "ERROR_BINDING_PATTERN",
                               "children": [
+                                {
+                                  "kind": "ERROR_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                },
                                 {
                                   "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
@@ -590,23 +608,18 @@
               "kind": "ASSIGNMENT_STATEMENT",
               "children": [
                 {
-                  "kind": "FUNCTIONAL_BINDING_PATTERN",
+                  "kind": "ERROR_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "ERROR_TYPE_DESC",
-                      "children": [
+                      "kind": "ERROR_KEYWORD",
+                      "leadingMinutiae": [
                         {
-                          "kind": "ERROR_KEYWORD",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
-                            },
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ]
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
                         }
                       ]
                     },
@@ -635,8 +648,17 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTIONAL_BINDING_PATTERN",
+                          "kind": "ERROR_BINDING_PATTERN",
                           "children": [
+                            {
+                              "kind": "ERROR_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
@@ -699,27 +721,17 @@
                           "kind": "NAMED_ARG_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "SIMPLE_NAME_REFERENCE",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "d"
-                                }
-                              ]
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "d"
                             },
                             {
                               "kind": "EQUAL_TOKEN"
                             },
                             {
-                              "kind": "FUNCTIONAL_BINDING_PATTERN",
+                              "kind": "ERROR_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "ERROR_TYPE_DESC",
-                                  "children": [
-                                    {
-                                      "kind": "ERROR_KEYWORD"
-                                    }
-                                  ]
+                                  "kind": "ERROR_KEYWORD"
                                 },
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
@@ -809,20 +821,29 @@
               "kind": "ASSIGNMENT_STATEMENT",
               "children": [
                 {
-                  "kind": "FUNCTIONAL_BINDING_PATTERN",
+                  "kind": "ERROR_BINDING_PATTERN",
                   "children": [
+                    {
+                      "kind": "ERROR_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "T",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ]
+                          "value": "T"
                         }
                       ]
                     },
@@ -851,15 +872,10 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTIONAL_BINDING_PATTERN",
+                          "kind": "ERROR_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "ERROR_TYPE_DESC",
-                              "children": [
-                                {
-                                  "kind": "ERROR_KEYWORD"
-                                }
-                              ]
+                              "kind": "ERROR_KEYWORD"
                             },
                             {
                               "kind": "OPEN_PAREN_TOKEN"
@@ -914,20 +930,24 @@
                           "kind": "NAMED_ARG_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "SIMPLE_NAME_REFERENCE",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "d"
-                                }
-                              ]
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "d"
                             },
                             {
                               "kind": "EQUAL_TOKEN"
                             },
                             {
-                              "kind": "FUNCTIONAL_BINDING_PATTERN",
+                              "kind": "ERROR_BINDING_PATTERN",
                               "children": [
+                                {
+                                  "kind": "ERROR_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                },
                                 {
                                   "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [

@@ -505,6 +505,9 @@ public class SyntaxErrors {
             case ACCESS_EXPRESSION:
             case BINDING_PATTERN_STARTING_IDENTIFIER:
             case COMPUTED_FIELD_NAME:
+            case SIMPLE_BINDING_PATTERN:
+            case ERROR_FIELD_BINDING_PATTERN:
+            case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -571,6 +574,7 @@ public class SyntaxErrors {
             case ARG_LIST_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
             case COMMA:
+            case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
                 return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
             case OPEN_BRACE:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
