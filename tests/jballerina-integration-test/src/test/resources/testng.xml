@@ -80,7 +80,7 @@
 <!--    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="17">-->
 <!--        <parameter name="enableJBallerinaTests" value="true"/>-->
 <!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.service.resiliency.HttpResiliencyTest"/>-->
+<!--            <class name="org.ballerinalang.test.future.CancelledFuturesWithTrxTest"/>-->
 <!--        </classes>-->
 <!--    </test>-->
 
