@@ -272,8 +272,6 @@ public class BIRBinaryWriter {
             }
         }
 
-        // Write a boolean flag to indicate presence of parameter default bb's
-        birbuf.writeBoolean(!birFunction.parameters.isEmpty());
         // Write basic blocks related to parameter default values
         birFunction.parameters.values().forEach(funcInsWriter::writeBBs);
 
@@ -302,9 +300,11 @@ public class BIRBinaryWriter {
         ByteBuf birbuf = Unpooled.buffer();
         birbuf.writeShort(taintTable.rowCount);
         birbuf.writeShort(taintTable.columnCount);
+        birbuf.writeInt(taintTable.taintTable.size());
         for (Integer paramIndex : taintTable.taintTable.keySet()) {
             birbuf.writeShort(paramIndex);
             List<Byte> taintRecord = taintTable.taintTable.get(paramIndex);
+            birbuf.writeInt(taintRecord.size());
             for (Byte taintStatus : taintRecord) {
                 birbuf.writeByte(taintStatus);
             }
