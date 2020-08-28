@@ -17,9 +17,9 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocuments;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
