@@ -47,6 +47,7 @@ dependencies {
     implementation project(':ballerina-transactions')
     implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
     implementation project(':ballerina-tool')
+    implementation project(':ballerina-cache')
     implementation project(':ballerina-java')
     implementation 'info.picocli:picocli'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
