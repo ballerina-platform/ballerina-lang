@@ -177,7 +177,7 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testObjectFieldWithMissingEqual() {
+    public void testObjectFieldWithInitializer() {
         test("object-type-def/object_type_def_source_09.bal", "object-type-def/object_type_def_assert_09.json");
     }
 
@@ -224,5 +224,10 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testInvalidObjectMethodWithTransactional() {
         test("object-type-def/object_type_def_source_42.bal", "object-type-def/object_type_def_assert_42.json");
+    }
+
+    @Test
+    public void testObjectDescWithObjectMemberDescriptorsNegative() {
+        testFile("object-type-def/object_type_def_source_43.bal", "object-type-def/object_type_def_assert_43.json");
     }
 }
