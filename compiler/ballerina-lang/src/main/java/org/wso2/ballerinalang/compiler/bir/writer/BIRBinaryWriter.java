@@ -88,7 +88,7 @@ public class BIRBinaryWriter {
         // Write functions
         writeFunctions(birbuf, typeWriter, insWriter, birPackage.functions);
         // Write annotations
-        writeAnnotations(birbuf, typeWriter, insWriter, birPackage.annotations);
+        writeAnnotations(birbuf, typeWriter, birPackage.annotations);
 
         // Write the constant pool entries.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -233,8 +233,8 @@ public class BIRBinaryWriter {
 
         // Arg count
         birbuf.writeInt(birFunction.argsCount);
-        // Local variables
 
+        // Write return variable, function parameters and local variables
         birbuf.writeBoolean(birFunction.returnVariable != null);
         if (birFunction.returnVariable != null) {
             birbuf.writeByte(birFunction.returnVariable.kind.getValue());
@@ -258,11 +258,11 @@ public class BIRBinaryWriter {
             birbuf.writeByte(localVar.kind.getValue());
             writeType(birbuf, localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
-            // skip compiler added vars and only write metaVarName for user added vars
+            // Skip compiler added vars and only write metaVarName for user added vars
             if (localVar.kind.equals(VarKind.ARG)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
             }
-            // add enclosing basic block id
+            // Add enclosing basic block id
             if (localVar.kind.equals(VarKind.LOCAL)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
                 birbuf.writeInt(addStringCPEntry(localVar.endBB != null ? localVar.endBB.id.value : ""));
@@ -290,7 +290,6 @@ public class BIRBinaryWriter {
             birbuf.writeBoolean(details.send);
         }
 
-
         // Write length of the function body so that it can be skipped easily.
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
@@ -313,8 +312,8 @@ public class BIRBinaryWriter {
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
-    private void writeAnnotations(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
-                                List<BIRNode.BIRAnnotation> birAnnotationList) {
+    private void writeAnnotations(ByteBuf buf, BIRTypeWriter typeWriter,
+                                  List<BIRNode.BIRAnnotation> birAnnotationList) {
         buf.writeInt(birAnnotationList.size());
         birAnnotationList.forEach(annotation -> writeAnnotation(buf, typeWriter, annotation));
     }
@@ -351,7 +350,7 @@ public class BIRBinaryWriter {
 
         writeType(buf, birConstant.type);
 
-        // write the length of the conctant value, so that it can be skipped.
+        // write the length of the constant value, so that it can be skipped.
         ByteBuf birbuf = Unpooled.buffer();
         writeConstValue(birbuf, birConstant.constValue);
         int length = birbuf.nioBuffer().limit();

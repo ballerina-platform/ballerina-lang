@@ -403,12 +403,6 @@ public class BIRPackageSymbolEnter {
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
     }
 
-    private void skipPosition(DataInputStream dataInStream) throws IOException {
-        for (int i = 0; i < 5; i++) {
-            dataInStream.readInt();
-        }
-    }
-
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
         skipPosition(dataInStream);
         String typeDefName = getStringCPEntryValue(dataInStream);
@@ -450,6 +444,12 @@ public class BIRPackageSymbolEnter {
         this.env.pkgSymbol.scope.define(symbol.name, symbol);
         if (type.tag == TypeTags.ERROR) {
             defineErrorConstructor(this.env.pkgSymbol.scope, symbol);
+        }
+    }
+
+    private void skipPosition(DataInputStream dataInStream) throws IOException {
+        for (int i = 0; i < 5; i++) {
+            dataInStream.readInt();
         }
     }
 
