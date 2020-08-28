@@ -1,0 +1,47 @@
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+package io.ballerina.projects.utils;
+
+/**
+ * Defines constants related to the project directory.
+ *
+ * @since 2.0.0
+ */
+public class ProjectConstants {
+
+    public static final String BLANG_SOURCE_EXT = ".bal";
+
+    public static final String BALLERINA_TOML = "Ballerina.toml";
+
+    public static final String SOURCE_DIR_NAME = "src";
+    public static final String BIN_DIR_NAME = "bin";
+    public static final String TARGET_DIR_NAME = "target";
+    public static final String TARGET_BALO_DIRECTORY = "balo";
+
+    public static final String CACHES_DIR_NAME = "caches";
+
+    public static final String USER_DIR = "user.dir";
+
+    // Balo specific constants
+    public static final String MODULES_ROOT = "modules";
+
+    public static final String BIR_CACHE_DIR_NAME = "bir_cache";
+    public static final String JAR_CACHE_DIR_NAME = "jar_cache";
+    public static final String JSON_CACHE_DIR_NAME = "json_cache";
+    public static final String TEST_DIR_NAME = "tests";
+}
