@@ -662,8 +662,8 @@
                 "url": "testerina-before-and-after-test"
             },
             {
-                "name": "Before Each Test",
-                "url": "testerina-before-each-test"
+                "name": "Before and After Each",
+                "url": "testerina-before-and-after-each"
             },
             {
                 "name": "Before and After Suite",
@@ -679,11 +679,11 @@
             },
             {
                 "name": "Function Mocks",
-                "url": "testerina-function-mocks"
+                "url": "testerina-mocking-functions"
             },
             {
                 "name": "Object Mocks",
-                "url": "testerina-object-mocks"
+                "url": "testerina-mocking-objects"
             },
             {
                 "name": "Group Tests",
