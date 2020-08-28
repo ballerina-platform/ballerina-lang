@@ -1,4 +1,3 @@
-# For the moment `ballerina test` works only in projects.
 ballerina test test_module
 Compiling source
         ballerinatest/test_module:0.1.0
@@ -8,12 +7,15 @@ Creating balos
 
 Running tests
         ballerinatest/test_module:0.1.0
-I'm the before function!
-I'm in test function 3!
-I'm the before function!
-I'm in test function 2!
-I'm the before function!
+I'm the before each function!
 I'm in test function 1!
+I'm the after each function!
+I'm the before each function!
+I'm in test function 2!
+I'm the after each function!
+I'm the before each function!
+I'm in test function 3!
+I'm the after each function!
 
         [pass] testFunction3
         [pass] testFunction2
