@@ -1,0 +1,739 @@
+From be62066a6de76e2e7415117903a2fca02f1a8f13 Mon Sep 17 00:00:00 2001
+From: MadhukaHarith <harithmadhu@gmail.com>
+Date: Fri, 28 Aug 2020 11:23:07 +0530
+Subject: [PATCH 1/2] Remove xmlutils source code
+
+---
+ stdlib/xmlutils/build.gradle                  |  69 ------
+ .../src/main/ballerina/Ballerina.toml         |  13 --
+ .../src/main/ballerina/src/xmlutils/Module.md |   4 -
+ .../main/ballerina/src/xmlutils/xmlutils.bal  |  71 ------
+ .../stdlib/xmlutils/ConvertUtils.java         |  68 ------
+ .../stdlib/xmlutils/JSONToXMLConverter.java   | 209 ------------------
+ .../stdlib/xmlutils/XmlUtilsTest.java         | 101 ---------
+ .../test/resources/test-src/xmlutils_test.bal |  84 -------
+ stdlib/xmlutils/src/test/resources/testng.xml |  37 ----
+ 9 files changed, 656 deletions(-)
+ delete mode 100644 stdlib/xmlutils/build.gradle
+ delete mode 100644 stdlib/xmlutils/src/main/ballerina/Ballerina.toml
+ delete mode 100644 stdlib/xmlutils/src/main/ballerina/src/xmlutils/Module.md
+ delete mode 100644 stdlib/xmlutils/src/main/ballerina/src/xmlutils/xmlutils.bal
+ delete mode 100644 stdlib/xmlutils/src/main/java/org/ballerinalang/stdlib/xmlutils/ConvertUtils.java
+ delete mode 100644 stdlib/xmlutils/src/main/java/org/ballerinalang/stdlib/xmlutils/JSONToXMLConverter.java
+ delete mode 100644 stdlib/xmlutils/src/test/java/org/ballerinalang/stdlib/xmlutils/XmlUtilsTest.java
+ delete mode 100644 stdlib/xmlutils/src/test/resources/test-src/xmlutils_test.bal
+ delete mode 100644 stdlib/xmlutils/src/test/resources/testng.xml
+
+diff --git a/stdlib/xmlutils/build.gradle b/stdlib/xmlutils/build.gradle
+deleted file mode 100644
+index 6930f0ff327..00000000000
+--- a/stdlib/xmlutils/build.gradle
++++ /dev/null
+@@ -1,69 +0,0 @@
+-/*
+- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- * http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- *
+- */
+-
+-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+-
+-configurations.testCompileClasspath {
+-    resolutionStrategy {
+-        preferProjectModules()
+-    }
+-}
+-
+-dependencies {
+-    baloCreat project(':lib-creator')
+-
+-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+-
+-    implementation 'org.apache.ws.commons.axiom:axiom-impl'
+-    implementation 'org.apache.ws.commons.axiom:axiom-dom'
+-    implementation 'org.apache.ws.commons.axiom:axiom-c14n'
+-
+-    implementation project(':ballerina-lang')
+-    implementation project(':ballerina-runtime')
+-    implementation project(':ballerina-runtime-api')
+-
+-    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+-
+-    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+-    testCompile project(':ballerina-test-utils')
+-    testCompile project(':ballerina-core')
+-    testCompile project(':ballerina-file')
+-
+-    testCompile 'org.testng:testng'
+-    testCompile 'org.slf4j:slf4j-jdk14'
+-    testCompile 'com.h2database:h2'
+-}
+-
+-createBalo {
+-    jvmTarget = 'true'
+-}
+-
+-description = 'Ballerina - Xmlutils'
+-
+-configurations {
+-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+-}
+-
+-configurations.all {
+-    resolutionStrategy.preferProjectModules()
+-}
+diff --git a/stdlib/xmlutils/src/main/ballerina/Ballerina.toml b/stdlib/xmlutils/src/main/ballerina/Ballerina.toml
+deleted file mode 100644
+index 85561835f1a..00000000000
+--- a/stdlib/xmlutils/src/main/ballerina/Ballerina.toml
++++ /dev/null
+@@ -1,13 +0,0 @@
+-[project]
+-org-name = "ballerina"
+-version = "0.5.0"
+-
+-[platform]
+-target = "java8"
+-
+-    [[platform.libraries]]
+-    artifactId = "xmlutils"
+-    version = "0.5.0"
+-    path = "./lib/ballerina-xmlutils-0.5.0-java.jar"
+-    groupId = "ballerina"
+-    modules = ["xmlutils"]
+diff --git a/stdlib/xmlutils/src/main/ballerina/src/xmlutils/Module.md b/stdlib/xmlutils/src/main/ballerina/src/xmlutils/Module.md
+deleted file mode 100644
+index 22e54dfc1e1..00000000000
+--- a/stdlib/xmlutils/src/main/ballerina/src/xmlutils/Module.md
++++ /dev/null
+@@ -1,4 +0,0 @@
+-## Module overview
+-
+-This module provides utility functions to manipulate the built-in `xml` data type. 
+-It provides APIs to convert a `json` to an `xml` or convert a `table` to an `xml`.
+diff --git a/stdlib/xmlutils/src/main/ballerina/src/xmlutils/xmlutils.bal b/stdlib/xmlutils/src/main/ballerina/src/xmlutils/xmlutils.bal
+deleted file mode 100644
+index b8b7987d384..00000000000
+--- a/stdlib/xmlutils/src/main/ballerina/src/xmlutils/xmlutils.bal
++++ /dev/null
+@@ -1,71 +0,0 @@
+-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+-//
+-// WSO2 Inc. licenses this file to you under the Apache License,
+-// Version 2.0 (the "License"); you may not use this file except
+-// in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-// http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing,
+-// software distributed under the License is distributed on an
+-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-// KIND, either express or implied.  See the License for the
+-// specific language governing permissions and limitations
+-// under the License.
+-
+-import ballerina/java;
+-
+-# Represents a record type to provide configurations for the JSON to XML
+-# conversion.
+-#
+-# + attributePrefix - The attribute prefix to use in the XML representation
+-# + arrayEntryTag - The XML tag to add an element from a JSON array
+-public type JsonOptions record {
+-    string attributePrefix = "@";
+-    string arrayEntryTag = "root";
+-};
+-
+-# Converts a JSON object to an XML representation.
+-# ```ballerina
+-# json data = {
+-#     name: "John",
+-#     age: 30
+-# };
+-# xml|error xmlValue = xmlutils:fromJSON(data);
+-# ```
+-#
+-# + jsonValue - The JSON source
+-# + options - The `xmlutils:JsonOptions` record for JSON to XML conversion properties
+-# + return - XML representation of the given JSON if the JSON is
+-#            successfully converted or else an `error`
+-public function fromJSON(json? jsonValue, JsonOptions options = {}) returns xml|error = @java:Method {
+-    name: "fromJSON",
+-    class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
+-} external;
+-
+-
+-# Converts a table to its XML representation.
+-# ```ballerina
+-# type Employee record {
+-#      int id;
+-#      string name;
+-#      float salary;
+-#      boolean permanent;
+-#  };
+-# table<Employee> tableValue = table[ { id: 1, name: "Mary",  salary: 300.5, permanent: true },
+-#         { id: 2, name: "John",  salary: 300.5, permanent: true }
+-#     ];
+-# xml xmlValue = xmlutils:fromTable(tableValue);
+-# ```
+-#
+-# + tableValue - The `table` value to be converted to an XML
+-# + return - The XML representation of the provided table
+-public function fromTable(table<record{}> tableValue) returns xml {
+-    return externFromTable(tableValue);
+-}
+-
+-function externFromTable(table<record{}> tableValue) returns xml = @java:Method {
+-    name: "fromTable",
+-    class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
+-} external;
+diff --git a/stdlib/xmlutils/src/main/java/org/ballerinalang/stdlib/xmlutils/ConvertUtils.java b/stdlib/xmlutils/src/main/java/org/ballerinalang/stdlib/xmlutils/ConvertUtils.java
+deleted file mode 100644
+index 604f90df20e..00000000000
+--- a/stdlib/xmlutils/src/main/java/org/ballerinalang/stdlib/xmlutils/ConvertUtils.java
++++ /dev/null
+@@ -1,68 +0,0 @@
+-/*
+- * Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+- *
+- * WSO2 Inc. licenses this file to you under the Apache License,
+- * Version 2.0 (the "License"); you may not use this file except
+- * in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- * http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing,
+- * software distributed under the License is distributed on an
+- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+- * KIND, either express or implied.  See the License for the
+- * specific language governing permissions and limitations
+- * under the License.
+- */
+-
+-package org.ballerinalang.stdlib.xmlutils;
+-
+-import org.ballerinalang.jvm.BallerinaErrors;
+-import org.ballerinalang.jvm.StringUtils;
+-import org.ballerinalang.jvm.XMLFactory;
+-import org.ballerinalang.jvm.values.MapValue;
+-import org.ballerinalang.jvm.values.TableValueImpl;
+-import org.ballerinalang.jvm.values.XMLValue;
+-import org.ballerinalang.jvm.values.api.BString;
+-
+-/**
+- * This class work as a bridge with ballerina and a Java implementation of ballerina/xmlutils modules.
+- *
+- * @since 1.1.0
+- */
+-public class ConvertUtils {
+-
+-    private static final String OPTIONS_ATTRIBUTE_PREFIX = "attributePrefix";
+-    private static final String OPTIONS_ARRAY_ENTRY_TAG = "arrayEntryTag";
+-
+-    private ConvertUtils() {
+-    }
+-
+-    /**
+-     * Converts a JSON to the corresponding XML representation.
+-     *
+-     * @param json    JSON record object
+-     * @param options option details
+-     * @return XML object that construct from JSON
+-     */
+-    public static Object fromJSON(Object json, MapValue<BString, BString> options) {
+-        try {
+-            String attributePrefix = (options.get(StringUtils.fromString(OPTIONS_ATTRIBUTE_PREFIX))).getValue();
+-            String arrayEntryTag = (options.get(StringUtils.fromString(OPTIONS_ARRAY_ENTRY_TAG))).getValue();
+-            return JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
+-        } catch (Exception e) {
+-            return BallerinaErrors.createError(StringUtils.fromString(e.getMessage()));
+-        }
+-    }
+-
+-    /**
+-     * Converts a given table to its XML representation.
+-     *
+-     * @param tableValue Table record pointer
+-     * @return XML record that construct from the table
+-     */
+-    public static XMLValue fromTable(TableValueImpl tableValue) {
+-        return XMLFactory.tableToXML(tableValue);
+-    }
+-}
+diff --git a/stdlib/xmlutils/src/main/java/org/ballerinalang/stdlib/xmlutils/JSONToXMLConverter.java b/stdlib/xmlutils/src/main/java/org/ballerinalang/stdlib/xmlutils/JSONToXMLConverter.java
+deleted file mode 100644
+index 78e07dc6349..00000000000
+--- a/stdlib/xmlutils/src/main/java/org/ballerinalang/stdlib/xmlutils/JSONToXMLConverter.java
++++ /dev/null
+@@ -1,209 +0,0 @@
+-/*
+- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+- *
+- *  WSO2 Inc. licenses this file to you under the Apache License,
+- *  Version 2.0 (the "License"); you may not use this file except
+- *  in compliance with the License.
+- *  You may obtain a copy of the License at
+- *
+- *  http://www.apache.org/licenses/LICENSE-2.0
+- *
+- *  Unless required by applicable law or agreed to in writing,
+- *  software distributed under the License is distributed on an
+- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+- *  KIND, either express or implied.  See the License for the
+- *  specific language governing permissions and limitations
+- *  under the License.
+- */
+-
+-package org.ballerinalang.stdlib.xmlutils;
+-
+-import org.ballerinalang.jvm.BallerinaErrors;
+-import org.ballerinalang.jvm.StringUtils;
+-import org.ballerinalang.jvm.TypeChecker;
+-import org.ballerinalang.jvm.XMLFactory;
+-import org.ballerinalang.jvm.XMLValidator;
+-import org.ballerinalang.jvm.types.BMapType;
+-import org.ballerinalang.jvm.types.BType;
+-import org.ballerinalang.jvm.types.TypeTags;
+-import org.ballerinalang.jvm.values.ArrayValue;
+-import org.ballerinalang.jvm.values.MapValueImpl;
+-import org.ballerinalang.jvm.values.RefValue;
+-import org.ballerinalang.jvm.values.XMLItem;
+-import org.ballerinalang.jvm.values.XMLQName;
+-import org.ballerinalang.jvm.values.XMLSequence;
+-import org.ballerinalang.jvm.values.XMLValue;
+-import org.ballerinalang.jvm.values.api.BString;
+-import org.ballerinalang.jvm.values.api.BXML;
+-
+-import java.util.ArrayList;
+-import java.util.LinkedHashMap;
+-import java.util.List;
+-import java.util.Map.Entry;
+-
+-/**
+- * Common utility methods used for JSON manipulation.
+- *
+- * @since 1.0
+- */
+-@SuppressWarnings("unchecked")
+-public class JSONToXMLConverter {
+-
+-    private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
+-    private static final String XSI_PREFIX = "xsi";
+-    private static final String NIL = "nil";
+-
+-    /**
+-     * Converts given JSON object to the corresponding XML.
+-     *
+-     * @param json            JSON object to get the corresponding XML
+-     * @param attributePrefix String prefix used for attributes
+-     * @param arrayEntryTag   String used as the tag in the arrays
+-     * @return XMLValue XML representation of the given JSON object
+-     */
+-    public static XMLValue convertToXML(Object json, String attributePrefix, String arrayEntryTag) {
+-        if (json == null) {
+-            return new XMLSequence();
+-        }
+-
+-        List<XMLValue> xmlElemList = traverseTree(json, attributePrefix, arrayEntryTag);
+-        if (xmlElemList.size() == 1) {
+-            return xmlElemList.get(0);
+-        } else {
+-            ArrayList<BXML> seq = new ArrayList<>(xmlElemList);
+-            return new XMLSequence(seq);
+-        }
+-    }
+-
+-    // Private methods
+-
+-    /**
+-     * Traverse a JSON root node and produces the corresponding XML items.
+-     *
+-     * @param json            to be traversed
+-     * @param attributePrefix String prefix used for attributes
+-     * @param arrayEntryTag   String used as the tag in the arrays
+-     * @return List of XML items generated during the traversal.
+-     */
+-    private static List<XMLValue> traverseTree(Object json, String attributePrefix, String arrayEntryTag) {
+-        List<XMLValue> xmlArray = new ArrayList<>();
+-        if (!(json instanceof RefValue)) {
+-            XMLValue xml = XMLFactory.parse(json.toString());
+-            xmlArray.add(xml);
+-        } else {
+-            traverseJsonNode(json, null, null, xmlArray, attributePrefix, arrayEntryTag);
+-        }
+-        return xmlArray;
+-    }
+-
+-    /**
+-     * Traverse a JSON node ad produces the corresponding xml items.
+-     *
+-     * @param json               to be traversed
+-     * @param nodeName           name of the current traversing node
+-     * @param parentElement      parent element of the current node
+-     * @param xmlElemList List of XML items generated
+-     * @param attributePrefix    String prefix used for attributes
+-     * @param arrayEntryTag      String used as the tag in the arrays
+-     * @return List of XML items generated during the traversal.
+-     */
+-    @SuppressWarnings("rawtypes")
+-    private static XMLItem traverseJsonNode(Object json, String nodeName, XMLItem parentElement,
+-                                              List<XMLValue> xmlElemList, String attributePrefix,
+-                                              String arrayEntryTag) {
+-        XMLItem currentRoot = null;
+-        if (nodeName != null) {
+-            // Extract attributes and set to the immediate parent.
+-            if (nodeName.startsWith(attributePrefix)) {
+-                if (json instanceof RefValue) {
+-                    throw BallerinaErrors.createError(
+-                            StringUtils.fromString("attribute cannot be an object or array"));
+-                }
+-                if (parentElement != null) {
+-                    String attributeKey = nodeName.substring(1);
+-                    parentElement.setAttribute(attributeKey, null, null, json.toString());
+-                }
+-                return parentElement;
+-            }
+-
+-            // Validate whether the tag name is an XML supported qualified name, according to the XML recommendation.
+-            XMLValidator.validateXMLName(nodeName);
+-
+-            XMLQName tagName = new XMLQName(nodeName);
+-            currentRoot = (XMLItem) XMLFactory.createXMLElement(tagName, (BString) null);
+-        }
+-
+-        if (json == null) {
+-            currentRoot.setAttribute(NIL, XSI_NAMESPACE, XSI_PREFIX, "true");
+-        } else {
+-            LinkedHashMap<BString, Object> map;
+-
+-            BType type = TypeChecker.getType(json);
+-            switch (type.getTag()) {
+-
+-                case TypeTags.MAP_TAG:
+-                    if (((BMapType) type).getConstrainedType().getTag() != TypeTags.JSON_TAG) {
+-                        throw BallerinaErrors.createError(
+-                                StringUtils.fromString("error in converting map<non-json> to xml"));
+-                    }
+-                    map = (MapValueImpl<BString, Object>) json;
+-                    for (Entry<BString, Object> entry : map.entrySet()) {
+-                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey().getValue(),
+-                                currentRoot, xmlElemList, attributePrefix, arrayEntryTag);
+-                        if (nodeName == null) { // Outermost object
+-                            xmlElemList.add(currentRoot);
+-                            currentRoot = null;
+-                        }
+-                    }
+-                    break;
+-                case TypeTags.JSON_TAG:
+-                    map = (MapValueImpl) json;
+-                    for (Entry<BString, Object> entry : map.entrySet()) {
+-                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey().getValue(), currentRoot,
+-                                xmlElemList, attributePrefix, arrayEntryTag);
+-                        if (nodeName == null) { // Outermost object
+-                            xmlElemList.add(currentRoot);
+-                            currentRoot = null;
+-                        }
+-                    }
+-                    break;
+-                case TypeTags.ARRAY_TAG:
+-                    ArrayValue array = (ArrayValue) json;
+-                    for (int i = 0; i < array.size(); i++) {
+-                        currentRoot = traverseJsonNode(array.getRefValue(i), arrayEntryTag, currentRoot,
+-                                xmlElemList, attributePrefix, arrayEntryTag);
+-                        if (nodeName == null) { // Outermost array
+-                            xmlElemList.add(currentRoot);
+-                            currentRoot = null;
+-                        }
+-                    }
+-                    break;
+-                case TypeTags.INT_TAG:
+-                case TypeTags.FLOAT_TAG:
+-                case TypeTags.DECIMAL_TAG:
+-                case TypeTags.STRING_TAG:
+-                case TypeTags.BOOLEAN_TAG:
+-                    if (currentRoot == null) {
+-                        throw BallerinaErrors.createError(StringUtils.fromString("error in converting json to xml"));
+-                    }
+-
+-                    XMLValue text = XMLFactory.createXMLText(json.toString());
+-                    addChildElem(currentRoot, text);
+-                    break;
+-                default:
+-                    throw BallerinaErrors.createError(StringUtils.fromString("error in converting json to xml"));
+-            }
+-        }
+-
+-        // Set the current constructed root the parent element
+-        if (parentElement != null) {
+-            addChildElem(parentElement, currentRoot);
+-            currentRoot = parentElement;
+-        }
+-        return currentRoot;
+-    }
+-
+-    private static void addChildElem(XMLItem currentRoot, XMLValue child) {
+-        currentRoot.getChildrenSeq().getChildrenList().add(child);
+-    }
+-}
+diff --git a/stdlib/xmlutils/src/test/java/org/ballerinalang/stdlib/xmlutils/XmlUtilsTest.java b/stdlib/xmlutils/src/test/java/org/ballerinalang/stdlib/xmlutils/XmlUtilsTest.java
+deleted file mode 100644
+index c5615cede0f..00000000000
+--- a/stdlib/xmlutils/src/test/java/org/ballerinalang/stdlib/xmlutils/XmlUtilsTest.java
++++ /dev/null
+@@ -1,101 +0,0 @@
+-/*
+- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+- *
+- * WSO2 Inc. licenses this file to you under the Apache License,
+- * Version 2.0 (the "License"); you may not use this file except
+- * in compliance with the License.
+- * You may obtain a copy of the License at
+- * http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing,
+- * software distributed under the License is distributed on an
+- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+- * KIND, either express or implied. See the License for the
+- * specific language governing permissions and limitations
+- * under the License.
+- */
+-
+-package org.ballerinalang.stdlib.xmlutils;
+-
+-import org.ballerinalang.jvm.types.TypeTags;
+-import org.ballerinalang.model.values.BValue;
+-import org.ballerinalang.model.values.BXML;
+-import org.ballerinalang.test.util.BCompileUtil;
+-import org.ballerinalang.test.util.BRunUtil;
+-import org.ballerinalang.test.util.CompileResult;
+-import org.testng.Assert;
+-import org.testng.annotations.BeforeClass;
+-import org.testng.annotations.Test;
+-
+-/**
+- * Class to test functionality of xmlutils.
+- *
+- * @since 1.0
+- */
+-public class XmlUtilsTest {
+-
+-    private CompileResult result;
+-    @BeforeClass
+-    public void setup() {
+-        result = BCompileUtil.compile("test-src/xmlutils_test.bal");
+-    }
+-
+-    @Test
+-    public void testFromJSONFunction() {
+-        BValue[] returns = BRunUtil.invoke(result, "testFromJSON");
+-        Assert.assertTrue(returns[0] instanceof BXML);
+-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.XML_TAG);
+-        Assert.assertEquals(returns[0].stringValue(), "<name>John</name><age>30</age>");
+-    }
+-
+-    @Test
+-    public void testFromTableFunction() {
+-        BValue[] returns = BRunUtil.invoke(result, "testFromTable");
+-        Assert.assertNotNull(returns[0]);
+-        Assert.assertEquals(returns[0].stringValue(),
+-            "<results>" +
+-                "<result>" +
+-                    "<id>1</id><age>30</age><salary>300.5</salary><name>Mary</name><married>true</married>" +
+-                "</result>" +
+-                "<result>" +
+-                    "<id>2</id><age>20</age><salary>300.5</salary><name>John</name><married>true</married>" +
+-                "</result>" +
+-                "</results>");
+-    }
+-
+-    @Test
+-    public void testFromTableFunction2() {
+-        BValue[] returns = BRunUtil.invoke(result, "testFromTable2");
+-        Assert.assertNotNull(returns[0]);
+-        Assert.assertEquals(returns[0].stringValue(),
+-                "<results>" +
+-                        "<result>" +
+-                        "<id>1</id><name>Mary</name><salary>300.5</salary><permanent>true</permanent>" +
+-                        "<dependents><element>Mike</element><element>Rachel</element></dependents>" +
+-                        "<contact>" +
+-                            "<phone>445566 778877</phone>" +
+-                            "<address><number>34</number><street>Straford</street></address>" +
+-                            "<emergency>Stephen</emergency>" +
+-                        "</contact>" +
+-                        "</result>" +
+-                        "<result>" +
+-                        "<id>2</id><name>John</name><salary>200.5</salary><permanent>false</permanent>" +
+-                        "<dependents><element>Kyle</element></dependents>" +
+-                        "<contact>" +
+-                            "<phone>6060606 556644</phone>" +
+-                            "<address><number>10</number><street>Oxford</street></address>" +
+-                            "<emergency>Elizabeth</emergency>" +
+-                        "</contact>" +
+-                        "</result>" +
+-                        "<result>" +
+-                        "<id>3</id><name>Jim</name><salary>330.5</salary><permanent>true</permanent>" +
+-                        "<dependents/>" +
+-                        "<contact>" +
+-                            "<phone>960960 889889</phone>" +
+-                            "<address><number>46</number><street>Queens</street></address>" +
+-                            "<emergency>Veronica</emergency>" +
+-                        "</contact>" +
+-                        "</result>" +
+-                        "</results>");
+-    }
+-}
+diff --git a/stdlib/xmlutils/src/test/resources/test-src/xmlutils_test.bal b/stdlib/xmlutils/src/test/resources/test-src/xmlutils_test.bal
+deleted file mode 100644
+index 24f3d153a88..00000000000
+--- a/stdlib/xmlutils/src/test/resources/test-src/xmlutils_test.bal
++++ /dev/null
+@@ -1,84 +0,0 @@
+-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+-//
+-// WSO2 Inc. licenses this file to you under the Apache License,
+-// Version 2.0 (the "License"); you may not use this file except
+-// in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-// http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing,
+-// software distributed under the License is distributed on an
+-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-// KIND, either express or implied.  See the License for the
+-// specific language governing permissions and limitations
+-// under the License.
+-
+-import ballerina/xmlutils;
+-
+-type Person record {
+-    int id;
+-    int age = -1;
+-    decimal salary;
+-    string name;
+-    boolean married;
+-};
+-
+-type Employee record {
+-    int id;
+-    string name;
+-    float salary;
+-    boolean permanent;
+-    string[] dependents;
+-    Contact contact;
+-};
+-
+-type Contact record {
+-    int[] phone;
+-    Address address;
+-    string emergency;
+-};
+-
+-type Address record {
+-    int number;
+-    string street;
+-};
+-
+-function testFromJSON() returns xml|error {
+-    json data = {
+-        name: "John",
+-        age: 30
+-    };
+-    xml|error x = xmlutils:fromJSON(data);
+-    return x;
+-}
+-
+-public function testFromTable() returns string {
+-    table<Person> personTable = table[ { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
+-          { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
+-        ];
+-
+-    return xmlutils:fromTable(personTable).toString();
+-}
+-
+-public function testFromTable2() returns string {
+-    table<Employee> employeeTable = table [
+-                {id: 1, name: "Mary", salary: 300.5, permanent: true, dependents: ["Mike", "Rachel"],
+-                    contact: {
+-                        phone: [445566, 778877],
+-                        address: {number: 34, street: "Straford"},
+-                        emergency: "Stephen"}},
+-                {id: 2, name: "John", salary: 200.5, permanent: false, dependents: ["Kyle"],
+-                    contact: {
+-                        phone: [6060606, 556644],
+-                        address: {number: 10, street: "Oxford"},
+-                        emergency: "Elizabeth"}} ,
+-                {id: 3, name: "Jim", salary: 330.5, permanent: true, dependents: [],
+-                    contact: {
+-                        phone: [960960, 889889],
+-                        address: {number: 46, street: "Queens"},
+-                        emergency: "Veronica"}}
+-            ];
+-
+-    return xmlutils:fromTable(employeeTable).toString();
+-}
+diff --git a/stdlib/xmlutils/src/test/resources/testng.xml b/stdlib/xmlutils/src/test/resources/testng.xml
+deleted file mode 100644
+index e233efd3e33..00000000000
+--- a/stdlib/xmlutils/src/test/resources/testng.xml
++++ /dev/null
+@@ -1,37 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<!--
+-  ~ Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+-  ~
+-  ~ WSO2 Inc. licenses this file to you under the Apache License,
+-  ~ Version 2.0 (the "License"); you may not use this file except
+-  ~ in compliance with the License.
+-  ~ You may obtain a copy of the License at
+-  ~
+-  ~ http://www.apache.org/licenses/LICENSE-2.0
+-  ~
+-  ~ Unless required by applicable law or agreed to in writing,
+-  ~ software distributed under the License is distributed on an
+-  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-  ~ KIND, either express or implied. See the License for the
+-  ~ specific language governing permissions and limitations
+-  ~ under the License.
+-  -->
+-
+-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+-
+-<suite name="ballerina-test-suite">
+-    <listeners>
+-        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
+-    </listeners>
+-    <test name="ballerina-lang-stdlib-utils-xml-test-suite" parallel="false">
+-        <parameter name="enableJBallerinaTests" value="true"/>
+-        <groups>
+-            <run>
+-                <exclude name="brokenOnBootstrappedJVMCodegen"/>
+-            </run>
+-        </groups>
+-        <packages>
+-            <package name="org.ballerinalang.stdlib.xmlutils.*"/>
+-        </packages>
+-    </test>
+-</suite>
+-- 
+2.19.1
+
