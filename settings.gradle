@@ -1,5 +1,6 @@
 
 rootProject.name = 'ballerina-parent'
+include(':ballerina-tools-api')
 include(':ballerina-parser')
 include(':ballerina-compiler-api')
 include(':ballerina-lang')
@@ -132,6 +133,7 @@ include(':debug-adapter:debug-adapter-cli')
 include(':formatter:formatter-core')
 include(':formatter:formatter-cli')
 include(':ballerina-libs')
+project(':ballerina-tools-api').projectDir = file('compiler/ballerina-tools-api')
 project(':ballerina-parser').projectDir = file('compiler/ballerina-parser')
 project(':ballerina-compiler-api').projectDir = file('compiler/ballerina-compiler-api')
 project(':ballerina-lang').projectDir = file('compiler/ballerina-lang')
