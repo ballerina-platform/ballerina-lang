@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -30,18 +30,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Completion provider for {@link CheckExpressionNode} context.
+ * Completion provider for {@link TrapExpressionNode} context.
  *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class CheckExpressionNodeContext extends AbstractCompletionProvider<CheckExpressionNode> {
-    public CheckExpressionNodeContext() {
-        super(CheckExpressionNode.class);
+public class TrapExpressionNodeContext extends AbstractCompletionProvider<TrapExpressionNode> {
+    public TrapExpressionNodeContext() {
+        super(TrapExpressionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx, CheckExpressionNode node)
+    public List<LSCompletionItem> getCompletions(LSContext ctx, TrapExpressionNode node)
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {

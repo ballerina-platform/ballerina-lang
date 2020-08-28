@@ -15,38 +15,35 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 
 import java.util.List;
 
 /**
- * Completion Provider for {@link TypeofExpressionNode} context.
+ * Completion provider for {@link TypedBindingPatternNode} context.
  *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class TypeofExpressionNodeContext extends AbstractCompletionProvider<TypeofExpressionNode> {
-    public TypeofExpressionNodeContext() {
-        super(TypeofExpressionNode.class);
+public class TypedBindingPatternNodeContext extends AbstractCompletionProvider<TypedBindingPatternNode> {
+
+    public TypedBindingPatternNodeContext() {
+        super(TypedBindingPatternNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, TypeofExpressionNode node)
+    public List<LSCompletionItem> getCompletions(LSContext context, TypedBindingPatternNode node)
             throws LSCompletionException {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            QualifiedNameReferenceNode qRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(context, qRef), context);
-        }
-        return this.expressionCompletions(context);
+        /*
+        When comes to the typed binding pattern we route to the type descriptors to check whether there are resolvers
+        associated with the type descriptor. Otherwise the router will go up the parent ladder.
+         */
+        return CompletionUtil.route(context, node.typeDescriptor());
     }
 }
