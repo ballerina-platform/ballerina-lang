@@ -88,7 +88,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPORT_ER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CALLABLE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 
 /**
  * BIR desugar to inject observations class.
@@ -778,8 +777,9 @@ class JvmObservabilityGen {
         boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
         boolean isObservableAnnotationPresent = false;
         for (BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
-            if (OBSERVABLE_ANNOTATION.equals(getPackageName(annot.packageID.orgName, annot.packageID.name, Names.EMPTY)
-                    + annot.annotTagRef.value)) {
+            if (OBSERVABLE_ANNOTATION.equals(
+                    JvmCodeGenUtil.getPackageName(annot.packageID.orgName, annot.packageID.name, Names.EMPTY) +
+                            annot.annotTagRef.value)) {
                 isObservableAnnotationPresent = true;
                 break;
             }

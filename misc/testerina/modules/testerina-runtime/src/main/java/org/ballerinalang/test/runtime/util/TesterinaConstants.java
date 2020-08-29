@@ -44,6 +44,7 @@ public class TesterinaConstants {
     public static final String STATUS_FILE = "module_status.json";
     public static final String COVERAGE_FILE = "module_coverage.json";
     public static final String RESULTS_JSON_FILE = "test_results.json";
+    public static final String RERUN_TEST_JSON_FILE = "rerun_test.json";
     public static final String RESULTS_HTML_FILE = "index.html";
     public static final String REPORT_DIR_NAME = "report";
     public static final String REPORT_ZIP_NAME = REPORT_DIR_NAME + ".zip";

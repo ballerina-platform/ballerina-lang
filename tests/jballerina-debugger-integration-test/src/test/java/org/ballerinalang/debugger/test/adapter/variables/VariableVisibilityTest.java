@@ -52,7 +52,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
 
     @Test
     public void parentVariableVisibilityTest() throws BallerinaTestException {
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 150));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 154));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(10000);
