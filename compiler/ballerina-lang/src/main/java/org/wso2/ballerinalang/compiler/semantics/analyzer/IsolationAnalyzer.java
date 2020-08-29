@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.clauses.OrderKeyNode;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -182,7 +183,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private Types types;
     private BLangDiagnosticLogHelper dlog;
 
-    private boolean markedIsolated = false;
     private boolean inferredIsolated = true;
 
     private IsolationAnalyzer(CompilerContext context) {
@@ -246,20 +246,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        boolean prevMarkedIsolated = this.markedIsolated;
         boolean prevInferredIsolated = this.inferredIsolated;
-
-        markedIsolated = Symbols.isFlagOn(funcNode.symbol.flags, Flags.ISOLATED);
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         analyzeNode(funcNode.body, funcEnv);
 
-        if (!this.markedIsolated && this.inferredIsolated && !Symbols.isFlagOn(funcNode.symbol.flags, Flags.WORKER)) {
+        if (!Symbols.isFlagOn(funcNode.symbol.flags, Flags.ISOLATED) && this.inferredIsolated &&
+                !Symbols.isFlagOn(funcNode.symbol.flags, Flags.WORKER)) {
             dlog.note(funcNode.pos, DiagnosticCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
         }
 
         this.inferredIsolated = prevInferredIsolated;
-        this.markedIsolated = prevMarkedIsolated;
     }
 
     @Override
@@ -659,7 +656,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         inferredIsolated = false;
 
-        if (markedIsolated) {
+        if (Symbols.isFlagOn(enclInvokable.symbol.flags, Flags.ISOLATED)) {
             dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_IN_ISOLATED_FUNCTION);
         }
     }
@@ -678,13 +675,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         BSymbol symbol = invocationExpr.symbol;
-        if (symbol == null || Symbols.isFlagOn(symbol.flags, Flags.ISOLATED)) {
+        if (symbol == null || symbol.getKind() == SymbolKind.ERROR_CONSTRUCTOR ||
+                Symbols.isFlagOn(symbol.flags, Flags.ISOLATED)) {
             return;
         }
 
         inferredIsolated = false;
 
-        if (markedIsolated) {
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+        if (enclInvokable != null && Symbols.isFlagOn(enclInvokable.symbol.flags, Flags.ISOLATED)) {
             dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION);
         }
     }
@@ -697,7 +696,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         inferredIsolated = false;
 
-        if (markedIsolated && !actionInvocationExpr.functionPointerInvocation) {
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+        if (enclInvokable != null && Symbols.isFlagOn(enclInvokable.symbol.flags, Flags.ISOLATED) &&
+                !actionInvocationExpr.functionPointerInvocation) {
             dlog.error(actionInvocationExpr.pos, DiagnosticCode.INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION);
         }
     }
@@ -859,10 +860,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         if (Symbols.isFlagOn(bLangLambdaFunction.function.symbol.flags, Flags.WORKER)) {
-            // TODO: 8/21/20 should the worker have a name
             inferredIsolated = false;
 
-            if (markedIsolated) {
+            BLangInvokableNode enclInvokable = env.enclInvokable;
+            if (enclInvokable != null && Symbols.isFlagOn(enclInvokable.symbol.flags, Flags.ISOLATED)) {
                 dlog.error(bLangLambdaFunction.pos, DiagnosticCode.INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION);
             }
 

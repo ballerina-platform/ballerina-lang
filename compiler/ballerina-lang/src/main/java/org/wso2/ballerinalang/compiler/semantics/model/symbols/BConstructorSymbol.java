@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.ConstructorSymbol;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -33,5 +34,10 @@ public class BConstructorSymbol extends BInvokableSymbol implements ConstructorS
                               BType type,
                               BSymbol owner) {
         super(SymTag.CONSTRUCTOR, flags, name, pkgID, type, owner);
+    }
+
+    @Override
+    public SymbolKind getKind() {
+        return this.kind;
     }
 }
