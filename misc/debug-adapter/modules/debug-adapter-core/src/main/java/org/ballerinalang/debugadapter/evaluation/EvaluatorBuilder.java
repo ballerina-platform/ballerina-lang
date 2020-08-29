@@ -54,56 +54,43 @@ import java.util.StringJoiner;
  * <br><br>
  * Supported expression types. (Language specification v2020R1)
  * <ul>
- * <li>x + y
- * <li>x - y
- * <li>x * y
- * <li>x / y
- * <li>x % y
+ * <li> Literal expression
+ * <li> Multiplicative expression
+ * <li> Additive expression
+ * <li> Numerical comparison expression
+ * <li> Variable reference expression
+ * <li> Field access expression
+ * <li> Function call expression
+ * <li> Function call expression
+ * <li> Braced expression
  * </ul>
  * <br>
  * To be Implemented.
  * <ul>
- * <li>x < y
- * <li> x > y
- * <li>x <= y
- * <li>x >= y
- * </ul><ul>
- * <li>x.k
- * <li>x.@a
- * <li>f(x)
- * <li>x.f(y)
- * <li>x[y]
- * <li>new T(x)
- * </ul><ul>
- * <li>+x
- * <li>-x
- * <li>~x
- * <li>!x
- * <li>typeof x
- * </ul><ul>
- * <li>x << y
- * <li>x >> y
- * <li>x >>> y
- * </ul><ul>
- * <li>x ... y
- * <li>x ..< y
- * </ul><ul>
- * <li>x is y
- * </ul><ul>
- * <li>x == y
- * <li>x != y
- * <li>x === y
- * <li>x !== y
- * </ul><ul>
- * <li>x & y
- * <li>x ^ y
- * <li>x | y
- * <li>x && y
- * <li>x || y
- * <li>x ?: y
- * <li>x ? y : z
- * <li>(x) => y
- * <li>let x = y in z
+ * <li> String template expression
+ * <li> XML template expression
+ * <li> New expression
+ * <li> Optional field access expression
+ * <li> XML attribute access expression
+ * <li> Annotation access expression
+ * <li> Member access expression
+ * <li> Error constructor
+ * <li> Anonymous function expression
+ * <li> Let expression
+ * <li> Type cast expression
+ * <li> Typeof expression
+ * <li> Unary expression
+ * <li> Shift expression
+ * <li> Range expression
+ * <li> Type test expression
+ * <li> Equality expression
+ * <li> Binary bitwise expression
+ * <li> Logical expression
+ * <li> Conditional expression
+ * <li> Checking expression
+ * <li> Trap expression
+ * <li> Query expression
+ * <li> XML navigation expression
  * </ul>
  *
  * @since 2.0.0
@@ -119,41 +106,7 @@ public class EvaluatorBuilder extends NodeVisitor {
 
     public EvaluatorBuilder(SuspendedContext context) {
         this.context = context;
-        // braced expression
-        supportedSyntax.add(SyntaxKind.BRACED_EXPRESSION);
-        // binary expression
-        supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
-        supportedSyntax.add(SyntaxKind.LT_TOKEN);
-        supportedSyntax.add(SyntaxKind.LT_EQUAL_TOKEN);
-        supportedSyntax.add(SyntaxKind.GT_TOKEN);
-        supportedSyntax.add(SyntaxKind.GT_EQUAL_TOKEN);
-        supportedSyntax.add(SyntaxKind.PLUS_TOKEN);
-        supportedSyntax.add(SyntaxKind.MINUS_TOKEN);
-        supportedSyntax.add(SyntaxKind.ASTERISK_TOKEN);
-        supportedSyntax.add(SyntaxKind.SLASH_TOKEN);
-        // function invocation expression
-        supportedSyntax.add(SyntaxKind.FUNCTION_CALL);
-        supportedSyntax.add(SyntaxKind.POSITIONAL_ARG);
-        // method call expression
-        supportedSyntax.add(SyntaxKind.METHOD_CALL);
-        // field access expression
-        supportedSyntax.add(SyntaxKind.FIELD_ACCESS);
-        // name reference
-        // Todo - add rest
-        supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
-        // basic literal
-        supportedSyntax.add(SyntaxKind.NUMERIC_LITERAL);
-        supportedSyntax.add(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN);
-        supportedSyntax.add(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
-        supportedSyntax.add(SyntaxKind.TRUE_KEYWORD);
-        supportedSyntax.add(SyntaxKind.FALSE_KEYWORD);
-        supportedSyntax.add(SyntaxKind.STRING_LITERAL);
-        // misc
-        supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
-        supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
-        supportedSyntax.add(SyntaxKind.CLOSE_PAREN_TOKEN);
-        supportedSyntax.add(SyntaxKind.NONE);
-        supportedSyntax.add(SyntaxKind.EOF_TOKEN);
+        prepareForEvaluation();
     }
 
     /**
@@ -299,5 +252,212 @@ public class EvaluatorBuilder extends NodeVisitor {
 
     private boolean unsupportedSyntaxDetected() {
         return !unsupportedNodes.isEmpty();
+    }
+
+    private void prepareForEvaluation() {
+        addLiteralExpressionSyntax();
+        addStringTemplateExpressionSyntax();
+        addXmlTemplateExpressionSyntax();
+        addNewExpressionSyntax();
+        addVariableReferenceExpressionSyntax();
+        addFieldAccessExpressionSyntax();
+        addOptionalFieldAccessExpressionSyntax();
+        addXmlAttributeAccessExpressionSyntax();
+        addAnnotationAccessExpressionSyntax();
+        addMemberAccessExpressionSyntax();
+        addFunctionCallExpressionSyntax();
+        addMethodCallExpressionSyntax();
+        addErrorConstructorExpressionSyntax();
+        addAnonymousFunctionExpressionSyntax();
+        addLetExpressionSyntax();
+        addTypeCastExpressionSyntax();
+        addTypeOfExpressionSyntax();
+        addUnaryExpressionSyntax();
+        addMultiplicativeExpressionSyntax();
+        addAdditiveExpressionSyntax();
+        addShiftExpressionSyntax();
+        addRangeExpressionSyntax();
+        addNumericalComparisonExpressionSyntax();
+        addTypeTestExpressionSyntax();
+        addEqualityExpressionSyntax();
+        addBinaryBitwiseExpressionSyntax();
+        addLogicalExpressionSyntax();
+        addConditionalExpressionSyntax();
+        addCheckingExpressionSyntax();
+        addTrapExpressionSyntax();
+        addQueryExpressionSyntax();
+        addXmlNavigationExpressionSyntax();
+        addMiscellaneousSyntax();
+    }
+
+    private void addLiteralExpressionSyntax() {
+        // nil
+        supportedSyntax.add(SyntaxKind.NIL_LITERAL);
+        // boolean
+        supportedSyntax.add(SyntaxKind.BOOLEAN_LITERAL);
+        supportedSyntax.add(SyntaxKind.TRUE_KEYWORD);
+        supportedSyntax.add(SyntaxKind.FALSE_KEYWORD);
+        // numeric literal
+        supportedSyntax.add(SyntaxKind.NUMERIC_LITERAL);
+        supportedSyntax.add(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN);
+        supportedSyntax.add(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
+        // string
+        supportedSyntax.add(SyntaxKind.STRING_LITERAL);
+        // Todo - Add support for hex literals
+        // Todo - Add support for byte array literal
+    }
+
+    private void addStringTemplateExpressionSyntax() {
+        // Todo
+    }
+
+    private void addXmlTemplateExpressionSyntax() {
+        // Todo
+    }
+
+    private void addNewExpressionSyntax() {
+        // Todo
+    }
+
+    private void addVariableReferenceExpressionSyntax() {
+        supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
+        // Todo - Add qualified identifier support
+        // Todo - Xml qualified name
+    }
+
+    private void addFieldAccessExpressionSyntax() {
+        supportedSyntax.add(SyntaxKind.FIELD_ACCESS);
+    }
+
+    private void addOptionalFieldAccessExpressionSyntax() {
+        // Todo
+    }
+
+    private void addXmlAttributeAccessExpressionSyntax() {
+        // Todo
+    }
+
+    private void addAnnotationAccessExpressionSyntax() {
+        // Todo
+    }
+
+    private void addMemberAccessExpressionSyntax() {
+        // Todo
+    }
+
+    private void addFunctionCallExpressionSyntax() {
+        supportedSyntax.add(SyntaxKind.FUNCTION_CALL);
+        supportedSyntax.add(SyntaxKind.POSITIONAL_ARG);
+        supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
+        supportedSyntax.add(SyntaxKind.CLOSE_PAREN_TOKEN);
+        // Todo: Add named args and rest args
+    }
+
+    private void addMethodCallExpressionSyntax() {
+        supportedSyntax.add(SyntaxKind.METHOD_CALL);
+        supportedSyntax.add(SyntaxKind.POSITIONAL_ARG);
+        supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
+        supportedSyntax.add(SyntaxKind.CLOSE_PAREN_TOKEN);
+        // Todo: Add named args and rest args
+    }
+
+    private void addErrorConstructorExpressionSyntax() {
+        // Todo
+    }
+
+    private void addAnonymousFunctionExpressionSyntax() {
+        // Todo
+    }
+
+    private void addLetExpressionSyntax() {
+        // Todo
+    }
+
+    private void addTypeCastExpressionSyntax() {
+        // Todo
+    }
+
+    private void addTypeOfExpressionSyntax() {
+        // Todo
+    }
+
+    private void addUnaryExpressionSyntax() {
+        // Todo
+    }
+
+    private void addMultiplicativeExpressionSyntax() {
+        supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
+        supportedSyntax.add(SyntaxKind.ASTERISK_TOKEN);
+        supportedSyntax.add(SyntaxKind.SLASH_TOKEN);
+        supportedSyntax.add(SyntaxKind.PERCENT_TOKEN);
+    }
+
+    private void addAdditiveExpressionSyntax() {
+        supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
+        supportedSyntax.add(SyntaxKind.PLUS_TOKEN);
+        supportedSyntax.add(SyntaxKind.MINUS_TOKEN);
+    }
+
+    private void addShiftExpressionSyntax() {
+        // Todo
+    }
+
+    private void addRangeExpressionSyntax() {
+        // Todo
+    }
+
+    private void addNumericalComparisonExpressionSyntax() {
+        supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
+        supportedSyntax.add(SyntaxKind.LT_TOKEN);
+        supportedSyntax.add(SyntaxKind.LT_EQUAL_TOKEN);
+        supportedSyntax.add(SyntaxKind.GT_TOKEN);
+        supportedSyntax.add(SyntaxKind.GT_EQUAL_TOKEN);
+    }
+
+    private void addTypeTestExpressionSyntax() {
+        // Todo
+    }
+
+    private void addEqualityExpressionSyntax() {
+        // Todo
+    }
+
+    private void addBinaryBitwiseExpressionSyntax() {
+        // Todo
+    }
+
+    private void addLogicalExpressionSyntax() {
+        // Todo
+    }
+
+    private void addConditionalExpressionSyntax() {
+        // Todo
+    }
+
+    private void addCheckingExpressionSyntax() {
+        // Todo
+    }
+
+    private void addTrapExpressionSyntax() {
+        // Todo
+    }
+
+    private void addQueryExpressionSyntax() {
+        // Todo
+    }
+
+    private void addXmlNavigationExpressionSyntax() {
+        // Todo
+    }
+
+    private void addMiscellaneousSyntax() {
+        // braced expression
+        supportedSyntax.add(SyntaxKind.BRACED_EXPRESSION);
+        supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
+        supportedSyntax.add(SyntaxKind.CLOSE_PAREN_TOKEN);
+        // misc
+        supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
+        supportedSyntax.add(SyntaxKind.NONE);
+        supportedSyntax.add(SyntaxKind.EOF_TOKEN);
     }
 }
