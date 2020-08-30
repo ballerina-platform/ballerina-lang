@@ -42,10 +42,13 @@ DESCRIPTION
        versions of modules.
 
        A template can also be specified when initialising the new project.
-       If a template is not specified, this command creates a package
-       with a 'main' template.
+       If a template is not specified, this command initialise a project with
+       Ballerina.toml file inside the current directory.
 
-      There are three built-in templates named: 'main', 'service' and 'lib'.
+      There are three built-in templates named:
+        1. main
+        2. service
+        3. lib
 
 OPTIONS
      -t <template-name>, --template <template-name>

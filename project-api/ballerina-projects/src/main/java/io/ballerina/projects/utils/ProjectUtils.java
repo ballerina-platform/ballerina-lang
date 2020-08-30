@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects.utils;
 
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -74,14 +72,29 @@ public class ProjectUtils {
      * @return project root
      */
     public static Path findProjectRoot(Path filePath) {
+        Path path = filePath.resolve(ProjectConstants.BALLERINA_TOML);
+        if (Files.exists(path)) {
+            return filePath;
+        }
         Path parent = filePath.getParent();
         if (null != parent) {
-            if (Files.exists(parent.resolve(ProjectConstants.BALLERINA_TOML))) {
-                return parent;
-            }
             return findProjectRoot(parent);
         }
         return null;
+    }
+
+    /**
+     * Checks if the path is a Ballerina project.
+     *
+     * @param sourceRoot source root of the project.
+     * @return true if the directory is a project repo, false if its the home repo
+     */
+    public static boolean isBallerinaProject(Path sourceRoot) {
+        Path ballerinaToml = sourceRoot.resolve(ProjectConstants.BALLERINA_TOML);
+        return Files.isDirectory(sourceRoot)
+                && Files.exists(ballerinaToml)
+                && Files.isRegularFile(ballerinaToml)
+                && (findProjectRoot(sourceRoot) != null);
     }
 
     /**
@@ -118,7 +131,7 @@ public class ProjectUtils {
      * @return organization name
      */
     public static String guessOrgName() {
-        String guessOrgName = System.getProperty(ProjectConstants.USER_DIR);
+        String guessOrgName = System.getProperty(ProjectConstants.USER_NAME);
         if (guessOrgName == null) {
             guessOrgName = "my_org";
         } else {
@@ -140,12 +153,14 @@ public class ProjectUtils {
     }
 
     /**
-     * Check of given path is a valid ballerina project.
-     * @param path project path
-     * @return true if a project
+     * Check if a ballerina module exist.
+     * @param projectPath project path
+     * @param moduleName module name
+     * @return module exist
      */
-    public static boolean isProject(Path path) {
-        return Files.exists(path.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
+    public static boolean isModuleExist(Path projectPath, String moduleName) {
+        Path modulePath = projectPath.resolve(ProjectConstants.MODULES_DIR_NAME).resolve(moduleName);
+        return Files.exists(modulePath);
     }
 }
 

@@ -45,7 +45,10 @@ DESCRIPTION
        If a template is not specified, this command creates a package
        with a 'main' template.
 
-      There are three built-in templates named: 'main', 'service' and 'lib'.
+      There are three built-in templates named:
+          1. main
+          2. service
+          3. lib
 
 OPTIONS
      -t <template-name>, --template <template-name>

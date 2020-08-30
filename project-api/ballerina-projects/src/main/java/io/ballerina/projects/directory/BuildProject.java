@@ -19,10 +19,8 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -44,7 +42,7 @@ public class BuildProject extends Project {
         if (!absProjectPath.toFile().exists()) {
             throw new RuntimeException("project path does not exist:" + projectPath);
         }
-        if (!isBallerinaProject(absProjectPath)) {
+        if (!ProjectUtils.isBallerinaProject(absProjectPath)) {
             throw new RuntimeException("provided path is not a valid Ballerina project: " + projectPath);
         }
         return new BuildProject(absProjectPath);
@@ -71,20 +69,6 @@ public class BuildProject extends Project {
     private void addPackage(String projectPath) {
         final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, false);
         this.context.addPackage(packageConfig);
-    }
-
-    /**
-     * Checks if the path is a Ballerina project.
-     *
-     * @param sourceRoot source root of the project.
-     * @return true if the directory is a project repo, false if its the home repo
-     */
-    private static boolean isBallerinaProject(Path sourceRoot) {
-        Path ballerinaToml = sourceRoot.resolve(ProjectConstants.BALLERINA_TOML);
-        return Files.isDirectory(sourceRoot)
-                && Files.exists(ballerinaToml)
-                && Files.isRegularFile(ballerinaToml)
-                && (ProjectUtils.findProjectRoot(sourceRoot) == null);
     }
 
     public BuildOptions getBuildOptions() {

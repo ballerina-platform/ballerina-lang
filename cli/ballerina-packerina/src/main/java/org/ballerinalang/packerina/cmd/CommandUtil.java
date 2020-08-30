@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -49,13 +50,18 @@ import java.util.stream.Stream;
  */
 public class CommandUtil {
 
+    public static final String ORG_NAME = "ORG_NAME";
+    public static final String PKG_NAME = "PKG_NAME";
+    public static final String GITIGNORE = "gitignore";
+    public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
+    public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
     private static FileSystem jarFs;
     private static Map<String, String> env;
 
     public static void initJarFs() {
         URI uri = null;
         try {
-            uri = CommandUtil.class.getClassLoader().getResource("create_cmd_templates").toURI();
+            uri = CommandUtil.class.getClassLoader().getResource(CREATE_CMD_TEMPLATES).toURI();
             if (uri.toString().contains("!")) {
                 final String[] array = uri.toString().split("!");
                 if (null == jarFs) {
@@ -74,7 +80,7 @@ public class CommandUtil {
      * @return organization name
      */
     private static String guessOrgName() {
-        String guessOrgName = System.getProperty("user.name");
+        String guessOrgName = System.getProperty(ProjectConstants.USER_NAME);
         if (guessOrgName == null) {
             guessOrgName = "my_org";
         } else {
@@ -176,21 +182,15 @@ public class CommandUtil {
         //      - main_test.bal
         //      - resources/
         // - .gitignore       <- git ignore file
-
+        initProject(path, packageName);
         applyTemplate(path, template);
-        Path manifest = path.resolve(ProjectConstants.BALLERINA_TOML);
-        Path gitignore = path.resolve(".gitignore");
+        Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
 
-        String defaultManifest = FileUtils.readFileAsString("new_cmd_defaults" + File.separator +
-                "manifest.toml");
-        String defaultGitignore = FileUtils.readFileAsString("new_cmd_defaults" + File.separator + "gitignore");
+        Files.createFile(gitignore);
 
-        // replace manifest org and name with a guessed value.
-        defaultManifest = defaultManifest.replaceAll("ORG_NAME", guessOrgName()).
-                replaceAll("PKG_NAME", ProjectUtils.guessPkgName(packageName));
+        String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + File.separator + GITIGNORE);
 
-        Files.write(manifest, defaultManifest.getBytes("UTF-8"));
-        Files.write(gitignore, defaultGitignore.getBytes("UTF-8"));
+        Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -231,16 +231,12 @@ public class CommandUtil {
      * @throws URISyntaxException if any URISyntaxException occured
      */
     private static Path getTemplatePath() throws URISyntaxException {
-        try {
-            URI uri = CommandUtil.class.getClassLoader().getResource("create_cmd_templates").toURI();
-            if (uri.toString().contains("!")) {
-                final String[] array = uri.toString().split("!");
-                return jarFs.getPath(array[1]);
-            } else {
-                return Paths.get(uri);
-            }
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException("failed to get template path", e.getMessage());
+        URI uri = CommandUtil.class.getClassLoader().getResource(CREATE_CMD_TEMPLATES).toURI();
+        if (uri.toString().contains("!")) {
+            final String[] array = uri.toString().split("!");
+            return jarFs.getPath(array[1]);
+        } else {
+            return Paths.get(uri);
         }
     }
 
@@ -252,7 +248,7 @@ public class CommandUtil {
      * @throws IOException if any IOException occurred
      * @throws URISyntaxException if any URISyntaxException occurred
      */
-    private static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
+    public static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
         Path templateDir = getTemplatePath().resolve(template);
 
         try {
@@ -260,5 +256,23 @@ public class CommandUtil {
         } catch (IOException e) {
             throw new IOException(e.getMessage());
         }
+    }
+
+    /**
+     * Initialize a new ballerina project in the given path.
+     *
+     * @param path Project path
+     * @param packageName Project name
+     * @throws IOException If any IO exception occurred
+     */
+    public static void initProject(Path path, String packageName) throws IOException {
+        Path ballerinaToml = path.resolve(ProjectConstants.BALLERINA_TOML);
+        Files.createFile(ballerinaToml);
+        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + File.separator + "manifest.toml");
+        // replace manifest org and name with a guessed value.
+        defaultManifest = defaultManifest.replaceAll(ORG_NAME, guessOrgName()).
+                replaceAll(PKG_NAME, ProjectUtils.guessPkgName(packageName));
+
+        Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 }

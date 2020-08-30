@@ -1,4 +1,4 @@
-[project]
+[package]
 org= "ORG_NAME"
 name= "PKG_NAME"
 version= "0.1.0"

@@ -21,7 +21,6 @@ package org.ballerinalang.packerina.cmd;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -52,9 +51,6 @@ public class NewCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = {"--list", "-l"})
-    private boolean list = false;
-
     @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
             "default: main")
     private String template = "main";
@@ -80,14 +76,6 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
-        if (list) {
-            errStream.println("Available templates:");
-            for (String template : CommandUtil.getTemplates()) {
-                errStream.println("    - " + template);
-            }
-            return;
-        }
-
         // Check if the project name is given
         if (null == argList) {
             CommandUtil.printError(errStream,
@@ -97,6 +85,7 @@ public class NewCommand implements BLauncherCmd {
                     true);
             return;
         }
+
         // Check if one argument is given and not more than one argument.
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
@@ -118,7 +107,7 @@ public class NewCommand implements BLauncherCmd {
         }
 
         // Check if the command is executed inside a ballerina project
-        Path projectRoot = ProjectDirs.findProjectRoot(path);
+        Path projectRoot = ProjectUtils.findProjectRoot(path);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
             "Directory is already within a Ballerina project :" + projectRoot.toString(),
@@ -128,14 +117,19 @@ public class NewCommand implements BLauncherCmd {
         }
 
         if (!ProjectUtils.validatePkgName(packageName)) {
-            errStream.println("error: invalid package name : " + packageName);
+            CommandUtil.printError(errStream,
+                "Invalid package name : '" + packageName + "' :\n" +
+                        "Module name can only contain alphanumerics, underscores and periods " +
+                        "and the maximum length is 256 characters",
+                null,
+                false);
             return;
         }
 
         // Check if the template exists
         if (!CommandUtil.getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "Template not found, use `ballerina new --list` to view available templates.",
+                    "Template not found, use `ballerina new --help` to view available templates.",
                     null,
                     false);
             return;
@@ -153,9 +147,6 @@ public class NewCommand implements BLauncherCmd {
         }
         errStream.println("Created new Ballerina project at " + userDir.relativize(path));
         errStream.println();
-        errStream.println("Next:");
-        errStream.println("    Move into the project directory and use `ballerina add <module-name>` to");
-        errStream.println("    add a new Ballerina module.");
     }
 
     @Override

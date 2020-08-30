@@ -18,7 +18,7 @@
 
 package org.ballerinalang.packerina.cmd;
 
-
+import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
@@ -48,15 +48,11 @@ public class InitCommand implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> argList;
 
-    @CommandLine.Option(names = {"--list", "-l"})
-    private boolean list = false;
-
-    @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
-            "default: main")
-    private String template = "main";
+    @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib]")
+    private String template = "";
 
     public InitCommand() {
-        userDir = Paths.get(System.getProperty("user.dir"));
+        userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         errStream = System.err;
         CommandUtil.initJarFs();
     }
@@ -75,23 +71,17 @@ public class InitCommand implements BLauncherCmd {
             errStream.println(commandUsageInfo);
             return;
         }
-//        todo: verify this is required
-        if (list) {
-            errStream.println("Available templates:");
-            for (String template : CommandUtil.getTemplates()) {
-                errStream.println("    - " + template);
-            }
-            return;
-        }
 
         // If the current directory is a ballerina project ignore.
-        if (ProjectUtils.isProject(this.userDir)) {
+        if (ProjectUtils.isBallerinaProject(this.userDir)) {
             CommandUtil.printError(errStream,
                     "Directory is already a ballerina project",
                     null,
                     false);
             return;
         }
+
+
 
         // Check if one argument is given and not more than one argument.
         if (argList != null && !(1 == argList.size())) {
@@ -115,9 +105,9 @@ public class InitCommand implements BLauncherCmd {
         }
 
         // Check if the template exists
-        if (!CommandUtil.getTemplates().contains(template)) {
+        if (!template.equals("") && !CommandUtil.getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "Template not found, use `ballerina init --list` to view available templates.",
+                    "Template not found, use `ballerina init --help` to view available templates.",
                     null,
                     false);
             return;
@@ -126,6 +116,15 @@ public class InitCommand implements BLauncherCmd {
         String packageName = this.userDir.getFileName().toString();
         if (argList != null && argList.size() > 0) {
             packageName = argList.get(0);
+            if (!ProjectUtils.validatePkgName(packageName)) {
+                CommandUtil.printError(errStream,
+                    "Invalid package name : '" + packageName + "' :\n" +
+                            "Module name can only contain alphanumerics, underscores and periods " +
+                            "and the maximum length is 256 characters",
+                    null,
+                    false);
+                return;
+            }
         }
 
         if (!ProjectUtils.validatePkgName(packageName)) {
@@ -134,17 +133,20 @@ public class InitCommand implements BLauncherCmd {
         }
 
         try {
-            CommandUtil.initPackage(this.userDir, packageName, template);
+            if (template.equals("")) {
+                CommandUtil.initProject(userDir, packageName);
+            } else {
+                CommandUtil.initPackage(userDir, packageName, template);
+            }
         } catch (AccessDeniedException e) {
             errStream.println("error: Error occurred while initializing project : " + "Access Denied");
+            return;
         } catch (IOException | URISyntaxException e) {
             errStream.println("error: Error occurred while initializing project : " + e.getMessage());
             return;
         }
         errStream.println("Ballerina project initialised ");
         errStream.println();
-        errStream.println("Next:");
-        errStream.println("    Use `ballerina create` to create a ballerina module.");
     }
 
     @Override

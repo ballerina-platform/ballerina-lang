@@ -18,7 +18,7 @@
 
 package org.ballerinalang.packerina.cmd;
 
-import io.ballerina.projects.utils.FileUtils;
+import io.ballerina.projects.utils.ProjectConstants;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
@@ -34,54 +34,38 @@ import java.nio.file.Path;
  */
 public class InitCommandTest extends CommandTest {
 
-    @Test(description = "Initialize a new empty project")
-    public void testInitCommandWithArg() throws IOException {
-        Path projectPath = tmpDir.resolve("sample1");
-        Files.createDirectory(projectPath);
-        String[] args = {"project_name"};
-        InitCommand initCommand = new InitCommand(projectPath, printStream);
-        new CommandLine(initCommand).parse(args);
-        initCommand.execute();
-        // Check with spec
-        // project_name/
-        // - Ballerina.toml
-        // - Package.md
-        // - Module.md
-        // - main.bal
-        // - resources
-        // - tests
-        //      - main_test.bal
-        //      - resources/
-        // - .gitignore       <- git ignore file
-
-        Assert.assertTrue(Files.exists(projectPath));
-        Path manifestPath = projectPath.resolve("Ballerina.toml");
-        Assert.assertTrue(Files.exists(manifestPath));
-        Path testPath = projectPath.resolve("tests");
-        Assert.assertTrue(Files.exists(testPath));
-        Assert.assertTrue(Files.isDirectory(testPath));
-        Assert.assertTrue(Files.exists(testPath.resolve("resources")));
-        Assert.assertTrue(Files.isDirectory(testPath.resolve("resources")));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".gitignore")));
-        Path resourcePath = projectPath.resolve("resources");
-        Assert.assertTrue(Files.exists(resourcePath));
-        Assert.assertTrue(Files.isDirectory(resourcePath));
-        Assert.assertTrue(Files.exists(projectPath.resolve("Module.md")));
-        Assert.assertTrue(Files.exists(projectPath.resolve("Package.md")));
-
-        Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
-
-//        String manifestContent = FileUtils.readFileAsString(manifestPath.toString());
-//        Assert.assertTrue(manifestContent.contains("project_name"));
-    }
-
     @Test(description = "Initialize a new empty project within a directory")
     public void testInitCommand() throws IOException {
         Path projectPath = tmpDir.resolve("sample2");
         Files.createDirectory(projectPath);
+        Path balFile = projectPath.resolve("data.bal");
+        Files.createFile(balFile);
+
         String[] args = {};
         InitCommand initCommand = new InitCommand(projectPath, printStream);
         new CommandLine(initCommand).parse(args);
+        initCommand.execute();
+
+        Assert.assertTrue(Files.exists(projectPath));
+        Assert.assertTrue(Files.exists(balFile));
+        Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
+        Path testPath = projectPath.resolve(ProjectConstants.TEST_DIR_NAME);
+        Assert.assertFalse(Files.exists(testPath));
+
+        Path resourcePath = projectPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        Assert.assertFalse(Files.exists(resourcePath));
+
+        Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
+    }
+
+    @Test(description = "Test init command with service template")
+    public void testInitCommandWithService() throws IOException {
+        // Test if no arguments was passed in
+        Path packageDir = tmpDir.resolve("sample3");
+        Files.createDirectory(packageDir);
+        String[] args = {"myproject", "-t", "main"};
+        InitCommand initCommand = new InitCommand(packageDir, printStream);
+        new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
         // Check with spec
         // foo/
@@ -95,48 +79,21 @@ public class InitCommandTest extends CommandTest {
         //      - resources/
         // - .gitignore       <- git ignore file
 
-        Assert.assertTrue(Files.exists(projectPath));
-        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
-        Path testPath = projectPath.resolve("tests");
-        Assert.assertTrue(Files.exists(testPath));
-        Assert.assertTrue(Files.isDirectory(testPath));
-        Assert.assertTrue(Files.exists(testPath.resolve("resources")));
-        Assert.assertTrue(Files.isDirectory(testPath.resolve("resources")));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".gitignore")));
-        Path resourcePath = projectPath.resolve("resources");
-        Assert.assertTrue(Files.exists(resourcePath));
-        Assert.assertTrue(Files.isDirectory(resourcePath));
-        Assert.assertTrue(Files.exists(projectPath.resolve("Module.md")));
-        Assert.assertTrue(Files.exists(projectPath.resolve("Package.md")));
-
-        Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
-    }
-
-    @Test(description = "Test init command with service template")
-    public void testInitCommandWithService() throws IOException {
-        // Test if no arguments was passed in
-        Path packageDir = tmpDir.resolve("sample3");
-        Files.createDirectory(packageDir);
-        String[] args = {"servicemodule", "-t", "service"};
-        InitCommand initCommand = new InitCommand(packageDir, printStream);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
-        Assert.assertTrue(Files.exists(packageDir.resolve("Ballerina.toml")));
-        Assert.assertTrue(Files.exists(packageDir.resolve("Module.md")));
-        Assert.assertTrue(Files.exists(packageDir.resolve("Package.md")));
-        Assert.assertTrue(Files.exists(packageDir.resolve("hello_service.bal")));
-        Assert.assertTrue(Files.exists(packageDir.resolve("resources")));
-        Assert.assertTrue(Files.isDirectory(packageDir.resolve("resources")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.isDirectory(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
 
-        Path moduleTests = packageDir.resolve("tests");
+        Path moduleTests = packageDir.resolve(ProjectConstants.TEST_DIR_NAME);
         Assert.assertTrue(Files.exists(moduleTests));
         Assert.assertTrue(Files.isDirectory(moduleTests));
-        Assert.assertTrue(Files.exists(moduleTests.resolve("hello_service_test.bal")));
-        Assert.assertTrue(Files.exists(moduleTests.resolve("resources")));
-        Assert.assertTrue(Files.isDirectory(moduleTests.resolve("resources")));
+        Assert.assertTrue(Files.exists(moduleTests.resolve("main_test.bal")));
+        Assert.assertTrue(Files.exists(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.isDirectory(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
 
         Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
     }
@@ -184,20 +141,5 @@ public class InitCommandTest extends CommandTest {
 
         Assert.assertTrue(readOutput().contains("ballerina-init - Create a new Ballerina project inside current " +
                 "directory."));
-    }
-
-    @Test(description = "Test init list")
-    public void testInitCommandList() throws IOException {
-        // Test if no arguments was passed in
-        String[] args = {"--list"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-
-        String output = readOutput();
-        Assert.assertTrue(output.contains("Available templates:"));
-        Assert.assertTrue(output.contains("main"));
-        Assert.assertTrue(output.contains("service"));
-        Assert.assertTrue(output.contains("lib"));
     }
 }

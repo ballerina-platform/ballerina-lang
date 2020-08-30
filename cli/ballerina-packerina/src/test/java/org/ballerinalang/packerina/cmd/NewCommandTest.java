@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina.cmd;
 
+import io.ballerina.projects.utils.ProjectConstants;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
@@ -53,18 +54,18 @@ public class NewCommandTest extends CommandTest {
 
         Path packageDir = tmpDir.resolve("project_name");
         Assert.assertTrue(Files.exists(packageDir));
-        Assert.assertTrue(Files.exists(packageDir.resolve("Ballerina.toml")));
-        Path testPath = packageDir.resolve("tests");
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Path testPath = packageDir.resolve(ProjectConstants.TEST_DIR_NAME);
         Assert.assertTrue(Files.exists(testPath));
         Assert.assertTrue(Files.isDirectory(testPath));
-        Assert.assertTrue(Files.exists(testPath.resolve("resources")));
-        Assert.assertTrue(Files.isDirectory(testPath.resolve("resources")));
-        Assert.assertTrue(Files.exists(packageDir.resolve(".gitignore")));
-        Path resourcePath = packageDir.resolve("resources");
+        Assert.assertTrue(Files.exists(testPath.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.isDirectory(testPath.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
+        Path resourcePath = packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME);
         Assert.assertTrue(Files.exists(resourcePath));
         Assert.assertTrue(Files.isDirectory(resourcePath));
-        Assert.assertTrue(Files.exists(packageDir.resolve("Module.md")));
-        Assert.assertTrue(Files.exists(packageDir.resolve("Package.md")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
     }
@@ -80,21 +81,31 @@ public class NewCommandTest extends CommandTest {
 
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
-        Assert.assertTrue(Files.exists(packageDir.resolve("Ballerina.toml")));
-        Assert.assertTrue(Files.exists(packageDir.resolve("Module.md")));
-        Assert.assertTrue(Files.exists(packageDir.resolve("Package.md")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("hello_service.bal")));
-        Assert.assertTrue(Files.exists(packageDir.resolve("resources")));
-        Assert.assertTrue(Files.isDirectory(packageDir.resolve("resources")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.isDirectory(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
 
-        Path moduleTests = packageDir.resolve("tests");
+        Path moduleTests = packageDir.resolve(ProjectConstants.TEST_DIR_NAME);
         Assert.assertTrue(Files.exists(moduleTests));
         Assert.assertTrue(Files.isDirectory(moduleTests));
         Assert.assertTrue(Files.exists(moduleTests.resolve("hello_service_test.bal")));
-        Assert.assertTrue(Files.exists(moduleTests.resolve("resources")));
-        Assert.assertTrue(Files.isDirectory(moduleTests.resolve("resources")));
+        Assert.assertTrue(Files.exists(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.isDirectory(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
+    }
+
+    @Test(description = "Test new command with invalid project name")
+    public void testAddCommandWithInvalidProjectName() throws IOException {
+        // Test if no arguments was passed in
+        String[] args = {"hello-app"};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        Assert.assertTrue(readOutput().contains("Invalid package name"));
     }
 
     @Test(description = "Test new command with invalid template")
@@ -163,21 +174,6 @@ public class NewCommandTest extends CommandTest {
         Assert.assertTrue(readOutput().contains("destination '"
                 + tmpDir.resolve("exist").toString()
                 + "' already exists"));
-    }
-
-    @Test(description = "Test new list")
-    public void testAddCommandList() throws IOException {
-        // Test if no arguments was passed in
-        String[] args = {"--list"};
-        NewCommand newCommand = new NewCommand(tmpDir, printStream);
-        new CommandLine(newCommand).parseArgs(args);
-        newCommand.execute();
-
-        String output = readOutput();
-        Assert.assertTrue(output.contains("Available templates:"));
-        Assert.assertTrue(output.contains("main"));
-        Assert.assertTrue(output.contains("service"));
-        Assert.assertTrue(output.contains("lib"));
     }
 
     @Test(description = "Test if initializing inside a sub directory")
