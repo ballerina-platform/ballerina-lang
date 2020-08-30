@@ -411,7 +411,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                                        BLangExpression collection, BType resultType) {
         String name = getNewVarName();
         BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
-                collection.type, this.env.scope.owner);
+                collection.type, this.env.scope.owner, pos);
         BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(pos, name,
                 collection.type, addTypeConversionExpr(collection, collection.type), dataSymbol);
         BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(pos, dataVariable);
@@ -765,7 +765,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             tableConstructorExpr.tableKeySpecifier = keySpecifier;
         }
         BVarSymbol tableSymbol = new BVarSymbol(0, names.fromString(name),
-                env.scope.owner.pkgID, tableType, this.env.scope.owner);
+                env.scope.owner.pkgID, tableType, this.env.scope.owner, pos);
         BLangSimpleVariable tableVariable = ASTBuilderUtil.createVariable(pos,
                 name, tableType, tableConstructorExpr, tableSymbol);
         queryBlock.addStatement(ASTBuilderUtil.createVariableDef(pos, tableVariable));
@@ -841,7 +841,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         // function(_Frame frame) ... and ref to frame
         BType frameType = getFrameTypeSymbol().type;
         BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(FRAME_PARAMETER_NAME),
-                this.env.scope.owner.pkgID, frameType, this.env.scope.owner);
+                this.env.scope.owner.pkgID, frameType, this.env.scope.owner, pos);
         BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, null,
                 frameSymbol.type, null, frameSymbol);
         BLangVariableReference frameVarRef = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
@@ -913,7 +913,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         String name = getNewVarName();
         BLangInvocation queryLibInvocation = createQueryLibInvocation(functionName, requiredArgs, pos);
         type = (type == null) ? queryLibInvocation.type : type;
-        BVarSymbol varSymbol = new BVarSymbol(0, new Name(name), env.scope.owner.pkgID, type, env.scope.owner);
+        BVarSymbol varSymbol = new BVarSymbol(0, new Name(name), env.scope.owner.pkgID, type, env.scope.owner, pos);
         BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, name, type,
                 desugar.addConversionExprIfRequired(queryLibInvocation, type), varSymbol);
         BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);

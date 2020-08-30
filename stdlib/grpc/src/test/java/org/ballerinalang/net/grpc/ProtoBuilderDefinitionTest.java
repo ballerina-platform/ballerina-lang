@@ -98,7 +98,7 @@ public class ProtoBuilderDefinitionTest {
     public void testMessageField() throws GrpcServerException {
         BTypeSymbol intSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, new Name("int"),
                 new PackageID("ballerina/builtin"), null, new BPackageSymbol(new PackageID("ballerina/builtin"),
-                null));
+                null, null), null);
         BType intType = new BType(TypeTags.INT, intSymbol, Flags.READONLY);
         Field fieldDef = Field.newBuilder("age").setLabel("required").setIndex(1).setType(intType).setDefaultValue
                 ("30").build();
@@ -128,7 +128,7 @@ public class ProtoBuilderDefinitionTest {
 
         //record field type.
         BTypeSymbol recordSymbol = new BTypeSymbol(SymTag.RECORD, Flags.PUBLIC, new Name("A"),
-                null, null, null);
+                null, null, null, null);
         BType recordType = new BRecordType(recordSymbol);
         fieldDef = Field.newBuilder("age").setIndex(1).setType(recordType).setLabel(null).build();
         Assert.assertNotNull(fieldDef.getFieldDescriptorProto());
@@ -291,13 +291,13 @@ public class ProtoBuilderDefinitionTest {
 
         BTypeSymbol intSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, new Name("int"),
                 new PackageID("ballerina/builtin"), null, new BPackageSymbol(new PackageID("ballerina/builtin"),
-                null));
+                null, null), null);
         BType intType = new BType(TypeTags.INT, intSymbol, Flags.READONLY);
         Field field1 = Field.newBuilder("age").setLabel("required").setIndex(1).setType(intType).setDefaultValue
                 ("30").build();
         BTypeSymbol stringSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, new Name("string"),
                 new PackageID("ballerina/builtin"), null, new BPackageSymbol(new PackageID("ballerina/builtin"),
-                null));
+                null, null), null);
         BType stringType = new BType(TypeTags.STRING, stringSymbol, Flags.READONLY);
         Field field2 = Field.newBuilder("name").setLabel("required").setIndex(2).setType(stringType).setDefaultValue
                 ("Sam").build();

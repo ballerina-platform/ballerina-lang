@@ -96,10 +96,10 @@ public class SymbolTable {
     public static final Integer UNSIGNED16_MAX_VALUE = 65535;
     public static final Integer UNSIGNED8_MAX_VALUE = 255;
 
+    public final DiagnosticPos builtinPos;
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
     public final BSymbol notFoundSymbol;
-    public final BSymbol invalidUsageSymbol;
     public final Scope rootScope;
 
     public final BType noType = new BNoType(TypeTags.NONE);
@@ -207,17 +207,17 @@ public class SymbolTable {
         this.names = Names.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null);
-        this.rootPkgNode.pos = new DiagnosticPos(new BDiagnosticSource(rootPkgSymbol.pkgID, Names.EMPTY.value), 0, 0,
-                0, 0);
+        this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null, null);
+        this.builtinPos = new DiagnosticPos(new BDiagnosticSource(rootPkgSymbol.pkgID, Names.EMPTY.value), 0, 0,
+                                            0, 0);
+        this.rootPkgNode.pos = this.builtinPos;
         this.rootPkgNode.symbol = this.rootPkgSymbol;
         this.rootScope = new Scope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
+        this.rootPkgSymbol.pos = this.builtinPos;
 
         this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
-                rootPkgSymbol.pkgID, noType, rootPkgSymbol);
-        this.invalidUsageSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID, noType,
-                                              rootPkgSymbol);
+                                          rootPkgSymbol.pkgID, noType, rootPkgSymbol, builtinPos);
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
         initializeType(byteType, TypeKind.BYTE.typeName());
@@ -261,7 +261,7 @@ public class SymbolTable {
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                 names.fromString("$anonType$TRUE"),
-                rootPkgNode.packageID, null, rootPkgNode.symbol.owner);
+                rootPkgNode.packageID, null, rootPkgNode.symbol.owner, this.builtinPos);
         this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{
             add(trueLiteral);
         }});
@@ -365,12 +365,13 @@ public class SymbolTable {
     }
 
     private void initializeType(BType type, Name name) {
-        defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, rootPkgSymbol.pkgID, type, rootPkgSymbol));
+        defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, rootPkgSymbol.pkgID, type, rootPkgSymbol,
+                                         builtinPos));
     }
 
     private void initializeTSymbol(BType type, Name name, PackageID packageID) {
 
-        type.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, packageID, type, rootPkgSymbol);
+        type.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, packageID, type, rootPkgSymbol, builtinPos);
     }
 
     private void defineType(BType type, BTypeSymbol tSymbol) {
@@ -703,7 +704,7 @@ public class SymbolTable {
                                 List<BType> paramTypes,
                                 BType retType) {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol);
+        BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos);
         rootScope.define(name, symbol);
     }
 }

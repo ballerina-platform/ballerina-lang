@@ -15,12 +15,17 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/birTestableProject.gradle"
 
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
+    implementation project(':ballerina-core')
+
     testCompile 'org.testng:testng'
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 }
 
 description = 'Ballerina - Compiler API'
