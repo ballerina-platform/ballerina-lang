@@ -763,8 +763,20 @@ public class SymbolTable {
         arrayAnydataType = new BArrayType(anyDataInternal);
         mapAnydataType = new BMapType(TypeTags.MAP, anyDataInternal, null);
         anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
-        streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
-        tableType = new BTableType(TypeTags.TABLE, anydataType, null);
+
+        pureType = BUnionType.create(null, anydataType, errorType);
+        streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
+        tableType = new BTableType(TypeTags.TABLE, pureType, null);
+        defineOperators();
+        errorOrNilType = BUnionType.create(null, errorType, nilType);
+        anyOrErrorType = BUnionType.create(null, anyType, errorType);
+        mapAllType = new BMapType(TypeTags.MAP, anyOrErrorType, null);
+        arrayAllType = new BArrayType(anyOrErrorType);
+        typeDesc.constraint = anyOrErrorType;
+        futureType.constraint = anyOrErrorType;
+
+//        streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
+//        tableType = new BTableType(TypeTags.TABLE, anydataType, null);
 
         initializeType(streamType, TypeKind.STREAM.typeName());
         initializeType(tableType, TypeKind.TABLE.typeName());
