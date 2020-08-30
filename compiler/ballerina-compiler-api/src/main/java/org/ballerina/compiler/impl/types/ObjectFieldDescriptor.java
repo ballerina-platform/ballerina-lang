@@ -28,7 +28,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class ObjectFieldDescriptor {
-    // todo: Represent the meta data
+    // TODO: Represent the meta data
     private Qualifier visibilityQualifier;
     
     private BallerinaTypeDescriptor typeDescriptorImpl;

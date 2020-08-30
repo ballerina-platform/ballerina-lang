@@ -17,7 +17,7 @@
  */
 package org.ballerina.compiler.impl.semantic.visitors;
 
-import io.ballerinalang.compiler.text.LinePosition;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -203,7 +203,7 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
         funcNode.getAnnotationAttachments().forEach(annotation -> this.acceptNode(annotation, this.symbolEnv));
     }
 
-    // Todo: Add the expression and the external
+    // TODO: Add the expression and the external
     @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
         if (this.withinBlock(blockFuncBody.getPosition())) {

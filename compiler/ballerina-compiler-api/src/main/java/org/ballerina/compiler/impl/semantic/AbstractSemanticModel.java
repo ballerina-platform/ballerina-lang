@@ -17,8 +17,8 @@
  */
 package org.ballerina.compiler.impl.semantic;
 
-import io.ballerinalang.compiler.text.LinePosition;
-import io.ballerinalang.compiler.text.TextRange;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextRange;
 import org.ballerina.compiler.api.symbol.BCompiledSymbol;
 import org.ballerina.compiler.impl.symbol.BallerinaSymbolImpl;
 import org.ballerinalang.util.diagnostic.Diagnostic;
