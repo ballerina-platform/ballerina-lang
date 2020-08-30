@@ -1177,11 +1177,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
+      "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "240",
-      "insertText": "error(\"${1:errorCode}\", message = \"${2}\");",
+      "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1212,6 +1212,14 @@
       },
       "sortText": "120",
       "insertText": "testFunction();",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "is",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "is",
       "insertTextFormat": "Snippet"
     }
   ]

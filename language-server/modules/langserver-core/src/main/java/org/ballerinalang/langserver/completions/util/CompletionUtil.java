@@ -15,13 +15,13 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.LinePosition;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -82,6 +82,10 @@ public class CompletionUtil {
 
     /**
      * Get the nearest matching provider for the context node.
+     * Router can be called recursively. Therefore, if there is an already checked resolver in the resolver chain,
+     * that means the particular resolver could not handle the completions request. Therefore skip the particular node
+     * and traverse the parent ladder to find the nearest matching resolver. In order to handle this, the particular
+     * resolver chain check has been added.
      *
      * @param node node to evaluate
      * @return {@link Optional} provider which resolved
@@ -98,7 +102,9 @@ public class CompletionUtil {
 
         while ((reference != null)) {
             provider = providers.get(reference.getClass());
-            if (provider != null && provider.onPreValidation(reference)) {
+            // Resolver chain check has been added to cover the use-case in the documentation of the method
+            if (provider != null && provider.onPreValidation(ctx, reference)
+                    && !ctx.get(CompletionKeys.RESOLVER_CHAIN).contains(provider.getClass())) {
                 break;
             }
             reference = reference.parent();
@@ -107,6 +113,8 @@ public class CompletionUtil {
         if (provider == null) {
             return completionItems;
         }
+        ctx.get(CompletionKeys.RESOLVER_CHAIN).add(provider.getClass());
+        
         return provider.getCompletions(ctx, reference);
     }
 

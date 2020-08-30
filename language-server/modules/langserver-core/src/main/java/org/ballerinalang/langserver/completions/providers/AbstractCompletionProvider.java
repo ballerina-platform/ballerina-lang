@@ -18,6 +18,9 @@
 package org.ballerinalang.langserver.completions.providers;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.SnippetBlock;
@@ -41,6 +44,7 @@ import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuild
 import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -67,6 +71,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -80,17 +85,16 @@ import java.util.stream.IntStream;
  */
 public abstract class AbstractCompletionProvider<T extends Node> implements CompletionProvider<T> {
 
-    protected List<Class<T>> attachmentPoints = new ArrayList<>();
+    private final List<Class<T>> attachmentPoints;
 
     protected Precedence precedence = Precedence.LOW;
 
-    private Kind kind;
-
-    public AbstractCompletionProvider(Kind kind) {
-        this.kind = kind;
+    public AbstractCompletionProvider(List<Class<T>> attachmentPoints) {
+        this.attachmentPoints = attachmentPoints;
     }
 
-    public AbstractCompletionProvider() {
+    public AbstractCompletionProvider(Class<T> attachmentPoint) {
+        this.attachmentPoints = Collections.singletonList(attachmentPoint);
     }
 
     /**
@@ -126,12 +130,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     @Override
-    public Kind getKind() {
-        return this.kind;
-    }
-
-    @Override
-    public boolean onPreValidation(T node) {
+    public boolean onPreValidation(LSContext context, T node) {
         return true;
     }
 
@@ -186,35 +185,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     /**
-     * Get the basic types.
-     *
-     * @param context        LS Operation Context
-     * @param visibleSymbols List of visible symbols
-     * @return {@link List}     List of completion items
-     */
-    @Deprecated
-    protected List<LSCompletionItem> getBasicTypesItems(LSContext context, List<Scope.ScopeEntry> visibleSymbols) {
-        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.forEach(scopeEntry -> {
-            BSymbol bSymbol = scopeEntry.symbol;
-            if (((bSymbol instanceof BConstructorSymbol && Names.ERROR.equals(bSymbol.name)))
-                    || (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol))) {
-                BSymbol symbol = bSymbol;
-                if (bSymbol instanceof BConstructorSymbol) {
-                    symbol = ((BConstructorSymbol) bSymbol).type.tsymbol;
-                }
-                CompletionItem cItem = BTypeCompletionItemBuilder.build(symbol, scopeEntry.symbol.name.getValue());
-                completionItems.add(new SymbolCompletionItem(context, symbol, cItem));
-            }
-        });
-
-        completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
-
-        return completionItems;
-    }
-
-    /**
      * Get the type completion Items.
      *
      * @param context LS Operation Context
@@ -226,7 +196,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(scopeEntry -> {
             BSymbol bSymbol = scopeEntry.symbol;
-            if (((bSymbol instanceof BConstructorSymbol && Names.ERROR.equals(bSymbol.name)))
+            if (((bSymbol instanceof BConstructorSymbol && bSymbol.type != null
+                    && bSymbol.type.getKind() == TypeKind.ERROR))
                     || (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol))) {
                 BSymbol symbol = bSymbol;
                 if (bSymbol instanceof BConstructorSymbol) {
@@ -240,38 +211,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
 
         return completionItems;
-    }
-
-    /**
-     * Get all the types in the Package with given name.
-     *
-     * @param visibleSymbols Visible Symbols
-     * @param pkgName        package name
-     * @param ctx            language server context
-     * @return {@link List} list of Type completion items
-     */
-    @Deprecated
-    protected List<LSCompletionItem> getTypeItemsInPackage(List<Scope.ScopeEntry> visibleSymbols, String pkgName,
-                                                           LSContext ctx) {
-        List<Scope.ScopeEntry> filteredList = new ArrayList<>();
-        Optional<Scope.ScopeEntry> pkgSymbolInfo = visibleSymbols.stream()
-                .filter(scopeEntry -> {
-                    BSymbol symbol = scopeEntry.symbol;
-                    return symbol instanceof BPackageSymbol
-                            && CommonUtil.getSymbolName(scopeEntry.symbol).equals(pkgName);
-                })
-                .findAny();
-        pkgSymbolInfo.ifPresent(pkgEntry -> {
-            BSymbol pkgSymbol = pkgEntry.symbol;
-            pkgSymbol.scope.entries.forEach((name, scopeEntry) -> {
-                if (scopeEntry.symbol instanceof BTypeSymbol || (scopeEntry.symbol instanceof BConstructorSymbol
-                        && Names.ERROR.equals(scopeEntry.symbol.name))) {
-                    filteredList.add(scopeEntry);
-                }
-            });
-        });
-
-        return this.getCompletionItemList(filteredList, ctx);
     }
 
     /**
@@ -308,7 +247,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ENUM.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
 
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_MAIN_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE.get()));
@@ -321,6 +259,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_SNIPPET.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR_TYPE_DESC.get()));
         return completionItems;
     }
 
@@ -461,6 +400,16 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return items;
     }
 
+    protected boolean onQualifiedNameIdentifier(LSContext context, Node node) {
+        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            return false;
+        }
+        int colonPos = ((QualifiedNameReferenceNode) node).colon().textRange().startOffset();
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+
+        return colonPos < cursor;
+    }
+
     private void addAllWSClientResources(LSContext ctx, List<LSCompletionItem> items, BLangService service) {
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_TEXT.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_BINARY.get(), service, items, ctx);
@@ -572,6 +521,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param nodeAtCursor  Node at cursor
      * @return {@link Boolean} status
      */
+    @Deprecated
     protected boolean qualifiedNameReferenceContext(Token tokenAtCursor, Node nodeAtCursor) {
         return nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
                 || tokenAtCursor.text().equals(SyntaxKind.COLON_TOKEN.stringValue());
@@ -611,8 +561,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ERROR.get()));
-
-        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
 
         List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
                 .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
@@ -673,8 +622,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     private boolean appendSingleQuoteForPackageInsertText(LSContext context) {
-        // TODO: Fix needed based on the new parser tree
-        return false;
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        return !(nodeAtCursor != null && nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+                ((SimpleNameReferenceNode) nodeAtCursor).name().text().startsWith("'"));
     }
 
     private void addIfNotExists(SnippetBlock snippet, BLangService service, List<LSCompletionItem> items,

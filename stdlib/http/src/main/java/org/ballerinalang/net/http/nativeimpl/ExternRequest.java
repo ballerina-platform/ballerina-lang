@@ -51,7 +51,11 @@ public class ExternRequest {
     }
 
     public static void setEntity(ObjectValue requestObj, ObjectValue entityObj) {
-        HttpUtil.setEntity(requestObj, entityObj, true);
+        HttpUtil.setEntity(requestObj, entityObj, true, true);
+    }
+
+    public static void setEntityAndUpdateContentTypeHeader(ObjectValue requestObj, ObjectValue entityObj) {
+        HttpUtil.setEntity(requestObj, entityObj, true, false);
     }
 
     @SuppressWarnings("unchecked")
@@ -82,11 +86,15 @@ public class ExternRequest {
     }
 
     public static Object getEntity(ObjectValue requestObj) {
-        return HttpUtil.getEntity(requestObj, true, true);
+        return HttpUtil.getEntity(requestObj, true, true, true);
     }
 
-    public static ObjectValue getEntityWithoutBody(ObjectValue requestObj) {
-        return HttpUtil.getEntity(requestObj, true, false);
+    public static ObjectValue getEntityWithoutBodyAndHeaders(ObjectValue requestObj) {
+        return HttpUtil.getEntity(requestObj, true, false, false);
+    }
+
+    public static ObjectValue getEntityWithBodyAndWithoutHeaders(ObjectValue requestObj) {
+        return HttpUtil.getEntity(requestObj, true, true, false);
     }
 
     public static boolean checkEntityBodyAvailability(ObjectValue requestObj) {

@@ -57,7 +57,7 @@ public class OpenTracerExtension implements OpenTracer {
     }
 
     @Override
-    public Tracer getTracer(String tracerName, String serviceName) {
+    public Tracer getTracer(String serviceName) {
         if (Objects.isNull(choreoClient)) {
             throw BValueCreator.createErrorValue(
                     StringUtils.fromString("Choreo client is not initialized. Please check Ballerina configurations."),

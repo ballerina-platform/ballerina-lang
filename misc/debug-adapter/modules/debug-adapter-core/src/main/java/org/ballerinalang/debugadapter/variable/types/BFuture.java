@@ -19,11 +19,10 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -40,8 +39,8 @@ public class BFuture extends BCompoundVariable {
     private static final String FIELD_PANIC = "panic";
     private static final String METHOD_LOCALIZEDMESSAGE = "getLocalizedMessage";
 
-    public BFuture(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.FUTURE, value, dapVariable);
+    public BFuture(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.FUTURE, value);
     }
 
     @Override
@@ -63,8 +62,9 @@ public class BFuture extends BCompoundVariable {
                 // Invokes "getLocalizedMessage()" method of the panic object.
                 Optional<Method> method = VariableUtils.getMethod(panic.get(), METHOD_LOCALIZEDMESSAGE);
                 if (method.isPresent()) {
-                    Value stringValue = ((ObjectReference) panic.get()).invokeMethod(getContext().getOwningThread(),
-                            method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                    Value stringValue = ((ObjectReference) panic.get()).invokeMethod(getContext().getOwningThread()
+                                    .getThreadReference(), method.get(), new ArrayList<>(),
+                            ObjectReference.INVOKE_SINGLE_THREADED);
                     childVarMap.put(FIELD_PANIC, stringValue);
                 }
             }

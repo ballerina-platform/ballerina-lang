@@ -17,10 +17,10 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocumentChange;
-import io.ballerinalang.compiler.text.TextDocuments;
-import io.ballerinalang.compiler.text.TextEdit;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocumentChange;
+import io.ballerina.tools.text.TextDocuments;
+import io.ballerina.tools.text.TextEdit;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;

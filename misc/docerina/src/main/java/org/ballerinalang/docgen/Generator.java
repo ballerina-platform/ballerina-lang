@@ -63,6 +63,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -85,11 +87,10 @@ public class Generator {
 
         // Check for type definitions in the package
         for (BLangTypeDefinition typeDefinition : balPackage.getTypeDefinitions()) {
-            if (typeDefinition.getFlags().contains(Flag.PUBLIC)) {
+            if (typeDefinition.getFlags().contains(Flag.PUBLIC) &&
+                    !typeDefinition.getFlags().contains(Flag.ANONYMOUS)) {
                 createTypeDefModels(typeDefinition, module);
-                if (!typeDefinition.name.value.contains("$anonType$")) {
-                    hasPublicConstructs = true;
-                }
+                hasPublicConstructs = true;
             }
         }
 
@@ -98,6 +99,23 @@ public class Generator {
             if (function.getFlags().contains(Flag.PUBLIC) && !function.getFlags().contains(Flag.ATTACHED)) {
                 module.functions.add(createDocForFunction(function, module));
                 hasPublicConstructs = true;
+            }
+        }
+
+        // Create the anon types
+        while (!module.linkedAnonObjects.isEmpty()) {
+            String typeName = module.linkedAnonObjects.remove();
+            BLangTypeDefinition typeDef = null;
+            for (BLangTypeDefinition typeDefinition : balPackage.getTypeDefinitions()) {
+                if (typeDefinition.name != null) {
+                    if (typeDefinition.name.value.equals(typeName)) {
+                        typeDef = typeDefinition;
+                        break;
+                    }
+                }
+            }
+            if (typeDef != null) {
+                createTypeDefModels(typeDef, module);
             }
         }
 
@@ -234,6 +252,10 @@ public class Generator {
         if (functionNode.getParameters().size() > 0) {
             for (BLangSimpleVariable param : functionNode.getParameters()) {
                 DefaultableVariable variable = getVariable(functionNode, param, module);
+                if (param.typeNode instanceof BLangUserDefinedType &&
+                        ((BLangUserDefinedType) param.typeNode).typeName.value.contains("$anonType$")) {
+                    module.linkedAnonObjects.add(((BLangUserDefinedType) param.typeNode).typeName.value);
+                }
                 parameters.add(variable);
             }
         }
@@ -254,6 +276,14 @@ public class Generator {
             BLangType returnType = functionNode.getReturnTypeNode();
             String dataType = getTypeName(returnType);
             if (!dataType.equals("null")) {
+                // add anonymous type to be created
+                if (dataType.contains("$anonType$")) {
+                    Pattern pattern = Pattern.compile("\\$anonType\\$\\d\\d?\\d?");
+                    Matcher match = pattern.matcher(dataType);
+                    if (match.find()) {
+                        module.linkedAnonObjects.add(match.group(0));
+                    }
+                }
                 String desc = returnParamAnnotation(functionNode);
                 Variable variable = new Variable(EMPTY_STRING, desc, false, Type.fromTypeNode(returnType, module.id));
                 returnParams.add(variable);
@@ -295,11 +325,9 @@ public class Generator {
         }
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
         List<DefaultableVariable> fields = getFields(recordType, recordType.fields, documentationNode, module);
-        // only add records that are not empty
-        if (!fields.isEmpty()) {
-            module.records.add(new Record(recordName, description(typeDefinition),
-                    isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, fields));
-        }
+        module.records.add(new Record(recordName, description(typeDefinition),
+                isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, recordType.sealed,
+                fields));
     }
 
     private static List<DefaultableVariable> getFields(BLangNode node, List<BLangSimpleVariable> allFields,

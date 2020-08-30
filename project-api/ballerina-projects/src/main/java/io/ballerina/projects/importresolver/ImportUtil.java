@@ -56,7 +56,8 @@ public class ImportUtil extends TreeModifier {
         return imports;
     }
 
-    private List<Import> getImportsFromModule(Module module) {
+    // TODO: Made it public to avoid a spotbug failure. Please fix this
+    public List<Import> getImportsFromModule(Module module) {
         List<Import> imports = new ArrayList<>();
         Iterable<Document> documents = module.documents();
 

@@ -1307,10 +1307,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
         BSymbol symbol = bLangSimpleVarRef.symbol;
-        BSymbol resolvedSymbol = symResolver
-                .lookupClosureVarSymbol(env, names.fromIdNode(bLangSimpleVarRef.variableName),
-                        SymTag.VARIABLE);
-        if (symbol != null && resolvedSymbol == symTable.notFoundSymbol) {
+        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env,
+                names.fromIdNode(bLangSimpleVarRef.variableName), SymTag.VARIABLE);
+        // check whether the symbol and resolved symbol are the same.
+        // because, lookup using name produce unexpected results if there's variable shadowing.
+        if (symbol != null && symbol != resolvedSymbol) {
             String identifier = bLangSimpleVarRef.variableName.getValue();
             if (!FRAME_PARAMETER_NAME.equals(identifier) && !identifiers.containsKey(identifier)) {
                 DiagnosticPos pos = currentLambdaBody.pos;

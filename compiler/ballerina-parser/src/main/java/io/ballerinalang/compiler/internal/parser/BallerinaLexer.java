@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerina.tools.text.CharReader;
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
@@ -597,7 +598,7 @@ public class BallerinaLexer extends AbstractLexer {
             reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
         }
 
-        return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN);
     }
 
     /**
@@ -647,7 +648,7 @@ public class BallerinaLexer extends AbstractLexer {
                 return parseFloatingPointTypeSuffix();
         }
 
-        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -695,7 +696,7 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         if (isHex) {
-            return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
+            return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN);
         }
 
         switch (nextChar) {
@@ -706,7 +707,7 @@ public class BallerinaLexer extends AbstractLexer {
                 return parseFloatingPointTypeSuffix();
         }
 
-        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -725,7 +726,7 @@ public class BallerinaLexer extends AbstractLexer {
      */
     private STToken parseFloatingPointTypeSuffix() {
         reader.advance();
-        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -784,10 +785,10 @@ public class BallerinaLexer extends AbstractLexer {
             case 'P':
                 return processExponent(true);
             default:
-                return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL);
+                return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL_TOKEN);
         }
 
-        return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -1075,8 +1076,57 @@ public class BallerinaLexer extends AbstractLexer {
             return true;
         }
 
-        // TODO: if (UnicodeIdentifierChar) return false;
-        return false;
+        return isUnicodeIdentifierChar(c);
+    }
+
+    /**
+     * <p>
+     * Check whether a given char is a unicode identifier char.
+     * </p>
+     * <code> UnicodeIdentifierChar := ^ ( AsciiChar | UnicodeNonIdentifierChar ) </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a unicode identifier char. <code>false</code> otherwise.
+     */
+    private boolean isUnicodeIdentifierChar(int c) {
+        //check Ascii char range
+        if (0x0000 <= c && c <= 0x007F) {
+            return false;
+        }
+
+        //check unicode private use char
+        if (isUnicodePrivateUseChar(c) || isUnicodePatternWhiteSpaceChar(c)) {
+            return false;
+        }
+
+        //TODO: if (UnicodePatternSyntaxChar) return false
+        return (c != Character.MAX_VALUE);
+    }
+
+    /**
+     * <p>
+     * Check whether a given char is a unicode pattern white space char.
+     * </p>
+     * <code> UnicodePatternWhiteSpaceChar := 0x200E | 0x200F | 0x2028 | 0x2029 </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a unicode pattern white space char. <code>false</code> otherwise.
+     */
+    private boolean isUnicodePatternWhiteSpaceChar(int c) {
+        return (0x200E == c || 0x200F == c || 0x2028 == c || 0x2029 == c);
+    }
+
+    /**
+     * <p>
+     * Check whether a given char is a unicode private use char.
+     * </p>
+     * <code> UnicodePrivateUseChar := 0xE000 .. 0xF8FF | 0xF0000 .. 0xFFFFD | 0x100000 .. 0x10FFFD </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a  unicode private use char. <code>false</code> otherwise.
+     */
+    private boolean isUnicodePrivateUseChar(int c) {
+        return (0xE000 <= c && c <= 0xF8FF || 0xF0000 <= c && c <= 0xFFFFD || 0x100000 <= c && c <= 0x10FFFD);
     }
 
     /**
@@ -1218,7 +1268,7 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        return getLiteral(SyntaxKind.STRING_LITERAL);
+        return getLiteral(SyntaxKind.STRING_LITERAL_TOKEN);
     }
 
     /**
@@ -1477,9 +1527,13 @@ public class BallerinaLexer extends AbstractLexer {
                         break;
                     }
 
+                    //Unicode pattern white space characters are not allowed
+                    if (isUnicodePatternWhiteSpaceChar(nextChar)) {
+                        break;
+                    }
+
                     reader.advance(2);
                     continue;
-                // TODO: UnicodePatternWhiteSpaceChar is also not allowed
             }
             break;
         }

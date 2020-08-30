@@ -1,5 +1,6 @@
 
 rootProject.name = 'ballerina-parent'
+include(':ballerina-tools-api')
 include(':ballerina-parser')
 include(':ballerina-lang')
 include(':ballerina-projects')
@@ -85,7 +86,7 @@ include(':openapi-ballerina:ballerina-to-openapi-generator')
 include(':openapi-ballerina:ballerina-client-generator')
 include(':openapi-ballerina:openapi-validator')
 include(':openapi-ballerina')
-include(':ballerina-formatter')
+include(':ballerinalang-data-mapper')
 include(':testerina:testerina-core')
 include(':testerina')
 include(':ballerina-spec-conformance-tests')
@@ -129,7 +130,10 @@ include(':ballerina-oauth2')
 include(':build-config:checkstyle')
 include(':debug-adapter:debug-adapter-core')
 include(':debug-adapter:debug-adapter-cli')
+include(':formatter:formatter-core')
+include(':formatter:formatter-cli')
 include(':ballerina-libs')
+project(':ballerina-tools-api').projectDir = file('compiler/ballerina-tools-api')
 project(':ballerina-parser').projectDir = file('compiler/ballerina-parser')
 project(':ballerina-lang').projectDir = file('compiler/ballerina-lang')
 project(':ballerina-projects').projectDir = file('project-api/ballerina-projects')
@@ -208,7 +212,7 @@ project(':language-server:language-server-stdio-launcher').projectDir = file('la
 project(':language-server:language-server-cli').projectDir = file('language-server/modules/langserver-cli')
 project(':language-server:language-server-launchers').projectDir = file('language-server/modules/launchers')
 project(':language-server:language-server-test-coverage').projectDir = file('language-server/modules/test-coverage')
-project(':ballerina-formatter').projectDir = file('misc/ballerina-formatter')
+project(':ballerinalang-data-mapper').projectDir = file('misc/ballerinalang-data-mapper')
 project(':docerina-gradle-plugin').projectDir = file('misc/ballerina-gradle-plugins/docerina-gradle-plugin')
 project(':docerina').projectDir = file('misc/docerina')
 project(':openapi-ballerina:openapi-to-ballerina-generator').projectDir = file('misc/openapi-ballerina/modules/openapi-to-ballerina-generator')
@@ -254,6 +258,8 @@ project(':openapi-integration-tests').projectDir = file('tests/openapi-integrati
 
 project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
 project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')
+project(':formatter:formatter-core').projectDir = file('misc/formatter/modules/formatter-core')
+project(':formatter:formatter-cli').projectDir = file('misc/formatter/modules/formatter-cli')
 buildCache {
     remote(HttpBuildCache) {
         url = "http://192.168.58.132:5071/cache/"
