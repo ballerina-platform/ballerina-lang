@@ -246,7 +246,7 @@ public class AddCommand implements BLauncherCmd {
             URI zipURI = URI.create("jar:" + baloTemplate.toUri().toString());
             try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
                 // Copy sources
-                Path srcDir = zipfs.getPath("/src").resolve(moduleName);
+                Path srcDir = zipfs.getPath("/modules").resolve(moduleName);
                 // We do a string comparison to be efficient.
                 Files.walkFileTree(srcDir, new FileUtils.Copy(srcDir, modulePath));
 
