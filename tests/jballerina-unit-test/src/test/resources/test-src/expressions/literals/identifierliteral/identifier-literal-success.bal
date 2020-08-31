@@ -105,8 +105,7 @@ function testConnectorActionWithIL() returns string {
 
 function useILInStructName() returns [string, string, int, string?] {
     'family\ person 'person\ one = {'first\ name: "Tom", 'last\ name:"hank", 'current\ age: 50};
-    return ['person\ one.'first\ name, 'person\ one.'last\ name, 'person\ one.'current\ age,
-    'person\ one["first\\ name"]];
+    return ['person\ one.'first\ name, 'person\ one.'last\ name, 'person\ one.'current\ age, 'person\ one["first name"]];
 }
 
 type 'family\ person record {
@@ -124,7 +123,7 @@ function testAcessILWithoutPipe() returns [string, string] {
     string 'x = "hello";
     return ['x, x];
 }
-
+ 
 function testAcessJSONFielAsIL() returns (json|error) {
     json j = {"foo" : {"int" : "I am an integer"}};
     return j.foo.'int;

@@ -72,7 +72,7 @@ import java.util.stream.Collectors;
  */
 public class BTestRunner {
 
-    public static final String MODULE_INIT_CLASS_NAME = "$_init";
+    public static final String MODULE_INIT_CLASS_NAME = "___init";
     private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
 
     private PrintStream errStream;

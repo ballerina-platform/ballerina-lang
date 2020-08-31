@@ -1520,7 +1520,8 @@ class JvmTypeGen {
      * @return name of the field that holds the type instance
      */
     private static String getTypeFieldName(String typeName) {
-        return String.format("$type$%s", JvmCodeGenUtil.cleanupReadOnlyTypeName(typeName));
+
+        return String.format("$type$%s", JvmCodeGenUtil.cleanupTypeName(typeName));
     }
 
     private static void loadFutureType(MethodVisitor mv, BFutureType bType) {

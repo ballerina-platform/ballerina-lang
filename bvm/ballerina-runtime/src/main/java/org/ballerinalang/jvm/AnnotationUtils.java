@@ -29,17 +29,12 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * Utility methods related to annotation loading.
  *
  * @since 0.995.0
  */
 public class AnnotationUtils {
-
-    private static final String SPECIAL_CHARS =  "([&+,= ?@#|'\"^*{}~`()%!-])";
 
     /**
      * Method to retrieve annotations of the type from the global annotation map and set it to the type.
@@ -74,6 +69,7 @@ public class AnnotationUtils {
 
     public static void processServiceAnnotations(MapValue globalAnnotMap, BServiceType bType, Strand strand) {
         BString annotationKey = BStringUtils.fromString(bType.getAnnotationKey());
+
         if (globalAnnotMap.containsKey(annotationKey)) {
             bType.setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
                     .call(new Object[]{strand}));
@@ -81,22 +77,12 @@ public class AnnotationUtils {
 
         for (AttachedFunction attachedFunction : bType.getAttachedFunctions()) {
             annotationKey = BStringUtils.fromString(attachedFunction.getAnnotationKey());
+
             if (globalAnnotMap.containsKey(annotationKey)) {
                 attachedFunction.setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(
                         annotationKey)).call(new Object[]{strand}));
             }
         }
-    }
-
-    private static String decodeIdentifier(String identifier) {
-        Matcher matcher = Pattern.compile("\\$(\\d{4})").matcher(identifier);
-        StringBuffer buffer = new StringBuffer(identifier.length());
-        while (matcher.find()) {
-            String character = "\\" + (char) Integer.parseInt(matcher.group(1));
-            matcher.appendReplacement(buffer, Matcher.quoteReplacement(character));
-        }
-        matcher.appendTail(buffer);
-        return String.valueOf(buffer).replaceAll("(\\$#)(\\d{4})", "\\$$2").replaceAll(SPECIAL_CHARS, "\\\\$1");
     }
 
     /**
