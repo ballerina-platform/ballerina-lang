@@ -12978,37 +12978,31 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseErrorTypeDescOrErrorBP(STNode annots) {
-        STNode errorKeyword = consume(); // We approach here by only seeing an error keyword, hence consume.
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
+        STToken nextNextToken = peek(2);
+        switch (nextNextToken.kind) {
             case OPEN_PAREN_TOKEN:// Error binding pattern
-                return parseAsErrorBP(errorKeyword);
+                return parseAsErrorBP();
             case LT_TOKEN:
-                return parseAsErrorTypeDesc(errorKeyword, annots);
+                return parseAsErrorTypeDesc(annots);
             case IDENTIFIER_TOKEN:
                 SyntaxKind nextNextTokenKind = peek(2).kind;
                 if (nextNextTokenKind == SyntaxKind.COLON_TOKEN || nextNextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
-                    return parseAsErrorBP(errorKeyword);
+                    return parseAsErrorBP();
                 }
                 // Fall through.
             default:
-                return parseAsErrorTypeDesc(errorKeyword, annots);
+                return parseAsErrorTypeDesc(annots);
         }
     }
 
-    private STNode parseAsErrorBP(STNode errorKeyword) {
+    private STNode parseAsErrorBP() {
         startContext(ParserRuleContext.ASSIGNMENT_STMT);
-        startContext(ParserRuleContext.ERROR_BINDING_PATTERN);
-        return parseAssignmentStmtRhs(parseErrorBindingPattern(errorKeyword));
+        return parseAssignmentStmtRhs(parseErrorBindingPattern());
     }
 
-    private STNode parseAsErrorTypeDesc(STNode errorKeyword, STNode annots) {
-        startContext(ParserRuleContext.VAR_DECL_STMT);
-        STNode typeDesc = parseErrorTypeDescriptor(errorKeyword);
-        typeDesc = parseComplexTypeDescriptor(typeDesc, ParserRuleContext.VAR_DECL_STMT, true);
-        STNode typeBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
+    private STNode parseAsErrorTypeDesc(STNode annots) {
         STNode finalKeyword = STNodeFactory.createEmptyNode();
-        return parseVarDeclRhs(annots, finalKeyword, typeBindingPattern, false);
+        return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
     }
     /**
      * Parse error binding pattern node.
