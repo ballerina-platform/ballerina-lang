@@ -250,12 +250,7 @@ public class CommandUtil {
      */
     public static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
         Path templateDir = getTemplatePath().resolve(template);
-
-        try {
-            Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
-        } catch (IOException e) {
-            throw new IOException(e.getMessage());
-        }
+        Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
     }
 
     /**
