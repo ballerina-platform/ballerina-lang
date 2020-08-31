@@ -153,7 +153,6 @@ dependencies {
 
     // ballerinax module cache
     balxBir project(path: ':ballerina-java', configuration: 'bir')
-    balxBir project(path: ':ballerina-java-arrays', configuration: 'bir')
 
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
     balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
@@ -182,7 +181,6 @@ dependencies {
 
     // ballerinax modules
     balDoc project(path: ':ballerina-java', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-java-arrays', configuration: 'balDoc')
 
     // testerina modules
     balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')
