@@ -25,6 +25,7 @@ import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeVisitor;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
@@ -236,6 +237,12 @@ public class EvaluatorBuilder extends NodeVisitor {
     public void visit(BasicLiteralNode basicLiteralNode) {
         visitSyntaxNode(basicLiteralNode);
         result = new BasicLiteralEvaluator(context, basicLiteralNode);
+    }
+
+    @Override
+    public void visit(NilLiteralNode nilLiteralNode) {
+        visitSyntaxNode(nilLiteralNode);
+        result = new BasicLiteralEvaluator(context, nilLiteralNode);
     }
 
     @Override
