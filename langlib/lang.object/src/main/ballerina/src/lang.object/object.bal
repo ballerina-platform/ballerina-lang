@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents the shape expected from all listeners.
-public type Listener abstract object {
+public type Listener object {
     # Handle service attachment to the listener.
     #
     # + s - the service to attach

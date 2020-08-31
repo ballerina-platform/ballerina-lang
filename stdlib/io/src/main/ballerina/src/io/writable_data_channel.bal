@@ -30,7 +30,7 @@ public const BIG_ENDIAN = "BE";
 public const LITTLE_ENDIAN = "LE";
 
 # Represents a WritableDataChannel for writing data.
-public type WritableDataChannel object {
+public class WritableDataChannel {
 
     # Initializes data channel.
     #
@@ -140,7 +140,7 @@ public type WritableDataChannel object {
     public function close() returns Error? {
         return closeWritableDataChannelExtern(self);
     }
-};
+}
 
 function initWritableDataChannel(WritableDataChannel dataChannel, WritableByteChannel byteChannel,
                                  string bOrder) = @java:Method {

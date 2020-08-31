@@ -21,7 +21,7 @@ import ballerina/java;
 # + remoteAddress - The remote address
 # + localAddress - The local address
 # + protocol - The protocol associated with the service endpoint
-public type Caller client object {
+public client class Caller {
 
     private ListenerConfiguration config = {};
     private FilterContext? filterContext = ();
@@ -242,7 +242,7 @@ public type Caller client object {
     public function getRemoteHostName() returns string? {
         return nativeGetRemoteHostName(self);
     }
-};
+}
 
 function nativeRespond(Caller caller, Response response) returns ListenerError? = @java:Method {
     'class: "org.ballerinalang.net.http.nativeimpl.connection.Respond",

@@ -18,7 +18,7 @@ import ballerina/java;
 import ballerina/time;
 
 # Represents a WebSocket client endpoint.
-public type WebSocketClient client object {
+public client class WebSocketClient {
 
     private string id = "";
     private string? negotiatedSubProtocol = ();
@@ -174,7 +174,7 @@ public type WebSocketClient client object {
         return self.response;
     }
     
-};
+}
 
 # Configurations for the WebSocket client.
 # Following fields are inherited from the other configuration records in addition to the Client specific

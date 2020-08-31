@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents a reader which will wrap string content as a channel.
-public type StringReader object {
+public class StringReader {
     private ReadableCharacterChannel? charChannel;
 
     # Constructs a channel to read string.
@@ -87,4 +87,4 @@ public type StringReader object {
         }
         return ();
     }
-};
+}

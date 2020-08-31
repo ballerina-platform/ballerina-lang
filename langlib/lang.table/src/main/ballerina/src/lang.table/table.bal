@@ -45,7 +45,7 @@ public function length(table<any|error> t) returns int = external;
 #
 # + t - the table
 # + return - a new iterator object that will iterate over the members of `t`
-public function iterator(table<Type> t) returns abstract object {
+public function iterator(table<Type> t) returns object {
     public function next() returns record {|
         Type value;
     |}?;

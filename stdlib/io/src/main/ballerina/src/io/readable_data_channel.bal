@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Represents a data channel for reading data.
-public type ReadableDataChannel object {
+public class ReadableDataChannel {
 
     #Initializes the data channel.
     # 
@@ -119,7 +119,7 @@ public type ReadableDataChannel object {
     public function close() returns Error? {
         return closeReadableDataChannelExtern(self);
     }
-};
+}
 
 function initReadableDataChannel(ReadableDataChannel dataChannel, ReadableByteChannel byteChannel,
                                  string bOrder) = @java:Method {

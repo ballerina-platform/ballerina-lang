@@ -122,7 +122,7 @@ public type CircuitBreakerInferredConfig record {|
 # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
 # + circuitHealth - The circuit health monitor
 # + currentCircuitState - The current state the circuit is in
-public type CircuitBreakerClient client object {
+public client class CircuitBreakerClient {
 
     public string url;
     public ClientConfiguration config;
@@ -431,7 +431,7 @@ public type CircuitBreakerClient client object {
     public function getCurrentState() returns CircuitState {
         return self.currentCircuitState;
     }
-};
+}
 
 
 # Updates the circuit state.

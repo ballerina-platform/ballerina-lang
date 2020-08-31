@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Represents a channel which will allow to read
-public type ReadableTextRecordChannel object {
+public class ReadableTextRecordChannel {
 
     private ReadableCharacterChannel charChannel;
     private string rs;
@@ -65,7 +65,7 @@ public type ReadableTextRecordChannel object {
     public function close() returns Error? {
         return closeReadableTextRecordChannelExtern(self);
     }
-};
+}
 
 function initReadableTextRecordChannel(ReadableTextRecordChannel textChannel, ReadableCharacterChannel charChannel,
                                        string fs, string rs, string fmt) = @java:Method {

@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Represents a POP Client, which interacts with a POP Server.
-public type PopClient client object {
+public client class PopClient {
 
     # Gets invoked during the `email:PopClient` initialization.
     #
@@ -43,7 +43,7 @@ public type PopClient client object {
         return popRead(self, folder);
     }
 
-};
+}
 
 function initPopClientEndpoint(PopClient clientEndpoint, string host, string username, string password,
         PopConfig config) returns Error? = @java:Method {

@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Represents a channel, which will allow to write records through a given WritableCharacterChannel.
-public type WritableTextRecordChannel object {
+public class WritableTextRecordChannel {
     private WritableCharacterChannel characterChannel;
     private string fs;
     private string rs;
@@ -59,7 +59,7 @@ public type WritableTextRecordChannel object {
     public function close() returns Error? {
         return closeWritableTextRecordChannelExtern(self);
     }
-};
+}
 
 function initWritableTextRecordChannel(WritableTextRecordChannel textChannel, WritableCharacterChannel charChannel,
                                        string fs, string rs, string fmt) = @java:Method {

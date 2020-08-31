@@ -32,7 +32,7 @@ public type RetriableError error;
 //todo use distinct when grammer allowes
 //public type RetriableError distinct error;
 
-public type RetryManager abstract object {
+public type RetryManager object {
  public function shouldRetry(error? e) returns boolean;
 };
 

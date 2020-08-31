@@ -51,9 +51,9 @@ public function filter(stream<Type,ErrorType> stm, function(Type val) returns bo
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
 public function next(stream<Type, ErrorType> strm) returns record {| Type value; |}|ErrorType? {
-    abstract object {
+    object {
         public function next() returns record {|Type value;|}|ErrorType?;
-    } iteratorObj = <abstract object {
+    } iteratorObj = <object {
                             public function next() returns record {|Type value;|}|ErrorType?;
                      }>internal:getIteratorObj(strm);
     var val = iteratorObj.next();
@@ -127,7 +127,7 @@ public function forEach(stream<Type,ErrorType> stm, function(Type val) returns (
 #
 # + stm - the stream
 # + return - a new iterator object that will iterate over the members of `stm`.
-public function iterator(stream<Type,ErrorType> stm) returns abstract object {
+public function iterator(stream<Type,ErrorType> stm) returns object {
     public function next() returns record {|
         Type value;
     |}|ErrorType?;
@@ -142,7 +142,7 @@ public function iterator(stream<Type,ErrorType> stm) returns abstract object {
 # + return - () if the close completed successfully, otherwise an error
 public function close(stream<Type,ErrorType> stm) returns ErrorType? {
     var itrObj = internal:getIteratorObj(stm);
-    if (itrObj is abstract object {
+    if (itrObj is object {
         public function next() returns record {|Type value;|}|ErrorType?;
         public function close() returns ErrorType?;
     }) {

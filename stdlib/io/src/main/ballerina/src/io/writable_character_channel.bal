@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Represents a channel which could be used to write characters through a given WritableCharacterChannel.
-public type WritableCharacterChannel object {
+public class WritableCharacterChannel {
 
     private WritableByteChannel bChannel;
     private string charset;
@@ -86,7 +86,7 @@ public type WritableCharacterChannel object {
     public function close() returns Error? {
         return closeWritableCharacterChannel(self);
     }
-};
+}
 
 function initWritableCharacterChannel(WritableCharacterChannel characterChannel, WritableByteChannel byteChannel,
                                       string charset) = @java:Method {

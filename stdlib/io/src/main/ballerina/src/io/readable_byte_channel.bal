@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # ReadableByteChannel represents an input resource (i.e file). which could be used to source bytes.
-public type ReadableByteChannel object {
+public class ReadableByteChannel {
 
     # Adding default init function to prevent object getting initialized from the user code.
     function init() {}
@@ -64,7 +64,7 @@ public type ReadableByteChannel object {
     public function close() returns Error? {
         return closeReadableByteChannelExtern(self);
     }
-};
+}
 
 function byteReadExtern(ReadableByteChannel byteChannel, @untainted int nBytes) returns @tainted byte[]|Error = @java:Method {
     name: "read",

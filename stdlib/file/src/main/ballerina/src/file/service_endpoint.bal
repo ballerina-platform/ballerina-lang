@@ -22,7 +22,7 @@ import ballerina/java;
 ///////////////////////////////////
 
 # Represents the directory listener endpoint, which is used to listen to a directory in the local file system.
-public type Listener object {
+public class Listener {
     private ListenerConfig config;
 
     *lang:Listener;
@@ -74,7 +74,7 @@ public type Listener object {
     # + return - () or else error upon failure to detach to the service
     public function __detach(service s) returns error? {
     }
-};
+}
 
 # Represents configurations that required for directory listener.
 #

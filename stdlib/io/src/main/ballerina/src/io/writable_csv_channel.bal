@@ -28,7 +28,7 @@ public const int MINIMUM_HEADER_COUNT = 0;
 
 
 # Represents a WritableCSVChannel, which could be used to write records from the CSV file.
-public type WritableCSVChannel object {
+public class WritableCSVChannel {
     private WritableTextRecordChannel? dc;
 
     # Constructs a CSV channel from a `CharacterChannel` to read/write CSV records.
@@ -75,4 +75,4 @@ public type WritableCSVChannel object {
         }
         return ();
     }
-};
+}

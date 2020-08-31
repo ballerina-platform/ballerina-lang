@@ -26,7 +26,7 @@ import ballerina/system;
 /////////////////////////////
 # This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to
 # remote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations.
-public type Listener object {
+public class Listener {
 
     *lang:Listener;
 
@@ -134,7 +134,7 @@ public type Listener object {
     function detach(service s) returns error? {
         return externDetach(self, s);
     }
-};
+}
 
 function externInitEndpoint(Listener listenerObj) returns error? = @java:Method {
     'class: "org.ballerinalang.net.http.serviceendpoint.InitEndpoint",
@@ -345,7 +345,7 @@ function addAuthFilters(ListenerConfiguration config) {
     // No need to validate else part since the function is called if and only if the `auth is ListenerAuth`
 }
 
-type AttributeFilter object {
+class AttributeFilter {
 
     *RequestFilter;
 
@@ -356,7 +356,7 @@ type AttributeFilter object {
         ctx.attributes[REQUEST_METHOD] = request.method;
         return true;
     }
-};
+}
 
 function addAttributeFilter(ListenerConfiguration config) {
     AttributeFilter attributeFilter = new;
