@@ -48,6 +48,74 @@ isolated function testIsolatedFunctionAccessingImmutableGlobalStorage() {
     assertEquality("helloworld", concat);
 }
 
+final int[] & readonly arr = [1, 2, 3];
+
+type Baz object {
+    int iv;
+
+    isolated function init(int j) {
+        self.iv = j + i;
+    }
+
+    isolated function val() returns int {
+        return self.iv + arr[0] + 100;
+    }
+};
+
+isolated function testIsolatedObjectMethods() {
+    Baz b = new (100);
+    assertEquality(101, b.iv);
+
+    assertEquality(202, b.val());
+}
+
+// Service tests, only testing definition since dispatching is not possible atm
+
+public type Listener object {
+
+    *'object:Listener;
+
+    public function __attach(service s, string? name = ()) returns error? { }
+
+    public function __detach(service s) returns error? { }
+
+    public function __start() returns error? { }
+
+    public function __gracefulStop() returns error? { }
+
+    public function __immediateStop() returns error? { }
+};
+
+service s1 on new Listener() {
+    isolated resource function res1(map<int> j) {
+        int x = i + <int> j["val"];
+    }
+
+    resource isolated function res2(string str) returns error? {
+        self.res3();
+        return error(str + <string> ms["first"]);
+    }
+
+    isolated function res3() {
+
+    }
+}
+
+service s2 = service {
+    isolated resource function res1(map<int> j) {
+        int x = i + <int> j["val"];
+    }
+
+    resource isolated function res2(string str) returns error? {
+        self.res3();
+        return error(str + <string> ms["first"]);
+    }
+
+    isolated function res3() {
+
+    }
+};
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
@@ -57,5 +125,6 @@ isolated function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
+    panic error("AssertionError");
+    //panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
 }

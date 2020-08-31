@@ -93,3 +93,73 @@ final Bar bar = {
 isolated function invalidIsolationFunctionAccessingMutableStorageViaFinalVar() {
     int a = bar.a;
 }
+
+type Baz object {
+    int i;
+
+    isolated function init(int j) {
+        self.i = j + a;
+    }
+
+    isolated function val() returns int {
+        return self.i + d[0] + 100;
+    }
+};
+
+public type Listener object {
+
+    *'object:Listener;
+
+    public function __attach(service s, string? name = ()) returns error? { }
+
+    public function __detach(service s) returns error? { }
+
+    public function __start() returns error? { }
+
+    public function __gracefulStop() returns error? { }
+
+    public function __immediateStop() returns error? { }
+};
+
+service s1 on new Listener() {
+    isolated resource function res1(map<int> j) {
+        int x = a + <int> j["val"];
+    }
+
+    resource isolated function res2(string str) returns error? {
+        self.res3();
+        return error(str + c);
+    }
+
+    isolated function res3() {
+        int i = d[1];
+    }
+}
+
+service s2 = service {
+    isolated resource function res1(map<int> j) {
+        int x = a + <int> j["val"];
+    }
+
+    resource isolated function res2(string str) returns error? {
+        self.res3();
+        return error(str + c);
+    }
+
+    isolated function res3() {
+        int i = d[1];
+    }
+};
+
+boolean bool = true;
+
+isolated function testInvalidNonIsolatedAccessAsArgs() {
+    diffParamKinds(a);
+    diffParamKinds(a, c, ...[bool, false]);
+    diffParamKinds(a, b = c);
+    diffParamKinds(a, c, ...d);
+    diffParamKinds(a, ...[c, bool, 1, a]);
+}
+
+isolated function diffParamKinds(int a, string b = "hello", boolean|int... c) {
+}

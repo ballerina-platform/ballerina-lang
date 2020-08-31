@@ -43,6 +43,7 @@ public class IsolationAnalysisTest {
         BRunUtil.invoke(result, "testIsolatedFunctionWithOnlyLocalVars");
         BRunUtil.invoke(result, "testIsolatedFunctionWithLocalVarsAndParams");
         BRunUtil.invoke(result, "testIsolatedFunctionAccessingImmutableGlobalStorage");
+        BRunUtil.invoke(result, "testIsolatedObjectMethods");
     }
 
     @Test
@@ -68,6 +69,27 @@ public class IsolationAnalysisTest {
         validateError(result, i++, "invalid worker declaration in an 'isolated' function", 74, 5);
         validateError(result, i++, "invalid async invocation in an 'isolated' function", 80, 28);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 94, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 101, 22);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 105, 25);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 126, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 131, 28);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 135, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 141, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 146, 28);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 150, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 157, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 158, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 158, 23);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 158, 30);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 159, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 159, 27);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 160, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 160, 23);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 160, 29);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 27);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 30);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 39);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

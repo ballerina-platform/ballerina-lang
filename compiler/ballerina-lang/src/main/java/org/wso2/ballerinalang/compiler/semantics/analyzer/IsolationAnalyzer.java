@@ -170,6 +170,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Responsible for performing isolation analysis.
  *
@@ -674,6 +677,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
+        List<BLangExpression> args = new ArrayList<>(invocationExpr.requiredArgs);
+        args.addAll(invocationExpr.restArgs);
+        for (BLangExpression argExpr : args) {
+            analyzeNode(argExpr, env);
+        }
+
         BSymbol symbol = invocationExpr.symbol;
         if (symbol == null || symbol.getKind() == SymbolKind.ERROR_CONSTRUCTOR ||
                 Symbols.isFlagOn(symbol.flags, Flags.ISOLATED)) {
