@@ -57,7 +57,7 @@ public class WritableDataChannel {
 # ```ballerina
 # io:Error? err = dataChannel.writeInt32(length);
 # ```
-# 
+#
 # + value - The integer, which will be written
 # + return - `()` if the content is written successfully or else `io:Error` if any error occurred
     public function writeInt32(int value) returns Error? {

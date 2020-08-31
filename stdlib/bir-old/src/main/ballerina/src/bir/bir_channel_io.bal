@@ -16,7 +16,7 @@
 
 import ballerina/io;
 
-public type BirChannelReader object {
+public class BirChannelReader {
     ChannelReader reader;
     ConstPool cp;
 
@@ -31,7 +31,7 @@ public type BirChannelReader object {
             return "int";
         } else if (sginatureAlias == "B"){
             return "boolean";
-        } 
+        }
         error err = error("type signature " + sginatureAlias + " not supported.");
         panic err;
     }
@@ -93,4 +93,4 @@ public type BirChannelReader object {
     public function readByteArray(int len) returns byte[] {
         return <@untainted> self.reader.readByteArray(len);
     }
-};
+}

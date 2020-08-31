@@ -21,7 +21,7 @@ public type ByteArrayReader record {
     int pos = 0;
 };
 
-public type TypeParser object {
+public class TypeParser {
     public int TYPE_TAG_INT = 1;
     public int TYPE_TAG_BYTE = 2;
     public int TYPE_TAG_FLOAT =3;
@@ -62,7 +62,7 @@ public type TypeParser object {
 
     public int TYPE_TAG_SELF = 50;
 
-    ConstPool cp = {};
+    ConstPool cp = {}
     ByteArrayReader reader;
     int cpI;
     byte[]?[] unparsedTypes;

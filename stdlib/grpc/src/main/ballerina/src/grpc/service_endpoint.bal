@@ -20,12 +20,12 @@ import ballerina/java;
 
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
-public type Listener object {
+public class Listener {
 
     *lang:Listener;
 
     private int port = 0;
-    private ListenerConfiguration config = {};
+    private ListenerConfiguration config = {}
 
 # Starts the registered service.
 # ```ballerina
@@ -96,7 +96,7 @@ public type Listener object {
 
 # The stream iterator object that is used to iterate through the stream messages.
 #
-type StreamIterator object {
+class StreamIterator {
     private boolean isClosed = false;
 
     public function next() returns record {|anydata value;|}|error? {
@@ -109,7 +109,7 @@ type StreamIterator object {
                 self.isClosed = true;
                 return EOS("End of stream reached");
             }
-            return {value: result};
+            return {value: result}
         } else if (result is handle) {
             return {value: java:toString(result)};
         } else {

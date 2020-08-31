@@ -33,7 +33,7 @@ type JsonMap map<json>;
 # };
 # oauth2:InboundOAuth2Provider inboundOAuth2Provider = new(introspectionServerConfig);
 # ```
-public type InboundOAuth2Provider object {
+public class InboundOAuth2Provider {
 
     *auth:InboundAuthProvider;
 
@@ -73,7 +73,7 @@ public type InboundOAuth2Provider object {
             return prepareAuthError("OAuth2 validation failed.", validationResult);
         }
     }
-};
+}
 
 # Validates the given OAuth2 token by calling the OAuth2 introspection endpoint.
 # ```ballerina

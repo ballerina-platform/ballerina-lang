@@ -71,4 +71,4 @@ public type StrandData record {|
 public const annotation StrandData strand on source worker;
 
 # Denotes icon metadata related to types and functions.
-public const annotation record {| string path; |} icon on source type, source function;
+public const annotation record {| string path; |} icon on source type, source function, source class;

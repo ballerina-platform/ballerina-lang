@@ -32,7 +32,7 @@ public class WritableCSVChannel {
     private WritableTextRecordChannel? dc;
 
     # Constructs a CSV channel from a `CharacterChannel` to read/write CSV records.
-    # 
+    #
     # + CharacterChannel - The `CharacterChannel`, which will represent the content in the CSV file
     # + fs - Field separator, which will separate the records in the CSV
     public function init(WritableCharacterChannel characterChannel, public Separator fs = ",") {
@@ -51,7 +51,7 @@ public class WritableCSVChannel {
 # ```ballerina
 # io:Error err = csvChannel.write(record);
 # ```
-# 
+#
 # + csvRecord - A record to be written to the channel
 # + return - An `io:Error` if the record could not be written properly
     public function write(string[] csvRecord) returns Error? {
@@ -66,7 +66,7 @@ public class WritableCSVChannel {
 # ```ballerina
 # io:Error? err = csvChannel.close();
 # ```
-# 
+#
 # + return - `()` or else `io:Error` if any error occurred
     public function close() returns Error? {
         if(self.dc is WritableTextRecordChannel){

@@ -2,7 +2,7 @@ import ballerina/java;
 import ballerina/sql;
 
 # Represents a Mock database client.
-public type Client client object {
+public client class Client {
     *sql:Client;
     private boolean clientActive = true;
 
@@ -63,7 +63,7 @@ public type Client client object {
         self.clientActive = false;
         return close(self);
     }
-};
+}
 
 type SQLParams record {|
     string? url;

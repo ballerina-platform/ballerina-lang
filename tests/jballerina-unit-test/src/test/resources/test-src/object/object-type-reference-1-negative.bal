@@ -23,12 +23,12 @@ type Employee1 abstract object {
     public float salary;
 };
 
-type Manager1 object {
+class Manager1 {
     *Person1;
     *Employee1;
 
     string dpt = "HR";
-};
+}
 
 type EmployeeWithSalary abstract object {
     public float salary;
@@ -38,12 +38,12 @@ type AnotherEmployeeWithSalary abstract object {
     public int salary;
 };
 
-type ManagerWithTwoSalaries object {
+class ManagerWithTwoSalaries {
     *Person1;
 
     string dpt = "HR";
     *EmployeeWithSalary;
-};
+}
 
 // Test errors for unimplemented methods
 type Person2 abstract object {
@@ -61,7 +61,7 @@ type Employee2 abstract object {
     public function getSalary() returns float;
 };
 
-type Manager2 object {
+class Manager2 {
     string dpt = "HR";
     *Employee2;
 
@@ -72,4 +72,4 @@ type Manager2 object {
     public function getSalary() returns float {
         return self.salary;
     }
-};
+}

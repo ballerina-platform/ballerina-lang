@@ -16,18 +16,18 @@
 
 // test object field access
 
-type MO object {
+class MO {
     int x = 0;
-};
+}
 
-type MOO object {
+class MOO {
     *MO;
     int n = 0;
 
     public function init() {
         self.x = 5;
     }
-};
+}
 
 var objCreatedViaConstructor = object MOO {
     int n = 20;
@@ -93,7 +93,7 @@ function testObjectConstructorObjectFunctionInvocation() {
 //    assertTrue(remoteObject.n == 2);
 //}
 
-type MoAdvanced object {
+class MoAdvanced {
     int n = 0;
 
     public function setN(int userN) {
@@ -103,7 +103,7 @@ type MoAdvanced object {
     public function init() {
         self.n = 0;
     }
-};
+}
 
 // test function methods
 

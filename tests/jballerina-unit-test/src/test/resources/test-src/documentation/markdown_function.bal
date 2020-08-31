@@ -1,6 +1,6 @@
 # Documentation for File type
 # + path - file path. Example: `C:\users\OddThinking\Documents\My Source\Widget\foo.src`
-public type File object {
+public class File {
     public string path = "";
 
     # Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
@@ -11,7 +11,7 @@ public type File object {
     public function open(string accessMode) returns boolean {
         return true;
     }
-};
+}
 
 #
 # + anUnion - value of param1

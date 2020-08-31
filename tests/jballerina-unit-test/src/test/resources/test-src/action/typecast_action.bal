@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo1 client object {
+client class Foo1 {
     any val;
 
     function init(any val) {
@@ -28,7 +28,7 @@ type Foo1 client object {
     function setValue(any val) {
         self.val = val;
     }
-};
+}
 
 function testTypecastWithRemoteMethodCalls() {
     Foo1 foo = new("Foo");
@@ -77,7 +77,7 @@ function testCastingRecords() {
     assert(<Person>{name: "Jane Doe", age: 25, "school": "Hogwarts"}, p2);
 }
 
-type PersonObj object {
+class PersonObj {
     string name;
     int age;
 
@@ -97,7 +97,7 @@ type PersonObj object {
     function toString() returns string {
         return "name=" + self.name + " age=" + self.age.toString();
     }
-};
+}
 
 function testCastingObjects() {
     PersonObj p1 = new("John Doe", 25);

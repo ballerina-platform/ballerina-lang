@@ -27,10 +27,10 @@ public class WritableTextRecordChannel {
     # + characterChannel - The `WritableCharacterChannel`, which will point to the input/output resource
     # + fs - Field separator (this could be a regex)
     # + rs - Record separator (this could be a regex)
-    # + fmt - The format, which will be used to represent the CSV (this could be 
-    #         "DEFAULT" (the format specified by the CSVChannel), 
+    # + fmt - The format, which will be used to represent the CSV (this could be
+    #         "DEFAULT" (the format specified by the CSVChannel),
     #         "CSV" (Field separator would be "," and record separator would be a new line) or else
-    #         "TDF" (Field separator will be a tab and record separator will be a new line). 
+    #         "TDF" (Field separator will be a tab and record separator will be a new line).
     public function init(WritableCharacterChannel characterChannel, public string fs = "", public string rs = "",
                            public string fmt = "default") {
         self.characterChannel = characterChannel;
@@ -43,7 +43,7 @@ public class WritableTextRecordChannel {
 # ```ballerina
 # io:Error? err = writableChannel.write(records);
 # ```
-# 
+#
 # + textRecord - List of fields to be written
 # + return - An `io:Error` if the records could not be written properly or else `()`
     public function write(string[] textRecord) returns Error? {
@@ -54,7 +54,7 @@ public class WritableTextRecordChannel {
 # ```ballerina
 # io:Error? err = writableChannel.close();
 # ```
-# 
+#
 # + return - An `io:Error` if the record channel could not be closed properly or else `()`
     public function close() returns Error? {
         return closeWritableTextRecordChannelExtern(self);

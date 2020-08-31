@@ -3,14 +3,14 @@ import ballerina / io;
 type MyString string;
 type MyUnion int|boolean;
 type MyUnion2 string|byte;
-type RecursiveObj object{RecursiveObj me;};
-type RecursiveL2Obj object{RecursiveObj that;};
-type RecursiveL3Obj object{RecursiveL2Obj other;};
+class RecursiveObj {RecursiveObj me;}
+class RecursiveL2Obj {RecursiveObj that;}
+class RecursiveL3Obj {RecursiveL2Obj other;}
 
 
-type RecursiveDeepL0Obj object{RecursiveDeepL2Obj? a;};
-type RecursiveDeepL1Obj object{RecursiveDeepL0Obj b;};
-type RecursiveDeepL2Obj object{RecursiveDeepL1Obj c;};
+class RecursiveDeepL0Obj {RecursiveDeepL2Obj? a;}
+class RecursiveDeepL1Obj {RecursiveDeepL0Obj b;}
+class RecursiveDeepL2Obj {RecursiveDeepL1Obj c;}
 
 type Employee record {
     int id;

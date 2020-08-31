@@ -23,7 +23,7 @@ public class WritableCharacterChannel {
     private string charset;
 
     # Constructs a `WritableByteChannel` from a given `WritableByteChannel` and `Charset`.
-    # 
+    #
     # + bChannel - The `WritableByteChannel`, which would be used to write the characters
     # + charset - The character set, which would be used to encode the given bytes to characters
     public function init(WritableByteChannel bChannel, string charset) {

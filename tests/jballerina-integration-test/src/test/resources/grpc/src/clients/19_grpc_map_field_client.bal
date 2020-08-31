@@ -55,7 +55,7 @@ public function testOptionalFields() returns string {
     }
 }
 
-public type NegotiatorBlockingClient client object {
+public client class NegotiatorBlockingClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -91,9 +91,9 @@ public type NegotiatorBlockingClient client object {
         [_, resHeaders] = payload;
         return resHeaders;
     }
-};
+}
 
-public type NegotiatorClient client object {
+public client class NegotiatorClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -119,7 +119,7 @@ public type NegotiatorClient client object {
                                                                                         returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("Negotiator/publishTraces", req, msgListener, headers);
     }
-};
+}
 
 public type Empty record {|
 |};

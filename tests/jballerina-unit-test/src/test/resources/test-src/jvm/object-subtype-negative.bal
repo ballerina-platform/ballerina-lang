@@ -23,7 +23,7 @@ public function testAssigment() {
     myType1 mt1 = to;
 }
 
-type testObj object {
+class testObj {
     int intField1;
     int intField2;
     int intField = 10;
@@ -31,4 +31,4 @@ type testObj object {
 
     function objFunc() {
     }
-};
+}

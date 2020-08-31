@@ -226,7 +226,7 @@ function testSealedRecordTypes() returns [boolean, boolean] {
 
 // ========================== Objects ==========================
 
-public type Person object {
+public class Person {
     public int age;
     public string name;
     public string address = "";
@@ -247,9 +247,9 @@ public type Person object {
     public function getAddress() returns (string) {
         return self.address;
     }
-};
+}
 
-public type SameAsPerson object {
+public class SameAsPerson {
     public int age;
     public string name;
     public string address = "";
@@ -270,7 +270,7 @@ public type SameAsPerson object {
     public function getAddress() returns (string) {
         return self.address;
     }
-};
+}
 
 function testObjectWithSameMembersButDifferentAlias() returns [string, string, string, string] {
     Person p1 = new("John", 35);
@@ -303,7 +303,7 @@ function testObjectWithSameMembersButDifferentAlias() returns [string, string, s
     return [s1, s2, s3, s4];
 }
 
-public type PersonInOrder object {
+public class PersonInOrder {
     public int age;
     public string name;
     public string address = "";
@@ -324,9 +324,9 @@ public type PersonInOrder object {
     public function getAddress() returns (string) {
         return self.address;
     }
-};
+}
 
-public type PersonNotInOrder object {
+public class PersonNotInOrder {
 
     public function getName() returns (string) {
         return self.name;
@@ -350,7 +350,7 @@ public type PersonNotInOrder object {
     }
 
     public string address = "";
-};
+}
 
 function testObjectWithUnorderedFields() returns [string, string, string, string] {
     PersonInOrder p1 = new("John", 35);
@@ -393,17 +393,17 @@ public type B4 abstract object {
     *A4;
 };
 
-public type C4 object {
+public class C4 {
     *B4;
     public boolean s;
-    
+
     public function init(int p, string q, float r, boolean s) {
         self.p = p;
         self.q = q;
         self.r = r;
         self.s = s;
     }
-};
+}
 
 function testPublicObjectEquivalency() returns [string, string, string] {
     any x = new C4(5, "foo", 6.7, true);
@@ -436,17 +436,17 @@ type B5 abstract object {
     *A5;
 };
 
-type C5 object {
+class C5 {
     *B5;
     boolean s;
-    
+
     public function init(int p, string q, float r, boolean s) {
         self.p = p;
         self.q = q;
         self.r = r;
         self.s = s;
     }
-};
+}
 
 function testPrivateObjectEquivalency() returns [string, string, string] {
     any x = new C5(5, "foo", 6.7, true);

@@ -23,7 +23,7 @@ public class ReadableCharacterChannel {
     private string charset;
 
     # Constructs a `ReadableCharacterChannel` from a given `ReadableByteChannel` and `Charset`.
-    # 
+    #
     # + byteChannel - The `ReadableByteChannel`, which would be used to read the characters
     # + charset - The character set, which would be used to encode/decode the given bytes to characters
     public function init(ReadableByteChannel byteChannel, string charset) {

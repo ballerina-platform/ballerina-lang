@@ -97,7 +97,7 @@ service ChatMessageListener = service {
 };
 
 // Non-blocking client endpoint
-public type ChatClient client object {
+public client class ChatClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -113,7 +113,7 @@ public type ChatClient client object {
     public remote function chat(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|grpc:Error) {
         return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers);
     }
-};
+}
 
 type ChatMessage record {
     string name = "";

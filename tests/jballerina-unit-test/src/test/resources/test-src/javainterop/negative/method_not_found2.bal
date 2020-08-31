@@ -1,11 +1,11 @@
 import ballerina/java;
 
-public type Person object {
+public class Person {
     int age = 9;
     public function init(int age) {
         self.age = age;
     }
-};
+}
 
 public function interopWithObjectReturn() returns boolean {
     Person p = new Person(8);

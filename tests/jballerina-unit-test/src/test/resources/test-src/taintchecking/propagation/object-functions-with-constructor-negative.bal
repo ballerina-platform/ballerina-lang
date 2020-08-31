@@ -1,4 +1,4 @@
-type TestObject object {
+class TestObject {
 
     public string testString;
 
@@ -9,7 +9,7 @@ type TestObject object {
     function testFunction (string input) returns string {
         return input + self.testString;
     }
-};
+}
 
 function secureFunction(@untainted string secureIn, string insecureIn) {
 

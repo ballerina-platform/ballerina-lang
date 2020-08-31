@@ -39,7 +39,7 @@ public class CodegenErrorsTest {
     @Test
     public void testTooLargeObjectMethod() {
         CompileResult result = BCompileUtil.compileOnly("test-src/jvm/too-large-object-field.bal");
-        BAssertUtil.validateError(result, 0, "method is too large: '$init$'", "too-large-object-field.bal", 18, 9);
+        BAssertUtil.validateError(result, 0, "method is too large: '$init$'", "too-large-object-field.bal", 17, 1);
     }
 
     @Test

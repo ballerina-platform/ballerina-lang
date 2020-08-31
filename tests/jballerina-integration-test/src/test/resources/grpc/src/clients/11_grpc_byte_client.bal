@@ -68,7 +68,7 @@ function testLargeByteArray(string filePath) returns (string) {
     }
 }
 
-public type byteServiceBlockingClient client object {
+public client class byteServiceBlockingClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -92,9 +92,9 @@ public type byteServiceBlockingClient client object {
             return grpc:InternalError("Error while constructing the message", value);
         }
     }
-};
+}
 
-public type byteServiceClient client object {
+public client class byteServiceClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -109,7 +109,7 @@ public type byteServiceClient client object {
     public remote function checkBytes (byte[] req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, msgListener, headers);
     }
-};
+}
 
 const string ROOT_DESCRIPTOR = "0A1162797465536572766963652E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32550A0B627974655365727669636512460A0A636865636B4279746573121B2E676F6F676C652E70726F746F6275662E427974657356616C75651A1B2E676F6F676C652E70726F746F6275662E427974657356616C7565620670726F746F33";
 function getDescriptorMap() returns map<string> {

@@ -1,8 +1,8 @@
-type G object {
+class G {
     function init() {
 
     }
-};
+}
 
 type T1 object { G g; };
 

@@ -70,10 +70,10 @@ function testSubtyping3() {
     } temp1 = `Foo ${x}Bar`;
 }
 
-type Template1 object {
+class Template1 {
     public (string[] & readonly) strings = [];
     public int[] insertions = [];
-};
+}
 
 function testSubtyping4() {
     int x = 10;

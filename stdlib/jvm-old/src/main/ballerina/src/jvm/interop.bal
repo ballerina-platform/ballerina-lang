@@ -79,7 +79,7 @@ public type Field record {|
 |};
 
 
-public type InteropValidator object {
+public class InteropValidator {
 
     public function init(string[] jarUrls, boolean useSystemClassLoader) {
         self.externalInit(jarUrls, useSystemClassLoader);
@@ -90,7 +90,7 @@ public type InteropValidator object {
     public function validateAndGetJMethod(MethodValidationRequest methodValidationReq) returns Method | error = external;
 
     public function validateAndGetJField(FieldValidationRequest fieldValidationReq) returns Field | error = external;
-};
+}
 
 
 public function getMethodKindFromAnnotTag(MethodAnnotTag annotTagRef) returns MethodKind {

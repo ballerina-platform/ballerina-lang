@@ -40,7 +40,7 @@ service routerService2 on ep {
 @types:Config {
     value: "routeCon"
 }
-public type routeCon client object {
+public client class routeCon {
 
     @functions:Config {
         value: "route"
@@ -48,7 +48,7 @@ public type routeCon client object {
     remote function getRoutes() {
 
     }
-};
+}
 
 @types:Config {
     value: "RouteConfig"

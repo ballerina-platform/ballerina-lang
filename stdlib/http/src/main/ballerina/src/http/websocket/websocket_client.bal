@@ -173,7 +173,7 @@ public client class WebSocketClient {
     public function getHttpResponse() returns Response? {
         return self.response;
     }
-    
+
 }
 
 # Configurations for the WebSocket client.

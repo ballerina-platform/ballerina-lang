@@ -74,7 +74,7 @@ type AbstractClientObject abstract client object {
                                returns float;
 };
 
-type ObjReferenceToAbstractClientObject client object {
+client class ObjReferenceToAbstractClientObject {
     *AbstractClientObject;
     private int privateIntField;
 
@@ -106,7 +106,7 @@ type ObjReferenceToAbstractClientObject client object {
         self.privateIntField = argTwo;
         self.defaultVisibilityFloatField = argThree;
     }
-};
+}
 
 function ObjReferenceToAbstractClientObject.defaultVisibiltyMethodOutsideDecl(string argOne, int argTwo) {
     self.defaultVisibilityFloatField += argTwo;
@@ -180,7 +180,7 @@ type ClientAbstractObject client abstract object {
     remote function getPrivateField() returns int;
 };
 
-type ObjReferenceToClientAbstractObject client object {
+client class ObjReferenceToClientAbstractObject {
     *ClientAbstractObject;
 
     private float privateFloatField;
@@ -194,7 +194,7 @@ type ObjReferenceToClientAbstractObject client object {
     remote function getPrivateField() returns float {
         return self.privateFloatField;
     }
-};
+}
 
 @test:Config {}
 function testClientAbstractObjectDeclaration() {

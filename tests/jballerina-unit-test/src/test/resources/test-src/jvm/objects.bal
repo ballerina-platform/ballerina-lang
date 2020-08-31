@@ -24,7 +24,7 @@ public function testSimpleObjectAsStructWithNew () returns [int, string, int, st
     return [p.age, p.getName(), p.getYear(), p.month];
 }
 
-type Person object {
+class Person {
     public int age = 10;
     public string name = "sample name";
 
@@ -42,43 +42,43 @@ type Person object {
     function getYearInternal() returns int {
         return self.year;
     }
-};
+}
 
 public function testUserInitFunction() returns [int, string, int, string] {
     Person2 p = new(10, "sample name");
     return [p.age, p.name, p.year, p.month];
 }
 
-type Person2 object {
+class Person2 {
     public int age = 3;
     public string name = "no name";
 
     int year = 2;
     string month = "idk";
-    
+
     function init(int age, string name) {
         self.age = age;
         self.name = name;
         self.year = 50;
         self.month = "february";
     }
-};
+}
 
-public type Foo object {
+public class Foo {
     public int a = 3;
     public Foo? f = ();
-};
+}
 
 public function testSelfReferencingObject() returns Foo {
     return new Foo();
 }
 
 
-type objects object {
+class objects {
     function getName() returns string {
         return "works!";
     }
-};
+}
 
 function testObjectWithSameNameAsFileName() returns string {
     objects o = new();

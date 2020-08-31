@@ -29,7 +29,7 @@ function testReadonlyObjectFields() {
     testSubTypingWithReadOnlyFieldsNegative();
 }
 
-public type Student object {
+public class Student {
     readonly string name;
     readonly int id;
     float avg = 80.0;
@@ -37,9 +37,9 @@ public type Student object {
         self.name = n;
         self.id = i;
     }
-};
+}
 
-public type NonReadOnlyStudent object {
+public class NonReadOnlyStudent {
     string name;
     int id;
     int yob;
@@ -49,7 +49,7 @@ public type NonReadOnlyStudent object {
         self.id = i;
         self.yob = y;
     }
-};
+}
 
 function testObjectWithSimpleReadonlyFields() {
     Student|NonReadOnlyStudent st = new ("Maryam", 1234);
@@ -73,7 +73,7 @@ function testInvalidObjectSimpleReadonlyFieldUpdate() {
     assertEquality("cannot update 'readonly' field 'name' in object of type 'Student'", err.detail()["message"]);
 }
 
-type ReadonlyNamedPerson object {
+class ReadonlyNamedPerson {
     readonly string name;
     int id;
 
@@ -81,9 +81,9 @@ type ReadonlyNamedPerson object {
         self.name = name;
         self.id = id;
     }
-};
+}
 
-type NonReadonlyNamedPerson object {
+class NonReadonlyNamedPerson {
     string name;
     int id;
 
@@ -91,7 +91,7 @@ type NonReadonlyNamedPerson object {
         self.name = name;
         self.id = id;
     }
-};
+}
 
 function testValidUpdateOfPossiblyReadonlyFieldInUnion() {
     NonReadonlyNamedPerson a = new ("Jo", 1234);
@@ -137,14 +137,14 @@ function testInvalidUpdateOfPossiblyReadonlyFieldInUnion() {
                    err.detail()["message"]);
 }
 
-type Employee object {
+class Employee {
     readonly Details details;
     string department = "IT";
 
     function init(Details & readonly details) {
         self.details = details;
     }
-};
+}
 
 type Details record {
     string name;
@@ -185,7 +185,7 @@ function testObjectWithStructuredReadonlyFields() {
     assertEquality("cannot update 'readonly' field 'details' in object of type 'Employee'", err.detail()["message"]);
 }
 
-type Identifier object {
+class Identifier {
     readonly string id = "Identifier";
     string code;
 
@@ -196,7 +196,7 @@ type Identifier object {
             self.id = id;
         }
     }
-};
+}
 
 function testReadOnlyFieldWithDefaultValue() {
     string k = "id";
@@ -229,7 +229,7 @@ type Foo abstract object {
     function baz() returns string;
 };
 
-type Bar object {
+class Bar {
     readonly string name = "str";
     readonly int id = 1234;
     readonly int? oth = ();
@@ -237,7 +237,7 @@ type Bar object {
     function baz() returns string {
         return string `${self.id}: ${self.name}`;
     }
-};
+}
 
 function testTypeReadOnlyFlagForAllReadOnlyFields() {
     Bar st = new;
@@ -252,7 +252,7 @@ function testTypeReadOnlyFlagForAllReadOnlyFields() {
     assertTrue(rd is Bar);
 }
 
-type Person object {
+class Person {
     readonly Particulars particulars;
     int id;
 
@@ -260,18 +260,18 @@ type Person object {
         self.particulars = particulars;
         self.id = 1021;
     }
-};
+}
 
-type Undergraduate object {
+class Undergraduate {
     Particulars & readonly particulars;
     int id = 1234;
 
     function init(Particulars & readonly particulars) {
         self.particulars = particulars;
     }
-};
+}
 
-type Graduate object {
+class Graduate {
     Particulars particulars;
     int id;
 
@@ -279,7 +279,7 @@ type Graduate object {
         self.particulars = particulars;
         self.id = id;
     }
-};
+}
 
 type Particulars record {|
     string name;
@@ -325,7 +325,7 @@ type AbstractPerson abstract object {
     int id;
 };
 
-type ReadOnlyPerson readonly object {
+readonly class ReadOnlyPerson {
     Particulars particulars;
     int id;
 
@@ -333,15 +333,15 @@ type ReadOnlyPerson readonly object {
         self.particulars = {name: "Rob"};
         self.id = 1234;
     }
-};
+}
 
 function testSubTypingWithReadOnlyFieldsViaReadOnlyType() {
-    object {
+    var lrp = object {
         readonly Particulars particulars = {
             name: "Jo"
         };
         readonly int id = 1234;
-    } lrp = new ();
+    };
 
     AbstractPerson & readonly ap = lrp;
     Person p1 = ap;

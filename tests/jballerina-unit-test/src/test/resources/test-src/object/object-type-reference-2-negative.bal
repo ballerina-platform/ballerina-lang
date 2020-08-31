@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo object {
+class Foo {
     *Bar;
-};
+}
 
 type Bar abstract object {
     int x;

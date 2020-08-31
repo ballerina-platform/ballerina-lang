@@ -31,283 +31,283 @@ public type Value string|int|boolean|float|decimal|byte[]|xml|TypedValue?;
 
 # Represents Varchar SQL field.
 #
-public type VarcharValue object {
+public class VarcharValue {
     string? value;
 
     public function init(string? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents NVarchar SQL field.
 #
-public type NVarcharValue object {
+public class NVarcharValue {
     string? value;
 
     public function init(string? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Char SQL field.
 #
-public type CharValue object {
+public class CharValue {
     string? value;
 
     public function init(string? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents NChar SQL field.
 #
-public type NCharValue object {
+public class NCharValue {
     string? value;
 
     public function init(string? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Text SQL field.
 #
-public type TextValue object {
+public class TextValue {
     io:ReadableCharacterChannel|string? value;
 
     public function init(io:ReadableCharacterChannel|string? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Clob SQL field.
 #
-public type ClobValue object {
+public class ClobValue {
     io:ReadableCharacterChannel|string? value;
 
     public function init(io:ReadableCharacterChannel|string? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents NClob SQL field.
 #
-public type NClobValue object {
+public class NClobValue {
     io:ReadableCharacterChannel|string? value;
 
     public function init(io:ReadableCharacterChannel|string? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents SmallInt SQL field.
 #
-public type SmallIntValue object {
+public class SmallIntValue {
     int? value;
 
     public function init(int? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Integer SQL field.
 #
-public type IntegerValue object {
+public class IntegerValue {
     int? value;
 
     public function init(int? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents BigInt SQL field.
 #
-public type BigIntValue object {
+public class BigIntValue {
     int? value;
 
     public function init(int? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Numeric SQL field.
 #
-public type NumericValue object {
+public class NumericValue {
     int|float|decimal? value;
 
     public function init(int|float|decimal? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Decimal SQL field.
 #
-public type DecimalValue object {
+public class DecimalValue {
     int|decimal? value;
 
     public function init(int|decimal? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Real SQL field.
 #
-public type RealValue object {
+public class RealValue {
     int|float|decimal? value;
 
     public function init(int|float|decimal? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Float SQL field.
 #
-public type FloatValue object {
+public class FloatValue {
     int|float? value;
 
     public function init(int|float? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Double SQL field.
 #
-public type DoubleValue object {
+public class DoubleValue {
     int|float|decimal? value;
 
     public function init(int|float|decimal? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Bit SQL field.
 #
-public type BitValue object {
+public class BitValue {
     boolean|int? value;
 
     public function init(boolean|int? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Boolean SQL field.
 #
-public type BooleanValue object {
+public class BooleanValue {
     boolean? value;
 
     public function init(boolean? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Binary SQL field.
 #
-public type BinaryValue object {
+public class BinaryValue {
     byte[]|io:ReadableByteChannel? value;
 
     public function init(byte[]|io:ReadableByteChannel? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents VarBinary SQL field.
 #
-public type VarBinaryValue object {
+public class VarBinaryValue {
     byte[]|io:ReadableByteChannel? value;
 
     public function init(byte[]|io:ReadableByteChannel? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Blob SQL field.
 #
-public type BlobValue object {
+public class BlobValue {
     byte[]|io:ReadableByteChannel? value;
 
     public function init(byte[]|io:ReadableByteChannel? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Date SQL field.
 #
-public type DateValue object {
+public class DateValue {
     string|int|time:Time? value;
 
     public function init(string|int|time:Time? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Time SQL field.
 #
-public type TimeValue object {
+public class TimeValue {
     string|int|time:Time? value;
 
     public function init(string|int|time:Time? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents DateTime SQL field.
 #
-public type DateTimeValue object {
+public class DateTimeValue {
     string|int|time:Time? value;
 
     public function init(string|int|time:Time? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Timestamp SQL field.
 #
-public type TimestampValue object {
+public class TimestampValue {
     string|int|time:Time? value;
 
     public function init(string|int|time:Time? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents ArrayValue SQL field.
 #
-public type ArrayValue object {
+public class ArrayValue {
     string[]|int[]|boolean[]|float[]|decimal[]|byte[][]? value;
 
     public function init(string[]|int[]|boolean[]|float[]|decimal[]|byte[][]? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Ref SQL field.
 #
-public type RefValue object {
+public class RefValue {
     record {}? value;
 
     public function init(record {}? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Struct SQL field.
 #
-public type StructValue object {
+public class StructValue {
     record {}? value;
 
     public function init(record {}? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Row SQL field.
 #
-public type RowValue object {
+public class RowValue {
     byte[]? value;
 
     public function init(byte[]? value = ()) {
         self.value = value;
     }
-};
+}
 
 # Represents Parameterized SQL query.
 #
@@ -346,7 +346,7 @@ public type ExecutionResult record {
 
 # The result iterator object that is used to iterate through the results in the event stream.
 #
-type ResultIterator object {
+class ResultIterator {
     private boolean isClosed = false;
     private Error? err;
 
@@ -366,7 +366,7 @@ type ResultIterator object {
             if (result is record {}) {
                 record {|
                     record {} value;
-                |} streamRecord = {value: result};
+                |} streamRecord = {value: result}
                 return streamRecord;
             } else if (result is Error) {
                 self.err = result;
@@ -393,7 +393,7 @@ type ResultIterator object {
 };
 
 # Represents SQL OutParameter used in procedure calls.
-public type OutParameter object {
+public class OutParameter {
 
     # Parses returned SQL value to ballerina value.
     #
@@ -402,10 +402,10 @@ public type OutParameter object {
     public function get(typedesc<anydata> td) returns td|Error = @java:Method {
         'class: "org.ballerinalang.sql.utils.OutParameterUtils"
     } external;
-};
+}
 
 # Represents SQL InOutParameter used in procedure calls.
-public type InOutParameter object {
+public class InOutParameter {
     Value 'in;
 
     public function init(Value 'in) {
@@ -419,7 +419,7 @@ public type InOutParameter object {
     public function get(typedesc<anydata> td) returns td|Error = @java:Method {
         'class: "org.ballerinalang.sql.utils.OutParameterUtils"
     } external;
-};
+}
 
 # Represents all the parameters used in SQL stored procedure call.
 public type Parameter Value|OutParameter|InOutParameter;
@@ -437,7 +437,7 @@ public type ParameterizedCallQuery abstract object {
 #
 # + executionResult - Summary of the execution of DML/DLL query
 # + queryResult - Results from SQL query
-public type ProcedureCallResult object {
+public class ProcedureCallResult {
     public ExecutionResult? executionResult = ();
     public stream<record {}, Error>? queryResult = ();
 
@@ -455,4 +455,4 @@ public type ProcedureCallResult object {
     public function close() returns Error? {
         return closeCallResult(self);
     }
-};
+}

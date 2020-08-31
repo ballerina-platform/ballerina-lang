@@ -51,7 +51,7 @@ function testLiteralWithNoStrings() {
     assert("World", <string>rt.insertions[2]);
 }
 
-type Person object {
+class Person {
     string name;
     int age;
 
@@ -63,7 +63,7 @@ type Person object {
     function toString() returns string {
         return string `name: ${self.name}, age: ${self.age}`;
     }
-};
+}
 
 function testComplexExpressions() {
     int x = 10;
@@ -245,10 +245,10 @@ function testIndirectAssignmentToConcreteType() {
     assert("incompatible types: expected 'int', found 'float'", <string>err.detail().get("message"));
 }
 
-type CompatibleObj object {
+class CompatibleObj {
    public string[] strings = [];
    public anydata[] insertions = [];
-};
+}
 
 function testModifyStringsField() {
     Template1 rt = `Count: ${10}, ${20}`;

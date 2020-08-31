@@ -213,7 +213,7 @@ type Foo2 abstract object {
     string fooId2;
 };
 
-type Bar object {
+class Bar {
     *Foo1;
     *Foo2;
 
@@ -221,7 +221,7 @@ type Bar object {
         self.fooId1 = "Foo1";
         self.fooId2 = "Foo2";
     }
-};
+}
 
 function testObjectArrayUnion() returns Foo1[][] {
     Bar b = new;

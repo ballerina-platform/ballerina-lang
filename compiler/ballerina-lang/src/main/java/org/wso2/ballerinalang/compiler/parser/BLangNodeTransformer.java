@@ -393,6 +393,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -955,6 +956,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 throw new RuntimeException("Syntax kind is not supported: " + qualifier.kind());
             }
         }
+
+        // TODO: This is just a workaround, REMOVE this when moving form object type def to class defn.
+        objectTypeNode.flagSet.add(Flag.CLASS);
+
         bLTypeDef.annAttachments = applyAll(objectConstructorExpressionNode.annotations());
         addToTop(bLTypeDef);
 
@@ -3467,15 +3472,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        blangClass.pos = getPosition(classDefinitionNode);
+        // todo: Copied from object type def
+        // not sure what's going on here need to verify with parser team.
+//        blangClass.pos = getPosition(classDefinitionNode);
+//
+//        if (members.size() > 0) {
+//            trimLeft(blangClass.pos, getPosition(members.get(0)));
+//            trimRight(blangClass.pos, getPosition(members.get(members.size() - 1)));
+//        } else {
+//            trimLeft(blangClass.pos, getPosition(classDefinitionNode.closeBrace()));
+//            trimRight(blangClass.pos, getPosition(classDefinitionNode.openBrace()));
+//        }
 
-        if (members.size() > 0) {
-            trimLeft(blangClass.pos, getPosition(members.get(0)));
-            trimRight(blangClass.pos, getPosition(members.get(members.size() - 1)));
-        } else {
-            trimLeft(blangClass.pos, getPosition(classDefinitionNode.closeBrace()));
-            trimRight(blangClass.pos, getPosition(classDefinitionNode.openBrace()));
-        }
         return blangClass;
     }
 

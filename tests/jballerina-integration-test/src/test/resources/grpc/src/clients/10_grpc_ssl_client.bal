@@ -45,7 +45,7 @@ function testUnarySecuredBlockingWithCerts() returns (string) {
     }
 }
 
-public type grpcMutualSslServiceBlockingClient client object {
+public client class grpcMutualSslServiceBlockingClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -64,9 +64,9 @@ public type grpcMutualSslServiceBlockingClient client object {
         [result, resHeaders] = unionResp;
         return [result.toString(), resHeaders];
     }
-};
+}
 
-public type grpcMutualSslServiceClient client object {
+public client class grpcMutualSslServiceClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -81,7 +81,7 @@ public type grpcMutualSslServiceClient client object {
     public remote function hello (string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.grpcMutualSslService/hello", req, msgListener, headers);
     }
-};
+}
 
 const string ROOT_DESCRIPTOR = "0A1A677270634D757475616C53736C536572766963652E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325B0A14677270634D757475616C53736C5365727669636512430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33";
 function getDescriptorMap() returns map<string> {

@@ -27,7 +27,7 @@ type Employee1 abstract object {
     public function getSalary() returns float; 
 };
 
-type Manager1 object {
+class Manager1 {
     *Person1;
 
     string dpt = "HR";
@@ -37,7 +37,7 @@ type Manager1 object {
     public function getName() returns string {
         return self.name + " from inner function";
     }
-    
+
     function init() {
         self.age = 99;
         self.name = "sample name 2";
@@ -47,14 +47,14 @@ type Manager1 object {
     public function getSalary() returns float {
         return self.salary;
     }
-};
+}
 
 public function testSimpleObjectTypeReference() returns [int, string, float, string] {
     Manager1 mgr = new Manager1();
     return [mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt];
 }
 
-type Manager2 object {
+class Manager2 {
     *Person1;
 
     string dpt = "HR";
@@ -74,14 +74,14 @@ type Manager2 object {
     public function getSalary() returns float {
         return self.salary;
     }
-};
+}
 
 public function testInitTypeReferenceObjectWithNew() returns [int, string, float, string] {
     Manager2 mgr = new Manager2();
     return [mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt];
 }
 
-type Manager3 object {
+class Manager3 {
     string dpt = "HR";
 
     *Employee2;
@@ -99,7 +99,7 @@ type Manager3 object {
     public function getSalary() returns float {
         return self.salary;
     }
-};
+}
 
 type Employee2 abstract object {
     public float salary;
@@ -115,7 +115,7 @@ public function testObjectWithChainedTypeReferences() returns [int, string, floa
 }
 
 // Test invoking object member method with default values
-type Manager4 object {
+class Manager4 {
     string dpt = "HR";
 
     *Employee3;
@@ -133,7 +133,7 @@ type Manager4 object {
     public function getName(string greeting = "Hello") returns string {
         return greeting + " " + self.name;
     }
-};
+}
 
 type Employee3 abstract object {
     public float salary;
@@ -155,7 +155,7 @@ public function testAbstractObjectFuncWithDefaultVal() returns [string, float] {
 }
 
 // non abstract object inclusion
-type Ant object {
+class Ant {
     int id;
 
     public function init(int id) {
@@ -169,9 +169,9 @@ type Ant object {
             return ();
         }
     }
-};
+}
 
-type FireAnt object {
+class FireAnt {
     *Ant;
 
     public function init(int id) {
@@ -181,7 +181,7 @@ type FireAnt object {
     public function getId() returns int {
         return self.id;
     }
-};
+}
 
 public function testNonAbstractObjectInclusion() {
     FireAnt notoriousFireAnt = new FireAnt(7);
@@ -200,7 +200,7 @@ type AgeDataObject abstract object {
     int|float age;
 };
 
-type DefaultPerson object {
+class DefaultPerson {
     *AgeDataObject;
     int age;
     string name;
@@ -209,7 +209,7 @@ type DefaultPerson object {
        self.age = age;
        self.name = name;
     }
-};
+}
 
 function testCreatingObjectWithOverriddenFields() {
     DefaultPerson dummyPerson = new DefaultPerson();
@@ -228,7 +228,7 @@ type AgeInterface abstract object {
     public function setAge(int age = 0) returns int;
 };
 
-type DefaultPersonGreetedName object {
+class DefaultPersonGreetedName {
     *NameInterface;
     *AgeInterface;
     string name;
@@ -251,7 +251,7 @@ type DefaultPersonGreetedName object {
         self.age = <int>age;
         return -1;
     }
-};
+}
 
 function testCreatingObjectWithOverriddenMethods() {
     DefaultPersonGreetedName dummyPerson = new DefaultPersonGreetedName(name="Doe");

@@ -4,7 +4,7 @@
 #   ```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```
 final string testConst = "TestConstantDocumentation";
 
-type DummyObject object {
+class DummyObject {
 
     # This is a test function
     # ``` Purpose of adding
@@ -21,4 +21,4 @@ type DummyObject object {
     # ```
     public function func2() {
     }
-};
+}

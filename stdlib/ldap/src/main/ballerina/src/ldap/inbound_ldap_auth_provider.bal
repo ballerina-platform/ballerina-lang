@@ -24,7 +24,7 @@ import ballerina/java;
 # ```ballerina
 # ldap:InboundLdapAuthProvider inboundLdapAuthProvider = new(ldapConfig, "instanceId");
 # ```
-public type InboundLdapAuthProvider object {
+public class InboundLdapAuthProvider {
 
     *auth:InboundAuthProvider;
 
@@ -78,7 +78,7 @@ public type InboundLdapAuthProvider object {
             return prepareAuthError("Failed to authenticate LDAP with username: " + username, authenticated);
         }
     }
-};
+}
 
 # Represents the configurations that are required for an LDAP auth store.
 #

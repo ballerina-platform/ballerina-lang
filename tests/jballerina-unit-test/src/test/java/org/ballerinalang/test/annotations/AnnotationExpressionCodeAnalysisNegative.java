@@ -35,9 +35,8 @@ public class AnnotationExpressionCodeAnalysisNegative {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/annotations/annot_attachment_expression_code_analysis_negative" +
-                ".bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 4);
+        compileResult = BCompileUtil.compile(
+                "test-src/annotations/annot_attachment_expression_code_analysis_negative.bal");
     }
 
     @Test(description = "Validate the annotations attachment the expression")
@@ -48,7 +47,8 @@ public class AnnotationExpressionCodeAnalysisNegative {
         BAssertUtil.validateError(compileResult, i++, "'null' literal is only supported for 'json'", 40, 9);
         BAssertUtil.validateError(compileResult, i++, "invalid usage of record literal: duplicate key 'i' via spread " +
                 "operator '...fl'", 64, 8);
-        BAssertUtil.validateError(compileResult, i, "invalid usage of record literal: duplicate key 's'", 65, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid usage of record literal: duplicate key 's'", 65, 5);
+        Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
 }

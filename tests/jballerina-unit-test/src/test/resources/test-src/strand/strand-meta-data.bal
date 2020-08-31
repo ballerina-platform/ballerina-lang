@@ -23,7 +23,7 @@ int errorCount = 0;
 int successCount = 0;
 string[] errorMessages = [];
 
-type Person object {
+class Person {
     public string name;
     function init(string name) {
         // async calls inside object
@@ -45,7 +45,7 @@ type Person object {
           _ =  @strand{name:"**my strand inside object bar**"}
                 start assertStrandMetadataResult("$anon/.:0.0.0.Person.bar.**my strand inside object bar**");
     }
-};
+}
 
 
 function testStrandMetadataAsyncCalls() {

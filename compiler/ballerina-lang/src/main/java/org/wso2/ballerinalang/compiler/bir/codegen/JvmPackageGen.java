@@ -651,7 +651,7 @@ public class JvmPackageGen {
             BType bType = typeDef.type;
 
             if ((bType.tag != TypeTags.OBJECT ||
-                    Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) &&
+                    !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.CLASS)) &&
                     !(bType instanceof BServiceType)) {
                 continue;
             }
