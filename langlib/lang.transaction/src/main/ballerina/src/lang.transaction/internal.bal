@@ -15,12 +15,12 @@
 // under the License.
 import ballerina/lang.'value as value;
 
-public const string TWO_PHASE_COMMIT = "2pc";
+const string TWO_PHASE_COMMIT = "2pc";
 const string PROTOCOL_COMPLETION = "completion";
 const string PROTOCOL_VOLATILE = "volatile";
 const string PROTOCOL_DURABLE = "durable";
 
-public type TransactionContext record {
+type TransactionContext record {
     string contextVersion = "1.0";
     string transactionId = "";
     string transactionBlockId = "";
@@ -75,7 +75,7 @@ const PREPARE_DECISION_ABORT = "abort";
 
 type UProtocol LocalProtocol|RemoteProtocol;
 
-public type Participant abstract object {
+type Participant abstract object {
 
     string participantId;
 
@@ -84,7 +84,7 @@ public type Participant abstract object {
     function notify(string action, string? protocolName) returns (NotifyResult|error)?;
 };
 
-public type LocalParticipant object {
+type LocalParticipant object {
 
     string participantId;
     private TwoPhaseCommitTransaction participatedTxn;
@@ -481,7 +481,7 @@ type TwoPhaseCommitTransaction object {
 # This map is used for caching transaction that are initiated.
 map<TwoPhaseCommitTransaction> initiatedTransactions = {};
 
-public function startTransaction(string transactionBlockId, Info? prevAttempt = ()) returns string {
+function startTransaction(string transactionBlockId, Info? prevAttempt = ()) returns string {
     string transactionId = "";
     TransactionContext|error txnContext = createTransactionContext(TWO_PHASE_COMMIT, transactionBlockId);
     if (txnContext is error) {
@@ -502,7 +502,7 @@ public function startTransaction(string transactionBlockId, Info? prevAttempt = 
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - A string or an error representing the transaction end succcess status or failure respectively.
-public transactional function endTransaction(string transactionId, string transactionBlockId)
+transactional function endTransaction(string transactionId, string transactionBlockId)
         returns @tainted string|Error? {
     if (getRollbackOnly()) {
         return getRollbackOnlyError();
@@ -543,7 +543,7 @@ public transactional function endTransaction(string transactionId, string transa
 #                      is being created for.
 # + transactionBlockId - The ID of the transaction block.
 # + return - TransactionContext if the coordination type is valid or an error in case of an invalid coordination type.
-public function createTransactionContext(string coordinationType, string transactionBlockId) returns TransactionContext|error {
+function createTransactionContext(string coordinationType, string transactionBlockId) returns TransactionContext|error {
     if (!isValidCoordinationType(coordinationType)) {
         string msg = "Invalid-Coordination-Type:" + coordinationType;
         error err = error(msg);
@@ -569,45 +569,45 @@ public function createTransactionContext(string coordinationType, string transac
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the commit is successful or not.
-public function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
+function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
 
 # Prepare local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager preparation is successful or not.
-public function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
+function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
 
 # Abort local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager abortion is successful or not.
-public function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
+function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
 
 # Set the transactionContext.
 #
 # + transactionContext - Transaction context.
 # + prevAttempt - Information related to previous attempt.
-public function setTransactionContext(TransactionContext transactionContext, Info? prevAttempt = ()) = external;
+function setTransactionContext(TransactionContext transactionContext, Info? prevAttempt = ()) = external;
 
 # Rollback the transaction.
 #
 # + transactionBlockId - ID of the transaction block.
 # + err - The cause of the rollback.
-public function rollbackTransaction(string transactionBlockId, error? err = ()) = external;
+function rollbackTransaction(string transactionBlockId, error? err = ()) = external;
 
 # Get and Cleanup the failure.
 #
 # + return - is failed.
-public function getAndClearFailure() returns boolean = external;
+function getAndClearFailure() returns boolean = external;
 
 # Cleanup the transaction context.
 #
 # + transactionBlockId - ID of the transaction block.
-public function cleanupTransactionContext(string transactionBlockId) = external;
+function cleanupTransactionContext(string transactionBlockId) = external;
 
-public function isTransactional() returns boolean = external;
+function isTransactional() returns boolean = external;
 
 function getAvailablePort() returns int = external;
 

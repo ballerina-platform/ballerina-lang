@@ -401,17 +401,17 @@
                                               ]
                                             },
                                             {
+                                              "kind": "COMMA_TOKEN",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            },
+                                            {
                                               "kind": "REQUIRED_PARAM",
                                               "children": [
-                                                {
-                                                  "kind": "COMMA_TOKEN",
-                                                  "trailingMinutiae": [
-                                                    {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": " "
-                                                    }
-                                                  ]
-                                                },
                                                 {
                                                   "kind": "LIST",
                                                   "children": []
@@ -464,11 +464,11 @@
                                               "children": []
                                             },
                                             {
-                                              "kind": "TYPE_DESC",
+                                              "kind": "SIMPLE_NAME_REFERENCE",
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "TYPE_DESC",
+                                                  "kind": "IDENTIFIER_TOKEN",
                                                   "isMissing": true,
                                                   "hasDiagnostics": true,
                                                   "diagnostics": [

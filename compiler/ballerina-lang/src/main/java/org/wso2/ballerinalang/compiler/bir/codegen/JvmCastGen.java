@@ -96,7 +96,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CONVERTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.getSignatureForJType;
 
@@ -627,15 +626,7 @@ public class JvmCastGen {
                         false);
                 break;
             case JTypeTags.JCHAR:
-                mv.visitInsn(I2L);
-                mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, String.format("(J)L%s;", LONG_VALUE),
-                        false);
-                break;
             case JTypeTags.JSHORT:
-                mv.visitInsn(I2L);
-                mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, String.format("(J)L%s;", LONG_VALUE),
-                        false);
-                break;
             case JTypeTags.JINT:
                 mv.visitInsn(I2L);
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, String.format("(J)L%s;", LONG_VALUE),
@@ -685,7 +676,7 @@ public class JvmCastGen {
 
                 BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(null, symbolTable.anyType,
                         new Name("$_ret_jobject_val_$"), VarScope.FUNCTION, VarKind.LOCAL, "");
-                int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
+                int returnJObjectVarRefIndex = indexMap.addToMapIfNotFoundAndGetIndex(retJObjectVarDcl);
                 mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
                 mv.visitTypeInsn(NEW, HANDLE_VALUE);
                 mv.visitInsn(DUP);
@@ -1150,7 +1141,7 @@ public class JvmCastGen {
 
         BIRVariableDcl strVar = new BIRVariableDcl(null, symbolTable.anyType,
                 new Name("str"), VarScope.FUNCTION, VarKind.LOCAL, "");
-        int tmpVarIndex = indexMap.getIndex(strVar);
+        int tmpVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(strVar);
 
         mv.visitVarInsn(ASTORE, tmpVarIndex);
         mv.visitTypeInsn(NEW, BMP_STRING_VALUE);
@@ -1328,6 +1319,17 @@ public class JvmCastGen {
         checkCast(mv, targetType);
     }
 
+    static void addBoxInsn(MethodVisitor mv, BType bType) {
+        if (bType != null) {
+            generateCast(mv, bType, JvmInstructionGen.anyType);
+        }
+    }
+
+    public static void addUnboxInsn(MethodVisitor mv, BType bType) {
+        if (bType != null) {
+            generateCast(mv, JvmInstructionGen.anyType, bType);
+        }
+    }
     // ------------------------------------------------------------------
     //   Generate Cast Methods - Performs cast without type checking
     // ------------------------------------------------------------------
@@ -1534,13 +1536,15 @@ public class JvmCastGen {
                 break;
             case TypeTags.BOOLEAN:
                 mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
-                        String.format("(Z)L%s;", BOOLEAN_VALUE), false);
+                                   String.format("(Z)L%s;", BOOLEAN_VALUE), false);
                 break;
         }
     }
 
     private static void generateXMLToAttributesMap(MethodVisitor mv) {
-
         mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttributesMap", String.format("()L%s;", MAP_VALUE), false);
+    }
+
+    private JvmCastGen() {
     }
 }

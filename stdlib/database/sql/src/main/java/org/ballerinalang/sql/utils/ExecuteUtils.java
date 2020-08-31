@@ -39,16 +39,19 @@ import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static org.ballerinalang.sql.utils.Utils.closeResources;
+import static org.ballerinalang.sql.utils.Utils.getGeneratedKeys;
+import static org.ballerinalang.sql.utils.Utils.getSqlQuery;
+import static org.ballerinalang.sql.utils.Utils.setParams;
 
 /**
  * This class holds the utility methods involved with executing the query which does not return rows.
@@ -70,12 +73,12 @@ public class ExecuteUtils {
                 if (paramSQLString instanceof StringValue) {
                     sqlQuery = ((StringValue) paramSQLString).getValue();
                 } else {
-                    sqlQuery = Utils.getSqlQuery((AbstractObjectValue) paramSQLString);
+                    sqlQuery = getSqlQuery((AbstractObjectValue) paramSQLString);
                 }
                 connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
                 if (paramSQLString instanceof AbstractObjectValue) {
-                    Utils.setParams(connection, statement, (AbstractObjectValue) paramSQLString);
+                    setParams(connection, statement, (AbstractObjectValue) paramSQLString);
                 }
                 int count = statement.executeUpdate();
                 Object lastInsertedId = null;
@@ -92,12 +95,12 @@ public class ExecuteUtils {
                         Constants.EXECUTION_RESULT_RECORD, resultFields);
             } catch (SQLException e) {
                 return ErrorGenerator.getSQLDatabaseError(e,
-                        "Error while executing sql query: " + sqlQuery + ". ");
+                        "Error while executing SQL query: " + sqlQuery + ". ");
             } catch (ApplicationError | IOException e) {
-                return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
+                return ErrorGenerator.getSQLApplicationError("Error while executing SQL query: "
                         + sqlQuery + ". " + e.getMessage());
             } finally {
-                Utils.closeResources(strand, resultSet, statement, connection);
+                closeResources(strand, resultSet, statement, connection);
             }
         } else {
             return ErrorGenerator.getSQLApplicationError(
@@ -119,11 +122,11 @@ public class ExecuteUtils {
             try {
                 Object[] paramSQLObjects = paramSQLStrings.getValues();
                 AbstractObjectValue parameterizedQuery = (AbstractObjectValue) paramSQLObjects[0];
-                sqlQuery = Utils.getSqlQuery(parameterizedQuery);
+                sqlQuery = getSqlQuery(parameterizedQuery);
                 parameters.add(parameterizedQuery);
                 for (int i = 1; i < paramSQLStrings.size(); i++) {
                     parameterizedQuery = (AbstractObjectValue) paramSQLObjects[i];
-                    String paramSQLQuery = Utils.getSqlQuery(parameterizedQuery);
+                    String paramSQLQuery = getSqlQuery(parameterizedQuery);
 
                     if (sqlQuery.equals(paramSQLQuery)) {
                         parameters.add(parameterizedQuery);
@@ -135,7 +138,7 @@ public class ExecuteUtils {
                 connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
                 for (AbstractObjectValue param : parameters) {
-                    Utils.setParams(connection, statement, param);
+                    setParams(connection, statement, param);
                     statement.addBatch();
                 }
                 int[] counts = statement.executeBatch();
@@ -168,38 +171,18 @@ public class ExecuteUtils {
                 return ErrorGenerator.getSQLBatchExecuteError(e, executionResults,
                         "Error while executing batch command starting with: '" + sqlQuery + "'.");
             } catch (SQLException e) {
-                return ErrorGenerator.getSQLDatabaseError(e, "Error while executing sql batch " +
+                return ErrorGenerator.getSQLDatabaseError(e, "Error while executing SQL batch " +
                         "command starting with : " + sqlQuery + ". ");
             } catch (ApplicationError | IOException e) {
-                return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
+                return ErrorGenerator.getSQLApplicationError("Error while executing SQL query: "
                         + e.getMessage());
             } finally {
-                Utils.closeResources(strand, resultSet, statement, connection);
+                closeResources(strand, resultSet, statement, connection);
             }
         } else {
             return ErrorGenerator.getSQLApplicationError(
                     "Client is not properly initialized!");
         }
-    }
-
-    private static Object getGeneratedKeys(ResultSet rs) throws SQLException {
-        ResultSetMetaData metaData = rs.getMetaData();
-        int columnCount = metaData.getColumnCount();
-        if (columnCount > 0) {
-            int sqlType = metaData.getColumnType(1);
-            switch (sqlType) {
-                case Types.TINYINT:
-                case Types.SMALLINT:
-                case Types.INTEGER:
-                case Types.BIGINT:
-                case Types.BIT:
-                case Types.BOOLEAN:
-                    return rs.getLong(1);
-                default:
-                    return rs.getString(1);
-            }
-        }
-        return null;
     }
 
     private static boolean isDdlStatement(String query) {

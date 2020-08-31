@@ -28,7 +28,7 @@ import java.util.Optional;
 
 /**
  * Interface for completion item providers.
- * 
+ *
  * @param <T> generic syntax tree node
  * @since 1.2.0
  */
@@ -42,18 +42,6 @@ public interface CompletionProvider<T extends Node> {
     enum Precedence {
         LOW,
         HIGH
-    }
-
-    /**
-     * Provider kind.
-     *
-     * @since 2.0.0
-     */
-    enum Kind {
-        STATEMENT,
-        MODULE_MEMBER,
-        EXPRESSION,
-        OTHER
     }
 
     /**
@@ -101,17 +89,16 @@ public interface CompletionProvider<T extends Node> {
      */
     Optional<CompletionProvider<T>> getContextProvider(LSContext ctx);
 
-    Kind getKind();
-
     /**
      * Pre-validation is used during the completion provider selection phase.
      * Based on the node type, specific providers can add validation checks to fine tune the selection. With the parser
-     * recovery phase there are predefined heuristics which might not optimal for the auto completion phase. Therefore 
-     * further validations (if needed) for the node can be added here. If this validation has not met, corresponding 
+     * recovery phase there are predefined heuristics which might not optimal for the auto completion phase. Therefore
+     * further validations (if needed) for the node can be added here. If this validation has not met, corresponding
      * provider will be skipped
-     * 
-     * @param node Node to evaluate
+     *
+     * @param node    Node to evaluate
+     * @param context Language server completion operation context
      * @return {@link Boolean} pre-validation status
      */
-    boolean onPreValidation(T node);
+    boolean onPreValidation(LSContext context, T node);
 }

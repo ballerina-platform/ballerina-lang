@@ -139,10 +139,10 @@
                               ]
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "0"
                                 }
                               ]
@@ -314,10 +314,10 @@
                                           ]
                                         },
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "NUMERIC_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                               "value": "50"
                                             }
                                           ]
@@ -492,17 +492,17 @@
               ]
             },
             {
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
               "kind": "REQUIRED_PARAM",
               "children": [
-                {
-                  "kind": "COMMA_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
                 {
                   "kind": "LIST",
                   "children": []

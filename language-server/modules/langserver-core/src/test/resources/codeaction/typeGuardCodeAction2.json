@@ -15,7 +15,7 @@
                         "character": 13
                     }
                 },
-                "newText": "if (getBar() is error) {\n\n    }"
+                "newText": "if (getBar() is error) {\n\n\t\t\t\t}"
             }
         ]
     }

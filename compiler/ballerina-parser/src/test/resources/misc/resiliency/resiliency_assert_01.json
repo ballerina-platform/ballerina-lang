@@ -216,7 +216,7 @@
                                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                                 "children": [
                                                   {
-                                                    "kind": "STRING_LITERAL",
+                                                    "kind": "STRING_LITERAL_TOKEN",
                                                     "value": "b"
                                                   }
                                                 ]
@@ -299,7 +299,7 @@
                                   "kind": "STRING_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "STRING_LITERAL",
+                                      "kind": "STRING_LITERAL_TOKEN",
                                       "value": "f"
                                     }
                                   ]

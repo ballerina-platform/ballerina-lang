@@ -67,20 +67,15 @@
           "kind": "LIST",
           "children": [
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
               "value": "2"
             },
             {
-              "kind": "IMPORT_SUB_VERSION",
-              "children": [
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "4"
-                }
-              ]
+              "kind": "DOT_TOKEN"
+            },
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+              "value": "4"
             }
           ]
         }

@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -1634,7 +1635,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        /* ignore */
+        BLangInputClause inputClause = (BLangInputClause) queryExpr.getQueryClauses().get(0);
+        for (BLangNode clause : queryExpr.getQueryClauses()) {
+            if (clause.getKind() == NodeKind.FROM || clause.getKind() == NodeKind.JOIN) {
+                inputClause  = (BLangInputClause) clause;
+            }
+            ((BLangExpression) inputClause.getCollection()).accept(this);
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                setTaintedStatus((BLangVariable) inputClause.variableDefinitionNode.getVariable(),
+                        getCurrentAnalysisState().taintedStatus);
+            }
+        }
     }
 
     @Override

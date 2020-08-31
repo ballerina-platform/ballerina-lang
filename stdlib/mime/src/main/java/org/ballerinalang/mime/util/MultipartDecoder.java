@@ -18,8 +18,6 @@
 
 package org.ballerinalang.mime.util;
 
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -38,7 +36,6 @@ import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_ID_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.MimeConstants.MAX_THRESHOLD_PERCENTAGE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
@@ -135,12 +132,11 @@ public class MultipartDecoder {
      */
     private static void populateBodyPart(MIMEPart mimePart, ObjectValue partStruct,
                                          ObjectValue mediaType) {
-        partStruct.addNativeData(ENTITY_HEADERS, HeaderUtil.setBodyPartHeaders(mimePart.getAllHeaders(),
-                                                                               new DefaultHttpHeaders()));
+        EntityHeaderHandler.populateBodyPartHeaders(partStruct, mimePart.getAllHeaders());
         populateContentLength(mimePart, partStruct);
         populateContentId(mimePart, partStruct);
         populateContentType(mimePart, partStruct, mediaType);
-        List<String> contentDispositionHeaders = mimePart.getHeader(HttpHeaderNames.CONTENT_DISPOSITION.toString());
+        List<String> contentDispositionHeaders = mimePart.getHeader(MimeConstants.CONTENT_DISPOSITION);
         if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {
             ObjectValue contentDisposition = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID,
                                                                                CONTENT_DISPOSITION_STRUCT);
@@ -165,7 +161,7 @@ public class MultipartDecoder {
     }
 
     private static void populateContentLength(MIMEPart mimePart, ObjectValue partStruct) {
-        List<String> lengthHeaders = mimePart.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
+        List<String> lengthHeaders = mimePart.getHeader(MimeConstants.CONTENT_LENGTH);
         if (HeaderUtil.isHeaderExist(lengthHeaders)) {
             MimeUtil.setContentLength(partStruct, Integer.parseInt(lengthHeaders.get(FIRST_ELEMENT)));
         } else {

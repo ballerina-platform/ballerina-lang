@@ -1,7 +1,7 @@
 *.class
 *.log
 
-# Ballerina 
+# Ballerina
 Ballerina.lock
 
 
@@ -33,6 +33,7 @@ velocity.log
 /composer/modules/web/dist-electron
 extractedDistribution
 misc/testerina/modules/report-tools/node_modules/
+stdlib/database/mysql/bin/
 
 # gradle
 .gradle

@@ -91,10 +91,10 @@
                                         "value": "\u003d"
                                     },
                                     "initializer": {
-                                        "kind": "DECIMAL_INTEGER_LITERAL",
+                                        "kind": "NUMERIC_LITERAL",
                                         "value": {
                                             "literalToken": {
-                                                "kind": "DECIMAL_INTEGER_LITERAL",
+                                                "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                 "value": "5"
                                             }
                                         }
@@ -122,10 +122,10 @@
                                         "value": "\u003d"
                                     },
                                     "expression": {
-                                        "kind": "DECIMAL_INTEGER_LITERAL",
+                                        "kind": "NUMERIC_LITERAL",
                                         "value": {
                                             "literalToken": {
-                                                "kind": "DECIMAL_INTEGER_LITERAL",
+                                                "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                 "value": "10"
                                             }
                                         }
@@ -144,10 +144,10 @@
                                         "value": "return"
                                     },
                                     "expression": {
-                                        "kind": "DECIMAL_INTEGER_LITERAL",
+                                        "kind": "NUMERIC_LITERAL",
                                         "value": {
                                             "literalToken": {
-                                                "kind": "DECIMAL_INTEGER_LITERAL",
+                                                "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                 "value": "10"
                                             }
                                         }
