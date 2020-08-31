@@ -33,7 +33,7 @@ var objVariable = object {
 
 var invalidKeyWord = public object {};
 
-type MO object {};
+class MO {}
 
 var testObjectWithTypeReference = object {
     *MO;

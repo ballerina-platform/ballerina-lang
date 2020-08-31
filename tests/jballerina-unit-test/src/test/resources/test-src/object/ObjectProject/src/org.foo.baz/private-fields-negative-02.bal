@@ -1,14 +1,14 @@
 
-public type FooDepartment object {
+public class FooDepartment {
     public string dptName = "";
     public FooPerson?[] employees;
 
     public function init (FooPerson?[] employees) {
         self.employees = employees;
     }
-};
+}
 
-public type FooPerson object {
+public class FooPerson {
     public string name = "default first name";
     public string lname = "";
     public map<any> adrs = {};
@@ -20,15 +20,15 @@ public type FooPerson object {
         self.name = name;
         self.adrs = adrs;
     }
-};
+}
 
-public type FooFamily object {
+public class FooFamily {
     public string spouse = "";
     public int noOfChildren = 0;
     public string[] children = [];
-};
+}
 
-public type FooEmployee object {
+public class FooEmployee {
     public string fname;
     public string lname;
     public int age;
@@ -58,7 +58,7 @@ public type FooEmployee object {
         self.age = age;
         self.address = address;
     }
-};
+}
 
 public function createObj() returns (FooPerson) {
     map<any> address1 = {};

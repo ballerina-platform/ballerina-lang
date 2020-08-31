@@ -73,7 +73,7 @@ type IntermediateInboundHandler abstract object {
     readonly int allow;
 };
 
-type InboundHandlerImpl object {
+class InboundHandlerImpl {
     *IntermediateInboundHandler;
     readonly int count;
 
@@ -86,7 +86,7 @@ type InboundHandlerImpl object {
     public function canProcess(int req) returns boolean {
         return self.enabled && req < self.allow;
     }
-};
+}
 
 type InboundHandlers InboundHandler[]|InboundHandler[][];
 

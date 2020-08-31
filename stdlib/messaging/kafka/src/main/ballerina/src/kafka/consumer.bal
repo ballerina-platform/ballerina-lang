@@ -155,7 +155,7 @@ public type IsolationLevel ISOLATION_COMMITTED|ISOLATION_UNCOMMITTED;
 # Represents a Kafka consumer endpoint.
 #
 # + consumerConfig - Used to store configurations related to a Kafka connection
-public type Consumer client object {
+public client class Consumer {
     *'object:Listener;
 
     public ConsumerConfiguration consumerConfig;
@@ -497,7 +497,7 @@ public type Consumer client object {
     public remote function unsubscribe() returns ConsumerError? {
         return consumerUnsubscribe(self);
     }
-};
+}
 
 function consumerClose(Consumer consumer, int duration) returns ConsumerError? =
 @java:Method {

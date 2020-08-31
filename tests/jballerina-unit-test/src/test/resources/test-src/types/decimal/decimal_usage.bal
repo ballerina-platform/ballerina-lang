@@ -51,7 +51,7 @@ type Animal record {
 };
 
 // Object with decimal fields
-type Student object {
+class Student {
     string name = "";
     int age = 0;
     decimal weight = 65.65;
@@ -63,4 +63,4 @@ type Student object {
         self.weight = weight;
         self.height = height;
     }
-};
+}

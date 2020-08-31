@@ -73,7 +73,7 @@ service HelloWorldServerStreamingMessageListener = service {
     }
 };
 
-public type helloWorldServerStreamingClient client object {
+public client class helloWorldServerStreamingClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -89,7 +89,7 @@ public type helloWorldServerStreamingClient client object {
         return self.grpcClient->nonBlockingExecute("helloWorldServerStreaming/lotsOfReplies", req, msgListener, headers);
     }
 
-};
+}
 
 public type HelloRequest record {|
     string name = "";

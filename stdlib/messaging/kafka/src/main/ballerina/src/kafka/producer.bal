@@ -128,7 +128,7 @@ public type CompressionType COMPRESSION_NONE|COMPRESSION_GZIP|COMPRESSION_SNAPPY
 #
 # + connectorId - Unique ID for a particular connector
 # + producerConfig - Used to store configurations related to a Kafka connection
-public type Producer client object {
+public client class Producer {
 
     public ProducerConfiguration? producerConfig = ();
     private string keySerializerType;
@@ -283,7 +283,7 @@ public type Producer client object {
         }
         panic createProducerError("Invalid value serializer configuration");
     }
-};
+}
 
 function sendStringValues(Producer producer, string value, string topic, anydata? key, int? partition, int? timestamp,
     string keySerializerType) returns ProducerError? {

@@ -149,7 +149,7 @@ function testInputStructNoOutput(StockQuote quote) returns (string) {
     }
 }
 
-public type HelloWorldBlockingClient client object {
+public client class HelloWorldBlockingClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -231,9 +231,9 @@ public type HelloWorldBlockingClient client object {
             return grpc:InternalError("Error while constructing the message", value);
         }
     }
-};
+}
 
-public type HelloWorldClient client object {
+public client class HelloWorldClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -274,7 +274,7 @@ public type HelloWorldClient client object {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testNoInputOutputArray", req, msgListener,
             headers);
     }
-};
+}
 
 
 public type Person record {

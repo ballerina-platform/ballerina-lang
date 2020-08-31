@@ -30,6 +30,7 @@
                 <exclude name="brokenOnXMLLangLibChange"/>
                 <exclude name="brokenOnNewParser"/>
                 <exclude name="brokenOnErrorChange"/>
+                <exclude name="brokenOnClassChange"/>
             </run>
         </groups>
         <packages>

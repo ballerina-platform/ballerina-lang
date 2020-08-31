@@ -31,9 +31,9 @@ string strValue = "v1 value";
 
 type Dummy abstract object {};
 
-type DummyImpl object {
+class DummyImpl {
     *Dummy;
-};
+}
 
 public function newArrayList() returns handle = @java:Constructor {
     'class:"java.util.ArrayList"
@@ -78,7 +78,7 @@ service ser on lis {
     }
 }
 
-type Listener object {
+class Listener {
     *lang:Listener;
 
     public function init() {
@@ -100,7 +100,7 @@ type Listener object {
     public function __immediateStop() returns error? {
         return ();
     }
-};
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

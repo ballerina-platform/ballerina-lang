@@ -30,7 +30,7 @@ type Person2 abstract object {
 };
 
 // Non-abstract object with a function that has no implementation
-type Person3 object {
+class Person3 {
     public int age = 0;
     public string name = "";
 
@@ -38,7 +38,7 @@ type Person3 object {
     string month = "";
 
     public function getName() returns string;
-};
+}
 
 // Abstract object with method definition
 type Person4 abstract object {
@@ -65,13 +65,13 @@ type Foo abstract object {
     private function getName() returns string;
 };
 
-type Bar object {
+class Bar {
     *Foo;
 
     private function getName() returns string {
         return "bar";
     }
-};
+}
 
 // Abstract object with extern method
 type Person7 abstract object {

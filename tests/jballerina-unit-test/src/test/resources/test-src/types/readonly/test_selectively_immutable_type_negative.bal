@@ -64,13 +64,13 @@ function testNonReadOnlyValueForReadOnlyCET() {
 
 type AB "A"|"B";
 
-type Obj object {
+class Obj {
     int i;
 
     function init(int i) {
         self.i = i;
     }
-};
+}
 
 type ABAny AB|any;
 
@@ -146,9 +146,9 @@ function testInvalidReaoOnlyRecordFieldUpdates() {
     e["dept"] = dept2;
 }
 
-type Foo object {
+class Foo {
 
-};
+}
 
 type Bar record {|
     readonly string name;
@@ -177,7 +177,7 @@ type Config abstract object {
     function getName() returns string;
 };
 
-type MyConfig object {
+class MyConfig {
     readonly string name;
 
     public function init(string name) {
@@ -187,7 +187,7 @@ type MyConfig object {
     function getName() returns string {
         return self.name;
     }
-};
+}
 
 function testInvalidObjectUpdate() {
     Config & readonly config = new MyConfig("client config");
@@ -205,13 +205,13 @@ type DEF record {|
     future<int> fr;
 |};
 
-type GHI object {
+class GHI {
     JKL & readonly j;
 
     function init(JKL & readonly j) {
         self.j = j;
     }
-};
+}
 
 type JKL abstract object {
     future<int> fr;

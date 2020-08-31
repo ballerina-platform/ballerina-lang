@@ -27,7 +27,7 @@ public type Employee1 abstract object {
     public function getBonus(float ratio, int months=12) returns float;
 };
 
-public type Manager1 object {
+public class Manager1 {
     *Person1;
 
     public string dpt = "HR";
@@ -48,7 +48,7 @@ public type Manager1 object {
         return greeting + " " + self.name;
     }
 
-};
+}
 
 public type Employee2 abstract object {
     public float salary;
@@ -56,7 +56,7 @@ public type Employee2 abstract object {
     public function getBonus(float ratio, int months=12) returns float;
 };
 
-public type CorronifiedEmployee object {
+public class CorronifiedEmployee {
 
     *Manager1;
 
@@ -98,11 +98,11 @@ public type CorronifiedEmployee object {
     public function getName(string greeting = "Contactless hello!") returns string {
         return greeting + " " + self.name;
     }
-};
+}
 
-public type NormalPerson object {
+public class NormalPerson {
     string name = "John";
-};
+}
 
 public type Employee3 abstract object {
     public int|float salary;

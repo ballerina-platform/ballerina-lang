@@ -19,7 +19,7 @@ import ballerina/java;
 import ballerina/sql;
 
 # Represents a MySQL database client.
-public type Client client object {
+public client class Client {
     *sql:Client;
     private boolean clientActive = true;
 
@@ -124,7 +124,7 @@ public type Client client object {
         self.clientActive = false;
         return close(self);
     }
-};
+}
 
 # Provides a set of configurations for the mysql client to be passed internally within the module.
 #

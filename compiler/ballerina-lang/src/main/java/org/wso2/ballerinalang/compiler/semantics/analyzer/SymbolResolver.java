@@ -107,12 +107,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1663,11 +1665,21 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.semanticError;
         }
 
-        return ImmutableTypeCloner.getImmutableIntersectionType(typeBLangTypeMap.get(potentialIntersectionType),
-                                                                intersectionTypeNode.pos, types,
+        BLangType typeNode = typeBLangTypeMap.get(potentialIntersectionType);
+        Set<Flag> flagSet;
+        if (typeNode == null) {
+            flagSet = new HashSet<>();
+        } else if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+            flagSet = ((BLangObjectTypeNode) typeNode).flagSet;
+        } else if (typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+            flagSet = ((BLangUserDefinedType) typeNode).flagSet;
+        } else {
+            flagSet = new HashSet<>();
+        }
+        return ImmutableTypeCloner.getImmutableIntersectionType(intersectionTypeNode.pos, types,
                                                                 (SelectivelyImmutableReferenceType)
                                                                         potentialIntersectionType,
-                                                                env, symTable, anonymousModelHelper, names);
+                                                                env, symTable, anonymousModelHelper, names, flagSet);
     }
 
     private BType getPotentialReadOnlyIntersection(BType lhsType, BType rhsType) {

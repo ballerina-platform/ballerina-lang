@@ -20,7 +20,7 @@ import ballerina/java;
 
 # The gRPC client endpoint provides the capability for initiating contact with a remote gRPC service. The API it
 # provides includes functions to send request/error messages.
-public type Client client object {
+public client class Client {
 
     private ClientConfiguration config = {};
     private string url;
@@ -101,7 +101,7 @@ public type Client client object {
                                     returns StreamingClient|Error {
         return externStreamingExecute(self, methodID, listenerService, headers);
     }
-};
+}
 
 function retryBlockingExecute(Client grpcClient, string methodID, anydata payload, Headers? headers,
     RetryConfiguration retryConfig) returns ([anydata, Headers]|Error) {

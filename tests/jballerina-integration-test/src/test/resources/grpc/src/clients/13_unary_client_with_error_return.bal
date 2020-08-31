@@ -38,7 +38,7 @@ public function testErrorResponse(string name) returns string {
     }
 }
 
-public type HelloWorldBlockingClient client object {
+public client class HelloWorldBlockingClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -58,9 +58,9 @@ public type HelloWorldBlockingClient client object {
         return [result.toString(), resHeaders];
     }
 
-};
+}
 
-public type HelloWorldClient client object {
+public client class HelloWorldClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -76,7 +76,7 @@ public type HelloWorldClient client object {
         return self.grpcClient->nonBlockingExecute("HelloWorld13/hello", req, msgListener, headers);
     }
 
-};
+}
 
 const string ROOT_DESCRIPTOR = "0A1E677270635F756E6172795F626C6F636B696E675F636F6E742E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32530A0C48656C6C6F576F726C64313312430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33";
 function getDescriptorMap() returns map<string> {

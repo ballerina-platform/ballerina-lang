@@ -201,7 +201,7 @@ public function testBytesFieldValue() returns string {
     }
 }
 
-public type OneofFieldServiceBlockingClient client object {
+public client class OneofFieldServiceBlockingClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -241,9 +241,9 @@ public type OneofFieldServiceBlockingClient client object {
         }
     }
 
-};
+}
 
-public type OneofFieldServiceClient client object {
+public client class OneofFieldServiceClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -262,7 +262,7 @@ public type OneofFieldServiceClient client object {
     public remote function testOneofField(ZZZ req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.OneofFieldService/testOneofField", req, msgListener, headers);
     }
-};
+}
 
 public type Request1 record {|
     int age?;

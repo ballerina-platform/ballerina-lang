@@ -21,7 +21,7 @@ import ballerina/java;
 # + instanceId - The connection id
 # + remoteDetails - The remote details
 # + local - The local details
-public type Caller client object {
+public client class Caller {
 
     public Remote remoteDetails = {};
     public Local local = {};
@@ -82,7 +82,7 @@ public type Caller client object {
     public remote function sendError(int statusCode, string message, Headers? headers = ()) returns Error? {
         return externSendError(self, statusCode, message, headers);
     }
-};
+}
 
 function externSend(Caller endpointClient, anydata res, Headers? headers) returns Error? =
 @java:Method {

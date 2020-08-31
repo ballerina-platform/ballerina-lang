@@ -409,7 +409,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Write referenced functions, if this is an abstract-object
         if (astTypeDefinition.symbol.tag != SymTag.OBJECT ||
-                !Symbols.isFlagOn(astTypeDefinition.symbol.flags, Flags.ABSTRACT)) {
+                !Symbols.isFlagOn(astTypeDefinition.symbol.flags, Flags.CLASS)) {
             return;
         }
 

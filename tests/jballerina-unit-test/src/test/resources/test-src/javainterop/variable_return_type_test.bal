@@ -139,7 +139,7 @@ function testFuture() {
     assert("Hello Pubudu", res);
 }
 
-type PersonObj object {
+class PersonObj {
     string fname;
     string lname;
 
@@ -165,7 +165,7 @@ type PersonObj object {
         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
         paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.api.BTypedesc"]
     } external;
-};
+}
 
 type IntStream stream<int>;
 

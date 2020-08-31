@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -70,6 +71,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangTestablePackage> testablePkgs;
     // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
     public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
+    public List<BLangClassDefinition> classDefinitions;
 
     public PackageID packageID;
     public BPackageSymbol symbol;
@@ -92,6 +94,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.functions = new ArrayList<>();
         this.typeDefinitions = new ArrayList<>();
         this.annotations = new ArrayList<>();
+        this.classDefinitions = new ArrayList<>();
 
         this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
@@ -194,6 +197,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addAnnotation(AnnotationNode annotation) {
         this.annotations.add((BLangAnnotation) annotation);
         this.topLevelNodes.add(annotation);
+    }
+
+    @Override
+    public List<? extends ClassDefinition> getClassDefinitions() {
+        return this.classDefinitions;
     }
 
     @Override

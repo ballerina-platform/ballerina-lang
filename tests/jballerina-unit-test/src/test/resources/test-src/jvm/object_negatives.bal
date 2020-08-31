@@ -28,38 +28,38 @@ type ObjWithPvtMethod abstract object {
     private function test();
 };
 
-type AnotherObjWithAPvtField object {
+class AnotherObjWithAPvtField {
     string name = "";
     private int ssn = 0;
-};
+}
 
-type AnotherObjWithPvtMethod object {
+class AnotherObjWithPvtMethod {
     string name = "";
     int ssn = 0;
 
     private function test() {
     }
-};
+}
 
 function testObjsWithPvtMembers() {
     ObjWithPvtField o1 = new AnotherObjWithAPvtField();
     ObjWithPvtMethod o2 = new AnotherObjWithPvtMethod();
 }
 
-type Subtype1 object {
+class Subtype1 {
     public string name = "";
     public string address = "";
     int age = 0;
-};
+}
 
-type Subtype2 object {
+class Subtype2 {
     public string name = "";
     public int age = 0;
 
     function updateAge(int age) {
         self.age = age;
     }
-};
+}
 
 function testModuleLevelSubtypableObjs() {
     subtyping:ModuleLevelSubtypableObj o1 = new Subtype1();

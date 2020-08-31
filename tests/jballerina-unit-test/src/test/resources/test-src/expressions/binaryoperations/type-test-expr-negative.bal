@@ -205,17 +205,17 @@ public type Y1 abstract object {
     *X1;
 };
 
-public type Z1 object {
+public class Z1 {
     *Y1;
     public boolean s;
-    
+
     public function init(int p, string q, float r, boolean s) {
         self.p = p;
         self.q = q;
         self.r = r;
         self.s = s;
     }
-};
+}
 
 function testObjectEquivalency() returns [string, string] {
     Z1 z = new Z1(5, "foo", 6.7, true);

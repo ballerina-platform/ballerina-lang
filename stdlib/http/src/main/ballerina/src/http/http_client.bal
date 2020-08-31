@@ -22,7 +22,7 @@ import ballerina/java;
 #
 # + url - The URL of the remote HTTP endpoint
 # + config - The configurations associated with the HttpClient
-public type HttpClient client object {
+public client class HttpClient {
 
     public ClientConfiguration config = {};
     public string url;
@@ -180,7 +180,7 @@ public type HttpClient client object {
     public remote function rejectPromise(PushPromise promise) {
         return externRejectPromise(self, promise);
     }
-};
+}
 
 function externGetResponse(HttpClient httpClient, HttpFuture httpFuture) returns Response|ClientError =
 @java:Method {

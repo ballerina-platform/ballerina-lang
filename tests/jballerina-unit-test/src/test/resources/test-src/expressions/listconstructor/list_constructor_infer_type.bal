@@ -19,13 +19,13 @@ type Foo record {
     int i = 1;
 };
 
-type Bar object {
+class Bar {
     int i;
 
     public function init(int i) {
         self.i = i;
     }
-};
+}
 
 Foo f = {s: "hello"};
 Bar b = new (1);
