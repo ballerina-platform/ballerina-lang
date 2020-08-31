@@ -109,9 +109,9 @@ public class NewCommandTest extends CommandTest {
     }
 
     @Test(description = "Test new command with invalid template")
-    public void testAddCommandWithInvalidTemplate() throws IOException {
+    public void testNewCommandWithInvalidTemplate() throws IOException {
         // Test if no arguments was passed in
-        String[] args = {"servicemodule", "-t", "invalid"};
+        String[] args = {"servicemod", "-t", "invalid"};
         NewCommand newCommand = new NewCommand(tmpDir, printStream);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
@@ -176,7 +176,7 @@ public class NewCommandTest extends CommandTest {
                 + "' already exists"));
     }
 
-    @Test(description = "Test if initializing inside a sub directory")
+    @Test(description = "Test if creating inside a ballerina project")
     public void testNewCommandInsideProject() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"parent"};
@@ -192,9 +192,22 @@ public class NewCommandTest extends CommandTest {
         new CommandLine(newCommand).parse(args2);
         newCommand.execute();
 
-        Assert.assertFalse(readOutput().contains("Created new ballerina project at subdir"),
-                "Project created in sub directory");
-        Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_di").resolve("subdir")));
+        Assert.assertFalse(readOutput().contains("Directory is already a ballerina project"));
+        Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("subdir")));
+    }
+
+    @Test(description = "Test if creating within a ballerina project", dependsOnMethods = "testNewCommandInsideProject")
+    public void testNewCommandWithinProject() throws IOException {
+        // Test if no arguments was passed in
+        Path projectPath = tmpDir.resolve("parent").resolve("sub-dir");
+        Files.createDirectory(projectPath);
+        String[] args = {"sample"};
+        NewCommand newCommand = new NewCommand(projectPath, printStream);
+        new CommandLine(newCommand).parse(args);
+        newCommand.execute();
+
+        Assert.assertFalse(readOutput().contains("Directory is already within a ballerina project"));
+        Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("sample")));
     }
     // Test if a path given to new command
 }

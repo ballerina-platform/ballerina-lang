@@ -30,13 +30,13 @@ import java.nio.file.Path;
 /**
  * Test cases for ballerina init command.
  *
- * @since 1.0.0
+ * @since 2.0.0
  */
 public class InitCommandTest extends CommandTest {
 
     @Test(description = "Initialize a new empty project within a directory")
     public void testInitCommand() throws IOException {
-        Path projectPath = tmpDir.resolve("sample2");
+        Path projectPath = tmpDir.resolve("sample1");
         Files.createDirectory(projectPath);
         Path balFile = projectPath.resolve("data.bal");
         Files.createFile(balFile);
@@ -61,7 +61,7 @@ public class InitCommandTest extends CommandTest {
     @Test(description = "Test init command with service template")
     public void testInitCommandWithService() throws IOException {
         // Test if no arguments was passed in
-        Path packageDir = tmpDir.resolve("sample3");
+        Path packageDir = tmpDir.resolve("sample2");
         Files.createDirectory(packageDir);
         String[] args = {"myproject", "-t", "main"};
         InitCommand initCommand = new InitCommand(packageDir, printStream);
@@ -141,5 +141,43 @@ public class InitCommandTest extends CommandTest {
 
         Assert.assertTrue(readOutput().contains("ballerina-init - Create a new Ballerina project inside current " +
                 "directory."));
+    }
+
+    @Test(description = "Test init command with invalid project name")
+    public void testInitCommandWithInvalidProjectName() throws IOException {
+        // Test if no arguments was passed in
+        String[] args = {"hello-app"};
+        InitCommand initCommand = new InitCommand(tmpDir, printStream);
+        new CommandLine(initCommand).parseArgs(args);
+        initCommand.execute();
+        Assert.assertTrue(readOutput().contains("Invalid package name"));
+    }
+
+    @Test(description = "Test init command inside a ballerina project", dependsOnMethods = "testInitCommand")
+    public void testInitCommandInsideProject() throws IOException {
+        // Test if no arguments was passed in
+        Path projectPath = tmpDir.resolve("sample1");
+        String[] args = {};
+        InitCommand initCommand = new InitCommand(projectPath, printStream);
+        new CommandLine(initCommand).parse(args);
+        initCommand.execute();
+
+        //initialize a project again
+        Assert.assertTrue(readOutput().contains("Directory is already a ballerina project"));
+    }
+
+    @Test(description = "Test init command within a ballerina project", dependsOnMethods = "testInitCommand")
+    public void testInitCommandWithinBallerinaProject() throws IOException {
+        // Test if no arguments was passed in
+        Path projectPath = tmpDir.resolve("sample1");
+        String[] args = {};
+
+        Path projectDir = projectPath.resolve("project1");
+        Files.createDirectory(projectDir);
+        //initialize a project again
+        InitCommand initCommand = new InitCommand(projectDir, printStream);
+        new CommandLine(initCommand).parse(args);
+        initCommand.execute();
+        Assert.assertTrue(readOutput().contains("Directory is already within a ballerina project"));
     }
 }
