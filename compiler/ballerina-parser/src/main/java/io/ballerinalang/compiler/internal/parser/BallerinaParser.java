@@ -9502,8 +9502,8 @@ public class BallerinaParser extends AbstractParser {
         // allow-actions flag is always false, since there will not be any actions
         // within the from-clause, due to the precedence.
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
-        STNode onCondition = parseOnClause(isRhsExpr);
         endContext();
+        STNode onCondition = parseOnClause(isRhsExpr);
         return STNodeFactory.createJoinClauseNode(outerKeyword, joinKeyword, typedBindingPattern, inKeyword, expression,
                 onCondition);
     }
