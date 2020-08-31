@@ -20,6 +20,7 @@ package org.ballerinalang.birspec;
 import io.kaitai.struct.ByteBufferKaitaiStream;
 import io.kaitai.struct.KaitaiStruct;
 import org.ballerinalang.build.kaitai.Bir;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
@@ -27,10 +28,12 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utility methods to help with testing BIR model.
@@ -122,6 +125,77 @@ class BIRTestUtils {
         ArrayList<Bir.TypeDefinition> actualTypeDefinitions = birModule.typeDefinitions();
 
         Assert.assertEquals(actualTypeDefinitions.size(), expectedTypeDefs.size());
+
+        for (int i = 0; i < expectedTypeDefs.size(); i++) {
+            BIRNode.BIRTypeDefinition expectedTypeDefinition = expectedTypeDefs.get(i);
+            Bir.TypeDefinition actualTypeDefinition = actualTypeDefinitions.get(i);
+
+            // assert name
+            assertConstantPoolEntry(constantPoolEntries.get(actualTypeDefinition.nameCpIndex()),
+                    expectedTypeDefinition.name.value);
+
+            // assert flags
+            assertFlags(actualTypeDefinition.flags(), expectedTypeDefinition.flags);
+
+            // assert type
+            assertConstantPoolEntry(constantPoolEntries.get(actualTypeDefinition.typeCpIndex()),
+                    expectedTypeDefinition.type);
+
+            // assert position
+            assertPosition(actualTypeDefinition.position(), expectedTypeDefinition.pos);
+        }
+    }
+
+    private static void assertPosition(Bir.Position actualPosition, DiagnosticPos expectedPosition) {
+        Assert.assertEquals(actualPosition.sLine(), expectedPosition.sLine);
+        Assert.assertEquals(actualPosition.eLine(), expectedPosition.eLine);
+        Assert.assertEquals(actualPosition.sCol(), expectedPosition.sCol);
+        Assert.assertEquals(actualPosition.eCol(), expectedPosition.eCol);
+    }
+
+    static void assertAnnotations(String testSource) {
+        BIRCompileResult compileResult = compile(testSource);
+        BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
+        Bir actualBIR = compileResult.getActualBIR();
+
+        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
+        Bir.Module birModule = actualBIR.module();
+
+        List<BIRNode.BIRAnnotation> expectedAnnotations = expectedBIR.annotations;
+        ArrayList<Bir.Annotation> actualAnnotations = birModule.annotations();
+
+        Assert.assertEquals(actualAnnotations.size(), expectedAnnotations.size());
+
+        for (int i = 0; i < expectedAnnotations.size(); i++) {
+            BIRNode.BIRAnnotation expectedAnnotation = expectedAnnotations.get(i);
+            Bir.Annotation actualAnnotation = actualAnnotations.get(i);
+
+            // assert name
+            assertConstantPoolEntry(constantPoolEntries.get(actualAnnotation.nameCpIndex()),
+                    expectedAnnotation.name.value);
+
+            // assert type
+            assertConstantPoolEntry(constantPoolEntries.get(actualAnnotation.annotationTypeCpIndex()),
+                    expectedAnnotation.annotationType);
+
+            // assert attach points
+            assertAttachPoints(actualAnnotation.attachPoints(), expectedAnnotation.attachPoints, constantPoolEntries);
+        }
+    }
+
+    private static void assertAttachPoints(ArrayList<Bir.AttachPoint> actualAttachPoints,
+                                           Set<AttachPoint> expectedAttachPoints,
+                                           ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+
+        Assert.assertEquals(actualAttachPoints.size(), expectedAttachPoints.size());
+        AttachPoint[] expected = expectedAttachPoints.toArray(new AttachPoint[0]);
+        for (int i = 0; i < expected.length; i++) {
+            AttachPoint expectedAttachPoint = expected[i];
+            Bir.AttachPoint actualAttachPoint = actualAttachPoints.get(i);
+
+            assertConstantPoolEntry(constantPoolEntries.get(actualAttachPoint.pointNameCpIndex()),
+                    expectedAttachPoint.point.getValue());
+        }
     }
 
     private static void assertConstantPoolEntry(Bir.ConstantPoolEntry constantPoolEntry, Object expectedValue) {

@@ -329,7 +329,7 @@ types:
   boolean_constant_info:
     seq:
       - id: value_boolean_constant
-        type: s2
+        type: u1
   nil_constant_info:
     seq:
       - id: value_nil_constant
@@ -451,18 +451,24 @@ types:
             'type_tag_enum::type_tag_array': attach_value_array
             'type_tag_enum::type_tag_map': attach_value_map
             'type_tag_enum::type_tag_record': attach_value_map
-            _: constant_value
+            'type_tag_enum::type_tag_int': int_constant_info
+            'type_tag_enum::type_tag_byte': byte_constant_info
+            'type_tag_enum::type_tag_float': float_constant_info
+            'type_tag_enum::type_tag_string': string_constant_info
+            'type_tag_enum::type_tag_decimal': decimal_constant_info
+            'type_tag_enum::type_tag_boolean': boolean_constant_info
+            'type_tag_enum::type_tag_nil': nil_constant_info
     instances:
       attach_type:
         value: _root.constant_pool.constant_pool_entries[attach_value_type_cp_index].cp_info.as<shape_cp_info>
   attach_value_array:
     seq:
-      - id: array_value_length
+      - id: array_values_count
         type: s4
       - id: array_values
         type: attach_value
         repeat: expr
-        repeat-expr: array_value_length
+        repeat-expr: array_values_count
   attach_value_map:
     seq:
       - id: map_entries_count
@@ -513,7 +519,7 @@ types:
         type: s2
       - id: taint_record_size
         type: s4
-      - id: taint_record
+      - id: taint_status
         type: s1
         repeat: expr
         repeat-expr: taint_record_size
@@ -525,7 +531,7 @@ types:
         type: u1
       - id: return_var
         type: return_var
-        if: has_return_var != 0
+        if: has_return_var == 1
       - id: default_parameter_count
         type: s4
       - id: default_parameters
@@ -894,9 +900,9 @@ types:
         type: operand
   instruction_type_cast:
     seq:
-      - id: rhs_operand
-        type: operand
       - id: lhs_operand
+        type: operand
+      - id: rhs_operand
         type: operand
       - id: type_cp_index
         type: s4
