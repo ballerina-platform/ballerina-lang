@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -41,8 +40,7 @@ import java.util.function.Predicate;
 public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<RecordTypeDescriptorNode> {
 
     public RecordTypeDescriptorNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(RecordTypeDescriptorNode.class);
+        super(RecordTypeDescriptorNode.class);
     }
 
     @Override
@@ -64,13 +62,13 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
          */
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
 
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             Predicate<Scope.ScopeEntry> predicate = scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol;
             List<Scope.ScopeEntry> types = QNameReferenceUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
             return this.getCompletionItemList(types, context);
         }
-        
+
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.getPackagesCompletionItems(context));
         completionItems.addAll(this.getTypeItems(context));

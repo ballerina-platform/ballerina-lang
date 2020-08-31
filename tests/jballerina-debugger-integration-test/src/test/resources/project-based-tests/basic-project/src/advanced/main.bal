@@ -46,6 +46,10 @@ type Person object {
     public Person? parent = ();
     private string email = "default@abc.com";
     string address = "No 20, Palm grove";
+
+    public function getSum(int a, int b) returns int {
+        return a + b;
+    }
 };
 
 public type AnonPerson record {

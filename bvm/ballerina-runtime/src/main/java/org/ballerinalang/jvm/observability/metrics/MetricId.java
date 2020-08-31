@@ -88,11 +88,9 @@ public class MetricId {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("MetricId{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", description='").append(description).append('\'');
-        sb.append(", tags=").append(tags);
-        sb.append('}');
-        return sb.toString();
+        return "MetricId{" + "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", tags=" + tags +
+                '}';
     }
 }

@@ -40,6 +40,7 @@ jobs:
 
       - name: Build without integration test
         run: |
+          unset JAVA_TOOL_OPTIONS
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew build -x createJavadoc -x :jballerina-integration-test:test --max-workers=2 --scan
@@ -48,6 +49,7 @@ jobs:
 
       - name: Run integration test
         run: |
+          unset JAVA_TOOL_OPTIONS
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew :jballerina-integration-test:test -x createJavadoc --no-parallel --scan

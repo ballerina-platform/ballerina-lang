@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -38,16 +37,16 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<TypeTestExpressionNode> {
+
     public TypeTestExpressionNodeContext() {
-        super(Kind.EXPRESSION);
-        this.attachmentPoints.add(TypeTestExpressionNode.class);
+        super(TypeTestExpressionNode.class);
     }
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, TypeTestExpressionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (node.typeDescriptor().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (this.onQualifiedNameIdentifier(context, node.typeDescriptor())) {
             Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context,
                     QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) node.typeDescriptor())));
             module.ifPresent(scopeEntry ->
