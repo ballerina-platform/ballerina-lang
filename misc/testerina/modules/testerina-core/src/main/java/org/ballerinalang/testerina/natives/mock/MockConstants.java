@@ -28,6 +28,7 @@ public class MockConstants {
 
     public static final String DEFAULT_MOCK_OBJ_ANON = "$anonType$";
     public static final String FUNCTION_CALL_PLACEHOLDER = "__CALL__";
+    public static final String FUNCTION_CALLORIGINAL_PLACEHOLDER = "__ORIGINAL__";
     public static final String MOCK_STRAND_NAME = "mock";
 
     // constants to represent error messages
