@@ -38,4 +38,9 @@ public class BIRSpecTest {
     public void typeDefinitionTest() {
         BIRTestUtils.assertTypeDefs("typedefs.bal");
     }
+
+    @Test(description = "Test to verify BIR with annotations")
+    public void annotationsTest() {
+        BIRTestUtils.assertAnnotations("annotations.bal");
+    }
 }
