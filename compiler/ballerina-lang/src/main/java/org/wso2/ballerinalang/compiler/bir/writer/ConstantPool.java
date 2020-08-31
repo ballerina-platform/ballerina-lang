@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -46,7 +45,7 @@ public class ConstantPool {
     private final Map<CPEntry, Integer> cpEntriesMap = new HashMap<>();
     private final List<CPEntry> cpEntries = new ArrayList<>();
 
-    public int addCPEntry(CPEntry cpEntry) {
+    int addCPEntry(CPEntry cpEntry) {
         int size = cpEntries.size();
         Integer position = cpEntriesMap.get(cpEntry);
         if (position == null) {
@@ -57,7 +56,7 @@ public class ConstantPool {
         return position;
     }
 
-    public int addShapeCPEntry(BType shape) {
+    int addShapeCPEntry(BType shape) {
         CPEntry.ShapeCPEntry shapeCPEntry = new CPEntry.ShapeCPEntry(shape);
         return addCPEntry(shapeCPEntry);
     }
