@@ -1192,6 +1192,7 @@ public class JvmMethodGen {
             case JTypeTags.JDOUBLE:
                 mv.visitInsn(DCONST_0);
                 mv.visitVarInsn(DSTORE, index);
+
                 break;
             case JTypeTags.JARRAY:
             case JTypeTags.JREF:
@@ -1229,7 +1230,7 @@ public class JvmMethodGen {
         String frameClassName = pkgName;
         if (attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType instanceof BServiceType ||
                 attachedType.tag == TypeTags.RECORD)) {
-            frameClassName += JvmCodeGenUtil.cleanupTypeName(JvmCodeGenUtil.toNameString(attachedType)) + "_";
+            frameClassName += JvmCodeGenUtil.cleanupReadOnlyTypeName(JvmCodeGenUtil.toNameString(attachedType)) + "_";
         }
 
         return frameClassName + JvmCodeGenUtil.cleanupFunctionName(funcName) + "Frame";
@@ -1308,7 +1309,6 @@ public class JvmMethodGen {
             processTerminator(mv, func, module, funcName, terminator);
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
                                   attachedType, asyncDataCollector);
-
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
             BIRBasicBlock thenBB = terminator.thenBB;

@@ -96,7 +96,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +
-                                                       moduleVersion.replace(".", "_") + ".___init");
+                                                       moduleVersion.replace(".", "_") + ".$_init");
             final Method initMethod = initClazz.getDeclaredMethod("$moduleStart", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
@@ -205,7 +205,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +
-                                                       moduleVersion.replace(".", "_") + ".___init");
+                                                       moduleVersion.replace(".", "_") + ".$_init");
             final Method initMethod = initClazz.getDeclaredMethod("$moduleInit", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {

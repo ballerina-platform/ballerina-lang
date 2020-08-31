@@ -246,13 +246,14 @@ class JvmValueGen {
     static String getTypeDescClassName(Object module, String typeName) {
 
         String packageName = calculateJavaPkgName(module);
-        return packageName + TYPEDESC_CLASS_PREFIX + JvmCodeGenUtil.cleanupTypeName(typeName);
+        return packageName + TYPEDESC_CLASS_PREFIX + JvmCodeGenUtil.cleanupReadOnlyTypeName(typeName);
+
     }
 
     static String getTypeValueClassName(Object module, String typeName) {
 
         String packageName = calculateJavaPkgName(module);
-        return packageName + VALUE_CLASS_PREFIX + JvmCodeGenUtil.cleanupTypeName(typeName);
+        return packageName + VALUE_CLASS_PREFIX + JvmCodeGenUtil.cleanupReadOnlyTypeName(typeName);
     }
 
     private static String calculateJavaPkgName(Object module) {

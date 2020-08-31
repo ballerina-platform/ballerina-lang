@@ -426,6 +426,7 @@ public class JvmTerminatorGen {
         String orgName = calleePkgId.orgName.value;
         String moduleName = calleePkgId.name.value;
         String version = calleePkgId.version.value;
+        callIns.name.value = JvmCodeGenUtil.rewriteInsName(callIns.name.value);
         // invoke the function
         this.genCall(callIns, orgName, moduleName, version, localVarOffset);
 
@@ -1136,8 +1137,8 @@ public class JvmTerminatorGen {
         if (!ins.isSameStrand) {
             this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "parent", String.format("L%s;", STRAND_CLASS));
         }
-        this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", String.format("L%s;", WD_CHANNELS));
-        this.mv.visitLdcInsn(ins.channel.value);
+        this.mv.visitFieldInsn(GETFIELD, STRAND, "wdChannels", String.format("L%s;", WD_CHANNELS));
+        this.mv.visitLdcInsn(JvmCodeGenUtil.rewriteInsName(ins.channel.value));
         this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", String.format("(L%s;)L%s;",
                 STRING_VALUE, WORKER_DATA_CHANNEL), false);
         this.loadVar(ins.data.variableDcl);
@@ -1163,8 +1164,8 @@ public class JvmTerminatorGen {
         if (!ins.isSameStrand) {
             this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "parent", String.format("L%s;", STRAND_CLASS));
         }
-        this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", String.format("L%s;", WD_CHANNELS));
-        this.mv.visitLdcInsn(ins.workerName.value);
+        this.mv.visitFieldInsn(GETFIELD, STRAND, "wdChannels", String.format("L%s;", WD_CHANNELS));
+        this.mv.visitLdcInsn(JvmCodeGenUtil.rewriteInsName(ins.workerName.value));
         this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", String.format("(L%s;)L%s;",
                 STRING_VALUE, WORKER_DATA_CHANNEL), false);
 
@@ -1234,7 +1235,7 @@ public class JvmTerminatorGen {
     }
 
     static String getStrandMetadataVarName(String typeName, String parentFunction) {
-        return STRAND_METADATA_VAR_PREFIX + JvmCodeGenUtil.cleanupTypeName(typeName) + "$" + parentFunction + "$";
+        return STRAND_METADATA_VAR_PREFIX + JvmCodeGenUtil.cleanupReadOnlyTypeName(typeName) + "$" + parentFunction + "$";
     }
 
     private void loadFpReturnType(BIROperand lhsOp) {
