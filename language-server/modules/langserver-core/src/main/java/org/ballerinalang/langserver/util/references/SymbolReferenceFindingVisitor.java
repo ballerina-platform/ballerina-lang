@@ -952,7 +952,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        this.acceptNode(onClause.expression);
+        this.acceptNode(onClause.lhsExpr);
+        this.acceptNode(onClause.rhsExpr);
     }
 
     @Override
