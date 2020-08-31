@@ -54,7 +54,6 @@ import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.FailExpressionNode;
@@ -3045,7 +3044,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 sizes.add(new BLangLiteral(Integer.valueOf(UNSEALED_ARRAY_INDICATOR), symTable.intType));
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
-                if (keyExpr.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL) {
+                if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
                     sizes.add(new BLangLiteral(Integer.parseInt(keyExpr.toString()), symTable.intType));
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_TOKEN) {
                     sizes.add(new BLangLiteral(Integer.valueOf(OPEN_SEALED_ARRAY_INDICATOR), symTable.intType));
