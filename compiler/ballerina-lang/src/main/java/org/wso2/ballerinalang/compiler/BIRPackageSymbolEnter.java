@@ -340,10 +340,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {
-        dataInStream.readInt(); // skip line start
-        dataInStream.readInt(); // skip line end
-        dataInStream.readInt(); // skip col start
-        dataInStream.readInt(); // skip col end
+        skipPosition(dataInStream);
         String source = getStringCPEntryValue(dataInStream);
 
         // Consider attached functions.. remove the first variable
@@ -405,6 +402,8 @@ public class BIRPackageSymbolEnter {
 
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
         skipPosition(dataInStream);
+        // skip source file name
+        dataInStream.readInt();
         String typeDefName = getStringCPEntryValue(dataInStream);
 
         int flags = dataInStream.readInt();
@@ -448,7 +447,8 @@ public class BIRPackageSymbolEnter {
     }
 
     private void skipPosition(DataInputStream dataInStream) throws IOException {
-        for (int i = 0; i < 5; i++) {
+        // skip line start, line end, column start and column end
+        for (int i = 0; i < 4; i++) {
             dataInStream.readInt();
         }
     }
