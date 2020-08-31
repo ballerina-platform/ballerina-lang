@@ -388,7 +388,7 @@ public class BIRBinaryWriter {
                 buf.writeInt(addStringCPEntry((String) constValue.value));
                 break;
             case TypeTags.BOOLEAN:
-                buf.writeByte((Boolean) constValue.value ? 1 : 0);
+                buf.writeBoolean((Boolean) constValue.value);
                 break;
             case TypeTags.NIL:
                 break;

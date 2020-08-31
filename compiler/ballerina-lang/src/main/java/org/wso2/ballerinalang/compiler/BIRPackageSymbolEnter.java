@@ -620,7 +620,7 @@ public class BIRPackageSymbolEnter {
             case TypeTags.DECIMAL:
                 return new BLangConstantValue(getStringCPEntryValue(dataInStream), symTable.decimalType);
             case TypeTags.BOOLEAN:
-                return new BLangConstantValue(dataInStream.readByte() == 1, symTable.booleanType);
+                return new BLangConstantValue(dataInStream.readBoolean(), symTable.booleanType);
             case TypeTags.NIL:
                 return new BLangConstantValue(null, symTable.nilType);
             case TypeTags.MAP:
