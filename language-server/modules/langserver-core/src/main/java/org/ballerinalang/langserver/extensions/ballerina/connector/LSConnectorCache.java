@@ -54,16 +54,16 @@ public class LSConnectorCache {
         connectorConfigs = new HashMap<>();
     }
 
-    public void addConnectorConfig(String org, String module, String version, String connector, String beta,
+    public void addConnectorConfig(String org, String module, String version, String connector,
                                    JsonElement connectorConfig) {
-        this.connectorConfigs.put(createKey(org, module, version, connector, beta), connectorConfig);
+        this.connectorConfigs.put(createKey(org, module, version, connector), connectorConfig);
     }
 
-    public JsonElement getConnectorConfig(String org, String module, String version, String connector, String beta) {
-        return this.connectorConfigs.get(createKey(org, module, version, connector, beta));
+    public JsonElement getConnectorConfig(String org, String module, String version, String connector) {
+        return this.connectorConfigs.get(createKey(org, module, version, connector));
     }
 
-    private String createKey(String org, String module, String version, String connector, String beta) {
-        return org + "-" + module + "-" + version + "-" + connector+ "-" + beta;
+    private String createKey(String org, String module, String version, String connector) {
+        return org + "-" + module + "-" + version + "-" + connector;
     }
 }
