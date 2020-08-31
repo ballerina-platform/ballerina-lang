@@ -17,7 +17,7 @@
 
 package io.ballerina.semantic.api.test;
 
-import io.ballerinalang.compiler.text.LinePosition;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerina.compiler.api.element.ModuleID;
 import org.ballerina.compiler.api.symbol.BCompiledSymbol;
 import org.ballerina.compiler.impl.semantic.SemanticModel;
