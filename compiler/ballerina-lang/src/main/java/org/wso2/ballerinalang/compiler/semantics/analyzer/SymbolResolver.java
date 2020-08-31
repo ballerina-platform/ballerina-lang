@@ -887,18 +887,17 @@ public class SymbolResolver extends BLangNodeVisitor {
 
             } else {
                     BLangExpression size = arrayTypeNode.sizes[i];
-                    if(size instanceof BLangLiteral){
-                        arrType = ((Integer) (((BLangLiteral)size).getValue()) == UNSEALED_ARRAY_INDICATOR) ?
-                                new BArrayType(resultType, arrayTypeSymbol, (Integer)(((BLangLiteral)size).getValue()), BArrayState.UNSEALED) :
-                                ((Integer)(((BLangLiteral)size).getValue()) == OPEN_SEALED_ARRAY_INDICATOR) ?
-                                        new BArrayType(resultType, arrayTypeSymbol, (Integer)(((BLangLiteral)size).getValue()), BArrayState.OPEN_SEALED) :
-                                        new BArrayType(resultType, arrayTypeSymbol, (Integer)(((BLangLiteral)size).getValue()), BArrayState.CLOSED_SEALED);
+                    if (size instanceof BLangLiteral) {
+                        arrType = ((Integer) (((BLangLiteral) size).getValue()) == UNSEALED_ARRAY_INDICATOR) ?
+                                new BArrayType(resultType, arrayTypeSymbol, (Integer) (((BLangLiteral) size).getValue()), BArrayState.UNSEALED) :
+                                ((Integer) (((BLangLiteral) size).getValue()) == OPEN_SEALED_ARRAY_INDICATOR) ?
+                                        new BArrayType(resultType, arrayTypeSymbol, (Integer) (((BLangLiteral) size).getValue()), BArrayState.OPEN_SEALED) :
+                                        new BArrayType(resultType, arrayTypeSymbol, (Integer) (((BLangLiteral) size).getValue()), BArrayState.CLOSED_SEALED);
                         arrayTypeSymbol.type = arrType;
                         markParameterizedType(arrType, arrType.eType);
                         resultType = arrayTypeSymbol.type;
 
-                    }
-                    else {
+                    } else {
                         Name pkgAlias = names.fromIdNode(((BLangSimpleVarRef) size).pkgAlias);
                         Name typeName = names.fromIdNode(((BLangSimpleVarRef) size).variableName);
 
@@ -922,8 +921,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                 dlog.error(arrayTypeNode.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE, sizeSymbol);
                                 resultType = symTable.semanticError;
                             }
-                        }
-                        else {
+                        } else {
                             dlog.error(arrayTypeNode.pos, DiagnosticCode.ARRAY_SIZE_REFERENCE_NOT_DEFINED, size);
                             resultType = symTable.semanticError;
                         }

@@ -65,15 +65,14 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
         final StringBuilder[] sb = {new StringBuilder(getTypeName())};
         if (sizes.length == 0) {
             Arrays.stream(sizes).forEach(size -> {
-                if(size instanceof BLangLiteral){
-                    if ((Integer)(((BLangLiteral)size).getValue()) == -1) {
+                if (size instanceof BLangLiteral) {
+                    if ((Integer) (((BLangLiteral) size).getValue()) == -1) {
                         sb[0].append("[]");
                     } else {
-                        sb[0].append("[").append((Integer)(((BLangLiteral)size).getValue())).append("]");
+                        sb[0].append("[").append((Integer) (((BLangLiteral) size).getValue())).append("]");
                     }
-                }
-                else {
-                    sb[0].append("[").append(((BLangSimpleVarRef)size).variableName).append("]");
+                } else {
+                    sb[0].append("[").append(((BLangSimpleVarRef) size).variableName).append("]");
                 }
             });
         } else {
@@ -81,23 +80,6 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
         }
         return sb[0].toString();
     }
-
-//    @Override
-//    public String toString() {
-//        final StringBuilder[] sb = {new StringBuilder(getTypeName())};
-//        if (sizes.length == 0) {
-//            Arrays.stream(sizes).forEach(size -> {
-//                if (size == -1) {
-//                    sb[0].append("[]");
-//                } else {
-//                    sb[0].append("[").append(size).append("]");
-//                }
-//            });
-//        } else {
-//            sb[0].append(String.join("", Collections.nCopies(dimensions, "[]")));
-//        }
-//        return sb[0].toString();
-//    }
 
     @Override
     public NodeKind getKind() {
