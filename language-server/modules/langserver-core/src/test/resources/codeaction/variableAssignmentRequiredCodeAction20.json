@@ -15,7 +15,7 @@
                         "character": 4
                     }
                 },
-                "newText": "any|error removeResult = "
+                "newText": "string removeResult \u003d "
             }
         ]
     }
