@@ -3787,8 +3787,7 @@
                 },
                 {
                     "name": "onCondition",
-                    "type": "OnClauseNode",
-                    "isOptional": true
+                    "type": "OnClauseNode"
                 }
             ]
         },
@@ -3802,7 +3801,15 @@
                     "type": "Token"
                 },
                 {
-                    "name": "expression",
+                    "name": "lhsExpression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "equalsKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "rhsExpression",
                     "type": "ExpressionNode"
                 }
             ]

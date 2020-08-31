@@ -2763,6 +2763,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(inKeyword, "inKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(onCondition, "onCondition must not be null");
 
         STNode stJoinClauseNode = STNodeFactory.createJoinClauseNode(
                 getOptionalSTNode(outerKeyword),
@@ -2770,19 +2771,25 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 typedBindingPattern.internalNode(),
                 inKeyword.internalNode(),
                 expression.internalNode(),
-                getOptionalSTNode(onCondition));
+                onCondition.internalNode());
         return stJoinClauseNode.createUnlinkedFacade();
     }
 
     public static OnClauseNode createOnClauseNode(
             Token onKeyword,
-            ExpressionNode expression) {
+            ExpressionNode lhsExpression,
+            Token equalsKeyword,
+            ExpressionNode rhsExpression) {
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(lhsExpression, "lhsExpression must not be null");
+        Objects.requireNonNull(equalsKeyword, "equalsKeyword must not be null");
+        Objects.requireNonNull(rhsExpression, "rhsExpression must not be null");
 
         STNode stOnClauseNode = STNodeFactory.createOnClauseNode(
                 onKeyword.internalNode(),
-                expression.internalNode());
+                lhsExpression.internalNode(),
+                equalsKeyword.internalNode(),
+                rhsExpression.internalNode());
         return stOnClauseNode.createUnlinkedFacade();
     }
 
