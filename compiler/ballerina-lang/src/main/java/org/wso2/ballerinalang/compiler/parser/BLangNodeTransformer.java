@@ -395,7 +395,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -2194,7 +2193,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         SeparatedNodeList<BindingPatternNode> argListBindingPatterns = errorBindingPatternNode.argListBindingPatterns();
         int numberOfArgs = argListBindingPatterns.size();
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
-        for(int position = 0; position < numberOfArgs; position++) {
+        for (int position = 0; position < numberOfArgs; position++) {
             BindingPatternNode bindingPatternNode = argListBindingPatterns.get(position);
             switch (bindingPatternNode.kind()) {
                 case CAPTURE_BINDING_PATTERN:
@@ -2533,7 +2532,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangErrorVariableDef createErrorVariableDef(BLangVariable tupleVar, TypeDescriptorNode typeDesc,
-                                                         Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer, boolean isFinal) {
+              Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer, boolean isFinal) {
         if (isFinal) {
             markVariableAsFinal(tupleVar);
         }
@@ -3692,7 +3691,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                         errorBindingPatternNode.argListBindingPatterns();
                 int numberOfArgs = argListBindingPatterns.size();
                 List<BLangErrorVariable.BLangErrorDetailEntry> namedArgs = new ArrayList<>();
-                for(int position = 0; position < numberOfArgs; position++) {
+                for (int position = 0; position < numberOfArgs; position++) {
                     BindingPatternNode bindingPatternNode = argListBindingPatterns.get(position);
                     switch (bindingPatternNode.kind()) {
                         case CAPTURE_BINDING_PATTERN:
