@@ -48,7 +48,7 @@ public type Foo abstract object {
     function test9('int:Signed16 anInt, Bar... bars) returns 'int:Signed16;
 };
 
-public type FooImpl1 object {
+public class FooImpl1 {
     *Foo;
 
     // param name mismatch
@@ -91,4 +91,4 @@ public type FooImpl1 object {
     function test9('int:Signed16 anInt, Bar... bars) returns int {
         return 0;
     }
-};
+}

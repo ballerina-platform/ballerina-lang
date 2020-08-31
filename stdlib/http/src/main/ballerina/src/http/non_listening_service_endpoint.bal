@@ -18,7 +18,7 @@ import ballerina/java;
 import ballerina/lang.'object as lang;
 
 # Mock server endpoint which does not open a listening port.
-public type MockListener object {
+public class MockListener {
 
     *lang:Listener;
 
@@ -72,7 +72,7 @@ public type MockListener object {
     public function detach(service s) returns error? {
         return externMockDetach(self, s);
     }
-};
+}
 
 function externMockInitEndpoint(MockListener mockListener) returns error? = @java:Method {
     'class: "org.ballerinalang.net.http.mock.nonlistening.NonListeningInitEndpoint",

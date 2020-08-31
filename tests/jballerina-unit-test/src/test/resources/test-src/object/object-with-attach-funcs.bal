@@ -5,7 +5,7 @@ public function testObjectWithAttachedFunc1 () returns [int, string, int, string
     return [a, b, p.year, p.month];
 }
 
-type Person object {
+class Person {
     public int age = 10;
     public string name = "sample name";
 
@@ -23,4 +23,4 @@ type Person object {
         string val2 = value1 + self.month;
         return [count, val2];
     }
-};
+}

@@ -75,10 +75,10 @@ public class ClassTest {
         CompileResult negative = BCompileUtil.compile("test-src/klass/class-def-negative.bal");
         int i = 0;
         String expectedErrorMsgPrefix = "cyclic type reference in ";
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 2, 5);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, C, A]'", 2, 5);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, A, B]'", 7, 5);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, C, A, B]'", 7, 5);
+        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 1, 1);
+        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, C, A]'", 1, 1);
+        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, A, B]'", 6, 1);
+        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, C, A, B]'", 6, 1);
         BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 12, 1);
         BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[C, A, B, C]'", 12, 1);
         Assert.assertEquals(negative.getErrorCount(), i);

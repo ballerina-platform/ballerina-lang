@@ -30,7 +30,7 @@ public remote function test2(string value) {
 public remote function test3(string value) returns int = external;
 
 
-type Foo client object {
+client class Foo {
 
     function abc (string value) returns int {
         return 10;
@@ -43,7 +43,7 @@ type Foo client object {
     remote function xyz (string value) returns float {
         return 10.0;
     }
-};
+}
 
 function testFunc1() {
     Foo x = new;
@@ -69,11 +69,11 @@ function testFunc2() {
     _ = b->action1("value");
 }
 
-type Bar object {
+class Bar {
    function action1 (string x) returns int {
        return 10;
    }
-};
+}
 
 // valid.
 Foo gep = new;
@@ -107,7 +107,7 @@ function testFunc10 (string s) {
     var y = ep->pqr("test");
 }
 
-type Baz object {
+class Baz {
     //a remote function in a non client object
     remote function action1(string s) returns int {
         return 10;
@@ -120,9 +120,9 @@ type Baz object {
     //a remote function in a non client object
     remote function action2(int i) {
     }
-};
+}
 
-type dummy object {
+class dummy {
 
     Foo ff = new;
 
@@ -131,4 +131,4 @@ type dummy object {
         return "done";
     }
 
-};
+}

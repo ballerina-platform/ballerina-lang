@@ -50,11 +50,11 @@ function testInvalidIndividualArgsWithVararg() {
     int i = f.bar(1, 1.0, ...fn()); // 22: incompatible types: expected 'boolean', found 'float'
 }
 
-type Foo client object {
+client class Foo {
     function bar(int i, boolean... b) returns int {
         return i;
     }
 
     remote function baz(string s, float f = 2.0, boolean... b) {
     }
-};
+}

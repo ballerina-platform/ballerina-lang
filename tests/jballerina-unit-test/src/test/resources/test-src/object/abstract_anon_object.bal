@@ -1,20 +1,20 @@
-public type Person object {
+public class Person {
     public int age = 0;
     public string name = "";
-    
+
     public function getName() returns string {
         return "Person Name";
     }
-};
+}
  
-public type Employee object {
+public class Employee {
     public int age = 0;
     public string name = "";
-    
+
     public function getName() returns string {
         return "Employee Name";
     }
-};
+}
 
 function testAbstractAnonObjectInTypeTest() returns [string, string] {
     any p = new Person();

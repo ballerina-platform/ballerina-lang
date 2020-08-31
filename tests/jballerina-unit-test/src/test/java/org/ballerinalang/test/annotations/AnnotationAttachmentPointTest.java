@@ -63,18 +63,18 @@ public class AnnotationAttachmentPointTest {
     public void testInvalidAttachmentOnObjectType() {
         int index = 13;
         int line = 80;
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on object, type", line, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on object, type", line += 3, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on object, type", line += 3, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on object, type", line += 3, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on object, type", line += 3, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on object, type", ++line, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on object, type", line += 3, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on object, type", line += 3, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on object, type", line += 3, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on object, type", line += 3, 1);
-        validateError(compileResult, index++, "annotation 'v13' is not allowed on object, type", line += 3, 1);
-        validateError(compileResult, index, "annotation 'v15' is not allowed on object, type", line + 3, 1);
+        validateError(compileResult, index++, "annotation 'v3' is not allowed on class", line, 1);
+        validateError(compileResult, index++, "annotation 'v4' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on class", ++line, 1);
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v12' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v13' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index, "annotation 'v15' is not allowed on class", line + 3, 1);
     }
 
     @Test
@@ -415,9 +415,9 @@ public class AnnotationAttachmentPointTest {
         validateError(compileResult, index++, "annotation 'v17' is not allowed on type", 829, 1);
         validateError(compileResult, index++, "annotation 'v18' is not allowed on type", 830, 1);
         validateError(compileResult, index++, "annotation 'v17' is not allowed on record_field, field", 832, 5);
-        validateError(compileResult, index++, "annotation 'v16' is not allowed on object, type", 835, 1);
-        validateError(compileResult, index++, "annotation 'v17' is not allowed on object, type", 836, 1);
-        validateError(compileResult, index++, "annotation 'v18' is not allowed on object, type", 837, 1);
+        validateError(compileResult, index++, "annotation 'v16' is not allowed on class", 835, 1);
+        validateError(compileResult, index++, "annotation 'v17' is not allowed on class", 836, 1);
+        validateError(compileResult, index++, "annotation 'v18' is not allowed on class", 837, 1);
         validateError(compileResult, index, "annotation 'v18' is not allowed on object_field, field", 839, 5);
     }
 

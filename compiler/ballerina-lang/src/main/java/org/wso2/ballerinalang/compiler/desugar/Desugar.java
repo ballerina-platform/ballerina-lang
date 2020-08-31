@@ -846,6 +846,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
+
+        classDefinition.annAttachments.forEach(attachment ->  rewrite(attachment, env));
+
         // Merge the fields defined within the object and the fields that
         // get inherited via the type references.
         classDefinition.fields.addAll(classDefinition.referencedFields);
@@ -4523,6 +4526,10 @@ public class Desugar extends BLangNodeVisitor {
         BObjectType objType = (BObjectType) rawTemplateLiteral.type;
         BLangTypeDefinition objClassDef = desugarTemplateLiteralObjectTypedef(rawTemplateLiteral.strings, objType, pos);
         BObjectType classObjType = (BObjectType) objClassDef.type;
+
+        // TODO: temporary fix to get this working with class-change
+        // Migrate this to use a class instead of a object type def
+        classObjType.tsymbol.flags |= Flags.CLASS;
 
         BVarSymbol insertionsSym = classObjType.fields.get("insertions").symbol;
         BLangListConstructorExpr insertionsList = ASTBuilderUtil.createListConstructorExpr(pos, insertionsSym.type);

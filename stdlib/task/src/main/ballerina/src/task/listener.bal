@@ -18,7 +18,7 @@ import ballerina/lang.'object;
 import ballerina/java;
 
 # Represents a ballerina task listener, which can be used to schedule and execute tasks periodically.
-public type Listener object {
+public class Listener {
     *'object:Listener;
     boolean started = false;
 
@@ -122,7 +122,7 @@ public type Listener object {
     public function resume() returns ListenerError? {
         return resumeExternal(self);
     }
-};
+}
 
 function pauseExternal(Listener task) returns ListenerError? = @java:Method {
     name: "pause",

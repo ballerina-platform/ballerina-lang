@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type TestObject object {
+class TestObject {
     string? 'field;
 
     function init() {
@@ -34,7 +34,7 @@ type TestObject object {
     function setField(string f) {
         self.'field = f;
     }
-};
+}
 
 function secureFunction(@untainted string secureIn, string insecureIn) {
 

@@ -23,10 +23,10 @@ public function testAssigment() {
     myType1 mt1 = to;
 }
 
-type testObj object {
+class testObj {
     int intField = 10;
     string stringField = "";
 
     function objFunc() {
     }
-};
+}

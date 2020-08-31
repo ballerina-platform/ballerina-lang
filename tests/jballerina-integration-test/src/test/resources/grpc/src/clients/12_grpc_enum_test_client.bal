@@ -36,7 +36,7 @@ function testEnum() returns (string) {
     }
 }
 
-public type testEnumServiceBlockingClient client object {
+public client class testEnumServiceBlockingClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -55,9 +55,9 @@ public type testEnumServiceBlockingClient client object {
         [result, resHeaders] = unionResp;
         return [result.toString(), resHeaders];
     }
-};
+}
 
-public type testEnumServiceClient client object {
+public client class testEnumServiceClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -72,7 +72,7 @@ public type testEnumServiceClient client object {
     public remote function testEnum (orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.testEnumService/testEnum", req, msgListener, headers);
     }
-};
+}
 
 
 public type orderInfo record {

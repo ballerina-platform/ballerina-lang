@@ -33,7 +33,7 @@ type Department record {
     string name = "IT";
 };
 
-type Employee readonly object {
+readonly class Employee {
     Details details;
     Department dept;
     int id;
@@ -47,7 +47,7 @@ type Employee readonly object {
     function getId() returns int {
         return self.id;
     }
-};
+}
 
 function testBasicReadOnlyObject() {
     Employee emp = new({name: "Jo", yob: 2000}, {}, 1234);
@@ -134,16 +134,16 @@ type Config record {|
     Controller c3;
 |};
 
-type DefaultController readonly object {
+readonly class DefaultController {
     readonly string id = "default";
     map<int>? & readonly mp = ();
 
     function getValue() returns int {
         return 0;
     }
-};
+}
 
-type CustomController readonly object {
+readonly class CustomController {
     string id;
 
     function init(string id) {
@@ -153,15 +153,15 @@ type CustomController readonly object {
     function getValue() returns int {
         return 120;
     }
-};
+}
 
-type MutableController object {
+class MutableController {
     string id = "mutable";
 
     function getValue() returns int {
         return 200;
     }
-};
+}
 
 function testReadOnlyObjectsForImmutableIntersections1() {
     Controller c2 = new CustomController("immutable");

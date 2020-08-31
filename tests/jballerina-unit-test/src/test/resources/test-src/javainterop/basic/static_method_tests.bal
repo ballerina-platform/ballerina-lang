@@ -139,12 +139,12 @@ public function acceptSomethingReturnSomethingAndThrowsUncheckedException(handle
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-public type Person object {
+public class Person {
     int age = 9;
     public function init(int age) {
         self.age = age;
     }
-};
+}
 
 public type ResourceDefinition record {|
     string path;

@@ -26,7 +26,7 @@ import ballerina/io;
 # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
 # + cache - The cache storage for the HTTP responses
 # + cacheConfig - Configurations for the underlying cache storage and for controlling the HTTP caching behaviour
-public type HttpCachingClient client object {
+public client class HttpCachingClient {
 
     public string url = "";
     public ClientConfiguration config = {};
@@ -262,7 +262,7 @@ public type HttpCachingClient client object {
     public remote function rejectPromise(PushPromise promise) {
         self.httpClient->rejectPromise(promise);
     }
-};
+}
 
 # Creates an HTTP client capable of caching HTTP responses.
 #

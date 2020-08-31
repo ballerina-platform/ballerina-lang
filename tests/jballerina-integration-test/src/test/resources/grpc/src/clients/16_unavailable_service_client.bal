@@ -38,7 +38,7 @@ function testUnaryBlockingClient(string name) returns (string) {
     }
 }
 
-public type HelloWorldBlockingClient client object {
+public client class HelloWorldBlockingClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -57,9 +57,9 @@ public type HelloWorldBlockingClient client object {
         [result, resHeaders] = unionResp;
         return [result.toString(), resHeaders];
     }
-};
+}
 
-public type helloWorldClient client object {
+public client class helloWorldClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -74,7 +74,7 @@ public type helloWorldClient client object {
     public remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("HelloWorld/hello", req, msgListener, headers);
     }
-};
+}
 const string ROOT_DESCRIPTOR = "0A1668656C6C6F576F726C64537472696E672E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32510A0A48656C6C6F576F726C6412430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33";
 function getDescriptorMap() returns map<string> {
     return {

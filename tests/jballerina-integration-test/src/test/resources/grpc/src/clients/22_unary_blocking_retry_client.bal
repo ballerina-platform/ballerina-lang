@@ -70,7 +70,7 @@ public function testRetryFailingClient() returns string {
     }
 }
 
-public type RetryServiceBlockingClient client object {
+public client class RetryServiceBlockingClient {
 
     *grpc:AbstractClientEndpoint;
 
@@ -88,7 +88,7 @@ public type RetryServiceBlockingClient client object {
         [result, resHeaders] = payload;
         return [result.toString(), resHeaders];
     }
-};
+}
 
 const string ROOT_DESCRIPTOR_22 =
 "0A14756E6172795F626C6F636B696E672E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32570A0C52657472795365727669636512470A09676574526573756C74121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33";

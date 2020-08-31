@@ -19,7 +19,7 @@ import ballerina/http;
 import ballerina/email;
 
 // Mock object definition
-public type MockHttpClient client object {
+public client class MockHttpClient {
   public string url = "http://mockUrl";
 
   public remote function get(@untainted string path, public http:RequestMessage message = ()) returns http:Response|http:ClientError {
@@ -28,7 +28,7 @@ public type MockHttpClient client object {
       return res;
   }
 
-};
+}
 
 @test:Config {}
 function testUserDefinedMockObject() {
@@ -115,39 +115,39 @@ function testProvideAReturnSequence() {
 # VALIDATION CASES
 # 1 - Validations for user defined mock object
 
-public type MockSmtpClientEmpty client object {};
+public client class MockSmtpClientEmpty {};
 
 public type MockSmtpClient client object {
   public remote function send(email:Email email) returns email:Error?  {
      // do nothing
   }
-};
+}
 
-public type MockSmtpClientFuncErr client object {
+public client class MockSmtpClientFuncErr {
   public remote function sendMail(email:Email email) returns email:Error?  {
       // do nothing
   }
-};
+}
 
-public type MockSmtpClientSigErr client object {
+public client class MockSmtpClientSigErr {
   public remote function send(email:Email email) returns string {
     return "";
   }
-};
+}
 
-public type MockSmtpClientSigErr2 client object {
+public client class MockSmtpClientSigErr2 {
   public remote function send(string[] email) returns string {
     return "";
   }
-};
+}
 
-public type MockHttpClientSigErr client object {
+public client class MockHttpClientSigErr {
   public remote function get(@untainted string path, any message = ()) returns http:Response|http:ClientError {
       http:Response res = new;
       res.statusCode = 500;
       return res;
   }
-};
+}
 
 // 1.1) when the user-defined mock object is empty
 @test:Config {}

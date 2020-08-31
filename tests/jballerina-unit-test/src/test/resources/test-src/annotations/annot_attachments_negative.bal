@@ -111,7 +111,7 @@ public type T1 record {
 @v15 {
     val: false
 }
-type T2 object {
+class T2 {
     string name = "ballerina";
 
     @v1 {
@@ -187,7 +187,7 @@ type T2 object {
         val: false
     }
     public function getName() returns string { return self.name; }
-};
+}
 
 //@v1 {
 //    val: "v1"
@@ -463,7 +463,7 @@ service ser on lis {
     }
 }
 
-type Listener object {
+class Listener {
     *lang:Listener;
 
     public function init() {
@@ -485,7 +485,7 @@ type Listener object {
     public function __immediateStop() returns error? {
         return ();
     }
-};
+}
 
 @v1 {
     val: "v1"
@@ -835,9 +835,9 @@ type Foo record {
 @v16
 @v17 {i: 1}
 @v18
-type Bar object {
+class Bar {
     @v18 string s = "str";
-};
+}
 
 public const annotation v19 on source type;
 

@@ -21,7 +21,7 @@ import ballerina/java;
 # + remoteAddress - The remote address
 # + localAddress - The local address
 # + protocol - The protocol associated with the service endpoint
-public type Caller client object {
+public client class Caller {
 
     private ListenerConfiguration config = {};
     private FilterContext? filterContext = ();
@@ -78,7 +78,7 @@ public type Caller client object {
     #
     # + headers - A `map` of custom headers for handshake
     # + return - An `http:WebSocketCaller` instance or else an `http:WebSocketError` on failure to upgrade
-    public remote function acceptWebSocketUpgrade(map<string> headers) 
+    public remote function acceptWebSocketUpgrade(map<string> headers)
                                                 returns WebSocketCaller | WebSocketError {
         return externAcceptWebSocketUpgrade(self, headers);
     }
@@ -242,7 +242,7 @@ public type Caller client object {
     public function getRemoteHostName() returns string? {
         return nativeGetRemoteHostName(self);
     }
-};
+}
 
 function nativeRespond(Caller caller, Response response) returns ListenerError? = @java:Method {
     'class: "org.ballerinalang.net.http.nativeimpl.connection.Respond",

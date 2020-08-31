@@ -31,7 +31,7 @@ service MyService on ex {
     }
 }
 
-public type ABC object {
+public class ABC {
 
     *'object:Listener;
 
@@ -53,7 +53,7 @@ public type ABC object {
 
     public function __detach(service s) returns error? {
     }
-};
+}
 
 service on invalidVar {
     resource function foo(string b) {

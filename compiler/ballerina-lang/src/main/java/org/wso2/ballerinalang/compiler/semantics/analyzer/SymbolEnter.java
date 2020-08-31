@@ -374,8 +374,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
         // them and set the fields and members of the relevant immutable type.
         validateReadOnlyIntersectionTypeDefinitions(pkgNode.typeDefinitions);
-        // todo: check with Maryam weather we have to add something like this for class defs.
-        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, pkgEnv);
+        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typDefs, pkgEnv);
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
@@ -608,6 +607,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(classDefinition.name),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner);
         tSymbol.scope = new Scope(tSymbol);
+        tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
+
 
         BObjectType objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
 
@@ -619,6 +620,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         tSymbol.type = objectType;
         classDefinition.type = objectType;
         classDefinition.symbol = tSymbol;
+
+        if (isDeprecated(classDefinition.annAttachments)) {
+            tSymbol.flags |= Flags.DEPRECATED;
+        }
 
         // For each referenced type, check whether the types are already resolved.
         // If not, then that type should get a higher precedence.
@@ -1844,6 +1849,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             case CONSTANT:
                 pkgNode.constants.add((BLangConstant) node);
                 break;
+            case CLASS_DEFN:
+                pkgNode.classDefinitions.add((BLangClassDefinition) node);
         }
     }
 
@@ -2079,14 +2086,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineUndefinedReadOnlyTypes(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
+    private void defineUndefinedReadOnlyTypes(List<BLangTypeDefinition> typeDefNodes, List<BLangNode> typDefs, SymbolEnv pkgEnv) {
         // Any newly added typedefs are due to `T & readonly` typed fields. Once the fields are set for all
         // type-definitions we can revisit the newly added type-definitions and define the fields and members for them.
         populateImmutableTypeFieldsAndMembers(typeDefNodes, pkgEnv);
 
         // If all the fields of a structure are readonly, mark the structure type itself as readonly.
         // If the type is a `readonly object` validate if all fields are compatible.
-        validateFieldsAndSetReadOnlyType(typeDefNodes, pkgEnv);
+        validateFieldsAndSetReadOnlyType(typDefs, pkgEnv);
     }
 
     private void populateImmutableTypeFieldsAndMembers(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
@@ -2122,10 +2129,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void validateFieldsAndSetReadOnlyType(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
+    private void validateFieldsAndSetReadOnlyType(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
         int origSize = typeDefNodes.size();
         for (int i = 0; i < origSize; i++) {
-            BLangTypeDefinition typeDef = typeDefNodes.get(i);
+            BLangNode typeDefOrClass = typeDefNodes.get(i);
+            if (typeDefOrClass.getKind() == NodeKind.CLASS_DEFN) {
+                setReadOnlynessOfClassDef((BLangClassDefinition) typeDefOrClass, pkgEnv);
+                continue;
+            } else if (typeDefOrClass.getKind() != NodeKind.TYPE_DEFINITION) {
+                continue;
+            }
+
+            BLangTypeDefinition typeDef = (BLangTypeDefinition) typeDefOrClass;
             BLangType typeNode = typeDef.typeNode;
             NodeKind nodeKind = typeNode.getKind();
             if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
@@ -2160,10 +2175,19 @@ public class SymbolEnter extends BLangNodeVisitor {
                 for (BField field : objectType.fields.values()) {
                     BType type = field.type;
 
+                    Set<Flag> flagSet;
+                    if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                        flagSet = ((BLangObjectTypeNode) typeNode).flagSet;
+                    } else if (typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                        flagSet = ((BLangUserDefinedType) typeNode).flagSet;
+                    } else {
+                        flagSet = new HashSet<>();
+                    }
+
                     if (!types.isInherentlyImmutableType(type)) {
                         field.type = field.symbol.type = ImmutableTypeCloner.getImmutableIntersectionType(
-                                typeNode, pos, types, (SelectivelyImmutableReferenceType) type, typeDefEnv, symTable,
-                                anonymousModelHelper, names);
+                                pos, types, (SelectivelyImmutableReferenceType) type, typeDefEnv, symTable,
+                                anonymousModelHelper, names, flagSet);
 
                     }
 
@@ -2195,6 +2219,46 @@ public class SymbolEnter extends BLangNodeVisitor {
                 structureType.tsymbol.flags |= Flags.READONLY;
                 structureType.flags |= Flags.READONLY;
             }
+        }
+    }
+
+    private void setReadOnlynessOfClassDef(BLangClassDefinition classDef, SymbolEnv pkgEnv) {
+        BObjectType objectType = (BObjectType) classDef.type;
+        DiagnosticPos pos = classDef.pos;
+
+        if (Symbols.isFlagOn(classDef.type.flags, Flags.READONLY)) {
+            if (!types.isSelectivelyImmutableType(objectType, new HashSet<>())) {
+                dlog.error(pos, DiagnosticCode.INVALID_READONLY_OBJECT_TYPE, objectType);
+                return;
+            }
+
+            SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDef, objectType.tsymbol.scope, pkgEnv);
+            for (BField field : objectType.fields.values()) {
+                BType type = field.type;
+
+                if (!types.isInherentlyImmutableType(type)) {
+                    field.type = field.symbol.type = ImmutableTypeCloner.getImmutableIntersectionType(
+                            pos, types, (SelectivelyImmutableReferenceType) type, typeDefEnv, symTable,
+                            anonymousModelHelper, names, classDef.flagSet);
+
+                }
+
+                field.symbol.flags |= Flags.READONLY;
+            }
+        } else {
+            Collection<BField> fields = objectType.fields.values();
+            if (fields.isEmpty()) {
+                return;
+            }
+
+            for (BField field : fields) {
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                    return;
+                }
+            }
+
+            classDef.type.tsymbol.flags |= Flags.READONLY;
+            classDef.type.flags |= Flags.READONLY;
         }
     }
 

@@ -16,7 +16,7 @@
 
 import ballerina/io;
 
-public type BirEmitter object {
+public class BirEmitter {
 
     private Package pkg;
     private TypeEmitter typeEmitter;
@@ -40,7 +40,7 @@ public type BirEmitter object {
         println();
         println("package ", self.pkg.org.value, "/", self.pkg.name.value, ";");
         // println("version - " + pkg.versionValue);
-        
+
         println(); // empty line
         println("// Import Declarations");
         self.emitImports();
@@ -55,7 +55,7 @@ public type BirEmitter object {
         self.emitFunctions(self.pkg.functions, "");
         println("################################## End bir program ##################################");
     }
-    
+
     function emitImports() {
         foreach var i in self.pkg.importModules {
             println("import ", i.modOrg.value, "/", i.modName.value, " ", i.modVersion.value, ";");
@@ -229,9 +229,9 @@ public type BirEmitter object {
         print("\t\t| ");
         print(errorEntry.targetBB.id.value);
     }
-};
+}
 
-type InstructionEmitter object {
+class InstructionEmitter {
     private OperandEmitter opEmitter;
     private TypeEmitter typeEmitter;
     private PositionEmitter posEmitter;
@@ -375,9 +375,9 @@ type InstructionEmitter object {
             println(");");
         }
     }
-};
+}
 
-type TerminalEmitter object {
+class TerminalEmitter {
     private OperandEmitter opEmitter;
     private PositionEmitter posEmitter;
 
@@ -538,9 +538,9 @@ type TerminalEmitter object {
             println(tabs, "return;");
         }
     }
-};
+}
 
-type OperandEmitter object {
+class OperandEmitter {
     function emitOp(VarRef op, string tabs = "") {
         if (op.variableDcl.name.value == "%0") {
             print("%ret");
@@ -549,9 +549,9 @@ type OperandEmitter object {
         }
         // TODO add the rest, currently only have var ref
     }
-};
+}
 
-type TypeEmitter object {
+class TypeEmitter {
 
     function emitType(BType typeVal, string tabs = "") {
         if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean
@@ -682,9 +682,9 @@ type TypeEmitter object {
         self.emitType(bErrorType.detailType);
         print("}");
     }
-};
+}
 
-type PositionEmitter object {
+class PositionEmitter {
     function emitPosition(DiagnosticPos pos) {
         if (pos.sLine != 2147483648) {
             self.appendPos(pos.sLine);
@@ -703,7 +703,7 @@ type PositionEmitter object {
         }
         print(line);
     }
-};
+}
 
 function emitObjectTypeWithFields(BObjectType bObjectType, TypeEmitter typeEmitter, string tabs) {
     println(tabs, bObjectType.isAbstract ? "abstract " : "", "object {");

@@ -351,7 +351,7 @@ public function testFromHandleWithHandle(handle arrayHandle) returns boolean {
 @java:Binding {
   'class: "java.lang.String"
 }
-public type String object {
+public class String {
 
     *java:JObject;
 
@@ -362,7 +362,7 @@ public type String object {
     public function toString() returns string {
         return java:jObjToString(self.jObj);
     }
-};
+}
 
 public function newString(string arg0) returns String {
     handle obj = java_lang_String_newString(java:fromString(arg0));

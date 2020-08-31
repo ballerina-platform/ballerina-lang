@@ -56,7 +56,7 @@ public const string CONTENT_DISPOSITION = "content-disposition";
 # + disposition - Indicates how the body part should be presented (`inline`, `attachment`, or as `form-data`)
 # + name - Represents the field name in case of `multipart/form-data`
 # + parameters - A set of parameters specified in the `attribute=value` notation
-public type ContentDisposition object {
+public class ContentDisposition {
 
     public string fileName = "";
     public string disposition = "";
@@ -72,7 +72,7 @@ public type ContentDisposition object {
     public function toString() returns string {
         return convertContentDispositionToString(self);
     }
-};
+}
 
 function convertContentDispositionToString(ContentDisposition contentDisposition) returns string = @java:Method {
     'class: "org.ballerinalang.mime.nativeimpl.ContentDisposition"
@@ -84,7 +84,7 @@ function convertContentDispositionToString(ContentDisposition contentDisposition
 # + subType - A specific format of the primary-type data
 # + suffix - Identifies the semantics of a specific media type
 # + parameters - A set of parameters specified in an `attribute=value` notation
-public type MediaType object {
+public class MediaType {
 
     public string primaryType = "";
     public string subType = "";
@@ -128,7 +128,7 @@ public type MediaType object {
         }
         return contentType;
     }
-};
+}
 
 # Represents the headers and body of a message. This can be used to represent both the entity of a top level message
 # and an entity(body part) inside of a multipart entity.
@@ -140,7 +140,7 @@ public type MediaType object {
 # + headerMap - Represents the headers of the entity. Since ballerina map is case sensitive, lower case the header names
 #             before adding to the map.
 # + headerNames - Represents all the header names of headers according to the given case.
-public type Entity object {
+public class Entity {
 
     private MediaType? cType = ();
     private string cId = "";
@@ -528,7 +528,7 @@ public type Entity object {
     public function hasHeader(@untainted string headerName) returns boolean {
         return self.headerMap.hasKey(headerName.toLowerAscii());
     }
-};
+}
 
 function externSetJson(Entity entity, json jsonContent, string contentType) = @java:Method {
     'class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",

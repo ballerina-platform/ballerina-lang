@@ -31,7 +31,7 @@ import ballerina/log;
 # + cacheControl - The cache-control directives for the response. This needs to be explicitly initialized if
 #                  intending on utilizing HTTP caching. For incoming responses, this will already be populated
 #                  if the response was sent with cache-control directives
-public type Response object {
+public class Response {
 
     public int statusCode = 200;
     public string reasonPhrase = "";
@@ -462,7 +462,7 @@ public type Response object {
         }
         return cookiesInResponse;
     }
-};
+}
 
 function externCreateNewResEntity(Response response) returns mime:Entity =
 @java:Method {

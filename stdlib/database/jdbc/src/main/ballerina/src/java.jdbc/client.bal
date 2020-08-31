@@ -19,7 +19,7 @@ import ballerina/sql;
 
 # Represents a JDBC client.
 #
-public type Client client object {
+public client class Client {
     *sql:Client;
     private boolean clientActive = true;
 
@@ -118,7 +118,7 @@ public type Client client object {
         self.clientActive = false;
         return close(self);
     }
-};
+}
 
 # Provides a set of configuration related to database.
 # 

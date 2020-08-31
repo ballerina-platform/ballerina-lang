@@ -26,7 +26,7 @@ function performGet() returns http:Response {
     return response;
 }
 
-public type MockHttpClient client object {
+public client class MockHttpClient {
     public string url = "";
     public remote function get(@untainted string path,
         public http:RequestMessage message = ()) returns
@@ -36,7 +36,7 @@ public type MockHttpClient client object {
         res.statusCode = 500;
         return res;
     }
-};
+}
 
 public function main() {
     Person v01_person = new Person(5, "John", "Doe");

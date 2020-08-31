@@ -17,10 +17,10 @@
 import ballerina/java;
 
 # Represents a data channel for reading data.
-public type ReadableDataChannel object {
+public class ReadableDataChannel {
 
     #Initializes the data channel.
-    # 
+    #
     # +byteChannel - The channel, which would represent the source to read/write data
     # +bOrder - network byte order
     public function init(ReadableByteChannel byteChannel, public ByteOrder bOrder = "BE") {
@@ -33,7 +33,7 @@ public type ReadableDataChannel object {
 # ```ballerina
 # int|io:Error result = dataChannel.readInt16();
 # ```
-# 
+#
 # + return - The value of the integer, which is read or else an `io:Error` if any error occurred
     public function readInt16() returns int|Error {
         return readInt16Extern(self);
@@ -43,7 +43,7 @@ public type ReadableDataChannel object {
 # ```ballerina
 # int|io:Error result = dataChannel.readInt32();
 # ```
-# 
+#
 # + return - The value of the integer, which is read or else an `io:Error` if any error occurred
     public function readInt32() returns int|Error {
         return readInt32Extern(self);
@@ -53,7 +53,7 @@ public type ReadableDataChannel object {
 # ```ballerina
 # int|io:Error result = dataChannel.readInt64();
 # ```
-# 
+#
 # + return - The value of the integer, which is read or else an `io:Error` if any error occurred
     public function readInt64() returns int|Error {
         return readInt64Extern(self);
@@ -63,7 +63,7 @@ public type ReadableDataChannel object {
 # ```ballerina
 # float|io:Error result = dataChannel.readFloat32();
 # ```
-# 
+#
 # + return - The value of the float which is read or else `io:Error` if any error occurred
     public function readFloat32() returns float|Error {
         return readFloat32Extern(self);
@@ -73,7 +73,7 @@ public type ReadableDataChannel object {
 # ```ballerina
 # float|io:Error result = dataChannel.readFloat64();
 # ```
-# 
+#
 # + return - The value of the float which is read or else `io:Error` if any error occurred
     public function readFloat64() returns float|Error {
         return readFloat64Extern(self);
@@ -83,7 +83,7 @@ public type ReadableDataChannel object {
 # ```ballerina
 # boolean|io:Error result = dataChannel.readBool();
 # ```
-# 
+#
 # + return - boolean value which is read or else `io:Error` if any error occurred
     public function readBool() returns boolean|Error {
         return readBoolExtern(self);
@@ -93,7 +93,7 @@ public type ReadableDataChannel object {
 # ```ballerina
 # string|io:Error string = dataChannel.readString(10, "UTF-8");
 # ```
-# 
+#
 # + nBytes - Specifies the number of bytes, which represents the string
 # + encoding - Specifies the char-set encoding of the string
 # + return - The value of the string or else `io:Error` if any error occurred
@@ -105,7 +105,7 @@ public type ReadableDataChannel object {
 # ```ballerina
 # int|io:Error result = dataChannel.readVarInt();
 # ```
-# 
+#
 # + return - The value of the integer which is read or else `io:Error` if any error occurred
     public function readVarInt() returns int|Error {
         return readVarIntExtern(self);
@@ -119,7 +119,7 @@ public type ReadableDataChannel object {
     public function close() returns Error? {
         return closeReadableDataChannelExtern(self);
     }
-};
+}
 
 function initReadableDataChannel(ReadableDataChannel dataChannel, ReadableByteChannel byteChannel,
                                  string bOrder) = @java:Method {

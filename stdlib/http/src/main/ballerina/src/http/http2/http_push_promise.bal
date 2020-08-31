@@ -20,7 +20,7 @@ import ballerina/java;
 #
 # + path - The resource path
 # + method - The HTTP method
-public type PushPromise object {
+public class PushPromise {
 
     public string path;
     public string method;
@@ -93,7 +93,7 @@ public type PushPromise object {
     public function getHeaderNames() returns string[] {
         return externPromiseGetHeaderNames(self);
     }
-};
+}
 
 function externPromiseHasHeader(PushPromise promise, string headerName) returns boolean =
 @java:Method {

@@ -17,13 +17,13 @@
 import ballerina/java;
 
 #Represents a channel, which could be used to read characters through a given ReadableByteChannel.
-public type ReadableCharacterChannel object {
+public class ReadableCharacterChannel {
 
     private ReadableByteChannel byteChannel;
     private string charset;
 
     # Constructs a `ReadableCharacterChannel` from a given `ReadableByteChannel` and `Charset`.
-    # 
+    #
     # + byteChannel - The `ReadableByteChannel`, which would be used to read the characters
     # + charset - The character set, which would be used to encode/decode the given bytes to characters
     public function init(ReadableByteChannel byteChannel, string charset) {
@@ -94,7 +94,7 @@ public type ReadableCharacterChannel object {
     public function close() returns Error? {
         return closeReadableCharacterChannel(self);
     }
-};
+}
 
 function initReadableCharacterChannel(ReadableCharacterChannel characterChannel, ReadableByteChannel byteChannel,
                                       string charset) = @java:Method {

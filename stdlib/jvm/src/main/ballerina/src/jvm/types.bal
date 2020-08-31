@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type ClassWriter object {
+public class ClassWriter {
     public function init(int flags){
         self.externalInit(flags);
     }
@@ -33,12 +33,12 @@ public type ClassWriter object {
     public function visitEnd() = external;
 
     public function visitSource(string fileName) = external;
-    
+
     public function toByteArray() returns byte[]|error = external;
-};
+}
 
 
-public type MethodVisitor object {
+public class MethodVisitor {
     public function visitInsn(int opcode) = external;
 
     public function visitIntInsn(int opcode, int operand) = external;
@@ -67,27 +67,27 @@ public type MethodVisitor object {
     public function visitLookupSwitchInsn(Label defaultLabel, int[] keys, Label[] labels) = external;
 
     public function visitInvokeDynamicInsn(string className, string lambdaName, int closureMapCount) = external;
-    
+
     public function visitTryCatchBlock(Label startLabel, Label endLabel, Label handlerLabel,
                                         string? exceptionType) = external;
-                                        
+
     public function visitLineNumber(int line, Label label) = external;
 
     public function visitLocalVariable(string varName, string descriptor, Label startLabel, Label endLabel, int index) = external;
 
     public function visitIincInsn(int variable, int amount) = external;
-};
+}
 
 
-public type Label object {
+public class Label {
     public function init(){
         self.externalInit();
     }
 
     function externalInit() = external;
-};
+}
 
-public type FieldVisitor object {
+public class FieldVisitor {
     public function visitEnd() = external;
-};
+}
 

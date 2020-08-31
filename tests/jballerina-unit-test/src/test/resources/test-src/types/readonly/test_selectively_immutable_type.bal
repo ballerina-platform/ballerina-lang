@@ -454,7 +454,7 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(k.printer is Printer & readonly);
 }
 
-type MyMutableController object {
+class MyMutableController {
     Owner owner;
     Printer printer;
 
@@ -462,15 +462,15 @@ type MyMutableController object {
         self.owner = owner;
         self.printer = printer;
     }
-};
+}
 
-type MyMutablePrinter object {
+class MyMutablePrinter {
     int id = 1234;
 
     function getPrintString(string s) returns string {
         return string `ID[${self.id}]: ${s}`;
     }
-};
+}
 
 function testImmutabilityOfNestedXmlWithAttributes() {
     xml x1 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
@@ -685,15 +685,15 @@ function testImmutableRecordWithDefaultValues() {
     assertEquality(q2.id, 2);
 }
 
-type MyOwner object {
+class MyOwner {
     readonly int id = 238475;
 
     function getId() returns int {
         return self.id;
     }
-};
+}
 
-type MyController object {
+class MyController {
     readonly Owner owner;
     readonly Printer printer;
 
@@ -701,7 +701,7 @@ type MyController object {
         self.owner = ow;
         self.printer = <Printer & readonly> pr;
     }
-};
+}
 
 type Printer abstract object {
     function getPrintString(string s) returns string;
@@ -716,7 +716,7 @@ type Owner abstract object {
     function getId() returns int;
 };
 
-type MyPrinter object {
+class MyPrinter {
     readonly int id;
 
     function init(int id) {
@@ -726,7 +726,7 @@ type MyPrinter object {
     function getPrintString(string s) returns string {
         return string `ID[${self.id}]: ${s}`;
     }
-};
+}
 
 function testImmutableObjects() {
     Controller & readonly cr = new MyController(new MyOwner(), new MyPrinter(1234));
@@ -841,7 +841,7 @@ type IdentifierAbstractObj abstract object {
     function getId() returns string;
 };
 
-type IdentifierObj object {
+class IdentifierObj {
     readonly string id;
 
     function init() {
@@ -851,7 +851,7 @@ type IdentifierObj object {
     function getId() returns string {
         return self.id;
     }
-};
+}
 
 type ConfigRec record {
     Versioning versioning;

@@ -4611,9 +4611,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 return origTargetType;
             }
 
-            return ImmutableTypeCloner.getImmutableIntersectionType(null, pos, types,
+            return ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
                                                                     (SelectivelyImmutableReferenceType) expType,
-                                                                    env, symTable, anonymousModelHelper, names);
+                                                                    env, symTable, anonymousModelHelper, names,
+                                                                    new HashSet<>());
         }
 
         if (origTargetType.tag != TypeTags.UNION) {
@@ -4643,11 +4644,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BUnionType nonReadOnlyUnion = BUnionType.create(null, nonReadOnlyTypes);
 
-        nonReadOnlyUnion.add(ImmutableTypeCloner.getImmutableIntersectionType(null, pos, types,
+        nonReadOnlyUnion.add(ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
                                                                               (SelectivelyImmutableReferenceType)
                                                                                       expType,
                                                                               env, symTable, anonymousModelHelper,
-                                                                              names));
+                                                                              names, new HashSet<>()));
         return nonReadOnlyUnion;
     }
 
@@ -5559,9 +5560,10 @@ public class TypeChecker extends BLangNodeVisitor {
         if (readOnlyConstructorField) {
             if (types.isSelectivelyImmutableType(fieldType)) {
                 fieldType =
-                        ImmutableTypeCloner.getImmutableIntersectionType(null, pos, types,
+                        ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
                                                                          (SelectivelyImmutableReferenceType) fieldType,
-                                                                         env, symTable, anonymousModelHelper, names);
+                                                                         env, symTable, anonymousModelHelper, names,
+                                                                         new HashSet<>());
             } else if (!types.isInherentlyImmutableType(fieldType)) {
                 dlog.error(pos, DiagnosticCode.INVALID_READONLY_MAPPING_FIELD, fieldName, fieldType);
                 fieldType = symTable.semanticError;

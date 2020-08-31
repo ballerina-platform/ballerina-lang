@@ -19,7 +19,7 @@ import ballerina/java;
 
 # This object contains information on a process being created from Ballerina.
 # This is returned from the `exec` function in the `system` module.
-public type Process object {
+public class Process {
 
     private int BUF_SIZE = 10240;
 
@@ -127,7 +127,7 @@ public type Process object {
         }
     }
 
-};
+}
 
 function nativeWaitForExit(Process process) returns int | Error = @java:Method {
     name: "waitForExit",

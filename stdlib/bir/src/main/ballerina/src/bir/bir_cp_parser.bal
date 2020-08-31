@@ -23,9 +23,9 @@ public type ConstPool record {
     BType?[] types = [];
 };
 
-public type ConstPoolParser object {
+public class ConstPoolParser {
     ChannelReader reader;
-    ConstPool cp = {};
+    ConstPool cp = {}
     int i;
     byte[]?[] unparsedTypes = [];
     

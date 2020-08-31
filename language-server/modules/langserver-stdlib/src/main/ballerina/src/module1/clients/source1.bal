@@ -3,23 +3,23 @@
 # using custom HTTP verbs.
 
 # + url - Target service url
-public type Client client object {
+public client class Client {
     public string url;
-    
+
     public function init(string url) {
         self.url = url;
     }
-    
+
     # The `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`
-    # + return - The response for the request 
+    # + return - The response for the request
     public remote function post(@untainted string path, RequestMessage message) returns Response {
         Response response = new();
         return response;
     }
-};
+}
 
 # Represents a response.
 #
