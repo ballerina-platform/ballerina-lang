@@ -19,12 +19,12 @@ import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.hover.HoverUtil;
@@ -79,7 +79,7 @@ public class ReferencesUtil {
         context.put(DocumentServiceKeys.POSITION_KEY, pos);
         context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
         context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-        Token tokenAtCursor = TokensUtil.findtokenAtCursor(context);
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
         List<BLangPackage> modules = ReferencesUtil.compileModules(context);
         SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
@@ -89,15 +89,16 @@ public class ReferencesUtil {
     /**
      * Get the rename workspace edits.
      *
-     * @param context Language server context
-     * @param newName New name to replace
+     * @param context  Language server context
+     * @param newName  New name to replace
+     * @param position cursor position
      * @return {@link WorkspaceEdit}    Rename workspace edit
      * @throws WorkspaceDocumentException when couldn't find file for uri
      * @throws CompilationFailedException when compilation failed
      */
-    public static WorkspaceEdit getRenameWorkspaceEdits(LSContext context, String newName)
+    public static WorkspaceEdit getRenameWorkspaceEdits(LSContext context, String newName, Position position)
             throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findtokenAtCursor(context);
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
         List<BLangPackage> modules = compileModules(context);
         String nodeName = tokenAtCursor.text();
         if (CommonKeys.NEW_KEYWORD_KEY.equals(nodeName)) {
@@ -109,10 +110,9 @@ public class ReferencesUtil {
         return getWorkspaceEdit(allReferences, context, newName);
     }
 
-    public static List<Location> getReferences(LSContext context, boolean includeDeclaration)
-            throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException,
-                   TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findtokenAtCursor(context);
+    public static List<Location> getReferences(LSContext context, boolean includeDeclaration, Position pos)
+            throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, pos);
         List<BLangPackage> modules = compileModules(context);
         SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
         SymbolReferencesModel allReferencesModel = fillAllReferences(referencesModel, tokenAtCursor, modules, context);
@@ -131,14 +131,16 @@ public class ReferencesUtil {
     /**
      * Get the hover content.
      *
-     * @param context Hover operation context
+     * @param context        Hover operation context
+     * @param cursorPosition Cursor position
      * @return {@link Hover} Hover content
      * @throws WorkspaceDocumentException when couldn't find file for uri
      * @throws CompilationFailedException when compilation failed
      */
-    public static Hover getHover(LSContext context)
+    public static Hover getHover(LSContext context, Position cursorPosition)
             throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findtokenAtCursor(context);
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, cursorPosition);
+        context.put(CompletionKeys.TOKEN_AT_CURSOR_KEY, tokenAtCursor);
         List<BLangPackage> modules = compileModules(context);
         Reference symbolAtCursor = findReferencesForCurrentCUnit(tokenAtCursor, modules, context)
                 .getReferenceAtCursor();
@@ -160,10 +162,8 @@ public class ReferencesUtil {
         }
         Path compilationPath = getUntitledFilePath(defFilePath.toString()).orElse(defFilePath.get());
         Optional<Lock> lock = docManager.lockFile(compilationPath);
-        Class<LSCustomErrorStrategy> errStrategy = LSCustomErrorStrategy.class;
         try {
-            return LSModuleCompiler.getBLangPackages(context, docManager, errStrategy, compileProject, false, false,
-                                                     true);
+            return LSModuleCompiler.getBLangPackages(context, docManager, null, compileProject, false, false, true);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -188,8 +188,8 @@ public class ReferencesUtil {
                 // Possible Reference tokens found within the cUnit
                 String symbolPkgName = bLangPackage.symbol.getName().value;
                 SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context,
-                                                                                             tokenAtCursor,
-                                                                                             symbolPkgName);
+                        tokenAtCursor,
+                        symbolPkgName);
                 SymbolReferencesModel symbolReferencesModel = refVisitor.accept(compilationUnit);
                 referencesModel.getDefinitions().addAll(symbolReferencesModel.getDefinitions());
                 referencesModel.getReferences().addAll(symbolReferencesModel.getReferences());
@@ -226,14 +226,14 @@ public class ReferencesUtil {
         }
 
         SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context, tokenAtCursor,
-                                                                                     currentPkgName, true);
+                currentPkgName, true);
         SymbolReferencesModel symbolReferencesModel = refVisitor.accept(currentCUnit.get());
 
         // Prune the found symbol references
         if (symbolReferencesModel.getReferenceAtCursor() == null) {
             String nodeName = tokenAtCursor.text();
             throw new TokenOrSymbolNotFoundException(
-                    "Symbol at cursor '" + nodeName + "' not supported or could not find!");
+                    "Symbol at position '" + nodeName + "' not supported or could not find!");
         }
 
         Reference symbolAtCursor = symbolReferencesModel.getReferenceAtCursor();

@@ -41,12 +41,12 @@ public class StartActionTest {
     public void testStartActionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/action/start/start-action-negative.bal");
         int indx = 0;
-
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 37, 17);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 38, 32);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 39, 32);
+        BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 39, 37);
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 53, 14);
-        BAssertUtil.validateError(result, indx++, "invalid expression in start action", 53, 20);
+        BAssertUtil.validateError(result, indx++, "invalid expression in start action", 53, 14);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 56, 37);
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 58, 26);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 58, 49);
@@ -55,7 +55,11 @@ public class StartActionTest {
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 72, 28);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 76, 25);
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 90, 27);
-
+        BAssertUtil.validateError(result, indx++, "missing close paren token", 97, 1);
+        BAssertUtil.validateError(result, indx++, "missing identifier", 97, 1);
+        BAssertUtil.validateError(result, indx++, "missing open paren token", 97, 1);
+        BAssertUtil.validateError(result, indx++, "missing semicolon token", 97, 1);
+        BAssertUtil.validateError(result, indx++, "invalid expression in start action", 100, 5);
         Assert.assertEquals(result.getErrorCount(), indx);
     }
 

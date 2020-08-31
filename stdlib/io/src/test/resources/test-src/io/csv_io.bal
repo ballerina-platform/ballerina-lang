@@ -56,10 +56,10 @@ type CommonApp record {
 io:ReadableCSVChannel? rch = ();
 io:WritableCSVChannel? wch = ();
 
-function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted error? {
+function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns error? {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
-        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(<@untainted>byteChannel, encoding);
+        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
         rch = new io:ReadableCSVChannel(charChannel, fieldSeparator);
     } else {
         return byteChannel;
@@ -67,13 +67,13 @@ function initReadableCsvChannel(string filePath, string encoding, io:Separator f
 }
 
 function initWritableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns error? {
-    io:WritableByteChannel byteChannel = check <@untainted>io:openWritableFile(filePath);
+    io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
     wch = new io:WritableCSVChannel(charChannel, fieldSeparator);
 }
 
 function initOpenCsvChannel(string filePath, string encoding, io:Separator fieldSeparator, int nHeaders = 0) returns error? {
-    var byteChannel = <@untainted>io:openReadableFile(filePath);
+    var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
         rch = new io:ReadableCSVChannel(charChannel, fieldSeparator, nHeaders);

@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.langserver.commons.completion;
 
-import org.antlr.v4.runtime.ParserRuleContext;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.CompletionCapabilities;
@@ -40,13 +41,13 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<AnnotationNodeKind> NEXT_NODE_KEY
             = new LSContext.Key<>();
+    @Deprecated
     public static final LSContext.Key<Integer> LOOP_COUNT_KEY
             = new LSContext.Key<>();
+    @Deprecated
     public static final LSContext.Key<Boolean> CURRENT_NODE_TRANSACTION_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> TRANSACTION_COUNT_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<ParserRuleContext> PARSER_RULE_CONTEXT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<CompletionCapabilities> CLIENT_CAPABILITIES_KEY
             = new LSContext.Key<>();
@@ -56,10 +57,13 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> IN_INVOCATION_PARAM_CONTEXT_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<Class> ITEM_SORTER_KEY
+    public static final LSContext.Key<Token> TOKEN_AT_CURSOR_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<NonTerminalNode> NODE_AT_CURSOR_KEY
             = new LSContext.Key<>();
     
     // Following key is used for the completion within the if else/ while condition context
     public static final LSContext.Key<Boolean> IN_CONDITION_CONTEXT_KEY
             = new LSContext.Key<>();
+    public static final LSContext.Key<Integer> TEXT_POSITION_IN_TREE = new LSContext.Key<>();
 }

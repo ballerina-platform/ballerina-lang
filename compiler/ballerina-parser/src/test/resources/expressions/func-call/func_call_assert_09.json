@@ -66,7 +66,6 @@
         },
         {
           "kind": "NAMED_ARG",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "SIMPLE_NAME_REFERENCE",
@@ -94,22 +93,32 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "18"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "POSITIONAL_ARG",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_INVALID_TOKEN"
-                  ],
-                  "value": "18",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "INVALID_NODE_MINUTIAE",
-                      "invalidNode": {
-                        "kind": "COMMA_TOKEN"
-                      }
-                    }
+                    "ERROR_MISSING_IDENTIFIER"
                   ]
                 }
               ]

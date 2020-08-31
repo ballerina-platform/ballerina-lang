@@ -109,7 +109,6 @@ public abstract class AbstractParserErrorHandler {
 
                 // else fall through
             }
-
         }
 
         // Fail safe. This means we can't find a path to recover.
@@ -138,6 +137,8 @@ public abstract class AbstractParserErrorHandler {
     private void applyFix(ParserRuleContext currentCtx, Solution fix, Object... args) {
         if (fix.action == Action.REMOVE) {
             fix.removedToken = consumeInvalidToken();
+            fix.recoveredNode = this.tokenReader.peek();
+            fix.tokenKind = this.tokenReader.peek().kind;
         } else {
             fix.recoveredNode = handleMissingToken(currentCtx, fix);
         }

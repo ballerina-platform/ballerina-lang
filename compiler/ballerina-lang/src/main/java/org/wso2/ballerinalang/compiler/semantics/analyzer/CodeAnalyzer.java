@@ -85,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -2169,7 +2170,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
-        if (actionInvocation.async && this.withinTransactionScope) {
+        if (!actionInvocation.async && !this.withinTransactionScope &&
+                Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
+            dlog.error(actionInvocation.pos, DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED, actionInvocation);
+            return;
+        }
+
+        if (actionInvocation.async && this.withinTransactionScope &&
+                !Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticCode.USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED);
             return;
         }
@@ -2763,6 +2771,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnClause onClause) {
         analyzeExpr(onClause.expression);
+    }
+
+    @Override
+    public void visit(BLangOrderByClause orderByClause) {
+        orderByClause.orderByKeyList.forEach(value -> analyzeExpr((BLangExpression) value.getOrderKey()));
     }
 
     @Override

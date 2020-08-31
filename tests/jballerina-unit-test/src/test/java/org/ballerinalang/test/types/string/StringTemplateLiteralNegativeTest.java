@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for String Template Literal negative tests.
  */
-@Test(groups = { "brokenOnNewParser" })
+@Test
 public class StringTemplateLiteralNegativeTest {
 
     private CompileResult resultNegative;
@@ -42,15 +42,24 @@ public class StringTemplateLiteralNegativeTest {
                 "incompatible types: expected '(int|float|decimal|string|boolean)', found 'json'", 8, 32);
     }
 
-    @Test(description = "Test string template literal syntax errors")
+    @Test(description = "Test string template literal syntax errors", groups = { "disableOnOldParser" })
     public void testStringTemplateLiteralSyntaxNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        Assert.assertEquals(resultNegative.getErrorCount(), 12);
         int index = 0;
-        BAssertUtil.validateError(resultNegative, index++, "mismatched input ';'. expecting {'is', 'equals', '}', " +
-                "'?', '+', '-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', " +
-                "'...', '|', '?:', '->>', '..<'}", 4, 75);
-        BAssertUtil.validateError(resultNegative, index++, "token recognition error at: '\\l'", 10, 26);
-        BAssertUtil.validateError(resultNegative, index, "extraneous input 'lo $ {name}}'", 10, 28);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 74);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 74);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token 'return'", 4, 74);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token 's'", 4, 74);
+
+        BAssertUtil.validateError(resultNegative, index++, "missing plus token", 10, 24);
+        BAssertUtil.validateError(resultNegative, index++, "undefined symbol 'He'", 10, 24);
+        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 26);
+        BAssertUtil.validateError(resultNegative, index++, "unknown type 'name'", 10, 34);
+        BAssertUtil.validateError(resultNegative, index++, "missing identifier", 10, 38);
+        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 38);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token ';\n    return s;\n}\n'", 13, 1);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token '`'", 13, 1);
+
     }
 }

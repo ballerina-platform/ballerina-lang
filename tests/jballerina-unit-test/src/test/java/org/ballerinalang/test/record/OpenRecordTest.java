@@ -162,12 +162,16 @@ public class OpenRecordTest {
                                     "family:{spouse:\"Jane\", noOfChildren:0, children:[\"Alex\", \"Bob\"]}}");
     }
 
-    @Test(description = "Negative test to test attaching functions to record literal", groups = { "brokenOnNewParser" })
+    @Test(description = "Negative test to test attaching functions to record literal",
+            groups = { "disableOnOldParser" })
     public void testStructLiteralAttachedFunc() {
-        CompileResult result = BCompileUtil.compile(
-                "test-src/record/record_literal_with_attached_functions_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
-        BAssertUtil.validateError(result, 0, "mismatched input '.'. expecting '('", 7, 16);
+        CompileResult result =
+                BCompileUtil.compile("test-src/record/record_literal_with_attached_functions_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 4);
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'Person'", 7, 10);
+        BAssertUtil.validateError(result, 1, "invalid token '.'", 7, 24);
+        BAssertUtil.validateError(result, 2, "invalid token 'getName'", 7, 24);
+        BAssertUtil.validateError(result, 3, "undefined symbol 'self'", 8, 12);
     }
 
     @Test(description = "Test addition of different types for default rest field type")

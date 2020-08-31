@@ -39,13 +39,31 @@ public type MockConfig record {
     string functionName = "";
 };
 
+public type AfterSuiteConfig record {
+    boolean alwaysRun = false;
+};
+
+public type BeforeGroupsConfig record {
+    string[] value = [];
+};
+
+public type AfterGroupsConfig record {
+    string[] value = [];
+};
+
 public annotation TestConfig Config on function;
 
 # Identifies beforeSuite function.
 public annotation BeforeSuite on function;
 
 # Identifies afterSuite function.
-public annotation AfterSuite on function;
+public annotation AfterSuiteConfig AfterSuite on function;
+
+# Identifies beforeGroup function.
+public annotation BeforeGroupsConfig BeforeGroups on function;
+
+# Identifies afterGroup function.
+public annotation AfterGroupsConfig AfterGroups on function;
 
 # Identifies beforeTest function.
 public annotation BeforeEach on function;

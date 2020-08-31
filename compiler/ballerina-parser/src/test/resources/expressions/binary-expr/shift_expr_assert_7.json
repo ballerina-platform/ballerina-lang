@@ -21,22 +21,35 @@
                   "kind": "MAP_KEYWORD"
                 },
                 {
-                  "kind": "LT_TOKEN"
-                },
-                {
-                  "kind": "PARAMETERIZED_TYPE_DESC",
+                  "kind": "TYPE_PARAMETER",
                   "children": [
-                    {
-                      "kind": "MAP_KEYWORD"
-                    },
                     {
                       "kind": "LT_TOKEN"
                     },
                     {
-                      "kind": "INT_TYPE_DESC",
+                      "kind": "PARAMETERIZED_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "INT_KEYWORD"
+                          "kind": "MAP_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -44,9 +57,6 @@
                       "kind": "GT_TOKEN"
                     }
                   ]
-                },
-                {
-                  "kind": "GT_TOKEN"
                 }
               ]
             }

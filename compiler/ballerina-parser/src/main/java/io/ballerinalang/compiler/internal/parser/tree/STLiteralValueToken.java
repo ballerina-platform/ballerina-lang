@@ -17,6 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.LiteralValueToken;
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -53,6 +56,11 @@ public class STLiteralValueToken extends STToken {
 
     public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
         return new STLiteralValueToken(this.kind, this.text, leadingMinutiae, trailingMinutiae, this.diagnostics);
+    }
+
+    @Override
+    public Node createFacade(int position, NonTerminalNode parent) {
+        return new LiteralValueToken(this, position, parent);
     }
 
     @Override

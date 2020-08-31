@@ -94,6 +94,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -259,6 +261,8 @@ public class BLangPackageBuilder {
     private Stack<List<BLangVariable>> varListStack = new Stack<>();
 
     private Stack<List<BLangLetVariable>> letVarListStack = new Stack<>();
+
+    private Stack<BLangOrderKey> orderKeyListStack = new Stack<>();
 
     private Stack<List<BLangRecordVariableKeyValue>> recordVarListStack = new Stack<>();
 
@@ -2091,6 +2095,25 @@ public class BLangPackageBuilder {
         joinClause.onClause = onClause;
     }
 
+    void createOrderByKey(DiagnosticPos pos, Set<Whitespace> ws, boolean isAscending) {
+        BLangOrderKey orderKey = (BLangOrderKey) TreeBuilder.createOrderKeyNode();
+        orderKey.pos = pos;
+        orderKey.setOrderKey(this.exprNodeStack.pop());
+        orderKey.setOrderDirection(isAscending);
+        orderKeyListStack.push(orderKey);
+    }
+
+    void createOrderByClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangOrderByClause orderByClause = (BLangOrderByClause) TreeBuilder.createOrderByClauseNode();
+        orderByClause.addWS(ws);
+        orderByClause.pos = pos;
+        Collections.reverse(orderKeyListStack);
+        while (orderKeyListStack.size() > 0) {
+            orderByClause.addOrderKey(orderKeyListStack.pop());
+        }
+        queryClauseStack.push(orderByClause);
+    }
+
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangSelectClause selectClause = (BLangSelectClause) TreeBuilder.createSelectClauseNode();
         selectClause.addWS(ws);
@@ -2721,7 +2744,8 @@ public class BLangPackageBuilder {
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
                                       boolean publicFunc, boolean privateFunc, boolean remoteFunc, boolean resourceFunc,
-                                      boolean isDeclaration, boolean markdownDocPresent, int annCount) {
+                                      boolean transactionalFunc, boolean isDeclaration, boolean markdownDocPresent,
+                                      int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.name = this.createIdentifier(funcNamePos, funcName);
         function.pos = pos;
@@ -2740,6 +2764,9 @@ public class BLangPackageBuilder {
         }
         if (resourceFunc) {
             function.flagSet.add(Flag.RESOURCE);
+        }
+        if (transactionalFunc) {
+            function.flagSet.add(Flag.TRANSACTIONAL);
         }
 
         if (isDeclaration) {

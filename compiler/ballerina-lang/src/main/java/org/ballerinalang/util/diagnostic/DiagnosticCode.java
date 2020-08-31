@@ -82,6 +82,7 @@ public enum DiagnosticCode {
     CANNOT_FIND_ERROR_TYPE("cannot.find.error.constructor.for.type"),
     INVALID_PACKAGE_NAME_QUALIFER("invalid.package.name.qualifier"),
     INVALID_FIELD_ACCESS_EXPRESSION("invalid.char.colon.in.field.access.expr"),
+    VARIABLE_DECL_WITH_VAR_WITHOUT_INITIALIZER("variable.decl.with.var.without.initializer"),
 
     REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM("required.param.not.allowed.after.defaultable.param"),
     POSITIONAL_ARG_DEFINED_AFTER_NAMED_ARG("positional.arg.defined.after.named.arg"),
@@ -424,6 +425,7 @@ public enum DiagnosticCode {
     MISMATCHED_INPUT("mismatched.input"),
     FAILED_PREDICATE("failed.predicate"),
     SYNTAX_ERROR("syntax.error"),
+    SYNTAX_WARNING("syntax.warning"),
     INVALID_SHIFT_OPERATOR("invalid.shift.operator"),
 
     // Streaming related codes
@@ -432,6 +434,7 @@ public enum DiagnosticCode {
     NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
     ERROR_TYPE_EXPECTED("error.type.expected"),
     MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
+    ORDER_BY_NOT_SUPPORTED("order.by.not.supported"),
 
     // Table related codes
     TABLE_CONSTRAINT_INVALID_SUBTYPE("invalid.table.constraint.subtype"),

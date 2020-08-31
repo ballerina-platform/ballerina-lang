@@ -30,6 +30,9 @@ service on new http:Listener(21030) {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
+        if (text == "close") {
+            checkpanic clientEp->close(statusCode = 1000, reason = "Close the connection");
+        }
         checkpanic clientEp->pushText(text);
     }
 

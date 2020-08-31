@@ -47,11 +47,12 @@ public class RetryClientTest extends WebSocketTestCommons {
         sendTextDataAndAssert("Hi");
         restartServerAndGiveTimeClientConnectToServer();
         sendTextDataAndAssert("Hi madam");
+        client.sendText("close");
         closeConnection();
     }
 
     @Test(description = "Tests the retry function with the maximum count using the WebSocket client (" +
-            "Restart the server twice and send the data for every restart)", enabled = false)
+            "Restart the server twice and send the data for every restart)")
     public void testMultipleRetryAttempts() throws URISyntaxException, InterruptedException, BallerinaTestException {
         remoteServer = initiateServer();
         client = initiateClient(URL);
@@ -60,6 +61,7 @@ public class RetryClientTest extends WebSocketTestCommons {
         sendTextDataAndAssert("Hi madam");
         restartServerAndGiveTimeClientConnectToServer();
         sendBinaryDataAndAssert();
+        client.sendText("close");
         closeConnection();
     }
 
@@ -87,6 +89,7 @@ public class RetryClientTest extends WebSocketTestCommons {
         sendBinaryDataAndAssert();
         restartServerAndGiveTimeClientConnectToServer();
         sendBinaryDataAndAssert();
+        client.sendText("close");
         closeConnection();
     }
 

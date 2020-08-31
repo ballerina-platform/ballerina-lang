@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 5,
+    "character": 4
+  },
+  "source": "service_body/source/source1.bal",
+  "items": [
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "120",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resource",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "120",
+      "insertText": "resource ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resource",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "resource function ${1:newResource}(${2}) {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

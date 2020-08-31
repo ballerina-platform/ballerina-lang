@@ -50,7 +50,7 @@ function testRestParamReference() {
     map<int> m = getMap(int, float);
 }
 
-function funcWithDefaultableParam(typedesc<anydata> td = int|float) returns td = @java:Method {
+function funcWithDefaultableParam(typedesc<anydata> td = customType) returns td = @java:Method {
     class: "xyz.pubudu.Hello",
     name: "funcWithDefaultableParam",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
@@ -130,3 +130,5 @@ function testInvalidFunctionAssignment() {
     function (typedesc<string|int> td) returns string fn1 = getValue2;
     function (typedesc<string|int> td) returns td fn2 = getValue2;
 }
+
+type customType int|float;

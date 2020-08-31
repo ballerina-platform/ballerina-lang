@@ -1,0 +1,91 @@
+{
+  "kind": "MODULE_PART",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "IMPORT_DECLARATION",
+          "children": [
+            {
+              "kind": "IMPORT_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "IMPORT_ORG_NAME",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "ballerina"
+                },
+                {
+                  "kind": "SLASH_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "http"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "EOF_TOKEN",
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_INVALID_QUALIFIER"
+      ],
+      "leadingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        },
+        {
+          "kind": "INVALID_NODE_MINUTIAE",
+          "invalidNode": {
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
+              {
+                "kind": "PUBLIC_KEYWORD"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    }
+  ]
+}

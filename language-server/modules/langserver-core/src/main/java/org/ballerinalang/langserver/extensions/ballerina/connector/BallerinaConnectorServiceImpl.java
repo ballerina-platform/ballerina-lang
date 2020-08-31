@@ -137,7 +137,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         LSConnectorCache connectorCache = LSConnectorCache.getInstance(lsContext);
 
         JsonElement ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName());
+                request.getVersion(), request.getName(), request.getBeta());
         String error = "";
         if (ast == null) {
             try {
@@ -209,10 +209,10 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                         ((JsonObject) jsonAST).add("records", recordsJson);
                     }
                     connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
-                            request.getVersion(), connector.getName().getValue(), jsonAST);
+                            request.getVersion(), connector.getName().getValue(), request.getBeta(), jsonAST);
                 });
                 ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
-                        request.getVersion(), request.getName());
+                        request.getVersion(), request.getName(), request.getBeta());
             } catch (Exception e) {
                 String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
@@ -221,7 +221,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             }
         }
         BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName(), request.getDisplayName(), ast, error);
+                request.getVersion(), request.getName(), request.getDisplayName(), ast, error, request.getBeta());
         return CompletableFuture.supplyAsync(() -> response);
     }
 
@@ -231,7 +231,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         LSRecordCache recordCache = LSRecordCache.getInstance(lsContext);
 
         JsonElement ast = recordCache.getRecordAST(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName());
+                request.getVersion(), request.getName(), request.getBeta());
         String error = "";
         if (ast == null) {
             try {
@@ -295,11 +295,11 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                         ((JsonObject) recordJson).add("records", recordsJson);
                     }
                     recordCache.addRecordAST(request.getOrg(), request.getModule(),
-                            request.getVersion(), request.getName(), recordJson);
+                            request.getVersion(), request.getName(), request.getBeta(), recordJson);
                 }
 
                 ast = recordCache.getRecordAST(request.getOrg(), request.getModule(),
-                        request.getVersion(), request.getName());
+                        request.getVersion(), request.getName(), request.getBeta());
             } catch (Exception e) {
                 String msg = "Operation 'ballerinaConnector/record' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
@@ -309,7 +309,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
         }
         BallerinaRecordResponse response = new BallerinaRecordResponse(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName(), ast, error);
+                request.getVersion(), request.getName(), ast, error, request.getBeta());
         return CompletableFuture.supplyAsync(() -> response);
     }
 

@@ -12,15 +12,6 @@
           "kind": "MODULE_VAR_DECL",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
@@ -92,15 +83,6 @@
         {
           "kind": "MODULE_VAR_DECL",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
@@ -183,15 +165,6 @@
         {
           "kind": "MODULE_VAR_DECL",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
@@ -292,15 +265,6 @@
         {
           "kind": "MODULE_VAR_DECL",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
@@ -409,15 +373,6 @@
         {
           "kind": "MODULE_VAR_DECL",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
@@ -577,13 +532,8 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",

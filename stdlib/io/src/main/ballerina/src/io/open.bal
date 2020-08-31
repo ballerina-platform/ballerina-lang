@@ -23,7 +23,7 @@ import ballerina/java;
 #
 # + path - Relative/absolute path string to locate the file
 # + return - The `ByteChannel` representation of the file resource or else an `io:Error` if any error occurred
-public function openReadableFile(@untainted string path) returns @tainted ReadableByteChannel|Error = @java:Method {
+public function openReadableFile(@untainted string path) returns ReadableByteChannel|Error = @java:Method {
     name: "openReadableFile",
     class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
@@ -37,7 +37,7 @@ public function openReadableFile(@untainted string path) returns @tainted Readab
 # + append - Whether to append to the end of file
 # + return - The `ByteChannel` representation of the file resource or else an `io:Error` if any error occurred
 public function openWritableFile(@untainted string path, boolean append = false)
-    returns @tainted WritableByteChannel|Error = @java:Method {
+    returns WritableByteChannel|Error = @java:Method {
     name: "openWritableFile",
     class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
@@ -67,7 +67,7 @@ public function createReadableChannel(byte[] content) returns ReadableByteChanne
 public function openReadableCsvFile(@untainted string path,
                                     @untainted public Separator fieldSeparator = ",",
                                     @untainted public string charset = "UTF-8",
-                                    @untainted public int skipHeaders = 0) returns @tainted ReadableCSVChannel|Error {
+                                    @untainted public int skipHeaders = 0) returns ReadableCSVChannel|Error {
     ReadableByteChannel byteChannel = check openReadableFile(path);
     ReadableCharacterChannel charChannel = new(byteChannel, charset);
     return new ReadableCSVChannel(charChannel, fieldSeparator, skipHeaders);
@@ -86,7 +86,7 @@ public function openReadableCsvFile(@untainted string path,
 public function openWritableCsvFile(@untainted string path,
                                     @untainted public Separator fieldSeparator = ",",
                                     @untainted public string charset = "UTF-8",
-                                    @untainted public int skipHeaders = 0) returns @tainted WritableCSVChannel|Error {
+                                    @untainted public int skipHeaders = 0) returns WritableCSVChannel|Error {
     WritableByteChannel byteChannel = check openWritableFile(path);
     WritableCharacterChannel charChannel = new(byteChannel, charset);
     return new WritableCSVChannel(charChannel, fieldSeparator);

@@ -37,8 +37,8 @@ public class FunctionSignatureNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public NodeList<ParameterNode> parameters() {
-        return new NodeList<>(childInBucket(1));
+    public SeparatedNodeList<ParameterNode> parameters() {
+        return new SeparatedNodeList<>(childInBucket(1));
     }
 
     public Token closeParenToken() {
@@ -70,7 +70,7 @@ public class FunctionSignatureNode extends NonTerminalNode {
 
     public FunctionSignatureNode modify(
             Token openParenToken,
-            NodeList<ParameterNode> parameters,
+            SeparatedNodeList<ParameterNode> parameters,
             Token closeParenToken,
             ReturnTypeDescriptorNode returnTypeDesc) {
         if (checkForReferenceEquality(
@@ -100,7 +100,7 @@ public class FunctionSignatureNode extends NonTerminalNode {
     public static class FunctionSignatureNodeModifier {
         private final FunctionSignatureNode oldNode;
         private Token openParenToken;
-        private NodeList<ParameterNode> parameters;
+        private SeparatedNodeList<ParameterNode> parameters;
         private Token closeParenToken;
         private ReturnTypeDescriptorNode returnTypeDesc;
 
@@ -120,7 +120,7 @@ public class FunctionSignatureNode extends NonTerminalNode {
         }
 
         public FunctionSignatureNodeModifier withParameters(
-                NodeList<ParameterNode> parameters) {
+                SeparatedNodeList<ParameterNode> parameters) {
             Objects.requireNonNull(parameters, "parameters must not be null");
             this.parameters = parameters;
             return this;
