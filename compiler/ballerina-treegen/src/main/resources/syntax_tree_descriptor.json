@@ -838,8 +838,7 @@
                 },
                 {
                     "name": "visibilityQualifier",
-                    "type": "Token",
-                    "isOptional": true
+                    "type": "Token"
                 },
                 {
                     "name": "constKeyword",
@@ -847,8 +846,7 @@
                 },
                 {
                     "name": "typeDescriptor",
-                    "type": "TypeDescriptorNode",
-                    "isOptional": true
+                    "type": "TypeDescriptorNode"
                 },
                 {
                     "name": "variableName",
@@ -1025,13 +1023,11 @@
                 },
                 {
                     "name": "colon",
-                    "type": "Token",
-                    "isOptional": true
+                    "type": "Token"
                 },
                 {
                     "name": "valueExpr",
-                    "type": "ExpressionNode",
-                    "isOptional": true
+                    "type": "ExpressionNode"
                 }
             ]
         },
@@ -1238,13 +1234,11 @@
                 },
                 {
                     "name": "equalsToken",
-                    "type": "Token",
-                    "isOptional": true
+                    "type": "Token"
                 },
                 {
                     "name": "expression",
-                    "type": "ExpressionNode",
-                    "isOptional": true
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "semicolonToken",
@@ -1616,13 +1610,11 @@
                 },
                 {
                     "name": "asKeyword",
-                    "type": "Token",
-                    "isOptional": true
+                    "type": "Token"
                 },
                 {
                     "name": "namespacePrefix",
-                    "type": "IdentifierToken",
-                    "isOptional": true
+                    "type": "IdentifierToken"
                 },
                 {
                     "name": "semicolonToken",
@@ -1891,8 +1883,7 @@
                 },
                 {
                     "name": "keySpecifier",
-                    "type": "KeySpecifierNode",
-                    "isOptional": true
+                    "type": "KeySpecifierNode"
                 },
                 {
                     "name": "openBracket",
@@ -2099,8 +2090,7 @@
             "attributes": [
                 {
                     "name": "type",
-                    "type": "Token",
-                    "isOptional": true
+                    "type": "Token"
                 },
                 {
                     "name": "startBacktick",
@@ -3397,13 +3387,11 @@
                 },
                 {
                     "name": "equalToken",
-                    "type": "Token",
-                    "isOptional": true
+                    "type": "Token"
                 },
                 {
                     "name": "constExprNode",
-                    "type": "ExpressionNode",
-                    "isOptional": true
+                    "type": "ExpressionNode"
                 }
             ]
         },

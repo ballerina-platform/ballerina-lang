@@ -579,7 +579,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLFunction;
     }
 
-    @Override
     public BLangNode transform(ConstantDeclarationNode constantDeclarationNode) {
         BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
         DiagnosticPos pos = getPositionWithoutMetadata(constantDeclarationNode);
@@ -587,8 +586,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         constantNode.name = createIdentifier(identifierPos, constantDeclarationNode.variableName());
         constantNode.expr = createExpression(constantDeclarationNode.initializer());
         constantNode.pos = pos;
-        if (constantDeclarationNode.typeDescriptor().isPresent()) {
-            constantNode.typeNode = createTypeNode(constantDeclarationNode.typeDescriptor().orElse(null));
+        if (constantDeclarationNode.typeDescriptor() != null) {
+            constantNode.typeNode = createTypeNode(constantDeclarationNode.typeDescriptor());
         }
 
         constantNode.annAttachments = applyAll(getAnnotations(constantDeclarationNode.metadata()));
@@ -596,8 +595,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 createMarkdownDocumentationAttachment(getDocumentationString(constantDeclarationNode.metadata()));
 
         constantNode.flagSet.add(Flag.CONSTANT);
-        if (constantDeclarationNode.visibilityQualifier().isPresent() &&
-                constantDeclarationNode.visibilityQualifier().orElse(null).kind() == SyntaxKind.PUBLIC_KEYWORD) {
+        if (constantDeclarationNode.visibilityQualifier() != null &&
+                constantDeclarationNode.visibilityQualifier().kind() == SyntaxKind.PUBLIC_KEYWORD) {
             constantNode.flagSet.add(Flag.PUBLIC);
         }
 
@@ -902,7 +901,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectFieldNode objFieldNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(objFieldNode.fieldName(), objFieldNode.typeName(),
-                                                        objFieldNode.expression().orElse(null),
+                                                        objFieldNode.expression(),
                                                         false, false, objFieldNode.visibilityQualifier().orElse(null),
                                                         getAnnotations(objFieldNode.metadata()));
         // Transform documentation
@@ -1644,7 +1643,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLiteralNode.fields.add(bLRecordKeyValueField);
             } else {
                 SpecificFieldNode specificField = (SpecificFieldNode) field;
-                io.ballerinalang.compiler.syntax.tree.ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
+                io.ballerinalang.compiler.syntax.tree.ExpressionNode valueExpr = specificField.valueExpr();
                 if (valueExpr == null) {
                     BLangRecordLiteral.BLangRecordVarNameField fieldVar =
                             (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
@@ -1981,9 +1980,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node node : tableConstructorExpressionNode.mappingConstructors()) {
             tableConstructorExpr.addRecordLiteral((BLangRecordLiteral) node.apply(this));
         }
-        if (tableConstructorExpressionNode.keySpecifier().isPresent()) {
+        if (tableConstructorExpressionNode.keySpecifier() != null) {
             tableConstructorExpr.tableKeySpecifier =
-                    (BLangTableKeySpecifier) tableConstructorExpressionNode.keySpecifier().orElse(null).apply(this);
+                    (BLangTableKeySpecifier) tableConstructorExpressionNode.keySpecifier().apply(this);
         }
         return tableConstructorExpr;
     }
@@ -2936,7 +2935,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(XMLNamespaceDeclarationNode xmlnsDeclNode) {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
-        BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix().orElse(null));
+        BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
         BLangExpression namespaceUri = createExpression(xmlnsDeclNode.namespaceuri());
         xmlns.namespaceURI = namespaceUri;
@@ -3107,9 +3106,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangLiteral literal;
         BLangLiteral deepLiteral;
-        if (member.constExprNode().isPresent()) {
-            literal = createSimpleLiteral(member.constExprNode().orElse(null));
-            deepLiteral = createSimpleLiteral(member.constExprNode().orElse(null));
+        if (member.constExprNode() != null) {
+            literal = createSimpleLiteral(member.constExprNode());
+            deepLiteral = createSimpleLiteral(member.constExprNode());
         } else {
             literal = createSimpleLiteral(member.identifier());
             deepLiteral = createSimpleLiteral(member.identifier());
@@ -3117,7 +3116,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (literal.originalValue != "" || member.identifier().isMissing()) {
             bLangConstant.setInitialExpression(literal);
         } else {
-            bLangConstant.setInitialExpression(createExpression(member.constExprNode().orElse(null)));
+            bLangConstant.setInitialExpression(createExpression(member.constExprNode()));
         }
 
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
