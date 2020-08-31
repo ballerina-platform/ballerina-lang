@@ -6,8 +6,8 @@ public function actions() returns error? {
     //   start-action
     //   | wait-action
     //   | send-action
-    //   | receive-action*
-    //   | flush-action*
+    //   | receive-action[!]
+    //   | flush-action[!]
     //   | remote-method-call-action
     //   | query-action
     //   | type-cast-action
@@ -19,7 +19,7 @@ public function actions() returns error? {
     // checking-action := checking-keyword action
     // trap-action := trap action
     //
-    // NOTE: *Not related to signatureHelp
+    // NOTE: [!] Not related to signatureHelp
 
     // -- action, start-action
     future<int> r1 = start foo(2, true);
