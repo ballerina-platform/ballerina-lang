@@ -1,0 +1,73 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.ballerinalang.test.isolation;
+
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
+
+/**
+ * Test cases related to isolation analysis.
+ *
+ * @since Swan Lake
+ */
+public class IsolationAnalysisTest {
+
+    private static final String INVALID_MUTABLE_STORAGE_ACCESS_ERROR =
+            "invalid access of mutable storage in an 'isolated' function";
+    private static final String INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR =
+            "invalid invocation of a non-isolated function in an 'isolated' function";
+
+    @Test
+    public void testIsolatedFunctions() {
+        CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis.bal");
+        BRunUtil.invoke(result, "testIsolatedFunctionWithOnlyLocalVars");
+        BRunUtil.invoke(result, "testIsolatedFunctionWithLocalVarsAndParams");
+        BRunUtil.invoke(result, "testIsolatedFunctionAccessingImmutableGlobalStorage");
+    }
+
+    @Test
+    public void testInvalidIsolatedFunctions() {
+        CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis_negative.bal");
+
+        int i = 0;
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 30, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 31, 19);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 33, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 34, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 34, 19);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 36, 12);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 36, 14);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 40, 5);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 41, 5);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 47, 5);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 48, 5);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 50, 5);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 50, 7);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 55, 13);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 68, 13);
+        validateError(result, i++, "invalid worker declaration in an 'isolated' function", 74, 5);
+        validateError(result, i++, "invalid async invocation in an 'isolated' function", 80, 28);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 94, 13);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+}
