@@ -24,10 +24,10 @@
               "kind": "POSITIONAL_ARG",
               "children": [
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "value": "1"
                     }
                   ]
@@ -56,10 +56,10 @@
           "kind": "OPEN_PAREN_TOKEN"
         },
         {
-          "kind": "DECIMAL_INTEGER_LITERAL",
+          "kind": "NUMERIC_LITERAL",
           "children": [
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
               "value": "2"
             }
           ]

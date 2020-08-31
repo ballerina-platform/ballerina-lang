@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter.variable;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Type;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.types.BArray;
 import org.ballerinalang.debugadapter.variable.types.BBoolean;
 import org.ballerinalang.debugadapter.variable.types.BDecimal;
@@ -46,9 +47,9 @@ import org.ballerinalang.debugadapter.variable.types.BXmlItemAttributeMap;
 import org.ballerinalang.debugadapter.variable.types.BXmlPi;
 import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
 import org.ballerinalang.debugadapter.variable.types.BXmlText;
-import org.eclipse.lsp4j.debug.Variable;
 
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.STRAND_VAR_NAME;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isJson;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isObject;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
 
@@ -99,23 +100,24 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  */
 public class VariableFactory {
 
+    public static BVariable getVariable(SuspendedContext context, Value value) {
+        return getVariable(context, "unknown", value);
+    }
+
     /**
      * Returns the corresponding BType variable instance for a given java variable.
      *
-     * @param value          jdi value instance of the java variable
-     * @param parentTypeName variable type of the java parent variable
-     * @param varName        variable name
+     * @param context suspended context
+     * @param varName variable name
+     * @param value   jdi value instance of the java variable
      * @return Ballerina type variable instance which corresponds to the given java variable
      */
-    public static BVariable getVariable(VariableContext context, Value value, String parentTypeName, String varName) {
+    public static BVariable getVariable(SuspendedContext context, String varName, Value value) {
 
-        if (varName == null || varName.isEmpty() || varName.startsWith("$")) {
+        if (varName == null || varName.isEmpty() || varName.startsWith("$") || varName.equals(STRAND_VAR_NAME)) {
             return null;
-        }
-        Variable dapVariable = new Variable();
-        dapVariable.setName(varName);
-        if (value == null) {
-            return new BNil(context, null, dapVariable);
+        } else if (value == null) {
+            return new BNil(context, varName, null);
         }
 
         Type valueType = value.type();
@@ -124,70 +126,65 @@ public class VariableFactory {
                 || valueTypeName.equals(JVMValueType.J_INT.getString())
                 || valueTypeName.equals(JVMValueType.LONG.getString())
                 || valueTypeName.equals(JVMValueType.J_LONG.getString())) {
-            return new BInt(context, value, dapVariable);
+            return new BInt(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.BOOLEAN.getString())
                 || valueTypeName.equals(JVMValueType.J_BOOLEAN.getString())) {
-            return new BBoolean(context, value, dapVariable);
+            return new BBoolean(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.DOUBLE.getString())
                 || valueTypeName.equals(JVMValueType.J_DOUBLE.getString())) {
-            return new BFloat(context, value, dapVariable);
+            return new BFloat(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.DECIMAL.getString())) {
-            return new BDecimal(context, value, dapVariable);
+            return new BDecimal(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.BMPSTRING.getString())
                 || valueTypeName.equals(JVMValueType.NONBMPSTRING.getString())
                 || valueTypeName.equals(JVMValueType.J_STRING.getString())) {
-            return new BString(context, value, dapVariable);
+            return new BString(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.ARRAY_VALUE.getString())) {
-            return new BArray(context, value, dapVariable);
+            return new BArray(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.TUPLE_VALUE.getString())) {
-            return new BTuple(context, value, dapVariable);
+            return new BTuple(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.ERROR_VALUE.getString())) {
-            return new BError(context, value, dapVariable);
+            return new BError(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.TYPEDESC_VALUE.getString())) {
-            return new BTypeDesc(context, value, dapVariable);
+            return new BTypeDesc(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.TABLE_VALUE.getString())) {
-            return new BTable(context, value, dapVariable);
+            return new BTable(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.FP_VALUE.getString())) {
-            return new BFunction(context, value, dapVariable);
+            return new BFunction(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.FUTURE_VALUE.getString())) {
-            return new BFuture(context, value, dapVariable);
+            return new BFuture(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.HANDLE_VALUE.getString())) {
-            return new BHandle(context, value, dapVariable);
+            return new BHandle(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.STREAM_VALUE.getString())) {
-            return new BStream(context, value, dapVariable);
+            return new BStream(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_TEXT.getString())) {
-            return new BXmlText(context, value, dapVariable);
+            return new BXmlText(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_COMMENT.getString())) {
-            return new BXmlComment(context, value, dapVariable);
+            return new BXmlComment(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_PI.getString())) {
-            return new BXmlPi(context, value, dapVariable);
+            return new BXmlPi(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_SEQUENCE.getString())) {
-            return new BXmlSequence(context, value, dapVariable);
+            return new BXmlSequence(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_ITEM.getString())) {
-            return new BXmlItem(context, value, dapVariable);
+            return new BXmlItem(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_ATTRIB_MAP.getString())) {
-            return new BXmlItemAttributeMap(context, value, dapVariable);
+            return new BXmlItemAttributeMap(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.ANON_SERVICE.getString())) {
-            return new BService(context, value, dapVariable);
+            return new BService(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
-            // Todo - Remove checks on parentTypeName, after backend is fixed to contain correct BTypes for JSON
-            //  variables.
-            String bType = getBType(value);
-            if (bType.equals(BVariableType.JSON.getString())
-                    || parentTypeName.equals(JVMValueType.J_OBJECT.getString())) {
-                return new BJson(context, value, dapVariable);
-            } else if (bType.equals(BVariableType.MAP.getString())) {
-                return new BMap(context, value, dapVariable);
+            if (isJson(value)) {
+                return new BJson(context, varName, value);
+            } else {
+                return new BMap(context, varName, value);
             }
         } else if (value instanceof ObjectReference) {
             if (isObject(value)) {
-                return new BObject(context, value, dapVariable);
+                return new BObject(context, varName, value);
             } else if (isRecord(value)) {
-                return new BRecord(context, value, dapVariable);
+                return new BRecord(context, varName, value);
             }
         }
         // If the variable doesn't match any of the above types, returns as a variable with type "unknown".
-        dapVariable.setType(valueTypeName);
-        return new BUnknown(context, value, dapVariable);
+        return new BUnknown(context, varName, value);
     }
 }

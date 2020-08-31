@@ -39,8 +39,7 @@ import java.util.stream.Collectors;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class FlushActionNodeContext extends AbstractCompletionProvider<FlushActionNode> {
     public FlushActionNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(FlushActionNode.class);
+        super(FlushActionNode.class);
     }
 
     @Override

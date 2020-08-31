@@ -15,9 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -35,8 +37,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDefinitionNode> {
     public TypeDefinitionNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(TypeDefinitionNode.class);
+        super(TypeDefinitionNode.class);
     }
 
     @Override
@@ -49,10 +50,19 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         // Add the type names
         List<LSCompletionItem> typeItems = this.getTypeItems(context);
         // Add the special snippets
+        typeItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR_TYPE_DESC.get()));
         typeItems.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()));
         typeItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()));
         typeItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
 
         return typeItems;
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, TypeDefinitionNode node) {
+        TextRange typeKWRange = node.typeKeyword().textRange();
+        int cursorPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+
+        return typeKWRange.endOffset() < cursorPosition;
     }
 }

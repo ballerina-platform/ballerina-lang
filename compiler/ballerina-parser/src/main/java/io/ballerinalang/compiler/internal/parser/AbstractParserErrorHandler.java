@@ -137,6 +137,8 @@ public abstract class AbstractParserErrorHandler {
     private void applyFix(ParserRuleContext currentCtx, Solution fix, Object... args) {
         if (fix.action == Action.REMOVE) {
             fix.removedToken = consumeInvalidToken();
+            fix.recoveredNode = this.tokenReader.peek();
+            fix.tokenKind = this.tokenReader.peek().kind;
         } else {
             fix.recoveredNode = handleMissingToken(currentCtx, fix);
         }
@@ -149,7 +151,8 @@ public abstract class AbstractParserErrorHandler {
      * @param fix Solution to recover from the missing token
      */
     private STNode handleMissingToken(ParserRuleContext currentCtx, Solution fix) {
-        return SyntaxErrors.createMissingTokenWithDiagnostics(fix.tokenKind);
+//        return SyntaxErrors.createMissingTokenWithDiagnostics(fix.tokenKind);
+        return SyntaxErrors.createMissingTokenWithDiagnostics(fix.tokenKind, fix.ctx);
     }
 
     /**

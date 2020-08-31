@@ -1,0 +1,37 @@
+{
+    "position": {
+        "line": 3,
+        "character": 15
+    },
+    "expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "mergeJson(json j2)",
+                    "documentation": {
+                        "right": {
+                            "kind": "markdown",
+                            "value": "**Description**  \nMerges two json values."
+                        }
+                    },
+                    "parameters": [
+                        {
+                            "label": {
+                                "left": "json j2"
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`json`j2**: json value"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 0
+        },
+        "jsonrpc": "2.0"
+    }
+}

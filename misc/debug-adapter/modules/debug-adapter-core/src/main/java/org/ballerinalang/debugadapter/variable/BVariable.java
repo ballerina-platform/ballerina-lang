@@ -16,6 +16,8 @@
 
 package org.ballerinalang.debugadapter.variable;
 
+import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
 
 /**
@@ -28,7 +30,28 @@ public interface BVariable {
      *
      * @return context information (i.e. owning stack frame and thread).
      */
-    VariableContext getContext();
+    SuspendedContext getContext();
+
+    /**
+     * Returns variable name.
+     *
+     * @return variable name
+     */
+    String getName();
+
+    /**
+     * Returns the ballerina variable type of the instance.
+     *
+     * @return ballerina variable type
+     */
+    BVariableType getBType();
+
+    /**
+     * Returns variable information in a Debug Adapter Protocol compatible format.
+     *
+     * @return a DAP compatible variable instance of the ballerina variable instance.
+     */
+    Variable getDapVariable();
 
     /**
      * Returns the value of the variable instance in string form. Each variable type implementation can have their
@@ -39,9 +62,9 @@ public interface BVariable {
     String computeValue();
 
     /**
-     * Returns variable information in a Debug Adapter Protocol compatible format.
+     * Returns the corresponding jvm runtime value of this ballerina variable instance, as a JDI value.
      *
-     * @return a DAP compatible variable instance of the ballerina variable instance.
+     * @return the corresponding jvm runtime value of this ballerina variable instance
      */
-    Variable getDapVariable();
+    Value getJvmValue();
 }

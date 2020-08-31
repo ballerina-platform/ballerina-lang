@@ -86,17 +86,16 @@
                       ]
                     },
                     {
-                      "kind": "DEFAULTABLE_PARAM",
+                      "kind": "COMMA_TOKEN",
+                      "isMissing": true,
                       "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_COMMA_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "DEFAULTABLE_PARAM",
                       "children": [
-                        {
-                          "kind": "COMMA_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_COMMA_TOKEN"
-                          ]
-                        },
                         {
                           "kind": "LIST",
                           "children": [
@@ -181,10 +180,10 @@
                           ]
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "4"
                             }
                           ]
@@ -316,17 +315,16 @@
                       ]
                     },
                     {
-                      "kind": "DEFAULTABLE_PARAM",
+                      "kind": "COMMA_TOKEN",
+                      "isMissing": true,
                       "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_COMMA_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "DEFAULTABLE_PARAM",
                       "children": [
-                        {
-                          "kind": "COMMA_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_COMMA_TOKEN"
-                          ]
-                        },
                         {
                           "kind": "LIST",
                           "children": [
@@ -411,10 +409,10 @@
                           ]
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "4"
                             }
                           ]

@@ -17,10 +17,10 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
-import org.ballerinalang.debugadapter.variable.VariableContext;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
 
 /**
@@ -40,8 +39,8 @@ public class BError extends BCompoundVariable {
     private static final String FIELD_CAUSE = "cause";
     private static final String FIELD_DETAILS = "details";
 
-    public BError(VariableContext context, Value value, Variable dapVariable) {
-        super(context, getBType(value), value, dapVariable);
+    public BError(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.ERROR, value);
     }
 
     @Override

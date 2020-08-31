@@ -32,33 +32,6 @@ public class ExpressionContextTest extends CompletionTestNew {
     }
 
     @Override
-    public Object[][] testSubset() {
-         // Enable the following in order to test a subset of test cases
-          return new Object[][] {
-                  {"list_constructor_ctx_config1.json", this.getTestResourceDir()},
-                  {"list_constructor_ctx_config2.json", this.getTestResourceDir()},
-                  {"list_constructor_ctx_config3.json", this.getTestResourceDir()},
-                  {"var_ref_ctx_config1.json", this.getTestResourceDir()},
-                  {"var_ref_ctx_config2.json", this.getTestResourceDir()},
-                  {"var_ref_ctx_config3.json", this.getTestResourceDir()},
-                  {"var_ref_ctx_config4.json", this.getTestResourceDir()},
-                  {"field_access_ctx_config1.json", this.getTestResourceDir()},
-                  {"field_access_ctx_config2.json", this.getTestResourceDir()},
-                  {"field_access_ctx_config3.json", this.getTestResourceDir()},
-                  {"optional_field_access_ctx_config1.json", this.getTestResourceDir()},
-                  {"optional_field_access_ctx_config2.json", this.getTestResourceDir()},
-                  {"optional_field_access_ctx_config3.json", this.getTestResourceDir()},
-                  {"typeof_expression_ctx_config1.json", this.getTestResourceDir()},
-                  {"typeof_expression_ctx_config2.json", this.getTestResourceDir()},
-                  {"type_test_expression_ctx_config1.json", this.getTestResourceDir()},
-                  {"type_test_expression_ctx_config2.json", this.getTestResourceDir()},
-                  {"type_test_expression_ctx_config3.json", this.getTestResourceDir()},
-                  {"type_test_expression_ctx_config4.json", this.getTestResourceDir()},
-          };
-//        return new Object[0][];
-    }
-
-    @Override
     public String getTestResourceDir() {
         return "expression_context";
     }

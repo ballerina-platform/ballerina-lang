@@ -77,4 +77,16 @@ public class PassthroughServiceSampleTestCase extends HttpBaseTest {
         assertTrue(response.getData().contains("Part1"));
         assertTrue(response.getData().contains("Part2"));
     }
+
+    @Test(description = "Test Passthrough with mime entity contents")
+    public void testPassthroughServiceWithMimeEntity() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "text/plain");
+        HttpResponse response = HttpClientRequest.doPost(
+                serverInstance.getServiceURLHttp(9113, "passthrough/forward"), "Hello from POST!", headers);
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
+                     TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        assertEquals(response.getData(), "payload :Hello from POST!, header: text/plain, entity-check-header");
+    }
 }

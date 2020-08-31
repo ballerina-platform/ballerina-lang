@@ -18,7 +18,16 @@
 
 package org.ballerinalang.stdlib.entity;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.stdlib.utils.HTTPTestRequest;
+import org.ballerinalang.stdlib.utils.MessageUtils;
+import org.ballerinalang.stdlib.utils.ResponseReader;
+import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -27,6 +36,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 
 /**
  * Test mime with http.
@@ -84,11 +96,63 @@ public class MimeWithHttpTest {
         Assert.assertEquals(returns[0].stringValue(), "123Basicxxxxxx");
     }
 
+    @Test()
+    public void testPayloadInEntityOfRequest() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPayloadInEntityOfRequest", args);
+        Assert.assertEquals(returns.length, 1, "One value should be returned from this test");
+        Assert.assertEquals(JsonParser.parse(returns[0].stringValue()).stringValue(), "{\"payload" +
+                "\":\"PayloadInEntityOfRequest\"}");
+    }
+
+    @Test()
+    public void testPayloadInRequest() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPayloadInRequest", args);
+        Assert.assertEquals(returns.length, 1, "One value should be returned from this test");
+        Assert.assertEquals(JsonParser.parse(returns[0].stringValue()).stringValue(), "{\"payload" +
+                "\":\"PayloadInTheRequest\"}");
+    }
+
     @Test(description = "Set header to entity and access it via Response")
     public void testHeaderWithResponse() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "testHeaderWithRequest", args);
         Assert.assertEquals(returns.length, 1, "One value should be returned from this test");
         Assert.assertEquals(returns[0].stringValue(), "123Basicxxxxxx");
+    }
+
+    @Test()
+    public void testPayloadInEntityOfResponse() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPayloadInEntityOfResponse", args);
+        Assert.assertEquals(returns.length, 1, "One value should be returned from this test");
+        Assert.assertEquals(JsonParser.parse(returns[0].stringValue()).stringValue(), "{\"payload" +
+                "\":\"PayloadInEntityOfResponse\"}");
+    }
+
+    @Test()
+    public void testPayloadInResponse() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPayloadInResponse", args);
+        Assert.assertEquals(returns.length, 1, "One value should be returned from this test");
+        Assert.assertEquals(JsonParser.parse(returns[0].stringValue()).stringValue(), "{\"payload" +
+                "\":\"PayloadInTheResponse\"}");
+    }
+
+    @Test(description = "Access entity to read payload and send back")
+    public void testAccessingPayloadFromEntity() {
+        String key = "lang";
+        String value = "ballerina";
+        String path = "/test/getPayloadFromEntity";
+        String jsonString = "{\"" + key + "\":\"" + value + "\"}";
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
+        HTTPTestRequest inRequestMsg =
+                MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers, jsonString);
+        HttpCarbonMessage response = Services.invoke(9090, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        String expected = "{\"payload\":{\"lang\":\"ballerina\"}, \"header\":\"application/json\"}";
+        Assert.assertEquals(JsonParser.parse(ResponseReader.getReturnValue(response)).stringValue(), expected);
     }
 }

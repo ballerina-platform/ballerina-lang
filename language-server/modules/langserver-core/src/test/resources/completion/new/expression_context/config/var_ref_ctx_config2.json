@@ -6,6 +6,14 @@
   "source": "expression_context/source/var_ref_ctx_source2.bal",
   "items": [
     {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "180",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Client",
       "kind": "Interface",
       "detail": "Object",
@@ -71,6 +79,30 @@
       "detail": "Record",
       "sortText": "180",
       "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "Unit",
+      "detail": "Map",
+      "sortText": "230",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "Unit",
+      "detail": "Map",
+      "sortText": "230",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "190",
+      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
     {
