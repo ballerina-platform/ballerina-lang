@@ -72,13 +72,13 @@ public class ProjectUtils {
      * @return project root
      */
     public static Path findProjectRoot(Path filePath) {
-        Path path = filePath.resolve(ProjectConstants.BALLERINA_TOML);
-        if (Files.exists(path)) {
-            return filePath;
-        }
-        Path parent = filePath.getParent();
-        if (null != parent) {
-            return findProjectRoot(parent);
+        if (filePath != null) {
+            if (filePath.toFile().isDirectory()) {
+                if (Files.exists(filePath.resolve(ProjectConstants.BALLERINA_TOML))) {
+                    return filePath;
+                }
+            }
+            return findProjectRoot(filePath.getParent());
         }
         return null;
     }
@@ -93,8 +93,7 @@ public class ProjectUtils {
         Path ballerinaToml = sourceRoot.resolve(ProjectConstants.BALLERINA_TOML);
         return Files.isDirectory(sourceRoot)
                 && Files.exists(ballerinaToml)
-                && Files.isRegularFile(ballerinaToml)
-                && (findProjectRoot(sourceRoot) != null);
+                && Files.isRegularFile(ballerinaToml);
     }
 
     /**
@@ -147,7 +146,7 @@ public class ProjectUtils {
      */
     public static String guessPkgName (String packageName) {
         if (!validatePkgName(packageName)) {
-            return packageName.replaceAll("-", "_");
+            return packageName.replaceAll("[^a-z0-9_]", "_");
         }
         return packageName;
     }

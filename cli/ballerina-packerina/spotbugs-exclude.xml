@@ -30,16 +30,8 @@
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.packerina.cmd.CommandUtil"/>
-        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
-    </Match>
-    <Match>
         <Class name="org.ballerinalang.packerina.task.RunExecutableTask"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
-    </Match>
-    <!-- todo: to be removed-->
-    <Match>
-        <Class name="org.ballerinalang.packerina.cmd.AddCommand"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.packerina.task.RunTestsTask"/>

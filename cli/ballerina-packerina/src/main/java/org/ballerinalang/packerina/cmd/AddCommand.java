@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -361,7 +361,7 @@ public class AddCommand implements BLauncherCmd {
         try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
             // We do a string comparison to be efficient.
-            String content = new String(Files.readAllBytes(metaDataToml), Charset.forName("UTF-8"));
+            String content = new String(Files.readAllBytes(metaDataToml), StandardCharsets.UTF_8);
             Toml toml = new Toml().read(content);
             return toml.to(Module.class);
         } catch (IOException e) {
@@ -374,7 +374,7 @@ public class AddCommand implements BLauncherCmd {
         try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
             // We do a string comparison to be efficient.
-            return new String(Files.readAllBytes(metaDataToml), Charset.forName("UTF-8"))
+            return new String(Files.readAllBytes(metaDataToml), StandardCharsets.UTF_8)
                     .contains("template = \"true\"");
         } catch (IOException e) {
             // we simply ignore the balo file

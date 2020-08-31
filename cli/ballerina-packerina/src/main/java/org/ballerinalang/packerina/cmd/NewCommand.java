@@ -95,6 +95,15 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
+        // If the current directory is a ballerina project ignore.
+        if (ProjectUtils.isBallerinaProject(this.userDir)) {
+            CommandUtil.printError(errStream,
+                    "Directory is already a ballerina project",
+                    null,
+                    false);
+            return;
+        }
+
         String packageName = argList.get(0);
         Path path = userDir.resolve(packageName);
         // Check if the directory or file exists with the given project name
@@ -110,7 +119,8 @@ public class NewCommand implements BLauncherCmd {
         Path projectRoot = ProjectUtils.findProjectRoot(path);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
-            "Directory is already within a Ballerina project :" + projectRoot.toString(),
+            "Directory is already within a Ballerina project :" +
+                    projectRoot.resolve(ProjectConstants.BALLERINA_TOML).toString(),
                     null,
                     false);
             return;

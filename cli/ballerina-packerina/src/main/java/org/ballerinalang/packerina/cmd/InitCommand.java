@@ -81,8 +81,6 @@ public class InitCommand implements BLauncherCmd {
             return;
         }
 
-
-
         // Check if one argument is given and not more than one argument.
         if (argList != null && !(1 == argList.size())) {
                 CommandUtil.printError(errStream,
@@ -98,7 +96,8 @@ public class InitCommand implements BLauncherCmd {
         Path projectRoot = ProjectUtils.findProjectRoot(this.userDir);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
-                    "Directory is already within a ballerina project :" + projectRoot.toString(),
+                    "Directory is already within a ballerina project :" +
+                            projectRoot.resolve(ProjectConstants.BALLERINA_TOML).toString(),
                     null,
                     false);
             return;
