@@ -38,41 +38,44 @@ function testMaxFunctionInInt(int n, int... ns) returns int {
     return 'int:max(n, ...ns);
 }
 
-function testFromString(string s, boolean|error expected) {
-    assert(expected, 'boolean:fromString(s));
-}
-
 string str = "Hello Ballerina!";
 
-function testSubString() returns [string,string, string] {
-    return [str.substring(6, 9), str.substring(6), 'string:substring(str,6)];
+function testSubString() returns string {
+    return 'string:substring(str,6);
 }
 
 function testStartsWithFunctionInString() returns boolean {
     return 'string:startsWith(str, "Hello");
 }
 
-function testPredeclaredModules() returns [decimal, float, float, int, int, boolean]{
-    return [testSumFunctionInDecimal(10.5, 11.5), testSumFunctionInFloat(), testFloatConsts(), 
-    testSumFunctionInInt(), testMaxFunctionInInt(10, 15), testStartsWithFunctionInString()];
+function testPredeclaredModules() {
+    decimal d1 = 22.0;
+    decimal d2 = 5.7;
+    float f1 = 70.35;
+    string s1 = "true";
+    string s2 = "Ballerina!";
+    assertEquality(d1, testSumFunctionInDecimal(10.5, 11.5));
+    assertEquality(d2, testOneArgMaxFunctionInDecimal(5.7));
+    assertEquality(f1, testSumFunctionInFloat());
+    assertEquality(true, testFloatConsts().isNaN());
+    assertEquality(110, testSumFunctionInInt());
+    assertEquality(15, testMaxFunctionInInt(10,15));
+    assertEquality(true, 'boolean:fromString(s1));
+    assertEquality(s2, testSubString());
+    assertEquality(true, testStartsWithFunctionInString());
 }
 
-function assert(boolean|error expected, boolean|error actual) {
-    if (expected is boolean && actual is boolean) {
-        if (expected != actual) {
-            string reason = "expected [" + expected.toString() + "] , but found [" + actual.toString() + "]";
-            error e = error(reason);
-            panic e;
-        }
+const ASSERTION_ERROR_REASON = "AssertionError";
 
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
         return;
     }
-    if (expected != actual) {
-        typedesc<anydata|error> expT = typeof expected;
-        typedesc<anydata|error> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        error e = error(reason);
-        panic e;
+
+    if expected === actual {
+        return;
     }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

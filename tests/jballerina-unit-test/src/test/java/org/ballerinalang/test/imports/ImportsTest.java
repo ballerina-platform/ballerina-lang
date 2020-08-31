@@ -18,18 +18,12 @@
 
 package org.ballerinalang.test.imports;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.math.BigDecimal;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
@@ -73,24 +67,12 @@ public class ImportsTest {
     @Test(description = "Test auto imports")
     public void testPredeclaredModules() {
         CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports", "bar");
-        BValue[] returns = BRunUtil.invoke(result, "testPredeclaredModules");
-        Assert.assertEquals(((BDecimal) returns[0]).decimalValue(), BigDecimal.valueOf(22.0));
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 70.35);
-        Assert.assertEquals((returns[2]).stringValue(), "NaN");
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 110);
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), 15);
-        Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
+        BRunUtil.invoke(result, "testPredeclaredModules");
     }
 
     @Test(description = "Test overridden predeclared modules")
     public void testOverriddenPredeclaredModules() {
         CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports", "foo");
-        BValue[] returns = BRunUtil.invoke(result, "testOverriddenPredeclaredModules");
-        Assert.assertEquals(((BDecimal) returns[0]).decimalValue(), BigDecimal.valueOf(22.0));
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 70.35);
-        Assert.assertEquals((returns[2]).stringValue(), "NaN");
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 110);
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), 15);
-        Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
+        BRunUtil.invoke(result, "testOverriddenPredeclaredModules");
     }
 }
