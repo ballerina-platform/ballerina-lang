@@ -761,7 +761,7 @@ public class ASTBuilderUtil {
     public static BLangSimpleVariable createReceiver(DiagnosticPos pos, BType type) {
         BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         receiver.pos = pos;
-        IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
+        IdentifierNode identifier = createIdentifier(pos, Names.SELF.getValue());
         receiver.setName(identifier);
         receiver.type = type;
         return receiver;
