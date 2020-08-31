@@ -182,7 +182,7 @@ public class JvmConstants {
     public static final String HANDLE_STOP_PANIC_METHOD = "handleRuntimeErrors";
 
     // code generation related constants.
-    public static final String MODULE_INIT_CLASS_NAME = "___init";
+    public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String CONSTRUCTOR_INIT_METHOD = "<init>";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";

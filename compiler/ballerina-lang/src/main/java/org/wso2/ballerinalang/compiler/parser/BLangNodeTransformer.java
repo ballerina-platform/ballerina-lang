@@ -1489,7 +1489,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         String workerName = namedWorkerDeclNode.workerName().text();
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.originalValue = workerName;
-            workerName = unescapeIdentifier(workerName);
+            workerName = unescapeUnicodeCodepoints(workerName.substring(1));
         }
         bLFunction.defaultWorkerName.value = workerName;
         bLFunction.defaultWorkerName.pos = getPosition(namedWorkerDeclNode.workerName());
@@ -1581,8 +1581,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return lamdaWrkr;
     }
 
-    private String unescapeIdentifier(String identifier) {
-        return StringEscapeUtils.unescapeJava(identifier.replaceAll("(\\\\u)\\{(\\d{4})\\}", "$1$2")).substring(1);
+    private String unescapeUnicodeCodepoints(String identifier) {
+        Matcher matcher = Pattern.compile("\\\\u\\{(\\p{XDigit}{4})\\}").matcher(identifier);
+        StringBuffer buffer = new StringBuffer(identifier.length());
+        while (matcher.find()) {
+            String ch = String.valueOf((char) Integer.parseInt(matcher.group(1), 16));
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(ch));
+        }
+        matcher.appendTail(buffer);
+        return String.valueOf(buffer);
     }
 
     private <A extends BLangNode, B extends Node> List<A> applyAll(NodeList<B> annotations) {
@@ -4338,7 +4345,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            bLIdentifer.setValue(unescapeIdentifier(value));
+            bLIdentifer.setValue(unescapeUnicodeCodepoints(value.substring(1)));
             bLIdentifer.originalValue = value;
             bLIdentifer.setLiteral(true);
         } else {

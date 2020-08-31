@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.IdentifierEncoder;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -131,18 +132,22 @@ public class JvmCodeGenUtil {
     }
 
     /**
-     * Cleanup type name by replacing '$' with '_'.
+     * Cleanup type name by replacing '/ ' with '_' for readonly types.
      *
      * @param name name to be replaced and cleaned
      * @return cleaned name
      */
-    static String cleanupTypeName(String name) {
-        return name.replaceAll("[/$ .]", "_");
+    static String cleanupReadOnlyTypeName(String name) {
+        return name.contains("readonly") ? name.replaceAll("[/ .]", "_") : name;
     }
 
     static String cleanupPathSeparators(String name) {
         name = cleanupBalExt(name);
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
+    }
+
+    static String rewriteInsName(String value) {
+        return value.contains("\\") ? IdentifierEncoder.encodeIdentifier(value) : value;
     }
 
     private static String cleanupBalExt(String name) {
@@ -257,7 +262,8 @@ public class JvmCodeGenUtil {
     }
 
     public static String cleanupFunctionName(String functionName) {
-        return functionName.replaceAll("[\\.:/<>]", "_");
+        return functionName.matches("(.*)[\\.:/<>](.*)") ? "$" + functionName.replaceAll("[\\.:/<>]", "_") :
+                functionName;
     }
 
     static boolean isExternFunc(BIRNode.BIRFunction func) {

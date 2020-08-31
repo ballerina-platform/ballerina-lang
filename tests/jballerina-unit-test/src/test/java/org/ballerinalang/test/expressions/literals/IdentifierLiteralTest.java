@@ -207,7 +207,7 @@ public class IdentifierLiteralTest {
         CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/literals/identifierliteral" +
                 "/identifier-literal-undefined-variable-negative.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNeg, 0, "undefined symbol 'global v \" ar'", 5, 12);
+        BAssertUtil.validateError(resultNeg, 0, "undefined symbol 'global\\ v\\ \\\"\\ ar'", 5, 12);
     }
 
     @Test(description = "Test wrong character in identifier literal")
@@ -220,7 +220,7 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, 2, "missing double quote", 3, 32);
         BAssertUtil.validateError(resultNeg, 3, "missing equal token", 3, 32);
         BAssertUtil.validateError(resultNeg, 4, "missing semicolon token", 4, 1);
-        BAssertUtil.validateError(resultNeg, 5, "undefined symbol 'global v ar'", 4, 12);
+        BAssertUtil.validateError(resultNeg, 5, "undefined symbol 'global\\ v\\ ar'", 4, 12);
     }
 
     @Test

@@ -426,6 +426,8 @@ public class JvmTerminatorGen {
         String orgName = calleePkgId.orgName.value;
         String moduleName = calleePkgId.name.value;
         String version = calleePkgId.version.value;
+        callIns.name.value = JvmCodeGenUtil.rewriteInsName(callIns.name.value);
+
         // invoke the function
         this.genCall(callIns, orgName, moduleName, version, localVarOffset);
 
@@ -1234,7 +1236,7 @@ public class JvmTerminatorGen {
     }
 
     static String getStrandMetadataVarName(String typeName, String parentFunction) {
-        return STRAND_METADATA_VAR_PREFIX + JvmCodeGenUtil.cleanupTypeName(typeName) + "$" + parentFunction + "$";
+        return STRAND_METADATA_VAR_PREFIX + JvmCodeGenUtil.cleanupReadOnlyTypeName(typeName) + "$" + parentFunction + "$";
     }
 
     private void loadFpReturnType(BIROperand lhsOp) {
