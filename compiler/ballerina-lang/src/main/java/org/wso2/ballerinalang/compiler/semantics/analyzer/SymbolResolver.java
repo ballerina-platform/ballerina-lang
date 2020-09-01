@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -115,11 +116,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.lang.String.format;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
+
+import static java.lang.String.format;
+
 
 /**
  * @since 0.94
@@ -905,17 +907,61 @@ public class SymbolResolver extends BLangNodeVisitor {
             BArrayType arrType;
             if (arrayTypeNode.sizes.length == 0) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
+                arrayTypeSymbol.type = arrType;
+                markParameterizedType(arrType, arrType.eType);
+                resultType = arrayTypeSymbol.type;
             } else {
-                int size = arrayTypeNode.sizes[i];
-                arrType = (size == UNSEALED_ARRAY_INDICATOR) ?
-                        new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
-                        (size == OPEN_SEALED_ARRAY_INDICATOR) ?
-                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
-                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
-            }
-            resultType = arrayTypeSymbol.type = arrType;
+                BLangExpression size = arrayTypeNode.sizes[i];
+                if (size instanceof BLangLiteral) {
+                    arrType = ((Integer) (((BLangLiteral) size).getValue()) == UNSEALED_ARRAY_INDICATOR) ?
+                            new BArrayType(resultType, arrayTypeSymbol,
+                                    (Integer) (((BLangLiteral) size).getValue()),
+                                    BArrayState.UNSEALED) :
+                            ((Integer) (((BLangLiteral) size).getValue()) == OPEN_SEALED_ARRAY_INDICATOR) ?
+                                    new BArrayType(resultType, arrayTypeSymbol,
+                                            (Integer) (((BLangLiteral) size).getValue()),
+                                            BArrayState.OPEN_SEALED) :
+                                    new BArrayType(resultType, arrayTypeSymbol,
+                                            (Integer) (((BLangLiteral) size).getValue()),
+                                            BArrayState.CLOSED_SEALED);
+                    arrayTypeSymbol.type = arrType;
+                    markParameterizedType(arrType, arrType.eType);
+                    resultType = arrayTypeSymbol.type;
 
-            markParameterizedType(arrType, arrType.eType);
+                } else {
+                    Name pkgAlias = names.fromIdNode(((BLangSimpleVarRef) size).pkgAlias);
+                    Name typeName = names.fromIdNode(((BLangSimpleVarRef) size).variableName);
+
+                    BSymbol sizeSymbol = lookupMainSpaceSymbolInPackage(size.pos, env, pkgAlias, typeName);
+
+                    if (!(symTable.notFoundSymbol.equals(sizeSymbol))) {
+                        if (sizeSymbol.tag == SymTag.CONSTANT) {
+                            BType lengthLiteralType = ((BConstantSymbol) sizeSymbol).literalType;
+                            if (lengthLiteralType.tag == TypeTags.INT) {
+                                long length = (long) ((BConstantSymbol) sizeSymbol).value.value;
+                                arrType = new BArrayType(resultType, arrayTypeSymbol,
+                                        (int) length,
+                                        BArrayState.CLOSED_SEALED);
+                                arrayTypeSymbol.type = arrType;
+                                markParameterizedType(arrType, arrType.eType);
+                                resultType = arrayTypeSymbol.type;
+
+                            } else {
+                                dlog.error(arrayTypeNode.pos,
+                                        DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE_TYPE,
+                                        ((BConstantSymbol) sizeSymbol).literalType);
+                                resultType = symTable.semanticError;
+                            }
+                        } else {
+                            dlog.error(arrayTypeNode.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE, sizeSymbol);
+                            resultType = symTable.semanticError;
+                        }
+                    } else {
+                        dlog.error(arrayTypeNode.pos, DiagnosticCode.ARRAY_SIZE_REFERENCE_NOT_DEFINED, size);
+                        resultType = symTable.semanticError;
+                    }
+                }
+            }
         }
     }
 
