@@ -881,10 +881,10 @@ public class FormattingTreeModifier extends TreeModifier {
         Token variableName = getToken(constantDeclarationNode.variableName());
         Token equalsToken = getToken(constantDeclarationNode.equalsToken());
         Token semicolonToken = getToken(constantDeclarationNode.semicolonToken());
-        Token visibilityQualifier = getToken(constantDeclarationNode.visibilityQualifier());
+        Token visibilityQualifier = getToken(constantDeclarationNode.visibilityQualifier().orElse(null));
         Node initializer = this.modifyNode(constantDeclarationNode.initializer());
         MetadataNode metadata = this.modifyNode(constantDeclarationNode.metadata().orElse(null));
-        TypeDescriptorNode typeDescriptorNode = this.modifyNode(constantDeclarationNode.typeDescriptor());
+        TypeDescriptorNode typeDescriptorNode = this.modifyNode(constantDeclarationNode.typeDescriptor().orElse(null));
         if (metadata != null) {
             constantDeclarationNode = constantDeclarationNode.modify()
                     .withMetadata(metadata).apply();
@@ -998,8 +998,8 @@ public class FormattingTreeModifier extends TreeModifier {
         int startColumn = getStartColumn(specificFieldNode, specificFieldNode.kind(), true);
         Token fieldName = getToken((Token) specificFieldNode.fieldName());
         Token readOnlyKeyword = specificFieldNode.readonlyKeyword().orElse(null);
-        Token colon = getToken(specificFieldNode.colon());
-        ExpressionNode expressionNode = this.modifyNode(specificFieldNode.valueExpr());
+        Token colon = getToken(specificFieldNode.colon().orElse(null));
+        ExpressionNode expressionNode = this.modifyNode(specificFieldNode.valueExpr().orElse(null));
         if (readOnlyKeyword != null) {
             specificFieldNode = specificFieldNode.modify()
                     .withReadonlyKeyword(formatToken(readOnlyKeyword, 0, 0, 0, 0)).apply();
@@ -1188,8 +1188,8 @@ public class FormattingTreeModifier extends TreeModifier {
     public XMLNamespaceDeclarationNode transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
         Token xmlnsKeyword = getToken(xMLNamespaceDeclarationNode.xmlnsKeyword());
         ExpressionNode namespaceuri = this.modifyNode(xMLNamespaceDeclarationNode.namespaceuri());
-        Token asKeyword = getToken(xMLNamespaceDeclarationNode.asKeyword());
-        IdentifierToken namespacePrefix = this.modifyNode(xMLNamespaceDeclarationNode.namespacePrefix());
+        Token asKeyword = getToken(xMLNamespaceDeclarationNode.asKeyword().orElse(null));
+        IdentifierToken namespacePrefix = this.modifyNode(xMLNamespaceDeclarationNode.namespacePrefix().orElse(null));
         Token semicolonToken = getToken(xMLNamespaceDeclarationNode.semicolonToken());
         return xMLNamespaceDeclarationNode.modify()
                 .withNamespacePrefix(namespacePrefix)
@@ -1411,7 +1411,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public TemplateExpressionNode transform(TemplateExpressionNode templateExpressionNode) {
-        Token type = getToken(templateExpressionNode.type());
+        Token type = getToken(templateExpressionNode.type().orElse(null));
         Token startBacktick = getToken(templateExpressionNode.startBacktick());
         NodeList<TemplateMemberNode> content = modifyNodeList(templateExpressionNode.content());
         Token endBacktick = getToken(templateExpressionNode.endBacktick());
@@ -1957,8 +1957,8 @@ public class FormattingTreeModifier extends TreeModifier {
         Token readonlyKeyword = getToken(objectFieldNode.readonlyKeyword().orElse(null));
         Node typeName = this.modifyNode(objectFieldNode.typeName());
         Token fieldName = getToken(objectFieldNode.fieldName());
-        Token equalsToken = getToken(objectFieldNode.equalsToken());
-        ExpressionNode expression = this.modifyNode(objectFieldNode.expression());
+        Token equalsToken = getToken(objectFieldNode.equalsToken().orElse(null));
+        ExpressionNode expression = this.modifyNode(objectFieldNode.expression().orElse(null));
         Token semicolonToken = getToken(objectFieldNode.semicolonToken());
         if (metadata != null) {
             objectFieldNode = objectFieldNode.modify()
@@ -2182,7 +2182,7 @@ public class FormattingTreeModifier extends TreeModifier {
             return tableConstructorExpressionNode;
         }
         Token tableKeyword = getToken(tableConstructorExpressionNode.tableKeyword());
-        KeySpecifierNode keySpecifier = this.modifyNode(tableConstructorExpressionNode.keySpecifier());
+        KeySpecifierNode keySpecifier = this.modifyNode(tableConstructorExpressionNode.keySpecifier().orElse(null));
         Token openBracket = getToken(tableConstructorExpressionNode.openBracket());
         SeparatedNodeList<Node> mappingConstructors =
                 this.modifySeparatedNodeList(tableConstructorExpressionNode.mappingConstructors());
@@ -2935,8 +2935,8 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         MetadataNode metadata = this.modifyNode(enumMemberNode.metadata().orElse(null));
         IdentifierToken identifier = this.modifyNode(enumMemberNode.identifier());
-        Token equalToken = getToken(enumMemberNode.equalToken());
-        ExpressionNode constExprNode = this.modifyNode(enumMemberNode.constExprNode());
+        Token equalToken = getToken(enumMemberNode.equalToken().orElse(null));
+        ExpressionNode constExprNode = this.modifyNode(enumMemberNode.constExprNode().orElse(null));
         if (metadata != null) {
             enumMemberNode = enumMemberNode.modify()
                     .withMetadata(metadata).apply();
@@ -3154,20 +3154,17 @@ public class FormattingTreeModifier extends TreeModifier {
         TypedBindingPatternNode typedBindingPattern = this.modifyNode(joinClauseNode.typedBindingPattern());
         Token inKeyword = getToken(joinClauseNode.inKeyword());
         ExpressionNode expression = this.modifyNode(joinClauseNode.expression());
-        OnClauseNode onCondition = this.modifyNode(joinClauseNode.onCondition().orElse(null));
+        OnClauseNode onCondition = this.modifyNode(joinClauseNode.onCondition());
         if (outerKeyword != null) {
             joinClauseNode = joinClauseNode.modify()
                     .withOuterKeyword(formatToken(outerKeyword, 1, 1, 0, 0)).apply();
-        }
-        if (onCondition != null) {
-            joinClauseNode = joinClauseNode.modify()
-                    .withOnCondition(onCondition).apply();
         }
         return joinClauseNode.modify()
                 .withJoinKeyword(formatToken(joinKeyword, 1, 1, 0, 0))
                 .withTypedBindingPattern(typedBindingPattern)
                 .withInKeyword(formatToken(inKeyword, 1, 1, 0, 0))
                 .withExpression(expression)
+                .withOnCondition(onCondition)
                 .apply();
     }
 
@@ -3177,10 +3174,14 @@ public class FormattingTreeModifier extends TreeModifier {
             return onClauseNode;
         }
         Token onKeyword = getToken(onClauseNode.onKeyword());
-        ExpressionNode expression = this.modifyNode(onClauseNode.expression());
+        Token equalsKeyword = getToken(onClauseNode.equalsKeyword());
+        ExpressionNode lhsExpr = this.modifyNode(onClauseNode.lhsExpression());
+        ExpressionNode rhsExpr = this.modifyNode(onClauseNode.rhsExpression());
         return onClauseNode.modify()
                 .withOnKeyword(formatToken(onKeyword, 1, 1, 0, 0))
-                .withExpression(expression)
+                .withLhsExpression(lhsExpr)
+                .withEqualsKeyword(formatToken(equalsKeyword, 1, 1, 0,  0))
+                .withRhsExpression(rhsExpr)
                 .apply();
     }
 

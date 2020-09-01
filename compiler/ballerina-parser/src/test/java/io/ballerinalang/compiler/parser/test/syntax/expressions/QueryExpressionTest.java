@@ -86,14 +86,12 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testQueryWithInnerJoinClause() {
         test("from int a in b join int c in d on e equals f select g", "query-expr/query_expr_assert_54.json");
-        test("from int a in b join int c in d select g", "query-expr/query_expr_assert_61.json");
     }
 
     @Test
     public void testQueryWithOuterJoinClause() {
         test("from int a in b outer join int c in d on e equals f select g",
                 "query-expr/query_expr_assert_55.json");
-        test("from int a in b outer join int c in d select g", "query-expr/query_expr_assert_62.json");
     }
 
     // Recovery tests
@@ -223,6 +221,8 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         test("from int a in b join int c in d on select g", "query-expr/query_expr_assert_58.json");
         test("from int a in b join int c in on e equals f select g", "query-expr/query_expr_assert_59.json");
         test("from int a in b join int c in select g", "query-expr/query_expr_assert_60.json");
+        test("from int a in b join int c in d select g", "query-expr/query_expr_assert_61.json");
+        test("from int a in b outer join int c in d select g", "query-expr/query_expr_assert_62.json");
         test("from int a in b outer int c in d on e equals f select g", "query-expr/query_expr_assert_63.json");
     }
 }

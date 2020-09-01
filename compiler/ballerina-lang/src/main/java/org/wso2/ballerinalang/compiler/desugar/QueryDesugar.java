@@ -34,8 +34,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -504,7 +506,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
-     * Desugar joinClauses / nested fromClauses to below and return a reference to created join _StreamFunction.
+     * Desugar joinClauses to below and return a reference to created join _StreamFunction.
      * _StreamFunction joinFunc = createJoinFunction(joinPipeline);
      *
      * @param blockStmt    parent block to write to.
@@ -514,31 +516,20 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference addJoinFunction(BLangBlockStmt blockStmt, BLangJoinClause joinClause,
                                            BLangVariableReference joinPipeline) {
-        // create on condition filterLambda
-        // function(_Frame frame) returns boolean {
-        //      return ...;
-        // });
-        DiagnosticPos joinPos = joinClause.pos;
-        boolean filtered = joinClause.onClause != null;
-        DiagnosticPos filterPos = filtered ? (DiagnosticPos) joinClause.onClause.getPosition() : joinPos;
-        BLangLambdaFunction filterLambda = createFilterLambda(filterPos);
-        BLangBlockFunctionBody filterBody = (BLangBlockFunctionBody) filterLambda.function.body;
-        BLangReturn filterReturnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        filterReturnNode.pos = filterPos;
-        if (filtered) {
-            // return <int>frame["x"] > 0;
-            filterReturnNode.setExpression(joinClause.onClause.getExpression());
+        BLangExpression lhsExpr = (BLangExpression) joinClause.onClause.getLeftExpression();
+        BLangExpression rhsExpr = (BLangExpression) joinClause.onClause.getRightExpression();
+        BLangLambdaFunction lhsKeyFunction = createKeyFunction(lhsExpr);
+        BLangLambdaFunction rhsKeyFunction = createKeyFunction(rhsExpr);
+        if (joinClause.isOuterJoin) {
+            List<BVarSymbol> symbols =
+                    getIntroducedSymbols((BLangVariable) joinClause.variableDefinitionNode.getVariable());
+            final BLangSimpleVarRef nilFrame = defineNilFrameForType(symbols, blockStmt, rhsExpr.pos);
+            return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_OUTER_JOIN_FUNCTION,
+                    Lists.of(joinPipeline, lhsKeyFunction, rhsKeyFunction, nilFrame), joinClause.pos);
         } else {
-            // return true;
-            filterReturnNode.setExpression(ASTBuilderUtil.createLiteral(filterPos, symTable.booleanType, true));
+            return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_INNER_JOIN_FUNCTION,
+                    Lists.of(joinPipeline, lhsKeyFunction, rhsKeyFunction), joinClause.pos);
         }
-        filterBody.addStatement(filterReturnNode);
-        filterLambda.accept(this);
-        Name joinFunctionName = joinClause.isOuterJoin
-                ? QUERY_CREATE_OUTER_JOIN_FUNCTION
-                : QUERY_CREATE_INNER_JOIN_FUNCTION;
-        return getStreamFunctionVariableRef(blockStmt, joinFunctionName,
-                Lists.of(joinPipeline, filterLambda), joinPipeline.pos);
     }
 
     /**
@@ -1037,6 +1028,101 @@ public class QueryDesugar extends BLangNodeVisitor {
             return symbols;
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Creates a lambda key function for a given expression.
+     * function (_Frame _frame) returns any {
+     * returns keyExpr;
+     * }
+     *
+     * @param expr key function expression.
+     * @return created key function lambda.
+     */
+    private BLangLambdaFunction createKeyFunction(BLangExpression expr) {
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.expr = desugar.addConversionExprIfRequired(expr, symTable.anyType);
+        returnNode.pos = expr.pos;
+        BLangLambdaFunction keyFunction = createLambdaFunction(expr.pos, getAnyTypeNode(), returnNode, false);
+        keyFunction.accept(this);
+        return keyFunction;
+    }
+
+    /**
+     * Defines a _Frame with nil value fields for given symbols.
+     *
+     * @param symbols   list to be added to the _Frame.
+     * @param blockStmt parent block to write to.
+     * @param pos       diagnostic position.
+     * @return variableReference to created _Frame.
+     */
+    private BLangSimpleVarRef defineNilFrameForType(List<BVarSymbol> symbols, BLangBlockStmt blockStmt,
+                                                    DiagnosticPos pos) {
+        BLangSimpleVarRef frame = defineFrameVariable(blockStmt, pos);
+        for (BVarSymbol symbol : symbols) {
+            BType type = symbol.type;
+            String key = symbol.name.value;
+            if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
+                List<BVarSymbol> nestedSymbols = new ArrayList<>();
+                for (BField field : ((BStructureType) type).fields.values()) {
+                    nestedSymbols.add(field.symbol);
+                }
+                addFrameValueToFrame(frame, key, defineNilFrameForType(nestedSymbols, blockStmt, pos), blockStmt, pos);
+            } else {
+                addNilValueToFrame(frame, key, blockStmt, pos);
+            }
+        }
+        return frame;
+    }
+
+    /**
+     * Adds nil value fields to a given _Frame.
+     *
+     * @param frameToAddValueTo _Frame to add nil values to.
+     * @param key               field name.
+     * @param blockStmt         parent block to write to.
+     * @param pos               diagnostic position.
+     */
+    private void addNilValueToFrame(BLangSimpleVarRef frameToAddValueTo, String key,
+                                    BLangBlockStmt blockStmt, DiagnosticPos pos) {
+        BLangStatement addToFrameStmt = getAddToFrameStmt(pos, frameToAddValueTo, key,
+                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
+        blockStmt.addStatement(addToFrameStmt);
+    }
+
+    /**
+     * Adds _Frame value fields to a given _Frame.
+     *
+     * @param frameToAddValueTo _Frame to add values to.
+     * @param key               field name.
+     * @param frameValue        frame value to be added.
+     * @param blockStmt         parent block to write to.
+     * @param pos               diagnostic position.
+     */
+    private void addFrameValueToFrame(BLangSimpleVarRef frameToAddValueTo, String key,
+                                      BLangSimpleVarRef frameValue, BLangBlockStmt blockStmt,
+                                      DiagnosticPos pos) {
+        BLangStatement addToFrameStmt = getAddToFrameStmt(pos, frameToAddValueTo, key, frameValue);
+        blockStmt.addStatement(addToFrameStmt);
+    }
+
+    /**
+     * Creates _Frame $frame$ = new; variable definition and return a reference to the created frame.
+     *
+     * @param pos diagnostic position.
+     * @return reference to the defined frame.
+     */
+    private BLangSimpleVarRef defineFrameVariable(BLangBlockStmt blockStmt, DiagnosticPos pos) {
+        BRecordTypeSymbol frameTypeSymbol = getFrameTypeSymbol();
+        BRecordType frameType = (BRecordType) frameTypeSymbol.type;
+        String frameName = getNewVarName();
+        BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(frameName),
+                env.scope.owner.pkgID, frameType, this.env.scope.owner, pos);
+        BLangRecordLiteral frameInit = ASTBuilderUtil.createEmptyRecordLiteral(pos, frameType);
+        BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(
+                pos, frameName, frameType, frameInit, frameSymbol);
+        blockStmt.addStatement(ASTBuilderUtil.createVariableDef(pos, frameVariable));
+        return ASTBuilderUtil.createVariableRef(pos, frameSymbol);
     }
 
     /**
