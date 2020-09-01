@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.model;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
@@ -572,13 +573,19 @@ public abstract class BIRNode {
          */
         public ConstValue constValue;
 
+        /**
+         * The origin of the symbol for the constant.
+         */
+        public SymbolOrigin origin;
+
         public BIRConstant(DiagnosticPos pos, Name name, int flags,
-                           BType type, ConstValue constValue) {
+                           BType type, ConstValue constValue, SymbolOrigin origin) {
             super(pos);
             this.name = name;
             this.flags = flags;
             this.type = type;
             this.constValue = constValue;
+            this.origin = origin;
         }
 
         @Override

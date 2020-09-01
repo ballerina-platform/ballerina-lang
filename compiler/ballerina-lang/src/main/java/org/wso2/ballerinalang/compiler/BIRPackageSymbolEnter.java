@@ -110,6 +110,7 @@ import java.util.function.Consumer;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
 /**
@@ -585,6 +586,7 @@ public class BIRPackageSymbolEnter {
     private void defineConstant(DataInputStream dataInStream) throws IOException {
         String constantName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
+        byte origin = dataInStream.readByte();
 
         byte[] docBytes = readDocBytes(dataInStream);
 
@@ -594,7 +596,7 @@ public class BIRPackageSymbolEnter {
         // Create the constant symbol.
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
                                                              this.env.pkgSymbol.pkgID, null, type, enclScope.owner,
-                                                             symTable.builtinPos, COMPILED_SOURCE);
+                                                             symTable.builtinPos, toOrigin(origin));
 
         defineMarkDownDocAttachment(constantSymbol, docBytes);
 

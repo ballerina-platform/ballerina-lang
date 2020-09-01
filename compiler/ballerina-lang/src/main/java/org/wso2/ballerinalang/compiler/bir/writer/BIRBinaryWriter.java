@@ -345,6 +345,7 @@ public class BIRBinaryWriter {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birConstant.name.value));
         buf.writeInt(birConstant.flags);
+        buf.writeByte(birConstant.origin.value());
 
         typeWriter.writeMarkdownDocAttachment(buf, birConstant.markdownDocAttachment);
 

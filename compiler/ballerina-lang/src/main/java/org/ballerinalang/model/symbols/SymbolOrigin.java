@@ -23,22 +23,85 @@ package org.ballerinalang.model.symbols;
  * @since 2.0.0
  */
 public enum SymbolOrigin {
-    /**
-     * These are symbols for which there is a corresponding construct in the source file written by the user.
-     */
-    SOURCE,
-    /**
-     * These are symbols which are coming from a compiled source. i.e., read through the BIRPackageSymbolEnter
-     */
-    COMPILED_SOURCE,
+
     /**
      * These are symbols which are defined internally by the compiler. e.g., symbols defined in the symbol table,
      * symbols defined in lang lib
      */
-    BUILTIN,
+    BUILTIN {
+        @Override
+        public SymbolOrigin toBIROrigin() {
+            return BUILTIN;
+        }
+
+        @Override
+        public byte value() {
+            return 1;
+        }
+    },
+
+    /**
+     * These are symbols for which there is a corresponding construct in the source file written by the user.
+     */
+    SOURCE {
+        @Override
+        public SymbolOrigin toBIROrigin() {
+            return COMPILED_SOURCE;
+        }
+
+        @Override
+        public byte value() {
+            return 2;
+        }
+    },
+
+    /**
+     * These are symbols which are coming from a compiled source. i.e., read through the BIRPackageSymbolEnter
+     */
+    COMPILED_SOURCE {
+        @Override
+        public SymbolOrigin toBIROrigin() {
+            return COMPILED_SOURCE;
+        }
+
+        @Override
+        public byte value() {
+            return 3;
+        }
+    },
+
     /**
      * Represents symbols created for desugared constructs or internal symbols defined for the use of the compiler.
      * These symbols should not be exposed to the public through the semantic API.
      */
-    VIRTUAL
+    VIRTUAL {
+        @Override
+        public SymbolOrigin toBIROrigin() {
+            return VIRTUAL;
+        }
+
+        @Override
+        public byte value() {
+            return 4;
+        }
+    };
+
+    public abstract SymbolOrigin toBIROrigin();
+
+    public abstract byte value();
+
+    public static SymbolOrigin toOrigin(byte value) {
+        switch (value) {
+            case 1:
+                return BUILTIN;
+            case 2:
+                return SOURCE;
+            case 3:
+                return COMPILED_SOURCE;
+            case 4:
+                return VIRTUAL;
+            default:
+                throw new IllegalStateException("Invalid symbol origin value: " + value);
+        }
+    }
 }
