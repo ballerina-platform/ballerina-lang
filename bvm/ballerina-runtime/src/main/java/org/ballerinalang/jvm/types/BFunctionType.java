@@ -29,18 +29,21 @@ public class BFunctionType extends AnnotatableType {
     public BType[] paramTypes;
     public BType restType;
     public BType retType;
+    public int flags;
 
     public BFunctionType() {
         super("function ()", null, Object.class);
         this.paramTypes = new BType[0];
         this.retType = BTypes.typeNull;
+        this.flags = 0;
     }
 
-    public BFunctionType(BType[] paramTypes, BType restType, BType retType) {
+    public BFunctionType(BType[] paramTypes, BType restType, BType retType, int flags) {
         super("function ()", null, Object.class);
         this.paramTypes = paramTypes;
         this.restType = restType;
         this.retType = retType;
+        this.flags = flags;
     }
 
     public BType[] getParameterType() {

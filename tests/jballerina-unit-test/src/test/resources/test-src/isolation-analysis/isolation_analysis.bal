@@ -69,7 +69,7 @@ isolated function testIsolatedObjectMethods() {
     assertEquality(202, b.val());
 }
 
-// Service tests, only testing definition since dispatching is not possible atm
+//// Service tests, only testing definition since dispatching is not possible atm ////
 
 public type Listener object {
 
@@ -115,6 +115,28 @@ service s2 = service {
 
     }
 };
+
+/////////////////////////////////////////////////////////////////////////////
+
+type Qux abstract object {
+    isolated function qux() returns int;
+};
+
+function testNonIsolatedMethodAsIsolatedMethodRuntimeNegative() {
+    object {
+        int i;
+
+        function init(int i) {
+            self.i = i;
+        }
+
+        function qux() returns int {
+            return self.i;
+        }
+    } obj = new (123);
+
+    assertEquality(false, <any> obj is Qux);
+}
 
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {

@@ -44,10 +44,22 @@ public class IsolationAnalysisTest {
         BRunUtil.invoke(result, "testIsolatedFunctionWithLocalVarsAndParams");
         BRunUtil.invoke(result, "testIsolatedFunctionAccessingImmutableGlobalStorage");
         BRunUtil.invoke(result, "testIsolatedObjectMethods");
+        BRunUtil.invoke(result, "testNonIsolatedMethodAsIsolatedMethodRuntimeNegative");
     }
 
     @Test
-    public void testInvalidIsolatedFunctions() {
+    public void testIsolatedFunctionsSemanticNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis_semantic_negative.bal");
+
+        int i = 0;
+        validateError(result, i++, "incompatible types: expected 'Qux', found 'object { int i; function qux () " +
+                "returns (int); }'", 33, 13);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test
+    public void testIsolatedFunctionsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis_negative.bal");
 
         int i = 0;
