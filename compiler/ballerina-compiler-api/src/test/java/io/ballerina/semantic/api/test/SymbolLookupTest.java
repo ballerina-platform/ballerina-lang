@@ -108,6 +108,42 @@ public class SymbolLookupTest {
         };
     }
 
+    @Test(dataProvider = "PositionProvider3")
+    public void testVarSymbolLookupInTypedefs(int line, int column, int expSymbols, List<String> expSymbolNames) {
+        CompilerContext context = new CompilerContext();
+        CompileResult result = compile("test-src/symbol_lookup_with_typedefs_test.bal", context);
+        BLangPackage pkg = (BLangPackage) result.getAST();
+        ModuleID moduleID = new ModuleID(pkg.packageID);
+        SemanticModel model = new SemanticModel(pkg.compUnits.get(0), pkg, context);
+
+        Map<String, BCompiledSymbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
+
+        assertEquals(symbolsInFile.size(), expSymbols);
+        for (String symName : expSymbolNames) {
+            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
+        }
+    }
+
+    @DataProvider(name = "PositionProvider3")
+    public Object[][] getPositionsForTypedefs() {
+        List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes", "Person", "PersonObj");
+        return new Object[][]{
+                {19, 1, 6, moduleLevelSymbols},
+//                {23, 21, 6, moduleLevelSymbols}, // TODO: Filter out field symbols
+//                {29, 23, 6, moduleLevelSymbols}, // TODO: Filter out field symbols
+                {31, 66, 13, getSymbolNames(moduleLevelSymbols, "parent", "pParent", "name", "pName", "age", "pAge",
+                                            "self")},
+                {40, 9, 10, getSymbolNames(moduleLevelSymbols, "parent", "name", "age", "self")},
+                {47, 10, 7, getSymbolNames(moduleLevelSymbols, "x")},
+                {49, 20, 7, getSymbolNames(moduleLevelSymbols, "x")},
+                // TODO: Fix filtering out 'person'
+                {51, 16, 8, getSymbolNames(moduleLevelSymbols, "x", "person")},
+//                {51, 17, 9, getSymbolNames(moduleLevelSymbols, "x", "person", "name", "age")},
+                {52, 1, 8, getSymbolNames(moduleLevelSymbols, "x", "person")},
+//                {53, 18, 11, getSymbolNames(moduleLevelSymbols, "x", "person", "p2", "name", "age")},
+        };
+    }
+
     private Map<String, BCompiledSymbol> getSymbolsInFile(SemanticModel model, int line, int column,
                                                           ModuleID moduleID) {
         List<BCompiledSymbol> allInScopeSymbols = model.lookupSymbols(LinePosition.from(line, column));
