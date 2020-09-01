@@ -17,9 +17,9 @@
 
 package io.ballerina.semantic.api.test;
 
-import io.ballerinalang.compiler.text.LinePosition;
-import org.ballerina.compiler.api.symbol.BCompiledSymbol;
-import org.ballerina.compiler.impl.semantic.SemanticModel;
+import io.ballerina.tools.text.LinePosition;
+import org.ballerina.compiler.api.symbols.Symbol;
+import org.ballerina.compiler.impl.BallerinaSemanticModel;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
@@ -55,8 +55,7 @@ public class SemanticAPITest {
     @Test
     public void test() {
         BLangPackage pkg = (BLangPackage) result.getAST();
-        SemanticModel model = new SemanticModel(pkg.compUnits.get(0), pkg, context);
-        List<BCompiledSymbol> symbols = model.lookupSymbols(LinePosition.from(3, 14));
-//        throw new AssertionError("ERROR");
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg.compUnits.get(0), pkg, context);
+        List<Symbol> symbols = model.visibleSymbols(LinePosition.from(3, 14));
     }
 }
