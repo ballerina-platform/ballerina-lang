@@ -12985,8 +12985,10 @@ public class BallerinaParser extends AbstractParser {
             case LT_TOKEN:
                 return parseAsErrorTypeDesc(annots);
             case IDENTIFIER_TOKEN:
-                SyntaxKind nextNextTokenKind = peek(2).kind;
-                if (nextNextTokenKind == SyntaxKind.COLON_TOKEN || nextNextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
+                // If the next token is identifier it can be either error a; or error a (errorMessage);
+                SyntaxKind nextNextNextTokenKind = peek(3).kind;
+                if (nextNextNextTokenKind == SyntaxKind.COLON_TOKEN ||
+                        nextNextNextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
                     return parseAsErrorBP();
                 }
                 // Fall through.
