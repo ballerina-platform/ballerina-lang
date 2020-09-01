@@ -2827,7 +2827,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode expression =
                 modifyNode(joinClauseNode.expression());
         OnClauseNode onCondition =
-                modifyNode(joinClauseNode.onCondition().orElse(null));
+                modifyNode(joinClauseNode.onCondition());
         return joinClauseNode.modify(
                 outerKeyword,
                 joinKeyword,
@@ -2842,11 +2842,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             OnClauseNode onClauseNode) {
         Token onKeyword =
                 modifyToken(onClauseNode.onKeyword());
-        ExpressionNode expression =
-                modifyNode(onClauseNode.expression());
+        ExpressionNode lhsExpression =
+                modifyNode(onClauseNode.lhsExpression());
+        Token equalsKeyword =
+                modifyToken(onClauseNode.equalsKeyword());
+        ExpressionNode rhsExpression =
+                modifyNode(onClauseNode.rhsExpression());
         return onClauseNode.modify(
                 onKeyword,
-                expression);
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression);
     }
 
     @Override

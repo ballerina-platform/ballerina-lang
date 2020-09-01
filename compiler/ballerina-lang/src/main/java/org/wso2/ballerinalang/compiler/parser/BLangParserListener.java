@@ -2962,14 +2962,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitBinaryEqualsExpression(BallerinaParser.BinaryEqualsExpressionContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
-    }
-
-    @Override
     public void exitOrderKey(BallerinaParser.OrderKeyContext ctx) {
         if (isInErrorState) {
             return;

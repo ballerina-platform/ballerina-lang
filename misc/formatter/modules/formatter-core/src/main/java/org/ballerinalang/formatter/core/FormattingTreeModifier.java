@@ -3154,20 +3154,17 @@ public class FormattingTreeModifier extends TreeModifier {
         TypedBindingPatternNode typedBindingPattern = this.modifyNode(joinClauseNode.typedBindingPattern());
         Token inKeyword = getToken(joinClauseNode.inKeyword());
         ExpressionNode expression = this.modifyNode(joinClauseNode.expression());
-        OnClauseNode onCondition = this.modifyNode(joinClauseNode.onCondition().orElse(null));
+        OnClauseNode onCondition = this.modifyNode(joinClauseNode.onCondition());
         if (outerKeyword != null) {
             joinClauseNode = joinClauseNode.modify()
                     .withOuterKeyword(formatToken(outerKeyword, 1, 1, 0, 0)).apply();
-        }
-        if (onCondition != null) {
-            joinClauseNode = joinClauseNode.modify()
-                    .withOnCondition(onCondition).apply();
         }
         return joinClauseNode.modify()
                 .withJoinKeyword(formatToken(joinKeyword, 1, 1, 0, 0))
                 .withTypedBindingPattern(typedBindingPattern)
                 .withInKeyword(formatToken(inKeyword, 1, 1, 0, 0))
                 .withExpression(expression)
+                .withOnCondition(onCondition)
                 .apply();
     }
 
@@ -3177,10 +3174,14 @@ public class FormattingTreeModifier extends TreeModifier {
             return onClauseNode;
         }
         Token onKeyword = getToken(onClauseNode.onKeyword());
-        ExpressionNode expression = this.modifyNode(onClauseNode.expression());
+        Token equalsKeyword = getToken(onClauseNode.equalsKeyword());
+        ExpressionNode lhsExpr = this.modifyNode(onClauseNode.lhsExpression());
+        ExpressionNode rhsExpr = this.modifyNode(onClauseNode.rhsExpression());
         return onClauseNode.modify()
                 .withOnKeyword(formatToken(onKeyword, 1, 1, 0, 0))
-                .withExpression(expression)
+                .withLhsExpression(lhsExpr)
+                .withEqualsKeyword(formatToken(equalsKeyword, 1, 1, 0,  0))
+                .withRhsExpression(rhsExpr)
                 .apply();
     }
 
