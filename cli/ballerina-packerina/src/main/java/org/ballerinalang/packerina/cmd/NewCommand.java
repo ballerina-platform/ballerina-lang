@@ -95,7 +95,7 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
-        // If the current directory is a ballerina project ignore.
+        // If the current directory is a ballerina project, fail the command.
         if (ProjectUtils.isBallerinaProject(this.userDir)) {
             CommandUtil.printError(errStream,
                     "Directory is already a ballerina project",
@@ -148,7 +148,7 @@ public class NewCommand implements BLauncherCmd {
         try {
             // add argument (package)
             Files.createDirectories(path);
-            CommandUtil.initPackage(path, packageName, template);
+            CommandUtil.initProjectByTemplate(path, packageName, template);
         } catch (AccessDeniedException e) {
             errStream.println("error: Error occurred while creating project : " + "Insufficient Permission");
         } catch (IOException | URISyntaxException e) {

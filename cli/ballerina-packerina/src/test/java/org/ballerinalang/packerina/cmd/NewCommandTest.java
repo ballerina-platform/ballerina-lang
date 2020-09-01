@@ -55,6 +55,7 @@ public class NewCommandTest extends CommandTest {
         Path packageDir = tmpDir.resolve("project_name");
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         Path testPath = packageDir.resolve(ProjectConstants.TEST_DIR_NAME);
         Assert.assertTrue(Files.exists(testPath));
         Assert.assertTrue(Files.isDirectory(testPath));
@@ -71,14 +72,25 @@ public class NewCommandTest extends CommandTest {
     }
 
     @Test(description = "Test new command with service template")
-    public void testAddCommandWithService() throws IOException {
+    public void testNewCommandWithService() throws IOException {
         // Test if no arguments was passed in
-        String[] args = {"servicemodule", "-t", "service"};
+        String[] args = {"service_sample", "-t", "service"};
         NewCommand newCommand = new NewCommand(tmpDir, printStream);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
-        Path packageDir = tmpDir.resolve("servicemodule");
+        // Check with spec
+        // project_name/
+        // - Ballerina.toml
+        // - Package.md
+        // - Module.md
+        // - hello_service.bal
+        // - resources
+        // - tests
+        //      - hello_service_test.bal
+        //      - resources/
+        // - .gitignore       <- git ignore file
 
+        Path packageDir = tmpDir.resolve("service_sample");
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
@@ -98,8 +110,47 @@ public class NewCommandTest extends CommandTest {
         Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
     }
 
+    @Test(description = "Test new command with lib template")
+    public void testNewCommandWithLib() throws IOException {
+        // Test if no arguments was passed in
+        String[] args = {"lib_sample", "-t", "lib"};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        // Check with spec
+        // project_name/
+        // - Ballerina.toml
+        // - Package.md
+        // - Module.md
+        // - main.bal
+        // - resources
+        // - tests
+        //      - main_test.bal
+        //      - resources/
+        // - .gitignore       <- git ignore file
+
+        Path packageDir = tmpDir.resolve("lib_sample");
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.isDirectory(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+//        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.isDirectory(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+
+        Path moduleTests = packageDir.resolve(ProjectConstants.TEST_DIR_NAME);
+        Assert.assertTrue(Files.exists(moduleTests));
+        Assert.assertTrue(Files.isDirectory(moduleTests));
+//        Assert.assertTrue(Files.exists(moduleTests.resolve("main_test.bal")));
+        Assert.assertTrue(Files.exists(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.isDirectory(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+
+        Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
+    }
+
     @Test(description = "Test new command with invalid project name")
-    public void testAddCommandWithInvalidProjectName() throws IOException {
+    public void testNewCommandWithInvalidProjectName() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"hello-app"};
         NewCommand newCommand = new NewCommand(tmpDir, printStream);
@@ -111,7 +162,7 @@ public class NewCommandTest extends CommandTest {
     @Test(description = "Test new command with invalid template")
     public void testNewCommandWithInvalidTemplate() throws IOException {
         // Test if no arguments was passed in
-        String[] args = {"servicemod", "-t", "invalid"};
+        String[] args = {"myproject", "-t", "invalid"};
         NewCommand newCommand = new NewCommand(tmpDir, printStream);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();

@@ -58,8 +58,8 @@ public class InitCommandTest extends CommandTest {
         Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
     }
 
-    @Test(description = "Test init command with service template")
-    public void testInitCommandWithService() throws IOException {
+    @Test(description = "Test init command with main template")
+    public void testInitCommandWithMain() throws IOException {
         // Test if no arguments was passed in
         Path packageDir = tmpDir.resolve("sample2");
         Files.createDirectory(packageDir);
@@ -98,10 +98,90 @@ public class InitCommandTest extends CommandTest {
         Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
     }
 
-    @Test(description = "Test init command with invalid template")
-    public void testAddCommandWithInvalidTemplate() throws IOException {
+    @Test(description = "Test init command with service template")
+    public void testInitCommandWithService() throws IOException {
         // Test if no arguments was passed in
-        String[] args = {"servicemodule", "-t", "invalid"};
+        Path packageDir = tmpDir.resolve("sample3");
+        Files.createDirectory(packageDir);
+        String[] args = {"myproject", "-t", "service"};
+        InitCommand initCommand = new InitCommand(packageDir, printStream);
+        new CommandLine(initCommand).parseArgs(args);
+        initCommand.execute();
+        // Check with spec
+        // foo/
+        // - Ballerina.toml
+        // - Package.md
+        // - Module.md
+        // - hello_service.bal
+        // - resources
+        // - tests
+        //      - hello_service_test.bal
+        //      - resources/
+        // - .gitignore       <- git ignore file
+
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.isDirectory(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("hello_service.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.isDirectory(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+
+        Path moduleTests = packageDir.resolve(ProjectConstants.TEST_DIR_NAME);
+        Assert.assertTrue(Files.exists(moduleTests));
+        Assert.assertTrue(Files.isDirectory(moduleTests));
+        Assert.assertTrue(Files.exists(moduleTests.resolve("hello_service_test.bal")));
+        Assert.assertTrue(Files.exists(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.isDirectory(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+
+        Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
+    }
+
+    @Test(description = "Test init command with lib template")
+    public void testInitCommandWithLib() throws IOException {
+        // Test if no arguments was passed in
+        Path packageDir = tmpDir.resolve("sample4");
+        Files.createDirectory(packageDir);
+        String[] args = {"myproject", "-t", "lib"};
+        InitCommand initCommand = new InitCommand(packageDir, printStream);
+        new CommandLine(initCommand).parseArgs(args);
+        initCommand.execute();
+        // Check with spec
+        // foo/
+        // - Ballerina.toml
+        // - Package.md
+        // - Module.md
+        // - main.bal
+        // - resources
+        // - tests
+        //      - main_test.bal
+        //      - resources/
+        // - .gitignore       <- git ignore file
+
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.isDirectory(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+//        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.isDirectory(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+
+        Path moduleTests = packageDir.resolve(ProjectConstants.TEST_DIR_NAME);
+        Assert.assertTrue(Files.exists(moduleTests));
+        Assert.assertTrue(Files.isDirectory(moduleTests));
+//        Assert.assertTrue(Files.exists(moduleTests.resolve("main_test.bal")));
+        Assert.assertTrue(Files.exists(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.isDirectory(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+
+        Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
+    }
+
+    @Test(description = "Test init command with invalid template")
+    public void testInitCommandWithInvalidTemplate() throws IOException {
+        // Test if no arguments was passed in
+        String[] args = {"myproject", "-t", "invalid"};
         InitCommand initCommand = new InitCommand(tmpDir, printStream);
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();

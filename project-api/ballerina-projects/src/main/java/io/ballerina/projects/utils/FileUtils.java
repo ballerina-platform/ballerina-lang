@@ -37,6 +37,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class FileUtils {
     /**
      * Read the content of the given file.
+     *
      * @param path path of the file
      * @return content of the given file
      * @throws IOException if IO exception occurs

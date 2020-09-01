@@ -135,7 +135,7 @@ public class InitCommand implements BLauncherCmd {
             if (template.equals("")) {
                 CommandUtil.initProject(userDir, packageName);
             } else {
-                CommandUtil.initPackage(userDir, packageName, template);
+                CommandUtil.initProjectByTemplate(userDir, packageName, template);
             }
         } catch (AccessDeniedException e) {
             errStream.println("error: Error occurred while initializing project : " + "Access Denied");

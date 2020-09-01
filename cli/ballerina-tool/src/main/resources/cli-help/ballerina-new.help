@@ -26,8 +26,8 @@ DESCRIPTION
             └── Package.md
 
        Any directory becomes a Ballerina project if that directory has a
-       'Ballerina.toml' file. It contains the organization name and the
-       version. It also enables dependency management across the project.
+       'Ballerina.toml' file. It contains the organization name, package name,
+       and the version. It also enables dependency management across the project.
 
        The 'modules' directory contains Ballerina modules. Use
        'ballerina add <module-name>' command to create modules.
@@ -41,7 +41,7 @@ DESCRIPTION
        use the specified versions instead of fetching the latest
        versions of modules.
 
-       A template can also be specified when creating the new project.
+       A template can also be specified when creating a new project.
        If a template is not specified, this command creates a package
        with a 'main' template.
 
@@ -54,13 +54,12 @@ OPTIONS
      -t <template-name>, --template <template-name>
          Create a package using a predefined template.
 
-     -l, --list
-         List built-in templates.
-
-
 EXAMPLES
      Create a package with a 'main' template.
-        $ ballerina new hello
+        $ ballerina new <package-name>
 
      Create a package with a Ballerina service.
-        $ ballerina new helloservice -t service
+        $ ballerina new <package-name> -t service
+
+     Create a package with a Ballerina service.
+        $ ballerina new <package-name> -t lib

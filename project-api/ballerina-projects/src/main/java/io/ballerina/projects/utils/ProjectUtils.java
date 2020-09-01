@@ -141,6 +141,7 @@ public class ProjectUtils {
 
     /**
      * Guess package name with valid pattern.
+     *
      * @param packageName package name
      * @return package name
      */
@@ -149,17 +150,6 @@ public class ProjectUtils {
             return packageName.replaceAll("[^a-z0-9_]", "_");
         }
         return packageName;
-    }
-
-    /**
-     * Check if a ballerina module exist.
-     * @param projectPath project path
-     * @param moduleName module name
-     * @return module exist
-     */
-    public static boolean isModuleExist(Path projectPath, String moduleName) {
-        Path modulePath = projectPath.resolve(ProjectConstants.MODULES_DIR_NAME).resolve(moduleName);
-        return Files.exists(modulePath);
     }
 }
 

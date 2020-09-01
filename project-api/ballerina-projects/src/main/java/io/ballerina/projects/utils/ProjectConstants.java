@@ -48,7 +48,6 @@ public class ProjectConstants {
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
     public static final String JSON_CACHE_DIR_NAME = "json_cache";
-    public static final String MODULES_DIR_NAME = "modules";
     public static final String TEST_DIR_NAME = "tests";
     public static final String RESOURCE_DIR_NAME = "resources";
 }

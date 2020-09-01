@@ -170,7 +170,7 @@ public class CommandUtil {
      * @throws IOException  If any IO exception occurred
      * @throws URISyntaxException If any URISyntaxException occurred
      */
-    public static void initPackage(Path path, String packageName, String template) throws IOException,
+    public static void initProjectByTemplate(Path path, String packageName, String template) throws IOException,
             URISyntaxException {
         // We will be creating following in the project directory
         // - Ballerina.toml
