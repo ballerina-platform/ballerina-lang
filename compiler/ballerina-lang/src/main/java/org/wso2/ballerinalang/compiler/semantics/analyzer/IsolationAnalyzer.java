@@ -468,7 +468,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        analyzeNode(onClause.expression, env);
+        analyzeNode(onClause.lhsExpr, env);
+        analyzeNode(onClause.rhsExpr, env);
     }
 
     @Override
