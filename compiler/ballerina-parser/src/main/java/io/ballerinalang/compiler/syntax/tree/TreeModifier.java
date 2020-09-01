@@ -652,11 +652,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         MetadataNode metadata =
                 modifyNode(constantDeclarationNode.metadata().orElse(null));
         Token visibilityQualifier =
-                modifyToken(constantDeclarationNode.visibilityQualifier().orElse(null));
+                modifyToken(constantDeclarationNode.visibilityQualifier());
         Token constKeyword =
                 modifyToken(constantDeclarationNode.constKeyword());
         TypeDescriptorNode typeDescriptor =
-                modifyNode(constantDeclarationNode.typeDescriptor().orElse(null));
+                modifyNode(constantDeclarationNode.typeDescriptor());
         Token variableName =
                 modifyToken(constantDeclarationNode.variableName());
         Token equalsToken =
@@ -780,9 +780,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node fieldName =
                 modifyNode(specificFieldNode.fieldName());
         Token colon =
-                modifyToken(specificFieldNode.colon().orElse(null));
+                modifyToken(specificFieldNode.colon());
         ExpressionNode valueExpr =
-                modifyNode(specificFieldNode.valueExpr().orElse(null));
+                modifyNode(specificFieldNode.valueExpr());
         return specificFieldNode.modify(
                 readonlyKeyword,
                 fieldName,
@@ -933,9 +933,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token fieldName =
                 modifyToken(objectFieldNode.fieldName());
         Token equalsToken =
-                modifyToken(objectFieldNode.equalsToken().orElse(null));
+                modifyToken(objectFieldNode.equalsToken());
         ExpressionNode expression =
-                modifyNode(objectFieldNode.expression().orElse(null));
+                modifyNode(objectFieldNode.expression());
         Token semicolonToken =
                 modifyToken(objectFieldNode.semicolonToken());
         return objectFieldNode.modify(
@@ -1215,9 +1215,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode namespaceuri =
                 modifyNode(xMLNamespaceDeclarationNode.namespaceuri());
         Token asKeyword =
-                modifyToken(xMLNamespaceDeclarationNode.asKeyword().orElse(null));
+                modifyToken(xMLNamespaceDeclarationNode.asKeyword());
         IdentifierToken namespacePrefix =
-                modifyNode(xMLNamespaceDeclarationNode.namespacePrefix().orElse(null));
+                modifyNode(xMLNamespaceDeclarationNode.namespacePrefix());
         Token semicolonToken =
                 modifyToken(xMLNamespaceDeclarationNode.semicolonToken());
         return xMLNamespaceDeclarationNode.modify(
@@ -1423,7 +1423,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token tableKeyword =
                 modifyToken(tableConstructorExpressionNode.tableKeyword());
         KeySpecifierNode keySpecifier =
-                modifyNode(tableConstructorExpressionNode.keySpecifier().orElse(null));
+                modifyNode(tableConstructorExpressionNode.keySpecifier());
         Token openBracket =
                 modifyToken(tableConstructorExpressionNode.openBracket());
         SeparatedNodeList<Node> mappingConstructors =
@@ -1580,7 +1580,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public TemplateExpressionNode transform(
             TemplateExpressionNode templateExpressionNode) {
         Token type =
-                modifyToken(templateExpressionNode.type().orElse(null));
+                modifyToken(templateExpressionNode.type());
         Token startBacktick =
                 modifyToken(templateExpressionNode.startBacktick());
         NodeList<TemplateMemberNode> content =
@@ -2536,9 +2536,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         IdentifierToken identifier =
                 modifyNode(enumMemberNode.identifier());
         Token equalToken =
-                modifyToken(enumMemberNode.equalToken().orElse(null));
+                modifyToken(enumMemberNode.equalToken());
         ExpressionNode constExprNode =
-                modifyNode(enumMemberNode.constExprNode().orElse(null));
+                modifyNode(enumMemberNode.constExprNode());
         return enumMemberNode.modify(
                 metadata,
                 identifier,

@@ -32,19 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -63,12 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -90,14 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
-import org.wso2.ballerinalang.compiler.util.BArrayState;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.FunctionalConstructorBuilder;
-import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
-import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.*;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -905,17 +881,52 @@ public class SymbolResolver extends BLangNodeVisitor {
             BArrayType arrType;
             if (arrayTypeNode.sizes.length == 0) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
-            } else {
-                int size = arrayTypeNode.sizes[i];
-                arrType = (size == UNSEALED_ARRAY_INDICATOR) ?
-                        new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
-                        (size == OPEN_SEALED_ARRAY_INDICATOR) ?
-                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
-                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
-            }
-            resultType = arrayTypeSymbol.type = arrType;
+                arrayTypeSymbol.type = arrType;
+                markParameterizedType(arrType, arrType.eType);
+                resultType = arrayTypeSymbol.type;
 
-            markParameterizedType(arrType, arrType.eType);
+            } else {
+                    BLangExpression size = arrayTypeNode.sizes[i];
+                    if (size instanceof BLangLiteral) {
+                        arrType = ((Integer) (((BLangLiteral) size).getValue()) == UNSEALED_ARRAY_INDICATOR) ?
+                                new BArrayType(resultType, arrayTypeSymbol, (Integer) (((BLangLiteral) size).getValue()), BArrayState.UNSEALED) :
+                                ((Integer) (((BLangLiteral) size).getValue()) == OPEN_SEALED_ARRAY_INDICATOR) ?
+                                        new BArrayType(resultType, arrayTypeSymbol, (Integer) (((BLangLiteral) size).getValue()), BArrayState.OPEN_SEALED) :
+                                        new BArrayType(resultType, arrayTypeSymbol, (Integer) (((BLangLiteral) size).getValue()), BArrayState.CLOSED_SEALED);
+                        arrayTypeSymbol.type = arrType;
+                        markParameterizedType(arrType, arrType.eType);
+                        resultType = arrayTypeSymbol.type;
+
+                    } else {
+                        Name pkgAlias = names.fromIdNode(((BLangSimpleVarRef) size).pkgAlias);
+                        Name typeName = names.fromIdNode(((BLangSimpleVarRef) size).variableName);
+
+                        BSymbol sizeSymbol = lookupMainSpaceSymbolInPackage(size.pos, env, pkgAlias, typeName);
+
+                        if (!(symTable.notFoundSymbol.equals(sizeSymbol))) {
+                            if (sizeSymbol.tag == SymTag.CONSTANT) {
+                                BType lengthLiteralType = ((BConstantSymbol) sizeSymbol).literalType;
+                                if (lengthLiteralType.tag == TypeTags.INT) {
+                                    long length = (long) ((BConstantSymbol) sizeSymbol).value.value;
+                                    arrType = new BArrayType(resultType, arrayTypeSymbol, (int) length, BArrayState.CLOSED_SEALED);
+                                    arrayTypeSymbol.type = arrType;
+                                    markParameterizedType(arrType, arrType.eType);
+                                    resultType = arrayTypeSymbol.type;
+
+                                } else {
+                                    dlog.error(arrayTypeNode.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE_TYPE, ((BConstantSymbol) sizeSymbol).literalType);
+                                    resultType = symTable.semanticError;
+                                }
+                            } else {
+                                dlog.error(arrayTypeNode.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE, sizeSymbol);
+                                resultType = symTable.semanticError;
+                            }
+                        } else {
+                            dlog.error(arrayTypeNode.pos, DiagnosticCode.ARRAY_SIZE_REFERENCE_NOT_DEFINED, size);
+                            resultType = symTable.semanticError;
+                        }
+                    }
+            }
         }
     }
 

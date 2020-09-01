@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+
 /**
  * @since 0.94
  */
@@ -66,8 +67,7 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public int getSize() {
-        return size;
-    }
+        return size; }
 
     @Override
     public BType getElementType() {

@@ -20,7 +20,6 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -37,8 +36,8 @@ public class TableConstructorExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public Optional<KeySpecifierNode> keySpecifier() {
-        return optionalChildInBucket(1);
+    public KeySpecifierNode keySpecifier() {
+        return childInBucket(1);
     }
 
     public Token openBracket() {
@@ -116,7 +115,7 @@ public class TableConstructorExpressionNode extends ExpressionNode {
         public TableConstructorExpressionNodeModifier(TableConstructorExpressionNode oldNode) {
             this.oldNode = oldNode;
             this.tableKeyword = oldNode.tableKeyword();
-            this.keySpecifier = oldNode.keySpecifier().orElse(null);
+            this.keySpecifier = oldNode.keySpecifier();
             this.openBracket = oldNode.openBracket();
             this.mappingConstructors = oldNode.mappingConstructors();
             this.closeBracket = oldNode.closeBracket();
