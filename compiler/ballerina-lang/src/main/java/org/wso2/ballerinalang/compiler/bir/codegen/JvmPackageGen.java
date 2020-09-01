@@ -563,7 +563,8 @@ public class JvmPackageGen {
         if (isEntry) {
             for (BIRNode.BIRConstant constant : module.constants) {
                 module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.type, null,
-                        constant.name, VarScope.GLOBAL, VarKind.CONSTANT, ""));
+                                                               constant.name, VarScope.GLOBAL, VarKind.CONSTANT, "",
+                                                               constant.origin));
             }
         }
         for (BIRGlobalVariableDcl globalVar : module.globalVars) {

@@ -705,9 +705,10 @@ class JvmObservabilityGen {
     private BIROperand generateGlobalConstantOperand(BIRPackage pkg, BType constantType, Object constantValue) {
         return compileTimeConstants.computeIfAbsent(constantValue, k -> {
             PackageID pkgId = new PackageID(pkg.org, pkg.name, pkg.version);
-            BIRGlobalVariableDcl constLoadVariableDcl = new BIRGlobalVariableDcl(COMPILE_TIME_CONST_POS, 0,
-                    constantType, pkgId, new Name("$observabilityConst" + constantIndex++), VarScope.GLOBAL,
-                    VarKind.CONSTANT, "");
+            BIRGlobalVariableDcl constLoadVariableDcl =
+                    new BIRGlobalVariableDcl(COMPILE_TIME_CONST_POS, 0,
+                                             constantType, pkgId, new Name("$observabilityConst" + constantIndex++),
+                                             VarScope.GLOBAL, VarKind.CONSTANT, "", VIRTUAL);
             pkg.globalVars.add(constLoadVariableDcl);
             return new BIROperand(constLoadVariableDcl);
         });

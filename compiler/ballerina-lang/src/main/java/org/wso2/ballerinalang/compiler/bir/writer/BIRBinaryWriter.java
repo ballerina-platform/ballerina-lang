@@ -158,6 +158,8 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(birGlobalVar.name.value));
             // Flags
             buf.writeInt(birGlobalVar.flags);
+            // Origin
+            buf.writeByte(birGlobalVar.origin.value());
 
             typeWriter.writeMarkdownDocAttachment(buf, birGlobalVar.markdownDocAttachment);
 

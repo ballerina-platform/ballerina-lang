@@ -646,6 +646,7 @@ public class BIRPackageSymbolEnter {
         dataInStream.readByte(); // Read and ignore the kind as it is anyway global variable
         String varName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
+        byte origin = dataInStream.readByte();
 
         byte[] docBytes = readDocBytes(dataInStream);
 
@@ -661,10 +662,10 @@ public class BIRPackageSymbolEnter {
             // params.
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
                                              this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos,
-                                             COMPILED_SOURCE);
+                                             toOrigin(origin));
         } else {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
-                                       enclScope.owner, symTable.builtinPos, COMPILED_SOURCE);
+                                       enclScope.owner, symTable.builtinPos, toOrigin(origin));
             if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
             }

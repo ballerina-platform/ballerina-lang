@@ -206,12 +206,14 @@ public abstract class BIRNode {
          */
         public int flags;
         public PackageID pkgId;
+        public SymbolOrigin origin;
 
         public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type, PackageID pkgId, Name name,
-                                    VarScope scope, VarKind kind, String metaVarName) {
+                                    VarScope scope, VarKind kind, String metaVarName, SymbolOrigin origin) {
             super(pos, type, name, scope, kind, metaVarName);
             this.flags = flags;
             this.pkgId = pkgId;
+            this.origin = origin;
         }
 
         @Override

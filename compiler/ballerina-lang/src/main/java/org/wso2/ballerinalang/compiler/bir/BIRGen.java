@@ -977,7 +977,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
                                                                   varNode.symbol.type, varNode.symbol.pkgID,
                                                                   names.fromString(name), VarScope.GLOBAL,
-                                                                  VarKind.GLOBAL, varNode.name.value);
+                                                                  VarKind.GLOBAL, varNode.name.value,
+                                                                  varNode.symbol.origin.toBIROrigin());
         birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
 
         this.env.enclPkg.globalVars.add(birVarDcl);
@@ -1721,7 +1722,8 @@ public class BIRGen extends BLangNodeVisitor {
         if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT ||
                 !isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg)) {
             return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
-                    symbol.name, VarScope.GLOBAL, VarKind.CONSTANT, symbol.name.value);
+                                            symbol.name, VarScope.GLOBAL, VarKind.CONSTANT, symbol.name.value,
+                                            symbol.origin.toBIROrigin());
         }
 
         return this.globalVarMap.get(symbol);
@@ -2161,8 +2163,8 @@ public class BIRGen extends BLangNodeVisitor {
             if (birGlobalVar == null) {
                 birGlobalVar = dummyGlobalVarMapForLocks.computeIfAbsent(globalVar, k ->
                         new BIRGlobalVariableDcl(null, globalVar.flags, globalVar.type, globalVar.pkgID,
-                                globalVar.name, VarScope.GLOBAL, VarKind.GLOBAL, globalVar.name.value)
-                );
+                                                 globalVar.name, VarScope.GLOBAL, VarKind.GLOBAL,
+                                                 globalVar.name.value, globalVar.origin.toBIROrigin()));
             }
 
             ((BIRTerminator.Lock) this.env.enclBB.terminator).lockVariables.add(birGlobalVar);
