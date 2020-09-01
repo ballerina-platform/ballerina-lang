@@ -54,7 +54,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
         List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
 
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode refNode = ((QualifiedNameReferenceNode) nodeAtCursor);
             List<Scope.ScopeEntry> moduleContent;
 
@@ -102,5 +102,14 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
         }
 
         return completionItems;
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, TypeParameterNode node) {
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int gtToken = node.gtToken().textRange().endOffset();
+        int ltToken = node.ltToken().textRange().startOffset();
+        
+        return ltToken < cursor && gtToken > cursor;
     }
 }

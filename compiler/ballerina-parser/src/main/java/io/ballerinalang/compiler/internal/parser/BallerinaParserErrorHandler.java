@@ -2128,12 +2128,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 nextContext = ParserRuleContext.QUERY_EXPRESSION_END;
             }
         } else if (parentCtx == ParserRuleContext.JOIN_CLAUSE) {
-            STToken nextToken = this.tokenReader.peek(lookahead);
-            if (nextToken.kind == SyntaxKind.ON_KEYWORD) {
-                nextContext = ParserRuleContext.ON_CLAUSE;
-            } else {
-                nextContext = ParserRuleContext.JOIN_CLAUSE_END;
-            }
+            nextContext = ParserRuleContext.ON_CLAUSE;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -2977,6 +2972,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.BINDING_PATTERN;
             case CONFLICT_KEYWORD:
             case LIMIT_KEYWORD:
+            case EQUALS_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case OUTER_KEYWORD:
                 return ParserRuleContext.JOIN_KEYWORD;
