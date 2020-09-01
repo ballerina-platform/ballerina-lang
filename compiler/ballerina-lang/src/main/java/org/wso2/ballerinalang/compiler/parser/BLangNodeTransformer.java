@@ -579,6 +579,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLFunction;
     }
 
+    @Override
     public BLangNode transform(ConstantDeclarationNode constantDeclarationNode) {
         BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
         DiagnosticPos pos = getPositionWithoutMetadata(constantDeclarationNode);
@@ -586,8 +587,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         constantNode.name = createIdentifier(identifierPos, constantDeclarationNode.variableName());
         constantNode.expr = createExpression(constantDeclarationNode.initializer());
         constantNode.pos = pos;
-        if (constantDeclarationNode.typeDescriptor() != null) {
-            constantNode.typeNode = createTypeNode(constantDeclarationNode.typeDescriptor());
+        if (constantDeclarationNode.typeDescriptor().isPresent()) {
+            constantNode.typeNode = createTypeNode(constantDeclarationNode.typeDescriptor().orElse(null));
         }
 
         constantNode.annAttachments = applyAll(getAnnotations(constantDeclarationNode.metadata()));
@@ -595,8 +596,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 createMarkdownDocumentationAttachment(getDocumentationString(constantDeclarationNode.metadata()));
 
         constantNode.flagSet.add(Flag.CONSTANT);
-        if (constantDeclarationNode.visibilityQualifier() != null &&
-                constantDeclarationNode.visibilityQualifier().kind() == SyntaxKind.PUBLIC_KEYWORD) {
+        if (constantDeclarationNode.visibilityQualifier().isPresent() &&
+                constantDeclarationNode.visibilityQualifier().orElse(null).kind() == SyntaxKind.PUBLIC_KEYWORD) {
             constantNode.flagSet.add(Flag.PUBLIC);
         }
 
@@ -901,7 +902,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectFieldNode objFieldNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(objFieldNode.fieldName(), objFieldNode.typeName(),
-                                                        objFieldNode.expression(),
+                                                        objFieldNode.expression().orElse(null),
                                                         false, false, objFieldNode.visibilityQualifier().orElse(null),
                                                         getAnnotations(objFieldNode.metadata()));
         // Transform documentation
@@ -1643,7 +1644,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLiteralNode.fields.add(bLRecordKeyValueField);
             } else {
                 SpecificFieldNode specificField = (SpecificFieldNode) field;
-                io.ballerinalang.compiler.syntax.tree.ExpressionNode valueExpr = specificField.valueExpr();
+                io.ballerinalang.compiler.syntax.tree.ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
                 if (valueExpr == null) {
                     BLangRecordLiteral.BLangRecordVarNameField fieldVar =
                             (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
@@ -1980,9 +1981,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node node : tableConstructorExpressionNode.mappingConstructors()) {
             tableConstructorExpr.addRecordLiteral((BLangRecordLiteral) node.apply(this));
         }
-        if (tableConstructorExpressionNode.keySpecifier() != null) {
+        if (tableConstructorExpressionNode.keySpecifier().isPresent()) {
             tableConstructorExpr.tableKeySpecifier =
-                    (BLangTableKeySpecifier) tableConstructorExpressionNode.keySpecifier().apply(this);
+                    (BLangTableKeySpecifier) tableConstructorExpressionNode.keySpecifier().orElse(null).apply(this);
         }
         return tableConstructorExpr;
     }
@@ -2935,7 +2936,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(XMLNamespaceDeclarationNode xmlnsDeclNode) {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
-        BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
+        BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix().orElse(null));
 
         BLangExpression namespaceUri = createExpression(xmlnsDeclNode.namespaceuri());
         xmlns.namespaceURI = namespaceUri;
@@ -3037,19 +3038,24 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         int dimensions = 1;
-        List<BLangExpression> sizes = new ArrayList<>();
+        List<Integer> sizes = new ArrayList<>();
         DiagnosticPos position = getPosition(arrayTypeDescriptorNode);
         while (true) {
             if (!arrayTypeDescriptorNode.arrayLength().isPresent()) {
-                sizes.add(new BLangLiteral(Integer.valueOf(UNSEALED_ARRAY_INDICATOR), symTable.intType));
+                sizes.add(UNSEALED_ARRAY_INDICATOR);
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
-                    sizes.add(new BLangLiteral(Integer.parseInt(keyExpr.toString()), symTable.intType));
-                } else if (keyExpr.kind() == SyntaxKind.ASTERISK_TOKEN) {
-                    sizes.add(new BLangLiteral(Integer.valueOf(OPEN_SEALED_ARRAY_INDICATOR), symTable.intType));
+                    BasicLiteralNode numericLiteralNode = (BasicLiteralNode) keyExpr;
+                    if (numericLiteralNode.literalToken().kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
+                        sizes.add(Integer.parseInt(keyExpr.toString()));
+                    } else {
+                        sizes.add(Integer.parseInt(keyExpr.toString(), 16));
+                    }
+                } else if (keyExpr.kind() == SyntaxKind.ASTERISK_LITERAL) {
+                    sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
                 } else {
-                    sizes.add(createExpression(keyExpr));
+                    // TODO : should handle the const-reference-expr
                 }
             }
 
@@ -3065,7 +3071,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         arrayTypeNode.pos = position;
         arrayTypeNode.elemtype = createTypeNode(arrayTypeDescriptorNode.memberTypeDesc());
         arrayTypeNode.dimensions = dimensions;
-        arrayTypeNode.sizes =  sizes.stream().toArray(BLangExpression[]::new);
+        arrayTypeNode.sizes = sizes.stream().mapToInt(val -> val).toArray();
         return arrayTypeNode;
     }
 
@@ -3106,9 +3112,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangLiteral literal;
         BLangLiteral deepLiteral;
-        if (member.constExprNode() != null) {
-            literal = createSimpleLiteral(member.constExprNode());
-            deepLiteral = createSimpleLiteral(member.constExprNode());
+        if (member.constExprNode().isPresent()) {
+            literal = createSimpleLiteral(member.constExprNode().orElse(null));
+            deepLiteral = createSimpleLiteral(member.constExprNode().orElse(null));
         } else {
             literal = createSimpleLiteral(member.identifier());
             deepLiteral = createSimpleLiteral(member.identifier());
@@ -3116,7 +3122,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (literal.originalValue != "" || member.identifier().isMissing()) {
             bLangConstant.setInitialExpression(literal);
         } else {
-            bLangConstant.setInitialExpression(createExpression(member.constExprNode()));
+            bLangConstant.setInitialExpression(createExpression(member.constExprNode().orElse(null)));
         }
 
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();

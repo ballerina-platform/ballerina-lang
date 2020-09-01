@@ -36,10 +36,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.ObjectTypeN
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.VariableReferenceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -75,7 +72,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
     private BLangDiagnosticLogHelper dlog;
-    private SymbolTable symTable;
 
     private List<String> pkgNameComps;
     private String pkgVersion;
@@ -832,19 +828,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         int index = 1;
         int dimensions = 0;
-        List<BLangExpression> sizes = new ArrayList<>();
+        List<Integer> sizes = new ArrayList<>();
         List<ParseTree> children = ctx.children;
-
         while (index < children.size()) {
             if (children.get(index).getText().equals("[")) {
                 if (children.get(index + 1).getText().equals("]")) {
-                    sizes.add(new BLangLiteral(Integer.valueOf(UNSEALED_ARRAY_INDICATOR), symTable.intType));
+                    sizes.add(UNSEALED_ARRAY_INDICATOR);
                     index += 2;
                 } else if (children.get(index + 1).getText().equals(OPEN_SEALED_ARRAY)) {
-                    sizes.add(new BLangLiteral(Integer.valueOf(OPEN_SEALED_ARRAY_INDICATOR), symTable.intType));
+                    sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
                     index += 1;
                 } else {
-                    sizes.add(new BLangLiteral(Integer.parseInt(children.get(index + 1).getText()), symTable.intType));
+                    sizes.add(Integer.parseInt(children.get(index + 1).getText()));
                     index += 1;
                 }
                 dimensions++;
@@ -854,39 +849,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         Collections.reverse(sizes);
         this.pkgBuilder.addArrayType(
-                getCurrentPos(ctx), getWS(ctx), dimensions, sizes.stream().toArray(BLangExpression[]::new));
+                getCurrentPos(ctx), getWS(ctx), dimensions, sizes.stream().mapToInt(val -> val).toArray());
     }
-
-//    public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {
-//        if (isInErrorState) {
-//            return;
-//        }
-//
-//        int index = 1;
-//        int dimensions = 0;
-//        List<Integer> sizes = new ArrayList<>();
-//        List<ParseTree> children = ctx.children;
-//        while (index < children.size()) {
-//            if (children.get(index).getText().equals("[")) {
-//                if (children.get(index + 1).getText().equals("]")) {
-//                    sizes.add(UNSEALED_ARRAY_INDICATOR);
-//                    index += 2;
-//                } else if (children.get(index + 1).getText().equals(OPEN_SEALED_ARRAY)) {
-//                    sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
-//                    index += 1;
-//                } else {
-//                    sizes.add(Integer.parseInt(children.get(index + 1).getText()));
-//                    index += 1;
-//                }
-//                dimensions++;
-//            } else {
-//                index++;
-//            }
-//        }
-//        Collections.reverse(sizes);
-//        this.pkgBuilder.addArrayType(
-//                getCurrentPos(ctx), getWS(ctx), dimensions, sizes.stream().mapToInt(val -> val).toArray());
-//    }
 
     @Override
     public void exitUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx) {

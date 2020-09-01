@@ -120,7 +120,6 @@ public enum DiagnosticCode {
     REDECLARED_FUNCTION_FROM_TYPE_REFERENCE("redeclared.function.from.type.reference"),
     REFERRED_FUNCTION_SIGNATURE_MISMATCH("referred.function.signature.mismatch"),
 
-
     INVOKABLE_MUST_RETURN("invokable.must.return"),
     MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
     MAIN_PARAMS_SHOULD_BE_ANYDATA("main.params.should.be.anydata"),
@@ -308,9 +307,6 @@ public enum DiagnosticCode {
     INDEX_OUT_OF_RANGE("index.out.of.range"),
     LIST_INDEX_OUT_OF_RANGE("list.index.out.of.range"),
     ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range"),
-    INVALID_ARRAY_SIZE_REFERENCE("invalid.array.size.reference"),
-    ARRAY_SIZE_REFERENCE_NOT_DEFINED("array.size.reference.not.defined"),
-    INVALID_ARRAY_SIZE_REFERENCE_TYPE("invalid.array.size.reference.type"),
     TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range"),
     INVALID_TYPE_FOR_REST_DESCRIPTOR("invalid.type.for.rest.descriptor"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
