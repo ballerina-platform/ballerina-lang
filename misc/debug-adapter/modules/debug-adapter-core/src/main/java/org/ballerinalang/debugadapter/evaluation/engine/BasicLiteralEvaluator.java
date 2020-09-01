@@ -56,12 +56,13 @@ public class BasicLiteralEvaluator extends Evaluator {
                 return new BExpressionValue(context, null);
             case NUMERIC_LITERAL:
                 SyntaxKind literalTokenKind = ((BasicLiteralNode) syntaxNode).literalToken().kind();
-                if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
-                        literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+                if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
                     // int literal
+                    // Todo - Add hex int literal support
                     return EvaluationUtils.make(context, Long.parseLong(literalString));
                 } else {
                     // float literal
+                    // Todo - Add hex float literal support
                     return EvaluationUtils.make(context, Double.parseDouble(literalString));
                 }
             case BOOLEAN_LITERAL:

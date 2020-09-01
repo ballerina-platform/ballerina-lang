@@ -23,6 +23,7 @@ import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
@@ -40,6 +41,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluato
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.FieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.IndexedExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
 
@@ -62,8 +64,9 @@ import java.util.StringJoiner;
  * <li> Variable reference expression
  * <li> Field access expression
  * <li> Function call expression
- * <li> Function call expression
+ * <li> Method call expression
  * <li> Braced expression
+ * <li> Member access expression
  * </ul>
  * <br>
  * To be Implemented.
@@ -74,7 +77,6 @@ import java.util.StringJoiner;
  * <li> Optional field access expression
  * <li> XML attribute access expression
  * <li> Annotation access expression
- * <li> Member access expression
  * <li> Error constructor
  * <li> Anonymous function expression
  * <li> Let expression
@@ -197,7 +199,7 @@ public class EvaluatorBuilder extends NodeVisitor {
             // Todo - should we disable GC like intellij expression evaluator does?
             argEvaluators.add(result);
         }
-        result = new MethodCallExpressionEvaluator(context, expression, methodCallExpressionNode, argEvaluators);
+        result = new MethodCallExpressionEvaluator(context, methodCallExpressionNode, expression, argEvaluators);
     }
 
     @Override
@@ -207,6 +209,31 @@ public class EvaluatorBuilder extends NodeVisitor {
         fieldAccessExpressionNode.expression().accept(this);
         Evaluator expression = result;
         result = new FieldAccessExpressionEvaluator(context, expression, fieldAccessExpressionNode);
+    }
+
+    @Override
+    public void visit(IndexedExpressionNode indexedExpressionNode) {
+        visitSyntaxNode(indexedExpressionNode);
+        indexedExpressionNode.containerExpression().accept(this);
+        Evaluator containerEvaluator = result;
+        SeparatedNodeList<ExpressionNode> keyNodes = indexedExpressionNode.keyExpression();
+        // Removes separator nodes from the key list.
+        for (int index = keyNodes.size() - 2; index > 0; index -= 2) {
+            keyNodes.remove(index);
+        }
+        List<Evaluator> keyEvaluators = new ArrayList<>();
+        for (int idx = 0; idx < keyNodes.size(); idx++) {
+            final ExpressionNode keyExprNode = keyNodes.get(idx);
+            keyExprNode.accept(this);
+            if (result == null) {
+                builderException = new EvaluationException(String.format(EvaluationExceptionKind.INVALID_ARGUMENT
+                        .getString(), keyExprNode.toSourceCode().trim()));
+                return;
+            }
+            // Todo - should we disable GC like intellij expression evaluator does?
+            keyEvaluators.add(result);
+        }
+        result = new IndexedExpressionEvaluator(context, indexedExpressionNode, containerEvaluator, keyEvaluators);
     }
 
     @Override
@@ -349,7 +376,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addMemberAccessExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.INDEXED_EXPRESSION);
     }
 
     private void addFunctionCallExpressionSyntax() {
