@@ -340,6 +340,7 @@ public class JvmMethodGen {
         // Add strand variable to LVT
         mv.visitLocalVariable("__strand", String.format("L%s;", STRAND_CLASS), null, methodStartLabel, methodEndLabel,
                               localVarOffset);
+        BIRBasicBlock endBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         for (int i = localVarOffset; i < func.localVars.size(); i++) {
             BIRVariableDcl localVar = func.localVars.get(i);
             Label startLabel = methodStartLabel;
@@ -353,7 +354,7 @@ public class JvmMethodGen {
                     startLabel = labelGen.getLabel(funcName + JvmCodeGenUtil.SCOPE_PREFIX + localVar.insScope.id);
                 }
                 if (localVar.endBB != null) {
-                    endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
+                    endLabel = labelGen.getLabel(funcName + endBB.id.value + "beforeTerm");
                 }
             }
             String metaVarName = localVar.metaVarName;
@@ -366,8 +367,7 @@ public class JvmMethodGen {
 
     private boolean isLocalOrArg(BIRVariableDcl localVar) {
         boolean synArg = localVar.type.tag == TypeTags.BOOLEAN && localVar.name.value.startsWith("%syn");
-        return !synArg && (localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG)
-                && !localVar.isGeneratedInDesugar;
+        return !synArg && (localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG);
     }
 
     private boolean isCompilerAddedVars(String metaVarName) {

@@ -954,8 +954,14 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef astVarDefStmt) {
+        VarKind kind;
+        if (Symbols.isFlagOn(astVarDefStmt.var.symbol.flags, Flags.DESTRUCTURED)) {
+            kind = VarKind.SYNTHETIC;
+        } else {
+            kind = VarKind.LOCAL;
+        }
         BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.LOCAL, astVarDefStmt.var.name.value);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, kind, astVarDefStmt.var.name.value);
         birVarDcl.startBB = this.env.enclBB;
         this.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
         this.env.enclFunc.localVars.add(birVarDcl);
@@ -967,9 +973,7 @@ public class BIRGen extends BLangNodeVisitor {
         birVarDcl.insScope = newScope;
         this.currentScope = newScope;
 
-        if (Symbols.isFlagOn(astVarDefStmt.var.symbol.flags, Flags.DESTRUCTURED)) {
-            birVarDcl.isGeneratedInDesugar = true;
-        }
+
 
         if (astVarDefStmt.var.expr == null) {
             return;
