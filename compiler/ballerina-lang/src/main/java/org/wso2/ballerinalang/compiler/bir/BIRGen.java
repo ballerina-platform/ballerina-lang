@@ -409,7 +409,8 @@ public class BIRGen extends BLangNodeVisitor {
 
             BInvokableSymbol funcSymbol = func.symbol;
             BIRFunction birFunc = new BIRFunction(astTypeDefinition.pos, func.funcName, funcSymbol.flags, func.type,
-                    names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable());
+                                                  names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable(),
+                                                  funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
                 birFunc.receiver = getSelf(funcSymbol.receiverSymbol, funcSymbol.receiverSymbol.type,
@@ -488,11 +489,11 @@ public class BIRGen extends BLangNodeVisitor {
         if (isTypeAttachedFunction) {
             Name funcName = names.fromString(astFunc.symbol.name.value);
             birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
-                    astFunc.sendsToThis.size(), taintTable);
+                                      astFunc.sendsToThis.size(), taintTable, astFunc.symbol.origin.toBIROrigin());
         } else {
             Name funcName = getFuncName(astFunc.symbol);
             birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
-                    astFunc.sendsToThis.size(), taintTable);
+                                      astFunc.sendsToThis.size(), taintTable, astFunc.symbol.origin.toBIROrigin());
         }
         if (astFunc.receiver != null) {
             BIRFunctionParameter birVarDcl = new BIRFunctionParameter(astFunc.pos, astFunc.receiver.type,

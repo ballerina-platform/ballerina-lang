@@ -200,6 +200,8 @@ public class BIRBinaryWriter {
         buf.writeInt(addStringCPEntry(birFunction.workerName.value));
         // Flags
         buf.writeInt(birFunction.flags);
+        // Origin
+        buf.writeByte(birFunction.origin.value());
 
         // Function type as a CP Index
         writeType(buf, birFunction.type);

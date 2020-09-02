@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -209,9 +208,9 @@ class JvmObservabilityGen {
             Name lambdaName = new Name(String.format("$lambda$observability%d$%s", lambdaIndex++,
                     asyncCallIns.name.value.replace(".", "_")));
             BInvokableType bInvokableType = new BInvokableType(argTypes, null,
-                    returnType, null);
+                                                               returnType, null);
             BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
-                    func.workerName, 0, null);
+                                                        func.workerName, 0, null, VIRTUAL);
             desugaredFunc.receiver = func.receiver;
             scopeFunctionsList.add(desugaredFunc);
 

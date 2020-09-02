@@ -260,6 +260,11 @@ public abstract class BIRNode {
         public int flags;
 
         /**
+         * The origin of the function.
+         */
+        public SymbolOrigin origin;
+
+        /**
          * Type of this function. e.g., (int, int) returns (int).
          */
         public BInvokableType type;
@@ -328,7 +333,7 @@ public abstract class BIRNode {
         public List<BIRAnnotationAttachment> annotAttachments;
 
         public BIRFunction(DiagnosticPos pos, Name name, int flags, BInvokableType type, Name workerName,
-                int sendInsCount, TaintTable taintTable) {
+                           int sendInsCount, TaintTable taintTable, SymbolOrigin origin) {
             super(pos);
             this.name = name;
             this.flags = flags;
@@ -342,6 +347,7 @@ public abstract class BIRNode {
             this.workerChannels = new ChannelDetails[sendInsCount];
             this.taintTable = taintTable;
             this.annotAttachments = new ArrayList<>();
+            this.origin = origin;
         }
 
         @Override
@@ -350,7 +356,7 @@ public abstract class BIRNode {
         }
 
         public BIRFunction duplicate() {
-            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, taintTable);
+            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, taintTable, origin);
             f.localVars = localVars;
             f.parameters = parameters;
             f.requiredParams = requiredParams;

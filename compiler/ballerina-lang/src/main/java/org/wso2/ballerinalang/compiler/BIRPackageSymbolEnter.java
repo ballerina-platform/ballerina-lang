@@ -350,12 +350,13 @@ public class BIRPackageSymbolEnter {
         String funcName = getStringCPEntryValue(dataInStream);
         String workerName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
+        byte origin = dataInStream.readByte();
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol =
                 Symbols.createFunctionSymbol(flags, names.fromString(funcName), this.env.pkgSymbol.pkgID, funcType,
                                              this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE),
-                                             symTable.builtinPos, COMPILED_SOURCE);
+                                             symTable.builtinPos, toOrigin(origin));
         invokableSymbol.source = source;
         invokableSymbol.retType = funcType.retType;
 
