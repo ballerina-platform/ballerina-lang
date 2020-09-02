@@ -309,8 +309,6 @@ public enum DiagnosticCode {
     ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range"),
     TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range"),
     INVALID_ARRAY_SIZE_REFERENCE("invalid.array.size.reference"),
-    ARRAY_SIZE_REFERENCE_NOT_DEFINED("array.size.reference.not.defined"),
-    INVALID_ARRAY_SIZE_REFERENCE_TYPE("invalid.array.size.reference.type"),
     INVALID_TYPE_FOR_REST_DESCRIPTOR("invalid.type.for.rest.descriptor"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
     INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),

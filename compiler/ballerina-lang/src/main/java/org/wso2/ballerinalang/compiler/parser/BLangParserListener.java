@@ -62,8 +62,8 @@ import java.util.regex.Pattern;
 
 import static org.wso2.ballerinalang.compiler.parser.BLangPackageBuilder.escapeQuotedIdentifier;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY;
-import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
-import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 
 /**
  * @since 0.94
@@ -837,10 +837,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         while (index < children.size()) {
             if (children.get(index).getText().equals("[")) {
                 if (children.get(index + 1).getText().equals("]")) {
-                    sizes.add(new BLangLiteral(Integer.valueOf(UNSEALED_ARRAY_INDICATOR), symTable.intType));
+                    sizes.add(new BLangLiteral(Integer.valueOf(OPEN_ARRAY_INDICATOR), symTable.intType));
                     index += 2;
                 } else if (children.get(index + 1).getText().equals(OPEN_SEALED_ARRAY)) {
-                    sizes.add(new BLangLiteral(Integer.valueOf(OPEN_SEALED_ARRAY_INDICATOR), symTable.intType));
+                    sizes.add(new BLangLiteral(Integer.valueOf(INFERRED_ARRAY_INDICATOR), symTable.intType));
                     index += 1;
                 } else {
                     sizes.add(new BLangLiteral(Integer.parseInt(children.get(index + 1).getText()), symTable.intType));

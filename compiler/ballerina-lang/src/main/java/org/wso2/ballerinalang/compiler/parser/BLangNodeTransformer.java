@@ -403,8 +403,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.model.elements.Flag.SERVICE;
-import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
-import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
@@ -3042,7 +3042,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         DiagnosticPos position = getPosition(arrayTypeDescriptorNode);
         while (true) {
             if (!arrayTypeDescriptorNode.arrayLength().isPresent()) {
-                sizes.add(new BLangLiteral(Integer.valueOf(UNSEALED_ARRAY_INDICATOR), symTable.intType));
+                sizes.add(new BLangLiteral(Integer.valueOf(OPEN_ARRAY_INDICATOR), symTable.intType));
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
@@ -3053,7 +3053,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                         sizes.add(new BLangLiteral(Integer.parseInt(keyExpr.toString(), 16), symTable.intType));
                     }
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_LITERAL) {
-                    sizes.add(new BLangLiteral(Integer.valueOf(OPEN_SEALED_ARRAY_INDICATOR), symTable.intType));
+                    sizes.add(new BLangLiteral(Integer.valueOf(INFERRED_ARRAY_INDICATOR), symTable.intType));
                 } else {
                     sizes.add(createExpression(keyExpr));
                 }
@@ -3071,7 +3071,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         arrayTypeNode.pos = position;
         arrayTypeNode.elemtype = createTypeNode(arrayTypeDescriptorNode.memberTypeDesc());
         arrayTypeNode.dimensions = dimensions;
-        arrayTypeNode.sizes = sizes.stream().toArray(BLangExpression[]::new);
+        arrayTypeNode.sizes = sizes.toArray(new BLangExpression[0]);
         return arrayTypeNode;
     }
 

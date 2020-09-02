@@ -65,11 +65,12 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
         final StringBuilder[] sb = {new StringBuilder(getTypeName())};
         if (sizes.length == 0) {
             Arrays.stream(sizes).forEach(size -> {
-                if (size instanceof BLangLiteral) {
-                    if ((Integer) (((BLangLiteral) size).getValue()) == -1) {
+                if (size.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    Integer sizeIndicator = (Integer) (((BLangLiteral) size).getValue());
+                    if (sizeIndicator == -1) {
                         sb[0].append("[]");
                     } else {
-                        sb[0].append("[").append((Integer) (((BLangLiteral) size).getValue())).append("]");
+                        sb[0].append("[").append(sizeIndicator).append("]");
                     }
                 } else {
                     sb[0].append("[").append(((BLangSimpleVarRef) size).variableName).append("]");
