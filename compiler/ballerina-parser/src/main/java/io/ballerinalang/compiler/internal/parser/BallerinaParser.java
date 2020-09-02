@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerina.tools.text.CharReader;
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
@@ -64,8 +65,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STUnaryExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STUnionTypeDescriptorNode;
 import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocuments;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -5266,7 +5265,9 @@ public class BallerinaParser extends AbstractParser {
         // Parse first field mapping, that has no leading comma
         List<STNode> fields = new ArrayList<>();
         STNode field = parseMappingField(ParserRuleContext.FIRST_MAPPING_FIELD);
-        fields.add(field);
+        if (field != null) {
+            fields.add(field);
+        }
 
         return parseMappingConstructorFields(fields);
     }
@@ -8421,8 +8422,8 @@ public class BallerinaParser extends AbstractParser {
             nextToken = peek();
         }
 
-        TextDocument textDocument = TextDocuments.from(xmlStringBuilder.toString());
-        AbstractTokenReader tokenReader = new TokenReader(new XMLLexer(textDocument.getCharacterReader()));
+        CharReader charReader = CharReader.from(xmlStringBuilder.toString());
+        AbstractTokenReader tokenReader = new TokenReader(new XMLLexer(charReader));
         XMLParser xmlParser = new XMLParser(tokenReader, expressions);
         return xmlParser.parse();
     }
@@ -9080,6 +9081,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseSelectClause(isRhsExpr);
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
+            case EQUALS_KEYWORD:
                 return parseJoinClause(isRhsExpr);
             case ORDER_KEYWORD:
             case BY_KEYWORD:
@@ -9110,6 +9112,21 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(token, ParserRuleContext.JOIN_KEYWORD);
             return parseJoinKeyword();
+        }
+    }
+
+    /**
+     * Parse equals keyword.
+     *
+     * @return Parsed node
+     */
+    private STNode parseEqualsKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.EQUALS_KEYWORD) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.EQUALS_KEYWORD);
+            return parseEqualsKeyword();
         }
     }
 
@@ -9498,15 +9515,7 @@ public class BallerinaParser extends AbstractParser {
         // within the from-clause, due to the precedence.
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         endContext();
-
-        STNode onCondition;
-        nextToken = peek();
-        if (nextToken.kind == SyntaxKind.ON_KEYWORD) {
-            onCondition = parseOnClause(isRhsExpr);
-        } else {
-            onCondition = STNodeFactory.createEmptyNode();
-        }
-
+        STNode onCondition = parseOnClause(isRhsExpr);
         return STNodeFactory.createJoinClauseNode(outerKeyword, joinKeyword, typedBindingPattern, inKeyword, expression,
                 onCondition);
     }
@@ -9522,8 +9531,10 @@ public class BallerinaParser extends AbstractParser {
         STNode onKeyword = parseOnKeyword();
         // note that parsing expression includes following.
         // equals-expr := expression `equals` expression
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
-        return STNodeFactory.createOnClauseNode(onKeyword, expression);
+        STNode lhsExpression = parseExpression(OperatorPrecedence.EQUALITY, isRhsExpr, false);
+        STNode equalsKeyword = parseEqualsKeyword();
+        STNode rhsExpression = parseExpression(OperatorPrecedence.EQUALITY, isRhsExpr, false);
+        return STNodeFactory.createOnClauseNode(onKeyword, lhsExpression, equalsKeyword, rhsExpression);
     }
 
     /**
@@ -12016,10 +12027,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseDocumentationString(STToken documentationStringToken) {
         List<STNode> leadingTriviaList = getLeadingTriviaList(documentationStringToken.leadingMinutiae());
-        TextDocument textDocument = TextDocuments.from(documentationStringToken.text());
-
-        DocumentationLexer documentationLexer =
-                new DocumentationLexer(textDocument.getCharacterReader(), leadingTriviaList);
+        CharReader charReader = CharReader.from(documentationStringToken.text());
+        DocumentationLexer documentationLexer = new DocumentationLexer(charReader, leadingTriviaList);
         AbstractTokenReader tokenReader = new TokenReader(documentationLexer);
         DocumentationParser documentationParser = new DocumentationParser(tokenReader);
         return documentationParser.parse();

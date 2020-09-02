@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerinalang.compiler.text.LineRange;
-import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -48,8 +48,7 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ModuleVariableDeclarationNode node) {
         if (this.withinInitializerContext(context, node)) {
-            return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor(),
-                    node.initializer());
+            return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
         }
 
         if (withinServiceOnKeywordContext(context, node)) {

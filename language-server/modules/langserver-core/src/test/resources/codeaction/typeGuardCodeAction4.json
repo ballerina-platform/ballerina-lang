@@ -15,7 +15,7 @@
                         "character": 17
                     }
                 },
-                "newText": "(int|string|boolean) orange = get_orange();\n    if (orange is int) {\n\n    } else {\n\n    }"
+                "newText": "(int|string|boolean) orange \u003d get_orange();\n\t\t\t\tif (orange is int) {\n\n\t\t\t\t} else if (orange is string) {\n\n\t\t\t\t} else {\n\n\t\t\t\t}"
             }
         ]
     }

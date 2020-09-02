@@ -170,6 +170,7 @@ public class ChoreoClient implements AutoCloseable {
                                                          .setProjectSecret(projectSecret)
                                                          .build());
         }
+        LOGGER.debug("Successfully published " + metrics.length + " metrics to Choreo");
     }
 
     public void publishTraceSpans(ChoreoTraceSpan[] traceSpans) {
@@ -218,6 +219,7 @@ public class ChoreoClient implements AutoCloseable {
                                                         .setProjectSecret(projectSecret)
                                                         .build());
         }
+        LOGGER.debug("Successfully published " + traceSpans.length + " traces to Choreo");
     }
 
     @Override

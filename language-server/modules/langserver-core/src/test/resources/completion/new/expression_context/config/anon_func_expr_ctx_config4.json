@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 6,
+    "character": 28
+  },
+  "source": "expression_context/source/anon_func_expr_ctx_source4.bal",
+  "items": [
+    {
+      "label": "returns",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "returns ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

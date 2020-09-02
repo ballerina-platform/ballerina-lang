@@ -36,10 +36,10 @@ import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TRACER_N
  */
 public class TracersStore {
 
-    private TracerGenerator tracer;
-    private Map<String, Tracer> tracerStore = null;
+    private OpenTracer tracerGenerator;
+    private Map<String, Tracer> store;
     private static final PrintStream consoleError = System.err;
-    private static TracersStore instance = new TracersStore();
+    private static final TracersStore instance = new TracersStore();
 
     public static TracersStore getInstance() {
         return instance;
@@ -51,21 +51,20 @@ public class TracersStore {
     public void loadTracers() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
-
-            this.tracerStore = new HashMap<>();
+            String overallProviderName = configRegistry.getConfigOrDefault(CONFIG_OBSERVABILITY_PROVIDER, JAEGER);
+            String tracerName = configRegistry.getConfigOrDefault(TRACER_NAME_CONFIG, overallProviderName);
 
             ServiceLoader<OpenTracer> openTracers = ServiceLoader.load(OpenTracer.class);
-            HashMap<String, OpenTracer> tracerMap = new HashMap<>();
-            openTracers.forEach(t -> tracerMap.put(t.getName().toLowerCase(), t));
+            for (OpenTracer openTracer : openTracers) {
+                if (tracerName.equalsIgnoreCase(openTracer.getName())) {
+                    tracerGenerator = openTracer;
+                    break;
+                }
+            }
 
-            String defaultReporterName = configRegistry.getConfigOrDefault(CONFIG_OBSERVABILITY_PROVIDER, JAEGER);
-            String tracerName = configRegistry.getConfigOrDefault(TRACER_NAME_CONFIG, defaultReporterName);
-
-            OpenTracer openTracer = tracerMap.get(tracerName.toLowerCase());
-            if (openTracer != null) {
+            if (tracerGenerator != null) {
                 try {
-                    openTracer.init();
-                    tracer = new TracerGenerator(openTracer.getName(), openTracer);
+                    tracerGenerator.init();
                 } catch (InvalidConfigurationException e) {
                     consoleError.println("error: error in observability tracing configurations: " + e.getMessage());
                 }
@@ -73,9 +72,8 @@ public class TracersStore {
                 consoleError.println(
                         "error: observability enabled but no tracing extension found for name " + tracerName);
             }
-        } else {
-            this.tracerStore = new HashMap<>();
         }
+        store = new HashMap<>();
     }
 
     /**
@@ -85,37 +83,21 @@ public class TracersStore {
      * @return trace implementations i.e: zipkin, jaeger
      */
     public Tracer getTracer(String serviceName) {
-        if (tracerStore.containsKey(serviceName)) {
-            return tracerStore.get(serviceName);
+        Tracer openTracer = null;
+        if (store.containsKey(serviceName)) {
+            openTracer = store.get(serviceName);
         } else {
-            Tracer openTracer = null;
-            if (tracer != null) {
+            if (tracerGenerator != null) {
                 try {
-                    openTracer = tracer.generate(serviceName);
+                    openTracer = tracerGenerator.getTracer(serviceName);
+                    store.put(serviceName, openTracer);
                 } catch (Throwable e) {
-                    consoleError.println("error: error getting tracer for " + tracer.name + ". " + e.getMessage());
+                    consoleError.println("error: error getting tracer for " + serviceName + " service from "
+                            + tracerGenerator.getName() + ". " + e.getMessage());
                 }
             }
-            tracerStore.put(serviceName, openTracer);
-            return openTracer;
         }
-    }
-
-    /**
-     * Holds the tracerExt and generates a tracer upon request.
-     */
-    private static class TracerGenerator {
-        String name;
-        OpenTracer tracer;
-
-        TracerGenerator(String name, OpenTracer tracer) {
-            this.name = name;
-            this.tracer = tracer;
-        }
-
-        Tracer generate(String serviceName) {
-            return tracer.getTracer(name, serviceName);
-        }
+        return openTracer;
     }
 
     /**
@@ -124,6 +106,6 @@ public class TracersStore {
      * @return boolean value whether it's initialized.
      */
     public boolean isInitialized() {
-        return this.tracerStore != null;
+        return this.store != null;
     }
 }
