@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerina.tools.text.CharReader;
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
@@ -597,7 +598,7 @@ public class BallerinaLexer extends AbstractLexer {
             reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
         }
 
-        return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN);
     }
 
     /**
@@ -647,7 +648,7 @@ public class BallerinaLexer extends AbstractLexer {
                 return parseFloatingPointTypeSuffix();
         }
 
-        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -695,7 +696,7 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         if (isHex) {
-            return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
+            return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN);
         }
 
         switch (nextChar) {
@@ -706,7 +707,7 @@ public class BallerinaLexer extends AbstractLexer {
                 return parseFloatingPointTypeSuffix();
         }
 
-        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -725,7 +726,7 @@ public class BallerinaLexer extends AbstractLexer {
      */
     private STToken parseFloatingPointTypeSuffix() {
         reader.advance();
-        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -784,10 +785,10 @@ public class BallerinaLexer extends AbstractLexer {
             case 'P':
                 return processExponent(true);
             default:
-                return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL);
+                return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL_TOKEN);
         }
 
-        return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -1267,7 +1268,7 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        return getLiteral(SyntaxKind.STRING_LITERAL);
+        return getLiteral(SyntaxKind.STRING_LITERAL_TOKEN);
     }
 
     /**

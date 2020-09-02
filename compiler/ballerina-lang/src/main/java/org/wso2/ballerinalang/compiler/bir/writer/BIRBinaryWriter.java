@@ -65,7 +65,7 @@ public class BIRBinaryWriter {
     public byte[] serialize() {
         ByteBuf birbuf = Unpooled.buffer();
         BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp);
-        BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, typeWriter, cp, this);
+        BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, cp, this);
 
 
         // Write the package details in the form of constant pool entry
@@ -88,11 +88,9 @@ public class BIRBinaryWriter {
         // Write functions
         writeFunctions(birbuf, typeWriter, insWriter, birPackage.functions);
         // Write annotations
-        writeAnnotations(birbuf, typeWriter, insWriter, birPackage.annotations);
+        writeAnnotations(birbuf, typeWriter, birPackage.annotations);
 
         // Write the constant pool entries.
-        // TODO Only one constant pool is available for now. This will change in future releases
-        // TODO e.g., strtab, shstrtab, rodata.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream dataOut = new DataOutputStream(baos)) {
             dataOut.write(cp.serialize());
@@ -231,13 +229,12 @@ public class BIRBinaryWriter {
         typeWriter.writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
 
         ByteBuf birbuf = Unpooled.buffer();
-        BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp);
-        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, funcTypeWriter, cp, this);
+        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, cp, this);
 
         // Arg count
         birbuf.writeInt(birFunction.argsCount);
-        // Local variables
 
+        // Write return variable, function parameters and local variables
         birbuf.writeBoolean(birFunction.returnVariable != null);
         if (birFunction.returnVariable != null) {
             birbuf.writeByte(birFunction.returnVariable.kind.getValue());
@@ -261,20 +258,23 @@ public class BIRBinaryWriter {
             birbuf.writeByte(localVar.kind.getValue());
             writeType(birbuf, localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
-            // skip compiler added vars and only write metaVarName for user added vars
-            if (localVar.kind.equals(VarKind.LOCAL) || localVar.kind.equals(VarKind.ARG)) {
+            // Skip compiler added vars and only write metaVarName for user added vars
+            if (localVar.kind.equals(VarKind.ARG)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
             }
-            // add enclosing basic block id
+            // Add enclosing basic block id
             if (localVar.kind.equals(VarKind.LOCAL)) {
+                birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
                 birbuf.writeInt(addStringCPEntry(localVar.endBB != null ? localVar.endBB.id.value : ""));
                 birbuf.writeInt(addStringCPEntry(localVar.startBB != null ? localVar.startBB.id.value : ""));
                 birbuf.writeInt(localVar.insOffset);
             }
         }
 
+        // Write a boolean flag to indicate presence of parameter default bb's
+        birbuf.writeBoolean(!birFunction.parameters.isEmpty());
         // Write basic blocks related to parameter default values
-        birFunction.parameters.values().stream().filter(bbList -> !bbList.isEmpty()).forEach(funcInsWriter::writeBBs);
+        birFunction.parameters.values().forEach(funcInsWriter::writeBBs);
 
         // Write basic blocks
         funcInsWriter.writeBBs(birFunction.basicBlocks);
@@ -289,7 +289,6 @@ public class BIRBinaryWriter {
             birbuf.writeBoolean(details.channelInSameStrand);
             birbuf.writeBoolean(details.send);
         }
-
 
         // Write length of the function body so that it can be skipped easily.
         int length = birbuf.nioBuffer().limit();
@@ -313,8 +312,8 @@ public class BIRBinaryWriter {
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
-    private void writeAnnotations(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
-                                List<BIRNode.BIRAnnotation> birAnnotationList) {
+    private void writeAnnotations(ByteBuf buf, BIRTypeWriter typeWriter,
+                                  List<BIRNode.BIRAnnotation> birAnnotationList) {
         buf.writeInt(birAnnotationList.size());
         birAnnotationList.forEach(annotation -> writeAnnotation(buf, typeWriter, annotation));
     }
@@ -351,7 +350,7 @@ public class BIRBinaryWriter {
 
         writeType(buf, birConstant.type);
 
-        // write the length of the conctant value, so that it can be skipped.
+        // write the length of the constant value, so that it can be skipped.
         ByteBuf birbuf = Unpooled.buffer();
         writeConstValue(birbuf, birConstant.constValue);
         int length = birbuf.nioBuffer().limit();
@@ -427,9 +426,8 @@ public class BIRBinaryWriter {
         buf.writeInt(cp.addShapeCPEntry(type));
     }
 
-    void writeAnnotAttachments(ByteBuf buff,
-                                       BIRInstructionWriter insWriter,
-                                       List<BIRAnnotationAttachment> annotAttachments) {
+    void writeAnnotAttachments(ByteBuf buff, BIRInstructionWriter insWriter,
+                               List<BIRAnnotationAttachment> annotAttachments) {
         ByteBuf annotBuf = Unpooled.buffer();
         annotBuf.writeInt(annotAttachments.size());
         for (BIRAnnotationAttachment annotAttachment : annotAttachments) {

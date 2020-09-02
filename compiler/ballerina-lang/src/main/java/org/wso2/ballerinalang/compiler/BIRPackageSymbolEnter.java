@@ -136,6 +136,8 @@ public class BIRPackageSymbolEnter {
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
 
+    private static final int SERVICE_TYPE_TAG = 51;
+
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
@@ -189,14 +191,8 @@ public class BIRPackageSymbolEnter {
             BPackageSymbol pkgSymbol = definePackage(dataInStream);
             this.env = prevEnv;
             return pkgSymbol;
-        } catch (IOException e) {
-            // TODO dlog.error();
-            throw new BLangCompilerException(e.getMessage(), e);
-            //            return null;
         } catch (Throwable e) {
-            // TODO format error
             throw new BLangCompilerException(e.getMessage(), e);
-            //            return null;
         }
     }
 
@@ -349,10 +345,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {
-        dataInStream.readInt(); // skip line start
-        dataInStream.readInt(); // skip line end
-        dataInStream.readInt(); // skip col start
-        dataInStream.readInt(); // skip col end
+        skipPosition(dataInStream);
         String source = getStringCPEntryValue(dataInStream);
 
         // Consider attached functions.. remove the first variable
@@ -396,7 +389,6 @@ public class BIRPackageSymbolEnter {
         }
 
         // Read annotation attachments
-        // Skip annotation attachments for now
         readFunctionAnnotations(dataInStream, invokableSymbol);
 
         // set parameter symbols to the function symbol
@@ -425,6 +417,8 @@ public class BIRPackageSymbolEnter {
             String pkgVersion = ((StringCPEntry) this.env.constantPool[pkgCpEntry.versionCPIndex]).value;
             PackageID pkgId = createPackageID(orgName, pkgName, pkgVersion);
             skipPosition(dataInStream);
+            // skip source file name
+            dataInStream.readInt();
             BLangAnnotationAttachment annAttachment = new BLangAnnotationAttachment();
             BLangIdentifier annotationName = new BLangIdentifier();
             BLangIdentifier pkgAlias = new BLangIdentifier();
@@ -476,17 +470,10 @@ public class BIRPackageSymbolEnter {
         }
     }
 
-    private void skipPosition(DataInputStream dataInStream) throws IOException {
-        // TODO find a better way to skip this
-        dataInStream.readInt();
-        dataInStream.readInt();
-        dataInStream.readInt();
-        dataInStream.readInt();
-        dataInStream.readInt();
-    }
-
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
         skipPosition(dataInStream);
+        // skip source file name
+        dataInStream.readInt();
         String typeDefName = getStringCPEntryValue(dataInStream);
 
         int flags = dataInStream.readInt();
@@ -526,6 +513,13 @@ public class BIRPackageSymbolEnter {
         this.env.pkgSymbol.scope.define(symbol.name, symbol);
         if (type.tag == TypeTags.ERROR) {
             defineErrorConstructor(this.env.pkgSymbol.scope, symbol);
+        }
+    }
+
+    private void skipPosition(DataInputStream dataInStream) throws IOException {
+        // skip line start, line end, column start and column end
+        for (int i = 0; i < 4; i++) {
+            dataInStream.readInt();
         }
     }
 
@@ -958,7 +952,6 @@ public class BIRPackageSymbolEnter {
     }
 
     private class BIRTypeReader {
-        public static final int SERVICE_TYPE_TAG = 51;
         private DataInputStream inputStream;
 
         public BIRTypeReader(DataInputStream inputStream) {

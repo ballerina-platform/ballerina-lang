@@ -219,7 +219,7 @@
                           ]
                         },
                         {
-                          "kind": "TRUE_KEYWORD",
+                          "kind": "BOOLEAN_LITERAL",
                           "children": [
                             {
                               "kind": "TRUE_KEYWORD",

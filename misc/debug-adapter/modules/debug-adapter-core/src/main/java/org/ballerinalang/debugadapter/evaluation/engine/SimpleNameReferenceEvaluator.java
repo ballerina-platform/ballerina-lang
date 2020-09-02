@@ -49,6 +49,8 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
                         syntaxNode.toString()));
             }
             return new BExpressionValue(context, context.getFrame().getValue(jvmVar));
+        } catch (EvaluationException e) {
+            throw e;
         } catch (JdiProxyException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(),
                     nameRef));

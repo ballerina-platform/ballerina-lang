@@ -25,7 +25,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
 
 /**
- * Basic literal evaluator implementation.
+ * Evaluator implementation for Basic literals.
  *
  * @since 2.0.0
  */
@@ -44,17 +44,18 @@ public class BasicLiteralEvaluator extends Evaluator {
     public BExpressionValue evaluate() throws EvaluationException {
         SyntaxKind basicLiteralKind = syntaxNode.kind();
         switch (basicLiteralKind) {
-            // int literal
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-                return EvaluationUtils.make(context, Long.parseLong(literalString));
-            // float literal
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
-                return EvaluationUtils.make(context, Double.parseDouble(literalString));
+            case NUMERIC_LITERAL:
+                SyntaxKind literalTokenKind = syntaxNode.literalToken().kind();
+                if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
+                        literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+                    // int literal
+                    return EvaluationUtils.make(context, Long.parseLong(literalString));
+                } else {
+                    // float literal
+                    return EvaluationUtils.make(context, Double.parseDouble(literalString));
+                }
             // boolean literal
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
+            case BOOLEAN_LITERAL:
                 return EvaluationUtils.make(context, Boolean.parseBoolean(literalString));
             // string literal
             case STRING_LITERAL:

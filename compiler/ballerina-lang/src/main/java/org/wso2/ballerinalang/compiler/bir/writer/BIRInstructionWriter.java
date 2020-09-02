@@ -55,20 +55,18 @@ import java.util.List;
  * @since 0.980.0
  */
 public class BIRInstructionWriter extends BIRVisitor {
+
     private ByteBuf buf;
-    private BIRTypeWriter typeWriter;
     private ConstantPool cp;
     private BIRBinaryWriter binaryWriter;
 
-    public BIRInstructionWriter(ByteBuf buf, BIRTypeWriter typeWriter, ConstantPool cp,
-                                BIRBinaryWriter birBinaryWriter) {
+    BIRInstructionWriter(ByteBuf buf, ConstantPool cp, BIRBinaryWriter birBinaryWriter) {
         this.buf = buf;
-        this.typeWriter = typeWriter;
         this.binaryWriter = birBinaryWriter;
         this.cp = cp;
     }
 
-    public void writeBBs(List<BIRBasicBlock> bbList) {
+    void writeBBs(List<BIRBasicBlock> bbList) {
         buf.writeInt(bbList.size());
         bbList.forEach(bb -> bb.accept(this));
     }
@@ -79,14 +77,28 @@ public class BIRInstructionWriter extends BIRVisitor {
         // Number of instructions
         // Adding the terminator instruction as well.
         buf.writeInt(birBasicBlock.instructions.size() + 1);
-            birBasicBlock.instructions.forEach(instruction -> instruction.accept(this));
-        if (birBasicBlock.terminator == null) {
+
+        birBasicBlock.instructions.forEach(instruction -> {
+            // write pos and kind
+            writePosition(instruction.pos);
+            buf.writeByte(instruction.kind.getValue());
+            // write instruction
+            instruction.accept(this);
+        });
+
+        BIRTerminator terminator = birBasicBlock.terminator;
+        if (terminator == null) {
             throw new BLangCompilerException("Basic block without a terminator : " + birBasicBlock.id);
         }
-        birBasicBlock.terminator.accept(this);
+
+        // write pos and kind
+        writePosition(terminator.pos);
+        buf.writeByte(terminator.kind.getValue());
+        // write instruction
+        terminator.accept(this);
     }
 
-    public void writeErrorTable(List<BIRNode.BIRErrorEntry> errorEntries) {
+    void writeErrorTable(List<BIRNode.BIRErrorEntry> errorEntries) {
         buf.writeInt(errorEntries.size());
         errorEntries.forEach(birErrorEntry -> birErrorEntry.accept(this));
     }
@@ -101,21 +113,14 @@ public class BIRInstructionWriter extends BIRVisitor {
     // Terminating instructions
 
     public void visit(BIRTerminator.GOTO birGoto) {
-        writePosition(birGoto.pos);
-        buf.writeByte(birGoto.kind.getValue());
         addCpAndWriteString(birGoto.targetBB.id.value);
     }
 
     public void visit(BIRTerminator.Lock lock) {
-        writePosition(lock.pos);
-        buf.writeByte(lock.kind.getValue());
-
         addCpAndWriteString(lock.lockedBB.id.value);
     }
 
     public void visit(BIRTerminator.FieldLock lock) {
-        writePosition(lock.pos);
-        buf.writeByte(lock.kind.getValue());
         // TODO properly use operand instead of variablDcl.name here
         addCpAndWriteString(lock.localVar.variableDcl.name.value);
         addCpAndWriteString(lock.field);
@@ -123,20 +128,14 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.Unlock unlock) {
-        writePosition(unlock.pos);
-        buf.writeByte(unlock.kind.getValue());
         addCpAndWriteString(unlock.unlockBB.id.value);
     }
 
-
     public void visit(BIRTerminator.Return birReturn) {
-        writePosition(birReturn.pos);
-        buf.writeByte(birReturn.kind.getValue());
+        // do nothing
     }
 
     public void visit(BIRTerminator.Branch birBranch) {
-        writePosition(birBranch.pos);
-        buf.writeByte(birBranch.kind.getValue());
         birBranch.op.accept(this);
         // true:BB
         addCpAndWriteString(birBranch.trueBB.id.value);
@@ -145,8 +144,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.Wait waitEntry) {
-        writePosition(waitEntry.pos);
-        buf.writeByte(waitEntry.kind.getValue());
         buf.writeInt(waitEntry.exprList.size());
         for (BIROperand expr : waitEntry.exprList) {
             expr.accept(this);
@@ -156,8 +153,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.Flush entry) {
-        writePosition(entry.pos);
-        buf.writeByte(entry.kind.getValue());
         buf.writeInt(entry.channels.length);
         for (BIRNode.ChannelDetails detail : entry.channels) {
             addCpAndWriteString(detail.name);
@@ -169,8 +164,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.WorkerReceive entry) {
-        writePosition(entry.pos);
-        buf.writeByte((entry.kind.getValue()));
         buf.writeInt(addStringCPEntry(entry.workerName.getValue()));
         entry.lhsOp.accept(this);
         buf.writeBoolean(entry.isSameStrand);
@@ -178,8 +171,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.WorkerSend entry) {
-        writePosition(entry.pos);
-        buf.writeByte((entry.kind.getValue()));
         buf.writeInt(addStringCPEntry(entry.channel.getValue()));
         entry.data.accept(this);
         buf.writeBoolean(entry.isSameStrand);
@@ -191,8 +182,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.WaitAll waitAll) {
-        writePosition(waitAll.pos);
-        buf.writeByte((waitAll.kind.getValue()));
         waitAll.lhsOp.accept(this);
         buf.writeInt(waitAll.keys.size());
         waitAll.keys.forEach(key -> buf.writeInt(addStringCPEntry(key)));
@@ -204,24 +193,29 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     @Override
     public void visit(BIRNonTerminator.NewTable newTable) {
-        writePosition(newTable.pos);
         writeType(newTable.type);
         newTable.lhsOp.accept(this);
         newTable.keyColOp.accept(this);
         newTable.dataOp.accept(this);
     }
 
-
     public void visit(BIRNonTerminator.Move birMove) {
-        writePosition(birMove.pos);
-        buf.writeByte(birMove.kind.getValue());
         birMove.rhsOp.accept(this);
         birMove.lhsOp.accept(this);
     }
 
     public void visit(BIRTerminator.Call birCall) {
-        writePosition(birCall.pos);
-        buf.writeByte(birCall.kind.getValue());
+        writeCallInstruction(birCall);
+        addCpAndWriteString(birCall.thenBB.id.value);
+    }
+
+    public void visit(BIRTerminator.AsyncCall birAsyncCall) {
+        writeCallInstruction(birAsyncCall);
+        binaryWriter.writeAnnotAttachments(buf, this, birAsyncCall.annotAttachments);
+        addCpAndWriteString(birAsyncCall.thenBB.id.value);
+    }
+
+    private void writeCallInstruction(BIRTerminator.Call birCall) {
         PackageID calleePkg = birCall.calleePkg;
         int pkgIndex = addPkgCPEntry(calleePkg);
         buf.writeBoolean(birCall.isVirtual);
@@ -237,35 +231,9 @@ public class BIRInstructionWriter extends BIRVisitor {
         } else {
             buf.writeByte(0);
         }
-        addCpAndWriteString(birCall.thenBB.id.value);
-    }
-
-    public void visit(BIRTerminator.AsyncCall birAsyncCall) {
-        writePosition(birAsyncCall.pos);
-        buf.writeByte(birAsyncCall.kind.getValue());
-        PackageID calleePkg = birAsyncCall.calleePkg;
-        int pkgIndex = addPkgCPEntry(calleePkg);
-        buf.writeBoolean(birAsyncCall.isVirtual);
-        buf.writeInt(pkgIndex);
-        buf.writeInt(addStringCPEntry(birAsyncCall.name.getValue()));
-        buf.writeInt(birAsyncCall.args.size());
-        for (BIROperand arg : birAsyncCall.args) {
-            arg.accept(this);
-        }
-        if (birAsyncCall.lhsOp != null) {
-            buf.writeByte(1);
-            birAsyncCall.lhsOp.accept(this);
-        } else {
-            buf.writeByte(0);
-        }
-
-        binaryWriter.writeAnnotAttachments(buf, this, birAsyncCall.annotAttachments);
-        addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 
     public void visit(BIRTerminator.FPCall fpCall) {
-        writePosition(fpCall.pos);
-        buf.writeByte(fpCall.kind.getValue());
         fpCall.fp.accept(this);
         buf.writeInt(fpCall.args.size());
         for (BIROperand arg : fpCall.args) {
@@ -282,23 +250,17 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
-        writePosition(birBinaryOp.pos);
-        buf.writeByte(birBinaryOp.kind.getValue());
         birBinaryOp.rhsOp1.accept(this);
         birBinaryOp.rhsOp2.accept(this);
         birBinaryOp.lhsOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
-        writePosition(birUnaryOp.pos);
-        buf.writeByte(birUnaryOp.kind.getValue());
         birUnaryOp.rhsOp.accept(this);
         birUnaryOp.lhsOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
-        writePosition(birConstantLoad.pos);
-        buf.writeByte(birConstantLoad.kind.getValue());
         writeType(birConstantLoad.type);
         birConstantLoad.lhsOp.accept(this);
 
@@ -340,15 +302,11 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(NewStructure birNewStructure) {
-        writePosition(birNewStructure.pos);
-        buf.writeByte(birNewStructure.kind.getValue());
         birNewStructure.rhsOp.accept(this);
         birNewStructure.lhsOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.NewInstance newInstance) {
-        writePosition(newInstance.pos);
-        buf.writeByte(newInstance.kind.getValue());
         buf.writeBoolean(newInstance.isExternalDef);
         if (newInstance.isExternalDef) {
             assert newInstance.externalPackageId != null;
@@ -361,16 +319,12 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(NewArray birNewArray) {
-        writePosition(birNewArray.pos);
-        buf.writeByte(birNewArray.kind.getValue());
         writeType(birNewArray.type);
         birNewArray.lhsOp.accept(this);
         birNewArray.sizeOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
-        writePosition(birFieldAccess.pos);
-        buf.writeByte(birFieldAccess.kind.getValue());
         if (birFieldAccess.kind == InstructionKind.MAP_LOAD || birFieldAccess.kind == InstructionKind.ARRAY_LOAD) {
             buf.writeBoolean(birFieldAccess.optionalFieldAccess);
             buf.writeBoolean(birFieldAccess.fillingRead);
@@ -381,8 +335,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.TypeCast birTypeCast) {
-        writePosition(birTypeCast.pos);
-        buf.writeByte(birTypeCast.kind.getValue());
         birTypeCast.lhsOp.accept(this);
         birTypeCast.rhsOp.accept(this);
         writeType(birTypeCast.type);
@@ -390,16 +342,12 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {
-        writePosition(birIsLike.pos);
-        buf.writeByte(birIsLike.kind.getValue());
         writeType(birIsLike.type);
         birIsLike.lhsOp.accept(this);
         birIsLike.rhsOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.TypeTest birTypeTest) {
-        writePosition(birTypeTest.pos);
-        buf.writeByte(birTypeTest.kind.getValue());
         writeType(birTypeTest.type);
         birTypeTest.lhsOp.accept(this);
         birTypeTest.rhsOp.accept(this);
@@ -429,8 +377,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.NewError birNewError) {
-        writePosition(birNewError.pos);
-        buf.writeByte(birNewError.kind.getValue());
         writeType(birNewError.type);
         birNewError.lhsOp.accept(this);
         birNewError.messageOp.accept(this);
@@ -439,8 +385,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.FPLoad fpLoad) {
-        writePosition(fpLoad.pos);
-        buf.writeByte(fpLoad.kind.getValue());
         fpLoad.lhsOp.accept(this);
 
         PackageID pkgId = fpLoad.pkgId;
@@ -464,15 +408,11 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.Panic birPanic) {
-        writePosition(birPanic.pos);
-        buf.writeByte(birPanic.kind.getValue());
         birPanic.errorOp.accept(this);
     }
 
     @Override
     public void visit(NewXMLElement newXMLElement) {
-        writePosition(newXMLElement.pos);
-        buf.writeByte(newXMLElement.kind.getValue());
         newXMLElement.lhsOp.accept(this);
         newXMLElement.startTagOp.accept(this);
         newXMLElement.defaultNsURIOp.accept(this);
@@ -480,16 +420,12 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     @Override
     public void visit(NewXMLText newXMLText) {
-        writePosition(newXMLText.pos);
-        buf.writeByte(newXMLText.kind.getValue());
         newXMLText.lhsOp.accept(this);
         newXMLText.textOp.accept(this);
     }
 
     @Override
     public void visit(NewXMLQName newXMLQName) {
-        writePosition(newXMLQName.pos);
-        buf.writeByte(newXMLQName.kind.getValue());
         newXMLQName.lhsOp.accept(this);
         newXMLQName.localnameOp.accept(this);
         newXMLQName.nsURIOp.accept(this);
@@ -498,32 +434,24 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     @Override
     public void visit(NewStringXMLQName newStringXMLQName) {
-        writePosition(newStringXMLQName.pos);
-        buf.writeByte(newStringXMLQName.kind.getValue());
         newStringXMLQName.lhsOp.accept(this);
         newStringXMLQName.stringQNameOP.accept(this);
     }
 
     @Override
     public void visit(XMLAccess xmlAccess) {
-        writePosition(xmlAccess.pos);
-        buf.writeByte(xmlAccess.kind.getValue());
         xmlAccess.lhsOp.accept(this);
         xmlAccess.rhsOp.accept(this);
     }
 
     @Override
     public void visit(NewXMLComment newXMLComment) {
-        writePosition(newXMLComment.pos);
-        buf.writeByte(newXMLComment.kind.getValue());
         newXMLComment.lhsOp.accept(this);
         newXMLComment.textOp.accept(this);
     }
 
     @Override
     public void visit(NewXMLProcIns newXMLProcIns) {
-        writePosition(newXMLProcIns.pos);
-        buf.writeByte(newXMLProcIns.kind.getValue());
         newXMLProcIns.lhsOp.accept(this);
         newXMLProcIns.dataOp.accept(this);
         newXMLProcIns.targetOp.accept(this);
@@ -531,56 +459,17 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     @Override
     public void visit(NewTypeDesc newTypeDesc) {
-        writePosition(newTypeDesc.pos);
-        buf.writeByte(newTypeDesc.kind.getValue());
         newTypeDesc.lhsOp.accept(this);
         writeType(newTypeDesc.type);
     }
 
     // Positions
-    // TODO Refactor duplicate methods
     void writePosition(DiagnosticPos pos) {
-        int sLine = Integer.MIN_VALUE;
-        int eLine = Integer.MIN_VALUE;
-        int sCol = Integer.MIN_VALUE;
-        int eCol = Integer.MIN_VALUE;
-        String sourceFileName = "";
-        if (pos != null) {
-            sLine = pos.sLine;
-            eLine = pos.eLine;
-            sCol = pos.sCol;
-            eCol = pos.eCol;
-            if (pos.src != null) {
-                sourceFileName = pos.src.cUnitName;
-            }
-        }
-        buf.writeInt(sLine);
-        buf.writeInt(eLine);
-        buf.writeInt(sCol);
-        buf.writeInt(eCol);
-        buf.writeInt(addStringCPEntry(sourceFileName));
+        writePosition(pos, buf);
     }
 
     void writePosition(ByteBuf buf, DiagnosticPos pos) {
-        int sLine = Integer.MIN_VALUE;
-        int eLine = Integer.MIN_VALUE;
-        int sCol = Integer.MIN_VALUE;
-        int eCol = Integer.MIN_VALUE;
-        String sourceFileName = "";
-        if (pos != null) {
-            sLine = pos.sLine;
-            eLine = pos.eLine;
-            sCol = pos.sCol;
-            eCol = pos.eCol;
-            if (pos.src != null) {
-                sourceFileName = pos.src.cUnitName;
-            }
-        }
-        buf.writeInt(sLine);
-        buf.writeInt(eLine);
-        buf.writeInt(sCol);
-        buf.writeInt(eCol);
-        buf.writeInt(addStringCPEntry(sourceFileName));
+        writePosition(pos, buf);
     }
 
     int addPkgCPEntry(PackageID packageID) {
@@ -590,7 +479,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
     }
 
-    // private methods
 
     private void addCpAndWriteString(String string) {
         buf.writeInt(addStringCPEntry(string));
@@ -603,4 +491,27 @@ public class BIRInstructionWriter extends BIRVisitor {
     private void writeType(BType type) {
         buf.writeInt(cp.addShapeCPEntry(type));
     }
+
+    private void writePosition(DiagnosticPos pos, ByteBuf buf) {
+        int sLine = Integer.MIN_VALUE;
+        int eLine = Integer.MIN_VALUE;
+        int sCol = Integer.MIN_VALUE;
+        int eCol = Integer.MIN_VALUE;
+        String sourceFileName = "";
+        if (pos != null) {
+            sLine = pos.sLine;
+            eLine = pos.eLine;
+            sCol = pos.sCol;
+            eCol = pos.eCol;
+            if (pos.src != null) {
+                sourceFileName = pos.src.cUnitName;
+            }
+        }
+        buf.writeInt(sLine);
+        buf.writeInt(eLine);
+        buf.writeInt(sCol);
+        buf.writeInt(eCol);
+        buf.writeInt(addStringCPEntry(sourceFileName));
+    }
+
 }
