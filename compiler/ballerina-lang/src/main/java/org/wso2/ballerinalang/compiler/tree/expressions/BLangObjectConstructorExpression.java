@@ -38,9 +38,8 @@ public class BLangObjectConstructorExpression extends BLangExpression {
     public BLangType referenceType;
     public boolean isClient;
 
-    public BLangObjectConstructorExpression(BLangClassDefinition classNode) {
+    public BLangObjectConstructorExpression() {
         super();
-        this.classNode = classNode;
         this.isClient = false;
     }
 

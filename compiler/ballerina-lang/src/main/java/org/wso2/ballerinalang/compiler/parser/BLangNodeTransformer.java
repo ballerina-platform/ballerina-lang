@@ -943,8 +943,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangClassDefinition annonClassDef = createObjectExpressionBody(objectConstructorExpressionNode.members());
         annonClassDef.pos = pos;
-        BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression(annonClassDef);
+        BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression();
         objectCtorExpression.pos = pos;
+        objectCtorExpression.classNode = annonClassDef;
 
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(diagnosticSource.pkgID);
