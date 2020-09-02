@@ -52,6 +52,7 @@ public class OpenApiValidatorUtil {
      * @param sourceRoot  source root of the file
      * @param packageName package name of the file
      * @return {@link BLangPackage} ballerina package
+     * @throws UnsupportedEncodingException if the encoding is not supported
      */
     public static BLangPackage compileFile(Path sourceRoot, String packageName) throws UnsupportedEncodingException {
         emptyPrintStream = new EmptyPrintStream();

@@ -48,16 +48,15 @@ public class ServiceValidator {
 
     /**
      * Validation with given resource and openApi contract file.
-     * @param openApi       OpenApi Object
-     * @param serviceNode   ServiceNode of ballerina service
-     * @param kind          Message type
-     * @param dLog          DiagnosticLog
-     * @throws OpenApiValidatorException
+     *
+     * @param openApi     OpenApi Object
+     * @param serviceNode ServiceNode of ballerina service
+     * @param filters     the filters of the resource
+     * @param kind        Message type
+     * @param dLog        DiagnosticLog
+     * @throws OpenApiValidatorException if the validation failed
      */
-    public static void validateResource(OpenAPI openApi,
-                                        ServiceNode serviceNode,
-                                        Filters filters,
-                                        Diagnostic.Kind kind,
+    public static void validateResource(OpenAPI openApi, ServiceNode serviceNode, Filters filters, Diagnostic.Kind kind,
                                         DiagnosticLog dLog) throws OpenApiValidatorException {
 
         //  Filter openApi operation according to given filters
@@ -362,5 +361,8 @@ public class ServiceValidator {
             throw new OpenApiValidatorException(ErrorMessages.parserException(definitionURI));
         }
         return api;
+    }
+
+    private ServiceValidator() {
     }
 }

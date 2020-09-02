@@ -44,7 +44,7 @@ public class ResourceValidator {
      * @param operation         openAPi operation
      * @param resourceMethod    validate resourceMethods
      * @return                  list of validationErrors
-     * @throws OpenApiValidatorException
+     * @throws OpenApiValidatorException if validation failed
      */
     public static List<ValidationError> validateResourceAgainstOperation(Operation operation,
                                                                          ResourceMethod resourceMethod)
@@ -143,7 +143,7 @@ public class ResourceValidator {
      * @param operation         openApi operation
      * @param resourceMethod    resource method object
      * @return                  list of ValidationErrors
-     * @throws OpenApiValidatorException
+     * @throws OpenApiValidatorException if the validation failed
      */
     public static List<ValidationError> validateOperationAgainstResource(Operation operation,
                                                                          ResourceMethod resourceMethod)
