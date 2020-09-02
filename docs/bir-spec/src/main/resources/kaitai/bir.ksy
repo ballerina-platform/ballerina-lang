@@ -45,26 +45,25 @@ enums:
     30: type_tag_tuple
     31: type_tag_future
     32: type_tag_finite
-    33: type_tag_object
-    34: type_tag_service
-    35: type_tag_byte_array
-    36: type_tag_function_pointer
-    37: type_tag_handle
-    38: type_tag_readonly
-    39: type_tag_signed32_int
-    40: type_tag_signed16_int
-    41: type_tag_signed8_int
-    42: type_tag_unsigned32_int
-    43: type_tag_unsigned16_int
-    44: type_tag_unsigned8_int
-    45: type_tag_char_string
-    46: type_tag_xml_element
-    47: type_tag_xml_pi
-    48: type_tag_xml_comment
-    49: type_tag_xml_text
-    50: type_tag_never
-    51: type_tag_null_set
-    52: type_tag_parameterized_type
+    33: type_tag_object_or_service
+    34: type_tag_byte_array
+    35: type_tag_function_pointer
+    36: type_tag_handle
+    37: type_tag_readonly
+    38: type_tag_signed32_int
+    39: type_tag_signed16_int
+    40: type_tag_signed8_int
+    41: type_tag_unsigned32_int
+    42: type_tag_unsigned16_int
+    43: type_tag_unsigned8_int
+    44: type_tag_char_string
+    45: type_tag_xml_element
+    46: type_tag_xml_pi
+    47: type_tag_xml_comment
+    48: type_tag_xml_text
+    49: type_tag_never
+    50: type_tag_null_set
+    51: type_tag_parameterized_type
 types:
   constant_pool_set:
     seq:
@@ -133,10 +132,9 @@ types:
         type: s4
   shape_cp_info:
     seq:
-      - id: shape_lenght
+      - id: shape_length
         type: s4
       - id: shape
-        size: shape_lenght
         type: type_info
   type_info:
     seq:
@@ -153,17 +151,272 @@ types:
         type:
           switch-on: type_tag
           cases:
+            'type_tag_enum::type_tag_array': type_array
+            'type_tag_enum::type_tag_error': type_error
+            'type_tag_enum::type_tag_finite': type_finite
             'type_tag_enum::type_tag_invokable': type_invokable
+            'type_tag_enum::type_tag_map': type_map
+            'type_tag_enum::type_tag_stream': type_stream
+            'type_tag_enum::type_tag_typedesc': type_typedesc
+            'type_tag_enum::type_tag_parameterized_type': type_parameterized
+            'type_tag_enum::type_tag_future': type_future
+            'type_tag_enum::type_tag_object_or_service': type_object_or_service
+            'type_tag_enum::type_tag_tuple': type_tuple
+            'type_tag_enum::type_tag_union': type_union
+            'type_tag_enum::type_tag_intersection': type_intersection
+            'type_tag_enum::type_tag_record': type_record
+            'type_tag_enum::type_tag_xml': type_xml
+            'type_tag_enum::type_tag_table': type_table
     instances:
       name_as_str:
         value: _root.constant_pool.constant_pool_entries[name_index].cp_info.as<string_cp_info>.value
+  type_array:
+    seq:
+      - id: state
+        type: s1
+      - id: size
+        type: s4
+      - id: element_type_index
+        type: s4
+  type_error:
+    seq:
+      - id: pkg_id_cp_index
+        type: s4
+      - id: error_type_name_cp_index
+        type: s4
+      - id: detail_type_cp_index
+        type: s4
+      - id: type_ids
+        type: type_id
+  type_id:
+    seq:
+      - id: primary_type_id_count
+        type: s4
+      - id: primary_type_id
+        type: type_id_set
+        repeat: expr
+        repeat-expr: primary_type_id_count
+      - id: secondary_type_id_count
+        type: s4
+      - id: secondary_type_id
+        type: type_id_set
+        repeat: expr
+        repeat-expr: secondary_type_id_count
+  type_id_set:
+    seq:
+      - id: pkg_id_cp_index
+        type: s4
+      - id: type_id_name_cp_index
+        type: s4
+      - id: is_public_id
+        type: u1
+  type_finite:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s4
+      - id: value_space_size
+        type: s4
+      - id: finite_values
+        type: finite_value
+        repeat: expr
+        repeat-expr: value_space_size
+  finite_value:
+    seq:
+      - id : type_cp_index
+        type: s4
+      - id: value_length
+        type: s4
+      - id: value
+        size: value_length
   type_invokable:
     seq:
-      - id: param_count
+      - id: param_types_count
         type: s4
+      - id: param_type_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: param_types_count
       - id: has_rest_type
         type: u1
-      - id: return_type_index
+      - id: rest_type_cp_index
+        type: s4
+        if: has_rest_type == 1
+      - id: return_type_cp_index
+        type: s4
+  type_map:
+    seq:
+      - id: constraint_type_cp_index
+        type: s4
+  type_stream:
+    seq:
+      - id: constraint_type_cp_index
+        type: s4
+      - id: has_error_type
+        type: u1
+      - id: error_type_cp_index
+        type: s4
+        if: has_error_type == 1
+  type_typedesc:
+    seq:
+      - id: constraint_type_cp_index
+        type: s4
+  type_parameterized:
+    seq:
+      - id: param_value_type_cp_index
+        type: s4
+  type_future:
+    seq:
+      - id: constraint_type_cp_index
+        type: s4
+  type_object_or_service:
+    seq:
+      - id: is_object_type
+        type: s1
+      - id: pkd_id_cp_index
+        type: s4
+      - id: name_cp_index
+        type: s4
+      - id: is_abstract
+        type: u1
+      - id: is_client
+        type: u1
+      - id: object_fields_count
+        type: s4
+      - id: object_fields
+        type: object_field
+        repeat: expr
+        repeat-expr: object_fields_count
+      - id: has_generated_init_function
+        type: s1
+      - id: generated_init_function
+        type: object_attached_function
+        if: has_generated_init_function == 1
+      - id: has_init_function
+        type: s1
+      - id: init_function
+        type: object_attached_function
+        if: has_init_function == 1
+      - id: object_attached_functions_count
+        type: s4
+      - id: object_attached_functions
+        type: object_attached_function
+        repeat: expr
+        repeat-expr: object_attached_functions_count
+  object_field:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s4
+      - id: doc
+        type: markdown
+      - id: type_cp_index
+        type: s4
+  object_attached_function:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s4
+      - id: type_cp_index
+        type: s4
+  type_union:
+    seq:
+      - id: member_types_count
+        type: s4
+      - id: member_type_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: member_types_count
+  type_tuple:
+    seq:
+      - id: tuple_types_count
+        type: s4
+      - id: tuple_type_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: tuple_types_count
+      - id: has_rest_type
+        type: u1
+      - id: rest_type_cp_index
+        type: s4
+        if: has_rest_type == 1
+  type_intersection:
+    seq:
+      - id: constituent_types_count
+        type: s4
+      - id: constituent_type_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: constituent_types_count
+      - id: effective_type_count
+        type: s4
+  type_xml:
+    seq:
+      - id: constraint_type_cp_index
+        type: s4
+  type_table:
+    seq:
+      - id: constraint_type_cp_index
+        type: s4
+      - id: has_field_name_list
+        type: u1
+      - id: field_name_list
+        type: table_field_name_list
+        if: has_field_name_list == 1
+      - id: has_key_constraint_type
+        type: u1
+      - id : key_constraint_type_cp_index
+        type: s4
+        if: has_key_constraint_type == 1
+  table_field_name_list:
+    seq:
+      - id: size
+        type: s4
+      - id: field_name_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: size
+  type_record:
+    seq:
+      - id: pkd_id_cp_index
+        type: s4
+      - id: name_cp_index
+        type: s4
+      - id: is_sealed
+        type: u1
+      - id: rest_field_type_cp_index
+        type: s4
+      - id: record_fields_count
+        type: s4
+      - id: record_fields
+        type: record_field
+        repeat: expr
+        repeat-expr: record_fields_count
+      - id: has_init_function
+        type: s1
+      - id: record_init_function
+        type: record_init_function
+        if: has_init_function == 1
+  record_field:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s4
+      - id: doc
+        type: markdown
+      - id: type_cp_index
+        type: s4
+  record_init_function:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s4
+      - id: type_cp_index
         type: s4
   module:
     seq:
@@ -695,6 +948,7 @@ types:
             'instruction_kind_enum::instruction_kind_new_array': instruction_new_array
             'instruction_kind_enum::instruction_kind_array_store': instruction_array_store
             'instruction_kind_enum::instruction_kind_array_load': instruction_array_load
+            'instruction_kind_enum::instruction_kind_new_error': instruction_new_error
             'instruction_kind_enum::instruction_kind_type_cast': instruction_type_cast
             'instruction_kind_enum::instruction_kind_is_like': instruction_is_like
             'instruction_kind_enum::instruction_kind_type_test': instruction_type_test
@@ -1044,6 +1298,18 @@ types:
         type: operand
       - id: rhs_operand
         type: operand
+  instruction_new_error:
+    seq:
+      - id: error_type_cp_index
+        type: s4
+      - id: lhs_operand
+        type: operand
+      - id: message_operand
+        type: operand
+      - id: cause_operand
+        type: operand
+      - id: detail_operand
+        type: operand
   instruction_is_like:
     seq:
       - id: type_cp_index
@@ -1257,4 +1523,3 @@ types:
         type: s4
       - id: type_cp_index
         type: s4
-
