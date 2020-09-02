@@ -1,4 +1,4 @@
-import ls_org1/module1;
+import ballerina/module1;
 
 function getTDesc() returns typedesc<function()> {
     typedesc<function()> td = typeof testFunction;

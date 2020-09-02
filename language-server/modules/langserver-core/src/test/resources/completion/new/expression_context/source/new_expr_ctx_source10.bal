@@ -1,4 +1,4 @@
-import ls_org1/module1;
+import ballerina/module1;
 
 function testNewFunction() {
     TestObject2 obj2 = new 

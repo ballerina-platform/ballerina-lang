@@ -1,4 +1,4 @@
-import ls_org1/module1;
+import ballerina/module1;
 
 function testFunction() {
     module1:Client cl = new module1:Client("http://localhost:8080");

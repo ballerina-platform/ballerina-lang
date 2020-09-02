@@ -35,10 +35,6 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-http')
-    implementation project(':ballerina-http')
-    implementation project(':ballerina-openapi')
-    implementation project(':ballerina-transactions')
     testCompile 'org.testng:testng'
 }
 
