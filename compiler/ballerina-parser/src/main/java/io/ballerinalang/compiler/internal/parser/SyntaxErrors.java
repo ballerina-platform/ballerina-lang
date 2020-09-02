@@ -245,6 +245,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_JOIN_KEYWORD;
             case OUTER_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_OUTER_KEYWORD;
+            case EQUALS_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_EQUALS_KEYWORD;
 
             // Type keywords
             case INT_KEYWORD:
