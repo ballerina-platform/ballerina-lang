@@ -264,8 +264,8 @@ public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
 
             typePath.setPath(pathName);
 
-            List<String> tag = null;
-            List<String> operation = null;
+            List<String> tag = new ArrayList<>();
+            List<String> operation = new ArrayList<>();
             Filter filter = new Filter(tag, operation);
 
             typePath.setOperationsList(extractOpenApiOperations(pathObject.readOperationsMap(), pathName, filter));
