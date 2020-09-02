@@ -25,27 +25,27 @@ package org.ballerinalang.jvm.scheduling;
 public class DiagnosticPos {
 
     /**
-     * Source file name
+     * Source file name.
      */
     private String src;
 
     /**
-     * Start line number
+     * Start line number.
      */
     private int sLine;
 
     /**
-     * End line number
+     * End line number.
      */
     private int eLine;
 
     /**
-     * Start column number
+     * Start column number.
      */
     private int sCol;
 
     /**
-     * End column number
+     * End column number.
      */
     private int eCol;
 

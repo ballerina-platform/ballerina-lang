@@ -75,7 +75,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
@@ -90,10 +89,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  * The common functions used in CodeGen.
  */
 public class JvmCodeGenUtil {
+
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
-    public static final String INITIAL_MEHOD_DESC = String.format("(L%s;",STRAND_CLASS);
+    public static final String INITIAL_MEHOD_DESC = String.format("(L%s;", STRAND_CLASS);
     public static final String INITIAL_MEHOD_DESC_WITH_CALLER_ENV =
-            INITIAL_MEHOD_DESC.concat(String.format("L%s;",CALLER_ENV));
+            INITIAL_MEHOD_DESC.concat(String.format("L%s;", CALLER_ENV));
+
     private JvmCodeGenUtil() {
 
     }

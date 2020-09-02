@@ -1292,7 +1292,8 @@ public class JvmMethodGen {
     public void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
                                     JvmInstructionGen instGen, JvmTerminatorGen termGen, BIRFunction func,
                                     int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
-                                    BType attachedType, String moduleClassName, boolean hasCallerEnvParam, AsyncDataCollector asyncDataCollector) {
+                                    BType attachedType, String moduleClassName, boolean hasCallerEnvParam,
+                                    AsyncDataCollector asyncDataCollector) {
 
         String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
         int caseIndex = 0;

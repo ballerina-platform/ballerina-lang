@@ -39,8 +39,8 @@ public class Module {
      */
     private final String version;
 
-    public Module(String OrgName, String name, String version) {
-        this.orgName = OrgName;
+    public Module(String orgName, String name, String version) {
+        this.orgName = orgName;
         this.name = name;
         this.version = version;
     }
