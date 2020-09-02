@@ -4702,7 +4702,7 @@ public class BallerinaParser extends AbstractParser {
                     qualifier = parseResourceKeyword();
                     break;
                 case ISOLATED_KEYWORD:
-                    qualifier = parseIsolatedKeyword();
+                    qualifier = consume();
                     break;
                 default:
                     recover(peek(), context, context, qualifierList);
@@ -5831,16 +5831,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(token, ParserRuleContext.RESOURCE_KEYWORD);
             return parseResourceKeyword();
-        }
-    }
-
-    private STNode parseIsolatedKeyword() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.ISOLATED_KEYWORD) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.ISOLATED_KEYWORD);
-            return sol.recoveredNode;
         }
     }
 
