@@ -246,32 +246,44 @@ public class BinaryExpressionEvaluator extends Evaluator {
         }
     }
 
+    /**
+     * Performs bitwise AND operation on the given ballerina variable values and returns the result.
+     */
     private BExpressionValue bitwiseAND(BVariable lVar, BVariable rVar) throws EvaluationException {
         if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
             // int + int
             long result = Long.parseLong(lVar.computeValue()) & Long.parseLong(rVar.computeValue());
             return EvaluationUtils.make(context, result);
         } else {
+            // Todo - Add support for signed and unsigned integers
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_AND_TOKEN);
         }
     }
 
+    /**
+     * Performs bitwise OR operation on the given ballerina variable values and returns the result.
+     */
     private BExpressionValue bitwiseOR(BVariable lVar, BVariable rVar) throws EvaluationException {
         if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
             // int + int
             long result = Long.parseLong(lVar.computeValue()) | Long.parseLong(rVar.computeValue());
             return EvaluationUtils.make(context, result);
         } else {
+            // Todo - Add support for signed and unsigned integers
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PIPE_TOKEN);
         }
     }
 
+    /**
+     * Performs bitwise XOR operation on the given ballerina variable values and returns the result.
+     */
     private BExpressionValue bitwiseXOR(BVariable lVar, BVariable rVar) throws EvaluationException {
         if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
             // int + int
             long result = Long.parseLong(lVar.computeValue()) ^ Long.parseLong(rVar.computeValue());
             return EvaluationUtils.make(context, result);
         } else {
+            // Todo - Add support for signed and unsigned integers
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_XOR_TOKEN);
         }
     }
