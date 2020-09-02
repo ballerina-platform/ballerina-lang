@@ -176,6 +176,8 @@ public class BIRBinaryWriter {
         // Flags
         buf.writeInt(typeDef.flags);
         buf.writeByte(typeDef.isLabel ? 1 : 0);
+        // Origin
+        buf.writeByte(typeDef.origin.value());
         // write documentation
         typeWriter.writeMarkdownDocAttachment(buf, typeDef.markdownDocAttachment);
         writeType(buf, typeDef.type);

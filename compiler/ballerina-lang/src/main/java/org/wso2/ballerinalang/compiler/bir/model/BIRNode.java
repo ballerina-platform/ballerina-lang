@@ -420,6 +420,8 @@ public abstract class BIRNode {
 
         public List<BType> referencedTypes;
 
+        public SymbolOrigin origin;
+
         /**
          * this is not serialized. it's used to keep the index of the def in the list.
          * otherwise the writer has to *find* it in the list.
@@ -427,7 +429,7 @@ public abstract class BIRNode {
         public int index;
 
         public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags, boolean isLabel, boolean isBuiltin,
-                                 BType type, List<BIRFunction> attachedFuncs) {
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
 
             super(pos);
             this.name = name;
@@ -437,6 +439,7 @@ public abstract class BIRNode {
             this.type = type;
             this.attachedFuncs = attachedFuncs;
             this.referencedTypes = new ArrayList<>();
+            this.origin = origin;
         }
 
         @Override

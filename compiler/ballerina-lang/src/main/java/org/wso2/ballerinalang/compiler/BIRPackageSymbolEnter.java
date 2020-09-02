@@ -414,6 +414,7 @@ public class BIRPackageSymbolEnter {
 
         int flags = dataInStream.readInt();
         boolean isLabel = dataInStream.readByte() == 1;
+        byte origin = dataInStream.readByte();
 
         byte[] docBytes = readDocBytes(dataInStream);
 
@@ -441,6 +442,7 @@ public class BIRPackageSymbolEnter {
         symbol.type = type;
         symbol.pkgID = this.env.pkgSymbol.pkgID;
         symbol.flags = flags;
+        symbol.origin = toOrigin(origin);
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
             this.structureTypes.add((BStructureTypeSymbol) symbol);
