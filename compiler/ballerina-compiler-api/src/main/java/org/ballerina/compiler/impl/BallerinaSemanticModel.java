@@ -22,6 +22,7 @@ import io.ballerina.tools.text.TextRange;
 import org.ballerina.compiler.api.SemanticModel;
 import org.ballerina.compiler.api.symbols.Symbol;
 import org.ballerina.compiler.impl.symbols.SymbolFactory;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -91,7 +92,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
                 BSymbol symbol = scopeEntry.symbol;
 
-                if (isASymbolInUserProject(symbol, cursorPos) || symbol.origin == COMPILED_SOURCE) {
+                if (isSymbolInUserProject(symbol, cursorPos) || isImportedSymbol(symbol)) {
                     compiledSymbols.add(SymbolFactory.getBCompiledSymbol(symbol, name.getValue()));
                 }
             }
@@ -116,10 +117,15 @@ public class BallerinaSemanticModel implements SemanticModel {
         return new ArrayList<>();
     }
 
-    private boolean isASymbolInUserProject(BSymbol symbol, DiagnosticPos cursorPos) {
+    private boolean isSymbolInUserProject(BSymbol symbol, DiagnosticPos cursorPos) {
         return symbol.origin == SOURCE &&
                 (cursorPos.compareTo(symbol.pos) > SYMBOL_POSITION ||
                         symbol.owner instanceof BPackageSymbol ||
                         Symbols.isFlagOn(symbol.flags, Flags.WORKER));
+    }
+
+    private boolean isImportedSymbol(BSymbol symbol) {
+        return symbol.origin == COMPILED_SOURCE &&
+                (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC) || symbol.getKind() == SymbolKind.PACKAGE);
     }
 }

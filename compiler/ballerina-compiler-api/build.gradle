@@ -28,8 +28,10 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-io')
+    testCompile project(':ballerina-java')
 
     baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - Compiler API'

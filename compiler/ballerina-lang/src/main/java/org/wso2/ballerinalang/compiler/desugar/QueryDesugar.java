@@ -1121,7 +1121,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
         String frameName = getNewVarName();
         BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(frameName),
-                env.scope.owner.pkgID, frameType, this.env.scope.owner, pos);
+                env.scope.owner.pkgID, frameType, this.env.scope.owner, pos, VIRTUAL);
         BLangRecordLiteral frameInit = ASTBuilderUtil.createEmptyRecordLiteral(pos, frameType);
         BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(
                 pos, frameName, frameType, frameInit, frameSymbol);

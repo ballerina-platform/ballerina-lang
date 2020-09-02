@@ -41,6 +41,7 @@ public class BConstantSymbol extends BVarSymbol implements ConstantSymbol {
         super(flags, name, pkgID, type, owner, pos, origin);
         this.tag = CONSTANT;
         this.literalType = literalType;
+        this.kind = SymbolKind.CONSTANT;
     }
 
     @Override
