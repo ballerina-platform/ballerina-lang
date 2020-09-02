@@ -30,7 +30,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -55,8 +54,6 @@ public class ServiceUnavailableTestCase extends GrpcBaseTest {
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient",
                 new Object[] { StringUtils.fromString("WSO2") });
-        PrintStream out = System.out;
-        out.println(responses[0].stringValue());
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertTrue(responses[0].stringValue().contains(expectedMsg));
