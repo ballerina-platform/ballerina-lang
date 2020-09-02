@@ -432,10 +432,11 @@ public class StaticMethods {
     }
 
     public static BString getCurrentModuleOrgName(CallerEnv callerEnv) {
-        return new BmpStringValue(callerEnv.getModule().getOrgName());
+        return new BmpStringValue(callerEnv.getModule().getOrgName() + callerEnv.getDiagnosticPos().getSrc());
     }
 
     public static BString getCurrentModuleOrgNameAndConcatArgs(CallerEnv callerEnv, int x, BString s) {
-        return new BmpStringValue(callerEnv.getModule().getOrgName() + x + s.getValue());
+        return new BmpStringValue(callerEnv.getModule().getOrgName() +
+                                          callerEnv.getDiagnosticPos().getSrc() + x + s.getValue());
     }
 }

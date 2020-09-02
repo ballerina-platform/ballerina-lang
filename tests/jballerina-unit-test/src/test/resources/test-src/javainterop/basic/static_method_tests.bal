@@ -199,9 +199,9 @@ public function getCurrentModuleOrgNameAndConcatArgs(int x, string s) returns st
 
 public function testCallerEnvParams() {
     string s1 = getCurrentModuleOrgName();
-    assertEquality(s1, "$anon");
+    assertEquality(s1, "$anonstatic_method_tests.bal");
     string s2 = getCurrentModuleOrgNameAndConcatArgs(5, "abc");
-    assertEquality(s2, "$anon5abc");
+    assertEquality(s2, "$anonstatic_method_tests.bal5abc");
 }
 
 

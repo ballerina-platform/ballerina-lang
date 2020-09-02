@@ -54,7 +54,7 @@ public class InteropValidator {
     }
 
     /**
-     * Method that check Java interop function has caller.
+     * Method that check Java interop function has a caller env parameter.
      *
      * @param className Java interop class name
      * @param methodName Java interop method name

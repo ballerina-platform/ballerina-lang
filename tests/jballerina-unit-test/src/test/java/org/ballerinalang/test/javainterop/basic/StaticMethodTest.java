@@ -164,6 +164,15 @@ public class StaticMethodTest {
     }
 
     @Test
+    public void testDecimalParamAndReturn() {
+        BValue[] args = new BValue[1];
+        args[0] = new BDecimal("100");
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalParamAndReturn", args);
+        Assert.assertTrue(returns[0] instanceof BDecimal);
+        Assert.assertEquals(returns[0].stringValue(), "199.7");
+    }
+
+    @Test
     public void testCallerEnvParams() {
         BRunUtil.invoke(result, "testCallerEnvParams");
     }

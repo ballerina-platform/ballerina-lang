@@ -18,19 +18,19 @@
 package org.ballerinalang.jvm.scheduling;
 
 /**
- * Holds function caller environment data.
+ * Class represents the environment information of function call.
  *
  * @since 2.0.0
  */
 public class CallerEnv {
 
     /**
-     * Module of the method call.
+     * Module of the function call.
      */
     private final Module module;
 
     /**
-     * Position of the method call.
+     * Position of the function call.
      */
     private final DiagnosticPos diagnosticPos;
 

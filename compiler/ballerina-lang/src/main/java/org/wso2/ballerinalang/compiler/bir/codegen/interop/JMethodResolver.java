@@ -720,7 +720,6 @@ class JMethodResolver {
         boolean isStaticMethod = jMethods.get(0).isStatic();
         // Remove the receiver parameter in instance methods.
         bFuncParamCount = isStaticMethod ? bFuncParamCount : bFuncParamCount - 1;
-
         return bFuncParamCount;
     }
 

@@ -407,9 +407,11 @@ public class BIRPackageSymbolEnter {
     private void readFunctionAnnotations(DataInputStream dataInStream,
                                          BInvokableSymbol invokableSymbol) throws IOException {
 
+        // Skip annotation data length
         dataInStream.readLong();
         int annotAttachmentsSize = dataInStream.readInt();
         List<BLangAnnotationAttachment> annAttachments = new ArrayList<>(annotAttachmentsSize);
+        // Read annotation attachments
         for (int i = 0; i < annotAttachmentsSize; i++) {
             PackageCPEntry pkgCpEntry = (PackageCPEntry) this.env.constantPool[dataInStream.readInt()];
             String orgName = ((StringCPEntry) this.env.constantPool[pkgCpEntry.orgNameCPIndex]).value;
@@ -431,21 +433,21 @@ public class BIRPackageSymbolEnter {
             annAttachment.annotationSymbol = new BAnnotationSymbol(new Name(annonName), 0, new HashSet<>(), pkgId,
                                                                    null, null);
             for (int j = 0; j < annotAttachValuesSize; j++) {
-                annAttachment.expr = readAnnotAttachValue(dataInStream);
+                annAttachment.expr = readAnnotationAttachValue(dataInStream);
             }
             annAttachments.add(annAttachment);
         }
         invokableSymbol.annAttachments = annAttachments;
     }
 
-    private BLangExpression readAnnotAttachValue(DataInputStream dataInStream) throws IOException {
+    private BLangExpression readAnnotationAttachValue(DataInputStream dataInStream) throws IOException {
 
         BType annotationType = readBType(dataInStream);
         if (annotationType.tag == TypeTags.ARRAY) {
             int annotationArraySize = dataInStream.readInt();
             List<BLangExpression> expressions = new ArrayList<>(annotationArraySize);
             for (int k = 0; k < annotationArraySize; k++) {
-                expressions.add(readAnnotAttachValue(dataInStream));
+                expressions.add(readAnnotationAttachValue(dataInStream));
             }
             return new BLangListConstructorExpr.BLangArrayLiteral(null, expressions, annotationType);
         } else if (annotationType.tag == TypeTags.RECORD || annotationType.tag == TypeTags.MAP) {
@@ -458,7 +460,7 @@ public class BIRPackageSymbolEnter {
                 BLangLiteral recordKey = new BLangLiteral();
                 recordKey.setValue(getStringCPEntryValue(dataInStream));
                 field.key = new BLangRecordLiteral.BLangRecordKey(recordKey);
-                field.valueExpr = readAnnotAttachValue(dataInStream);
+                field.valueExpr = readAnnotationAttachValue(dataInStream);
                 annotationMap.fields.add(field);
             }
             return annotationMap;

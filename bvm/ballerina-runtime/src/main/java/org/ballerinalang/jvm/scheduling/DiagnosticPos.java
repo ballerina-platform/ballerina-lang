@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm.scheduling;
 
 /**
- * Holds position data at runtime.
+ * This represents position data.
  *
  * @since 2.0.0
  */
@@ -75,7 +75,7 @@ public class DiagnosticPos {
      *
      * @return Start line number.
      */
-    public int getsLine() {
+    public int getStartLine() {
         return sLine;
     }
 
@@ -84,7 +84,7 @@ public class DiagnosticPos {
      *
      * @return End line number.
      */
-    public int geteLine() {
+    public int getEndLine() {
         return eLine;
     }
 
@@ -93,7 +93,7 @@ public class DiagnosticPos {
      *
      * @return Start column number.
      */
-    public int getsCol() {
+    public int getStartColumn() {
         return sCol;
     }
 
@@ -102,7 +102,7 @@ public class DiagnosticPos {
      *
      * @return End column number.
      */
-    public int geteCol() {
+    public int getEndColumn() {
         return eCol;
     }
 }

@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm.scheduling;
 
 /**
- * This contains the module info at runtime.
+ * This represents the module at runtime.
  *
  * @since 2.0.0
  */
