@@ -908,7 +908,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
                 BLangExpression size = arrayTypeNode.sizes[i];
-                if (size.getKind() == NodeKind.NUMERIC_LITERAL) {
+                if (size instanceof BLangLiteral) {
                     Integer sizeIndicator = (Integer) (((BLangLiteral) size).getValue());
 
                     if (sizeIndicator == OPEN_ARRAY_INDICATOR) {
