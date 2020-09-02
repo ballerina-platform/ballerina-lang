@@ -533,6 +533,11 @@ public abstract class BIRNode {
         public int flags;
 
         /**
+         * The origin of the annotation.
+         */
+        public SymbolOrigin origin;
+
+        /**
          * Attach points, this is needed only in compiled symbol enter as it is.
          */
         public Set<AttachPoint> attachPoints;
@@ -543,12 +548,13 @@ public abstract class BIRNode {
         public BType annotationType;
 
         public BIRAnnotation(DiagnosticPos pos, Name name, int flags,
-                             Set<AttachPoint> points, BType annotationType) {
+                             Set<AttachPoint> points, BType annotationType, SymbolOrigin origin) {
             super(pos);
             this.name = name;
             this.flags = flags;
             this.attachPoints = points;
             this.annotationType = annotationType;
+            this.origin = origin;
         }
 
         @Override

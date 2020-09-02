@@ -330,6 +330,7 @@ public class BIRBinaryWriter {
         buf.writeInt(addStringCPEntry(birAnnotation.name.value));
 
         buf.writeInt(birAnnotation.flags);
+        buf.writeByte(birAnnotation.origin.value());
 
         buf.writeInt(birAnnotation.attachPoints.size());
         for (AttachPoint attachPoint : birAnnotation.attachPoints) {

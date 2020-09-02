@@ -561,6 +561,7 @@ public class BIRPackageSymbolEnter {
         String name = getStringCPEntryValue(dataInStream);
 
         int flags = dataInStream.readInt();
+        byte origin = dataInStream.readByte();
 
         int attachPointCount = dataInStream.readInt();
         Set<AttachPoint> attachPoints = new HashSet<>(attachPointCount);
@@ -575,7 +576,7 @@ public class BIRPackageSymbolEnter {
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),
                                                                             this.env.pkgSymbol.pkgID, null,
                                                                             this.env.pkgSymbol, symTable.builtinPos,
-                                                                            COMPILED_SOURCE);
+                                                                            toOrigin(origin));
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
 
         defineMarkDownDocAttachment(annotationSymbol, readDocBytes(dataInStream));
