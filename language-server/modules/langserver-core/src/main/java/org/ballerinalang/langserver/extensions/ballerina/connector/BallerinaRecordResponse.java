@@ -33,10 +33,10 @@ public class BallerinaRecordResponse {
     private final String name;
     private final String error;
     private JsonElement ast;
-    private final String beta;
+    private final Boolean beta;
 
     public BallerinaRecordResponse(String org, String module, String version, String name,
-                                   JsonElement ast, String error, String beta) {
+                                   JsonElement ast, String error, Boolean beta) {
         this.org = org;
         this.module = module;
         this.version = version;
@@ -70,7 +70,7 @@ public class BallerinaRecordResponse {
         return error;
     }
 
-    public String getBeta() {
+    public Boolean getBeta() {
         return beta;
     }
 }

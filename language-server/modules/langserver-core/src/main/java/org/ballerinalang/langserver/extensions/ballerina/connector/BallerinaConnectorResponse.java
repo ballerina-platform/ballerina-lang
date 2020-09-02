@@ -34,10 +34,10 @@ public class BallerinaConnectorResponse {
     private final String displayName;
     private final String error;
     private JsonElement ast;
-    private final String beta;
+    private final Boolean beta;
 
     public BallerinaConnectorResponse(String org, String module, String version, String name, String displayName,
-                                      JsonElement ast, String error, String beta) {
+                                      JsonElement ast, String error, Boolean beta) {
         this.org = org;
         this.module = module;
         this.version = version;
@@ -76,7 +76,7 @@ public class BallerinaConnectorResponse {
         return error;
     }
 
-    public String getBeta() {
+    public Boolean getBeta() {
         return beta;
     }
 }

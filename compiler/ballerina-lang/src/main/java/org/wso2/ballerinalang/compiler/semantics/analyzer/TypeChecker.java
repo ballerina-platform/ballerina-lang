@@ -3474,27 +3474,16 @@ public class TypeChecker extends BLangNodeVisitor {
 
         checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(binaryExpr);
 
-        SymbolEnv lhsExprEnv, rhsExprEnv;
-        BType lhsType, rhsType;
-        if (binaryExpr.opKind == OperatorKind.EQUALS) {
-            BLangNode joinNode = getLastInputNodeFromEnv(env);
-            // lhsExprEnv should only contain scope entries before join condition.
-            lhsExprEnv = getEnvBeforeInputNode(env, joinNode);
-            lhsType = checkExpr(binaryExpr.lhsExpr, lhsExprEnv);
-            // rhsExprEnv should only contain scope entries after join condition.
-            rhsExprEnv = getEnvAfterJoinNode(env, joinNode);
-            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
+        SymbolEnv rhsExprEnv;
+        BType lhsType = checkExpr(binaryExpr.lhsExpr, env);
+        if (binaryExpr.opKind == OperatorKind.AND) {
+            rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
+        } else if (binaryExpr.opKind == OperatorKind.OR) {
+            rhsExprEnv = typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
         } else {
-            lhsType = checkExpr(binaryExpr.lhsExpr, env);
-            if (binaryExpr.opKind == OperatorKind.AND) {
-                rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
-            } else if (binaryExpr.opKind == OperatorKind.OR) {
-                rhsExprEnv = typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
-            } else {
-                rhsExprEnv = env;
-            }
-            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
+            rhsExprEnv = env;
         }
+        BType rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
 
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -4338,7 +4327,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        handleFilterClauses(onClause.expression);
+        SymbolEnv lhsExprEnv, rhsExprEnv;
+        BType lhsType, rhsType;
+        BLangNode joinNode = getLastInputNodeFromEnv(queryEnvs.peek());
+        // lhsExprEnv should only contain scope entries before join condition.
+        lhsExprEnv = getEnvBeforeInputNode(queryEnvs.peek(), joinNode);
+        lhsType = checkExpr(onClause.lhsExpr, lhsExprEnv);
+        // rhsExprEnv should only contain scope entries after join condition.
+        rhsExprEnv = getEnvAfterJoinNode(queryEnvs.peek(), joinNode);
+        rhsType = checkExpr(onClause.rhsExpr, rhsExprEnv);
+        if (!types.isAssignable(lhsType, rhsType)) {
+            dlog.error(onClause.rhsExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsType, rhsType);
+        }
     }
 
     @Override

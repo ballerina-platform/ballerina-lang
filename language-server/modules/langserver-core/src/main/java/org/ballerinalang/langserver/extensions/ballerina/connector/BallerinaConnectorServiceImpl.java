@@ -137,7 +137,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         LSConnectorCache connectorCache = LSConnectorCache.getInstance(lsContext);
 
         JsonElement ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName(), request.getBeta());
+                request.getVersion(), request.getName());
         String error = "";
         if (ast == null) {
             try {
@@ -209,10 +209,10 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                         ((JsonObject) jsonAST).add("records", recordsJson);
                     }
                     connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
-                            request.getVersion(), connector.getName().getValue(), request.getBeta(), jsonAST);
+                            request.getVersion(), connector.getName().getValue(), jsonAST);
                 });
                 ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
-                        request.getVersion(), request.getName(), request.getBeta());
+                        request.getVersion(), request.getName());
             } catch (Exception e) {
                 String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
@@ -231,7 +231,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         LSRecordCache recordCache = LSRecordCache.getInstance(lsContext);
 
         JsonElement ast = recordCache.getRecordAST(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName(), request.getBeta());
+                request.getVersion(), request.getName());
         String error = "";
         if (ast == null) {
             try {
@@ -295,11 +295,11 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                         ((JsonObject) recordJson).add("records", recordsJson);
                     }
                     recordCache.addRecordAST(request.getOrg(), request.getModule(),
-                            request.getVersion(), request.getName(), request.getBeta(), recordJson);
+                            request.getVersion(), request.getName(), recordJson);
                 }
 
                 ast = recordCache.getRecordAST(request.getOrg(), request.getModule(),
-                        request.getVersion(), request.getName(), request.getBeta());
+                        request.getVersion(), request.getName());
             } catch (Exception e) {
                 String msg = "Operation 'ballerinaConnector/record' for " + cacheableKey + ":" +
                         request.getName() + " failed!";

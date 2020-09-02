@@ -43,6 +43,7 @@ public class BaseTestCase {
     static Path serviceProjectBuildPath;
     static Path reportTestProjectPath;
     static Path outsideTestsProjectPath;
+    static Path rerunFailedProjectPath;
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
@@ -84,6 +85,11 @@ public class BaseTestCase {
                 "outside-tests").toAbsolutePath();
         outsideTestsProjectPath = tempProjectDirectory.resolve("outside-tests");
         FileUtils.copyFolder(outsideTestsProj, outsideTestsProjectPath);
+
+        Path rerunFailedProj = Paths.get("src", "test", "resources", "project-based-tests",
+                "rerun-failed-tests").toAbsolutePath();
+        rerunFailedProjectPath = tempProjectDirectory.resolve("rerun-failed-tests");
+        FileUtils.copyFolder(rerunFailedProj, rerunFailedProjectPath);
     }
 
     @AfterSuite(alwaysRun = true)

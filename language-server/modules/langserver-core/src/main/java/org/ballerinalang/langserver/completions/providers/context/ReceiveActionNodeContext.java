@@ -38,9 +38,9 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ReceiveActionNodeContext extends AbstractCompletionProvider<ReceiveActionNode> {
+
     public ReceiveActionNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ReceiveActionNode.class);
+        super(ReceiveActionNode.class);
     }
 
     @Override

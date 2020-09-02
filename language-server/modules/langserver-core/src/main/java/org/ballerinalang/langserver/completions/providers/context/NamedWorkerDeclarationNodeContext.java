@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
-import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -39,8 +39,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class NamedWorkerDeclarationNodeContext extends AbstractCompletionProvider<NamedWorkerDeclarationNode> {
     public NamedWorkerDeclarationNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(NamedWorkerDeclarationNode.class);
+        super(NamedWorkerDeclarationNode.class);
     }
 
     @Override

@@ -15,11 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.LinePosition;
 import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -41,8 +41,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForEachStatementNode> {
     public ForEachStatementNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ForEachStatementNode.class);
+        super(ForEachStatementNode.class);
     }
 
     @Override

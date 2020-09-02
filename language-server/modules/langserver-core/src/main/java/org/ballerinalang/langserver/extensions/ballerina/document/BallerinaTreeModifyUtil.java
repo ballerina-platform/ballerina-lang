@@ -18,12 +18,12 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.ballerinalang.compiler.text.LinePosition;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocumentChange;
-import io.ballerinalang.compiler.text.TextDocuments;
-import io.ballerinalang.compiler.text.TextEdit;
-import io.ballerinalang.compiler.text.TextRange;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocumentChange;
+import io.ballerina.tools.text.TextDocuments;
+import io.ballerina.tools.text.TextEdit;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -158,7 +158,7 @@ public class BallerinaTreeModifyUtil {
             int startOffset = textDocument.textPositionFrom(startLinePos);
             int endOffset = textDocument.textPositionFrom(endLinePos) + 1;
             edits.add(TextEdit.from(
-                    io.ballerinalang.compiler.text.TextRange.from(startOffset,
+                    TextRange.from(startOffset,
                             endOffset - startOffset), ""));
         }
         return edits;
@@ -178,7 +178,7 @@ public class BallerinaTreeModifyUtil {
         int theEndOffset = oldTextDocument.textPositionFrom(LinePosition.from(
                 endLine - 1, endColumn - 1));
         return TextEdit.from(
-                io.ballerinalang.compiler.text.TextRange.from(theStartOffset,
+                TextRange.from(theStartOffset,
                         theEndOffset - theStartOffset), mainStartMapping);
     }
 

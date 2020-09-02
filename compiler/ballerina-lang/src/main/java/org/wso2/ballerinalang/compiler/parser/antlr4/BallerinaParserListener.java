@@ -2274,18 +2274,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code binaryEqualsExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBinaryEqualsExpression(BallerinaParser.BinaryEqualsExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code binaryEqualsExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBinaryEqualsExpression(BallerinaParser.BinaryEqualsExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code queryExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree

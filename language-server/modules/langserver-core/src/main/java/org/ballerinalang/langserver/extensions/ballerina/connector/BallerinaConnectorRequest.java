@@ -30,9 +30,10 @@ public class BallerinaConnectorRequest {
     private String version = "";
     private String name;
     private String displayName;
-    private String beta;
+    private Boolean beta;
 
-    public BallerinaConnectorRequest(String org, String module, String version, String name, String displayName, String beta) {
+    public BallerinaConnectorRequest(String org, String module, String version,
+                                     String name, String displayName, Boolean beta) {
         this.org = org;
         this.module = module;
         this.version = version;
@@ -61,7 +62,7 @@ public class BallerinaConnectorRequest {
         return displayName;
     }
 
-    public String getBeta() {
+    public Boolean getBeta() {
         return beta;
     }
 

@@ -37,16 +37,16 @@ public class SpecificFieldNode extends MappingFieldNode {
         return optionalChildInBucket(0);
     }
 
-    public Token fieldName() {
+    public Node fieldName() {
         return childInBucket(1);
     }
 
-    public Token colon() {
-        return childInBucket(2);
+    public Optional<Token> colon() {
+        return optionalChildInBucket(2);
     }
 
-    public ExpressionNode valueExpr() {
-        return childInBucket(3);
+    public Optional<ExpressionNode> valueExpr() {
+        return optionalChildInBucket(3);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class SpecificFieldNode extends MappingFieldNode {
 
     public SpecificFieldNode modify(
             Token readonlyKeyword,
-            Token fieldName,
+            Node fieldName,
             Token colon,
             ExpressionNode valueExpr) {
         if (checkForReferenceEquality(
@@ -100,7 +100,7 @@ public class SpecificFieldNode extends MappingFieldNode {
     public static class SpecificFieldNodeModifier {
         private final SpecificFieldNode oldNode;
         private Token readonlyKeyword;
-        private Token fieldName;
+        private Node fieldName;
         private Token colon;
         private ExpressionNode valueExpr;
 
@@ -108,8 +108,8 @@ public class SpecificFieldNode extends MappingFieldNode {
             this.oldNode = oldNode;
             this.readonlyKeyword = oldNode.readonlyKeyword().orElse(null);
             this.fieldName = oldNode.fieldName();
-            this.colon = oldNode.colon();
-            this.valueExpr = oldNode.valueExpr();
+            this.colon = oldNode.colon().orElse(null);
+            this.valueExpr = oldNode.valueExpr().orElse(null);
         }
 
         public SpecificFieldNodeModifier withReadonlyKeyword(
@@ -120,7 +120,7 @@ public class SpecificFieldNode extends MappingFieldNode {
         }
 
         public SpecificFieldNodeModifier withFieldName(
-                Token fieldName) {
+                Node fieldName) {
             Objects.requireNonNull(fieldName, "fieldName must not be null");
             this.fieldName = fieldName;
             return this;

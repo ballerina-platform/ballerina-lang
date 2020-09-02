@@ -46,7 +46,7 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
@@ -114,7 +114,7 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "value": "5"
                     },
                     {
@@ -127,7 +127,7 @@
                       ]
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
@@ -194,21 +194,21 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "value": "5"
                     },
                     {
                       "kind": "DOT_TOKEN"
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "value": "6"
                     },
                     {
                       "kind": "DOT_TOKEN"
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
