@@ -129,45 +129,67 @@ public class TypeExtractorUtil {
 
             operation.setOpMethod(opMethod.toString());
             List<String> operationTags = opObject.getTags();
+            String operationId = opObject.getOperationId();
             // tag filter null operation +
             // operation null  tag +
             // tag and operation +
             // tag and operation null
-            if ((filter.getTags() != null) && (filter.getOperations() == null) &&
-                    (hasTags(filter.getTags(), operationTags))) {
 
-                if (opObject.getOperationId() == null) {
-                    String resName = "resource_" + nextOp.getKey().toString().toLowerCase(Locale.ENGLISH)
-                            + pathName.replaceAll("/", "_")
-                            .replaceAll("[{}]", "");
-                    operation.setOpName(resName);
-                    outStream.println("warning : `" + resName + "` is used as the resource name since the " +
-                            "operation id is missing for " + pathName + " " + nextOp.getKey());
-                } else {
-                    operation.setOpName(escapeIdentifier(
-                            opObject.getOperationId().replace(" ", "_")));
-                }
+//            if ((filter.getTags() != null) && (hasTags(filter.getTags(), operationTags))) {
+//                if ((filter.getOperations() != null) && (hasOperations(filter.getOperations(), operationId))) {
+//                    setFilteredOperation(pathName, nextOp, opObject, operation);
+//                    typeOpList.add(operation);
+//                } else {
+//                    setFilteredOperation(pathName, nextOp, opObject, operation);
+//                    typeOpList.add(operation);
+//                }
+//            } else {
+//                if ((filter.getOperations() != null) && (hasOperations(filter.getOperations(), operationId))) {
+//                    setFilteredOperation(pathName, nextOp, opObject, operation);
+//                    typeOpList.add(operation);
+//                } else {
+//                    setFilteredOperation(pathName, nextOp, opObject, operation);
+//                    typeOpList.add(operation);
+//                }
+//            }
 
-                if (opObject.getParameters() != null) {
-                    operation.setParameterList(extractOpenApiParameters(opObject.getParameters()));
-                }
+            if ((!(filter.getTags().isEmpty()) && !(filter.getOperations().isEmpty())) ||
+                    ((hasTags(filter.getTags(), operationTags)) && (hasOperations(filter.getOperations(), operationId)))
+                    || ((!filter.getTags().isEmpty()) && hasTags(filter.getTags(), operationTags) &&
+                    (filter.getOperations().isEmpty()))
+                    || ((!filter.getOperations().isEmpty()) && hasOperations(filter.getOperations(), operationId) &&
+                    (filter.getTags().isEmpty()))) {
 
-                if (opObject.getRequestBody() != null) {
-                    operation.setRequestBody(extractOpenApiRequestBody(opObject.getRequestBody()));
-                }
-
-            } else if ((filter.getTags() == null) && (filter.getOperations() != null)) {
-
-            } else if ((filter.getTags() != null) && (filter.getOperations() != null)) {
-
-            } else {
-
+                setFilteredOperation(pathName, nextOp, opObject, operation);
+                typeOpList.add(operation);
             }
-
-
-            typeOpList.add(operation);
         }
         return typeOpList;
+    }
+
+    private static void setFilteredOperation(String pathName, Map.Entry<PathItem.HttpMethod, Operation> nextOp,
+                                             Operation opObject, BallerinaOpenApiOperation operation)
+            throws BallerinaOpenApiException {
+
+        if (opObject.getOperationId() == null) {
+            String resName = "resource_" + nextOp.getKey().toString().toLowerCase(Locale.ENGLISH)
+                    + pathName.replaceAll("/", "_")
+                    .replaceAll("[{}]", "");
+            operation.setOpName(resName);
+            outStream.println("warning : `" + resName + "` is used as the resource name since the " +
+                    "operation id is missing for " + pathName + " " + nextOp.getKey());
+        } else {
+            operation.setOpName(escapeIdentifier(
+                    opObject.getOperationId().replace(" ", "_")));
+        }
+
+        if (opObject.getParameters() != null) {
+            operation.setParameterList(extractOpenApiParameters(opObject.getParameters()));
+        }
+
+        if (opObject.getRequestBody() != null) {
+            operation.setRequestBody(extractOpenApiRequestBody(opObject.getRequestBody()));
+        }
     }
 
     /**
@@ -472,7 +494,23 @@ public class TypeExtractorUtil {
         }
     }
 
+    /**
+     *
+     * @param tags
+     * @param operationTags
+     * @return
+     */
     public static boolean hasTags(List<String> tags, List<String> operationTags) {
         return !Collections.disjoint(tags, operationTags);
+    }
+
+    /**
+     *
+     * @param operationslist
+     * @param operation
+     * @return
+     */
+    public static boolean hasOperations(List<String> operationslist, String operation) {
+        return operationslist.contains(operation);
     }
 }

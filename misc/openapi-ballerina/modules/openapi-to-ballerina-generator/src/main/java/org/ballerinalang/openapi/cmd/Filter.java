@@ -1,10 +1,11 @@
 package org.ballerinalang.openapi.cmd;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Filter {
-    private List<String> tags;
-    private List<String> operations;
+    private List<String> tags = new ArrayList<>();
+    private List<String> operations = new ArrayList<>();
 
     public Filter(List<String> tags, List<String> operations) {
         this.tags = tags;

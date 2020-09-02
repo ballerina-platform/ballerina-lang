@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.openapi.utils.GeneratorConstants.USER_DIR;
@@ -77,10 +78,10 @@ public class OpenApiCmd implements BLauncherCmd {
     private  String module;
 
     @CommandLine.Option(names = {"--tags"}, description = "Tag that need to write service")
-    private List<String> tags;
+    private String tags;
 
     @CommandLine.Option(names = {"--operations"}, description = "Operations that need to write service")
-    private List<String> operations;
+    private String operations;
 
     @CommandLine.Option(names = {"--service-name"}, description = "Service name for generated files")
     private String generatedServiceName;
@@ -118,8 +119,13 @@ public class OpenApiCmd implements BLauncherCmd {
             // else it generates error message to enter correct input file
             String fileName = argList.get(0);
             if(fileName.endsWith(".yaml")) {
-                List<String> tag = new ArrayList<>(tags);
-                List<String> operation = new ArrayList<>(operations);
+                List<String> tag = new ArrayList<>();
+                List<String> operation = new ArrayList<>();
+                if (tags != null) {
+                     tag.addAll(Arrays.asList(tags.split(",")));
+                } else if (operations != null) {
+                    operation.addAll(Arrays.asList(operations.split(",")));
+                }
                 Filter filter = new Filter(tag, operation);
 
                 openApiToBallerina(fileName, filter);
