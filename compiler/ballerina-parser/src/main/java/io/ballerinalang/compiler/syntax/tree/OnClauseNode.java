@@ -36,8 +36,16 @@ public class OnClauseNode extends ClauseNode {
         return childInBucket(0);
     }
 
-    public ExpressionNode expression() {
+    public ExpressionNode lhsExpression() {
         return childInBucket(1);
+    }
+
+    public Token equalsKeyword() {
+        return childInBucket(2);
+    }
+
+    public ExpressionNode rhsExpression() {
+        return childInBucket(3);
     }
 
     @Override
@@ -54,21 +62,29 @@ public class OnClauseNode extends ClauseNode {
     protected String[] childNames() {
         return new String[]{
                 "onKeyword",
-                "expression"};
+                "lhsExpression",
+                "equalsKeyword",
+                "rhsExpression"};
     }
 
     public OnClauseNode modify(
             Token onKeyword,
-            ExpressionNode expression) {
+            ExpressionNode lhsExpression,
+            Token equalsKeyword,
+            ExpressionNode rhsExpression) {
         if (checkForReferenceEquality(
                 onKeyword,
-                expression)) {
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression)) {
             return this;
         }
 
         return NodeFactory.createOnClauseNode(
                 onKeyword,
-                expression);
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression);
     }
 
     public OnClauseNodeModifier modify() {
@@ -83,12 +99,16 @@ public class OnClauseNode extends ClauseNode {
     public static class OnClauseNodeModifier {
         private final OnClauseNode oldNode;
         private Token onKeyword;
-        private ExpressionNode expression;
+        private ExpressionNode lhsExpression;
+        private Token equalsKeyword;
+        private ExpressionNode rhsExpression;
 
         public OnClauseNodeModifier(OnClauseNode oldNode) {
             this.oldNode = oldNode;
             this.onKeyword = oldNode.onKeyword();
-            this.expression = oldNode.expression();
+            this.lhsExpression = oldNode.lhsExpression();
+            this.equalsKeyword = oldNode.equalsKeyword();
+            this.rhsExpression = oldNode.rhsExpression();
         }
 
         public OnClauseNodeModifier withOnKeyword(
@@ -98,17 +118,33 @@ public class OnClauseNode extends ClauseNode {
             return this;
         }
 
-        public OnClauseNodeModifier withExpression(
-                ExpressionNode expression) {
-            Objects.requireNonNull(expression, "expression must not be null");
-            this.expression = expression;
+        public OnClauseNodeModifier withLhsExpression(
+                ExpressionNode lhsExpression) {
+            Objects.requireNonNull(lhsExpression, "lhsExpression must not be null");
+            this.lhsExpression = lhsExpression;
+            return this;
+        }
+
+        public OnClauseNodeModifier withEqualsKeyword(
+                Token equalsKeyword) {
+            Objects.requireNonNull(equalsKeyword, "equalsKeyword must not be null");
+            this.equalsKeyword = equalsKeyword;
+            return this;
+        }
+
+        public OnClauseNodeModifier withRhsExpression(
+                ExpressionNode rhsExpression) {
+            Objects.requireNonNull(rhsExpression, "rhsExpression must not be null");
+            this.rhsExpression = rhsExpression;
             return this;
         }
 
         public OnClauseNode apply() {
             return oldNode.modify(
                     onKeyword,
-                    expression);
+                    lhsExpression,
+                    equalsKeyword,
+                    rhsExpression);
         }
     }
 }

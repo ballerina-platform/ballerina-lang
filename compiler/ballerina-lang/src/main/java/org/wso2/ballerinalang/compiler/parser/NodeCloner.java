@@ -1388,7 +1388,8 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangOnClause clone = new BLangOnClause();
         source.cloneRef = clone;
-        clone.expression = clone(source.expression);
+        clone.lhsExpr = clone(source.lhsExpr);
+        clone.rhsExpr = clone(source.rhsExpr);
     }
 
     @Override

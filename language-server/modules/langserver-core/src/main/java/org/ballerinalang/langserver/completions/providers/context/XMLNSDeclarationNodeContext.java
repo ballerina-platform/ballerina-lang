@@ -43,7 +43,7 @@ public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLN
     public List<LSCompletionItem> getCompletions(LSContext context, XMLNamespaceDeclarationNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (node.asKeyword() == null || node.asKeyword().isMissing()) {
+        if (!node.asKeyword().isPresent() || node.asKeyword().orElse(null).isMissing()) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_AS.get()));
         }
 
