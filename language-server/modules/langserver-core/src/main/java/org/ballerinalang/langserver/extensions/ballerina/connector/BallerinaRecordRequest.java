@@ -66,7 +66,7 @@ public class BallerinaRecordRequest {
                 ", module='" + module + '\'' +
                 ", version='" + version + '\'' +
                 ", name='" + name + '\'' +
-                ", beta='" + beta + '\'' +
+                ", beta=" + beta +
                 '}';
     }
 }
