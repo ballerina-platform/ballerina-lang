@@ -74,7 +74,7 @@ public class PackagingTestCase extends BaseTest {
                 projectPath.toString());
     }
 
-    @Test(description = "Test pushing a package to central", dependsOnMethods = "testInitProject")
+    @Test(enabled=false, description = "Test pushing a package to central", dependsOnMethods = "testInitProject")
     public void testPush() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
 
