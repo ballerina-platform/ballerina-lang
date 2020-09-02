@@ -535,14 +535,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STDefaultableParameterNode transform(
             STDefaultableParameterNode defaultableParameterNode) {
         STNode annotations = modifyNode(defaultableParameterNode.annotations);
-        STNode visibilityQualifier = modifyNode(defaultableParameterNode.visibilityQualifier);
         STNode typeName = modifyNode(defaultableParameterNode.typeName);
         STNode paramName = modifyNode(defaultableParameterNode.paramName);
         STNode equalsToken = modifyNode(defaultableParameterNode.equalsToken);
         STNode expression = modifyNode(defaultableParameterNode.expression);
         return defaultableParameterNode.modify(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -553,12 +551,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STRequiredParameterNode transform(
             STRequiredParameterNode requiredParameterNode) {
         STNode annotations = modifyNode(requiredParameterNode.annotations);
-        STNode visibilityQualifier = modifyNode(requiredParameterNode.visibilityQualifier);
         STNode typeName = modifyNode(requiredParameterNode.typeName);
         STNode paramName = modifyNode(requiredParameterNode.paramName);
         return requiredParameterNode.modify(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName);
     }

@@ -399,16 +399,11 @@ public class FormattingTreeModifier extends TreeModifier {
             return requiredParameterNode;
         }
         Token paramName = getToken(requiredParameterNode.paramName().orElse(null));
-        Token visibilityQualifier = getToken(requiredParameterNode.visibilityQualifier().orElse(null));
         NodeList<AnnotationNode> annotations = this.modifyNodeList(requiredParameterNode.annotations());
         Node typeName = this.modifyNode(requiredParameterNode.typeName());
         if (paramName != null) {
             requiredParameterNode = requiredParameterNode.modify()
                     .withParamName(formatToken(paramName, 1, 0, 0, 0)).apply();
-        }
-        if (visibilityQualifier != null) {
-            requiredParameterNode = requiredParameterNode.modify()
-                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0, 0)).apply();
         }
         return requiredParameterNode.modify()
                 .withAnnotations(annotations)
@@ -1823,15 +1818,10 @@ public class FormattingTreeModifier extends TreeModifier {
             return defaultableParameterNode;
         }
         NodeList<AnnotationNode> annotations = this.modifyNodeList(defaultableParameterNode.annotations());
-        Token visibilityQualifier = getToken(defaultableParameterNode.visibilityQualifier().orElse(null));
         Node typeName = this.modifyNode(defaultableParameterNode.typeName());
         Token paramName = getToken(defaultableParameterNode.paramName().orElse(null));
         Token equalsToken = getToken(defaultableParameterNode.equalsToken());
         Node expression = this.modifyNode(defaultableParameterNode.expression());
-        if (visibilityQualifier != null) {
-            defaultableParameterNode = defaultableParameterNode.modify()
-                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 1, 0, 0)).apply();
-        }
         if (paramName != null) {
             defaultableParameterNode = defaultableParameterNode.modify()
                     .withParamName(formatToken(paramName, 1, 1, 0, 0)).apply();
