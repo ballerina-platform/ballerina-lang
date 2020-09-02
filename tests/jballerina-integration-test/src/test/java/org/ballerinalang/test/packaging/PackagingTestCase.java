@@ -106,7 +106,8 @@ public class PackagingTestCase extends BaseTest {
         Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(moduleName)));
     }
 
-    @Test(description = "Test pushing a package to central", dependsOnMethods = "testCreateProject")
+    @Test(enabled = false, description = "Test pushing a package to central",
+            dependsOnMethods = "testCreateProject")
     public void testPush() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
 
