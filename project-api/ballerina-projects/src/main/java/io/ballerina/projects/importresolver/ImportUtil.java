@@ -19,7 +19,6 @@
 package io.ballerina.projects.importresolver;
 
 import io.ballerina.projects.Document;
-import io.ballerina.projects.Module;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
@@ -28,8 +27,11 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.Vector;
 
 /**
  * The {@code SyntaxTree} util functions for import resolver.
@@ -57,13 +59,98 @@ public class ImportUtil extends TreeModifier {
     }
 
     // TODO: Made it public to avoid a spotbug failure. Please fix this
-    public List<Import> getImportsFromModule(Module module) {
+    public List<Import> getImportsFromModule(Iterable<Document> documents) {
         List<Import> imports = new ArrayList<>();
-        Iterable<Document> documents = module.documents();
-
         for (Document document : documents) {
             imports.addAll(getImportsFromSyntaxTree(document.syntaxTree()));
         }
         return imports;
+    }
+
+    public static List<Import> sortDependencies(List<Import> dependencies) {
+        int[] dependencyOrder = sort(dependencies);
+
+        List<Import> sortedDeps = new ArrayList<>();
+        for (int idx : dependencyOrder) {
+            sortedDeps.add(dependencies.get(idx));
+        }
+        return sortedDeps;
+    }
+
+    private static int[] sort(List<Import> imports) {
+        int numberOfNodes = imports.size();
+        int[] indegrees = new int[numberOfNodes];
+        int[] sortedElts = new int[numberOfNodes];
+
+        List<Integer>[] dependencyMatrix = new ArrayList[numberOfNodes];
+        for (int i = 0; i < numberOfNodes; i++) {
+            dependencyMatrix[i] = new ArrayList<>();
+        }
+
+        int i = 0;
+        for (Import anImport : imports) {
+            if (anImport.getDependencies() != null && !anImport.getDependencies().isEmpty()) {
+                for (Import dependency : anImport.getDependencies()) {
+                    int idx = imports.indexOf(dependency);
+                    if (idx == -1) {
+                        String message = String.format("Module [%s] depends on module [%s], but it couldn't be found.",
+                                anImport, dependency);
+                        throw new RuntimeException(message);
+                    }
+                    dependencyMatrix[i].add(idx);
+                }
+            }
+            i++;
+        }
+
+        // fill in degrees
+        for (int j = 0; j < numberOfNodes; j++) {
+            List<Integer> dependencies = dependencyMatrix[j];
+            for (int node : dependencies) {
+                indegrees[node]++;
+            }
+        }
+
+        // Create a queue and enqueue all vertices with indegree 0
+        Queue<Integer> q = new LinkedList<>();
+        for (i = 0; i < numberOfNodes; i++) {
+            if (indegrees[i] == 0) {
+                q.add(i);
+            }
+        }
+
+        // Initialize count of visited vertices
+        int cnt = 0;
+
+        // Create a vector to store result (A topological ordering of the vertices)
+        Vector<Integer> topOrder = new Vector<>();
+        while (!q.isEmpty()) {
+            // Extract front of queue (or perform dequeue) and add it to topological order
+            int u = q.poll();
+            topOrder.add(u);
+
+            // Iterate through all its neighbouring nodes of dequeued node u and decrease their in-degree by 1
+            for (int node : dependencyMatrix[u]) {
+                // If in-degree becomes zero, add it to queue
+                if (--indegrees[node] == 0) {
+                    q.add(node);
+                }
+            }
+            cnt++;
+        }
+
+        // Check if there was a cycle
+        if (cnt != numberOfNodes) {
+            String message = "Cyclic module dependency detected";
+            throw new RuntimeException(message);
+        }
+
+        i = numberOfNodes - 1;
+        for (int elt : topOrder) {
+            sortedElts[i] = elt;
+            i--;
+        }
+
+        return sortedElts;
     }
 }

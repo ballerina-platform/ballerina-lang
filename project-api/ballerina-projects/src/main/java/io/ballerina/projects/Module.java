@@ -17,8 +17,12 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.importresolver.Import;
+import io.ballerina.projects.importresolver.ImportUtil;
+
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +39,7 @@ public class Module {
     private final Map<DocumentId, Document> srcDocs;
     private final Map<DocumentId, Document> testSrcDocs;
     private final Function<DocumentId, Document> populateDocumentFunc;
+    private final List<Import> imports;
 
     Module(ModuleContext moduleContext, Package packageInstance) {
         this.moduleContext = moduleContext;
@@ -43,6 +48,8 @@ public class Module {
         this.testSrcDocs = new ConcurrentHashMap<>();
         this.populateDocumentFunc = documentId -> Document.from(
                 this.moduleContext.documentContext(documentId), this);
+        ImportUtil importUtil = new ImportUtil();
+        this.imports = importUtil.getImportsFromModule(this.srcDocs.values());
     }
 
     static Module from(ModuleContext moduleContext, Package packageInstance) {

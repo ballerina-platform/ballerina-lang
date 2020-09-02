@@ -18,6 +18,8 @@
 
 package io.ballerina.projects.importresolver;
 
+import java.util.List;
+
 /**
  * The {@code SyntaxTree} represents a model for import in a ballerina source.
  *
@@ -28,11 +30,17 @@ public class Import {
     private String orgName;
     private String moduleName;
     private String version;
+    private List<Import> dependencies;
 
-    Import(String orgName, String moduleName, String version) {
+    public Import(String orgName, String moduleName, String version) {
         this.orgName = orgName;
         this.moduleName = moduleName;
         this.version = version;
+    }
+
+    @Override
+    public String toString() {
+        return orgName + "/" + moduleName + ":" + version;
     }
 
     public String getOrgName() {
@@ -57,5 +65,13 @@ public class Import {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public List<Import> getDependencies() {
+        return dependencies;
+    }
+
+    public void setDependencies(List<Import> dependencies) {
+        this.dependencies = dependencies;
     }
 }
