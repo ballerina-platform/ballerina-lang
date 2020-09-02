@@ -2098,11 +2098,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createOnClauseNode(
             STNode onKeyword,
-            STNode expression) {
+            STNode lhsExpression,
+            STNode equalsKeyword,
+            STNode rhsExpression) {
 
         return new STOnClauseNode(
                 onKeyword,
-                expression);
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression);
     }
 
     public static STNode createListMatchPatternNode(

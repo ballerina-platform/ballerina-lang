@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/math;
 import ballerina/runtime;
 
 # Derived set of configurations from the `RetryConfig`.
@@ -347,7 +346,7 @@ function initializeBackOffFactorAndMaxWaitInterval(RetryClient retryClient) {
 }
 
 function getWaitTime(float backOffFactor, int maxWaitTime, int interval) returns int {
-    int waitTime = math:round(interval * backOffFactor);
+    int waitTime = <int>(interval * backOffFactor);
     waitTime = waitTime > maxWaitTime ? maxWaitTime : waitTime;
     return waitTime;
 }
