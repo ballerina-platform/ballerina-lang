@@ -21,19 +21,30 @@ import io.kaitai.struct.ByteBufferKaitaiStream;
 import io.kaitai.struct.KaitaiStruct;
 import org.ballerinalang.build.kaitai.Bir;
 import org.ballerinalang.model.elements.AttachPoint;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Utility methods to help with testing BIR model.
@@ -42,9 +53,44 @@ class BIRTestUtils {
 
     private static final String TEST_RESOURCE_ROOT = "test-src/";
 
+    private static final String LANG_LIB_TEST_SRC_ROOT = "../../langlib/langlib-test/src/test/resources/test-src";
+
+    private static final Path TEST_ROOT_PATH = Paths.get(LANG_LIB_TEST_SRC_ROOT);
+
+    static void validateBIRSpec() throws IOException {
+
+        assert TEST_ROOT_PATH.toFile().exists();
+        List<String> testSources = Files.walk(TEST_ROOT_PATH)
+                .filter(file -> Files.isRegularFile(file))
+                .map(file -> file.toAbsolutePath().normalize().toString())
+                .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
+                .collect(Collectors.toList());
+
+        for (String testSource : testSources) {
+            BIRCompileResult compileResult = compile(testSource);
+            BIRNode.BIRPackage expectedBIRModule = compileResult.getExpectedBIR();
+            Bir actualBIR = compileResult.getActualBIR();
+
+            ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
+            Bir.Module actualBIRModule = actualBIR.module();
+
+            // assert constants
+            assertValues(expectedBIRModule, actualBIRModule, constantPoolEntries);
+
+            // assert type definitions
+            assertTypeDefs(expectedBIRModule, actualBIRModule, constantPoolEntries);
+
+            // assert annotations
+            assertAnnotations(expectedBIRModule, actualBIRModule, constantPoolEntries);
+
+            // assert functions
+            assertFunctions(expectedBIRModule, actualBIRModule, constantPoolEntries);
+        }
+    }
+
     private static BIRCompileResult compile(String testSource) {
 
-        CompileResult result = BCompileUtil.compileAndGetBIR(TEST_RESOURCE_ROOT + testSource);
+        CompileResult result = BCompileUtil.compileAndGetBIR(testSource);
         Assert.assertEquals(result.getErrorCount(), 0);
 
         BPackageSymbol packageSymbol = ((BLangPackage) result.getAST()).symbol;
@@ -59,14 +105,20 @@ class BIRTestUtils {
         return new BIRCompileResult(packageSymbol.bir, kaitaiBir);
     }
 
-    static void assertFunctions(String testSource) {
+    static void assertFunctions() {
 
-        BIRCompileResult compileResult = compile(testSource);
+        BIRCompileResult compileResult = compile(TEST_RESOURCE_ROOT + "functions.bal");
         BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
         Bir actualBIR = compileResult.getActualBIR();
 
         ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
         Bir.Module birModule = actualBIR.module();
+
+        assertFunctions(expectedBIR, birModule, constantPoolEntries);
+    }
+
+    private static void assertFunctions(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
+                                        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
 
         List<BIRNode.BIRFunction> expectedFunctions = expectedBIR.functions;
         ArrayList<Bir.Function> actualFunctions = birModule.functions();
@@ -79,17 +131,166 @@ class BIRTestUtils {
             // assert name
             Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualFunction.nameCpIndex());
             assertConstantPoolEntry(constantPoolEntry, expectedFunction.name.value);
+
+            // assert required param count
+            Assert.assertEquals(actualFunction.requiredParamCount(), expectedFunction.requiredParams.size());
+
+            Bir.FunctionBody actualFunctionBody = actualFunction.functionBody();
+            // assert arguments count
+            Assert.assertEquals(actualFunctionBody.argsCount(), expectedFunction.argsCount);
+            Assert.assertEquals(actualFunctionBody.defaultParameterCount(), expectedFunction.parameters.size());
+
+            // assert basic blocks
+            assertBasicBlocks(actualFunctionBody.functionBasicBlocksInfo(), expectedFunction.basicBlocks,
+                    constantPoolEntries);
         }
     }
 
-    static void assertConstants(String testSource) {
+    private static void assertBasicBlocks(Bir.BasicBlocksInfo actualBasicBlocksInfo,
+                                          List<BIRNode.BIRBasicBlock> expectedBasicBlocks,
+                                          ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
 
-        BIRCompileResult compileResult = compile(testSource);
+        Assert.assertEquals(actualBasicBlocksInfo.basicBlocksCount(), expectedBasicBlocks.size());
+
+        ArrayList<Bir.BasicBlock> actualBasicBlocks = actualBasicBlocksInfo.basicBlocks();
+        for (int i = 0; i < actualBasicBlocks.size(); i++) {
+            Bir.BasicBlock actualBasicBlock = actualBasicBlocks.get(i);
+            BIRNode.BIRBasicBlock expectedBasicBlock = expectedBasicBlocks.get(i);
+
+            Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualBasicBlock.nameCpIndex());
+            assertConstantPoolEntry(constantPoolEntry, expectedBasicBlock.id.value);
+
+            ArrayList<Bir.Instruction> actualInstructions = actualBasicBlock.instructions();
+            List<BIRNonTerminator> expectedInstructions = expectedBasicBlock.instructions;
+
+            Assert.assertEquals(actualBasicBlock.instructionsCount(), expectedInstructions.size() + 1);
+
+            for (int j = 0; j < actualInstructions.size() - 1; j++) {
+                assertInstruction(actualInstructions.get(j), expectedInstructions.get(j), constantPoolEntries);
+            }
+
+            Bir.Instruction actualTerminator = actualInstructions.get(actualBasicBlock.instructionsCount() - 1);
+            assertInstruction(actualTerminator, expectedBasicBlock.terminator, constantPoolEntries);
+        }
+    }
+
+    private static void assertInstruction(Bir.Instruction actualInstruction, BIRInstruction expectedInstruction,
+                                          ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+
+        Bir.Instruction.InstructionKindEnum instructionKindEnum = actualInstruction.instructionKind();
+        KaitaiStruct instructionStructure = actualInstruction.instructionStructure();
+        switch (instructionKindEnum) {
+            case INSTRUCTION_KIND_MOVE:
+                assertMoveInstruction((Bir.InstructionMove) instructionStructure,
+                        (BIRNonTerminator.Move) expectedInstruction,
+                        constantPoolEntries);
+                break;
+            case INSTRUCTION_KIND_GOTO:
+                assertGotoInstruction((Bir.InstructionGoto) instructionStructure,
+                        (BIRTerminator.GOTO) expectedInstruction, constantPoolEntries);
+                break;
+            case INSTRUCTION_KIND_CALL:
+                assertCallInstruction((Bir.InstructionCall) instructionStructure,
+                        (BIRTerminator.Call) expectedInstruction, constantPoolEntries);
+                break;
+            case INSTRUCTION_KIND_BRANCH:
+                assertBranchInstruction((Bir.InstructionBranch) instructionStructure,
+                        (BIRTerminator.Branch) expectedInstruction, constantPoolEntries);
+                break;
+            default:
+                Assert.assertEquals(instructionKindEnum.id(), expectedInstruction.getKind().getValue());
+        }
+    }
+
+    private static void assertBranchInstruction(Bir.InstructionBranch actualBranch,
+                                                BIRTerminator.Branch expectedBranch,
+                                                ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+
+        assertOperand(actualBranch.branchOperand(), expectedBranch.op, constantPoolEntries);
+
+        // assert true bb name
+        Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualBranch.trueBbIdNameCpIndex());
+        assertConstantPoolEntry(constantPoolEntry, expectedBranch.trueBB.id.value);
+
+        // assert false bb name
+        constantPoolEntry = constantPoolEntries.get(actualBranch.falseBbIdNameCpIndex());
+        assertConstantPoolEntry(constantPoolEntry, expectedBranch.falseBB.id.value);
+    }
+
+    private static void assertCallInstruction(Bir.InstructionCall actualCall, BIRTerminator.Call expectedCall,
+                                              ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+
+        Bir.CallInstructionInfo callInstructionInfo = actualCall.callInstructionInfo();
+
+        Assert.assertEquals(callInstructionInfo.argumentsCount(), expectedCall.args.size());
+        Assert.assertEquals(callInstructionInfo.hasLhsOperand() == 1, expectedCall.getLhsOperand() != null);
+        Assert.assertEquals(callInstructionInfo.isVirtual() == 1, expectedCall.isVirtual);
+
+        // assert pkg name
+        Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(callInstructionInfo.packageIndex());
+        assertConstantPoolEntry(constantPoolEntry, expectedCall.calleePkg);
+
+        // assert call name
+        constantPoolEntry = constantPoolEntries.get(callInstructionInfo.callNameCpIndex());
+        assertConstantPoolEntry(constantPoolEntry, expectedCall.name.value);
+
+        // assert then bb id
+        constantPoolEntry = constantPoolEntries.get(actualCall.thenBbIdNameCpIndex());
+        assertConstantPoolEntry(constantPoolEntry, expectedCall.thenBB.id.value);
+    }
+
+    private static void assertGotoInstruction(Bir.InstructionGoto actualGoto, BIRTerminator.GOTO expectedInstruction,
+                                              ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+
+        // assert goto bb id
+        Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualGoto.targetBbIdNameCpIndex());
+        assertConstantPoolEntry(constantPoolEntry, expectedInstruction.targetBB.id.value);
+    }
+
+    private static void assertMoveInstruction(Bir.InstructionMove actual, BIRNonTerminator.Move expected,
+                                              ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+
+        Bir.Operand actualLhsOperand = actual.lhsOperand();
+        BIROperand expectedLhsOp = expected.lhsOp;
+        assertOperand(actualLhsOperand, expectedLhsOp, constantPoolEntries);
+
+        Bir.Operand actualRhsOperand = actual.rhsOperand();
+        BIROperand expectedRhsOp = expected.rhsOp;
+        assertOperand(actualRhsOperand, expectedRhsOp, constantPoolEntries);
+    }
+
+    private static void assertOperand(Bir.Operand actual, BIROperand expected,
+                                      ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+
+        BIRNode.BIRVariableDcl expectedVar = expected.variableDcl;
+        Assert.assertEquals(actual.ignoredVariable() == 1, expectedVar.ignoreVariable);
+
+        if (actual.ignoredVariable() == 0) {
+            Bir.Variable actualVar = actual.variable();
+            Assert.assertEquals(actualVar.kind(), expectedVar.kind.getValue());
+            Assert.assertEquals(actualVar.scope(), expectedVar.scope.getValue());
+
+            // assert var name
+            Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualVar.variableDclNameCpIndex());
+            assertConstantPoolEntry(constantPoolEntry, expectedVar.name.value);
+        }
+    }
+
+    static void assertValues() {
+
+        BIRCompileResult compileResult = compile(TEST_RESOURCE_ROOT + "values.bal");
         BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
         Bir actualBIR = compileResult.getActualBIR();
 
         ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
         Bir.Module birModule = actualBIR.module();
+
+        assertValues(expectedBIR, birModule, constantPoolEntries);
+    }
+
+
+    private static void assertValues(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
+                                     ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
 
         List<BIRNode.BIRConstant> expectedConstants = expectedBIR.constants;
         ArrayList<Bir.Constant> actualConstants = birModule.constants();
@@ -113,13 +314,20 @@ class BIRTestUtils {
         }
     }
 
-    static void assertTypeDefs(String testSource) {
-        BIRCompileResult compileResult = compile(testSource);
+    static void assertTypeDefs() {
+
+        BIRCompileResult compileResult = compile(TEST_RESOURCE_ROOT + "typedefs.bal");
         BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
         Bir actualBIR = compileResult.getActualBIR();
 
         ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
         Bir.Module birModule = actualBIR.module();
+
+        assertTypeDefs(expectedBIR, birModule, constantPoolEntries);
+    }
+
+    private static void assertTypeDefs(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
+                                       ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
 
         List<BIRNode.BIRTypeDefinition> expectedTypeDefs = expectedBIR.typeDefs;
         ArrayList<Bir.TypeDefinition> actualTypeDefinitions = birModule.typeDefinitions();
@@ -142,24 +350,34 @@ class BIRTestUtils {
                     expectedTypeDefinition.type);
 
             // assert position
-            assertPosition(actualTypeDefinition.position(), expectedTypeDefinition.pos);
+            if (expectedTypeDefinition.pos != null) {
+                assertPosition(actualTypeDefinition.position(), expectedTypeDefinition.pos);
+            }
         }
     }
 
     private static void assertPosition(Bir.Position actualPosition, DiagnosticPos expectedPosition) {
+
         Assert.assertEquals(actualPosition.sLine(), expectedPosition.sLine);
         Assert.assertEquals(actualPosition.eLine(), expectedPosition.eLine);
         Assert.assertEquals(actualPosition.sCol(), expectedPosition.sCol);
         Assert.assertEquals(actualPosition.eCol(), expectedPosition.eCol);
     }
 
-    static void assertAnnotations(String testSource) {
-        BIRCompileResult compileResult = compile(testSource);
+    static void assertAnnotations() {
+
+        BIRCompileResult compileResult = compile(TEST_RESOURCE_ROOT + "annotations.bal");
         BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
         Bir actualBIR = compileResult.getActualBIR();
 
         ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
         Bir.Module birModule = actualBIR.module();
+
+        assertAnnotations(expectedBIR, birModule, constantPoolEntries);
+    }
+
+    private static void assertAnnotations(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
+                                          ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
 
         List<BIRNode.BIRAnnotation> expectedAnnotations = expectedBIR.annotations;
         ArrayList<Bir.Annotation> actualAnnotations = birModule.annotations();
@@ -219,8 +437,22 @@ class BIRTestUtils {
                 Assert.assertEquals(floatCpInfo.value(), expectedFloatVal);
                 break;
             case CP_ENTRY_PACKAGE:
+                Bir.PackageCpInfo packageCpInfo = (Bir.PackageCpInfo) constantPoolEntry.cpInfo();
+                PackageID packageID = (PackageID) expectedValue;
+                ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = constantPoolEntry._parent().
+                        constantPoolEntries();
+                assertConstantPoolEntry(constantPoolEntries.get(packageCpInfo.orgIndex()), packageID.orgName.value);
+                assertConstantPoolEntry(constantPoolEntries.get(packageCpInfo.nameIndex()), packageID.name.value);
+                assertConstantPoolEntry(constantPoolEntries.get(packageCpInfo.versionIndex()), packageID.version.value);
+                break;
             case CP_ENTRY_BYTE:
+                Bir.ByteCpInfo byteCpInfo = (Bir.ByteCpInfo) constantPoolEntry.cpInfo();
+                Assert.assertEquals(byteCpInfo.value(), (int) expectedValue);
+                break;
             case CP_ENTRY_BOOLEAN:
+                Bir.BooleanCpInfo booleanCpInfo = (Bir.BooleanCpInfo) constantPoolEntry.cpInfo();
+                Assert.assertEquals(booleanCpInfo.value(), expectedValue);
+                break;
             default:
                 Assert.fail(String.format("Unknown constant pool entry: %s", constantPoolEntry.tag().name()));
         }
@@ -264,6 +496,11 @@ class BIRTestUtils {
             case TYPE_TAG_DECIMAL:
                 Bir.DecimalConstantInfo decimalConstantInfo = (Bir.DecimalConstantInfo) constantValueInfo;
                 assertConstantPoolEntry(constantPoolEntries.get(decimalConstantInfo.valueCpIndex()), expectedValue);
+                break;
+            case TYPE_TAG_MAP:
+                Bir.MapConstantInfo actualMapConst = (Bir.MapConstantInfo) constantValueInfo;
+                Map<String, BIRNode.ConstValue> expectedMapConst = (Map<String, BIRNode.ConstValue>) expectedValue;
+                Assert.assertEquals(actualMapConst.mapConstantSize(), expectedMapConst.size());
                 break;
             default:
                 Assert.fail(String.format("Unknown constant value type: %s", typeTag.name()));
