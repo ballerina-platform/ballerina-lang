@@ -56,6 +56,8 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-runtime')
+    testCompile project(':ballerina-jdbc')
+    testCompile project(':ballerina-sql')
 
     balRuntime project(':ballerina-runtime')
 
@@ -83,6 +85,8 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 }
 

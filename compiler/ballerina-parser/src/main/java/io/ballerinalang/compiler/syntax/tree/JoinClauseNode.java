@@ -53,8 +53,8 @@ public class JoinClauseNode extends ClauseNode {
         return childInBucket(4);
     }
 
-    public Optional<OnClauseNode> onCondition() {
-        return optionalChildInBucket(5);
+    public OnClauseNode onCondition() {
+        return childInBucket(5);
     }
 
     @Override
@@ -129,7 +129,7 @@ public class JoinClauseNode extends ClauseNode {
             this.typedBindingPattern = oldNode.typedBindingPattern();
             this.inKeyword = oldNode.inKeyword();
             this.expression = oldNode.expression();
-            this.onCondition = oldNode.onCondition().orElse(null);
+            this.onCondition = oldNode.onCondition();
         }
 
         public JoinClauseNodeModifier withOuterKeyword(

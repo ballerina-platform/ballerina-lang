@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -45,8 +45,7 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
             return new ArrayList<>();
         }
 
-        return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor(),
-                node.initializer().get());
+        return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
     }
 
     @Override
