@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 /**
  * The interface with the APIs to implement the const-pattern.
  *
- * @since 2.0.0
+ * @since Swan Lake
  */
 public interface ConstPatternNode extends Node {
 

@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 
 /**
- * @since 2.0.0
+ * @since Swan Lake
  */
 public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implements VarBindingPatternMatchPatternNode {
 

@@ -2304,7 +2304,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatchStatement matchStatement) {
         typeChecker.checkExpr(matchStatement.expr, env, symTable.noType);
-        matchStatement.matchClauses.forEach(matchClause -> matchClause.accept(this));
+        for (BLangMatchClause matchClause : matchStatement.matchClauses) {
+            analyzeNode(matchClause, env);
+        }
     }
 
     @Override

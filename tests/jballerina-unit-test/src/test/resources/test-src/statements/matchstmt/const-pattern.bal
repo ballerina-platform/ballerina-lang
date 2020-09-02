@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
-function constPattern1(string | int | boolean a) returns string {
+function constPattern1(string|int|boolean a) returns string {
     match a {
         12 => {
             return "12";
@@ -58,7 +56,7 @@ function testConstPattern1() {
     assertEquals("Default", constPattern1(a7));
 }
 
-function constPattern2(string | int | boolean a, string | int | boolean b) returns string {
+function constPattern2(string|int|boolean a, string|int|boolean b) returns string {
     match a {
         12 => {
             return "Value is '12'";
@@ -121,26 +119,26 @@ function testConstPattern2() {
     assertEquals("Value is 'true'", constPattern2(a11, a12));
 }
 
-function constPattern3(string | int | boolean a) returns string {
+function constPattern3(string|int|boolean a) returns string {
     match a {
         12 | 13 | 14 => {
-            return "Value is : " + io:sprintf("%s", a);
+            return "Value is : " + a.toString();
         }
         "Hello" | "World" => {
-            return "Value is : " + io:sprintf("%s", a);
+            return "Value is : " + a.toString();
         }
         15 | "Test" => {
-            return "Value is : " + io:sprintf("%s", a);
+            return "Value is : " + a.toString();
         }
         true | false => {
-            return "Value is : " + io:sprintf("%s", a);
+            return "Value is : " + a.toString();
         }
         "HelloAgain" => {
-            return "Value is : " + io:sprintf("%s", a);
+            return "Value is : " + a.toString();
         }
     }
 
-    return "Default value is : " + io:sprintf("%s", a);
+    return "Default value is : " + a.toString();
 }
 
 function testConstPattern3(){
@@ -232,7 +230,7 @@ const CONST_2 = "B";
 const CONST_3 = 10;
 const CONST_4 = true;
 
-function constPattern6(CONST_1 | CONST_2 | CONST_3 | CONST_4 a) returns string {
+function constPattern6(CONST_1|CONST_2|CONST_3|CONST_4 a) returns string {
     string results = "";
 
     match a {

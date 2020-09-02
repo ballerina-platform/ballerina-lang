@@ -985,10 +985,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (BLangMatchStaticBindingPatternClause patternClause : matchStmt.getStaticPatternClauses()) {
             analyzeNode(patternClause, env);
 
-            List<BType> matchedExpTypes = matchStmt.exprTypes
-                    .stream()
-                    .filter(exprType -> isValidStaticMatchPattern(exprType, patternClause.literal))
-                    .collect(Collectors.toList());
+            List<BType> matchedExpTypes = new ArrayList<>();
+            for (BType exprType : matchStmt.exprTypes) {
+                if (isValidStaticMatchPattern(exprType, patternClause.literal)) {
+                    matchedExpTypes.add(exprType);
+                }
+            }
 
             if (matchedExpTypes.isEmpty()) {
                 // log error if a pattern will not match to any of the expected types

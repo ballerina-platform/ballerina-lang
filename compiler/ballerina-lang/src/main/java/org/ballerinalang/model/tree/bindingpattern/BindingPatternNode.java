@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.Node;
 /**
  * The interface with the APIs to implement the binding-pattern.
  *
- * @since 2.0.0
+ * @since Swan Lake
  */
 public interface BindingPatternNode extends Node {
 

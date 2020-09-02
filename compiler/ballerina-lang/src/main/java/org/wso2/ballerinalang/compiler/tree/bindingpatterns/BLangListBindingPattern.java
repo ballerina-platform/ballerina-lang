@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @since 2.0.0
+ * @since Swan Lake
  */
 public class BLangListBindingPattern extends BLangBindingPattern implements ListBindingPattern {
     public List<BLangBindingPattern> bindingPatterns = new ArrayList<>();

@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @since 2.0.0
+ * @since Swan Lake
  */
 public class BLangMatchClause extends BLangNode implements MatchClauseNode {
 
@@ -90,8 +90,8 @@ public class BLangMatchClause extends BLangNode implements MatchClauseNode {
     }
 
     @Override
-    public void setLastClause(boolean isLastClause) {
-        this.isLastClause = isLastClause;
+    public void setLastClause() {
+        this.isLastClause = true;
     }
 
     @Override

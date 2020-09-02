@@ -22,7 +22,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
- * @since 2.0.0
+ * @since Swan Lake
  */
 public abstract class BLangMatchPattern extends BLangNode implements MatchPatternNode {
     public BLangExpression matchExpr; // TODO : should changed as action or expr

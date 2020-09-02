@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.expressions.MatchGuard;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * @since 2.0.0
+ * @since Swan Lake
  */
 public class BLangMatchGuard extends BLangExpression implements MatchGuard {
 

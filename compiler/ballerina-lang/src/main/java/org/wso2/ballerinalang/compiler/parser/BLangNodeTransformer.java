@@ -3794,14 +3794,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
             bLangWildCardMatchPattern.pos = matchPatternPos;
             return bLangWildCardMatchPattern;
-        } else if (matchPattern.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL ||
-                matchPattern.kind() == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL ||
+        } else if (matchPattern.kind() == SyntaxKind.NUMERIC_LITERAL ||
                 matchPattern.kind() == SyntaxKind.STRING_LITERAL ||
                 matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                matchPattern.kind() == SyntaxKind.NULL_KEYWORD ||
+                matchPattern.kind() == SyntaxKind.NULL_LITERAL ||
                 matchPattern.kind() == SyntaxKind.NIL_LITERAL ||
-                matchPattern.kind() == SyntaxKind.TRUE_KEYWORD ||
-                matchPattern.kind() == SyntaxKind.FALSE_KEYWORD) {
+                matchPattern.kind() == SyntaxKind.BOOLEAN_LITERAL) {
             BLangConstPattern bLangConstMatchPattern =
                     (BLangConstPattern) TreeBuilder.createConstMatchPattern();
             bLangConstMatchPattern.setExpression(createExpression(matchPattern));
