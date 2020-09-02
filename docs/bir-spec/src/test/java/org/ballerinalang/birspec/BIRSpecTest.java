@@ -19,6 +19,8 @@ package org.ballerinalang.birspec;
 
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+
 /**
  * Test cases to verify BIR binary against the spec.
  */
@@ -26,21 +28,26 @@ public class BIRSpecTest {
 
     @Test(description = "Test to verify BIR with different type of functions")
     public void functionsTest() {
-        BIRTestUtils.assertFunctions("functions.bal");
+        BIRTestUtils.assertFunctions();
     }
 
-    @Test(description = "Test to verify BIR with different type of constant values")
+    @Test(description = "Test to verify BIR with different type of constants and values")
     public void constantValueTest() {
-        BIRTestUtils.assertConstants("constants.bal");
+        BIRTestUtils.assertValues();
     }
 
     @Test(description = "Test to verify BIR with different type definitions")
     public void typeDefinitionTest() {
-        BIRTestUtils.assertTypeDefs("typedefs.bal");
+        BIRTestUtils.assertTypeDefs();
     }
 
     @Test(description = "Test to verify BIR with annotations")
     public void annotationsTest() {
-        BIRTestUtils.assertAnnotations("annotations.bal");
+        BIRTestUtils.assertAnnotations();
+    }
+
+    @Test(description = "Test to verify BIR spec using langlib test sources")
+    public void validateBIRSpecTest() throws IOException {
+        BIRTestUtils.validateBIRSpec();
     }
 }
