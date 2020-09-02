@@ -2,6 +2,8 @@ public function testRecordBasedQueryExpr() {
     testQueryExprForNilFieldType();
     testQueryExprForOptionalField();
     testQueryExprForOptionalFieldV2();
+    testMethodParamWithLet();
+    testQueryExprWithOpenRecord();
 }
 
 type Person record {
@@ -88,6 +90,55 @@ public function testQueryExprForOptionalFieldV2() {
 
     assertEquality("Colombo", outputPersonList[0]?.address);
     assertEquality((), outputPersonList[1]?.address);
+}
+
+public function testMethodParamWithLet() {
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23, address: ()};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30, address: "Kandy"};
+    Person p3 = {firstName: "John", lastName: "David", age: 33, address: ()};
+
+    Person[] personList = [p1, p2, p3];
+
+    Person[] outputPersonList =
+            from var person in personList
+            let int age = 35
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   age: age,
+                   address: person.address
+             };
+
+    int age = 5;
+
+    assertEquality(outputPersonList[0].age, 35);
+    assertEquality(age, 5);
+}
+
+public function testQueryExprWithOpenRecord() {
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23, address: (), "zipCode": "2000"};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30, address: "Kandy", "zipCode": "0400"};
+    Person p3 = {firstName: "John", lastName: "David", age: 33, address: (), "zipCode": "0655"};
+
+    Person[] personList = [p1, p2, p3];
+
+    Person[] outputPersonList =
+            from var person in personList
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   age: person.age,
+                   address: person.address,
+                   "newZipCode": person["zipCode"]
+             };
+
+    string? ad = outputPersonList[0]?.address;
+    assertEquality((), ad);
+
+    assertEquality("Kandy", outputPersonList[1]?.address);
+    assertEquality("0400", outputPersonList[1]["newZipCode"]);
 }
 
 //---------------------------------------------------------------------------------------------------------

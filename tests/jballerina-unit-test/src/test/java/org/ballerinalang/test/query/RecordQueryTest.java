@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 /**
  * This contains methods to test query actions with records
- *
+ *\
  * @since Swan Lake
  */
 public class RecordQueryTest {
