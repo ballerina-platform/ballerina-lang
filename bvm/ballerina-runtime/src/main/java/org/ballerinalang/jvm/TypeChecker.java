@@ -1013,8 +1013,10 @@ public class TypeChecker {
             case UNSEALED:
                 if (targetType.getState() != ArrayState.UNSEALED) {
                     return false;
+                } else if (targetType.getState() == ArrayState.UNSEALED) {
+                    return true;
                 }
-                break;
+            break;
             case CLOSED_SEALED:
                 if (targetType.getState() == ArrayState.CLOSED_SEALED &&
                         sourceArrayType.getSize() != targetType.getSize()) {
