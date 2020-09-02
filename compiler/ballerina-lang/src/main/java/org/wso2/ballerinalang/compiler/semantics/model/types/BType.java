@@ -147,12 +147,4 @@ public class BType implements ValueType {
             return "(" + trueType + ", " + falseType + ")";
         }
     }
-
-    public boolean isAnydata() {
-        return this.tag <= TypeTags.ANYDATA;
-    }
-
-    public boolean isPureType() {
-        return this.tag == TypeTags.ERROR || this.isAnydata();
-    }
 }

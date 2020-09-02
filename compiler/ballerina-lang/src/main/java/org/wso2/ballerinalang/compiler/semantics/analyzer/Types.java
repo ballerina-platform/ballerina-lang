@@ -215,22 +215,22 @@ public class Types {
         return type.tag == TypeTags.JSON;
     }
 
-    private boolean isAnydataType(BType type) {
-        // TODO: use TypeKind.JSON.typeName()
-        if (type.tag == TypeTags.UNION) {
-            BUnionType bUnionType = (BUnionType) type;
-            return isAnydataUnionType(bUnionType);
-        }
-        return type.tag == TypeTags.ANYDATA;
-    }
-
-    public boolean isAnydataUnionType(BUnionType type) {
-        // TODO: use TypeKind.ANYDATA.typeName()
-        if (type.name != null && (type.name.getValue().equals(Names.ANYDATA.getValue()))) {
-            return true;
-        }
-        return isSameType(type, symTable.anydataType);
-    }
+//    private boolean isAnydataType(BType type) {
+//        // TODO: use TypeKind.JSON.typeName()
+//        if (type.tag == TypeTags.UNION) {
+//            BUnionType bUnionType = (BUnionType) type;
+//            return isAnydataUnionType(bUnionType);
+//        }
+//        return type.tag == TypeTags.ANYDATA;
+//    }
+//
+//    public boolean isAnydataUnionType(BUnionType type) {
+//        // TODO: use TypeKind.ANYDATA.typeName()
+//        if (type.name != null && (type.name.getValue().equals(Names.ANYDATA.getValue()))) {
+//            return true;
+//        }
+//        return isSameType(type, symTable.anydataType);
+//    }
 
     public boolean isJSONUnionType(BUnionType type) {
         if (type.name != null && (type.name.getValue().equals(Names.JSON.getValue()))) {
@@ -316,6 +316,16 @@ public class Types {
 
     public boolean isSameType(BType source, BType target) {
         return isSameType(source, target, new HashSet<>());
+    }
+
+    public boolean isPureType(BType type) {
+        IsPureTypeUniqueVisitor visitor = new IsPureTypeUniqueVisitor();
+        return visitor.visit(type);
+    }
+
+    public boolean isAnydata(BType type) {
+        IsAnydataUniqueVisitor visitor = new IsAnydataUniqueVisitor();
+        return visitor.visit(type);
     }
 
     private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -703,11 +713,8 @@ public class Types {
             return true;
         }
 
-        if (isAnydataType(target) && !containsErrorType(source)) {
-            if (source.isAnydata()) {
-                return true;
-            }
-            if (isAnydataType(source)) {
+        if (isAnydata(target) && !containsErrorType(source)) {
+            if (isAnydata(source)) {
                 return true;
             }
             return false;
@@ -2820,7 +2827,7 @@ public class Types {
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
 
-        if (!lhsType.isPureType() || !rhsType.isPureType()) {
+        if (!isPureType(lhsType) || !isPureType(rhsType)) {
             return false;
         }
 

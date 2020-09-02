@@ -32,6 +32,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -187,6 +189,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
 class JvmTypeGen {
 
     private static ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
+    private static IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
+    private static IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
+
 
     /**
      * Create static fields to hold the user defined types.
@@ -740,8 +745,10 @@ class JvmTypeGen {
     }
 
     private static int typeFlag(BType type) {
-
-        return TypeFlags.asMask(type.isNullable(), type.isAnydata(), type.isPureType());
+        isAnydataUniqueVisitor.reset();
+        isPureTypeUniqueVisitor.reset();
+        return TypeFlags.asMask(type.isNullable(), isAnydataUniqueVisitor.visit(type),
+                isPureTypeUniqueVisitor.visit(type));
     }
 
     /**

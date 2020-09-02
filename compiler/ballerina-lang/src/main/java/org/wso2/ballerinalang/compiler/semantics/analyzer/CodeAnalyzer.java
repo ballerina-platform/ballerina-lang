@@ -3280,13 +3280,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_SHOULD_BE_PUBLIC);
         }
 
+        IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
         funcNode.requiredParams.forEach(param -> {
-            if (!param.type.isAnydata()) {
+            if (!isAnydataUniqueVisitor.visit(param.type)) {
                 this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
             }
         });
 
-        if (funcNode.restParam != null && !funcNode.restParam.type.isAnydata()) {
+        isAnydataUniqueVisitor.reset();
+
+        if (funcNode.restParam != null && !isAnydataUniqueVisitor.visit(funcNode.restParam.type)) {
             this.dlog.error(funcNode.restParam.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA,
                             funcNode.restParam.type);
         }

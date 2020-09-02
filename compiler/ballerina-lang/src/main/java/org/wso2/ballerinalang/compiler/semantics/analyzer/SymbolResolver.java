@@ -871,6 +871,18 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.anydataOrReadonly = BUnionType.create(null, symTable.anydataType, symTable.readonlyType);
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.anydataType, null, null);
             symTable.tableType = new BTableType(TypeTags.TABLE, symTable.anydataType, null);
+            symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
+            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
+            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
+            symTable.defineOperators();
+            symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
+                    PackageID.ERROR, symTable.errorType, symTable.rootPkgSymbol);
+            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+            symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
+            symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
+            symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
+            symTable.typeDesc.constraint = symTable.anyOrErrorType;
+            symTable.futureType.constraint = symTable.anyOrErrorType;
             return;
         }
         throw new IllegalStateException("built-in 'anydata' type not found");
@@ -900,6 +912,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             symTable.cloneableType = (BUnionType) entry.symbol.type;
+            symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
+            symTable.cloneableType.tsymbol =
+                    new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
+                            symTable.cloneableType,
+                            symTable.rootPkgSymbol);
             return;
         }
         throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");

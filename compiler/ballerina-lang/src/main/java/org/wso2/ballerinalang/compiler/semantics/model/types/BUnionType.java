@@ -44,14 +44,12 @@ public class BUnionType extends BType implements UnionType {
 
     public BIntersectionType immutableType;
     public boolean resolvingToString = false;
-    public boolean resolvingPureData = false;
-    public boolean resolvingAnyData = false;
 
     private boolean nullable;
 
     private LinkedHashSet<BType> memberTypes;
-    private Optional<Boolean> isAnyData = Optional.empty();
-    private Optional<Boolean> isPureType = Optional.empty();
+    public Boolean isAnyData = null;
+    public Boolean isPureType = null;
 
     protected BUnionType(BTypeSymbol tsymbol, Set<BType> memberTypes, boolean nullable, boolean readonly) {
         super(TypeTags.UNION, tsymbol);
@@ -258,50 +256,6 @@ public class BUnionType extends BType implements UnionType {
      */
     public Iterator<BType> iterator() {
         return this.memberTypes.iterator();
-    }
-
-    @Override
-    public boolean isAnydata() {
-        if (this.isAnyData.isPresent()) {
-            return this.isAnyData.get();
-        }
-        if (this.resolvingAnyData) {
-            return true;
-        }
-        this.resolvingAnyData = true;
-        for (BType memberType : this.memberTypes) {
-            if (!memberType.isAnydata()) {
-                this.isAnyData = Optional.of(false);
-                this.resolvingAnyData = false;
-                return false;
-            }
-        }
-        this.resolvingAnyData = false;
-        this.isAnyData = Optional.of(true);
-        return true;
-    }
-
-    @Override
-    public boolean isPureType() {
-        if (this.isPureType.isPresent()) {
-            return this.isPureType.get();
-        }
-
-        if (this.resolvingPureData) {
-            return true;
-        }
-
-        this.resolvingPureData = true;
-        for (BType memberType : this.memberTypes) {
-            if (!memberType.isPureType()) {
-                this.isPureType = Optional.of(false);
-                this.resolvingPureData = false;
-                return false;
-            }
-        }
-        this.resolvingPureData = false;
-        this.isPureType = Optional.of(true);
-        return true;
     }
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {

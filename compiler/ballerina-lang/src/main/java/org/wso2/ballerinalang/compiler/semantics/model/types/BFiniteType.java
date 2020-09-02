@@ -40,7 +40,7 @@ public class BFiniteType extends BType implements FiniteType {
 
     private Set<BLangExpression> valueSpace;
     private boolean nullable = false;
-    private Optional<Boolean> isAnyData = Optional.empty();
+    public Boolean isAnyData = null;
 
 
     public BFiniteType(BTypeSymbol tsymbol) {
@@ -93,23 +93,6 @@ public class BFiniteType extends BType implements FiniteType {
     @Override
     public boolean isNullable() {
         return nullable;
-    }
-
-    @Override
-    public boolean isAnydata() {
-        if (this.isAnyData.isPresent()) {
-            return this.isAnyData.get();
-        }
-
-        for (BLangExpression value : this.valueSpace) {
-            if (!value.type.isAnydata()) {
-                this.isAnyData = Optional.of(false);
-                return false;
-            }
-        }
-
-        this.isAnyData = Optional.of(true);
-        return true;
     }
 
     public void addValue(BLangExpression value) {

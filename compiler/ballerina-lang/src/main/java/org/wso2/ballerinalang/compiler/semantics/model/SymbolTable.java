@@ -23,6 +23,7 @@ import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -728,6 +729,9 @@ public class SymbolTable {
 
     private void defineCloneableCyclicTypeAndDependentTypes() {
         cloneableType = BUnionType.create(null, readonlyType, xmlType);
+        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE,
+                rootPkgSymbol.pkgID, errorType, rootPkgSymbol);
+
         BArrayType arrayCloneableType = new BArrayType(cloneableType);
         BMapType mapCloneableType = new BMapType(TypeTags.MAP, cloneableType, null);
         BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
@@ -736,6 +740,8 @@ public class SymbolTable {
         cloneableType.add(tableMapCloneableType);
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
         errorType = new BErrorType(null, detailType);
+        errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
+                rootPkgSymbol.pkgID, errorType, rootPkgSymbol);
     }
 
     private void defineJsonCyclicTypeAndDependentTypes() {
@@ -746,6 +752,8 @@ public class SymbolTable {
         jsonInternal.add(arrayJsonTypeInternal);
         jsonInternal.add(mapJsonTypeInternal);
         jsonType = new BJSONType(jsonInternal);
+        jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON,
+                rootPkgSymbol.pkgID, jsonType, rootPkgSymbol);
         arrayJsonType = new BArrayType(jsonType);
         mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
     }
@@ -760,6 +768,8 @@ public class SymbolTable {
         anyDataInternal.add(mapAnydataTypeInternal);
         anyDataInternal.add(tableMapAnydataType);
         anydataType = new BAnydataType(anyDataInternal);
+        anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA,
+                PackageID.ANNOTATIONS, anydataType, rootPkgSymbol);
         arrayAnydataType = new BArrayType(anyDataInternal);
         mapAnydataType = new BMapType(TypeTags.MAP, anyDataInternal, null);
         anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
