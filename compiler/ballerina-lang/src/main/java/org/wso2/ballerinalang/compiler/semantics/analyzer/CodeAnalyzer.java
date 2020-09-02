@@ -507,15 +507,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        this.errorTypes.push(new LinkedHashSet<>());
-        boolean statementReturns = this.statementReturns;
-        boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction statement occurred in a transactional scope
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.TRANSACTION_CANNOT_BE_USED_WITHIN_TRANSACTIONAL_SCOPE);
             return;
         }
+
+        this.errorTypes.push(new LinkedHashSet<>());
+        boolean failureHandled = this.failureHandled;
+
         boolean previousWithinTxScope = this.withinTransactionScope;
         boolean previousWithinTrxBlock = this.withinTransactionBlock;
         int previousCommitCount = this.commitCount;
@@ -534,25 +535,23 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!this.withinTransactionBlock) {
             this.withinTransactionBlock = true;
         }
-        this.failureHandled = transactionNode.onFailClause != null;
 
         this.loopWithinTransactionCheckStack.push(false);
         this.returnWithinTransactionCheckStack.push(false);
         this.doneWithinTransactionCheckStack.push(false);
         this.returnWithinLambdaWrappingCheckStack.push(false);
         this.transactionCount++;
-
-        analyzeNode(transactionNode.transactionBody, env);
-        this.statementReturns = statementReturns;
-        this.failureHandled = failureHandled;
-        this.resetLastStatement();
-        if (transactionNode.onFailClause != null) {
-            transactionNode.transactionBody.isBreakable = true;
-            analyzeNode(transactionNode.onFailClause, env);
+        if(!this.failureHandled) {
+            this.failureHandled = transactionNode.onFailClause != null;
         }
+//        boolean statementReturns = this.statementReturns;
+        analyzeNode(transactionNode.transactionBody, env);
+//        this.statementReturns = statementReturns;
+        this.failureHandled = failureHandled;
         if (commitCount < 1) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.INVALID_COMMIT_COUNT);
         }
+
         transactionNode.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();
         this.transactionCount--;
@@ -568,10 +567,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!this.withinTransactionBlock) {
             this.innerTransactionBlock = null;
         }
-
         this.returnWithinTransactionCheckStack.pop();
         this.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
+
+        if (transactionNode.onFailClause != null) {
+                    this.resetLastStatement();
+            transactionNode.transactionBody.isBreakable = true;
+            analyzeNode(transactionNode.onFailClause, env);
+        }
         this.errorTypes.pop();
     }
 
@@ -738,6 +742,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchStmt) {
+//        this.errorTypes.push(new LinkedHashSet<>());
+//        boolean statementReturns = this.statementReturns;
+//        boolean failureHandled = this.failureHandled;
+//        this.checkStatementExecutionValidity(doNode);
+//        if(!this.failureHandled) {
+//            this.failureHandled = doNode.onFailClause != null;
+//        }
+//        analyzeNode(doNode.body, env);
+//        this.statementReturns = statementReturns;
+//        this.failureHandled = failureHandled;
+//        this.resetLastStatement();
+//        if (doNode.onFailClause != null) {
+//            doNode.body.isBreakable = true;
+//            analyzeNode(doNode.onFailClause, env);
+//        }
+//        this.errorTypes.pop();
+
+        this.errorTypes.push(new LinkedHashSet<>());
+        if (!this.failureHandled) {
+            this.failureHandled = matchStmt.onFailClause != null;
+        }
         analyzeExpr(matchStmt.expr);
 
         boolean staticLastPattern = false;
@@ -756,8 +781,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (matchStmt.onFailClause != null) {
+            boolean currentReturns = this.statementReturns;
             analyzeNode(matchStmt.onFailClause, env);
+            this.statementReturns = currentReturns;
         }
+        this.errorTypes.pop();
     }
 
     @Override
@@ -1394,8 +1422,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean statementReturns = this.statementReturns;
         boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(doNode);
-        if(doNode.onFailClause != null) {
-            this.failureHandled = true;
+        if(!this.failureHandled) {
+            this.failureHandled = doNode.onFailClause != null;
         }
         analyzeNode(doNode.body, env);
         this.statementReturns = statementReturns;
@@ -1412,22 +1440,23 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFail failNode) {
         analyzeExpr(failNode.expr);
-
-        this.statementReturns = true;
+        this.lastStatement = true;
         if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
             return;
         }
-
-        BType exprType = env.enclInvokable.getReturnTypeNode().type;
         typeChecker.checkExpr(failNode.expr, env);
-
-        if (!this.failureHandled && !types.isAssignable(getErrorTypes(failNode.expr.type), exprType)) {
-            dlog.error(failNode.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        if (!this.errorTypes.empty()) {
+            this.errorTypes.peek().add(getErrorTypes(failNode.expr.type));
         }
-
-        this.errorTypes.peek().add(getErrorTypes(failNode.expr.type));
-        this.returnTypes.peek().add(exprType);
+        if (!this.failureHandled) {
+            this.statementReturns = true;
+            BType exprType = env.enclInvokable.getReturnTypeNode().type;
+            this.returnTypes.peek().add(exprType);
+            if (!types.isAssignable(getErrorTypes(failNode.expr.type), exprType)) {
+                dlog.error(failNode.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+            }
+        }
     }
 
     @Override
@@ -2744,7 +2773,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
             dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
-//        this.errorTypes.peek().add(getErrorTypes(checkedExpr.expr.type));
+        if (!this.errorTypes.empty()) {
+            this.errorTypes.peek().add(getErrorTypes(checkedExpr.expr.type));
+        }
         returnTypes.peek().add(exprType);
     }
 
@@ -2847,7 +2878,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangOnFailClause onFailClause) {
         this.returnWithinLambdaWrappingCheckStack.push(false);
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
-//        this.failureHandled = true;
         for (BType errorType : errorTypes.peek()) {
             if (!types.isAssignable(errorType, onFailVarNode.type)) {
                 dlog.error(onFailVarNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, errorType, onFailClause.varType);

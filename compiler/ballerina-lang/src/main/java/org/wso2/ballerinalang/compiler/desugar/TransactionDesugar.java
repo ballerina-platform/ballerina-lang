@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -99,7 +100,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private int transactionBlockCount;
 
     private BLangStatementExpression result;
-
+    private boolean onFailHandled;
     private TransactionDesugar(CompilerContext context) {
         context.put(TRANSACTION_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
@@ -116,7 +117,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return desugar;
     }
 
-    public BLangStatementExpression rewrite (BLangNode node, SymbolEnv env) {
+    public BLangStatementExpression rewrite (BLangNode node, SymbolEnv env, boolean nestedTrxOnFailHandled) {
+        this.onFailHandled = nestedTrxOnFailHandled;
         String id = this.uniqueId;
         BLangExpression trxId = this.transactionID;
         BLangExpression trxBlockId = this.transactionBlockID;
@@ -220,7 +222,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangLambdaFunction trxMainFunc = desugar.createLambdaFunction(transactionNode.pos, "$trxFunc$",
                 Lists.of(trxMainFuncParamPrevAttempt), transactionReturnType, transactionNode.transactionBody.stmts,
                 env, transactionNode.transactionBody.scope);
-        ((BLangBlockFunctionBody)trxMainFunc.function.body).isBreakable = transactionNode.onFailClause != null;
+        ((BLangBlockFunctionBody)trxMainFunc.function.body).isBreakable = this.onFailHandled;
 
         // transactionId = startTransaction(1, prevAttempt)
         BLangInvocation startTransactionInvocation = createStartTransactionInvocation(pos, transactionBlockIDLiteral,
