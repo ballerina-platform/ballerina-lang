@@ -843,6 +843,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Token qualifier : objTypeDescNode.objectTypeQualifiers()) {
             if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
                 objectTypeNode.flagSet.add(Flag.CLIENT);
+            } else if (qualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
+                objectTypeNode.flagSet.add(SERVICE);
             } else {
                 throw new RuntimeException("Syntax kind is not supported: " + qualifier.kind());
             }

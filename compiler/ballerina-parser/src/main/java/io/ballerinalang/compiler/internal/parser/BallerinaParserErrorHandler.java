@@ -212,10 +212,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OBJECT_METHOD_WITHOUT_TRANSACTIONAL =
             { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
 
-    private static final ParserRuleContext[] OBJECT_TYPE_DESCRIPTOR_START =
-            { ParserRuleContext.OBJECT_TYPE_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
-
-    private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_START =
+    private static final ParserRuleContext[] OBJECT_TYPE_OR_CONSTRUCTOR_START =
             { ParserRuleContext.OBJECT_TYPE_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_RHS =
@@ -642,6 +639,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_FIELD_INITIALIZER:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
             case OBJECT_MEMBER:
+            case CLASS_MEMBER:
+            case OBJECT_MEMBER_DESCRIPTOR:
             case OBJECT_TYPE_QUALIFIER:
             case CLASS_TYPE_QUALIFIER:
             case ELSE_BODY:
@@ -1219,7 +1218,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
-            case OBJECT_TYPE_DESCRIPTOR_START:
+            case OBJECT_TYPE_OR_CONSTRUCTOR_START:
             case ELSE_BLOCK:
             case ELSE_BODY:
             case CALL_STMT_START:
@@ -1355,7 +1354,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_OR_EXPR_RHS:
             case LISTENERS_LIST_END:
             case MODULE_CLASS_DEFINITION_START:
-            case OBJECT_CONSTRUCTOR_START:
             case OBJECT_CONSTRUCTOR_TYPE_REF:
                 return true;
             default:
@@ -1383,8 +1381,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 ParserRuleContext parentCtx = getParentContext();
                 ParserRuleContext[] alternatives;
                 if (parentCtx == ParserRuleContext.FUNC_DEF) {
-                    ParserRuleContext greatGrandParentCtx = getGreatGrandParentContext();
-                    if (greatGrandParentCtx == ParserRuleContext.OBJECT_TYPE_DESCRIPTOR) {
+                    ParserRuleContext grandParentCtx = getGrandParentContext();
+                    if (grandParentCtx == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR) {
                         alternatives = METHOD_DECL_OPTIONAL_RETURNS;
                     } else {
                         alternatives = FUNC_DEF_OPTIONAL_RETURNS;
@@ -1473,8 +1471,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
                 alternativeRules = OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
                 break;
-            case OBJECT_TYPE_DESCRIPTOR_START:
-                alternativeRules = OBJECT_TYPE_DESCRIPTOR_START;
+            case OBJECT_TYPE_OR_CONSTRUCTOR_START:
+                alternativeRules = OBJECT_TYPE_OR_CONSTRUCTOR_START;
                 break;
             case IMPORT_PREFIX_DECL:
                 alternativeRules = IMPORT_PREFIX_DECL;
@@ -1560,9 +1558,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case MODULE_CLASS_DEFINITION_START:
                 alternativeRules = MODULE_CLASS_DEFINITION_START;
-                break;
-            case OBJECT_CONSTRUCTOR_START:
-                alternativeRules = OBJECT_CONSTRUCTOR_START;
                 break;
             case OBJECT_CONSTRUCTOR_TYPE_REF:
                 alternativeRules = OBJECT_CONSTRUCTOR_RHS;
@@ -2100,9 +2095,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK ||
                 parentCtx == ParserRuleContext.FOREACH_STMT) {
             nextContext = ParserRuleContext.BLOCK_STMT;
-        } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD ||
-                parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.LISTENER_DECL ||
-                parentCtx == ParserRuleContext.CONSTANT_DECL) {
+        } else if (isStatement(parentCtx) ||
+                parentCtx == ParserRuleContext.RECORD_FIELD || parentCtx == ParserRuleContext.OBJECT_MEMBER ||
+                parentCtx == ParserRuleContext.CLASS_MEMBER ||
+                parentCtx == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR ||
+                parentCtx == ParserRuleContext.LISTENER_DECL || parentCtx == ParserRuleContext.CONSTANT_DECL) {
             nextContext = ParserRuleContext.SEMICOLON;
         } else if (parentCtx == ParserRuleContext.ANNOTATIONS) {
             nextContext = ParserRuleContext.ANNOTATION_END;
@@ -2295,7 +2292,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_NAME:
                 return ParserRuleContext.TYPE_DESC_IN_TYPE_DEF;
             case OBJECT_TYPE_DESCRIPTOR:
-                return ParserRuleContext.OBJECT_TYPE_DESCRIPTOR_START;
+                return ParserRuleContext.OBJECT_TYPE_OR_CONSTRUCTOR_START;
             case OBJECT_TYPE_QUALIFIER:
                 return ParserRuleContext.OBJECT_KEYWORD;
             case CLASS_TYPE_QUALIFIER:
@@ -2472,7 +2469,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SLASH_LT_TOKEN:
                 return ParserRuleContext.XML_NAME_PATTERN;
             case OBJECT_CONSTRUCTOR:
-                return ParserRuleContext.OBJECT_CONSTRUCTOR_START;
+                return ParserRuleContext.OBJECT_TYPE_OR_CONSTRUCTOR_START;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
         }
@@ -2653,10 +2650,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end explicit anon-func
                 return ParserRuleContext.EXPR_FUNC_BODY_START;
             case OBJECT_MEMBER:
-                grandParentCtx = getGrandParentContext();
-                if (grandParentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR) {
-                    return ParserRuleContext.OBJECT_MEMBER_START;
-                }
+                return ParserRuleContext.OBJECT_MEMBER_START;
+            case CLASS_MEMBER:
+            case OBJECT_MEMBER_DESCRIPTOR:
                 return ParserRuleContext.CLASS_MEMBER_START;
             case ANNOTATION_END:
                 return getNextRuleForAnnotationEnd(nextLookahead);
@@ -2779,7 +2775,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PUBLIC_KEYWORD:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.OBJECT_TYPE_DESCRIPTOR ||
-                        parentCtx == ParserRuleContext.OBJECT_MEMBER) {
+                        parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.CLASS_MEMBER ||
+                        parentCtx == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR) {
                     return ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
                 } else if (isParameter(parentCtx)) {
                     return ParserRuleContext.TYPE_DESC_IN_PARAM;
@@ -2981,6 +2978,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case COMP_UNIT:
                         return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
                     case OBJECT_MEMBER:
+                    case CLASS_MEMBER:
+                    case OBJECT_MEMBER_DESCRIPTOR:
                         return ParserRuleContext.OBJECT_METHOD_WITHOUT_TRANSACTIONAL;
                     case SERVICE_CONSTRUCTOR_EXPRESSION:
                     case SERVICE_DECL:
@@ -3081,6 +3080,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ROW_TYPE_PARAM:
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
             case OBJECT_MEMBER:
+            case CLASS_MEMBER:
+            case OBJECT_MEMBER_DESCRIPTOR:
             case LIST_BINDING_PATTERN:
             case MAPPING_BINDING_PATTERN:
             case REST_BINDING_PATTERN:
@@ -3242,7 +3243,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
         switch (parentCtx) {
             case OBJECT_TYPE_DESCRIPTOR:
+                return ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR;
             case MODULE_CLASS_DEFINITION:
+                return ParserRuleContext.CLASS_MEMBER;
             case OBJECT_CONSTRUCTOR:
                 return ParserRuleContext.OBJECT_MEMBER;
             case RECORD_TYPE_DESCRIPTOR:
@@ -3439,8 +3442,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case FUNC_TYPE_DESC_OR_ANON_FUNC:
                         return ParserRuleContext.FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY;
                     case FUNC_DEF:
-                        ParserRuleContext greatGrandParentCtx = getGreatGrandParentContext();
-                        if (greatGrandParentCtx == ParserRuleContext.OBJECT_TYPE_DESCRIPTOR) {
+                        ParserRuleContext grandParentCtx = getGrandParentContext();
+                        if (grandParentCtx == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR) {
                             return ParserRuleContext.SEMICOLON;
                         } else {
                             return ParserRuleContext.FUNC_BODY;
@@ -3475,6 +3478,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 startContext(ParserRuleContext.VAR_DECL_STMT);
                 return ParserRuleContext.VARIABLE_NAME; // TODO add typed-binding-patters
             case OBJECT_MEMBER:
+            case CLASS_MEMBER:
+            case OBJECT_MEMBER_DESCRIPTOR:
                 return ParserRuleContext.VARIABLE_NAME;
             case ANNOTATION_DECL:
                 return ParserRuleContext.IDENTIFIER;
@@ -3548,6 +3553,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RECORD_FIELD:
             case ARG_LIST:
             case OBJECT_MEMBER:
+            case CLASS_MEMBER:
+            case OBJECT_MEMBER_DESCRIPTOR:
             case LISTENER_DECL:
             case CONSTANT_DECL:
             case LET_EXPR_LET_VAR_DECL:
@@ -3583,6 +3590,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext();
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case OBJECT_MEMBER:
+            case CLASS_MEMBER:
+            case OBJECT_MEMBER_DESCRIPTOR:
                 endContext(); // end object member
                 // fall through
             case RECORD_TYPE_DESCRIPTOR:
@@ -3691,10 +3700,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SERVICE_DECL:
                 return ParserRuleContext.RESOURCE_DEF;
             case OBJECT_MEMBER:
-                ParserRuleContext grandParentCtx = getGrandParentContext();
-                if (grandParentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR) {
-                    return ParserRuleContext.OBJECT_MEMBER_START;
-                }
+                return ParserRuleContext.OBJECT_MEMBER_START;
+            case CLASS_MEMBER:
+            case OBJECT_MEMBER_DESCRIPTOR:
                 return ParserRuleContext.CLASS_MEMBER_START;
             case COMP_UNIT:
                 return ParserRuleContext.TOP_LEVEL_NODE;
@@ -3735,10 +3743,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RECORD_FIELD:
                 return ParserRuleContext.RECORD_FIELD_WITHOUT_METADATA;
             case OBJECT_MEMBER:
-                ParserRuleContext grandParentCtx = getGrandParentContext();
-                if (grandParentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR) {
-                    return ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA;
-                }
+                return ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA;
+            case CLASS_MEMBER:
+            case OBJECT_MEMBER_DESCRIPTOR:
                 return ParserRuleContext.CLASS_MEMBER_WITHOUT_METADATA;
             case SERVICE_DECL:
                 return ParserRuleContext.RESOURCE_DEF;
@@ -3799,6 +3806,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_LIST:
                 return ParserRuleContext.NAMED_OR_POSITIONAL_ARG_RHS;
             case OBJECT_MEMBER:
+            case CLASS_MEMBER:
+            case OBJECT_MEMBER_DESCRIPTOR:
                 return ParserRuleContext.OBJECT_FIELD_RHS;
             case ARRAY_TYPE_DESCRIPTOR:
                 return ParserRuleContext.CLOSE_BRACKET;
@@ -3874,16 +3883,17 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx == ParserRuleContext.ANNOTATION_DECL) {
             endContext(); // end declaration
             return ParserRuleContext.TOP_LEVEL_NODE;
-        } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
+        } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.CLASS_MEMBER ||
+                parentCtx == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR) {
             if (isEndOfObjectTypeNode(nextLookahead)) {
                 endContext(); // end object member
                 return ParserRuleContext.CLOSE_BRACE;
             }
-            ParserRuleContext grandParentCtx = getGrandParentContext();
-            if (grandParentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR) {
+            if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
                 return ParserRuleContext.OBJECT_MEMBER_START;
+            } else {
+                return ParserRuleContext.CLASS_MEMBER_START;
             }
-            return ParserRuleContext.CLASS_MEMBER_START;
         } else if (parentCtx == ParserRuleContext.IMPORT_DECL) {
             endContext(); // end object member
             nextToken = this.tokenReader.peek(nextLookahead);
@@ -3905,14 +3915,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
                 return ParserRuleContext.EOF;
             }
-            ParserRuleContext grandParentCtx = getGrandParentContext();
-            if (grandParentCtx == ParserRuleContext.OBJECT_TYPE_DESCRIPTOR) {
-                endContext(); // end object-member
-                return ParserRuleContext.OBJECT_MEMBER;
+            parentCtx = getParentContext();
+            if (parentCtx == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR) {
+                endContext(); // end object-member-desc
+                return ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR;
             }
             return ParserRuleContext.TOP_LEVEL_NODE;
-        } else if (parentCtx == ParserRuleContext.MODULE_CLASS_DEFINITION ||
-                parentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR) {
+        } else if (parentCtx == ParserRuleContext.MODULE_CLASS_DEFINITION) {
+            return ParserRuleContext.CLASS_MEMBER;
+        } else if (parentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR) {
             return ParserRuleContext.OBJECT_MEMBER;
         } else {
             throw new IllegalStateException(parentCtx.toString());
@@ -4196,6 +4207,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case COMP_UNIT:
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case OBJECT_MEMBER:
+            case CLASS_MEMBER:
+            case OBJECT_MEMBER_DESCRIPTOR:
                 return ParserRuleContext.SEMICOLON;
             default:
                 throw new IllegalStateException(parentCtx.toString());

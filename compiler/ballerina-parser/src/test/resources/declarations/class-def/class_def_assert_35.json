@@ -165,8 +165,8 @@
                   "kind": "CLIENT_KEYWORD",
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_SAME_CLASS_TYPE_QUALIFIER",
-                    "ERROR_SAME_CLASS_TYPE_QUALIFIER"
+                    "ERROR_DUPLICATE_CLASS_TYPE_QUALIFIER",
+                    "ERROR_DUPLICATE_CLASS_TYPE_QUALIFIER"
                   ],
                   "leadingMinutiae": [
                     {

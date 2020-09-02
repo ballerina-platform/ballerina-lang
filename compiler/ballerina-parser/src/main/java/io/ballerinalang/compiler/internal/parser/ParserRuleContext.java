@@ -75,6 +75,8 @@ public enum ParserRuleContext {
     ARG_END("arg-end"),
     OBJECT_TYPE_DESCRIPTOR("object-type-desc"),
     OBJECT_MEMBER("object-member"),
+    CLASS_MEMBER("class-member"),
+    OBJECT_MEMBER_DESCRIPTOR("object-member-desc"),
     CLASS_MEMBER_START("class-member-start"),
     OBJECT_MEMBER_START("object-member-start"),
     CLASS_MEMBER_WITHOUT_METADATA("class-member-without-metadata"),
@@ -87,7 +89,7 @@ public enum ParserRuleContext {
     OBJECT_FIELD_RHS("object-field-rhs"),
     OPTIONAL_FIELD_INITIALIZER("optional-field-initializer"),
     OBJECT_TYPE_QUALIFIER("object-type-qualifier"),
-    OBJECT_TYPE_DESCRIPTOR_START("object-type-desc-start"),
+    OBJECT_TYPE_OR_CONSTRUCTOR_START("object-type-or-constructor-start"),
     IMPORT_DECL("import-decl"),
     IMPORT_ORG_OR_MODULE_NAME("import-org-or-module-name"),
     IMPORT_MODULE_NAME("module-name"),
@@ -520,7 +522,6 @@ public enum ParserRuleContext {
     VARIABLE_REF_RHS("variable-ref-rhs"),
     ORDER_CLAUSE_END("order-clause-end"),
     OBJECT_CONSTRUCTOR("object-constructor"),
-    OBJECT_CONSTRUCTOR_START("object-constructor-start"),
     OBJECT_CONSTRUCTOR_TYPE_REF("object-constructor-type-ref"),
 
     // Contexts that expect a type

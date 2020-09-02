@@ -870,69 +870,67 @@ public class BallerinaParser extends AbstractParser {
      * @param metadata Preceding metadata
      * @param qualifiers Preceding visibility qualifier
      * @param isObjectMethod Whether object method or not
-     * @param isObjectMemberDescriptor Whether object type descriptor member or not
+     * @param isObjectTypeDesc Whether object type or not
      * @return Parsed node
      */
     private STNode parseFuncDefOrFuncTypeDesc(ParserRuleContext context, STNode metadata, List<STNode> qualifiers,
-                                              boolean isObjectMethod, boolean isObjectMemberDescriptor) {
+                                              boolean isObjectMethod, boolean isObjectTypeDesc) {
         STNode qualifierList = parseFunctionQualifiers(context, qualifiers);
-        return parseFuncDefOrFuncTypeDesc(metadata, qualifierList, isObjectMethod, isObjectMemberDescriptor);
+        return parseFuncDefOrFuncTypeDesc(metadata, qualifierList, isObjectMethod, isObjectTypeDesc);
     }
 
     private STNode parseFuncDefOrFuncTypeDesc(STNode metadata, STNode qualifiers, boolean isObjectMethod,
-                                              boolean isObjectMemberDescriptor) {
+                                              boolean isObjectTypeDesc) {
         startContext(ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE);
         STNode functionKeyword = parseFunctionKeyword();
         STNode funcDefOrType = parseFunctionKeywordRhs(metadata, functionKeyword, qualifiers, false,
-                isObjectMethod, isObjectMemberDescriptor);
+                isObjectMethod, isObjectTypeDesc);
         return funcDefOrType;
     }
 
     private STNode parseFunctionKeywordRhs(STNode metadata, STNode functionKeyword, STNode qualifiers,
-                                           boolean isFuncDef, boolean isObjectMethod,
-                                           boolean isObjectMemberDescriptor) {
+                                           boolean isFuncDef, boolean isObjectMethod, boolean isObjectTypeDesc) {
         // If the function name is present, treat this as a function def
         if (isFuncDef) {
             STNode name = parseFunctionName();
             switchContext(ParserRuleContext.FUNC_DEF);
             STNode funcSignature = parseFuncSignature(false);
             STNode funcDef = createFuncDefOrMethodDecl(metadata, functionKeyword, name, funcSignature, qualifiers,
-                    isObjectMethod, isObjectMemberDescriptor);
+                    isObjectMethod, isObjectTypeDesc);
             endContext();
             return funcDef;
         }
 
-        return parseFunctionKeywordRhs(metadata, functionKeyword, qualifiers, isObjectMethod, isObjectMemberDescriptor);
+        return parseFunctionKeywordRhs(metadata, functionKeyword, qualifiers, isObjectMethod, isObjectTypeDesc);
     }
 
     private STNode parseFunctionKeywordRhs(STNode metadata, STNode functionKeyword, STNode qualifiers,
-                                           boolean isObjectMethod, boolean isObjectMemberDescriptor) {
+                                           boolean isObjectMethod, boolean isObjectTypeDesc) {
         switch (peek().kind) {
             case IDENTIFIER_TOKEN:
                 STNode name = parseFunctionName();
                 switchContext(ParserRuleContext.FUNC_DEF);
                 STNode funcSignature = parseFuncSignature(false);
                 STNode funcDef = createFuncDefOrMethodDecl(metadata, functionKeyword, name, funcSignature, qualifiers,
-                        isObjectMethod, isObjectMemberDescriptor);
+                        isObjectMethod, isObjectTypeDesc);
                 endContext();
                 return funcDef;
             case OPEN_PAREN_TOKEN:
                 funcSignature = parseFuncSignature(true);
                 return parseReturnTypeDescRhs(metadata, functionKeyword, funcSignature, qualifiers, isObjectMethod,
-                        isObjectMemberDescriptor);
+                        isObjectTypeDesc);
             default:
                 STToken token = peek();
                 recover(token, ParserRuleContext.FUNCTION_KEYWORD_RHS, metadata, functionKeyword, isObjectMethod,
                         qualifiers);
                 return parseFunctionKeywordRhs(metadata, functionKeyword, qualifiers, isObjectMethod,
-                        isObjectMemberDescriptor);
+                        isObjectTypeDesc);
         }
     }
 
     private STNode createFuncDefOrMethodDecl(STNode metadata, STNode functionKeyword, STNode name, STNode funcSignature,
-                                             STNode qualifierList, boolean isObjectMethod,
-                                             boolean isObjectMemberDescriptor) {
-        if (isObjectMemberDescriptor) {
+                                             STNode qualifierList, boolean isObjectMethod, boolean isObjectTypeDesc) {
+        if (isObjectTypeDesc) {
             STNode semicolon = parseSemicolon();
             return STNodeFactory.createMethodDeclarationNode(metadata, qualifierList, functionKeyword, name,
                     funcSignature, semicolon);
@@ -970,7 +968,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseReturnTypeDescRhs(STNode metadata, STNode functionKeyword, STNode funcSignature,
-                                          STNode qualifiers, boolean isObjectMethod, boolean isObjectMemberDescriptor) {
+                                          STNode qualifiers, boolean isObjectMethod, boolean isObjectTypeDesc) {
         STNodeList qualifierList = (STNodeList) qualifiers;
         switch (peek().kind) {
             // var-decl with function type
@@ -987,10 +985,10 @@ public class BallerinaParser extends AbstractParser {
                     STNode fieldName = parseVariableName();
                     if (qualifierList.isEmpty()) {
                         return parseObjectFieldRhs(metadata, STNodeFactory.createEmptyNode(), readonlyQualifier,
-                                typeDesc, fieldName, isObjectMemberDescriptor);
+                                typeDesc, fieldName, isObjectTypeDesc);
                     } else {
                         return parseObjectFieldRhs(metadata, qualifiers.childInBucket(0), readonlyQualifier, typeDesc,
-                                fieldName, isObjectMemberDescriptor);
+                                fieldName, isObjectTypeDesc);
                     }
                 }
 
@@ -1018,7 +1016,7 @@ public class BallerinaParser extends AbstractParser {
         funcSignature = validateAndGetFuncParams((STFunctionSignatureNode) funcSignature);
 
         STNode funcDef = createFuncDefOrMethodDecl(metadata, functionKeyword, name, funcSignature, qualifiers,
-                isObjectMethod, isObjectMemberDescriptor);
+                isObjectMethod, isObjectTypeDesc);
         endContext();
         return funcDef;
     }
@@ -1684,8 +1682,17 @@ public class BallerinaParser extends AbstractParser {
                 // Record type descriptor
                 return parseRecordTypeDescriptor();
             case READONLY_KEYWORD:
-                return parseSimpleTypeDescriptor();
+                STToken nextNextToken = getNextNextToken(nextToken.kind);
+                SyntaxKind nextNextTokenKind = nextNextToken.kind;
+                if (nextNextTokenKind != SyntaxKind.OBJECT_KEYWORD &&
+                        nextNextTokenKind != SyntaxKind.ABSTRACT_KEYWORD &&
+                        nextNextTokenKind != SyntaxKind.CLIENT_KEYWORD) {
+                    return parseSimpleTypeDescriptor();
+                }
+                // Allow `readonly` to be parsed as a object type qualifier and then log an error
+                // Fall through
             case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD: // Allow `abstract` to be parsed as an object type qualifier and then log an error
             case CLIENT_KEYWORD:
                 // Object type descriptor
                 return parseObjectTypeDescriptor();
@@ -2379,7 +2386,7 @@ public class BallerinaParser extends AbstractParser {
         STNode classKeyword = parseClassKeyword();
         STNode className = parseClassName();
         STNode openBrace = parseOpenBrace();
-        STNode classMembers = parseObjectMembers(false, false);
+        STNode classMembers = parseObjectMembers(ParserRuleContext.CLASS_MEMBER);
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createClassDefinitionNode(metadata, qualifier, classTypeQualifiers, classKeyword,
@@ -2421,7 +2428,7 @@ public class BallerinaParser extends AbstractParser {
                 // Consume the nextToken
                 nextToken = consume();
                 updateLastNodeInListWithInvalidNode(qualifiers, nextToken,
-                        DiagnosticErrorCode.ERROR_SAME_CLASS_TYPE_QUALIFIER);
+                        DiagnosticErrorCode.ERROR_DUPLICATE_CLASS_TYPE_QUALIFIER);
                 continue;
             }
 
@@ -4494,10 +4501,10 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseObjectTypeDescriptor() {
         startContext(ParserRuleContext.OBJECT_TYPE_DESCRIPTOR);
-        STNode objectTypeQualifiers = parseObjectTypeQualifiers(ParserRuleContext.OBJECT_TYPE_QUALIFIER);
+        STNode objectTypeQualifiers = parseObjectTypeQualifiers();
         STNode objectKeyword = parseObjectKeyword();
         STNode openBrace = parseOpenBrace();
-        STNode objectMemberDescriptors = parseObjectMembers(false, true);
+        STNode objectMemberDescriptors = parseObjectMembers(ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR);
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createObjectTypeDescriptorNode(objectTypeQualifiers, objectKeyword, openBrace,
@@ -4519,11 +4526,11 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseObjectConstructorExpression(STNode annots) {
         startContext(ParserRuleContext.OBJECT_CONSTRUCTOR);
-        STNode objectTypeQualifier = parseObjectTypeQualifiers(ParserRuleContext.OBJECT_TYPE_QUALIFIER);
+        STNode objectTypeQualifier = parseObjectTypeQualifiers();
         STNode objectKeyword = parseObjectKeyword();
         STNode typeReference = parseObjectConstructorTypeReference();
         STNode openBrace = parseOpenBrace();
-        STNode objectMembers = parseObjectMembers(true, false);
+        STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_MEMBER);
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createObjectConstructorExpressionNode(annots,
@@ -4538,24 +4545,50 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseObjectTypeQualifiers(ParserRuleContext context) {
+    private STNode parseObjectTypeQualifiers() {
         List<STNode> qualifiers = new ArrayList<>();
         STNode qualifier;
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case CLIENT_KEYWORD:
-                qualifier = consume();
-                break;
-            case OBJECT_KEYWORD:
-                return STNodeFactory.createEmptyNodeList();
-            default:
-                recover(nextToken, context);
-                return parseObjectTypeQualifiers(context);
+        DiagnosticErrorCode errorCode = null;
+        boolean hasClient = false;
+
+        // Here we allow parsing of old object type qualifiers (`abstract` and `readonly`) and then log an error
+        for (int i = 0; i < 3; i++) {
+            STToken nextToken = peek();
+            switch (nextToken.kind) {
+                case CLIENT_KEYWORD:
+                    qualifier = consume();
+                    if (hasClient) {
+                        errorCode = DiagnosticErrorCode.ERROR_DUPLICATE_OBJECT_TYPE_QUALIFIER;
+                    } else {
+                        qualifiers.add(qualifier);
+                        hasClient = true;
+                    }
+                    break;
+                case ABSTRACT_KEYWORD:
+                    qualifier = consume();
+                    errorCode = DiagnosticErrorCode.ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT;
+                    break;
+                case READONLY_KEYWORD:
+                    qualifier = consume();
+                    errorCode = DiagnosticErrorCode.ERROR_READONLY_QUALIFIER_NOT_ALLOWED_IN_OBJECT;
+                    break;
+                case OBJECT_KEYWORD:
+                default:
+                    return STNodeFactory.createNodeList(qualifiers);
+            }
+
+            if (errorCode != null) {
+                if (qualifiers.size() > 0) {
+                    updateLastNodeInListWithInvalidNode(qualifiers, qualifier, errorCode);
+                } else {
+                    addInvalidNodeToNextToken(qualifier, errorCode);
+                }
+                errorCode = null;
+            }
         }
-        qualifiers.add(qualifier);
+
         return STNodeFactory.createNodeList(qualifiers);
     }
-
     /**
      * Parse object constructor expression type reference.
      *
@@ -4603,22 +4636,26 @@ public class BallerinaParser extends AbstractParser {
      *      | object-member-descriptor*
      * </code>
      *
-     * @param skipTypeInclusions Whether to accept type inclusions as valid members
-     * @param isObjectMemberDescriptor Whether object type descriptor members or not
+     * @param context Parsing context of the object members
      * @return Parsed node
      */
-    private STNode parseObjectMembers(boolean skipTypeInclusions, boolean isObjectMemberDescriptor) {
+    private STNode parseObjectMembers(ParserRuleContext context) {
         ArrayList<STNode> objectMembers = new ArrayList<>();
         while (!isEndOfObjectTypeNode()) {
-            startContext(ParserRuleContext.OBJECT_MEMBER);
-            STNode member = parseObjectMember(skipTypeInclusions, isObjectMemberDescriptor);
+            startContext(context);
+            STNode member = parseObjectMember(context);
             endContext();
 
             // Null member indicates the end of object members
             if (member == null) {
                 break;
             }
-            objectMembers.add(member);
+
+            if (context == ParserRuleContext.OBJECT_MEMBER && member.kind == SyntaxKind.TYPE_REFERENCE) {
+                addInvalidNodeToNextToken(member, DiagnosticErrorCode.ERROR_TYPE_INCLUSION_IN_OBJECT_CONSTRUCTOR);
+            } else {
+                objectMembers.add(member);
+            }
         }
 
         return STNodeFactory.createNodeList(objectMembers);
@@ -4636,11 +4673,10 @@ public class BallerinaParser extends AbstractParser {
      * object-member-descriptor := object-field-descriptor | method-decl | object-type-inclusion
      * </code>
      *
-     * @param skipTypeInclusions Whether to accept type inclusions as valid members
-     * @param isObjectMemberDescriptor Whether object type descriptor member or not
+     * @param context Parsing context of the object member
      * @return Parsed node
      */
-    private STNode parseObjectMember(boolean skipTypeInclusions, boolean isObjectMemberDescriptor) {
+    private STNode parseObjectMember(ParserRuleContext context) {
         STNode metadata;
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -4669,21 +4705,21 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 ParserRuleContext recoveryCtx;
-                if (skipTypeInclusions) {
+                if (context == ParserRuleContext.OBJECT_MEMBER) {
                     recoveryCtx = ParserRuleContext.OBJECT_MEMBER_START;
                 } else {
                     recoveryCtx = ParserRuleContext.CLASS_MEMBER_START;
                 }
 
                 recover(peek(), recoveryCtx);
-                return parseObjectMember(skipTypeInclusions, isObjectMemberDescriptor);
+                return parseObjectMember(context);
         }
 
-        return parseObjectMemberWithoutMeta(metadata, skipTypeInclusions, isObjectMemberDescriptor);
+        return parseObjectMemberWithoutMeta(metadata, context);
     }
 
-    private STNode parseObjectMemberWithoutMeta(STNode metadata, boolean skipTypeInclusions,
-                                                boolean isObjectMemberDescriptor) {
+    private STNode parseObjectMemberWithoutMeta(STNode metadata, ParserRuleContext context) {
+        boolean isObjectTypeDes = context == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR;
         STNode member;
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -4694,48 +4730,42 @@ public class BallerinaParser extends AbstractParser {
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
                 STNode visibilityQualifier = parseObjectMemberVisibility();
-                if (isObjectMemberDescriptor && visibilityQualifier.kind == SyntaxKind.PRIVATE_KEYWORD) {
+                if (context == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR &&
+                        visibilityQualifier.kind == SyntaxKind.PRIVATE_KEYWORD) {
                     addInvalidNodeToNextToken(visibilityQualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
                             visibilityQualifier.toString().trim());
                     visibilityQualifier = STNodeFactory.createEmptyNode();
                 }
-                member = parseObjectMethodOrField(metadata, visibilityQualifier, isObjectMemberDescriptor);
+                member = parseObjectMethodOrField(metadata, visibilityQualifier, isObjectTypeDes);
                 break;
             case REMOTE_KEYWORD:
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
             case RESOURCE_KEYWORD: // resource qualifier is not allowed but let it pass here and validate in
                 // parseFunctionQualifiers method
-                member = parseObjectMethod(metadata, new ArrayList<>(), isObjectMemberDescriptor);
+                member = parseObjectMethod(metadata, new ArrayList<>(), isObjectTypeDes);
                 break;
             case ASTERISK_TOKEN:
-                if (!skipTypeInclusions) {
-                    STNode asterisk = consume();
-                    STNode type = parseTypeReference();
-                    STNode semicolonToken = parseSemicolon();
-                    member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
-                    break;
-                } else if (peek(2).kind == SyntaxKind.IDENTIFIER_TOKEN) {
-                    // In order to provide better recovery when a type-inclusion is used in object-constructor-expr
-                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectMemberDescriptor);
-                    break;
-                }
-                // Else fall through
+                STNode asterisk = consume();
+                STNode type = parseTypeReference();
+                STNode semicolonToken = parseSemicolon();
+                member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
+                break;
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
-                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectMemberDescriptor);
+                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectTypeDes);
                     break;
                 }
 
                 ParserRuleContext recoveryCtx;
-                if (skipTypeInclusions) {
+                if (context == ParserRuleContext.OBJECT_MEMBER) {
                     recoveryCtx = ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA;
                 } else {
                     recoveryCtx = ParserRuleContext.CLASS_MEMBER_WITHOUT_METADATA;
                 }
 
                 recover(peek(), recoveryCtx, metadata);
-                return parseObjectMemberWithoutMeta(metadata, skipTypeInclusions, isObjectMemberDescriptor);
+                return parseObjectMemberWithoutMeta(metadata, context);
         }
 
         return member;
@@ -4763,10 +4793,10 @@ public class BallerinaParser extends AbstractParser {
      *
      * @param metadata Metadata
      * @param visibilityQualifier Visibility qualifier
+     * @param isObjectTypeDesc Whether object type or not
      * @return Parse object member node
      */
-    private STNode parseObjectMethodOrField(STNode metadata, STNode visibilityQualifier,
-                                            boolean isObjectMemberDescriptor) {
+    private STNode parseObjectMethodOrField(STNode metadata, STNode visibilityQualifier, boolean isObjectTypeDesc) {
         STToken nextToken = peek(1);
         List<STNode> qualifiers = new ArrayList<>();
         switch (nextToken.kind) {
@@ -4778,7 +4808,7 @@ public class BallerinaParser extends AbstractParser {
                 if (visibilityQualifier != null) {
                     qualifiers.add(visibilityQualifier);
                 }
-                return parseObjectMethod(metadata, qualifiers, isObjectMemberDescriptor);
+                return parseObjectMethod(metadata, qualifiers, isObjectTypeDesc);
 
             // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case IDENTIFIER_TOKEN:
@@ -4787,18 +4817,18 @@ public class BallerinaParser extends AbstractParser {
                     // Here we try to catch the common user error of missing the function keyword.
                     // In such cases, lookahead for the open-parenthesis and figure out whether
                     // this is an object-method with missing name. If yes, then try to recover.
-                    return parseObjectField(metadata, visibilityQualifier, isObjectMemberDescriptor);
+                    return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc);
                 }
                 break;
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
-                    return parseObjectField(metadata, visibilityQualifier, isObjectMemberDescriptor);
+                    return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc);
                 }
                 break;
         }
 
         recover(peek(), ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY, metadata, visibilityQualifier);
-        return parseObjectMethodOrField(metadata, visibilityQualifier, isObjectMemberDescriptor);
+        return parseObjectMethodOrField(metadata, visibilityQualifier, isObjectTypeDesc);
     }
 
     /**
@@ -4909,17 +4939,17 @@ public class BallerinaParser extends AbstractParser {
      *
      * @param metadata Preceding metadata
      * @param visibilityQualifier Preceding visibility qualifier
-     * @param isObjectMemberDescriptor Whether object type descriptor member or not
+     * @param isObjectTypeDesc Whether object type or not
      * @return Parsed node
      */
-    private STNode parseObjectField(STNode metadata, STNode visibilityQualifier, boolean isObjectMemberDescriptor) {
+    private STNode parseObjectField(STNode metadata, STNode visibilityQualifier, boolean isObjectTypeDesc) {
         STToken nextToken = peek();
         if (nextToken.kind != SyntaxKind.READONLY_KEYWORD) {
             STNode readonlyQualifier = STNodeFactory.createEmptyNode();
             STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
             STNode fieldName = parseVariableName();
             return parseObjectFieldRhs(metadata, visibilityQualifier, readonlyQualifier, type, fieldName,
-                    isObjectMemberDescriptor);
+                    isObjectTypeDesc);
         }
 
         // If the readonly-keyword is present, check whether its qualifier
@@ -4944,7 +4974,7 @@ public class BallerinaParser extends AbstractParser {
                         readonlyQualifier = STNodeFactory.createEmptyNode();
                         STNode fieldName = ((STSimpleNameReferenceNode) fieldNameOrTypeDesc).name;
                         return parseObjectFieldRhs(metadata, visibilityQualifier, readonlyQualifier, type, fieldName,
-                                isObjectMemberDescriptor);
+                                isObjectTypeDesc);
                     default:
                         // else, treat a as the type-name
                         type = parseComplexTypeDescriptor(fieldNameOrTypeDesc,
@@ -4962,7 +4992,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode fieldName = parseVariableName();
         return parseObjectFieldRhs(metadata, visibilityQualifier, readonlyQualifier, type, fieldName,
-                isObjectMemberDescriptor);
+                isObjectTypeDesc);
     }
 
     /**
@@ -4973,11 +5003,11 @@ public class BallerinaParser extends AbstractParser {
      * @param readonlyQualifier Readonly qualifier
      * @param type Type descriptor
      * @param fieldName Field name
-     * @param isObjectMemberDescriptor Whether object type descriptor member or not
+     * @param isObjectTypeDesc Whether object type or not
      * @return Parsed object field
      */
     private STNode parseObjectFieldRhs(STNode metadata, STNode visibilityQualifier, STNode readonlyQualifier,
-                                       STNode type, STNode fieldName, boolean isObjectMemberDescriptor) {
+                                       STNode type, STNode fieldName, boolean isObjectTypeDesc) {
         STToken nextToken = peek();
         STNode equalsToken;
         STNode expression;
@@ -4989,7 +5019,7 @@ public class BallerinaParser extends AbstractParser {
                 semicolonToken = parseSemicolon();
                 break;
             case EQUAL_TOKEN:
-                if (!isObjectMemberDescriptor) {
+                if (!isObjectTypeDesc) {
                     equalsToken = parseAssignOp();
                     expression = parseExpression();
                     semicolonToken = parseSemicolon();
@@ -5000,7 +5030,7 @@ public class BallerinaParser extends AbstractParser {
                 recover(peek(), ParserRuleContext.OBJECT_FIELD_RHS, metadata, visibilityQualifier, readonlyQualifier,
                         type, fieldName);
                 return parseObjectFieldRhs(metadata, visibilityQualifier, readonlyQualifier, type, fieldName,
-                        isObjectMemberDescriptor);
+                        isObjectTypeDesc);
         }
 
         return STNodeFactory.createObjectFieldNode(metadata, visibilityQualifier, readonlyQualifier, type, fieldName,
@@ -5012,12 +5042,12 @@ public class BallerinaParser extends AbstractParser {
      *
      * @param metadata Preceding metadata
      * @param qualifiers Preceding visibility qualifier
-     * @param isObjectMemberDescriptor Whether object type descriptor member or not
+     * @param isObjectTypeDesc Whether object type or not
      * @return Parsed node
      */
-    private STNode parseObjectMethod(STNode metadata, List<STNode> qualifiers, boolean isObjectMemberDescriptor) {
+    private STNode parseObjectMethod(STNode metadata, List<STNode> qualifiers, boolean isObjectTypeDesc) {
         return parseFuncDefOrFuncTypeDesc(ParserRuleContext.OBJECT_METHOD_START, metadata, qualifiers, true,
-                isObjectMemberDescriptor);
+                isObjectTypeDesc);
     }
 
     /**
