@@ -988,6 +988,17 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseVarDeclWithFunctionType(STNode typeDesc, boolean isObjectMember, STNode qualifiers,
                                                 STNode metadata) {
         STNodeList qualifierList = (STNodeList) qualifiers;
+        STNode finalKeyword = STNodeFactory.createEmptyNode();
+        // Only the final keyword is allowed as a qualifier
+        for (int position = 0; position < qualifierList.size(); position++) {
+            STNode qualifier = qualifierList.get(position);
+            if (qualifier.kind == SyntaxKind.FINAL_KEYWORD) {
+                finalKeyword = qualifier;
+            } else {
+                typeDesc = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDesc, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
+            }
+        }
         if (isObjectMember) {
             STNode readonlyQualifier = STNodeFactory.createEmptyNode();
             STNode fieldName = parseVariableName();
@@ -999,14 +1010,9 @@ public class BallerinaParser extends AbstractParser {
                         fieldName);
             }
         }
-
         startContext(ParserRuleContext.VAR_DECL_STMT);
         STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
-        if (qualifierList.isEmpty()) {
-            return parseVarDeclRhs(metadata, STNodeFactory.createEmptyNode(), typedBindingPattern, true);
-        } else {
-            return parseVarDeclRhs(metadata, qualifiers.childInBucket(0), typedBindingPattern, true);
-        }
+        return parseVarDeclRhs(metadata, finalKeyword, typedBindingPattern, true);
     }
 
     /**
@@ -4762,7 +4768,7 @@ public class BallerinaParser extends AbstractParser {
     private DiagnosticCode validateFunctionQualifier(STNode currentQualifier, List<STNode> qualifierList) {
         for (STNode node : qualifierList) {
             if (node.kind == currentQualifier.kind) {
-                return DiagnosticErrorCode.ERROR_DUPLICATE_OBJECT_METHOD_QUALIFIER;
+                return DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER;
             }
         }
 

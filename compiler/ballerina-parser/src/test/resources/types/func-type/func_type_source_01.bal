@@ -10,3 +10,4 @@ function foo() {
 
 function ()|() a = ();
 function ()? b = ();
+final function () c = ();
