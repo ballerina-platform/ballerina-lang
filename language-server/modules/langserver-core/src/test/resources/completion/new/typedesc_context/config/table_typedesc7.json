@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 12,
+    "character": 19
+  },
+  "source": "typedesc_context/source/table_typedesc7.bal",
+  "items": [
+    {
+      "label": "key",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "key",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

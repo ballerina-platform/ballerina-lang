@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.values.api.BDecimal;
 import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BFuture;
+import org.ballerinalang.jvm.values.api.BHandle;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BStream;
@@ -77,11 +78,27 @@ class JMethodResolver {
 
     private ClassLoader classLoader;
     private SymbolTable symbolTable;
+    private final BType[] definedReadOnlyMemberTypes;
 
     JMethodResolver(ClassLoader classLoader, SymbolTable symbolTable) {
 
         this.classLoader = classLoader;
         this.symbolTable = symbolTable;
+        this.definedReadOnlyMemberTypes = new BType[]{
+                symbolTable.nilType,
+                symbolTable.booleanType,
+                symbolTable.intType,
+                symbolTable.signed8IntType,
+                symbolTable.signed16IntType,
+                symbolTable.signed32IntType,
+                symbolTable.unsigned32IntType,
+                symbolTable.unsigned16IntType,
+                symbolTable.unsigned8IntType,
+                symbolTable.floatType,
+                symbolTable.decimalType,
+                symbolTable.stringType,
+                symbolTable.charStringType
+        };
     }
 
     JMethod resolve(JMethodRequest jMethodRequest) {
@@ -386,10 +403,7 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
-                    if (jMethodRequest.restParamExist) {
-                        return jType.isArray();
-                    }
-                    return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
+                    return isValidListType(jType, jMethodRequest);
                 case TypeTags.UNION:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -403,6 +417,8 @@ class JMethodResolver {
                         }
                     }
                     return true;
+                case TypeTags.READONLY:
+                    return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.INTERSECTION:
                     return isValidParamBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
                 case TypeTags.FINITE:
@@ -530,10 +546,7 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
-                    if (jMethodRequest.restParamExist) {
-                        return jType.isArray();
-                    }
-                    return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
+                    return isValidListType(jType, jMethodRequest);
                 case TypeTags.UNION:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -547,6 +560,8 @@ class JMethodResolver {
                         }
                     }
                     return false;
+                case TypeTags.READONLY:
+                    return isReadOnlyCompatibleReturnType(jType, jMethodRequest);
                 case TypeTags.INTERSECTION:
                     return isValidReturnBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
                 case TypeTags.FINITE:
@@ -581,12 +596,46 @@ class JMethodResolver {
         }
     }
 
+    private boolean isValidListType(Class<?> jType, JMethodRequest jMethodRequest) throws ClassNotFoundException {
+        if (jMethodRequest.restParamExist) {
+            return jType.isArray();
+        }
+        return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
+    }
+
     private BType[] getJSONMemberTypes() {
         // TODO can't we use a static instance of this?
         return new BType[]{
                 this.symbolTable.nilType, this.symbolTable.stringType, this.symbolTable.intType,
                 this.symbolTable.floatType, this.symbolTable.booleanType, this.symbolTable.mapJsonType,
                 this.symbolTable.arrayJsonType};
+    }
+
+    private boolean isReadOnlyCompatibleReturnType(Class<?> jType, JMethodRequest jMethodRequest)
+            throws ClassNotFoundException {
+        if (jType.getTypeName().equals(J_OBJECT_TNAME)) {
+            return true;
+        }
+
+        for (BType member : definedReadOnlyMemberTypes) {
+            if (isValidReturnBType(jType, member, jMethodRequest)) {
+                return true;
+            }
+        }
+
+        return isAssignableFrom(BError.class, jType) ||
+                isAssignableFrom(BFunctionPointer.class, jType) ||
+                isAssignableFrom(BObject.class, jType) ||
+                isAssignableFrom(BTypedesc.class, jType) ||
+                isAssignableFrom(BHandle.class, jType) ||
+                isAssignableFrom(BXML.class, jType) ||
+                this.isValidListType(jType, jMethodRequest) ||
+                isAssignableFrom(BMap.class, jType) ||
+                isAssignableFrom(TableValue.class, jType);
+    }
+
+    private boolean isAssignableFrom(Class<?> targetType, Class<?> jType) throws ClassNotFoundException {
+        return this.classLoader.loadClass(targetType.getCanonicalName()).isAssignableFrom(jType);
     }
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,
