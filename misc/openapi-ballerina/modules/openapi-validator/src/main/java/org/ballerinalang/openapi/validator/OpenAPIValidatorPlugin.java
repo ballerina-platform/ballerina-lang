@@ -47,17 +47,11 @@ import java.util.List;
 @SupportedAnnotationPackages(value = {"ballerina/openapi"})
 public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
     private DiagnosticLog dLog = null;
-    private List<ResourceSummary> resourceSummaryList;
-    private List<OpenAPIPathSummary> openAPISummaryList;
-    private OpenAPIComponentSummary openAPIComponentSummary;
     private CompilerContext compilerContext;
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
         this.dLog = diagnosticLog;
-        this.resourceSummaryList = new ArrayList<>();
-        this.openAPISummaryList = new ArrayList<>();
-        this.openAPIComponentSummary = new OpenAPIComponentSummary();
     }
 
     @Override
@@ -72,7 +66,6 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
         List<String> operations = new ArrayList<>();
         List<String> excludeTags = new ArrayList<>();
         List<String> excludeOperations = new ArrayList<>();
-        this.openAPIComponentSummary = new OpenAPIComponentSummary();
         String contractURI = null;
         Boolean failOnErrors = true;
         Diagnostic.Kind kind;
@@ -188,18 +181,10 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
 
             if (contractURI != null) {
                 try {
-                    OpenAPI openAPI = ValidatorUtil.parseOpenAPIFile(contractURI);
-                    ValidatorUtil.summarizeResources(this.resourceSummaryList, serviceNode);
-                    ValidatorUtil.summarizeOpenAPI(this.openAPISummaryList, openAPI, this.openAPIComponentSummary);
-                    ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations, kind, excludeTags,
-                            excludeOperations,
-                            this.resourceSummaryList, this.openAPISummaryList,
-                            this.openAPIComponentSummary, dLog);
-                    ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, kind, excludeTags,
-                            excludeOperations,
-                            this.resourceSummaryList,
-                            this.openAPISummaryList, this.openAPIComponentSummary,
-                            dLog);
+                    Filters filters = new Filters(tags, excludeTags, operations, excludeOperations, kind);
+                    OpenAPI openAPI = ServiceValidator.parseOpenAPIFile(contractURI);
+                    ServiceValidator.validateResource(openAPI, serviceNode, filters,
+                            kind, dLog);
                 } catch (OpenApiValidatorException e) {
                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
                             e.getMessage());
@@ -208,7 +193,7 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
         }
     }
 
-    private void extractValues(AnnotationAttachmentNode annotation, List<String> tags,
+    private void extractValues(AnnotationAttachmentNode annotation, List<String> operations,
                                BLangExpression valueExpr, String s) {
         if (valueExpr instanceof BLangListConstructorExpr) {
             BLangListConstructorExpr bLangListConstructorExpr =
@@ -217,10 +202,9 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                 if (bLangExpression instanceof BLangLiteral) {
                     BLangLiteral expression = (BLangLiteral) bLangExpression;
                     if (expression.getValue() instanceof String) {
-                        tags.add((String) expression.getValue());
+                        operations.add((String) expression.getValue());
                     } else {
-                        dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                s);
+                        dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(), s);
                     }
                 }
             }

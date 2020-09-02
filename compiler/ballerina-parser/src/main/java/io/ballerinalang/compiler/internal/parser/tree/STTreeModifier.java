@@ -2257,10 +2257,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STOnClauseNode transform(
             STOnClauseNode onClauseNode) {
         STNode onKeyword = modifyNode(onClauseNode.onKeyword);
-        STNode expression = modifyNode(onClauseNode.expression);
+        STNode lhsExpression = modifyNode(onClauseNode.lhsExpression);
+        STNode equalsKeyword = modifyNode(onClauseNode.equalsKeyword);
+        STNode rhsExpression = modifyNode(onClauseNode.rhsExpression);
         return onClauseNode.modify(
                 onKeyword,
-                expression);
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression);
     }
 
     @Override

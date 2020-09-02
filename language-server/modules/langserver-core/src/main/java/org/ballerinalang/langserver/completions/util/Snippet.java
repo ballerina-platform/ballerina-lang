@@ -140,6 +140,8 @@ public enum Snippet {
 
     KW_LET(SnippetGenerator.getLetKeywordSnippet()),
 
+    KW_KEY(SnippetGenerator.getKeyKeywordSnippet()),
+
     KW_TRAP(SnippetGenerator.getTrapKeywordSnippet()),
 
     KW_ERROR(SnippetGenerator.getErrorKeywordSnippet()),

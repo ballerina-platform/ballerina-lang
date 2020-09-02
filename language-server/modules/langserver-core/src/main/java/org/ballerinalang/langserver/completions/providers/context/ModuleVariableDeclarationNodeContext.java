@@ -48,8 +48,7 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ModuleVariableDeclarationNode node) {
         if (this.withinInitializerContext(context, node)) {
-            return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor(),
-                    node.initializer());
+            return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
         }
 
         if (withinServiceOnKeywordContext(context, node)) {

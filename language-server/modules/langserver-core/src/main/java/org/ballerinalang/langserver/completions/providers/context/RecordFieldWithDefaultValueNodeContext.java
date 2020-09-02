@@ -92,7 +92,7 @@ public class RecordFieldWithDefaultValueNodeContext extends
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Optional<Scope.ScopeEntry> objectType;
-        if (typeNameNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (this.onQualifiedNameIdentifier(context, typeNameNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeNameNode));
             Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, modulePrefix);
             if (!module.isPresent()) {
