@@ -1,4 +1,4 @@
-import ls_org1/
+import ballerina/
 
 function testFunction() {
 }

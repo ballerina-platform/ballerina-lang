@@ -48,9 +48,6 @@ public class XMLLexer extends AbstractLexer {
         STToken token;
         switch (this.mode) {
             case XML_CONTENT:
-                // XML content have no trivia. Whitespace is captured
-                // as XML text.
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = readTokenInXMLContent();
                 break;
             case XML_ELEMENT_START_TAG:
@@ -63,11 +60,9 @@ public class XMLLexer extends AbstractLexer {
                 break;
             case XML_TEXT:
                 // XML text have no trivia. Whitespace is part of the text.
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = readTokenInXMLText();
                 break;
             case INTERPOLATION:
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = readTokenInInterpolation();
                 break;
             case XML_ATTRIBUTES:
@@ -75,7 +70,6 @@ public class XMLLexer extends AbstractLexer {
                 token = readTokenInXMLAttributes(true);
                 break;
             case XML_COMMENT:
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = readTokenInXMLComment();
                 break;
             case XML_PI:
@@ -87,11 +81,9 @@ public class XMLLexer extends AbstractLexer {
                 token = readTokenInXMLPIData();
                 break;
             case XML_SINGLE_QUOTED_STRING:
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = processXMLSingleQuotedString();
                 break;
             case XML_DOUBLE_QUOTED_STRING:
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = processXMLDoubleQuotedString();
                 break;
             default:
@@ -246,7 +238,6 @@ public class XMLLexer extends AbstractLexer {
      * Process leading trivia.
      */
     private void processLeadingXMLTrivia() {
-        this.leadingTriviaList = new ArrayList<>(10);
         processXMLTrivia(this.leadingTriviaList, true);
     }
 
@@ -296,13 +287,13 @@ public class XMLLexer extends AbstractLexer {
     }
 
     private STToken getXMLSyntaxToken(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         STNode trailingTrivia = processTrailingXMLTrivia();
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
     private STToken getXMLSyntaxToken(SyntaxKind kind, boolean allowLeadingWS, boolean allowTrailingWS) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         if (!allowLeadingWS && leadingTrivia.bucketCount() != 0) {
             reportLexerError(DiagnosticErrorCode.ERROR_INVALID_WHITESPACE_BEFORE, kind.stringValue());
         }
@@ -315,13 +306,13 @@ public class XMLLexer extends AbstractLexer {
     }
 
     private STToken getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
     private STToken getLiteral(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingXMLTrivia();
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
@@ -507,7 +498,7 @@ public class XMLLexer extends AbstractLexer {
     }
 
     private STToken getXMLNameToken(String tokenText, boolean allowLeadingWS) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         if (!allowLeadingWS && leadingTrivia.bucketCount() != 0) {
             reportLexerError(DiagnosticErrorCode.ERROR_INVALID_WHITESPACE_BEFORE, tokenText);
         }
@@ -811,7 +802,7 @@ public class XMLLexer extends AbstractLexer {
     }
 
     private STToken getXMLText(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingXMLTrivia();
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);

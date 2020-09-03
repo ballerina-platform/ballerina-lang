@@ -114,10 +114,20 @@ public class IdentifierLiteralTestCase extends BaseTest {
         String[] args = new String[]{invalidILEscapeCharactersFileName};
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
-        String expectedError = "Compiling source\n" +
-                "\tinvalid_IL_escape_char.bal\n" +
-                "error: .::invalid_IL_escape_char.bal:19:12: undefined symbol ''";
-
+        String expectedError = "Compiling source" +
+                "\n\tinvalid_IL_escape_char.bal" +
+                "\nerror: .::invalid_IL_escape_char.bal:18:12: invalid escape sequence '\\a'" +
+                "\nerror: .::invalid_IL_escape_char.bal:18:12: invalid escape sequence '\\B'" +
+                "\nerror: .::invalid_IL_escape_char.bal:18:12: invalid escape sequence '\\c'" +
+                "\nerror: .::invalid_IL_escape_char.bal:18:12: invalid escape sequence '\\x'" +
+                "\nerror: .::invalid_IL_escape_char.bal:18:12: invalid escape sequence '\\y'" +
+                "\nerror: .::invalid_IL_escape_char.bal:18:12: invalid escape sequence '\\z'" +
+                "\nerror: .::invalid_IL_escape_char.bal:19:12: invalid escape sequence '\\a'" +
+                "\nerror: .::invalid_IL_escape_char.bal:19:12: invalid escape sequence '\\B'" +
+                "\nerror: .::invalid_IL_escape_char.bal:19:12: invalid escape sequence '\\c'" +
+                "\nerror: .::invalid_IL_escape_char.bal:19:12: invalid escape sequence '\\x'" +
+                "\nerror: .::invalid_IL_escape_char.bal:19:12: invalid escape sequence '\\y'" +
+                "\nerror: .::invalid_IL_escape_char.bal:19:12: invalid escape sequence '\\z'";
         assertErrorLines(logLines, expectedError);
     }
 
