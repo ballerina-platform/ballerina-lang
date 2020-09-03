@@ -252,6 +252,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
     private BExpressionValue bitwiseAND(BVariable lVar, BVariable rVar) throws EvaluationException {
         if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
             // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
             long result = Long.parseLong(lVar.computeValue()) & Long.parseLong(rVar.computeValue());
             return EvaluationUtils.make(context, result);
         } else {
@@ -266,6 +267,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
     private BExpressionValue bitwiseOR(BVariable lVar, BVariable rVar) throws EvaluationException {
         if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
             // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
             long result = Long.parseLong(lVar.computeValue()) | Long.parseLong(rVar.computeValue());
             return EvaluationUtils.make(context, result);
         } else {
@@ -280,6 +282,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
     private BExpressionValue bitwiseXOR(BVariable lVar, BVariable rVar) throws EvaluationException {
         if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
             // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
             long result = Long.parseLong(lVar.computeValue()) ^ Long.parseLong(rVar.computeValue());
             return EvaluationUtils.make(context, result);
         } else {
