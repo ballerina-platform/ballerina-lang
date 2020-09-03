@@ -32,3 +32,7 @@ function testNonIsolatedMethodAsIsolatedMethodNegative() {
     } obj = new (123);
     Qux q = obj;
 }
+
+function () returns int foo = () => 1;
+
+//isolated function () returns int bar = foo;

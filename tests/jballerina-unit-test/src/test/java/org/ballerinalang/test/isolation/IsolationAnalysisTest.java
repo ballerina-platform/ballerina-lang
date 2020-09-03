@@ -21,6 +21,8 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
@@ -37,14 +39,29 @@ public class IsolationAnalysisTest {
     private static final String INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR =
             "invalid invocation of a non-isolated function in an 'isolated' function";
 
-    @Test
-    public void testIsolatedFunctions() {
-        CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis.bal");
-        BRunUtil.invoke(result, "testIsolatedFunctionWithOnlyLocalVars");
-        BRunUtil.invoke(result, "testIsolatedFunctionWithLocalVarsAndParams");
-        BRunUtil.invoke(result, "testIsolatedFunctionAccessingImmutableGlobalStorage");
-        BRunUtil.invoke(result, "testIsolatedObjectMethods");
-        BRunUtil.invoke(result, "testNonIsolatedMethodAsIsolatedMethodRuntimeNegative");
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis.bal");
+    }
+
+    @Test(dataProvider = "isolatedFunctionTests")
+    public void testIsolatedFunctions(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "isolatedFunctionTests")
+    public Object[] isolatedFunctionTests() {
+        return new Object[]{
+                "testIsolatedFunctionWithOnlyLocalVars",
+                "testIsolatedFunctionWithLocalVarsAndParams",
+                "testIsolatedFunctionAccessingImmutableGlobalStorage",
+                "testIsolatedObjectMethods",
+                "testNonIsolatedMethodAsIsolatedMethodRuntimeNegative",
+//                "testIsolatedFunctionAsIsolatedFunctionRuntime",
+//                "testIsolatedFunctionAsIsolatedFunctionRuntimeNegative"
+        };
     }
 
     @Test
@@ -55,6 +72,8 @@ public class IsolationAnalysisTest {
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'Qux', found 'object { int i; function qux () " +
                 "returns (int); }'", 33, 13);
+//        validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
+//                "'function () returns (int)'", 38, 40);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -102,6 +121,12 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 27);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 30);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 39);
+//        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 168, 13);
+//        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 168, 29);
+//        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 169, 16);
+//        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 174, 17);
+//        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 174, 33);
+//        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 175, 20);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

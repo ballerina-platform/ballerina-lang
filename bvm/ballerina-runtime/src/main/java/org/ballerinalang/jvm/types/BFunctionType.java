@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.util.Flags;
+
 import java.util.Arrays;
 
 /**
@@ -69,11 +71,6 @@ public class BFunctionType extends AnnotatableType {
         return TypeTags.FUNCTION_POINTER_TAG;
     }
 
-    public static String getTypeName(BType[] parameterType, BType retType) {
-        return "function (" + (parameterType != null ? getBTypeListAsString(parameterType) : "") + ")" +
-                (retType != null ? " returns (" + retType + ")" : "");
-    }
-
     private static String getBTypeListAsString(BType[] typeNames) {
         StringBuffer br = new StringBuffer();
         int i = 0;
@@ -115,7 +112,13 @@ public class BFunctionType extends AnnotatableType {
 
     @Override
     public String toString() {
-        return getTypeName(paramTypes, retType);
+        String stringRep = "function (" + (paramTypes != null ? getBTypeListAsString(paramTypes) : "") + ")" +
+                (retType != null ? " returns (" + retType + ")" : "");
+
+        if (Flags.isFlagOn(flags, Flags.ISOLATED)) {
+            return "isolated " + stringRep;
+        }
+        return stringRep;
     }
 
     @Override
