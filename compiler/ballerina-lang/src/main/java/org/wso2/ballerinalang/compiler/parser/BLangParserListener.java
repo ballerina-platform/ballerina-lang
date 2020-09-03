@@ -61,9 +61,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.wso2.ballerinalang.compiler.parser.BLangPackageBuilder.escapeQuotedIdentifier;
-import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY;
+
+
 
 /**
  * @since 0.94

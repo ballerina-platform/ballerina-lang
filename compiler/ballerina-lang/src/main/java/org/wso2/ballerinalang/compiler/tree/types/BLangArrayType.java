@@ -65,7 +65,7 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
         final StringBuilder[] sb = {new StringBuilder(getTypeName())};
         if (sizes.length == 0) {
             Arrays.stream(sizes).forEach(size -> {
-                if (size instanceof BLangLiteral) {
+                if (size.getKind() == NodeKind.LITERAL || size.getKind() == NodeKind.NUMERIC_LITERAL) {
                     Integer sizeIndicator = (Integer) (((BLangLiteral) size).getValue());
                     if (sizeIndicator == -1) {
                         sb[0].append("[]");
