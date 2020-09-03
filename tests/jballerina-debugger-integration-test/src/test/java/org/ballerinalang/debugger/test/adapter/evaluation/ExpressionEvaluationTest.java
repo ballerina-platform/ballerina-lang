@@ -65,7 +65,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
     private static final String streamVar = "v26_oddNumberStream";
     private static final String neverVar = "v27_neverVar";
 
-    @BeforeClass
+    @BeforeClass(enabled = false)
     public void setup() throws BallerinaTestException {
         testProjectName = "basic-project";
         testModuleName = "advanced";
@@ -79,7 +79,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         this.context = debugHitInfo.getRight();
     }
 
-    @Test
+    @Test(enabled = false)
     public void variableEvaluationTest() throws BallerinaTestException {
         // var variable test
         assertExpression(context, nilVar, "()", "nil");
@@ -139,7 +139,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         // assertVariable(context, anonObjectVar, "AnonPerson", "object");
     }
 
-    @Test
+    @Test(enabled = false)
     public void arithmeticEvaluationTest() throws BallerinaTestException {
         //////////////////////////////-------------addition------------------///////////////////////////////////////////
         // int + int
@@ -251,7 +251,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "-35", "decimal");
     }
 
-    @Test
+    @Test(enabled = false)
     public void fieldAccessEvaluationTest() throws BallerinaTestException {
         // objects fields
         assertExpression(context, objectVar + ".address", "No 20, Palm grove", "string");
@@ -263,14 +263,14 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         assertExpression(context, recordVar + ".grades.maths", "80", "int");
     }
 
-    @Test
+    @Test(enabled = false)
     public void methodCallEvaluationTest() throws BallerinaTestException {
         // object methods
         assertExpression(context, objectVar + ".getSum(34,56)", "90", "int");
         // Todo - add lang-lib functions related tests, after the implementation
     }
 
-    @Test
+    @Test(enabled = false)
     public void expressionEvaluationNegativeTest() throws BallerinaTestException {
         // empty expressions
         assertEvaluationError(context, "  ", EvaluationExceptionKind.EMPTY.getString());
@@ -299,7 +299,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         // Todo - Add negative tests for function invocations related errors. (invalid argument validation, etc.).
     }
 
-    @AfterClass
+    @AfterClass(enabled = false)
     private void cleanup() {
         terminateDebugSession();
         this.context = null;
