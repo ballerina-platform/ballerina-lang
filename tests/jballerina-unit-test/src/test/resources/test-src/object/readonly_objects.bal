@@ -59,12 +59,7 @@ function testBasicReadOnlyObject() {
     object {
         Details details;
         Department dept;
-        int id = 4532;
-
-        function init(Details details, Department dept) {
-            self.details = details;
-            self.dept = dept;
-        }
+        int id;
     } obj = emp;
 
     assertTrue(<any> obj.details is readonly);
@@ -84,12 +79,7 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     object {
         Details details;
         Department dept;
-        int id = 4532;
-
-        function init(Details details, Department dept) {
-            self.details = details;
-            self.dept = dept;
-        }
+        int id;
     } obj = emp;
 
     var fn = function () {
@@ -124,7 +114,7 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertEquality("modification not allowed on readonly value", err.detail()["message"]);
 }
 
-type Controller abstract object {
+type Controller object {
     function getValue() returns int;
 };
 

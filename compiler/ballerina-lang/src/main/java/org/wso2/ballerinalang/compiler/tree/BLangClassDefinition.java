@@ -54,12 +54,16 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangSimpleVariable> referencedFields;
     public int precedence;
+    public boolean isSynthetic;
 
     public BLangClassDefinition() {
         this.functions = new ArrayList<>();
         this.typeRefs = new ArrayList<>();
         this.fields = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
+        this.flagSet.add(Flag.CLASS);
+        this.annAttachments = new ArrayList<>();
+        this.referencedFields = new ArrayList<>();
     }
 
     @Override

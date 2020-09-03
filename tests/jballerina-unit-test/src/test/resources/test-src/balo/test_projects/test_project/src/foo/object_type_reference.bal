@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Person1 abstract object {
+public type Person1 object {
     public int age;
     public string name;
 
     public function getName(string greeting = "Hi") returns string;
 };
 
-public type Employee1 abstract object {
+public type Employee1 object {
     public float salary;
 
     public function getBonus(float ratio, int months=12) returns float;
@@ -50,7 +50,7 @@ public class Manager1 {
 
 }
 
-public type Employee2 abstract object {
+public type Employee2 object {
     public float salary;
     *Person1;
     public function getBonus(float ratio, int months=12) returns float;
@@ -104,7 +104,7 @@ public class NormalPerson {
     string name = "John";
 }
 
-public type Employee3 abstract object {
+public type Employee3 object {
     public int|float salary;
 
     public function getBonus(float ratio, int months=12) returns float;

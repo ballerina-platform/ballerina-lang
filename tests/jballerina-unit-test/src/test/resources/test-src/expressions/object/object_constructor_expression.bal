@@ -51,7 +51,7 @@ public type ObjectData record {|
     string descriptor = "";
 |};
 
-public annotation ObjectData OBJAnnots on type;
+public annotation ObjectData OBJAnnots on class;
 
 var obj = @OBJAnnots { descriptor: "ConstructedObject" }
     object {

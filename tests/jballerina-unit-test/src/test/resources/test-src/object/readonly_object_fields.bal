@@ -62,7 +62,7 @@ function testInvalidObjectSimpleReadonlyFieldUpdate() {
 
     // Invalid updates.
     var fn1 = function () {
-        object { string name = "default"; } rec = st1;
+        object { string name; } rec = st1;
         rec.name = "Jo";
     };
     error? res = trap fn1();
@@ -171,7 +171,7 @@ function testObjectWithStructuredReadonlyFields() {
     assertEquality("IT", emp2.department);
 
     var fn = function () {
-        object { Details? details = (); } empVal = emp;
+        object { Details? details; } empVal = emp;
         empVal.details = {
             name: "Jo",
             id: 3456
@@ -211,7 +211,7 @@ function testReadOnlyFieldWithDefaultValue() {
     assertEquality("QWE", i2.code);
 
     var fn1 = function () {
-        object { string id = "default"; } obj = i2;
+        object { string id; } obj = i2;
         obj.id = "new identifier";
     };
     error? res = trap fn1();
@@ -222,7 +222,7 @@ function testReadOnlyFieldWithDefaultValue() {
     assertEquality("cannot update 'readonly' field 'id' in object of type 'Identifier'", err.detail()["message"]);
 }
 
-type Foo abstract object {
+type Foo object {
     string name;
     int id;
 
@@ -320,7 +320,7 @@ function testSubTypingWithReadOnlyFields() {
                    err.detail()["message"]);
 }
 
-type AbstractPerson abstract object {
+type AbstractPerson object {
     Particulars particulars;
     int id;
 };

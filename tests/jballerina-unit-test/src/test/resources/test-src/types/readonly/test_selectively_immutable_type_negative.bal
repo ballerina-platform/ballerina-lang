@@ -161,7 +161,7 @@ function testInvalidNeverReadOnlyConstraint() {
     ];
 }
 
-type Baz abstract object {
+type Baz object {
     future<()> ft;
 
     function getFt();
@@ -171,7 +171,7 @@ function testNeverReadOnlyObject() {
     Baz & readonly bz;
 }
 
-type Config abstract object {
+type Config object {
     string name;
 
     function getName() returns string;
@@ -213,7 +213,7 @@ class GHI {
     }
 }
 
-type JKL abstract object {
+type JKL object {
     future<int> fr;
 };
 
@@ -250,14 +250,14 @@ type NeverImmutable record {
 
 function getInt() returns int => 1;
 
-type ReadOnlyObj readonly object {
+readonly class ReadOnlyObj {
     int j = 3;
-};
+}
 
 function testInvalidUpdateOfAnonTypeField() {
     readonly & record {int i;} x = {i: 1};
     x.i = 2; // error
 
-    readonly & abstract object {int j;} y = new ReadOnlyObj();
+    readonly & object {int j;} y = new ReadOnlyObj();
     y.j = 4; // error
 }

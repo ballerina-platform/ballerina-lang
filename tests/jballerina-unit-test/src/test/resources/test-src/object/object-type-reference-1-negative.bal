@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person1 abstract object {
+type Person1 object {
     public int age;
     public string name;
 };
 
-type Employee1 abstract object {
+type Employee1 object {
     public float salary;
 };
 
@@ -30,11 +30,11 @@ class Manager1 {
     string dpt = "HR";
 }
 
-type EmployeeWithSalary abstract object {
+type EmployeeWithSalary object {
     public float salary;
 };
 
-type AnotherEmployeeWithSalary abstract object {
+type AnotherEmployeeWithSalary object {
     public int salary;
 };
 
@@ -46,14 +46,14 @@ class ManagerWithTwoSalaries {
 }
 
 // Test errors for unimplemented methods
-type Person2 abstract object {
+type Person2 object {
     public int age;
     public string name;
 
     public function getName(string? title) returns string;
 };
 
-type Employee2 abstract object {
+type Employee2 object {
     *Person2;
     public float salary;
 

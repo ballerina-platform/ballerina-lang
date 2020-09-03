@@ -21,7 +21,7 @@ type Annot record {
 };
 
 public annotation Annot v1 on type, class;
-annotation Annot v2 on object type, class;
+annotation Annot v2 on class;
 public annotation Annot v3 on function;
 annotation map<int> v4 on object function;
 public annotation Annot v5 on resource function;

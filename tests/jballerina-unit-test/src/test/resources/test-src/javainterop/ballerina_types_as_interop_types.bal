@@ -432,7 +432,7 @@ function testUsingIntersectionEffectiveType() {
     assertEquality(a, r1);
 
     Graduate b = new ("Jo", 1234);
-    readonly & abstract object {} r2 = echoObject(b);
+    readonly & object {} r2 = echoObject(b);
     assertEquality(b, r2);
 
     Details & readonly c = {
@@ -462,8 +462,8 @@ function echoAnydataAsAny(anydata & readonly value) returns any & readonly = @ja
     'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-function echoObject(abstract object {string name; int id;} & readonly obj)
-    returns abstract object {} & readonly = @java:Method {
+function echoObject(object {string name; int id;} & readonly obj)
+    returns object {} & readonly = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

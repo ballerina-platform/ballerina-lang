@@ -37,18 +37,18 @@ type ErrorType error?;
 anydata[][] orderFieldValsArr = [];
 boolean[] orderDirectionsArr = [];
 
-type _Iterator abstract object {
+type _Iterator object {
     public function next() returns record {|Type value;|}|error?;
 };
 
-type _Iterable abstract object {
+type _Iterable object {
     public function __iterator() returns
-        abstract object {
+        object {
             public function next() returns record {|Type value;|}|error?;
         };
 };
 
-type _StreamFunction abstract object {
+type _StreamFunction object {
     public _StreamFunction? prevFunc;
     public function process() returns _Frame|error?;
     public function reset();

@@ -75,7 +75,7 @@ const PREPARE_DECISION_ABORT = "abort";
 
 type UProtocol LocalProtocol|RemoteProtocol;
 
-type Participant abstract object {
+type Participant object {
 
     string participantId;
 

@@ -66,7 +66,7 @@ public class Person {
        'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 
-    function echoObject() returns abstract object {}  = @java:Method {
+    function echoObject() returns object {}  = @java:Method {
             'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 

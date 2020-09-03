@@ -40,7 +40,7 @@ function calculateSumWithObservableFunction(int a, int b) returns int {
     return a + b;
 }
 
-type AbstractObservableAdder abstract object {
+type AbstractObservableAdder object {
     @observe:Observable
     function getSum() returns int;
 };

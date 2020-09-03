@@ -22,7 +22,7 @@ function testLength() returns int {
 
 function testIterator() returns string {
     string[] arr = ["Hello", "World!", "From", "Ballerina"];
-    abstract object {
+    object {
          public function next() returns record {| string value; |}?;
     } itr = arr.iterator();
 

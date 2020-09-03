@@ -56,7 +56,7 @@ public function prepare(object {} mockObject) returns MockObject {
 }
 
 # Represents a Mock object in which to create stubs for member functions and variables
-public type MockObject object {
+public class MockObject {
     object {} mockObject;
     string fieldName = "";
 
@@ -95,7 +95,7 @@ public type MockObject object {
         memberVariableStub.fieldName = fieldName;
         return memberVariableStub;
     }
-};
+}
 
 # Represents an object that allows stubbing member function invocations.
 #
@@ -104,7 +104,7 @@ public type MockObject object {
 # + args - arguments list of the function
 # + returnValue - value to return
 # + returnValueSeq - equence of values to return
-public type MemberFunctionStub object {
+public class MemberFunctionStub {
     object {} mockObject;
     string functionName = "";
     anydata|error args = [];
@@ -177,13 +177,13 @@ public type MemberFunctionStub object {
             panic thenReturnExtResult;
         }
     }
-};
+}
 
 # Represents an object that allows stubbing member variables retrieved.
 #
 # + mockObject - created mock object
 # + returnValue - value to return
-public  type MemberVariableStub object {
+public class MemberVariableStub {
     object {} mockObject;
     any|error returnValue = ();
     string fieldName = "";
@@ -209,7 +209,7 @@ public  type MemberVariableStub object {
             panic thenReturnExtResult;
         }
     }
-};
+}
 
 # Objects and functions related to function mocking
 
@@ -223,17 +223,17 @@ public function when(MockFunction mockFunction) returns FunctionStub {
 }
 
 # Represents a MockFunction object
-public type MockFunction object {
+public class MockFunction {
     string functionToMock = "";
     string functionToMockPackage = "";
-};
+}
 
 # Represents an object that allows stubbing function invocations
 #
 # + mockFuncObj - associated mockFunctionObj
 # + returnValue - return value
 # + args - function arguments
-public type FunctionStub object {
+public class FunctionStub {
     MockFunction mockFuncObj;
     any|error returnValue = ();
     anydata|error args = [];
@@ -284,14 +284,14 @@ public type FunctionStub object {
             panic result;
         }
     }
-};
+}
 
 # Creates and returns a mock object of provided type description.
 #
 # + T - type of object to create the mock
 # + mockObject - mock object to replace the original (optional)
 # + return - created mock object or throw an error if validation failed
-public function mock(public typedesc<object{}> T, object{} mockObject = new) returns T = @java:Method {
+public function mock(public typedesc<object{}> T, object{} mockObject = object { }) returns T = @java:Method {
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 

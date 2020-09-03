@@ -937,7 +937,7 @@ public class TreeBuilder {
         return new BLangClassDefinition();
     }
 
-    public static BLangObjectConstructorExpression createObjectCtorExpression(BLangObjectTypeNode objectTypeNode) {
+    public static BLangObjectConstructorExpression createObjectCtorExpression(BLangClassDefinition objectTypeNode) {
         return new BLangObjectConstructorExpression(objectTypeNode);
     }
 }

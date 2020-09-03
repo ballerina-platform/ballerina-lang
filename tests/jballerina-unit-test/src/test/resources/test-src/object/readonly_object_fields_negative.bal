@@ -74,7 +74,7 @@ function testInvalidUpdateOfReadonlyFieldInUnion() {
     sd.name = "May";
 }
 
-type Foo abstract object {
+type Foo object {
     int[] arr;
     map<string> mp;
 
@@ -150,7 +150,7 @@ type Particulars record {|
     string name;
 |};
 
-type AbstractPerson abstract object {
+type AbstractPerson object {
     Particulars particulars;
     int id;
 };
@@ -167,15 +167,15 @@ function testSubTypingWithReadOnlyFieldsNegative() {
 }
 
 function testReadOnlyModifierInStringRepresentation() {
-    object {
+    var b = object {
         int i = 2;
         string s = "world";
         boolean b = false;
-    } b = new;
+    };
 
     object {
-        readonly int i = 2;
-        string s = "world";
-        readonly boolean b = true;
+        readonly int i;
+        string s;
+        readonly boolean b;
     } y = b;
 }

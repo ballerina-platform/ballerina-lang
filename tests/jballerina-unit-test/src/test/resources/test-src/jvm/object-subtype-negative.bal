@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type myType record { int i; } | 4 | abstract object { int intField1; int intField2; };
+type myType record { int i; } | 4 | object { int intField1; int intField2; };
 type myType1 string | boolean | 1 | object { int intField1; int intField2; };
 
 public function testAssigment() {

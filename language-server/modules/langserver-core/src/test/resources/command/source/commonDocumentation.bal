@@ -27,7 +27,7 @@ type testDocObject object {
     }
 };
 
-type testDocObject2 abstract object {
+type testDocObject2 object {
     
     function testFunctionSignature(int param1, string param2) returns int;
 };

@@ -90,10 +90,6 @@ public enum Flag {
      */
     ANONYMOUS,
     /**
-     * Indicates Flagged node is a abstract node.
-     */
-    ABSTRACT,
-    /**
      * Indicates that the flagged node is an optional field.
      */
     OPTIONAL,

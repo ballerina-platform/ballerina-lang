@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Address abstract object {
+public type Address object {
     public string city;
 
     public function getCity() returns string;

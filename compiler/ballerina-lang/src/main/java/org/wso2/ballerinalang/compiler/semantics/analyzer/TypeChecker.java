@@ -2913,7 +2913,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         switch (actualType.tag) {
             case TypeTags.OBJECT:
-                if ((actualType.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+                if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                     dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
                                actualType.tsymbol);
                     cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
@@ -3095,7 +3095,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 // member is not an object.
                 continue;
             }
-            if ((memberType.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+            if ((memberType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                 dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
                            lhsUnionType.tsymbol);
             }
@@ -4039,7 +4039,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Raw template literals can be directly assigned only to abstract object types
-        if (!Symbols.isFlagOn(type.tsymbol.flags, Flags.ABSTRACT)) {
+        if (Symbols.isFlagOn(type.tsymbol.flags, Flags.CLASS)) {
             dlog.error(rawTemplateLiteral.pos, DiagnosticCode.INVALID_RAW_TEMPLATE_ASSIGNMENT, type);
             return symTable.semanticError;
         }

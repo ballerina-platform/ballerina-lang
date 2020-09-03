@@ -29,7 +29,7 @@ public annotation Annot v1 on type;
 
 string strValue = "v1 value";
 
-type Dummy abstract object {};
+type Dummy object {};
 
 class DummyImpl {
     *Dummy;

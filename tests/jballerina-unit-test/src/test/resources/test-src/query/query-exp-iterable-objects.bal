@@ -1,5 +1,5 @@
 class Iterable {
-    public function __iterator() returns abstract object {
+    public function __iterator() returns object {
 
         public function next() returns record {|int value;|}?;
     } {
@@ -29,7 +29,7 @@ public function testIterableObject() returns int[] {
 }
 
 class AnotherIterable {
-    public function __iterator() returns abstract object {
+    public function __iterator() returns object {
 
         public function next() returns record {|Iterable value;|}?;
     } {
@@ -59,7 +59,7 @@ public function testNestedIterableObject() returns int[] {
 }
 
 class IterableWithError {
-    public function __iterator() returns abstract object {
+    public function __iterator() returns object {
 
         public function next() returns record {|int value;|}|error?;
     } {
@@ -156,7 +156,7 @@ public function testIteratorInStream() returns int[]|error {
     return integers;
 }
 
-public type _Iterator abstract object {
+public type _Iterator object {
     public function next() returns record {|any|error value;|}|error?;
 };
 

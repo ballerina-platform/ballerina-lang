@@ -16,7 +16,7 @@
 
 # Represents a Kafka serializer object. This object can be used to create custom serializers for the Ballerina Kafka
 # producers.
-public type Serializer abstract object {
+public type Serializer object {
     # Closes the serialization process. This function runs after the serialization process is done.
     public function close();
 
