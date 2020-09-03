@@ -1326,12 +1326,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseParameter(prevParamKind, isParamNameOptional);
         }
 
-        return parseParamGivenAnnots(prevParamKind, annots, isParamNameOptional);
-    }
-
-    private STNode parseParamGivenAnnots(SyntaxKind prevParamKind, STNode annots,
-            boolean isParamNameOptional) {
-
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
         STNode param = parseAfterParamType(prevParamKind, annots, type, isParamNameOptional);
         return param;
