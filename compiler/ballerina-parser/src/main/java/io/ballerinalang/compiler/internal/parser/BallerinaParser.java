@@ -758,9 +758,13 @@ public class BallerinaParser extends AbstractParser {
                         qualifiers, false, false);
             case TYPE_KEYWORD:
                 return parseModuleTypeDefinition(metadata, getQualifier(qualifier));
+            case CLIENT_KEYWORD:
+                if (peek(2).kind == SyntaxKind.OBJECT_KEYWORD) {
+                    return parseModuleVarDecl(metadata, qualifier);
+                }
+                // Else fall through
             case CLASS_KEYWORD:
             case DISTINCT_KEYWORD:
-            case CLIENT_KEYWORD:
             case READONLY_KEYWORD:
                 return parserClassDefinition(metadata, getQualifier(qualifier));
             case LISTENER_KEYWORD:
