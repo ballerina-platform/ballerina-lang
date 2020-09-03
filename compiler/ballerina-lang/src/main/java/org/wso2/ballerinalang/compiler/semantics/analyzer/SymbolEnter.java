@@ -589,10 +589,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(annotTypeNode.pos, DiagnosticCode.ANNOTATION_INVALID_TYPE, type);
             }
 
-            IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
-            if (annotationNode.flagSet.contains(Flag.CONSTANT) && !isAnydataUniqueVisitor.visit(type)) {
-                dlog.error(annotTypeNode.pos, DiagnosticCode.ANNOTATION_INVALID_CONST_TYPE, type);
-            }
+//            if (annotationNode.flagSet.contains(Flag.CONSTANT) && types.isAssignable(type,
+//                    symTable.cloneableReadonlyType)) {
+//                dlog.error(annotTypeNode.pos, DiagnosticCode.ANNOTATION_INVALID_CONST_TYPE, type);
+//            }
         }
 
         if (!annotationNode.flagSet.contains(Flag.CONSTANT) &&

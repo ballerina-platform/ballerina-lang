@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashSet;
-import java.util.Optional;
 
 public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
@@ -43,7 +42,6 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     private boolean isAnydata;
 
     public IsAnydataUniqueVisitor() {
-        System.out.println("____ visit 46 : IsAnydataUniqueVisitor");
         visited = new HashSet<>();
         isAnydata = true;
     }
@@ -60,6 +58,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.XML:
             case TypeTags.NIL:
             case TypeTags.ANYDATA:
+            case TypeTags.READONLY:
                 return true;
             default:
                 return false;
@@ -109,22 +108,6 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     @Override
     public Boolean visit(BErrorType type) {
         return isAnydata(type);
-    }
-
-    @Override
-    public Boolean visit(BFiniteType type) {
-        if (type.isAnyData != null) {
-            return type.isAnyData;
-        }
-        for (BLangExpression value : type.getValueSpace()) {
-            if (!visit(value.type)) {
-                System.out.println("121 Type : " + type);
-                type.isAnyData = false;
-                return false;
-            }
-        }
-        type.isAnyData = true;
-        return isAnydata;
     }
 
     @Override
@@ -203,7 +186,43 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             }
         }
         type.isAnyData = (type.restType == null) || isPureTypeUniqueVisitor.visit(type.restType);
+        System.out.println("\t\t\ttype.isAnyData : " + type.isAnyData);
         return isAnydata;
+    }
+
+    @Override
+    public Boolean visit(BIntersectionType type) {
+        return visit(type.effectiveType);
+    }
+
+    @Override
+    public Boolean visit(BXMLType type) {
+        return isAnydata(type);
+    }
+
+    @Override
+    public Boolean visit(BTableType type) {
+        return isAnydata(type);
+    }
+
+    @Override
+    public Boolean visit(BFiniteType type) {
+        if (type.isAnyData != null) {
+            return type.isAnyData;
+        }
+        for (BLangExpression value : type.getValueSpace()) {
+            if (!visit(value.type)) {
+                type.isAnyData = false;
+                return false;
+            }
+        }
+        type.isAnyData = true;
+        return isAnydata;
+    }
+
+    @Override
+    public Boolean visit(BObjectType type) {
+        return isAnydata(type);
     }
 
     @Override
@@ -224,21 +243,6 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     }
 
     @Override
-    public Boolean visit(BIntersectionType type) {
-        return visit(type.effectiveType);
-    }
-
-    @Override
-    public Boolean visit(BXMLType type) {
-        return isAnydata(type);
-    }
-
-    @Override
-    public Boolean visit(BTableType type) {
-        return isAnydata(type);
-    }
-
-    @Override
     public Boolean visit(BRecordType type) {
         if (type.isAnyData != null) {
             return type.isAnyData;
@@ -249,23 +253,15 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         for (BField field : type.fields.values()) {
             if (!isPureTypeUniqueVisitor.visit(field.type)) {
                 type.isAnyData = false;
-                System.out.println("____ visit 251");
                 return false;
             }
         }
         type.isAnyData = type.sealed || isPureTypeUniqueVisitor.visit(type.restFieldType);
-        System.out.println("____ visit 255 : " + type.isAnyData);
         return type.isAnyData;
     }
 
     @Override
-    public Boolean visit(BObjectType type) {
-        return isAnydata(type);
-    }
-
-    @Override
     public Boolean visit(BType type) {
-        System.out.println("____ visit 267 : type");
         switch (type.tag) {
             case TypeTags.TABLE:
                 return visit((BTableType) type);
@@ -286,18 +282,48 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.TUPLE:
                 return visit((BTupleType) type);
         }
-        System.out.println("____ visit 287 : type");
         return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BFutureType type) {
+
         return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BHandleType type) {
+
         return isAnydata(type);
     }
+//
+//    public void debugPrint() {
+//
+//        List<BType> types = new ArrayList<>(visited.size());
+//        types.addAll(visited);
+//        System.out.println("Printing visited list of IsAnydataUniqueVisitor - START");
+//        for (BType type : types) {
+//            System.out.println("\ttype : " + type);
+//        }
+//        System.out.println("Printing visited list of IsAnydataUniqueVisitor - END");
+//    }
 
+//    private void printDebugLine(String typeName, BType type) {
+//        String message = null;
+//        if (type != null) {
+//            message = String.format(debugLine, "IsAnydataUniqueVisitor", getMethodName(),
+//                    typeName, getLineNumber(), type);
+//        } else {
+//            message = String.format(debugLine, "IsAnydataUniqueVisitor", getMethodName(),
+//                    typeName, getLineNumber(), "");
+//        }
+//        System.out.println(message);
+//    }
+//    public static int getLineNumber() {
+//        return Thread.currentThread().getStackTrace()[3].getLineNumber();
+//    }
+//
+//    public static String getMethodName() {
+//        return Thread.currentThread().getStackTrace()[3].getMethodName();
+//    }
 }

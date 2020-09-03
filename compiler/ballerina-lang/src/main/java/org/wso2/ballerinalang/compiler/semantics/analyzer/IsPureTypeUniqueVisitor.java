@@ -34,20 +34,17 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashSet;
 
-
 public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     private HashSet<BType> visited;
     private boolean isPureType;
 
     public IsPureTypeUniqueVisitor() {
-        System.out.println("____ visit 49 : IsPureTypeUniqueVisitor 1");
         visited = new HashSet<>();
         isPureType = true;
     }
 
     public IsPureTypeUniqueVisitor(HashSet<BType> visited) {
-        System.out.println("____ visit 49 : IsPureTypeUniqueVisitor 2");
         this.visited = visited;
         isPureType = true;
     }
@@ -118,7 +115,6 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BFiniteType type) {
-
         return isPureType(type);
     }
 
@@ -234,7 +230,6 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BType type) {
-        System.out.println("____ p visit 267 : type");
         switch (type.tag) {
             case TypeTags.TABLE:
                 return visit((BTableType) type);
@@ -255,7 +250,6 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.TUPLE:
                 return visit((BTupleType) type);
         }
-        System.out.println("____ p visit 287 : type");
         return isPureType(type);
     }
 
@@ -269,4 +263,33 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         return isPureType(type);
     }
 
+//    public void debugPrint() {
+//        List<BType> types = new ArrayList<>(visited.size());
+//        types.addAll(visited);
+//        System.out.println("Printing visited list of IsPureTypeUniqueVisitor - START");
+//        for (BType type : types) {
+//            System.out.println("\ttype : " + type);
+//        }
+//        System.out.println("Printing visited list of IsPureTypeUniqueVisitor - END");
+//    }
+
+//    private void printDebugLine(String typeName, BType type) {
+//        String message = null;
+//        if (type != null) {
+//            message = String.format(debugLine, "IsPureTypeUniqueVisitor", getMethodName(),
+//                    typeName, getLineNumber(), type);
+//        } else {
+//            message = String.format(debugLine, "IsPureTypeUniqueVisitor", getMethodName(),
+//                    typeName, getLineNumber(), "");
+//        }
+//        System.out.println(message);
+//    }
+//
+//    public static int getLineNumber() {
+//        return Thread.currentThread().getStackTrace()[3].getLineNumber();
+//    }
+//
+//    public static String getMethodName() {
+//        return Thread.currentThread().getStackTrace()[3].getMethodName();
+//    }
 }
