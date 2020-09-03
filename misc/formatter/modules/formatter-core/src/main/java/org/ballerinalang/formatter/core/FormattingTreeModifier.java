@@ -2105,11 +2105,17 @@ public class FormattingTreeModifier extends TreeModifier {
             objectFieldNode = objectFieldNode.modify()
                     .withReadonlyKeyword(formatToken(readonlyKeyword, 0, 1, 0, 0)).apply();
         }
+        if (equalsToken != null) {
+            objectFieldNode = objectFieldNode.modify()
+                    .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0)).apply();
+        }
+        if (expression != null) {
+            objectFieldNode = objectFieldNode.modify()
+                    .withExpression(expression).apply();
+        }
         return objectFieldNode.modify()
                 .withTypeName(typeName)
                 .withFieldName(formatToken(fieldName, 1, 0, 0, 0))
-                .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
-                .withExpression(expression)
                 .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
