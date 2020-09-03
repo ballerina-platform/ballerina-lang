@@ -50,6 +50,7 @@ function testReturnWithinOnFail() returns string  {
       str += "-> Error caught !";
       return str;
    }
+   return str;
 }
 
 function testOnFailWithCheckExpr () returns string|error {

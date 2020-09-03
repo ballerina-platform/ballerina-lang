@@ -30,7 +30,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
 /**
- * Tests for Ballerina locks.
+ * Tests for Ballerina locks with on fail clause.
  *
  * @since 0.961.0
  */
