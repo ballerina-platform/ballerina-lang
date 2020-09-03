@@ -235,6 +235,32 @@ public class SymbolLookupTest {
         BaloCreator.clearPackageFromRepository("test-src/test_project", "testorg", "foo");
     }
 
+    @Test(dataProvider = "PositionProvider4")
+    public void testSymbolLookupForComplexExpressions(int line, int column, List<String> expSymbolNames) {
+        CompilerContext context = new CompilerContext();
+        CompileResult result = compile("test-src/symbol_lookup_with_exprs_test.bal", context);
+        BLangPackage pkg = (BLangPackage) result.getAST();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg.compUnits.get(0), pkg, context);
+
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
+        assertList(symbolsInFile, expSymbolNames);
+    }
+
+    @DataProvider(name = "PositionProvider4")
+    public Object[][] getPositionsForExprs() {
+        List<String> moduleLevelSymbols = asList("aString", "anInt", "test");
+        return new Object[][]{
+                {21, 13, getSymbolNames(moduleLevelSymbols, "b")},
+                {21, 17, getSymbolNames(moduleLevelSymbols, "b")},
+                {21, 28, getSymbolNames(moduleLevelSymbols, "b", "x")},
+                {21, 36, getSymbolNames(moduleLevelSymbols, "b", "x", "z")},
+                {21, 43, getSymbolNames(moduleLevelSymbols, "b", "x", "z")},
+                {23, 51, getSymbolNames(moduleLevelSymbols, "b", "strTemp")},
+                {25, 54, getSymbolNames(moduleLevelSymbols, "b", "strTemp", "rawTemp")},
+        };
+    }
+
     private void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {
         Map<String, Symbol> symbols = actualValues.stream().collect(Collectors.toMap(Symbol::name, s -> s));
         assertList(symbols, expectedValues);
