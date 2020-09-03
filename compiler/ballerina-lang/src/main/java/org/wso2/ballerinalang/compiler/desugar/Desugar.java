@@ -2803,7 +2803,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
         matchBlockStmt.isBreakable = matchStmt.onFailClause != null;
         matchBlockStmt.pos = matchStmt.pos;
-//        BLangBlockStmt currentOnFailFuncBlock = this.onFailFuncBlock;
 
         if (matchStmt.onFailClause != null) {
             rewrite(matchStmt.onFailClause, env);
@@ -2879,8 +2878,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDo doNode) {
-//        BLangBlockStmt currentOnFailFuncBlock = this.onFailFuncBlock;
-//        BLangInvocation currentOnFailLambdaInvocation = this.onFailLambdaInvocation;
         BLangOnFailClause currentOnFailClause = this.onFailClause;
         BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         if (doNode.onFailClause != null) {
@@ -3100,8 +3097,13 @@ public class Desugar extends BLangNodeVisitor {
         // if (res is error) {
         //      panic res;
         // }
+        BLangOnFailClause currentOnFailClause = this.onFailClause;
+        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(lockNode.pos);
-
+        if (lockNode.onFailClause != null) {
+            blockStmt.isBreakable = true;
+            rewrite(lockNode.onFailClause, env);
+        }
         BLangLockStmt lockStmt = new BLangLockStmt(lockNode.pos);
         blockStmt.addStatement(lockStmt);
 
@@ -3140,6 +3142,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(lockNode.pos, isErrorTest, ifBody, null);
         blockStmt.addStatement(ifelse);
         result = rewrite(blockStmt, env);
+        this.onFailClause = currentOnFailClause;
+        this.onFailCallFuncDef = currentOnFailCallDef;
         enclLocks.pop();
     }
 

@@ -3256,6 +3256,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     public BLangNode transform(OnFailClauseNode onFailClauseNode) {
+        DiagnosticPos pos = getPosition(onFailClauseNode);
         BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) TreeBuilder.
                 createSimpleVariableDefinitionNode();
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
@@ -3271,6 +3272,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
 
         BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
+        onFailClause.pos = pos;
+
         onFailClause.isDeclaredWithVar = isDeclaredWithVar;
         markVariableAsFinal(variableDefinitionNode.getVariable());
         onFailClause.variableDefinitionNode = variableDefinitionNode;

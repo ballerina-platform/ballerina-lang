@@ -1461,17 +1461,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLock lockNode) {
-
+        this.errorTypes.push(new LinkedHashSet<>());
+        boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(lockNode);
+        if(!this.failureHandled) {
+            this.failureHandled = lockNode.onFailClause != null;
+        }
         boolean previousWithinLockBlock = this.withinLockBlock;
         this.withinLockBlock = true;
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
         this.withinLockBlock = previousWithinLockBlock;
-
+        this.resetLastStatement();
         if (lockNode.onFailClause != null) {
+            boolean statementReturns = this.statementReturns;
             lockNode.body.isBreakable = true;
             analyzeNode(lockNode.onFailClause, env);
+            this.statementReturns = statementReturns;
         }
+        this.failureHandled = failureHandled;
+        this.errorTypes.pop();
     }
 
     @Override
