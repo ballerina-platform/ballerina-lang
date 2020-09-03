@@ -18,6 +18,7 @@
 package org.ballerinalang.packerina;
 
 import com.moandjiezana.toml.Toml;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
@@ -36,9 +37,13 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -402,7 +407,8 @@ public class JarResolverImpl implements JarResolver {
         File tomlFile = getTomlFilePath(packageID);
 
         if (skipCopyLibsFromDist) {
-            return null;
+            libPaths.addAll(readInteropDependencies());
+            return libPaths;
         }
 
         Toml tomlConfig = new Toml().read(tomlFile);
@@ -425,6 +431,20 @@ public class JarResolverImpl implements JarResolver {
             }
         }
         return libPaths;
+    }
+
+    private HashSet<Path> readInteropDependencies() {
+        HashSet<Path> interopDependencies = new HashSet<>();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                new FileInputStream("build/interopJars.txt"), Charset.forName("UTF-8")))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                interopDependencies.add(Paths.get(line));
+            }
+        } catch (IOException e) {
+            throw new BLangCompilerException("error reading interop jar file names", e);
+        }
+        return interopDependencies;
     }
 
     private Path getJarFromDistribution(PackageID packageID) {

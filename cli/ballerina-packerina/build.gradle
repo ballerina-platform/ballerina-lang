@@ -20,6 +20,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 configurations {
     birJar
     bir
+    interopImports { transitive false }
     birJarCompile { transitive false }
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
@@ -49,8 +50,17 @@ dependencies {
 
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'
+    interopImports project(':ballerina-io')
 
+}
 
+task createInteropImportsList {
+    dependsOn configurations.interopImports
+    File interopJars = new File("$buildDir/interopJars.txt")
+    doFirst {
+        interopJars.write ""
+        project.configurations.interopImports.each { interopJars << it << '\n' }
+    }
 }
 
 task createBirCache {
@@ -75,6 +85,7 @@ checkstyleMain {
 }
 
 test {
+    dependsOn createInteropImportsList
     dependsOn createBirCache
     dependsOn configurations.birJar
     dependsOn configurations.birJarCompile
