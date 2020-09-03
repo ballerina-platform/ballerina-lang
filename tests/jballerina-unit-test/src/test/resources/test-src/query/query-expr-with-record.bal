@@ -4,6 +4,9 @@ public function testRecordBasedQueryExpr() {
     testQueryExprForOptionalFieldV2();
     testMethodParamWithLet();
     testQueryExprWithOpenRecord();
+    testQueryExprInLambda();
+    testQueryExprInLambdaV2();
+    testQueryExprInLambdaV3();
 }
 
 type Person record {
@@ -139,6 +142,84 @@ public function testQueryExprWithOpenRecord() {
 
     assertEquality("Kandy", outputPersonList[1]?.address);
     assertEquality("0400", outputPersonList[1]["newZipCode"]);
+}
+
+public function testQueryExprInLambda() {
+
+    function () returns Person[] anonFunction =
+            function () returns Person[] {
+
+                Person p1 = {firstName: "Alex", lastName: "George", age: 23, address: ()};
+                Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30, address: "Kandy"};
+                Person p3 = {firstName: "John", lastName: "David", age: 33, address: ()};
+
+                Person[] personList = [p1, p2, p3];
+
+                Person[] outputPersonList =
+                        from var {firstName, lastName, age, address} in personList
+                        select {
+                               firstName: firstName,
+                               lastName: lastName,
+                               age: age,
+                               address: address
+                         };
+
+                return outputPersonList;
+    };
+
+    assertEquality(23, anonFunction()[0].age);
+}
+
+public function testQueryExprInLambdaV2() {
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23, address: ()};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30, address: "Kandy"};
+    Person p3 = {firstName: "John", lastName: "David", age: 33, address: ()};
+
+    Person[] personList = [p1, p2, p3];
+
+    function () returns Person[] anonFunction =
+            function () returns Person[] {
+
+                Person[] outputPersonList =
+                        from var {firstName, lastName, age, address} in personList
+                        select {
+                               firstName: firstName,
+                               lastName: lastName,
+                               age: age,
+                               address: address
+                         };
+
+                return outputPersonList;
+    };
+
+    assertEquality(23, anonFunction()[0].age);
+}
+
+Person p1 = {firstName: "Alex", lastName: "George", age: 23, address: ()};
+Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30, address: "Kandy"};
+Person p3 = {firstName: "John", lastName: "David", age: 33, address: ()};
+
+Person[] personList = [p1, p2, p3];
+
+public function testQueryExprInLambdaV3() {
+
+    function () returns Person[] anonFunction =
+            function () returns Person[] {
+
+                Person[] outputPersonList =
+                        from var {firstName, lastName, age, address} in personList
+                        select {
+                               firstName: firstName,
+                               lastName: lastName,
+                               age: age,
+                               address: address
+                         };
+
+                return outputPersonList;
+    };
+
+    assertEquality(23, anonFunction()[0].age);
 }
 
 //---------------------------------------------------------------------------------------------------------

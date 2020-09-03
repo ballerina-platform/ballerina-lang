@@ -25,22 +25,22 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test query actions with records.
- *\
+ * This contains methods to test query actions with objects.
+ *
  * @since Swan Lake
  */
-public class RecordQueryTest {
+public class ObjectQueryTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/query/query-expr-with-record.bal");
+        result = BCompileUtil.compile("test-src/query/query-expr-with-object.bal");
     }
 
     @Test
     public void testSimpleQueryAction() {
-        BRunUtil.invoke(result, "testRecordBasedQueryExpr");
+        BRunUtil.invoke(result, "testObjectBasedQueryExpr");
     }
 
 }
