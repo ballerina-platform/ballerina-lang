@@ -28,4 +28,9 @@ public class TriviaTest extends AbstractTriviaTest {
     public void testComments() {
         test("trivia_source_01.bal", "trivia_assert_01.json");
     }
+
+    @Test
+    public void testInvalidTokenAtLexer() {
+        test("trivia_source_02.bal", "trivia_assert_02.json");
+    }
 }
