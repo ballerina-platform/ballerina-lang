@@ -2426,7 +2426,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-//        BLangBlockStmt currentOnFailFuncBlock = this.onFailFuncBlock;
+        BLangOnFailClause currentOnFailClause = this.onFailClause;
+        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+        if (retryNode.onFailClause != null) {
+            rewrite(retryNode.onFailClause, env);
+        }
         DiagnosticPos pos = retryNode.retryBody.pos;
         BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
         BLangSimpleVariableDef retryManagerVarDef = createRetryManagerDef(retryNode.retrySpec, retryNode.pos);
@@ -2439,6 +2443,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction retryFunc = createLambdaFunction(pos, "$retryFunc$",
                 Collections.emptyList(), retryLambdaReturnType, retryNode.retryBody.stmts, env,
                 retryNode.retryBody.scope);
+        ((BLangBlockFunctionBody)retryFunc.function.body).isBreakable = retryNode.onFailClause != null;
         BVarSymbol retryFuncVarSymbol = new BVarSymbol(0, names.fromString("$retryFunc$"),
                 env.scope.owner.pkgID, retryFunc.type, retryFunc.function.symbol);
         BLangSimpleVariable retryLambdaVariable = ASTBuilderUtil.createVariable(pos, "$retryFunc$",
@@ -2500,7 +2505,8 @@ public class Desugar extends BLangNodeVisitor {
         //  }
         //  returns <TypeCast>$result$;
         result = createExpressionStatement(pos, retryTransactionStmtExpr, retryNode.retryBodyReturns, env);
-//        this.onFailFuncBlock = currentOnFailFuncBlock;
+        this.onFailClause = currentOnFailClause;
+        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     protected BLangWhile createRetryWhileLoop(DiagnosticPos retryBlockPos, BLangSimpleVariableDef retryManagerVarDef,

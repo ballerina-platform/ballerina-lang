@@ -641,6 +641,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         if (retryNode.onFailClause != null) {
             boolean currentStatementReturns = this.statementReturns;
+            this.resetStatementReturns();
             retryNode.retryBody.isBreakable = true;
             analyzeNode(retryNode.onFailClause, env);
             this.statementReturns = currentStatementReturns;
@@ -753,23 +754,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchStmt) {
-//        this.errorTypes.push(new LinkedHashSet<>());
-//        boolean statementReturns = this.statementReturns;
-//        boolean failureHandled = this.failureHandled;
-//        this.checkStatementExecutionValidity(doNode);
-//        if(!this.failureHandled) {
-//            this.failureHandled = doNode.onFailClause != null;
-//        }
-//        analyzeNode(doNode.body, env);
-//        this.statementReturns = statementReturns;
-//        this.failureHandled = failureHandled;
-//        this.resetLastStatement();
-//        if (doNode.onFailClause != null) {
-//            doNode.body.isBreakable = true;
-//            analyzeNode(doNode.onFailClause, env);
-//        }
-//        this.errorTypes.pop();
-
         this.errorTypes.push(new LinkedHashSet<>());
         if (!this.failureHandled) {
             this.failureHandled = matchStmt.onFailClause != null;
@@ -793,6 +777,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (matchStmt.onFailClause != null) {
             boolean currentReturns = this.statementReturns;
+            this.resetStatementReturns();
             analyzeNode(matchStmt.onFailClause, env);
             this.statementReturns = currentReturns;
         }
@@ -1407,6 +1392,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(foreach.collection);
         if (foreach.onFailClause != null) {
             boolean currentStatementReturns = this.statementReturns;
+            this.resetStatementReturns();
             foreach.body.isBreakable = true;
             analyzeNode(foreach.onFailClause, env);
             this.statementReturns = currentStatementReturns;
@@ -1435,6 +1421,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(whileNode.expr);
         if (whileNode.onFailClause != null) {
             boolean currentStatementReturns = this.statementReturns;
+            this.resetStatementReturns();
             whileNode.body.isBreakable = true;
             analyzeNode(whileNode.onFailClause, env);
             this.statementReturns = currentStatementReturns;
@@ -1455,10 +1442,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.failureHandled = failureHandled;
         this.resetLastStatement();
         if (doNode.onFailClause != null) {
-            boolean statementReturns = this.statementReturns;
+            boolean currentStatementReturns = this.statementReturns;
+            this.resetStatementReturns();
             doNode.body.isBreakable = true;
             analyzeNode(doNode.onFailClause, env);
-            this.statementReturns = statementReturns;
+            this.statementReturns = currentStatementReturns;
             this.resetLastStatement();
         }
         this.errorTypes.pop();
@@ -1502,6 +1490,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         if (lockNode.onFailClause != null) {
             boolean statementReturns = this.statementReturns;
+            this.resetStatementReturns();
             lockNode.body.isBreakable = true;
             analyzeNode(lockNode.onFailClause, env);
             this.statementReturns = statementReturns;
