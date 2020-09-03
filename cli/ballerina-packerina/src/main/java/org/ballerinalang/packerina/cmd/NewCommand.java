@@ -128,8 +128,8 @@ public class NewCommand implements BLauncherCmd {
 
         if (!ProjectUtils.validatePkgName(packageName)) {
             CommandUtil.printError(errStream,
-                "Invalid package name : '" + packageName + "' :\n" +
-                        "Module name can only contain alphanumerics, underscores and periods " +
+                "Invalid project name : '" + packageName + "' :\n" +
+                        "Project name can only contain alphanumerics, underscores and periods " +
                         "and the maximum length is 256 characters",
                 null,
                 false);

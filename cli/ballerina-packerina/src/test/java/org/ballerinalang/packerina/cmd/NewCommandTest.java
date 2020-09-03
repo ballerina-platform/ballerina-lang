@@ -157,7 +157,7 @@ public class NewCommandTest extends CommandTest {
         NewCommand newCommand = new NewCommand(tmpDir, printStream);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
-        Assert.assertTrue(readOutput().contains("Invalid package name"));
+        Assert.assertTrue(readOutput().contains("Invalid project name"));
     }
 
     @Test(description = "Test new command with invalid template")
