@@ -38,7 +38,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         projectPath = singleFilesProjectPath.resolve("skip-tests").toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSkipWhenDependsOnFunctionFails() throws BallerinaTestException {
         String msg1 = "2 passing";
         String msg2 = "1 failing";
@@ -53,7 +53,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         clientLeecher3.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSkipWhenBeforeFails() throws BallerinaTestException {
         String msg1 = "1 passing";
         String msg2 = "0 failing";
@@ -71,7 +71,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         clientLeecher4.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSkipWhenAfterFails() throws BallerinaTestException {
         String msg1 = "2 passing";
         String msg2 = "0 failing";
@@ -89,7 +89,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         clientLeecher4.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSkipWhenBeforeEachFails() throws BallerinaTestException {
         String msg1 = "0 passing";
         String msg2 = "0 failing";
@@ -108,7 +108,7 @@ public class SkipTestsTestCase extends BaseTestCase {
     }
 
 
-    @Test
+    @Test(enabled = false)
     public void testSkipWhenAfterEachFails() throws BallerinaTestException {
         String msg1 = "1 passing";
         String msg2 = "0 failing";
@@ -126,7 +126,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         clientLeecher4.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSkipWhenBeforeSuiteFails() throws BallerinaTestException {
         String msg1 = "0 passing";
         String msg2 = "0 failing";
@@ -144,7 +144,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         clientLeecher4.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSkipWhenBeforeGroupsFails() throws BallerinaTestException {
         String msg1 = "2 passing";
         String msg2 = "0 failing";
@@ -162,7 +162,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         clientLeecher4.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSkipWhenAfterGroupsFails() throws BallerinaTestException {
         String msg1 = "4 passing";
         String msg2 = "0 failing";

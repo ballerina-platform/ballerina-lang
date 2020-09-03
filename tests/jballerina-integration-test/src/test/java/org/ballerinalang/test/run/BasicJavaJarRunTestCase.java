@@ -33,7 +33,7 @@ public class BasicJavaJarRunTestCase extends BaseTest {
 
     private static final int LOG_LEECHER_TIMEOUT = 10000;
 
-    @Test
+    @Test(enabled = false)
     public void testNoArg() throws BallerinaTestException {
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         String serverResponse = "1";
@@ -45,7 +45,7 @@ public class BasicJavaJarRunTestCase extends BaseTest {
         clientLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultipleParam() throws BallerinaTestException {
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         String serverResponse = "integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, boolean: true, JSON "
