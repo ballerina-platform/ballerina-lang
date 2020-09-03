@@ -437,6 +437,28 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'shift' on fixed length list(s) of type '[string,int]'",
                                   118, 24);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected '(descending|ascending)', found 'function (int) returns (int)'",
+                125, 32);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected '(descending|ascending)', found 'function (int) returns (int)'",
+                129, 33);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'function ((any|error)) returns " +
+                        "((boolean|int|float|decimal|string|(boolean|int|float|decimal|string)?[])?)?', " +
+                        "found 'string'", 131, 8);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid member type of the array to sort: type '(string|int)[]' is not an ordered type",
+                135, 33);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid member type of the array to sort: type '(string|int)[]' is not an ordered type",
+                137, 33);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid member type of the array to sort: type '(string|int)[]' is not an ordered type",
+                139, 33);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid array sort key function return type: type '(string|int)' is not an ordered type",
+                141, 33);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 

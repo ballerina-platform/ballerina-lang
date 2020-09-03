@@ -118,3 +118,27 @@ function testShiftOnUnionOfDifferentTuplesTypeNarrowed() {
         var x = tuples.shift();
     }
 }
+
+function testArrSortNegativeScenarios() {
+    int[] arr = [21, 76, 2, 20, 10, 5];
+
+    int[] sortedArr = arr.sort(function(int x) returns int {
+        return x;
+    });
+
+    int[] sortedArr2 = arr.sort(function(int x) returns int {
+        return x;
+    }, "descending");
+
+    (string|int)[] arr2 = [23, "A", "Z", 10, "D"];
+
+    (string|int)[] sortedArr3 = arr2.sort();
+
+    (string|int)[] sortedArr4 = arr2.sort("descending");
+
+    (string|int)[] sortedArr5 = arr2.sort("descending", ());
+
+    (string|int)[] sortedArr6 = arr2.sort("descending", function((string|int) val) returns string|int {
+        return val;
+    });
+}
