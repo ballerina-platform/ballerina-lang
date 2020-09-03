@@ -4,3 +4,5 @@
 // Mocking an imported function will apply the mocked function to every instance of the original function call.
 // It is not limited to the test file in which it is being mocked. Mocking a function from the module under the test
 // can be scoped to have different behaviors for different test cases.<br/><br/>
+// For more information, see [How to Test Ballerina Code](https://ballerina.io/learn/how-to-test-ballerina-code/)
+// and the [Test Module](https://ballerina.io/learn/api-docs/ballerina/test/index.html).
