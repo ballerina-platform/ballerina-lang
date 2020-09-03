@@ -9,6 +9,7 @@ module io.ballerina.core {
     exports org.ballerinalang.core.util.exceptions;
     exports org.ballerinalang.core.model.types;
     exports org.ballerinalang.core.model.values;
+    exports org.ballerinalang.core.model.util;
     exports org.ballerinalang.bre;
     exports org.ballerinalang.bre.bvm;
 }
