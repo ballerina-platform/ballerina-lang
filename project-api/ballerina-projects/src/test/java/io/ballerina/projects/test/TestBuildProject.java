@@ -111,7 +111,7 @@ public class TestBuildProject {
             BuildProject.loadProject(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina project"));
+            Assert.assertTrue(e.getMessage().contains("provided path is already within a Ballerina project"));
         }
     }
 
@@ -188,5 +188,4 @@ public class TestBuildProject {
         Assert.assertTrue(project.getBuildOptions().isCodeCoverage());
         Assert.assertTrue(project.getBuildOptions().isSkipLock());
     }
-
 }
