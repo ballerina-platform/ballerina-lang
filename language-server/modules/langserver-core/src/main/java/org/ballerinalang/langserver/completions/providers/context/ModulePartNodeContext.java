@@ -19,12 +19,18 @@ import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
@@ -57,7 +63,50 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         completionItems.addAll(addTopLevelItems(context));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
+        this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    @Override
+    public void sort(LSContext context, ModulePartNode node, List<LSCompletionItem> items, Object... metaData) {
+        for (LSCompletionItem item : items) {
+            CompletionItem cItem = item.getCompletionItem();
+            if (item instanceof SnippetCompletionItem
+                    && (((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.SNIPPET
+                    || ((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.STATEMENT)) {
+                cItem.setSortText(this.genSortText(1));
+                continue;
+            }
+            if (item instanceof SnippetCompletionItem
+                    && ((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.KEYWORD) {
+                cItem.setSortText(this.genSortText(2));
+                continue;
+            }
+            if (this.isModuleCompletionItem(item)) {
+                cItem.setSortText(this.genSortText(3));
+                continue;
+            }
+            if (this.isTypeCompletionItem(item)) {
+                cItem.setSortText(this.genSortText(4));
+                continue;
+            }
+            cItem.setSortText(this.genSortText(5));
+        }
+    }
+
+    private boolean isModuleCompletionItem(LSCompletionItem item) {
+        return (item instanceof SymbolCompletionItem
+                && ((SymbolCompletionItem) item).getSymbol() instanceof BPackageSymbol)
+                || (item instanceof StaticCompletionItem
+                && (((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.MODULE
+                || ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.LANG_LIB_MODULE));
+    }
+
+    private boolean isTypeCompletionItem(LSCompletionItem item) {
+        return (item instanceof SymbolCompletionItem
+                && ((SymbolCompletionItem) item).getSymbol() instanceof BTypeSymbol)
+                || (item instanceof StaticCompletionItem
+                && ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE);
     }
 }

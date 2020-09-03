@@ -38,30 +38,30 @@ public class SnippetBlock {
 
     private String label = "";
     private String detail = "";
-    private String snippet;
-    private SnippetType snippetType;
+    private final String snippet;
+    private final Kind kind;
     private final Pair<String, String>[] imports;
 
-    public SnippetBlock(String snippet, SnippetType snippetType) {
+    public SnippetBlock(String snippet, Kind kind) {
         this.snippet = snippet;
-        this.snippetType = snippetType;
+        this.kind = kind;
         this.imports = null;
     }
 
-    public SnippetBlock(String label, String snippet, String detail, SnippetType snippetType) {
+    public SnippetBlock(String label, String snippet, String detail, Kind kind) {
         this.label = label;
         this.snippet = snippet;
         this.detail = detail;
-        this.snippetType = snippetType;
+        this.kind = kind;
         this.imports = null;
     }
 
-    public SnippetBlock(String label, String snippet, String detail, SnippetType snippetType,
+    public SnippetBlock(String label, String snippet, String detail, Kind kind,
                         Pair<String, String>... importsByOrgAndAlias) {
         this.label = label;
         this.snippet = snippet;
         this.detail = detail;
-        this.snippetType = snippetType;
+        this.kind = kind;
         this.imports = importsByOrgAndAlias;
     }
 
@@ -93,7 +93,7 @@ public class SnippetBlock {
         if (!detail.isEmpty()) {
             completionItem.setDetail(detail);
         }
-        completionItem.setKind(getKind());
+        completionItem.setKind(getCompletionItemKind());
         return completionItem;
     }
 
@@ -111,8 +111,8 @@ public class SnippetBlock {
      *
      * @return {@link CompletionItemKind} LSP Snippet Type
      */
-    private CompletionItemKind getKind() {
-        switch (snippetType) {
+    private CompletionItemKind getCompletionItemKind() {
+        switch (kind) {
             case KEYWORD:
                 return CompletionItemKind.Keyword;
             case SNIPPET:
@@ -126,14 +126,14 @@ public class SnippetBlock {
         return label;
     }
 
-    public SnippetType getSnippetType() {
-        return snippetType;
+    public Kind kind() {
+        return kind;
     }
 
     /**
      * Represents Snippet Types in B7a LS.
      */
-    public enum SnippetType {
+    public enum Kind {
         KEYWORD, SNIPPET, STATEMENT;
     }
 }

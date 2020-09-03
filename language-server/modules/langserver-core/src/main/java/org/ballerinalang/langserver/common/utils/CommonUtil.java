@@ -496,7 +496,7 @@ public class CommonUtil {
         completionItem.setKind(CompletionItemKind.Property);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
-        return new StaticCompletionItem(context, completionItem);
+        return new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER);
     }
 
     /**
@@ -513,7 +513,7 @@ public class CommonUtil {
         errorTypeCItem.setInsertTextFormat(InsertTextFormat.Snippet);
         errorTypeCItem.setKind(CompletionItemKind.Event);
 
-        return new StaticCompletionItem(context, errorTypeCItem);
+        return new StaticCompletionItem(context, errorTypeCItem, StaticCompletionItem.Kind.TYPE);
     }
 
     /**
@@ -853,18 +853,6 @@ public class CommonUtil {
         return importPackage.pkgNameComps.stream()
                 .map(id -> id.value)
                 .collect(Collectors.joining("."));
-    }
-
-    /**
-     * Convert the Snippet to a plain text snippet by removing the place holders.
-     *
-     * @param snippet Snippet string to alter
-     * @return {@link String}   Converted Snippet
-     */
-    public static String getPlainTextSnippet(String snippet) {
-        return snippet
-                .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$1")
-                .replaceAll("(\\$\\{\\d+\\})", "");
     }
 
     public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
