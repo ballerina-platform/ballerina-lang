@@ -46,7 +46,8 @@ public class ModulePushTestCase extends BaseTest {
         envVariables = addEnvVariables(TestUtils.getEnvVariables());
     }
 
-    @Test(description = "Test pushing a package to central by specifying the access token as an environment variable")
+    @Test(enabled = false, description = "Test pushing a package to central by specifying " +
+            "the access token as an environment variable")
     public void testPush() throws Exception {
         // Org-name
         String orgName = "bcintegrationtest";

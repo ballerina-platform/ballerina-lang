@@ -772,6 +772,8 @@ public  class BTypeToJsonValidatorUtil {
 
     /**
      * Get record name from given reference.
+     * @param ref   string reference path
+     * @return      string record name
      */
     public static String getRecordName(String ref) {
         String recordName = null;

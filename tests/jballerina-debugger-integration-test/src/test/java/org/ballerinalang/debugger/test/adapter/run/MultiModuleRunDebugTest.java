@@ -35,6 +35,7 @@ import java.nio.file.Paths;
 /**
  * Test class for multi module related debug scenarios for run command.
  */
+@Test(enabled = false)
 public class MultiModuleRunDebugTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
@@ -46,7 +47,7 @@ public class MultiModuleRunDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
         String fileName = "helloBal" + File.separator + "hello.bal";
         String filePath1 = Paths.get(testProjectPath, "src", testModuleName, fileName).toString();
