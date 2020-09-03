@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
@@ -26,8 +28,6 @@ import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
-import io.ballerinalang.compiler.text.LinePosition;
-import io.ballerinalang.compiler.text.LineRange;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -240,6 +240,17 @@ public class MinutiaeListAPITest extends AbstractSyntaxTreeAPITest {
         ModulePartNode newModulePartNode = newLineMinutiaeRemover.transform(modulePartNode);
 
         String expectedStr = getFileContentAsString("minutiae_test_04_with_no_newlines.bal");
+        String actualStr = newModulePartNode.toString();
+        Assert.assertEquals(actualStr, expectedStr);
+    }
+
+    @Test
+    public void testLiteralTokenMinutiaModification() {
+        ModulePartNode modulePartNode = getModulePartNode("minutiae_test_05.bal");
+        NewLineMinutiaeRemover newLineMinutiaeRemover = new NewLineMinutiaeRemover();
+        ModulePartNode newModulePartNode = newLineMinutiaeRemover.transform(modulePartNode);
+
+        String expectedStr = getFileContentAsString("minutiae_test_05_with_no_newlines.bal");
         String actualStr = newModulePartNode.toString();
         Assert.assertEquals(actualStr, expectedStr);
     }

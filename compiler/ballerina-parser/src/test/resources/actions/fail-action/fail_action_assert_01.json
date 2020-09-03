@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -145,7 +140,12 @@
                   "kind": "FUNCTION_CALL",
                   "children": [
                     {
-                      "kind": "ERROR_KEYWORD"
+                      "kind": "ERROR_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "ERROR_KEYWORD"
+                        }
+                      ]
                     },
                     {
                       "kind": "OPEN_PAREN_TOKEN"
@@ -160,7 +160,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "Custom error thrown explicitly."
                                 }
                               ]
@@ -243,4 +243,3 @@
     }
   ]
 }
-

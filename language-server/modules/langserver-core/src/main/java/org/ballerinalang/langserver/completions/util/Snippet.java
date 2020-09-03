@@ -34,11 +34,19 @@ public enum Snippet {
 
     DEF_MAIN_FUNCTION(SnippetGenerator.getMainFunctionSnippet()),
 
+    DEF_OBJECT_TYPE_DESC_SNIPPET(SnippetGenerator.getObjectTypeDescSnippet()),
+
     DEF_OBJECT_SNIPPET(SnippetGenerator.getObjectDefinitionSnippet()),
 
     DEF_RECORD(SnippetGenerator.getRecordDefinitionSnippet()),
 
     DEF_CLOSED_RECORD(SnippetGenerator.getClosedRecordDefinitionSnippet()),
+
+    DEF_RECORD_TYPE_DESC(SnippetGenerator.getRecordTypeDescSnippet()),
+
+    DEF_CLOSED_RECORD_TYPE_DESC(SnippetGenerator.getClosedRecordTypeDescSnippet()),
+
+    DEF_ERROR_TYPE_DESC(SnippetGenerator.getErrorTypeDefinitionSnippet()),
 
     DEF_RESOURCE_HTTP(SnippetGenerator.getResourceDefinitionSnippet()),
 
@@ -94,8 +102,6 @@ public enum Snippet {
 
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
 
-    DEF_ERROR(SnippetGenerator.getErrorDefinitionSnippet()),
-
     DEF_REMOTE_FUNCTION(SnippetGenerator.getRemoteFunctionSnippet()),
 
     DEF_INIT_FUNCTION(SnippetGenerator.getInitFunctionSnippet()),
@@ -110,14 +116,35 @@ public enum Snippet {
 
     DEF_DETACH_FUNCTION(SnippetGenerator.getDetachFunctionSnippet()),
 
+    
     // Expressions Snippets
     EXPR_MATCH(SnippetGenerator.getMatchExpressionSnippet()),
-    
-    
+
+    EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
+
+
     // Keyword Snippets
     KW_ON(SnippetGenerator.getOnSnippet()),
 
     KW_NEW(SnippetGenerator.getNewKeywordSnippet()),
+
+    KW_DEFAULT(SnippetGenerator.getDefaultKeywordSnippet()),
+
+    KW_TABLE(SnippetGenerator.getTableKeywordSnippet()),
+
+    KW_SERVICE(SnippetGenerator.getServiceKeywordSnippet()),
+
+    KW_STRING(SnippetGenerator.getStringKeywordSnippet()),
+
+    KW_XML(SnippetGenerator.getXMLKeywordSnippet()),
+
+    KW_LET(SnippetGenerator.getLetKeywordSnippet()),
+
+    KW_KEY(SnippetGenerator.getKeyKeywordSnippet()),
+
+    KW_TRAP(SnippetGenerator.getTrapKeywordSnippet()),
+
+    KW_ERROR(SnippetGenerator.getErrorKeywordSnippet()),
 
     KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
 
@@ -126,6 +153,10 @@ public enum Snippet {
     KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
 
     KW_START(SnippetGenerator.getStartKeywordSnippet()),
+
+    KW_AS(SnippetGenerator.getAsKeywordSnippet()),
+
+    KW_FROM(SnippetGenerator.getFromKeywordSnippet()),
 
     KW_FLUSH(SnippetGenerator.getFlushKeywordSnippet()),
 
@@ -153,6 +184,12 @@ public enum Snippet {
 
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),
 
+    KW_IN(SnippetGenerator.getInKeywordSnippet()),
+
+    KW_ENUM(SnippetGenerator.getEnumKeywordSnippet()),
+
+    KW_XMLNS(SnippetGenerator.getXMLNSKeywordSnippet()),
+
     KW_LISTENER(SnippetGenerator.getListenerKeywordSnippet()),
 
     KW_RETURNS(SnippetGenerator.getReturnsKeywordSnippet()),
@@ -170,6 +207,8 @@ public enum Snippet {
     KW_TYPEOF(SnippetGenerator.getTypeofKeywordSnippet()),
 
     KW_COMMIT(SnippetGenerator.getCommitKeywordSnippet()),
+
+    KW_IS(SnippetGenerator.getIsKeywordSnippet()),
 
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),
@@ -192,7 +231,7 @@ public enum Snippet {
 
     STMT_MATCH(SnippetGenerator.getMatchStatementSnippet()),
 
-    STMT_NAMESPACE_DECLARATION(SnippetGenerator.getNamespaceDeclarationSnippet()),
+    STMT_NAMESPACE_DECLARATION(SnippetGenerator.getXMLNSDeclarationSnippet()),
 
     STMT_RETURN(SnippetGenerator.getReturnStatementSnippet()),
 
@@ -205,9 +244,6 @@ public enum Snippet {
     STMT_TRAP(SnippetGenerator.getTrapSnippet()),
 
     STMT_WHILE(SnippetGenerator.getWhileStatementSnippet()),
-
-    // Expression Snippets
-    EXPR_ERROR(SnippetGenerator.getErrorConstructorSnippet()),
 
     // Iterable Operation snippets
     ITR_FOREACH(SnippetGenerator.getIterableForeachSnippet()),
@@ -260,7 +296,7 @@ public enum Snippet {
     BUILTIN_DETAIL(SnippetGenerator.getBuiltinDetailSnippet()),
 
     BUILTIN_REASON(SnippetGenerator.getBuiltinReasonSnippet()),
-    
+
     // Iterable operators' lambda function parameters
     ITR_ON_MAP_PARAMS(SnippetGenerator.getIterableOnMapParamSnippet()),
 

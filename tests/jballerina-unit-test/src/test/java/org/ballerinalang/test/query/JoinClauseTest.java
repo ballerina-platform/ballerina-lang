@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.query;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -46,46 +45,19 @@ public class JoinClauseTest {
     @Test(description = "Test join clause with record variable definition type 1")
     public void testSimpleJoinClauseWithRecordVariable() {
         BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable");
-        Assert.assertNotNull(values);
-
-        Assert.assertEquals(values.length, 2, "Expected events are not received");
-
-        BMap<String, BValue> deptPerson1 = (BMap<String, BValue>) values[0];
-        BMap<String, BValue> deptPerson2 = (BMap<String, BValue>) values[1];
-
-        Assert.assertEquals(deptPerson1.get("fname").stringValue(), "Alex");
-        Assert.assertEquals(deptPerson1.get("lname").stringValue(), "George");
-        Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Operations");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
     @Test(description = "Test join clause with record variable definition type 2")
     public void testSimpleJoinClauseWithRecordVariable2() {
         BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable2");
-        Assert.assertNotNull(values);
-
-        Assert.assertEquals(values.length, 2, "Expected events are not received");
-
-        BMap<String, BValue> deptPerson1 = (BMap<String, BValue>) values[0];
-        BMap<String, BValue> deptPerson2 = (BMap<String, BValue>) values[1];
-
-        Assert.assertEquals(deptPerson1.get("fname").stringValue(), "Alex");
-        Assert.assertEquals(deptPerson1.get("lname").stringValue(), "George");
-        Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Operations");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
     @Test(description = "Test join clause with record variable definition type 3")
     public void testSimpleJoinClauseWithRecordVariable3() {
         BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable3");
-        Assert.assertNotNull(values);
-
-        Assert.assertEquals(values.length, 2, "Expected events are not received");
-
-        BMap<String, BValue> deptPerson1 = (BMap<String, BValue>) values[0];
-        BMap<String, BValue> deptPerson2 = (BMap<String, BValue>) values[1];
-
-        Assert.assertEquals(deptPerson1.get("fname").stringValue(), "Alex");
-        Assert.assertEquals(deptPerson1.get("lname").stringValue(), "George");
-        Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Operations");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
     @Test(description = "Test join clause with simple variable definition and stream")
@@ -97,31 +69,7 @@ public class JoinClauseTest {
     @Test(description = "Test query expr with join and limit clause")
     public void testJoinClauseWithLimit() {
         BValue[] values = BRunUtil.invoke(result, "testJoinClauseWithLimit");
-        Assert.assertNotNull(values);
-
-        Assert.assertEquals(values.length, 1, "Expected events are not received");
-
-        BMap<String, BValue> deptPerson1 = (BMap<String, BValue>) values[0];
-
-        Assert.assertEquals(deptPerson1.get("fname").stringValue(), "Alex");
-        Assert.assertEquals(deptPerson1.get("lname").stringValue(), "George");
-        Assert.assertEquals(deptPerson1.get("dept").stringValue(), "HR");
-    }
-
-    @Test(description = "Test on clause with function")
-    public void testOnClauseWithFunction() {
-        BValue[] values = BRunUtil.invoke(result, "testOnClauseWithFunction");
-        Assert.assertNotNull(values);
-
-        Assert.assertEquals(values.length, 2, "Expected events are not received");
-
-        BMap<String, BValue> deptPerson1 = (BMap<String, BValue>) values[0];
-        BMap<String, BValue> deptPerson2 = (BMap<String, BValue>) values[1];
-
-        Assert.assertEquals(deptPerson1.get("fname").stringValue(), "Alex");
-        Assert.assertEquals(deptPerson1.get("lname").stringValue(), "George");
-        Assert.assertEquals(deptPerson1.get("dept").stringValue(), "HR");
-        Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Operations");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
     @Test(description = "Test outer join clause with record variable definition type 1")
@@ -154,12 +102,6 @@ public class JoinClauseTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test on clause with function")
-    public void testOuterJoinWithOnClauseWithFunction() {
-        BValue[] values = BRunUtil.invoke(result, "testOuterJoinWithOnClauseWithFunction");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
-    }
-
     @Test(description = "Test equals clause with a variable defined from a let clause")
     public void testSimpleJoinClauseWithLetAndEquals() {
         BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithLetAndEquals");
@@ -172,14 +114,15 @@ public class JoinClauseTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test negative scenarios for query expr with join clause")
+    @Test(groups = {"disableOnOldParser"}, description = "Test negative scenarios for query expr with join clause")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 17);
+        Assert.assertEquals(negativeResult.getErrorCount(), 29);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'Department', found 'Person'", 30, 13);
         validateError(negativeResult, i++, "invalid operation: type 'Person' does not support field access for " +
                 "non-required field 'name'", 35, 19);
         validateError(negativeResult, i++, "unknown type 'XYZ'", 53, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 54, 28);
         validateError(negativeResult, i++, "undefined symbol 'deptId'", 77, 11);
         validateError(negativeResult, i++, "undefined symbol 'person'", 77, 25);
         validateError(negativeResult, i++, "undefined symbol 'id'", 100, 11);
@@ -193,6 +136,17 @@ public class JoinClauseTest {
         validateError(negativeResult, i++, "undefined symbol 'name'", 194, 11);
         validateError(negativeResult, i++, "undefined symbol 'deptName'", 194, 23);
         validateError(negativeResult, i++, "undefined symbol 'id'", 218, 23);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'other'", 218, 34);
         validateError(negativeResult, i++, "undefined symbol 'deptName'", 218, 34);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'other'", 250, 1);
+        validateError(negativeResult, i++, "missing equals keyword", 250, 1);
+        validateError(negativeResult, i++, "missing identifier", 250, 1);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'other'", 273, 1);
+        validateError(negativeResult, i++, "missing equals keyword", 273, 1);
+        validateError(negativeResult, i++, "missing identifier", 273, 1);
+        validateError(negativeResult, i++, "missing equals keyword", 293, 1);
+        validateError(negativeResult, i++, "missing identifier", 293, 1);
+        validateError(negativeResult, i++, "missing identifier", 293, 1);
+        validateError(negativeResult, i, "missing on keyword", 293, 1);
     }
 }

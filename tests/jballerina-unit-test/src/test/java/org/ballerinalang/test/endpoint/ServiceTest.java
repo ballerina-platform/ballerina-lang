@@ -43,6 +43,16 @@ public class ServiceTest {
         Assert.assertTrue(output.errorOutput.contains("error: startError"));
     }
 
+    @Test(groups = { "disableOnOldParser" })
+    public void testServiceWithTransactionalKeyword() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_transactional_negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 3);
+        int errIdx = 0;
+        validateError(compileResult, errIdx++, "undefined symbol 'bar'", 1, 16);
+        validateError(compileResult, errIdx++, "undefined annotation 'annot9'", 3, 5);
+        validateError(compileResult, errIdx++, "missing close brace token", 4, 1);
+    }
+
     @Test(expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*error: startError.*")
     public void testServiceInitPanicNegativeTest() {

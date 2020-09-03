@@ -17,10 +17,10 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocumentChange;
-import io.ballerinalang.compiler.text.TextDocuments;
-import io.ballerinalang.compiler.text.TextEdit;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocumentChange;
+import io.ballerina.tools.text.TextDocuments;
+import io.ballerina.tools.text.TextEdit;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -75,8 +77,7 @@ public class BallerinaTriggerModifyUtil {
         BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         String fileName = compilationPath.toFile().getName();
 
-        String fileContent = documentManager.getFileContent(compilationPath);
-        TextDocument oldTextDocument = TextDocuments.from(fileContent);
+        TextDocument oldTextDocument = documentManager.getTree(compilationPath).textDocument();
 
         List<TextEdit> edits =
                 BallerinaTriggerModifyUtil.createTriggerEdits(oldTextDocument, oldTree, type.toUpperCase(), config);
@@ -85,11 +86,12 @@ public class BallerinaTriggerModifyUtil {
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
         TextDocument newTextDoc = oldTextDocument.apply(textDocumentChange);
-        documentManager.updateFile(compilationPath, newTextDoc.toString());
+        documentManager.updateFile(compilationPath, Collections
+                .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
 
         //remove unused imports
         LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
-                false, false, false);
+                                         false, false, false);
         BLangPackage updatedTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
 
         UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor(fileName, new HashMap<>());
@@ -101,7 +103,8 @@ public class BallerinaTriggerModifyUtil {
             textDocumentChange = TextDocumentChange.from(edits.toArray(
                     new TextEdit[0]));
             newTextDoc = newTextDoc.apply(textDocumentChange);
-            documentManager.updateFile(compilationPath, newTextDoc.toString());
+            documentManager.updateFile(compilationPath, Collections
+                    .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
         }
 
         //Format bal file code
@@ -112,7 +115,8 @@ public class BallerinaTriggerModifyUtil {
         formattingUtil.accept(model);
 
         newTextDoc = TextDocuments.from(FormattingSourceGen.getSourceOf(model));
-        documentManager.updateFile(compilationPath, newTextDoc.toString());
+        documentManager.updateFile(compilationPath, Collections
+                .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
 
         astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, newTextDoc.toString());
         return astContext;
@@ -146,16 +150,11 @@ public class BallerinaTriggerModifyUtil {
             if (mainFunction.isPresent()) {
                 //replace main
                 if (MAIN.equalsIgnoreCase(type)) {
-                    edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START",
-                            mainFunction.get().getPosition().getStartLine(),
+                    edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START_MODIFY",
+                            mainFunction.get().getPosition().getStartLine() - 1,
                             mainFunction.get().getPosition().getStartColumn(),
                             mainFunction.get().getBody().getPosition().getStartLine(),
                             mainFunction.get().getBody().getPosition().getStartColumn() + 1));
-                    edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_END",
-                            mainFunction.get().getBody().getPosition().getEndLine(),
-                            mainFunction.get().getBody().getPosition().getEndColumn() - 1,
-                            mainFunction.get().getPosition().getEndLine(),
-                            mainFunction.get().getPosition().getEndColumn()));
                 } else if (SERVICE.equalsIgnoreCase(type)) {
                     Optional<BLangImportPackage> httpImport = oldTree.getImports().stream().
                             filter(aImport -> aImport.getOrgName().getValue().equalsIgnoreCase("ballerina")
@@ -197,16 +196,14 @@ public class BallerinaTriggerModifyUtil {
                                 service.get().getPosition().getEndLine(),
                                 service.get().getPosition().getEndColumn()));
                     } else if (SERVICE.equalsIgnoreCase(type)) {
-                        edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "SERVICE_START",
-                                service.get().getPosition().getStartLine(),
-                                service.get().getPosition().getStartColumn(),
-                                service.get().getResources().get(0).getBody().getPosition().getStartLine() + 1,
-                                service.get().getResources().get(0).getBody().getPosition().getStartColumn()));
-                        edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "SERVICE_END",
-                                service.get().getResources().get(0).getBody().getPosition().getEndLine() - 1,
-                                service.get().getResources().get(0).getBody().getPosition().getEndColumn(),
-                                service.get().getPosition().getEndLine(),
-                                service.get().getPosition().getEndColumn()));
+                        edits.add(BallerinaTreeModifyUtil.createTextEdit(
+                                oldTextDocument,
+                                config,
+                                "SERVICE_START_MODIFY",
+                                service.get().annAttachments.get(0).getPosition().getStartLine(),
+                                service.get().annAttachments.get(0).getPosition().getStartColumn(),
+                                service.get().getResources().get(0).getBody().getPosition().getStartLine(),
+                                service.get().getResources().get(0).getBody().getPosition().getStartColumn() + 1));
                     }
                 } else {
                     throw new RuntimeException("Trigger function not found for replacement!");

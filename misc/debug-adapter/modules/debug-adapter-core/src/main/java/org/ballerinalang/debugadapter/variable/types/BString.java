@@ -17,10 +17,9 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
-import org.eclipse.lsp4j.debug.Variable;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
@@ -30,8 +29,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
  */
 public class BString extends BSimpleVariable {
 
-    public BString(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.STRING, value, dapVariable);
+    public BString(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.STRING, value);
     }
 
     @Override

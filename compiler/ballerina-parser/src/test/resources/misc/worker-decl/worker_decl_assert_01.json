@@ -12,13 +12,8 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -129,10 +124,10 @@
                               ]
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "1"
                                 }
                               ]
@@ -306,10 +301,10 @@
                                           ]
                                         },
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "NUMERIC_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                               "value": "2"
                                             }
                                           ]
@@ -486,10 +481,10 @@
                                           ]
                                         },
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "NUMERIC_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                               "value": "3"
                                             }
                                           ]
@@ -594,10 +589,10 @@
                           ]
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "4"
                             }
                           ]
@@ -632,13 +627,8 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -806,10 +796,10 @@
                                           ]
                                         },
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "NUMERIC_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                               "value": "2"
                                             }
                                           ]
@@ -954,10 +944,10 @@
                                           ]
                                         },
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "NUMERIC_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                               "value": "3"
                                             }
                                           ]
@@ -1062,10 +1052,10 @@
                           ]
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "4"
                             }
                           ]

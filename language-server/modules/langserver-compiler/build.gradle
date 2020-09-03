@@ -32,15 +32,9 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-tools-api')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-http')
-    implementation project(':ballerina-http')
-    implementation project(':ballerina-openapi')
-    implementation project(':ballerina-transactions')
-    // implementation project(':ballerina-grpc')
-    implementation project(':ballerina-filepath')
-    implementation project(':ballerina-nats')
     testCompile 'org.testng:testng'
 }
 

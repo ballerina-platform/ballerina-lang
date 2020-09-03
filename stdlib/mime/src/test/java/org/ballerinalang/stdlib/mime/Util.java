@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.mime;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.jvm.BallerinaValues;
@@ -34,6 +33,7 @@ import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
@@ -129,8 +129,7 @@ public class Util {
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(createMediaTypeObject(), bodyPart, TEXT_PLAIN);
-            HeaderUtil.setHeaderToEntity(bodyPart, HttpHeaderNames.CONTENT_TRANSFER_ENCODING.toString(),
-                                         contentTransferEncoding);
+            HeaderUtil.setHeaderToEntity(bodyPart, MimeConstants.CONTENT_TRANSFER_ENCODING, contentTransferEncoding);
             return bodyPart;
         } catch (IOException e) {
             LOG.error("Error occurred while creating a temp file for json file part in getTextFilePart",

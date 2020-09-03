@@ -10,15 +10,15 @@
     {
       "range": {
         "start": {
-          "line": 47,
-          "character": 20
+          "line": 17,
+          "character": 27
         },
         "end": {
-          "line": 47,
-          "character": 26
+          "line": 17,
+          "character": 31
         }
       },
-      "uri": "src/ballerina_http_1.0.0/client_endpoint.bal"
+      "uri": "src/ballerina_module1_0.1.0/clients/source1.bal"
     }
   ]
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
- 
+
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
@@ -26,12 +26,17 @@ configurations.all {
 
 dependencies {
     baloCreat project(':lib-creator')
+
+    shadow 'com.google.code.gson:gson'
     shadow project(':ballerina-core')
     shadow project(':ballerina-lang')
     shadow project(':ballerina-lang:annotations')
-    shadow 'com.google.code.gson:gson'
+
     implementation 'io.opentracing:opentracing-mock'
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-java')
+
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - Observability - Tracing Test Utils'

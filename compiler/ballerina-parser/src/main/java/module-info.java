@@ -1,5 +1,4 @@
 module io.ballerina.parser {
-    exports io.ballerinalang.compiler.text;
+    requires io.ballerina.tools.api;
     exports io.ballerinalang.compiler.syntax.tree;
-    exports io.ballerinalang.compiler.diagnostics;
 }

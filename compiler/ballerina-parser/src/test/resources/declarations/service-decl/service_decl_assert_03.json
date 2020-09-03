@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "SERVICE_KEYWORD",
       "isMissing": true,
       "hasDiagnostics": true,
@@ -42,20 +33,15 @@
       "kind": "LIST",
       "children": [
         {
-          "kind": "EXPRESSION_LIST_ITEM",
+          "kind": "SIMPLE_NAME_REFERENCE",
           "children": [
             {
-              "kind": "SIMPLE_NAME_REFERENCE",
-              "children": [
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "someListner",
+              "trailingMinutiae": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "someListner",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ]
             }

@@ -33,7 +33,7 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
 
     private static final int LOG_LEECHER_TIMEOUT = 10000;
 
-    @Test
+    @Test(enabled = false)
     public void testNoArg() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[] { "test_main_with_no_params.bal" },
@@ -44,7 +44,7 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
         Assert.assertTrue(output.endsWith("1"));
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultipleParam() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] {

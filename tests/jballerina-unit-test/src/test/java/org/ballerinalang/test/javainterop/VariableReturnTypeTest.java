@@ -126,7 +126,8 @@ public class VariableReturnTypeTest {
                 {"testFunctionPointers"},
                 {"testTypedesc"},
                 {"testFuture"},
-                {"testComplexTypes"}
+                {"testComplexTypes"},
+                {"testObjectExternFunctions"}
         };
     }
 }

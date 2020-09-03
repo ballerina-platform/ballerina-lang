@@ -1,0 +1,22 @@
+[project]
+org-name= "suganya"
+version= "0.1.0"
+
+[dependencies]
+
+[platform]
+target = "java8"
+
+    [[platform.repositories]]
+        id="wso2-releases"
+        url="http://maven.wso2.org/nexus/content/repositories/releases/"
+
+    [[platform.libraries]]
+        artifactId = "maven-artifact"
+        groupId = "org.apache.maven"
+        version = "3.6.3"
+
+    [[platform.libraries]]
+        artifactId = "wso2-cassandra"
+        groupId = "org.ballerinalang"
+        version = "0.8.3"

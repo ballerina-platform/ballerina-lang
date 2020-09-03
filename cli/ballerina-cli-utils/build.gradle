@@ -30,7 +30,6 @@ dependencies {
     implementation project(":ballerina-auth")
     implementation project(":ballerina-cache")
     implementation project(":ballerina-config-api")
-    implementation project(':ballerina-math')
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')

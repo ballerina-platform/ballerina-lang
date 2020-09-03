@@ -15,29 +15,20 @@
  */
 package org.ballerinalang.langserver.util;
 
-import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.LinePosition;
-import io.ballerinalang.compiler.text.TextDocument;
-import org.antlr.v4.runtime.Token;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -56,7 +47,7 @@ public class TokensUtil {
      * @return Token at position
      * @throws WorkspaceDocumentException while retrieving the syntax tree from the document manager
      */
-    public static io.ballerinalang.compiler.syntax.tree.Token findTokenAtPosition(LSContext context, Position position)
+    public static Token findTokenAtPosition(LSContext context, Position position)
             throws WorkspaceDocumentException, TokenOrSymbolNotFoundException {
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
@@ -67,7 +58,7 @@ public class TokensUtil {
         TextDocument textDocument = syntaxTree.textDocument();
 
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
-        io.ballerinalang.compiler.syntax.tree.Token tokenAtPosition =
+        Token tokenAtPosition =
                 ((ModulePartNode) syntaxTree.rootNode()).findToken(
                         txtPos);
 
@@ -75,207 +66,6 @@ public class TokensUtil {
             throw new TokenOrSymbolNotFoundException("Couldn't find a valid identifier token at position!");
         }
 
-        int tokenType;
-        //TODO: Remove this, added for the backward compatibility of code
-        NonTerminalNode nodeAtCursor = getNodeAtCursor(tokenAtPosition);
-        switch (nodeAtCursor.kind()) {
-            case COLON_TOKEN:
-                tokenType = BallerinaParser.COLON;
-                break;
-            case RIGHT_ARROW_TOKEN:
-                tokenType = BallerinaParser.RARROW;
-                break;
-            case DOT_TOKEN:
-                tokenType = BallerinaParser.DOT;
-                break;
-            default:
-                tokenType = -1;
-                break;
-        }
-        context.put(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY, tokenType);
         return tokenAtPosition;
-    }
-
-    private static NonTerminalNode getNodeAtCursor(io.ballerinalang.compiler.syntax.tree.Token tokenAtCursor) {
-        NonTerminalNode parent = tokenAtCursor.parent();
-
-        while (!(parent instanceof ModuleMemberDeclarationNode) && !(parent instanceof StatementNode)) {
-            parent = parent.parent();
-        }
-
-        return parent;
-    }
-
-    /**
-     * Search and sets the token at cursor into LSContext.
-     *
-     * @param content content
-     * @param context   {@link LSContext}
-     * @param pos {@link Position}
-     */
-    @Deprecated
-    public static void searchTokenAtCursor(String content, LSContext context, Position pos) {
-        // TODO: 1/23/19 Check what happens when the content is not a valid compilation unit and when there are errors
-        List<Token> tokenList = CommonUtil.getTokenList(content);
-        Boolean nextBest = context.get(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST);
-        Optional<Token> tokenAtCursor = searchTokenAtCursor(context, tokenList, pos.getLine(), pos.getCharacter(), true,
-                                                            (nextBest == null) ? false : nextBest);
-        tokenAtCursor.ifPresent(token -> {
-            int tokenIndex = token.getTokenIndex() - 1;
-            int tokenType = -1;
-            if (tokenIndex > 0) {
-                tokenType = tokenList.get(tokenIndex).getType();
-            }
-            context.put(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY, tokenType);
-        });
-    }
-
-    /**
-     * Search the token at a given cursor position.
-     *
-     * @param context  {@link LSContext}
-     * @param tokenList List of tokens in the current compilation unit's source
-     * @param cLine     Cursor line
-     * @param cCol      cursor column
-     * @return {@link Optional}
-     */
-    @Deprecated
-    public static Optional<Token> searchTokenAtCursor(LSContext context, List<Token> tokenList, int cLine, int cCol,
-                                                      boolean identifiersOnly, boolean offsetAndTryNextBest) {
-        return searchTokenAtCursor(context, tokenList, 0, tokenList.size(), cLine, cCol, identifiersOnly,
-                                   offsetAndTryNextBest);
-    }
-
-    private static Optional<Token> searchTokenAtCursor(LSContext context,
-                                                       List<Token> tokenList, int start, int end, int cLine, int cCol,
-                                                       boolean identifiersOnly, boolean offsetAndTryNextBest) {
-        if (tokenList.isEmpty()) {
-            return Optional.empty();
-        }
-        if (start < 0 || end > tokenList.size()) {
-            return Optional.empty();
-        }
-        int tokenIndex = start + ((end - start) / 2);
-        if (tokenIndex == end) {
-            return Optional.empty();
-        }
-        TokensUtil.TokenPosition position = locateTokenAtCursor(tokenList.get(tokenIndex), cLine, cCol,
-                                                                identifiersOnly, offsetAndTryNextBest);
-
-        switch (position) {
-            case THIS_TOKEN:
-                // found the token and return it
-                return Optional.ofNullable(tokenList.get(tokenIndex));
-            case NEXT_TOKEN:
-                // Should only consider when offsetAndTryNextBest is set
-                if (!offsetAndTryNextBest) {
-                    return Optional.empty();
-                }
-                // Loop and find a matching token
-                Token nextToken = tokenList.get(tokenIndex);
-                Boolean findLiteralsObj = context.get(ReferencesKeys.ENABLE_FIND_LITERALS);
-                boolean findLiterals = findLiteralsObj != null ? findLiteralsObj : false;
-                boolean isValid = isValidToken(nextToken, findLiterals);
-                while (nextToken != null && !isValid) {
-                    // Incrementally find a valid next token
-                    tokenIndex++;
-                    nextToken = (tokenList.size() > tokenIndex) ? tokenList.get(tokenIndex) : null;
-                    if (nextToken != null && nextToken.getLine() - 1 != cLine) {
-                        // Break, To avoid iterating next lines
-                        nextToken = null;
-                    }
-                    isValid = isValidToken(nextToken, findLiterals);
-                }
-                if (nextToken != null) {
-                    // Offset cursor position to allow SymbolRefVisitor to mark this as cursor symbol.
-                    TextDocumentPositionParams positionParams = context.get(DocumentServiceKeys.POSITION_KEY);
-                    positionParams.setPosition(
-                            new Position(nextToken.getLine() - 1, nextToken.getCharPositionInLine()));
-                    context.put(DocumentServiceKeys.POSITION_KEY, positionParams);
-                }
-                return Optional.ofNullable(nextToken);
-            case LEFT_SIDE:
-                return searchTokenAtCursor(context, tokenList, start, tokenIndex, cLine, cCol, identifiersOnly,
-                                           offsetAndTryNextBest);
-            default:
-                return searchTokenAtCursor(context, tokenList, tokenIndex + 1, end, cLine, cCol,
-                                           identifiersOnly, offsetAndTryNextBest);
-        }
-    }
-
-    private static boolean isValidToken(Token nextToken, boolean findLiterals) {
-        if (nextToken == null) {
-            return false;
-        }
-        boolean defaultChannel = nextToken.getChannel() == Token.DEFAULT_CHANNEL;
-        boolean isARecordStart = nextToken.getType() == BallerinaParser.LEFT_BRACE;
-        boolean isACastStart = nextToken.getType() == BallerinaParser.LT;
-        boolean isAnArrayStart = nextToken.getType() == BallerinaParser.LEFT_BRACKET;
-        boolean isAFunction = nextToken.getType() == BallerinaParser.FUNCTION;
-        boolean isAFromClause = nextToken.getType() == BallerinaParser.FROM;
-        boolean isALiteral = nextToken.getType() == BallerinaParser.DecimalIntegerLiteral ||
-                nextToken.getType() == BallerinaParser.HexIntegerLiteral ||
-                nextToken.getType() == BallerinaParser.HexadecimalFloatingPointLiteral ||
-                nextToken.getType() == BallerinaParser.DecimalFloatingPointNumber ||
-                nextToken.getType() == BallerinaParser.DecimalExtendedFloatingPointNumber ||
-                nextToken.getType() == BallerinaParser.BooleanLiteral ||
-                nextToken.getType() == BallerinaParser.QuotedStringLiteral ||
-                nextToken.getType() == BallerinaParser.Base16BlobLiteral ||
-                nextToken.getType() == BallerinaParser.Base64BlobLiteral ||
-                nextToken.getType() == BallerinaParser.NullLiteral ||
-                nextToken.getType() == BallerinaParser.XMLLiteralStart ||
-                nextToken.getType() == BallerinaParser.StringTemplateLiteralStart;
-        return defaultChannel &&
-                ((findLiterals && (isAFromClause || isACastStart || isARecordStart || isAnArrayStart || isAFunction ||
-                        isALiteral)) || nextToken.getType() == BallerinaParser.Identifier);
-    }
-
-    private static TokenPosition locateTokenAtCursor(Token token, int cLine, int cCol, boolean identifiersOnly,
-                                                     boolean tryNextBest) {
-        int tokenLine = token.getLine() - 1;
-        int tokenStartCol = token.getCharPositionInLine();
-        int tokenEndCol = tokenStartCol +
-                ((token.getText().equals("\r\n") || token.getText().equals("\n")) ? 0 : token.getText().length());
-
-        if (identifiersOnly) {
-            return locateIdentifierTokenAtCursor(token, cLine, cCol, tokenLine, tokenStartCol, tokenEndCol,
-                                                 tryNextBest);
-        }
-        
-        /*
-        Token which is considered as the token at cursor is the token immediate before the cursor,
-         where its end column is cursor column 
-         */
-        if (tokenLine == cLine && tokenStartCol < cCol && tokenEndCol >= cCol
-                && token.getType() != BallerinaParser.NEW_LINE) {
-            return TokenPosition.THIS_TOKEN;
-        } else if (cLine > tokenLine || (tokenLine == cLine && cCol > tokenEndCol)) {
-            return TokenPosition.RIGHT_SIDE;
-        } else {
-            return TokenPosition.LEFT_SIDE;
-        }
-    }
-
-    private static TokenPosition locateIdentifierTokenAtCursor(Token token, int cLine, int cCol, int tokenLine,
-                                                               int tokenStartCol, int tokenEndCol,
-                                                               boolean tryNextBest) {
-        // NOTE: handles 'new' symbol specifically
-        boolean isValid = token.getType() == BallerinaParser.Identifier ||
-                CommonKeys.NEW_KEYWORD_KEY.equals(token.getText());
-        if (tokenLine == cLine && tokenStartCol <= cCol && tokenEndCol >= cCol) {
-            return (isValid) ? TokenPosition.THIS_TOKEN :
-                    ((tryNextBest) ? TokenPosition.NEXT_TOKEN : TokenPosition.LEFT_SIDE);
-        } else if (cLine > tokenLine || (tokenLine == cLine && cCol >= tokenEndCol)) {
-            return TokenPosition.RIGHT_SIDE;
-        } else {
-            return TokenPosition.LEFT_SIDE;
-        }
-    }
-
-    private enum TokenPosition {
-        THIS_TOKEN,
-        NEXT_TOKEN,
-        LEFT_SIDE,
-        RIGHT_SIDE
     }
 }

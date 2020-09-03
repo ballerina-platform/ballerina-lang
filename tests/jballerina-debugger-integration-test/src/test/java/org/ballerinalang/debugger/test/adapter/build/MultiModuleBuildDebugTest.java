@@ -35,6 +35,7 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 /**
  * Test class for multi module related debug scenarios for build command.
  */
+@Test(enabled = false)
 public class MultiModuleBuildDebugTest extends DebugAdapterBaseTestCase {
 
     private String projectPath;
@@ -50,7 +51,7 @@ public class MultiModuleBuildDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultiModuleBuildDebugScenarios() throws BallerinaTestException {
         int port = findFreePort();
         runDebuggeeProgram(projectPath, port);

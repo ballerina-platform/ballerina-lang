@@ -3,20 +3,16 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -139,15 +135,6 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
                               "kind": "INT_TYPE_DESC",
                               "children": [
                                 {
@@ -187,8 +174,13 @@
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
-                                    "kind": "DECIMAL_INTEGER_LITERAL",
-                                    "value": "7"
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "children": [
+                                      {
+                                        "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                        "value": "7"
+                                      }
+                                    ]
                                   }
                                 }
                               ],

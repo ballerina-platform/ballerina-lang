@@ -15,8 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -36,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -48,6 +47,10 @@ import java.util.stream.Collectors;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class OptimizeAllImportsCodeAction extends AbstractCodeActionProvider {
     private static final String UNUSED_IMPORT_MODULE = "unused import module";
+    private static final String IMPORT_KW = "import";
+    private static final String VERSION_KW = "version";
+    private static final String ORG_SEPARATOR = "/";
+    private static final String ALIAS_SEPARATOR = "as";
 
     public OptimizeAllImportsCodeAction() {
         super(Collections.singletonList(CodeActionNodeType.IMPORTS));
@@ -67,7 +70,7 @@ public class OptimizeAllImportsCodeAction extends AbstractCodeActionProvider {
             return actions;
         }
 
-        List<Pair<String, String>> toBeRemovedImports = new ArrayList<>();
+        List<String[]> toBeRemovedImports = new ArrayList<>();
 
         // Filter unused imports
         for (Diagnostic diagnostic : allDiagnostics) {
@@ -75,13 +78,16 @@ public class OptimizeAllImportsCodeAction extends AbstractCodeActionProvider {
                 Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diagnostic.getMessage());
                 if (matcher.find()) {
                     String pkgName = matcher.group(1).trim();
-                    String version = matcher.groupCount() > 1 && matcher.group(2) != null ? ":" + matcher.group(2) :
-                            "";
-                    int aliasIndex = version.indexOf(" as ");
+                    String version = matcher.groupCount() > 1 && matcher.group(2) != null ? matcher.group(2) : "";
+                    String alias = matcher.groupCount() > 2 && matcher.group(3) != null
+                            ? matcher.group(3).replace(ALIAS_SEPARATOR + " ", "")
+                            : "";
+                    int aliasIndex = version.indexOf(" " + ALIAS_SEPARATOR + " ");
                     if (aliasIndex > 0) {
+                        alias = version.substring(aliasIndex + 1).replace(ALIAS_SEPARATOR + " ", "");
                         version = version.substring(0, aliasIndex);
                     }
-                    toBeRemovedImports.add(new ImmutablePair<>(pkgName, version));
+                    toBeRemovedImports.add(new String[]{pkgName, version, alias});
                 }
             }
         }
@@ -91,30 +97,34 @@ public class OptimizeAllImportsCodeAction extends AbstractCodeActionProvider {
             return actions;
         }
 
+        List<TextEdit> edits = new ArrayList<>();
+
         // Find the imports range
         int importSLine = fileImports.get(0).pos.sLine - 1;
-        int importELine = fileImports.get(0).pos.eLine - 1;
-        int importSCol = fileImports.get(0).pos.sCol - 1;
-        int importECol = fileImports.get(0).pos.eCol - 1;
+        List<Range> importLines = new ArrayList<>();
         for (int i = 0; i < fileImports.size(); i++) {
             BLangImportPackage importPkg = fileImports.get(i);
             DiagnosticPos pos = importPkg.getPosition();
             String orgName = importPkg.orgName.value;
-            String alias = importPkg.alias.value;
+            String pkgName = importPkg.pkgNameComps.stream().map(s -> s.value).collect(Collectors.joining("."));
+            String alias = (pkgName.equals(importPkg.alias.value)) ? "" : importPkg.alias.value;
             String version = importPkg.version.value;
+
+            // Get imports starting line
             if (importSLine > pos.sLine) {
-                importSLine = pos.sLine;
+                importSLine = pos.sLine - 1;
             }
-            if (importELine < pos.eLine) {
-                importELine = pos.eLine;
-            }
-            if (importECol < pos.eCol) {
-                importECol = pos.eCol;
-            }
+
+            // Mark locations of the imports
+            Range range = new Range(new Position(pos.sLine - 1, pos.sCol - 1),
+                                    new Position(pos.eLine - 1, pos.eCol - 1));
+            importLines.add(range);
+
             // Remove any matching imports on-the-go
             boolean rmMatched = toBeRemovedImports.stream()
-                    .anyMatch(rmImport -> rmImport.getLeft().equals(orgName + "/" + alias) &&
-                            rmImport.getRight().equals(version));
+                    .anyMatch(rmImport -> rmImport[0].equals(orgName + ORG_SEPARATOR + pkgName) &&
+                            rmImport[1].equals(version) && rmImport[2].equals(alias)
+                    );
             if (rmMatched) {
                 fileImports.remove(i);
                 i--;
@@ -127,21 +137,43 @@ public class OptimizeAllImportsCodeAction extends AbstractCodeActionProvider {
                                 .thenComparing(o -> o.getAlias().value))
                 .collect(Collectors.toList());
 
-        // Create imports list text
-        StringBuilder editText = new StringBuilder();
-        for (BLangImportPackage importPkg : orderedImports) {
-            editText.append("import ").append(importPkg.orgName.value).append("/").append(importPkg.alias.value);
-            String version = importPkg.version.value;
-            if (!version.isEmpty()) {
-                editText.append(" version ").append(version);
+        // Mark import removal ranges
+        Range txtTange = null;
+        for (Range importRange : importLines) {
+            if (txtTange != null && importRange.getStart().getLine() != txtTange.getEnd().getLine() + 1) {
+                edits.add(new TextEdit(new Range(txtTange.getStart(), txtTange.getEnd()), ""));
+                txtTange = importRange;
+            } else {
+                if (txtTange == null) {
+                    txtTange = importRange;
+                } else {
+                    txtTange.setEnd(importRange.getEnd());
+                }
             }
-            editText.append(";").append(System.lineSeparator());
+        }
+        if (txtTange != null) {
+            edits.add(new TextEdit(new Range(txtTange.getStart(), txtTange.getEnd()), ""));
         }
 
-        String commandTitle = CommandConstants.OPTIMIZE_IMPORTS_TITLE;
-        Range range = new Range(new Position(importSLine, importSCol), new Position(importELine, importECol));
-        List<TextEdit> edits = Collections.singletonList(new TextEdit(range, editText.toString()));
-        actions.add(createQuickFixCodeAction(commandTitle, edits, uri));
+        // Re-create imports list text
+        StringJoiner editText = new StringJoiner(System.lineSeparator());
+        for (BLangImportPackage importPkg : orderedImports) {
+            String pkgName = importPkg.pkgNameComps.stream().map(s -> s.value).collect(Collectors.joining("."));
+            String alias = (pkgName.equals(importPkg.alias.value)) ? "" : importPkg.alias.value;
+            String version = importPkg.version.value;
+            String importText = IMPORT_KW + " " + importPkg.orgName.value + ORG_SEPARATOR + pkgName;
+            if (!version.isEmpty()) {
+                importText += " " + VERSION_KW + " " + version;
+            }
+            if (!alias.isEmpty()) {
+                importText += " " + ALIAS_SEPARATOR + " " + alias;
+            }
+            importText += ";";
+            editText.add(importText);
+        }
+        Position position = new Position(importSLine, 0);
+        edits.add(new TextEdit(new Range(position, position), editText.toString()));
+        actions.add(createQuickFixCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri));
         return actions;
     }
 

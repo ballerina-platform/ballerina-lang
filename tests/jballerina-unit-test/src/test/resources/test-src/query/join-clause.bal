@@ -29,11 +29,7 @@ returns DeptPersonValue? {
     }
 }
 
-function condition(string name) returns boolean{
-    return name == "Alex";
-}
-
-function testSimpleJoinClauseWithRecordVariable() returns DeptPerson[]{
+function testSimpleJoinClauseWithRecordVariable() returns boolean {
     Person p1 = {id: 1, fname: "Alex", lname: "George"};
     Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
 
@@ -53,10 +49,20 @@ function testSimpleJoinClauseWithRecordVariable() returns DeptPerson[]{
            dept : dept.name
        };
 
-    return deptPersonList;
+    boolean testPassed = true;
+    DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
+    testPassed = testPassed && deptPersonList.length() == 2;
+    dp = deptPersonList[0];
+    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
+    dp = deptPersonList[1];
+    testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept == "Operations";
+    return testPassed;
 }
 
-function testSimpleJoinClauseWithRecordVariable2() returns DeptPerson[]{
+function testSimpleJoinClauseWithRecordVariable2() returns boolean {
     Person p1 = {id: 1, fname: "Alex", lname: "George"};
     Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
 
@@ -76,10 +82,20 @@ function testSimpleJoinClauseWithRecordVariable2() returns DeptPerson[]{
            dept : deptName
        };
 
-    return deptPersonList;
+    boolean testPassed = true;
+    DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
+    testPassed = testPassed && deptPersonList.length() == 2;
+    dp = deptPersonList[0];
+    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
+    dp = deptPersonList[1];
+    testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept == "Operations";
+    return testPassed;
 }
 
-function testSimpleJoinClauseWithRecordVariable3() returns DeptPerson[]{
+function testSimpleJoinClauseWithRecordVariable3() returns boolean {
     Person p1 = {id: 1, fname: "Alex", lname: "George"};
     Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
 
@@ -91,7 +107,7 @@ function testSimpleJoinClauseWithRecordVariable3() returns DeptPerson[]{
 
     DeptPerson[] deptPersonList =
        from var person in personList
-       join var {id,name} in deptList
+       join var {id, name} in deptList
        on person.id equals id
        select {
            fname : person.fname,
@@ -99,7 +115,17 @@ function testSimpleJoinClauseWithRecordVariable3() returns DeptPerson[]{
            dept : name
        };
 
-    return deptPersonList;
+    boolean testPassed = true;
+    DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
+    testPassed = testPassed && deptPersonList.length() == 2;
+    dp = deptPersonList[0];
+    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
+    dp = deptPersonList[1];
+    testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept == "Operations";
+    return testPassed;
 }
 
 function testJoinClauseWithStream() returns boolean {
@@ -134,7 +160,7 @@ function testJoinClauseWithStream() returns boolean {
     return testPassed;
 }
 
-function testJoinClauseWithLimit() returns DeptPerson[]{
+function testJoinClauseWithLimit() returns boolean {
     Person p1 = {id: 1, fname: "Alex", lname: "George"};
     Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
 
@@ -155,40 +181,26 @@ function testJoinClauseWithLimit() returns DeptPerson[]{
        }
        limit 1;
 
-    return deptPersonList;
-}
-
-function testOnClauseWithFunction() returns DeptPerson[]{
-    Person p1 = {id: 1, fname: "Alex", lname: "George"};
-    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
-
-    Department d1 = {id: 1, name:"HR"};
-    Department d2 = {id: 2, name:"Operations"};
-
-    Person[] personList = [p1, p2];
-    Department[] deptList = [d1, d2];
-
-    DeptPerson[] deptPersonList =
-       from var person in personList
-       join Department dept in deptList
-       on condition(person.fname)
-       select {
-           fname : person.fname,
-           lname : person.lname,
-           dept : dept.name
-       };
-
-    return deptPersonList;
+    boolean testPassed = true;
+    DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
+    testPassed = testPassed && deptPersonList.length() == 1;
+    dp = deptPersonList[0];
+    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
+    return testPassed;
 }
 
 function testOuterJoinClauseWithRecordVariable() returns boolean {
     Person p1 = {id: 1, fname: "Alex", lname: "George"};
     Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+    Person p3 = {id: 3, fname: "Grainier", lname: "Perera"};
 
     Department d1 = {id: 1, name:"HR"};
     Department d2 = {id: 2, name:"Operations"};
 
-    Person[] personList = [p1, p2];
+    Person[] personList = [p1, p2, p3];
     Department[] deptList = [d1, d2];
 
     DeptPerson[] deptPersonList =
@@ -206,26 +218,25 @@ function testOuterJoinClauseWithRecordVariable() returns boolean {
     any res = deptPersonList;
     testPassed = testPassed && res is DeptPerson[];
     testPassed = testPassed && res is (any|error)[];
-    testPassed = testPassed && deptPersonList.length() == 4;
+    testPassed = testPassed && deptPersonList.length() == 3;
     dp = deptPersonList[0];
     testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
     dp = deptPersonList[1];
-    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept is ();
-    dp = deptPersonList[2];
-    testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept is ();
-    dp = deptPersonList[3];
     testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept == "Operations";
+    dp = deptPersonList[2];
+    testPassed = testPassed && dp.fname == "Grainier" && dp.lname == "Perera" && dp.dept is ();
     return testPassed;
 }
 
 function testOuterJoinClauseWithRecordVariable2() returns boolean {
     Person p1 = {id: 1, fname: "Alex", lname: "George"};
     Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+    Person p3 = {id: 3, fname: "Grainier", lname: "Perera"};
 
     Department d1 = {id: 1, name:"HR"};
     Department d2 = {id: 2, name:"Operations"};
 
-    Person[] personList = [p1, p2];
+    Person[] personList = [p1, p2, p3];
     Department[] deptList = [d1, d2];
 
     DeptPerson[] deptPersonList =
@@ -243,26 +254,25 @@ function testOuterJoinClauseWithRecordVariable2() returns boolean {
     any res = deptPersonList;
     testPassed = testPassed && res is DeptPerson[];
     testPassed = testPassed && res is (any|error)[];
-    testPassed = testPassed && deptPersonList.length() == 4;
+    testPassed = testPassed && deptPersonList.length() == 3;
     dp = deptPersonList[0];
     testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
     dp = deptPersonList[1];
-    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept is ();
-    dp = deptPersonList[2];
-    testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept is ();
-    dp = deptPersonList[3];
     testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept == "Operations";
+    dp = deptPersonList[2];
+    testPassed = testPassed && dp.fname == "Grainier" && dp.lname == "Perera" && dp.dept is ();
     return testPassed;
 }
 
 function testOuterJoinClauseWithRecordVariable3() returns boolean {
     Person p1 = {id: 1, fname: "Alex", lname: "George"};
     Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+    Person p3 = {id: 3, fname: "Grainier", lname: "Perera"};
 
     Department d1 = {id: 1, name:"HR"};
     Department d2 = {id: 2, name:"Operations"};
 
-    Person[] personList = [p1, p2];
+    Person[] personList = [p1, p2, p3];
     Department[] deptList = [d1, d2];
 
     DeptPerson[] deptPersonList =
@@ -280,15 +290,13 @@ function testOuterJoinClauseWithRecordVariable3() returns boolean {
     any res = deptPersonList;
     testPassed = testPassed && res is DeptPerson[];
     testPassed = testPassed && res is (any|error)[];
-    testPassed = testPassed && deptPersonList.length() == 4;
+    testPassed = testPassed && deptPersonList.length() == 3;
     dp = deptPersonList[0];
     testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
     dp = deptPersonList[1];
-    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept is ();
-    dp = deptPersonList[2];
-    testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept is ();
-    dp = deptPersonList[3];
     testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept == "Operations";
+    dp = deptPersonList[2];
+    testPassed = testPassed && dp.fname == "Grainier" && dp.lname == "Perera" && dp.dept is ();
     return testPassed;
 }
 
@@ -352,44 +360,7 @@ function testOuterJoinClauseWithLimit() returns boolean {
     dp = deptPersonList[0];
     testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
     dp = deptPersonList[1];
-    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept is ();
-    return testPassed;
-}
-
-function testOuterJoinWithOnClauseWithFunction() returns boolean {
-    Person p1 = {id: 1, fname: "Alex", lname: "George"};
-    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
-
-    Department d1 = {id: 1, name:"HR"};
-    Department d2 = {id: 2, name:"Operations"};
-
-    Person[] personList = [p1, p2];
-    Department[] deptList = [d1, d2];
-
-    DeptPerson[] deptPersonList =
-       from var person in personList
-       outer join Department dept in deptList
-       on condition(person.fname)
-       select {
-           fname : person.fname,
-           lname : person.lname,
-           dept : dept.name
-       };
-
-    boolean testPassed = true;
-    DeptPerson dp;
-    any res = deptPersonList;
-    testPassed = testPassed && res is DeptPerson[];
-    testPassed = testPassed && res is (any|error)[];
-    testPassed = testPassed && deptPersonList.length() == 4;
-    dp = deptPersonList[0];
-    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
-    dp = deptPersonList[1];
-    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "Operations";
-    dp = deptPersonList[2];
-    testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept is ();
-    dp = deptPersonList[3];
-    testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept is ();
+    testPassed = testPassed && dp.fname == "Ranjan" && dp.lname == "Fonseka" && dp.dept == "Operations";
     return testPassed;
 }
 

@@ -19,8 +19,6 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.observability.metrics.Gauge;
 import org.ballerinalang.jvm.observability.metrics.Snapshot;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 /**
@@ -31,10 +29,9 @@ import org.ballerinalang.jvm.values.ObjectValue;
 
 public class GaugeGetSnapshot {
 
-    public static Object getSnapshot(Strand strand, ObjectValue guageObj) {
+    public static Object getSnapshot(ObjectValue guageObj) {
         Gauge gauge = (Gauge) guageObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         Snapshot[] snapshots = gauge.getSnapshots();
-        ArrayValue bSnapshots = Utils.createBSnapshots(snapshots, strand);
-        return bSnapshots;
+        return Utils.createBSnapshots(snapshots);
     }
 }

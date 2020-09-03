@@ -25,35 +25,11 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':testerina:testerina-runtime')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-auth')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-config-api')
-    implementation project(':ballerina-crypto')
-    implementation project(':ballerina-email')
-    implementation project(':ballerina-file')
-    // implementation project(':ballerina-grpc')
-    implementation project(':ballerina-http')
-    implementation project(':ballerina-io')
-    implementation project(':ballerina-log-api')
-    implementation project(':ballerina-math')
-    implementation project(':ballerina-mime')
-    implementation project(':ballerina-reflect')
     implementation project(':ballerina-runtime-api')
-    implementation project(':ballerina-system')
-    implementation project(':ballerina-openapi')
-    implementation project(':ballerina-task')
-    implementation project(':ballerina-time')
-    implementation project(':ballerina-transactions')
-    implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
-    implementation project(':ballerina-tool')
-    implementation project(':ballerina-cache')
     implementation project(':ballerina-java')
-    implementation 'info.picocli:picocli'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.testng:testng'
-
-    interopImports project(':ballerina-io')
 
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.swagger.core.v3:swagger-models'
@@ -61,9 +37,6 @@ dependencies {
     testCompile 'com.github.jknack:handlebars'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-reflect')

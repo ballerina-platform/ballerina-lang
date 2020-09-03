@@ -135,9 +135,6 @@ public class LSCompilerUtil {
         options.put(SKIP_TESTS, String.valueOf(false));
         options.put(TOOLING_COMPILATION, String.valueOf(stopOnSemanticErrors));
 
-        // In order to capture the syntactic errors, need to go through the default error strategy
-        context.put(DefaultErrorStrategy.class, null);
-
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).clearAll();
         }

@@ -32,7 +32,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
         super(internalNode, position, parent);
     }
 
-    public Node functionName() {
+    public NameReferenceNode functionName() {
         return childInBucket(0);
     }
 
@@ -68,7 +68,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
     }
 
     public FunctionCallExpressionNode modify(
-            Node functionName,
+            NameReferenceNode functionName,
             Token openParenToken,
             SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
@@ -98,7 +98,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
      */
     public static class FunctionCallExpressionNodeModifier {
         private final FunctionCallExpressionNode oldNode;
-        private Node functionName;
+        private NameReferenceNode functionName;
         private Token openParenToken;
         private SeparatedNodeList<FunctionArgumentNode> arguments;
         private Token closeParenToken;
@@ -112,7 +112,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
         }
 
         public FunctionCallExpressionNodeModifier withFunctionName(
-                Node functionName) {
+                NameReferenceNode functionName) {
             Objects.requireNonNull(functionName, "functionName must not be null");
             this.functionName = functionName;
             return this;

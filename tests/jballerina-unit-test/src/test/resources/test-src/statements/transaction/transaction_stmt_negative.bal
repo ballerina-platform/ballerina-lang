@@ -278,3 +278,27 @@ function func1(string str) returns string {
 transactional function func2(string str) returns string {
  return str + " -> within Trx Func";
 }
+
+type Bank client object {
+    remote transactional function deposit(string str) returns string {
+        return str + "-> deposit trx func ";
+    }
+
+    function doTransaction() {
+        string str = "";
+        transaction {
+            checkpanic commit;
+            var balance = checkBalance(str);
+            var amount = self->deposit(str);
+        }
+    }
+};
+
+transactional function checkBalance(string str) returns string {
+    return str + "-> check balance function ";
+}
+
+function testInvokeRemoteTransactionalMethodInNonTransactionalScope() returns Bank {
+    Bank bank = new;
+    return bank;
+}

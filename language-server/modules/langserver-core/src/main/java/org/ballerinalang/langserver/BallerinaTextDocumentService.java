@@ -16,11 +16,11 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
@@ -33,13 +33,11 @@ import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
@@ -53,7 +51,6 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
-import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
@@ -89,7 +86,6 @@ import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
@@ -102,7 +98,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -180,7 +175,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
 
             try {
-                CompletionUtil.pruneSource(context);
                 LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
@@ -193,12 +187,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String msg = "Operation 'text/completion' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
             } finally {
-                try {
-                    docManager.resetPrunedContent(Paths.get(URI.create(fileUri)));
-                } catch (WorkspaceDocumentException e) {
-                    logError("Error resetting pruned state. ", e, position.getTextDocument(),
-                            position.getPosition());
-                }
                 lock.ifPresent(Lock::unlock);
             }
             return Either.forLeft(completions);
@@ -260,8 +248,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 // Prune the source and compile
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                                                                             LSCustomErrorStrategy.class, false, false,
-                                                                             true);
+                        null, false, false, true);
                 // Find token at cursor position
                 Token cursorToken = TokensUtil.findTokenAtPosition(context, position.getPosition());
                 int activeParamIndex = 0;
@@ -308,12 +295,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 List<SignatureInformation> signatures = new ArrayList<>();
                 List<Scope.ScopeEntry> symbols = new ArrayList<>(visibleSymbols);
                 Optional<String> symbolPath = getInvocationSymbolPath(sNode, context);
+                boolean isMethodCall = sNode.kind() == SyntaxKind.METHOD_CALL;
                 symbolPath.ifPresent(pathStr -> {
                     Optional<Scope.ScopeEntry> searchSymbol = getFuncScopeEntry(context, pathStr, symbols);
                     searchSymbol.ifPresent(entry -> {
                         if (entry.symbol instanceof BInvokableSymbol) {
                             BInvokableSymbol symbol = (BInvokableSymbol) entry.symbol;
-                            signatures.add(SignatureHelpUtil.getSignatureInformation(symbol, context));
+                            signatures.add(SignatureHelpUtil.getSignatureInformation(symbol, isMethodCall, context));
                         }
                     });
                 });
@@ -330,12 +318,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 logError(msg, e, position.getTextDocument(), position.getPosition());
                 return new SignatureHelp();
             } finally {
-                try {
-                    docManager.resetPrunedContent(Paths.get(URI.create(uri)));
-                } catch (WorkspaceDocumentException e) {
-                    logError("Error resetting pruned state. ", e, position.getTextDocument(),
-                            position.getPosition());
-                }
                 lock.ifPresent(Lock::unlock);
             }
         });
@@ -421,7 +403,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         .withDocumentSymbolParams(fileUri)
                         .build();
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                        LSCustomErrorStrategy.class, false, false, true);
+                        null, false, false, true);
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
                         .findFirst();
@@ -464,7 +446,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             int line = params.getRange().getStart().getLine();
             int col = params.getRange().getStart().getCharacter();
             TextDocumentPositionParams positionParams = new TextDocumentPositionParams(params.getTextDocument(),
-                                                                                       new Position(line, col));
+                    new Position(line, col));
 
             LSContext context = new DocumentServiceOperationContext
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_ACTION)
@@ -647,11 +629,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Lock> lock = docManager.lockFile(compilationPath);
 
             try {
-                BLangPackage bLangPkg = LSModuleCompiler.getBLangPackage(context, docManager,
-                                                                         GotoImplementationCustomErrorStrategy.class,
-                                                                         false, false, true);
+                BLangPackage bLangPkg = LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
                 List<Location> locations = getImplementationLocation(bLangPkg, context, position.getPosition(),
-                                                                     lsDocument.getProjectRoot());
+                        lsDocument.getProjectRoot());
                 implementationLocations.addAll(locations);
             } catch (UserErrorException e) {
                 notifyUser("Goto Implementation", e);
@@ -700,8 +680,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 if (CommonUtil.isCachedExternalSource(fileUri)) {
                     context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
                     context.put(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED, true);
-                    LSModuleCompiler.getBLangPackages(context, docManager, LSCustomErrorStrategy.class, false,
-                            true, true, true);
+                    LSModuleCompiler.getBLangPackages(context, docManager, null, false, true, true, true);
                     // Populate the Standard Library Cache
                     CommonUtil.updateStdLibCache(context);
                     // Note: If the source is a cached stdlib source then return early and ignore sending diagnostics
@@ -747,10 +726,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         Optional<Lock> lock = docManager.lockFile(compilationPath);
         try {
             // Update content
-            List<TextDocumentContentChangeEvent> changes = params.getContentChanges();
-            for (TextDocumentContentChangeEvent changeEvent : changes) {
-                docManager.updateFile(compilationPath, changeEvent.getText());
-            }
+            docManager.updateFile(compilationPath, params.getContentChanges());
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() + "' {fileUri: '" +
                     compilationPath + "'} updated}");
 

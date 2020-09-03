@@ -127,7 +127,7 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "STRING_LITERAL_TOKEN",
                           "value": "read-color"
                         }
                       ]
@@ -175,7 +175,7 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "STRING_LITERAL_TOKEN",
                           "value": "green-color",
                           "trailingMinutiae": [
                             {
@@ -225,7 +225,7 @@
                       ]
                     },
                     {
-                      "kind": "TRUE_KEYWORD",
+                      "kind": "BOOLEAN_LITERAL",
                       "children": [
                         {
                           "kind": "TRUE_KEYWORD"
@@ -271,23 +271,24 @@
                       ],
                       "leadingMinutiae": [
                         {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "  "
+                        },
+                        {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "value",
-                            "leadingMinutiae": [
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": "  "
-                              }
-                            ],
-                            "trailingMinutiae": [
-                              {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": " "
+                                "kind": "IDENTIFIER_TOKEN",
+                                "value": "value"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ],
                       "trailingMinutiae": [
@@ -304,10 +305,10 @@
                           "kind": "PLUS_TOKEN"
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "5"
                             }
                           ]
@@ -354,7 +355,7 @@
                       ]
                     },
                     {
-                      "kind": "NULL_KEYWORD",
+                      "kind": "NULL_LITERAL",
                       "children": [
                         {
                           "kind": "NULL_KEYWORD"

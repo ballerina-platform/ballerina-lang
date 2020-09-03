@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "SERVICE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -44,93 +35,76 @@
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "EXPRESSION_LIST_ITEM",
+          "kind": "SIMPLE_NAME_REFERENCE",
           "children": [
             {
-              "kind": "SIMPLE_NAME_REFERENCE",
-              "children": [
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "listener1",
+              "trailingMinutiae": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "listener1",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ]
             }
           ]
         },
         {
-          "kind": "EXPRESSION_LIST_ITEM",
+          "kind": "COMMA_TOKEN",
+          "isMissing": true,
           "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_COMMA_TOKEN"
+          ]
+        },
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
           "children": [
             {
-              "kind": "COMMA_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_COMMA_TOKEN"
-              ]
-            },
-            {
-              "kind": "SIMPLE_NAME_REFERENCE",
-              "children": [
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "listner2",
+              "trailingMinutiae": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "listner2",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ]
             }
           ]
         },
         {
-          "kind": "EXPRESSION_LIST_ITEM",
+          "kind": "COMMA_TOKEN",
+          "isMissing": true,
           "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_COMMA_TOKEN"
+          ]
+        },
+        {
+          "kind": "BINARY_EXPRESSION",
           "children": [
             {
-              "kind": "COMMA_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_COMMA_TOKEN"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "foo"
+                }
               ]
             },
             {
-              "kind": "BINARY_EXPRESSION",
+              "kind": "PLUS_TOKEN"
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "bar",
+                  "trailingMinutiae": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "foo"
-                    }
-                  ]
-                },
-                {
-                  "kind": "PLUS_TOKEN"
-                },
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "bar",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 }
