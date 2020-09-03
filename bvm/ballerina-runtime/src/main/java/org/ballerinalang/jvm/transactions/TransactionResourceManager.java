@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.transactions;
 
 import com.atomikos.icatch.jta.UserTransactionManager;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.api.BArray;
@@ -40,6 +41,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import static javax.transaction.xa.XAResource.TMSUCCESS;
+import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
+import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * {@code TransactionResourceManager} registry for transaction contexts.
@@ -50,6 +54,13 @@ public class TransactionResourceManager {
 
     private static TransactionResourceManager transactionResourceManager = null;
     private  static UserTransactionManager userTransactionManager = null;
+
+    private static final StrandMetadata COMMIT_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
+            TRANSACTION_PACKAGE_NAME,
+            TRANSACTION_PACKAGE_VERSION, "onCommit");
+    private static final StrandMetadata ROLLBACK_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
+            TRANSACTION_PACKAGE_NAME,
+            TRANSACTION_PACKAGE_VERSION, "onRollback");
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
     private Map<String, Transaction> trxRegistry;
@@ -148,30 +159,6 @@ public class TransactionResourceManager {
      */
     //TODO:Comment for now, might need it for distributed transactions.
     public boolean prepare(String transactionId, String transactionBlockId) {
-//        String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
-//        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
-//        if (txContextList != null) {
-//            for (BallerinaTransactionContext ctx : txContextList) {
-//                try {
-//                    XAResource xaResource = ctx.getXAResource();
-//                    if (xaResource != null) {
-//                        Xid xid = xidRegistry.get(combinedId);
-//                        xaResource.prepare(xid);
-//                    }
-//                } catch (Throwable e) {
-//                    log.error("error in prepare the transaction, " + combinedId + ":" + e.getMessage(), e);
-//                    return false;
-//                }
-//            }
-//        }
-//
-//        boolean status = true;
-//        if (failedResourceParticipantSet.contains(transactionId) || failedLocalParticipantSet.contains(transactionId)) {
-//            // resource participant reported failure.
-//            status = false;
-//        }
-//        log.info(String.format("Transaction prepare (participants): %s", status ? "success" : "failed"));
-//        return status;
           return true;
     }
 
@@ -347,8 +334,6 @@ public class TransactionResourceManager {
             for (int i = fpValueList.size(); i > 0; i--) {
                 FPValue fp = fpValueList.get(i - 1);
                 //TODO: Replace fp.getFunction().apply
-//                BRuntime.getCurrentRuntime().invokeFunctionPointerAsyncIteratively(fp, 1, () -> args,
-//                        results -> {}, () -> null);
                 fp.getFunction().apply(args);
             }
         }
@@ -362,8 +347,6 @@ public class TransactionResourceManager {
             for (int i = fpValueList.size(); i > 0; i--) {
                 FPValue fp = fpValueList.get(i - 1);
                 //TODO: Replace fp.getFunction().apply
-//                BRuntime.getCurrentRuntime().invokeFunctionPointerAsyncIteratively(fp, 1, () -> args,
-//                        results -> {}, () -> null);
                 fp.getFunction().apply(args);
             }
         }
