@@ -837,7 +837,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectTypeDescriptorNode objTypeDescNode) {
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
-        objectTypeNode.flagSet.add(Flag.ABSTRACT); // object-type-descriptor is always abstract
 
         for (Token qualifier : objTypeDescNode.objectTypeQualifiers()) {
             if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
@@ -3486,18 +3485,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 blangClass.addTypeReference((BLangType) bLangNode);
             }
         }
-
-        // todo: Copied from object type def
-        // not sure what's going on here need to verify with parser team.
-//        blangClass.pos = getPosition(classDefinitionNode);
-//
-//        if (members.size() > 0) {
-//            trimLeft(blangClass.pos, getPosition(members.get(0)));
-//            trimRight(blangClass.pos, getPosition(members.get(members.size() - 1)));
-//        } else {
-//            trimLeft(blangClass.pos, getPosition(classDefinitionNode.closeBrace()));
-//            trimRight(blangClass.pos, getPosition(classDefinitionNode.openBrace()));
-//        }
 
         return blangClass;
     }
