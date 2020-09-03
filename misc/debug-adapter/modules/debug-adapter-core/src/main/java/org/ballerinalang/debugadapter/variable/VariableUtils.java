@@ -203,9 +203,9 @@ public class VariableUtils {
     }
 
     private static String removeRedundantQuotes(String str) {
-        while (str.startsWith("\"\"") || str.endsWith("\"\"")) {
+        do {
             str = str.replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
-        }
+        } while (str.startsWith("\"\"") || str.endsWith("\"\""));
         return str;
     }
 }

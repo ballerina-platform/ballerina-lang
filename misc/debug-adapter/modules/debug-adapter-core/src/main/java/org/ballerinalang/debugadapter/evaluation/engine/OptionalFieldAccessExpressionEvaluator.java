@@ -17,7 +17,7 @@
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Value;
-import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -29,17 +29,17 @@ import org.ballerinalang.debugadapter.variable.DebugVariableException;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 /**
- * Evaluator implementation for field access expressions.
+ * Evaluator implementation for optional field access expressions.
  *
  * @since 2.0.0
  */
-public class FieldAccessExpressionEvaluator extends Evaluator {
+public class OptionalFieldAccessExpressionEvaluator extends Evaluator {
 
-    private final FieldAccessExpressionNode syntaxNode;
+    private final OptionalFieldAccessExpressionNode syntaxNode;
     private final Evaluator objectExpressionEvaluator;
 
-    public FieldAccessExpressionEvaluator(SuspendedContext context, Evaluator expression,
-                                          FieldAccessExpressionNode fieldAccessExpressionNode) {
+    public OptionalFieldAccessExpressionEvaluator(SuspendedContext context, Evaluator expression,
+                                                  OptionalFieldAccessExpressionNode fieldAccessExpressionNode) {
         super(context);
         this.syntaxNode = fieldAccessExpressionNode;
         this.objectExpressionEvaluator = expression;
@@ -48,26 +48,35 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         // expression is evaluated resulting in a value v
-        // if v has basic type error, the result is v
+        // if v is (), the result is ()
+        // otherwise, if v has basic type error, the result is v
         // otherwise, if v does not have basic type mapping, the result is a new error value
-        // otherwise, if v does not have a member whose key is field-name, the result is a new error value
+        // otherwise, if v does not have a member whose key is field-name, the result is ()
         // otherwise, the result is the member of v whose key is field-name.
         try {
-            BExpressionValue result = objectExpressionEvaluator.evaluate();
-            BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());
-            if (resultVar.getBType() != BVariableType.OBJECT && resultVar.getBType() != BVariableType.RECORD &&
-                    resultVar.getBType() != BVariableType.JSON) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Field " +
-                        "access is not supported on type '" + resultVar.getBType().getString() + "'."));
+            BExpressionValue exprResult = objectExpressionEvaluator.evaluate();
+            BVariable exprResultVar = VariableFactory.getVariable(context, exprResult.getJdiValue());
+            // if v is (), the result should be ().
+            if (exprResultVar.getBType() == BVariableType.NIL) {
+                return new BExpressionValue(context, null);
+            }
+            // if expression result does not have basic type mapping, the result is a new error value.
+            if (exprResultVar.getBType() != BVariableType.OBJECT && exprResultVar.getBType() != BVariableType.RECORD &&
+                    exprResultVar.getBType() != BVariableType.JSON) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), " " +
+                        "Optional field access is not supported on type '" + exprResultVar.getBType().getString() +
+                        "'."));
             }
             String fieldName = syntaxNode.fieldName().toSourceCode().trim();
-            Value fieldValue = ((BCompoundVariable) resultVar).getChildByName(fieldName);
-            return new BExpressionValue(context, fieldValue);
+            try {
+                Value fieldValue = ((BCompoundVariable) exprResultVar).getChildByName(fieldName);
+                return new BExpressionValue(context, fieldValue);
+            } catch (DebugVariableException e) {
+                // if expression result does not have a member whose key is field-name, the result is ().
+                return new BExpressionValue(context, null);
+            }
         } catch (EvaluationException e) {
             throw e;
-        } catch (DebugVariableException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FIELD_NOT_FOUND.getString(),
-                    syntaxNode.fieldName().toSourceCode().trim(), syntaxNode.expression().toSourceCode().trim()));
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));

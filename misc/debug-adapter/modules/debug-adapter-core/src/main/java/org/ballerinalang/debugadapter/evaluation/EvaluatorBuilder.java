@@ -29,6 +29,7 @@ import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeVisitor;
+import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
@@ -43,6 +44,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.FieldAccessExpressionEva
 import org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.IndexedExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.MethodCallExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.OptionalFieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
 
 import java.util.ArrayList;
@@ -67,6 +69,7 @@ import java.util.StringJoiner;
  * <li> Method call expression
  * <li> Braced expression
  * <li> Member access expression
+ * <li> Optional field access expression
  * </ul>
  * <br>
  * To be Implemented.
@@ -74,7 +77,6 @@ import java.util.StringJoiner;
  * <li> String template expression
  * <li> XML template expression
  * <li> New expression
- * <li> Optional field access expression
  * <li> XML attribute access expression
  * <li> Annotation access expression
  * <li> Error constructor
@@ -209,6 +211,15 @@ public class EvaluatorBuilder extends NodeVisitor {
         fieldAccessExpressionNode.expression().accept(this);
         Evaluator expression = result;
         result = new FieldAccessExpressionEvaluator(context, expression, fieldAccessExpressionNode);
+    }
+
+    @Override
+    public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        visitSyntaxNode(optionalFieldAccessExpressionNode);
+        // visits object expression.
+        optionalFieldAccessExpressionNode.expression().accept(this);
+        Evaluator expression = result;
+        result = new OptionalFieldAccessExpressionEvaluator(context, expression, optionalFieldAccessExpressionNode);
     }
 
     @Override
@@ -364,7 +375,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addOptionalFieldAccessExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.OPTIONAL_FIELD_ACCESS);
     }
 
     private void addXmlAttributeAccessExpressionSyntax() {
