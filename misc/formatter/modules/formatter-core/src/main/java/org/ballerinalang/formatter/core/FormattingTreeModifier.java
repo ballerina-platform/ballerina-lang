@@ -806,6 +806,9 @@ public class FormattingTreeModifier extends TreeModifier {
                 simpleNameReferenceNode.parent().children().get(0).equals(simpleNameReferenceNode)) ||
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.TYPED_BINDING_PATTERN) ||
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.OPTIONAL_TYPE_DESC) ||
+                (simpleNameReferenceNode.parent().parent() != null &&
+                        simpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.ASSIGNMENT_STATEMENT) &&
+                        simpleNameReferenceNode.parent().kind().equals(SyntaxKind.INDEXED_EXPRESSION)) ||
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) ||
                 simpleNameReferenceNode.parent().kind().equals(SyntaxKind.ARRAY_TYPE_DESC)) {
             addSpaces = true;
@@ -1095,10 +1098,16 @@ public class FormattingTreeModifier extends TreeModifier {
             specificFieldNode = specificFieldNode.modify()
                     .withReadonlyKeyword(formatToken(readOnlyKeyword, 0, 0, 0, 0)).apply();
         }
+        if (colon != null) {
+            specificFieldNode = specificFieldNode.modify()
+                    .withColon(formatToken(colon, 1, 1, 0, 0)).apply();
+        }
+        if (expressionNode != null) {
+            specificFieldNode = specificFieldNode.modify()
+                    .withValueExpr(expressionNode).apply();
+        }
         return specificFieldNode.modify()
                 .withFieldName(formatToken(fieldName, startColumn, 0, 1, 0))
-                .withColon(formatToken(colon, 1, 1, 0, 0))
-                .withValueExpr(expressionNode)
                 .apply();
     }
 
@@ -1930,13 +1939,14 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(computedNameFieldNode)) {
             return computedNameFieldNode;
         }
+        int startCol = getStartColumn(computedNameFieldNode, computedNameFieldNode.kind(), true);
         Token openBracket = getToken(computedNameFieldNode.openBracket());
         ExpressionNode fieldNameExpr = this.modifyNode(computedNameFieldNode.fieldNameExpr());
         Token closeBracket = getToken(computedNameFieldNode.closeBracket());
         Token colonToken = getToken(computedNameFieldNode.colonToken());
         ExpressionNode valueExpr = this.modifyNode(computedNameFieldNode.valueExpr());
         return computedNameFieldNode.modify()
-                .withOpenBracket(formatToken(openBracket, 0, 0, 0, 0))
+                .withOpenBracket(formatToken(openBracket, startCol, 0, 1, 0))
                 .withFieldNameExpr(fieldNameExpr)
                 .withCloseBracket(formatToken(closeBracket, 0, 0, 0, 0))
                 .withColonToken(formatToken(colonToken, 1, 1, 0, 0))
