@@ -2829,8 +2829,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // We need to create a new variable for the expression as well. This is needed because integer ranges can be
         // added as the expression so we cannot get the symbol in such cases.
-        BVarSymbol dataSymbol = new BVarSymbol(Flags.DESTRUCTURED, names.fromString("$data$"), this.env.scope.owner.pkgID,
-                foreach.collection.type, this.env.scope.owner);
+        BVarSymbol dataSymbol = new BVarSymbol(Flags.DESTRUCTURED, names.fromString("$data$"),
+                this.env.scope.owner.pkgID, foreach.collection.type, this.env.scope.owner);
         BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(foreach.pos, "$data$",
                 foreach.collection.type, foreach.collection, dataSymbol);
         BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(foreach.pos, dataVariable);
@@ -5039,8 +5039,8 @@ public class Desugar extends BLangNodeVisitor {
         iteratorInvocation.argExprs = Lists.of(dataReference);
         iteratorInvocation.requiredArgs = iteratorInvocation.argExprs;
         iteratorInvocation.langLibInvocation = isIteratorFuncFromLangLib;
-        BVarSymbol iteratorSymbol = new BVarSymbol(Flags.DESTRUCTURED, names.fromString("$iterator$"), this.env.scope.owner.pkgID,
-                iteratorInvokableSymbol.retType, this.env.scope.owner);
+        BVarSymbol iteratorSymbol = new BVarSymbol(Flags.DESTRUCTURED, names.fromString("$iterator$"),
+                this.env.scope.owner.pkgID, iteratorInvokableSymbol.retType, this.env.scope.owner);
 
         // Note - any $iterator$ = $data$.iterator();
         BLangSimpleVariable iteratorVariable = ASTBuilderUtil.createVariable(pos, "$iterator$",
