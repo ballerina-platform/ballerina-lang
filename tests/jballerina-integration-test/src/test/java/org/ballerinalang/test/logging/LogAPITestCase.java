@@ -411,7 +411,8 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[15], "ERROR", "[logorg/hello]", "Logging error log from inside `hello` module");
     }
 
-    @Test(enabled = false, description = "Tests setModuleLogLevel functionality when the user has set module log levels through console")
+    @Test(enabled = false, description = "Tests setModuleLogLevel functionality when " +
+            "the user has set module log levels through console")
     public void testSetModuleLogLevelWithConsoleArgs() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] { "hello" , "--logorg/alpha.loglevel=DEBUG", "--logorg/beta.loglevel=OFF"};
@@ -441,7 +442,8 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[15], "ERROR", "[logorg/hello]", "Logging error log from inside `hello` module");
     }
 
-    @Test(enabled = false, description = "Tests setModuleLogLevel functionality set in the module which is being called")
+    @Test(enabled = false, description = "Tests setModuleLogLevel functionality set in the " +
+            "module which is being called")
     public void testSetModuleLogLevelFromModule() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] { "omega" };

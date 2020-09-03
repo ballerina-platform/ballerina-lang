@@ -46,7 +46,8 @@ public class BallerinaApiDocsTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(Paths.get(balServer.getServerHome(), DOCS, INDEX_HTML)));
     }
 
-    @Test(enabled = false, description = "Test docs directories of bir-cache modules", dependsOnMethods = "testDocsDirectory")
+    @Test(enabled = false, description = "Test docs directories of bir-cache modules",
+            dependsOnMethods = "testDocsDirectory")
     public void testBirCacheModuleDocs() throws BallerinaTestException {
         PrintStream out = System.out;
         List<String> skipModules = new ArrayList<>(

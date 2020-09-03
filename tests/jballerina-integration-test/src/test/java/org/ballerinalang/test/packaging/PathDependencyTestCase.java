@@ -610,7 +610,8 @@ public class PathDependencyTestCase extends BaseTest {
         buildLogLeecher.waitForText(10000);
     }
 
-    @Test(enabled = false, description = "Test if observability jar gets packed with executable if observability flag is given.")
+    @Test(enabled = false, description = "Test if observability jar gets packed with executable " +
+            "if observability flag is given.")
     public void testObservabilityFlag() throws BallerinaTestException, IOException {
         // Test ballerina init
         Path projectPath = tempTestResources.resolve("test-dependency");

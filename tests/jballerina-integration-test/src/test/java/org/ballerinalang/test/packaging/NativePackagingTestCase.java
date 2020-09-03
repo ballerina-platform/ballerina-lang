@@ -124,7 +124,8 @@ public class NativePackagingTestCase extends BaseTest {
      * @throws IOException            When updating the module names.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(enabled = false, description = "Test building and running TestProject2", dependsOnMethods = "testBuildAndPushTestProject1")
+    @Test(enabled = false, description = "Test building and running TestProject2",
+            dependsOnMethods = "testBuildAndPushTestProject1")
     public void testBuildTestProject2() throws IOException, BallerinaTestException {
         // Replace module names in source file
         Path implBalFile = testProj2Path.resolve("src").resolve("baz").resolve("impl.bal");
