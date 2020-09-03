@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person1 abstract object {
+type Person1 object {
     public int age;
     public string name;
 
     public function getName() returns string;
 };
 
-type Employee1 abstract object {
+type Employee1 object {
     public float salary;
 
     public function getSalary() returns float; 
@@ -101,7 +101,7 @@ class Manager3 {
     }
 }
 
-type Employee2 abstract object {
+type Employee2 object {
     public float salary;
     *Person1;
 
@@ -135,14 +135,14 @@ class Manager4 {
     }
 }
 
-type Employee3 abstract object {
+type Employee3 object {
     public float salary;
     *Person3;
 
     public function getBonus(float ratio, int months=12) returns float;
 };
 
-type Person3 abstract object {
+type Person3 object {
     public int age;
     public string name;
 
@@ -196,7 +196,7 @@ public function testNonAbstractObjectInclusion() {
 
 // Type inclusion tests
 
-type AgeDataObject abstract object {
+type AgeDataObject object {
     int|float age;
 };
 
@@ -219,11 +219,11 @@ function testCreatingObjectWithOverriddenFields() {
     assertEquality(dummyPerson.name, "UNKNOWN");
 }
 
-type NameInterface abstract object {
+type NameInterface object {
     public function getName(string greeting = "Hi") returns string;
 };
 
-type AgeInterface abstract object {
+type AgeInterface object {
     *AgeDataObject;
     public function setAge(int age = 0) returns int;
 };

@@ -71,13 +71,9 @@ public class ObjectConstructorTest {
                 26, 5);
         BAssertUtil.validateError(negativeResult, index++, "object initializer function can not be declared as " +
                 "private", 30, 5);
-        BAssertUtil.validateError(negativeResult, index++, "missing identifier", 34, 22);
-        BAssertUtil.validateError(negativeResult, index++, "missing semicolon token", 34, 22);
-        BAssertUtil.validateError(negativeResult, index++, "invalid qualifier 'public'", 34, 29);
-        BAssertUtil.validateError(negativeResult, index++, "missing identifier", 34, 38);
+        BAssertUtil.validateError(negativeResult, index++, "invalid token 'public'", 34, 29);
+        BAssertUtil.validateError(negativeResult, index++, "missing type desc", 39, 1);
         BAssertUtil.validateError(negativeResult, index++, "invalid token '*'", 39, 6);
-        BAssertUtil.validateError(negativeResult, index++, "object constructor does not support type reference members",
-                39, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }

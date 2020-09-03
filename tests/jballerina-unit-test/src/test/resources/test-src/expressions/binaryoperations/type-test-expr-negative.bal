@@ -195,12 +195,12 @@ function testJsonArrays() returns [boolean, boolean] {
     return [b0, b1];
 }
 
-public type X1 abstract object {
+public type X1 object {
     public int p;
     public string q;
 };
 
-public type Y1 abstract object {
+public type Y1 object {
     public float r;
     *X1;
 };

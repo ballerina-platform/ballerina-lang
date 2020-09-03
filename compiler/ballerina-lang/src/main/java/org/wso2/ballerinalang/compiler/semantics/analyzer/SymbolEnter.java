@@ -610,7 +610,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
 
-        BObjectType objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
+        BObjectType objectType;
+        if (flags.contains(Flag.SERVICE)) {
+            objectType = new BServiceType(tSymbol);
+        } else {
+            objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
+        }
 
         if (flags.contains(Flag.DISTINCT)) {
             objectType.typeIdSet = BTypeIdSet.from(env.enclPkg.symbol.pkgID, classDefinition.name.value, isPublicType,
@@ -1302,17 +1307,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, serviceNode.type, env.scope.owner);
         serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
 
-        BType serviceObjectType = serviceNode.serviceTypeDefinition.symbol.type;
+        BType serviceObjectType = serviceNode.serviceClass.symbol.type;
         serviceNode.symbol = serviceSymbol;
         serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
         serviceSymbol.scope = new Scope(serviceSymbol);
 
         // Caching values future validation.
-        if (serviceNode.serviceTypeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-            BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode;
-            objectTypeNode.functions.stream().filter(func -> func.flagSet.contains(Flag.RESOURCE))
-                    .forEach(func -> serviceNode.resourceFunctions.add(func));
-        }
+        serviceNode.serviceClass.functions.stream().filter(func -> func.flagSet.contains(Flag.RESOURCE))
+                .forEach(func -> serviceNode.resourceFunctions.add(func));
     }
 
     @Override
@@ -2225,6 +2227,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void setReadOnlynessOfClassDef(BLangClassDefinition classDef, SymbolEnv pkgEnv) {
         BObjectType objectType = (BObjectType) classDef.type;
         DiagnosticPos pos = classDef.pos;
+
+        if (objectType instanceof BServiceType) {
+            return;
+        }
 
         if (Symbols.isFlagOn(classDef.type.flags, Flags.READONLY)) {
             if (!types.isSelectivelyImmutableType(objectType, new HashSet<>())) {

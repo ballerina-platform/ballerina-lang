@@ -1,5 +1,5 @@
 class Iterable {
-    public function __iterator() returns abstract object {public function next() returns record {|int value;|}?;
+    public function __iterator() returns object {public function next() returns record {|int value;|}?;
     } {
         InternalIterable sample = new;
         return sample;
@@ -35,7 +35,7 @@ class InternalIterable {
 }
 
 class AnotherIterable {
-    public function __iterator() returns abstract object {public function next() returns record {|Iterable value;|}?;
+    public function __iterator() returns object {public function next() returns record {|Iterable value;|}?;
     } {
         AnotherInternalIterable sample = new;
         return sample;

@@ -76,7 +76,7 @@ public function isObservabilityEnabled() returns boolean = @java:Method {
 # + name - Name of the counter metric.
 # + description - Description of the counter metric.
 # + metricTags - Tags associated with the counter metric.
-public class Counter {
+public  class Counter {
 
     public string name;
     public string description;
@@ -140,7 +140,7 @@ public class Counter {
 # + metricTags - Tags associated with the counter metric.
 # + statisticConfigs - Array of StatisticConfig objects which defines about the statistical calculation
 #                      of the gauge during its usage.
-public class Gauge {
+public  class Gauge {
 
     public string name;
     public string description;

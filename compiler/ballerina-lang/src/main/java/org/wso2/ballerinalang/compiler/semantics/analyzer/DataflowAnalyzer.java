@@ -393,7 +393,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService service) {
-        this.currDependentSymbol.push(service.serviceTypeDefinition.symbol);
+        this.currDependentSymbol.push(service.serviceClass.symbol);
         for (BLangExpression attachedExpr : service.attachedExprs) {
             analyzeNode(attachedExpr, env);
         }
@@ -443,15 +443,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (!Symbols.isFlagOn(classDefinition.symbol.flags, Flags.ABSTRACT)) {
-            Stream.concat(classDefinition.fields.stream(), classDefinition.referencedFields.stream())
-                    .filter(field -> !Symbols.isPrivate(field.symbol))
-                    .forEach(field -> {
-                        if (this.uninitializedVars.containsKey(field.symbol)) {
-                            this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
-                        }
-                    });
-        }
+        Stream.concat(classDefinition.fields.stream(), classDefinition.referencedFields.stream())
+                .filter(field -> !Symbols.isPrivate(field.symbol))
+                .forEach(field -> {
+                    if (this.uninitializedVars.containsKey(field.symbol)) {
+                        this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
+                    }
+                });
 
         classDefinition.functions.forEach(function -> analyzeNode(function, env));
         classDefinition.typeRefs.forEach(type -> analyzeNode(type, env));
@@ -1454,7 +1452,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (!Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
+        if (Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.CLASS)) {
             Stream.concat(objectTypeNode.fields.stream(), objectTypeNode.referencedFields.stream())
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {

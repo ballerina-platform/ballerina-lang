@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -33,14 +34,14 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
  */
 public class BLangObjectConstructorExpression extends BLangExpression {
 
-    public BLangObjectTypeNode objectTypeNode;
+    public BLangClassDefinition classNode;
     public BLangTypeInit typeInit;
     public BLangType referenceType;
     public boolean isClient;
 
-    public BLangObjectConstructorExpression(BLangObjectTypeNode objectTypeNode) {
+    public BLangObjectConstructorExpression(BLangClassDefinition classNode) {
         super();
-        this.objectTypeNode = objectTypeNode;
+        this.classNode = classNode;
         this.isClient = false;
     }
 
@@ -70,7 +71,7 @@ public class BLangObjectConstructorExpression extends BLangExpression {
             sb.append(referenceType.type.name.getValue());
         }
         sb.append(" {");
-        sb.append(this.objectTypeNode.toString());
+        sb.append(this.classNode.toString());
         sb.append("};\n");
         return sb.toString();
     }
@@ -83,7 +84,7 @@ public class BLangObjectConstructorExpression extends BLangExpression {
     public void addTypeReference(TypeNode type) {
         if (this.referenceType == null) {
             this.referenceType = (BLangType) type;
-            this.objectTypeNode.addTypeReference(type);
+            this.classNode.addTypeReference(type);
             return;
         }
         throw new BallerinaException("object-constructor-expr can only have one type-reference");

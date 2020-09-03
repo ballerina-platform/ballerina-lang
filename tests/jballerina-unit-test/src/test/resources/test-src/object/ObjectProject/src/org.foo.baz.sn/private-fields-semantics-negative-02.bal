@@ -37,27 +37,23 @@ public class FooEmployee {
             public string city;
             public string state;
             public string zipcode;
-
-            function init (string city, string state, string zipcode) {
-                self.city = city;
-                self.state = state;
-                self.zipcode = zipcode;
-            }
         } address;
 
 
-    public function init (string fname, string lname, int age, object {
-            public string city = "";
-            public string state = "";
-            public string zipcode = "";
-
-            function init (string city, string state, string zipcode) {}
-        } address) {
+    public function init (string fname, string lname, int age, DefaultAddress address) {
         self.fname = fname;
         self.lname = lname;
         self.age = age;
         self.address = address;
     }
+}
+
+public class DefaultAddress {
+    public string city = "";
+    public string state = "";
+    public string zipcode = "";
+
+    function init (string city, string state, string zipcode) {}
 }
 
 public function createObj() returns (FooPerson) {

@@ -18,7 +18,7 @@ class Foo {
     *Bar;
 }
 
-type Bar abstract object {
+type Bar object {
     int x;
     string y;
 };

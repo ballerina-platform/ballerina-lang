@@ -264,6 +264,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
         return this.testablePkgs.size() > 0;
     }
 
+    public void addClassDefinition(BLangClassDefinition classDefNode) {
+        this.topLevelNodes.add(classDefNode);
+        this.classDefinitions.add(classDefNode);
+    }
+
     /**
      * This class collect diagnostics.
      *

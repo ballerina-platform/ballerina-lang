@@ -111,7 +111,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.symbolEnv);
-        ((BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode).getFunctions().stream()
+        serviceNode.serviceClass.getFunctions().stream()
                 .filter(bLangFunction -> (bLangFunction.symbol.flags & Flags.RESOURCE) == Flags.RESOURCE)
                 .forEach(bLangFunction -> this.acceptNode(bLangFunction, serviceEnv));
     }

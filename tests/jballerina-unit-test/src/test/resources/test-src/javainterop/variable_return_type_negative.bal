@@ -70,11 +70,6 @@ function getRecord(typedesc<anydata> td) returns record {| string name; td misc;
 function getObject(typedesc<anydata> td) returns object {
                                                      string name;
                                                      td misc;
-
-                                                     public function init(string name, td misc) {
-                                                         self.name = name;
-                                                         self.misc = misc;
-                                                     }
                                                  } = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getObject",

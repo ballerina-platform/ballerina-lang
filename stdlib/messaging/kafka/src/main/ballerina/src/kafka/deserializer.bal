@@ -16,7 +16,7 @@
 
 # Represents a Kafka deserializer object. This object can be used to create custom deserializers for Ballerina Kafka
 # consumers.
-public type Deserializer abstract object {
+public type Deserializer object {
     # Closes the deserialization process. This function runs after the deserialization process is done.
     public function close();
 

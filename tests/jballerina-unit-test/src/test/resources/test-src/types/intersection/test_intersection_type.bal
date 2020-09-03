@@ -63,12 +63,12 @@ function testIntersectionInUnion() {
     assertEquality((), d);
 }
 
-type InboundHandler abstract object {
+type InboundHandler object {
     public function canProcess(int req) returns boolean;
     readonly boolean enabled;
 };
 
-type IntermediateInboundHandler abstract object {
+type IntermediateInboundHandler object {
     *InboundHandler;
     readonly int allow;
 };

@@ -615,7 +615,6 @@ public class ImmutableTypeCloner {
 
         BLangObjectTypeNode objectTypeNode = TypeDefBuilderHelper.createObjectTypeNode(new ArrayList<>(),
                                                                                        immutableObjectType, pos);
-        objectTypeNode.flagSet.add(Flag.ABSTRACT);
         objectTypeNode.flagSet.addAll(flagSet);
 
         populateImmutableStructureFields(types, symTable, anonymousModelHelper, names, objectTypeNode,

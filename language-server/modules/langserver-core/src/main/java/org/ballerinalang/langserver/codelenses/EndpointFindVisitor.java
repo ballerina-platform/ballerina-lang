@@ -93,7 +93,7 @@ public class EndpointFindVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        ((BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode).getFunctions().stream()
+        serviceNode.serviceClass.getFunctions().stream()
                 .filter(bLangFunction -> (bLangFunction.symbol.flags & Flags.RESOURCE) == Flags.RESOURCE)
                 .forEach(this::acceptNode);
     }

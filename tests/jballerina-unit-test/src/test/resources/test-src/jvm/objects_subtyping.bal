@@ -64,7 +64,7 @@ function testCastingRuntimeError() returns Person1 {
     return e;
 }
 
-type AbstractPerson abstract object {
+type AbstractPerson object {
     public string name;
     public int age;
 
@@ -124,7 +124,7 @@ function testSubtypingAPublicObjectInAnotherModule() returns string {
     return s.toString();
 }
 
-type AbstractAnimal abstract object {
+type AbstractAnimal object {
     float weight;
 
     function move(int distance) returns string;

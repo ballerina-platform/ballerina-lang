@@ -9,7 +9,7 @@ class B {
     int i = 0;
 }
 
-type C abstract object {
+type C object {
     *A;
 };
 

@@ -703,16 +703,16 @@ class MyController {
     }
 }
 
-type Printer abstract object {
+type Printer object {
     function getPrintString(string s) returns string;
 };
 
-type Controller abstract object {
+type Controller object {
     Owner owner;
     Printer printer;
 };
 
-type Owner abstract object {
+type Owner object {
     function getId() returns int;
 };
 
@@ -837,7 +837,7 @@ type IdentifierRec record {
     string id = "record";
 };
 
-type IdentifierAbstractObj abstract object {
+type IdentifierAbstractObj object {
     function getId() returns string;
 };
 

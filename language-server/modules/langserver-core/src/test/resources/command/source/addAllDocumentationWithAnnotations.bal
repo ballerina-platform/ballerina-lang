@@ -33,6 +33,6 @@ type testDocObject object {
     }
 };
 
-type testDocObject2 abstract object {
+type testDocObject2 object {
 	function testFunctionWithNoImpl();
 };

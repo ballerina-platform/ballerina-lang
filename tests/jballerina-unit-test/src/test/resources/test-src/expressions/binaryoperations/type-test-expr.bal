@@ -383,12 +383,12 @@ function testObjectWithUnorderedFields() returns [string, string, string, string
     return [s1, s2, s3, s4];
 }
 
-public type A4 abstract object {
+public type A4 object {
     public int p;
     public string q;
 };
 
-public type B4 abstract object {
+public type B4 object {
     public float r;
     *A4;
 };
@@ -426,12 +426,12 @@ function testPublicObjectEquivalency() returns [string, string, string] {
     return [s1, s2, s3];
 }
 
-type A5 abstract object {
+type A5 object {
     int p;
     string q;
 };
 
-type B5 abstract object {
+type B5 object {
     float r;
     *A5;
 };
@@ -475,15 +475,15 @@ function testAnonymousObjectEquivalency() returns [string, string, string] {
     string s2 = "n/a";
     string s3 = "n/a";
 
-    if(x is abstract object { public float r; *A4; }) {
+    if(x is object { public float r; *A4; }) {
         s1 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
-    if(x is object {  public int p = 0;  public string q = "";  public float r = 0;  public boolean s = false;}) {
+    if(x is object {  public int p;  public string q;  public float r;  public boolean s;}) {
         s2 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString() + ", " + x.s.toString();
     }
 
-    if(x is object { public int p = 0;  public boolean q = false;  public float r = 0.0;}) {  // shouldn't match
+    if(x is object { public int p;  public boolean q;  public float r;}) {  // shouldn't match
         s3 = "values: " + x.p.toString() + ", " + x.q.toString() + ", " + x.r.toString();
     }
 

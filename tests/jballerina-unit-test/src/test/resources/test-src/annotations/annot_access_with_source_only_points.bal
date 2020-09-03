@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public const annotation map<string> v1 on source type, object type, class;
+public const annotation map<string> v1 on source type, class;
 
 const STRING_VAL = "string value";
 const STRING_VAL_TWO = "string value two";
@@ -48,7 +48,7 @@ function testAnnotAccessForAnnotWithSourceOnlyPoints2() returns boolean {
     return annot is map<string> && annot["foo"] == STRING_VAL_TWO;
 }
 
-const annotation map<string> v2 on type, source object type, source class;
+const annotation map<string> v2 on type, source class;
 
 @v2 {
     foo: STRING_VAL,

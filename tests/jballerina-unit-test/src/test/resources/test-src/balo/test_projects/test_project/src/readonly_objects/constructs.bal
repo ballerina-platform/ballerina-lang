@@ -39,7 +39,7 @@ public readonly class Employee {
     }
 }
 
-public type Controller abstract object {
+public type Controller object {
     public function getValue() returns int;
 };
 

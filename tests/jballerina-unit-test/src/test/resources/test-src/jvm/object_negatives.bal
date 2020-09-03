@@ -16,12 +16,12 @@
 
 import testorg/subtyping;
 
-type ObjWithPvtField abstract object {
+type ObjWithPvtField object {
     string name;
     private int ssn;
 };
 
-type ObjWithPvtMethod abstract object {
+type ObjWithPvtMethod object {
     string name;
     int ssn;
 

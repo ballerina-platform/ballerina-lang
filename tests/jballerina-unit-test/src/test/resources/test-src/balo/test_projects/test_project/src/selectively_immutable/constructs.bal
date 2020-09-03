@@ -117,7 +117,7 @@ public type Student record {|
     [RESULT, int]...;
 |};
 
-public type Owner abstract object {
+public type Owner object {
     public function getId() returns int;
 };
 
@@ -214,7 +214,7 @@ public type ReadOnlyStudent readonly & Student;
 
 public type AB "A"|"B";
 
-public type Config abstract object {
+public type Config object {
     public string name;
 
     public function getName() returns string;

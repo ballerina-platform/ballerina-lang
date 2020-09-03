@@ -57,7 +57,7 @@ const STRING_FIELD = "string";
 
 // If a non-abstract object type OT has a type reference to an abstract object type AT,
 // then each method declared in AT must be defined in OT using either a method-defn or an outside-method-defn.
-type AbstractClientObject abstract client object {
+type AbstractClientObject client object {
     public string publicStringField;
     float defaultVisibilityFloatField;
 
@@ -173,7 +173,7 @@ function testAbstractClientObjectDeclaration() {
             "public visibility remote method declared outside to be accessible");
 }
 
-type ClientAbstractObject client abstract object {
+type ClientAbstractObject client object {
     public string publicStringField;
     float floatField;
 

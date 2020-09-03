@@ -66,7 +66,7 @@ function testObject() returns T6 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T7 int[]|A[]|[B, C]|map<string>|map<D>|E|int|record { F f; }|object { public G g = ""; }|error;
+type T7 int[]|A[]|[B, C]|map<string>|map<D>|E|int|record { F f; }|object { public G g; }|error;
 
 function testUnion() returns T7 {
     var o = object { public G g = ""; };
@@ -76,7 +76,7 @@ function testUnion() returns T7 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, object { public G g = ""; }, error];
+type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, object { public G g; }, error];
 
 function testComplexTuple() returns T8 {
     int[] iarr = [1, 2];
@@ -107,7 +107,7 @@ type J map<A>;
 
 type K record { F f = ""; };
 
-type L error|object { public G g = ""; };
+type L error|object { public G g; };
 
 function testComplexUnion() returns T10 {
     A[] a = [4, 5, 6];
@@ -138,7 +138,7 @@ function testXml() returns T12 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type FB "A" | object { string f; function init(string f) { self.f = f; }};
+type FB "A" | object { string f;};
 
 class Foo {
     string f;

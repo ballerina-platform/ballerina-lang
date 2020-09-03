@@ -183,7 +183,7 @@ public class MemberFunctionStub {
 #
 # + mockObject - created mock object
 # + returnValue - value to return
-public  class MemberVariableStub {
+public class MemberVariableStub {
     object {} mockObject;
     any|error returnValue = ();
     string fieldName = "";
@@ -291,7 +291,7 @@ public class FunctionStub {
 # + T - type of object to create the mock
 # + mockObject - mock object to replace the original (optional)
 # + return - created mock object or throw an error if validation failed
-public function mock(public typedesc<object{}> T, object{} mockObject) returns T = @java:Method {
+public function mock(public typedesc<object{}> T, object{} mockObject = object { }) returns T = @java:Method {
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
