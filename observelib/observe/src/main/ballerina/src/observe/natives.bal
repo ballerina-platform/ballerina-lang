@@ -131,12 +131,12 @@ public type Counter object {
     #            but different parameters or in a different kind.
     public function register() returns error? {
         return externCounterRegister(self);
-    };
+    }
 
     # Unregister the counter metric instance with the Metric Registry.
     public function unregister() {
         externCounterUnRegister(self);
-    };
+    }
 
     # Increment the counter's value by an amount.
     #
@@ -144,19 +144,19 @@ public type Counter object {
     #            used if there is no amount passed in.
     public function increment(int amount = 1) {
         externCounterIncrement(self, amount);
-    };
+    }
 
     # Resets the counter's value to zero.
     public function reset() {
         externCounterReset(self);
-    };
+    }
 
     # Retrieves the counter's current value.
     #
     # + return - The current value of the counter.
     public function getValue() returns int {
         return externCounterGetValue(self);
-    };
+    }
 
 };
 
@@ -234,12 +234,12 @@ public type Gauge object {
     #            but different parameters or in a different kind.
     public function register() returns error? {
         return externGaugeRegister(self);
-    };
+    }
 
     # Unregister the counter metric instance with the Metric Registry.
     public function unregister() {
         externGaugeUnRegister(self);
-    };
+    }
 
     # Increment the gauge's value by an amount.
     #
@@ -247,7 +247,7 @@ public type Gauge object {
     #            The amount is defaulted as 1.0 and will be used if there is no amount passed in.
     public function increment(float amount = 1.0) {
         externGaugeIncrement(self, amount);
-    };
+    }
 
     # Decrement the gauge's value by an amount.
     #
@@ -255,21 +255,21 @@ public type Gauge object {
     #            The amount is defaulted as 1.0 and will be used if there is no amount passed in.
     public function decrement(float amount = 1.0) {
         externGaugeDecrement(self, amount);
-    };
+    }
 
     # Sets the instantaneous value for gauge.
     #
     # + amount - The instantaneous value that needs to be set as gauge value.
     public function setValue(float amount) {
         return externGaugeSetValue(self, amount);
-    };
+    }
 
     # Retrieves the gauge's current value.
     #
     # + return - The current value of the gauge.
     public function getValue() returns float {
         return externGaugeGetValue(self);
-    };
+    }
 
     # Retrieves statistics snapshots based on the statistics configs of the gauge.
     #
@@ -277,7 +277,7 @@ public type Gauge object {
     #            If there is no statisticsConfigs provided, then it will be nil.
     public function getSnapshot() returns Snapshot[]? {
         return externGaugeGetSnapshot(self);
-    };
+    }
 
 };
 
@@ -296,22 +296,22 @@ function externGaugeUnRegister(Gauge gauge) = @java:Method {
     name: "unregister"
 } external;
 
-function externGaugeIncrement(Gauge gauge, int amount) = @java:Method {
+function externGaugeIncrement(Gauge gauge, float amount) = @java:Method {
     class: "org.ballerinalang.observe.nativeimpl.GaugeIncrement",
     name: "increment"
 } external;
 
-function externGaugeDecrement(Gauge gauge, int amount) = @java:Method {
+function externGaugeDecrement(Gauge gauge, float amount) = @java:Method {
     class: "org.ballerinalang.observe.nativeimpl.GaugeDecrement",
     name: "decrement"
 } external;
 
-function externGaugeGetValue(Gauge gauge) returns false = @java:Method {
+function externGaugeGetValue(Gauge gauge) returns float = @java:Method {
     class: "org.ballerinalang.observe.nativeimpl.GaugeGetValue",
     name: "getValue"
 } external;
 
-function externGaugeSetValue(Gauge gauge, float amount) returns false = @java:Method {
+function externGaugeSetValue(Gauge gauge, float amount) = @java:Method {
     class: "org.ballerinalang.observe.nativeimpl.GaugeSetValue",
     name: "setValue"
 } external;

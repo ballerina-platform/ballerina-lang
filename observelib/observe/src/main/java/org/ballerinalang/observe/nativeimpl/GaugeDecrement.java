@@ -18,7 +18,6 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 /**
@@ -29,7 +28,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 
 public class GaugeDecrement {
 
-    public static void decrement(Strand strand, ObjectValue guage, double amount) {
+    public static void decrement(ObjectValue guage, double amount) {
         Gauge gauge = (Gauge) guage.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         gauge.decrement(amount);
     }

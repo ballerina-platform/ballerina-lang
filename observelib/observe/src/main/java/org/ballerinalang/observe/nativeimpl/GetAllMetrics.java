@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.observability.metrics.MetricConstants;
 import org.ballerinalang.jvm.observability.metrics.MetricId;
 import org.ballerinalang.jvm.observability.metrics.PolledGauge;
 import org.ballerinalang.jvm.observability.metrics.Tag;
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
@@ -71,7 +70,7 @@ public class GetAllMetrics {
                 Gauge gauge = (Gauge) metric;
                 metricValue = gauge.getValue();
                 metricType = MetricConstants.GAUGE;
-                summary = Utils.createBSnapshots(gauge.getSnapshots(), Scheduler.getStrand());
+                summary = Utils.createBSnapshots(gauge.getSnapshots());
             } else if (metric instanceof PolledGauge) {
                 PolledGauge gauge = (PolledGauge) metric;
                 metricValue = gauge.getValue();
