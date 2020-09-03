@@ -5211,6 +5211,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, BLangExpression vararg) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
+        if (iExpr.langLibInvocation && invokableSymbol.name.value.equals("sort")) {
+            checkArrayLibSortFuncArgs(iExpr);
+        }
         BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
         BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
         List<BVarSymbol> nonRestParams = new ArrayList<>(invokableTypeSymbol.params);
@@ -5387,6 +5390,26 @@ public class TypeChecker extends BLangNodeVisitor {
             return this.generateFutureType(invokableSymbol, retType);
         } else {
             return retType;
+        }
+    }
+
+    private void checkArrayLibSortFuncArgs(BLangInvocation iExpr) {
+        if (iExpr.argExprs.isEmpty() || iExpr.argExprs.size() == 1) {
+            if (!types.isBasicType(iExpr.expr.type)) {
+                dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
+            }
+        } else if (iExpr.argExprs.size() == 2) {
+            if (iExpr.argExprs.get(1).type != null && iExpr.argExprs.get(1).type.tag == TypeTags.NIL) {
+                if (!types.isBasicType(iExpr.expr.type)) {
+                    dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
+                }
+            } else {
+                BLangLambdaFunction func = (BLangLambdaFunction) iExpr.argExprs.get(1);
+                BType returnType = func.function.type.getReturnType();
+                if (!types.isBasicType(returnType)) {
+                    dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
+                }
+            }
         }
     }
 

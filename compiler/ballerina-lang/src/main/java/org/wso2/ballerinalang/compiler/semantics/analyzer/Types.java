@@ -3474,6 +3474,15 @@ public class Types {
      * @return boolean whether the type is basic type or not.
      */
     public boolean isBasicType(BType type) {
+        if (type.tag == TypeTags.ARRAY) {
+            BType arrType = ((BArrayType) type).eType;
+            return checkBasicType(arrType);
+        } else {
+            return checkBasicType(type);
+        }
+    }
+
+    private boolean checkBasicType(BType type) {
         switch (type.tag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
