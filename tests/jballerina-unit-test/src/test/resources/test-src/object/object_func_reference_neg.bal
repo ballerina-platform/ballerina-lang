@@ -28,7 +28,7 @@ type Status "ON"|"OFF";
 
 type ON "ON";
 
-public type Foo abstract object {
+public type Foo object {
     function test1(string aString, int anInt) returns string|error;
 
     public function test2(string aString);

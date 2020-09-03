@@ -20,7 +20,7 @@ class Foo {
     *int;
 }
 
-type Bar abstract object {
+type Bar object {
     int x;
     string y;
 };

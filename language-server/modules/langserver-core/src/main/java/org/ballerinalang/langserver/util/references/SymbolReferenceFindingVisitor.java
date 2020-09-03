@@ -254,10 +254,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if (serviceNode.attachedExprs != null) {
             serviceNode.attachedExprs.forEach(this::acceptNode);
         }
-        BLangType typeNode = serviceNode.getTypeDefinition().typeNode;
-        if (typeNode instanceof BLangObjectTypeNode) {
-            ((BLangObjectTypeNode) typeNode).functions.forEach(this::acceptNode);
-        }
+        serviceNode.serviceClass.functions.forEach(this::acceptNode);
     }
 
     @Override

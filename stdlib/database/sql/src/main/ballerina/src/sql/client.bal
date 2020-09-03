@@ -18,7 +18,7 @@ import ballerina/java;
 
 # Represents a SQL client.
 #
-public type Client abstract client object {
+public type Client client object {
 
     # Queries the database with the query provided by the user, and returns the result as stream.
     #

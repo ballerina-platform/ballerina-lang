@@ -22,7 +22,7 @@ import ballerina/java;
 # to the remote function.
 #
 # + value - Value of parameter passed into the SQL statement
-public type TypedValue abstract object {
+public type TypedValue object {
     anydata|object {}? value;
 };
 
@@ -313,7 +313,7 @@ public class RowValue {
 #
 # + strings - The separated parts of the sql query
 # + insertions - The values that should be filled in between the parts
-public type ParameterizedQuery abstract object {
+public type ParameterizedQuery object {
     public (string[] & readonly) strings;
     public Value[] insertions;
 };
@@ -428,7 +428,7 @@ public type Parameter Value|OutParameter|InOutParameter;
 #
 # + strings - The separated parts of the sql call query
 # + insertions - The values that should be filled in between the parts
-public type ParameterizedCallQuery abstract object {
+public type ParameterizedCallQuery object {
     public (string[] & readonly) strings;
     public Parameter[] insertions;
 };

@@ -9,7 +9,7 @@ public function testInitAbstractObjectWithNew () {
     Person2 p2 = new;
 }
 
-type Person1 abstract object {
+type Person1 object {
     public int age;
     public string name;
 
@@ -18,7 +18,7 @@ type Person1 abstract object {
 };
 
 // Abstract object with constructor method
-type Person2 abstract object {
+type Person2 object {
     public int age;
     public string name;
 
@@ -41,7 +41,7 @@ class Person3 {
 }
 
 // Abstract object with method definition
-type Person4 abstract object {
+type Person4 object {
     public int age;
     public string name;
 
@@ -54,14 +54,14 @@ type Person4 abstract object {
 };
 
 // Abstract object with private field
-type Person6 abstract object {
+type Person6 object {
     private int age;
     public string name;
 
     private function getName() returns string;
 };
 
-type Foo abstract object {
+type Foo object {
     private function getName() returns string;
 };
 
@@ -74,11 +74,11 @@ class Bar {
 }
 
 // Abstract object with extern method
-type Person7 abstract object {
+type Person7 object {
     public function getName() returns string = external;
 };
 
 // Abstract object with field with default value.
-type Baz abstract object {
+type Baz object {
     string xyz = "xyz";
 };

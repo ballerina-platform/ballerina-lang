@@ -207,7 +207,7 @@ public function testObjectReferingTypeFromBalo_2() returns [string, float] {
 }
 
 // Test referring a type coming from a balo
-type Employee3 abstract object {
+type Employee3 object {
     public float salary;
     *foo:Person1;
 

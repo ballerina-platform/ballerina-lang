@@ -115,7 +115,7 @@ function passSelfAsValue(Boy p) returns string {
     return p.getName();
 }
 
-public type Bin abstract object {
+public type Bin object {
     public int age;
     public string name;
     public int year;
@@ -209,7 +209,7 @@ public class Architect {
     }
 }
 
-public type Country abstract object {
+public type Country object {
     public int age;
     public string month;
 

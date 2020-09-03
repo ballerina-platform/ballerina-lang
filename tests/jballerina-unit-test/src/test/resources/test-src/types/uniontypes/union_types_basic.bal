@@ -167,7 +167,7 @@ function testUnionLhsWithDiscriminatedFloatDecimalLiterals() returns [(float|dec
     return [a, b, c];
 }
 
-type Employee abstract object {
+type Employee object {
     public int age;
     public string firstName;
     public string lastName;

@@ -26,7 +26,7 @@ client class ClientObject {
     }
 }
 
-type AbstractObject abstract object {
+type AbstractObject object {
     int field1;
     function abstractFunc1(SimpleTypeDesc param1, SimpleTypeDesc param2 = 1, SimpleTypeDesc2 ...param3) returns SimpleTypeDesc;
 };

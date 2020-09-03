@@ -109,7 +109,7 @@ function testInferringForReadOnly() {
     readonly rd2 = [1, [b, false], foo, foo];
 
     assertEquality(true, rd2 is [int, [boolean, boolean], Foo, Foo & readonly] & readonly);
-    assertEquality(false, rd2 is [int, [boolean, boolean], abstract object {} & readonly, Foo & readonly] & readonly);
+    assertEquality(false, rd2 is [int, [boolean, boolean], object {} & readonly, Foo & readonly] & readonly);
     [int, [boolean, boolean], Foo, Foo] arr2 = <[int, [boolean, boolean], Foo, Foo] & readonly> rd2;
 
     fn = function() {
@@ -132,7 +132,7 @@ function testInferringForReadOnlyInUnion() {
     readonly|(Foo|int)[] rd = [1, [b, false], foo, foo];
 
     assertEquality(true, rd is [int, [boolean, boolean], Foo, Foo & readonly] & readonly);
-    assertEquality(false, rd is [int, [boolean, boolean], abstract object {} & readonly, Foo & readonly] & readonly);
+    assertEquality(false, rd is [int, [boolean, boolean], object {} & readonly, Foo & readonly] & readonly);
     [int, [boolean, boolean], Foo, Foo] arr = <[int, [boolean, boolean], Foo, Foo] & readonly> rd;
 
     var fn = function() {

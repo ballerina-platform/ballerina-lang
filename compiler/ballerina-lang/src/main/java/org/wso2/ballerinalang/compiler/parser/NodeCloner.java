@@ -452,7 +452,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
 
         clone.name = source.name;
-        clone.serviceTypeDefinition = clone(source.serviceTypeDefinition);
+        clone.serviceClass = clone(source.serviceClass);
         clone.attachedExprs = cloneList(source.attachedExprs);
 
         clone.variableNode = clone(source.variableNode);
@@ -2038,7 +2038,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression source) {
-        BLangObjectTypeNode objectTypeNode = clone(source.objectTypeNode);
+        BLangClassDefinition objectTypeNode = clone(source.classNode);
         BLangObjectConstructorExpression clone = new BLangObjectConstructorExpression(objectTypeNode);
 
         clone.pos = source.pos;

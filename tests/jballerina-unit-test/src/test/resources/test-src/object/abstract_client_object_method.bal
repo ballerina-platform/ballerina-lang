@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type AbPersonOne abstract client object {
+public type AbPersonOne client object {
     int salary;
 
     remote function incrementAndGetSalary(int amount) returns int;
@@ -40,7 +40,7 @@ public client class PersonOne {
     }
 }
 
-public type AbPersonTwo client abstract object {
+public type AbPersonTwo client object {
     int salary;
 
     remote function incrementAndGetSalary(int amount) returns int;

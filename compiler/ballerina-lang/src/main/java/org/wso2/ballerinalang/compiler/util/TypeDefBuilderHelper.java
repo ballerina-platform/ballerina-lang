@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -38,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -181,5 +183,27 @@ public class TypeDefBuilderHelper {
         typeDefinition.type = type;
         typeDefinition.symbol = symbol;
         return typeDefinition;
+    }
+
+    public static BLangClassDefinition createClassDef(DiagnosticPos pos, BObjectTypeSymbol classTSymbol,
+                                                      SymbolEnv env) {
+        BObjectType objType = (BObjectType) classTSymbol.type;
+        List<BLangSimpleVariable> fieldList = new ArrayList<>();
+        for (BField field : objType.fields.values()) {
+            BVarSymbol symbol = field.symbol;
+            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
+                    null, symbol);
+            fieldList.add(fieldVar);
+        }
+
+        BLangClassDefinition classDefNode = (BLangClassDefinition) TreeBuilder.createClassDefNode();
+        classDefNode.type = objType;
+        classDefNode.fields = fieldList;
+        classDefNode.symbol = classTSymbol;
+        classDefNode.pos = pos;
+
+        env.enclPkg.addClassDefinition(classDefNode);
+
+        return classDefNode;
     }
 }

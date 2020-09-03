@@ -1,5 +1,5 @@
 class Iterable1 {
-    public function __iterator() returns abstract object {public function next() returns record {int value;}?;
+    public function __iterator() returns object {public function next() returns record {int value;}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -22,7 +22,7 @@ class Iterable1 {
 }
 
 class Iterable2 {
-    public function __iterator() returns abstract object {public function next() returns record {|int value;|};
+    public function __iterator() returns object {public function next() returns record {|int value;|};
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -41,7 +41,7 @@ class Iterable2 {
 }
 
 class Iterable3 {
-    public function __iterator() returns abstract object {public function next() returns record {|int x;|}?;
+    public function __iterator() returns object {public function next() returns record {|int x;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -60,7 +60,7 @@ class Iterable3 {
 }
 
 class Iterable4 {
-    public function __iterator() returns abstract object {public function foo() returns record {|int value;|}?;
+    public function __iterator() returns object {public function foo() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -83,7 +83,7 @@ class Iterable4 {
 }
 
 class Iterable5 {
-    public function _iterator() returns abstract object {public function next() returns record {|int value;|}?;
+    public function _iterator() returns object {public function next() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -115,7 +115,7 @@ type CustomErrorData record {|
 type CustomError error<CustomErrorData>;
 
 class Iterable6 {
-    public function __iterator() returns abstract object {public function next() returns record {|int value;|}?;
+    public function __iterator() returns object {public function next() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -138,7 +138,7 @@ class Iterable6 {
 }
 
 class Iterable7 {
-    public function __iterator() returns abstract object {public function next() returns record {|int value;|}|CustomError?;
+    public function __iterator() returns object {public function next() returns record {|int value;|}|CustomError?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -161,7 +161,7 @@ class Iterable7 {
 }
 
 class Iterable8 {
-    public function __iterator() returns abstract object {public function next() returns record {|int value;|}|error?;
+    public function __iterator() returns object {public function next() returns record {|int value;|}|error?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -184,7 +184,7 @@ class Iterable8 {
 }
 
 class Iterable9 {
-    public function __iterator() returns abstract object {public function next() returns record {|int value;|}|CustomError?;
+    public function __iterator() returns object {public function next() returns record {|int value;|}|CustomError?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];

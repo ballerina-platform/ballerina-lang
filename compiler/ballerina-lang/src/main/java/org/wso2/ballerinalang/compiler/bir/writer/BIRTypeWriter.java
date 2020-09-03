@@ -346,7 +346,7 @@ public class BIRTypeWriter implements TypeVisitor {
         // Write the package details in the form of constant pool entry TODO find a better approach
         writePkgCPInfo(tSymbol);
         //TODO below two line are a temp solution, introduce a generic concept
-        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.ABSTRACT)); // Abstract object or not
+        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)); // Abstract object or not
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields.values()) {

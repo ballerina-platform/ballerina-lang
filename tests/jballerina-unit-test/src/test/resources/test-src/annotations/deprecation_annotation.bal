@@ -65,7 +65,7 @@ type Annot record {
 @deprecated
 public annotation Annot v1 on type, class;
 @deprecated
-public annotation Annot[] v2 on object type, class;
+public annotation Annot[] v2 on class;
 @deprecated
 public annotation map<int> v4 on object function, function, class;
 

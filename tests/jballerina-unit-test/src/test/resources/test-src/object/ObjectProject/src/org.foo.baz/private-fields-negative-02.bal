@@ -28,31 +28,30 @@ public class FooFamily {
     public string[] children = [];
 }
 
+public class AddressI {
+    public string city;
+    public string state;
+    public string zipcode;
+
+    function init(string city, string state, string zipcode) {
+        self.city = city;
+        self.state = state;
+        self.zipcode = zipcode;
+    }
+}
+
 public class FooEmployee {
     public string fname;
     public string lname;
     public int age;
 
-    private object {
-            public string city;
-            public string state;
-            public string zipcode;
-
-            function init (string city, string state, string zipcode) {
-                self.city = city;
-                self.state = state;
-                self.zipcode = zipcode;
-            }
-        } address;
+    private AddressI address;
 
 
-    public function init (string fname, string lname, int age, object {
-            public string city = "";
-            public string state = "";
-            public string zipcode = "";
-
-            function init (string city, string state, string zipcode) {}
-        } address) {
+    public function init (string fname,
+            string lname,
+            int age,
+            AddressI address) {
         self.fname = fname;
         self.lname = lname;
         self.age = age;

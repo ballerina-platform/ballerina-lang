@@ -250,7 +250,7 @@ public class AnnotationDesugar {
                 BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                 target.pos = initFnBody.pos;
 
-                addLambdaToGlobalAnnotMap(service.serviceTypeDefinition.name.value, lambdaFunction, target);
+                addLambdaToGlobalAnnotMap(service.serviceClass.name.value, lambdaFunction, target);
 
                 // Add the annotation assignment to immediately before the service init.
                 int index = calculateIndex(initFnBody.stmts, service);

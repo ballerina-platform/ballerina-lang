@@ -35,7 +35,7 @@ type RemoteProtocol record {
 
 type UProtocol LocalProtocol|RemoteProtocol;
 
-type Participant abstract object {
+type Participant object {
 
     string participantId;
 

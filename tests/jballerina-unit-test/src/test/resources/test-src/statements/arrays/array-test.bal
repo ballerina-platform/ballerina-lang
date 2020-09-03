@@ -168,7 +168,7 @@ function testObjectDynamicArrayFilling() {
     assertArrayLengthPanic(2, y);
 }
 
-type AbstractPersonObject abstract object {
+type AbstractPersonObject object {
     public string fName;
     public string lName;
     function getFullName() returns string;

@@ -110,5 +110,5 @@ function testInvalidTupleVarDef3() {
     string|int [p, q] = [0, 0];
 }
 
-type NoFillerObject abstract object {
+type NoFillerObject object {
 };

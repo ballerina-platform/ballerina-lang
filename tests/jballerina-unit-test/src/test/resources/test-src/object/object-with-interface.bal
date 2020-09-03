@@ -5,7 +5,7 @@ public function testObjectWithInterface () returns [int, string, int, string] {
 }
 
 
-type Person abstract object {
+type Person object {
     public int age;
     public string name;
 

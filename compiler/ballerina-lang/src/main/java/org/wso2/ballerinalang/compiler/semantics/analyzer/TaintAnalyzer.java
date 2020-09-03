@@ -453,7 +453,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // of listeners.
         if (serviceNode.isAnonymousServiceValue) {
             setTaintedStatus(serviceNode.symbol, TaintedStatus.TAINTED);
-            setTaintedStatus(serviceNode.serviceTypeDefinition.symbol, TaintedStatus.TAINTED);
+            setTaintedStatus(serviceNode.serviceClass.symbol, TaintedStatus.TAINTED);
         }
     }
 

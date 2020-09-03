@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person abstract object {
+type Person object {
     public int age;
     function getFullName() returns string;
 };

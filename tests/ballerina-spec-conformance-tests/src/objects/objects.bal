@@ -70,7 +70,7 @@ public remote function PublicClientObject.publicRemoteMethodDecl() returns int {
     return self.counter;
 }
 
-type AbstractObject abstract object {
+type AbstractObject object {
     public string publicStringField;
 
     public function publicMethodDecl(string argOne) returns int;
@@ -102,7 +102,7 @@ public function ObjReferenceToAbstractObject.publicMethodDeclaredOutside() retur
     return self.counter;
 }
 
-public type AbstractClientObject abstract client object {
+public type AbstractClientObject client object {
     public string publicStringField;
 
     public function publicMethodDecl() returns int;
