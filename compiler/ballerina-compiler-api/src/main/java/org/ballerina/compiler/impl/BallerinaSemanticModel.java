@@ -102,6 +102,20 @@ public class BallerinaSemanticModel implements SemanticModel {
      */
     @Override
     public Optional<Symbol> symbol(LinePosition position) {
+        SymbolTable symbolTable = SymbolTable.getInstance(this.compilerContext);
+        SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(this.bLangPackage.symbol);
+        SymbolsLookupVisitor lookupVisitor = new SymbolsLookupVisitor(position, symbolEnv);
+        SymbolEnv enclosingEnv = lookupVisitor.lookUp(compilationUnit);
+
+        for (Map.Entry<Name, Scope.ScopeEntry> entry : enclosingEnv.scope.entries.entrySet()) {
+            Name name = entry.getKey();
+            Scope.ScopeEntry value = entry.getValue();
+
+            if (isWithinSymbol(position, value.symbol.pos)) {
+                return Optional.of(SymbolFactory.getBCompiledSymbol(value.symbol, name.value));
+            }
+        }
+
         return Optional.empty();
     }
 
@@ -130,5 +144,20 @@ public class BallerinaSemanticModel implements SemanticModel {
                 .filter(unit -> unit.name.equals(srcFile))
                 .findFirst()
                 .get();
+    }
+
+    private boolean isWithinSymbol(LinePosition cursorPos, DiagnosticPos symbolPos) {
+        int symbolStartLine = symbolPos.getStartLine();
+        int symbolEndLine = symbolPos.getEndLine();
+        int symbolStartCol = symbolPos.getStartColumn();
+        int symbolEndCol = symbolPos.getEndColumn();
+        int cursorLine = cursorPos.line();
+        int cursorCol = cursorPos.offset();
+
+        return (symbolStartLine < cursorLine && symbolEndLine > cursorLine)
+                || (symbolStartLine < cursorLine && symbolEndLine == cursorLine && symbolEndCol > cursorCol)
+                || (symbolStartLine == cursorLine && symbolStartCol < cursorCol && symbolEndLine > cursorLine)
+                || (symbolStartLine == symbolEndLine && symbolStartLine == cursorLine
+                && symbolStartCol <= cursorCol && symbolEndCol > cursorCol);
     }
 }
