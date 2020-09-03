@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;

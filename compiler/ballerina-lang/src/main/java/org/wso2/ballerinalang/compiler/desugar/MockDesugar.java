@@ -18,7 +18,6 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;

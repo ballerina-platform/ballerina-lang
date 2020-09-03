@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;

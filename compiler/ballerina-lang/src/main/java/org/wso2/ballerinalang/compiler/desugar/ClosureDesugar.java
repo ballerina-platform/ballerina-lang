@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
