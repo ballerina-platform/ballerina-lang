@@ -33,7 +33,7 @@
               "isMissing": true,
               "hasDiagnostics": true,
               "diagnostics": [
-                "ERROR_SYNTAX_ERROR"
+                "ERROR_MISSING_CLASS_KEYWORD"
               ]
             },
             {

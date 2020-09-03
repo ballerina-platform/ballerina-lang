@@ -1,4 +1,4 @@
 var objCreatedViaConstructor = object {
     int n;
-    *Dummy;
+    function foo(); // method-decl is not allowed
 };

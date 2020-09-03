@@ -837,18 +837,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectTypeDescriptorNode objTypeDescNode) {
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        objectTypeNode.flagSet.add(Flag.ABSTRACT); // object-type-descriptor is always abstract
 
         for (Token qualifier : objTypeDescNode.objectTypeQualifiers()) {
             if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
                 objectTypeNode.flagSet.add(Flag.CLIENT);
-            }
-
-            if (qualifier.kind() == SyntaxKind.READONLY_KEYWORD) {
-                objectTypeNode.flagSet.add(Flag.READONLY);
-            }
-
-            if (qualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
+            } else if (qualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
                 objectTypeNode.flagSet.add(SERVICE);
+            } else {
+                throw new RuntimeException("Syntax kind is not supported: " + qualifier.kind());
             }
         }
 
@@ -1640,8 +1637,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                     AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT_FIELD.getValue(), source);
                             break;
                         default:
-                            bLAttachPoint =
-                                    AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT.getValue(), source);
+                            throw new RuntimeException("Syntax kind is not supported: " + secondIndent.kind());
                     }
                     break;
                 case RESOURCE_KEYWORD:

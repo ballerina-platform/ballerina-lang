@@ -1,9 +1,9 @@
-type Person object {
+class Person {
 
     function foo() {
         bar()
     }
-};
+}
 
 function bar() {
     someString.indexOf()

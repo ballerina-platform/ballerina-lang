@@ -86,24 +86,41 @@
                   ]
                 },
                 {
-                  "kind": "EQUAL_TOKEN",
-                  "isMissing": true,
+                  "kind": "SEMICOLON_TOKEN",
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_MISSING_EQUAL_TOKEN"
-                  ]
-                },
-                {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
-                  "children": [
+                    "ERROR_INVALID_TOKEN",
+                    "ERROR_INVALID_TOKEN"
+                  ],
+                  "leadingMinutiae": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "7"
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
+                          {
+                            "kind": "EQUAL_TOKEN"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    },
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
+                          {
+                            "kind": "DECIMAL_INTEGER_LITERAL",
+                            "value": "7"
+                          }
+                        ]
+                      }
                     }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
+                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",

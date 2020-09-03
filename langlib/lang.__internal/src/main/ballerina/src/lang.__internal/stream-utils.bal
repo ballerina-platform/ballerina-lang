@@ -78,4 +78,3 @@ public function getIteratorObj(stream<Type, ErrorType> strm) returns object { pu
         public function next() returns record {|Type value;|}|ErrorType?;
         public function close() returns ErrorType?;
     } = external;
-
