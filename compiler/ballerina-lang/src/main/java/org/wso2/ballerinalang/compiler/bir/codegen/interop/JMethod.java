@@ -38,7 +38,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
  *
  * @since 1.2.0
  */
-public class JMethod {
+class JMethod {
 
     static final JMethod NO_SUCH_METHOD = new JMethod(null, null, null);
 

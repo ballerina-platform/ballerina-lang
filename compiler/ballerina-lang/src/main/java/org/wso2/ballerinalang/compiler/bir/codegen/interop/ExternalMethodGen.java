@@ -281,11 +281,6 @@ public class ExternalMethodGen {
         return birFuncWrapper;
     }
 
-    public static boolean checkCallerEnvParamForExtern(InteropValidator interopValidator, String className,
-                                                       String methodName, BInvokableType bFunctionType) {
-        return interopValidator.checkCallerEnvParam(className, methodName, bFunctionType);
-    }
-
 
     private ExternalMethodGen() {
     }

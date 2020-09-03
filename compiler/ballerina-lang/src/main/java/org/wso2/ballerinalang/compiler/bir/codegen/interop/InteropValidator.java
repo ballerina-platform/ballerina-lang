@@ -17,11 +17,21 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.lang.reflect.Field;
+import java.util.List;
+
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.CLASS_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.NAME_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.isInteropModuleAnnotAttachment;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.isMethodAnnotationTag;
 
 /**
  * Java interop validation class for both field access and method invocations.
@@ -56,16 +66,41 @@ public class InteropValidator {
     /**
      * Method that check Java interop function has a caller env parameter.
      *
-     * @param className Java interop class name
-     * @param methodName Java interop method name
-     * @param bFunctionType Java interop function type
+     * @param methodName     Java interop method name
+     * @param annAttachments Funtion annotations list
+     * @param bFunctionType  Java interop function type
      * @return whether we need to pass the callenv arg or not.
      */
-    public boolean checkCallerEnvParam(String className, String methodName,
+    public boolean checkCallerEnvParam(String methodName, List<BLangAnnotationAttachment> annAttachments,
                                        BInvokableType bFunctionType) {
-
-        Class<?> clazz = JInterop.loadClass(className, classLoader);
-        return this.methodResolver.checkCallerEnvParam(clazz, methodName, bFunctionType);
+        String classValue = null;
+        String methodValue = methodName;
+        for (BLangAnnotationAttachment annAttachment : annAttachments) {
+            if (isInteropModuleAnnotAttachment(annAttachment.annotationSymbol.pkgID.orgName.value,
+                                               annAttachment.annotationSymbol.pkgID.name.value) &&
+                    isMethodAnnotationTag(annAttachment.annotationName.value) &&
+                    annAttachment.expr instanceof BLangRecordLiteral) {
+                BLangRecordLiteral annotationMap = (BLangRecordLiteral) annAttachment.expr;
+                for (RecordLiteralNode.RecordField recordField : annotationMap.fields) {
+                    BLangRecordLiteral.BLangRecordKeyValueField field =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
+                    Object key = ((BLangLiteral) field.key.expr).value;
+                    if (field.valueExpr instanceof BLangLiteral) {
+                        Object value = ((BLangLiteral) field.valueExpr).value;
+                        if (key.equals(CLASS_FIELD_NAME)) {
+                            classValue = value.toString();
+                        } else if (key.equals(NAME_FIELD_NAME)) {
+                            methodValue = value.toString();
+                        }
+                    }
+                }
+            }
+        }
+        if (classValue == null) {
+            return false;
+        }
+        Class<?> clazz = JInterop.loadClass(classValue, classLoader);
+        return this.methodResolver.checkCallerEnvParam(clazz, methodValue, bFunctionType);
     }
 
     /**

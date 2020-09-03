@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -46,9 +45,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -149,12 +145,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addJUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.CLASS_FIELD_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.NAME_FIELD_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.checkCallerEnvParamForExtern;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.genVarArg;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.INTEROP_ANNOT_MODULE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.INTEROP_ANNOT_ORG;
 
 /**
  * BIR terminator instruction generator class to keep track of method visitor and index map.
@@ -706,7 +697,8 @@ public class JvmTerminatorGen {
             funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
             type = (BInvokableType) funcSymbol.type;
             if (callIns.calleeFlags.contains(Flag.NATIVE)) {
-                hasCallerEnvParam = hasCallerEnvParam(methodName, funcSymbol, type, hasCallerEnvParam);
+                hasCallerEnvParam = jvmPackageGen.interopValidator.checkCallerEnvParam(methodName,
+                                                                                       funcSymbol.annAttachments, type);
             }
         }
 
@@ -754,37 +746,6 @@ public class JvmTerminatorGen {
             }
         }
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, hasCallerEnvParam);
-    }
-
-    private boolean hasCallerEnvParam(String methodName, BInvokableSymbol funcSymbol, BInvokableType type,
-                                      boolean hasCallerEnvParam) {
-        String classValue = null;
-        String methodValue = methodName;
-        for (BLangAnnotationAttachment annAttachment : funcSymbol.annAttachments) {
-            if (INTEROP_ANNOT_ORG.equals(annAttachment.annotationSymbol.pkgID.orgName.value) &&
-                    INTEROP_ANNOT_MODULE.equals(annAttachment.annotationSymbol.pkgID.name.value) &&
-                    annAttachment.expr instanceof BLangRecordLiteral) {
-                BLangRecordLiteral annotationMap = (BLangRecordLiteral) annAttachment.expr;
-                for (RecordLiteralNode.RecordField recordField : annotationMap.fields) {
-                    BLangRecordLiteral.BLangRecordKeyValueField field =
-                            (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
-                    Object key = ((BLangLiteral) field.key.expr).value;
-                    if (field.valueExpr instanceof BLangLiteral) {
-                        Object value = ((BLangLiteral) field.valueExpr).value;
-                        if (key.equals(CLASS_FIELD_NAME)) {
-                            classValue = value.toString();
-                        } else if (key.equals(NAME_FIELD_NAME)) {
-                            methodValue = value.toString();
-                        }
-                    }
-                }
-            }
-        }
-        if (classValue != null && checkCallerEnvParamForExtern(jvmPackageGen.interopValidator, classValue,
-                                                               methodValue, type)) {
-            hasCallerEnvParam = true;
-        }
-        return hasCallerEnvParam;
     }
 
     private void genCallerEnv(BIRTerminator.Call callIns) {

@@ -40,10 +40,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JSHO
  *
  * @since 1.2.0
  */
-public class JInterop {
+class JInterop {
 
-    public static final String INTEROP_ANNOT_ORG = "ballerina";
-    public static final String INTEROP_ANNOT_MODULE = "java";
+    static final String INTEROP_ANNOT_ORG = "ballerina";
+    static final String INTEROP_ANNOT_MODULE = "java";
 
     static final String CONSTRUCTOR_ANNOT_TAG = "Constructor";
     static final String METHOD_ANNOT_TAG = "Method";
@@ -290,6 +290,16 @@ public class JInterop {
 
     static boolean isMethodAnnotationTag(String annotTag) {
 
-        return CONSTRUCTOR_ANNOT_TAG.equals(annotTag) || METHOD_ANNOT_TAG.equals(annotTag);
+        return METHOD_ANNOT_TAG.equals(annotTag);
+    }
+
+    static boolean isConstructorAnnotationTag(String annotTag) {
+
+        return CONSTRUCTOR_ANNOT_TAG.equals(annotTag);
+    }
+
+    static boolean isInteropModuleAnnotAttachment(String orgName, String moduleName) {
+
+        return INTEROP_ANNOT_ORG.equals(orgName) && INTEROP_ANNOT_MODULE.equals(moduleName);
     }
 }

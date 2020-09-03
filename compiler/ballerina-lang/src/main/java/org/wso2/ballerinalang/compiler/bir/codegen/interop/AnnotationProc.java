@@ -31,10 +31,9 @@ import java.util.Map;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.CONSTRUCTOR_ANNOT_TAG;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.INTEROP_ANNOT_MODULE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.INTEROP_ANNOT_ORG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.getFieldMethodFromAnnotTag;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.getMethodKindFromAnnotTag;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.isConstructorAnnotationTag;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.isInteropAnnotationTag;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.isMethodAnnotationTag;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.getJArrayTypeFromTypeName;
@@ -76,8 +75,8 @@ public class AnnotationProc {
 
     private static boolean isInteropAnnotAttachment(BIRAnnotationAttachment annotAttach) {
 
-        return INTEROP_ANNOT_ORG.equals(annotAttach.packageID.orgName.value) &&
-                INTEROP_ANNOT_MODULE.equals(annotAttach.packageID.name.value) &&
+        return JInterop.isInteropModuleAnnotAttachment(annotAttach.packageID.orgName.value,
+                                                       annotAttach.packageID.name.value) &&
                 isInteropAnnotationTag(annotAttach.annotTagRef.value);
     }
 
@@ -87,7 +86,7 @@ public class AnnotationProc {
 
         BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) annotAttach.annotValues.get(0);
         Map<String, BIRAnnotationValue> annotValueMap = annotRecValue.annotValueEntryMap;
-        if (isMethodAnnotationTag(annotTagRef)) {
+        if (isMethodAnnotationTag(annotTagRef) || isConstructorAnnotationTag(annotTagRef)) {
             return createJMethodValidationRequest(annotTagRef, annotValueMap, birFunc);
         } else {
             return createJFieldValidationRequest(annotTagRef, annotValueMap, birFunc);
