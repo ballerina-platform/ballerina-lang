@@ -12991,7 +12991,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextNextToken = peek(2);
         switch (nextNextToken.kind) {
             case OPEN_PAREN_TOKEN:// Error binding pattern
-                return parseAsErrorBP();
+                return parseAsErrorBindingPattern();
             case LT_TOKEN:
                 return parseAsErrorTypeDesc(annots);
             case IDENTIFIER_TOKEN:
@@ -12999,7 +12999,7 @@ public class BallerinaParser extends AbstractParser {
                 SyntaxKind nextNextNextTokenKind = peek(3).kind;
                 if (nextNextNextTokenKind == SyntaxKind.COLON_TOKEN ||
                         nextNextNextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
-                    return parseAsErrorBP();
+                    return parseAsErrorBindingPattern();
                 }
                 // Fall through.
             default:
@@ -13007,7 +13007,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseAsErrorBP() {
+    private STNode parseAsErrorBindingPattern() {
         startContext(ParserRuleContext.ASSIGNMENT_STMT);
         return parseAssignmentStmtRhs(parseErrorBindingPattern());
     }
@@ -13016,6 +13016,7 @@ public class BallerinaParser extends AbstractParser {
         STNode finalKeyword = STNodeFactory.createEmptyNode();
         return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
     }
+
     /**
      * Parse error binding pattern node.
      * <p>
@@ -13116,31 +13117,35 @@ public class BallerinaParser extends AbstractParser {
             DiagnosticErrorCode errorCode = validateArgBindingPatternOrder(lastValidArgKind, currentArg.kind,
                     argCount);
             STNode argEnd = parseErrorArgsBindingPatternEnd(argCount);
-            if (errorCode == null) {
-                argListBindingPatterns.add(currentArg);
-                if (argEnd == null) {
-                    // null marks the end of args
-                    break;
-                }
-                argListBindingPatterns.add(argEnd);
-                lastValidArgKind = currentArg.kind;
-                argCount++;
-            } else {
-                if (argListBindingPatterns.size() != 0) {
-                    updateLastNodeInListWithInvalidNode(argListBindingPatterns, currentArg, errorCode);
-                    if (argEnd != null) {
-                        updateLastNodeInListWithInvalidNode(argListBindingPatterns, argEnd, null);
-                    }
-                } else {
-                    addInvalidNodeToNextToken(currentArg, errorCode, currentArg.toString().trim());
-                    if (argEnd != null) {
-                        addInvalidNodeToNextToken(argEnd, null, argEnd.toString().trim());
-                    }
-                }
-            }
             if (argEnd == null) {
+                // null marks the end of args
                 isArgEnd = true;
+                if (errorCode == null) {
+                    argListBindingPatterns.add(currentArg);
+                } else {
+                    if (argListBindingPatterns.size() != 0) {
+                        updateLastNodeInListWithInvalidNode(argListBindingPatterns, currentArg, errorCode);
+                    } else {
+                        addInvalidNodeToNextToken(currentArg, errorCode);
+                    }
+                }
+            } else {
+                if (errorCode == null) {
+                    argListBindingPatterns.add(currentArg);
+                    argListBindingPatterns.add(argEnd);
+                    lastValidArgKind = currentArg.kind;
+                    argCount++;
+                } else {
+                    if (argListBindingPatterns.size() != 0) {
+                        updateLastNodeInListWithInvalidNode(argListBindingPatterns, currentArg, errorCode);
+                        updateLastNodeInListWithInvalidNode(argListBindingPatterns, argEnd, null);
+                    } else {
+                        addInvalidNodeToNextToken(currentArg, errorCode);
+                        addInvalidNodeToNextToken(argEnd, null);
+                    }
+                }
             }
+
         }
         return STNodeFactory.createNodeList(argListBindingPatterns);
     }
@@ -13150,6 +13155,7 @@ public class BallerinaParser extends AbstractParser {
             case COMMA_TOKEN:
                 return consume();
             case CLOSE_PAREN_TOKEN:
+            case EOF_TOKEN:
                 return null;
             default:
                 ParserRuleContext currentCtx;
