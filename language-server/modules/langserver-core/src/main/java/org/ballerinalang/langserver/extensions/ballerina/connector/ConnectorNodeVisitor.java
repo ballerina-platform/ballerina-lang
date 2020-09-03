@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,6 +95,9 @@ public class ConnectorNodeVisitor extends LSNodeVisitor {
 
         } else if (typeDefinition.getTypeNode() instanceof BLangRecordTypeNode) {
             this.records.put(((BLangRecordTypeNode) typeDefinition.getTypeNode()).symbol.type.toString(),
+                    typeDefinition);
+        } else if (typeDefinition.getTypeNode() instanceof BLangUnionTypeNode) {
+            this.records.put(((BLangUnionTypeNode) typeDefinition.getTypeNode()).type.toString(),
                     typeDefinition);
         }
     }

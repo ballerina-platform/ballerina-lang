@@ -46,7 +46,7 @@ public class VPrimitiveUtilTests {
     private BVarSymbol extractBVarSymbol;
     private List<ValidationError> validationErrors = new ArrayList<>();
 
-    @Test(description = "Type mismatch with integer")
+    @Test(enabled = false, description = "Type mismatch with integer")
     public void testIntegerType() throws UnsupportedEncodingException, OpenApiValidatorException {
         Path contractPath = RES_DIR.resolve("validTests/primitive/integerB.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -57,7 +57,7 @@ public class VPrimitiveUtilTests {
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
-    @Test(description = "Type mismatch with string")
+    @Test(enabled = false, description = "Type mismatch with string")
     public void testStringType() throws UnsupportedEncodingException, OpenApiValidatorException {
         Path contractPath = RES_DIR.resolve("validTests/primitive/stringB.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -68,7 +68,7 @@ public class VPrimitiveUtilTests {
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
-    @Test(description = "Type mismatch with boolean")
+    @Test(enabled = false, description = "Type mismatch with boolean")
     public void testBooleanType() throws UnsupportedEncodingException, OpenApiValidatorException {
         Path contractPath = RES_DIR.resolve("validTests/primitive/booleanB.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());

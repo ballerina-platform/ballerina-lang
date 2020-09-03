@@ -29,12 +29,14 @@ public class BallerinaRecordRequest {
     private String module;
     private String version = "";
     private String name;
+    private Boolean beta;
 
-    public BallerinaRecordRequest(String org, String module, String version, String name) {
+    public BallerinaRecordRequest(String org, String module, String version, String name, Boolean beta) {
         this.org = org;
         this.module = module;
         this.version = version;
         this.name = name;
+        this.beta = beta;
     }
 
     public String getOrg() {
@@ -53,6 +55,10 @@ public class BallerinaRecordRequest {
         return name;
     }
 
+    public Boolean getBeta() {
+        return beta;
+    }
+
     @Override
     public String toString() {
         return "BallerinaConnectorRequest{" +
@@ -60,6 +66,7 @@ public class BallerinaRecordRequest {
                 ", module='" + module + '\'' +
                 ", version='" + version + '\'' +
                 ", name='" + name + '\'' +
+                ", beta='" + beta + '\'' +
                 '}';
     }
 }

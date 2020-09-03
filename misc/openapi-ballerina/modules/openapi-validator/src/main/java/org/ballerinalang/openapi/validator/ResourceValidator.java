@@ -44,7 +44,7 @@ public class ResourceValidator {
      * @param operation         openAPi operation
      * @param resourceMethod    validate resourceMethods
      * @return                  list of validationErrors
-     * @throws OpenApiValidatorException
+     * @throws OpenApiValidatorException throws openApi validator exception
      */
     public static List<ValidationError> validateResourceAgainstOperation(Operation operation,
                                                                          ResourceMethod resourceMethod)
@@ -95,7 +95,7 @@ public class ResourceValidator {
      * @param isParameterExit       boolean tag for checking parameter is available
      * @param requestBody           requestBody type  operation parameter
      * @return  boolean value for indicating parameter is available
-     * @throws OpenApiValidatorException
+     * @throws OpenApiValidatorException throws openApi validator exception
      */
     private static Boolean validateRequestBodyResourceToOpenApi(Operation operation,
                                                                 List<ValidationError> validationErrors,
@@ -143,7 +143,7 @@ public class ResourceValidator {
      * @param operation         openApi operation
      * @param resourceMethod    resource method object
      * @return                  list of ValidationErrors
-     * @throws OpenApiValidatorException
+     * @throws OpenApiValidatorException throws openApi validator exception
      */
     public static List<ValidationError> validateOperationAgainstResource(Operation operation,
                                                                          ResourceMethod resourceMethod)
@@ -213,7 +213,7 @@ public class ResourceValidator {
      * @param operationRB               request Body parameters in operations
      * @param isOParamExit              boolean tag for checking the operation parameter available
      * @return boolean value whether it is exit or not
-     * @throws OpenApiValidatorException
+     * @throws OpenApiValidatorException throws openApi validator exception
      */
     private static Boolean validateRequestBodyOpenApiToResource(ResourceMethod resourceMethod,
                                                                 List<ValidationError> validationErrorList,

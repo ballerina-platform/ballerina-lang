@@ -44,7 +44,7 @@ public class DirectoryTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When creating the ballerina client.
      */
-    @BeforeClass()
+    @BeforeClass(enabled = false)
     public void setUp() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
     }
@@ -54,7 +54,7 @@ public class DirectoryTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test building and running TestProject")
+    @Test(enabled = false, description = "Test building and running TestProject")
     public void testRunDirectory() throws BallerinaTestException {
         testProjectPath = Paths.get("src", "test", "resources", "packaging", "executable", "TestProject")
                                .toAbsolutePath();
@@ -66,7 +66,7 @@ public class DirectoryTestCase extends BaseTest {
         fooRunLeecher.waitForText(10000);
     }
 
-    @AfterClass
+    @AfterClass(enabled = false)
     private void cleanup() throws Exception {
         deleteFiles(Paths.get(this.testProjectPath.toString(), "target").toAbsolutePath());
     }
