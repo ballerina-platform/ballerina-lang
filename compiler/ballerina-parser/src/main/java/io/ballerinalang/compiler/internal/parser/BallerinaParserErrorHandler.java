@@ -636,7 +636,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_DEF_QUALIFIERS:
             case RESOURCE_DEF_START_WITHOUT_RESOURCE:
             case RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL:
-            case PARAMETER_WITHOUT_ANNOTS:
             case PARAMETER_START:
             case STMT_START_WITH_EXPR_RHS:
             case EXPR_STMT_RHS:
@@ -1909,7 +1908,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
-     * @param fixes Fixes made so far
      * @param isEntryPoint
      * @return Recovery result
      */
@@ -2415,8 +2413,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
             case SLASH_LT_TOKEN:
                 return ParserRuleContext.XML_NAME_PATTERN;
-            case PARAMETER_WITHOUT_ANNOTS:
-                return ParserRuleContext.TYPE_DESC_IN_PARAM;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
 
@@ -4131,7 +4127,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     /**
      * Check whether the given context is a statement.
      *
-     * @param ctx Parser context to check
+     * @param parentCtx Parser context to check
      * @return <code>true</code> if the given context is a statement. <code>false</code> otherwise
      */
     private boolean isStatement(ParserRuleContext parentCtx) {
@@ -4253,7 +4249,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case REST_PARAM:
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case RECORD_FIELD_WITHOUT_METADATA:
-            case PARAMETER_WITHOUT_ANNOTS:
             case TYPE_DESCRIPTOR:
                 // From SIMPLE_TYPE_DESCRIPTOR to TYPE_DESCRIPTOR expects a type descriptor.
             case TYPE_NAME:

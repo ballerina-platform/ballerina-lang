@@ -1329,34 +1329,7 @@ public class BallerinaParser extends AbstractParser {
         return parseParamGivenAnnots(prevParamKind, annots, isParamNameOptional);
     }
 
-    private STNode parseParamGivenAnnots(SyntaxKind prevParamKind, STNode annots, boolean isParamNameOptional) {
-        STNode qualifier;
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case IDENTIFIER_TOKEN:
-                break;
-            case AT_TOKEN: // Annotations can't reach here
-            default:
-                if (isTypeStartingToken(nextToken.kind) && nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
-                    break;
-                }
-
-                Solution solution = recover(nextToken, ParserRuleContext.PARAMETER_WITHOUT_ANNOTS, prevParamKind,
-                        annots, isParamNameOptional);
-
-                if (solution.action == Action.KEEP) {
-                    // If the solution is {@link Action#KEEP}, that means next immediate token is
-                    // at the correct place, but some token after that is not. There only one such
-                    // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
-                    break;
-                }
-                return parseParamGivenAnnots(prevParamKind, annots, isParamNameOptional);
-        }
-
-        return parseParamGivenAnnotsAndQualifier(prevParamKind, annots, isParamNameOptional);
-    }
-
-    private STNode parseParamGivenAnnotsAndQualifier(SyntaxKind prevParamKind, STNode annots,
+    private STNode parseParamGivenAnnots(SyntaxKind prevParamKind, STNode annots,
             boolean isParamNameOptional) {
 
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
@@ -1425,7 +1398,6 @@ public class BallerinaParser extends AbstractParser {
      *
      * @param prevParamKind Kind of the parameter that precedes current parameter
      * @param annots Annotations attached to the parameter
-     * @param qualifier Visibility qualifier
      * @param type Type descriptor
      * @param paramName Name of the parameter
      * @return Parsed parameter node
