@@ -35,4 +35,7 @@ public interface BallerinaConnectorService {
 
     @JsonRequest
     CompletableFuture<BallerinaConnectorResponse> connector(BallerinaConnectorRequest request);
+
+    @JsonRequest
+    CompletableFuture<BallerinaRecordResponse> record(BallerinaRecordRequest request);
 }

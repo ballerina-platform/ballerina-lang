@@ -16,7 +16,7 @@
 
 function test1() {
     // package streams is not imported.
-    streams:Select select = streams:createSelect(outputProcess.process, function (string k) returns map<any> {
+    streams:Select selectVar = streams:createSelect(outputProcess.process, function (string k) returns map<any> {
             int[2] arr = [12, 13];
             int index = 1;
             return {

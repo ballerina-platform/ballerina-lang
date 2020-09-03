@@ -125,15 +125,16 @@ public class ObjectTypeReferenceTest {
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testSimpleObjectTypeReferenceSemanticsNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-semantics" +
                 "-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        Assert.assertEquals(negativeResult.getErrorCount(), 4);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' is not an object",
+        BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions",
                 18, 6);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' is not an object", 20, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Bar'", 19, 6);
+        BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions", 20, 6);
         BAssertUtil.validateError(negativeResult, i, "unknown type 'YYY'", 29, 6);
     }
 

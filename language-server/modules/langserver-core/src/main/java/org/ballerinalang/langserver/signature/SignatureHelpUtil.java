@@ -15,23 +15,15 @@
  */
 package org.ballerinalang.langserver.signature;
 
-import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Token;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.completions.util.SourcePruneException;
-import org.ballerinalang.langserver.signature.sourceprune.SignatureTokenTraverserFactory;
-import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
-import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -41,7 +33,6 @@ import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -74,11 +65,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.lang.reflect.Field;
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +73,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.StringJoiner;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getLastItem;
@@ -107,16 +93,25 @@ public class SignatureHelpUtil {
     /**
      * Capture the callable item information such as name, package of the item, delimiter (. or :), and etc.
      *
-     * @param serviceContext    Text Document service context instance for the signature help operation
-     * @return A {@link Pair} of function path and parameter count
+     * @param signatureNode  signature node
+     * @param serviceContext Text Document service context instance for the signature help operation
+     * @return invocation symbol path
      * @throws CompilationFailedException when compilation fails
      */
-    public static Pair<Optional<String>, Integer> getFunctionInvocationDetails(LSContext serviceContext)
+    public static Optional<String> getInvocationSymbolPath(NonTerminalNode signatureNode, LSContext serviceContext)
             throws CompilationFailedException {
-        // Generate function invocation from the source pruned text
-        Pair<String, Integer> functionInvocationAndParamOffset = extractSourcePrunedInvocationDetails(serviceContext);
-        String funcInvocation = functionInvocationAndParamOffset.getLeft();
-        int paramIndex = functionInvocationAndParamOffset.getRight();
+        boolean isImplicitNew = signatureNode.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION;
+        boolean isErrorConstructor = signatureNode.kind() == SyntaxKind.FUNCTION_CALL &&
+                "error".equals(((FunctionCallExpressionNode) signatureNode).functionName().toString());
+
+        String funcInvocation = (isImplicitNew || isErrorConstructor) ?
+                signatureNode.parent().toSourceCode() :
+                signatureNode.toSourceCode();
+
+        // Remove last ;\n
+        if (funcInvocation.endsWith(";" + CommonUtil.LINE_SEPARATOR)) {
+            funcInvocation = funcInvocation.substring(0, funcInvocation.lastIndexOf(";" + CommonUtil.LINE_SEPARATOR));
+        }
 
         // Get right hand side of the assignment
         int equalSymbolIndex = funcInvocation.lastIndexOf(EQUAL);
@@ -126,101 +121,11 @@ public class SignatureHelpUtil {
         }
 
         // Get function name using Subrule parser
-        String subRuleFormat = "function rightHandExpr() {\n\t%s;\n}".replaceAll("\\n", CommonUtil.LINE_SEPARATOR);
-        subRuleFormat += "function wholeStatement() {\n\t%s;\n}".replaceAll("\\n", CommonUtil.LINE_SEPARATOR);
+        String subRuleFormat = "function rightHandExpr() {\n\t%s;\n}\n".replaceAll("\\n", CommonUtil.LINE_SEPARATOR);
+        subRuleFormat += "function wholeStatement() {\n\t%s;\n}\n".replaceAll("\\n", CommonUtil.LINE_SEPARATOR);
         String subRule = String.format(subRuleFormat, funcInvocation, funcInvocationStatement);
 
-        return new ImmutablePair<>(parseAndGetFunctionInvocationPath(subRule, serviceContext), paramIndex);
-    }
-
-    private static Pair<String, Integer> extractSourcePrunedInvocationDetails(LSContext context) {
-        int parameterOffset = 0;
-        // Collect source-pruned tokens
-        List<String> tokenTexts = new ArrayList<>();
-
-        final int[] pendingRParenthesisCount = new int[]{0};
-        Consumer<Integer> tokenAcceptor = type -> {
-            if (type == BallerinaParser.LEFT_PARENTHESIS) {
-                pendingRParenthesisCount[0]--;
-            } else if (type == BallerinaParser.RIGHT_PARENTHESIS) {
-                pendingRParenthesisCount[0]++;
-            }
-        };
-
-        // Visit Left-Hand side tokens before cursor
-        List<CommonToken> lhsTokens = context.get(SourcePruneKeys.LHS_TOKENS_KEY);
-        if (lhsTokens != null) {
-            while (lhsTokens.get(0).getType() == BallerinaParser.COMMA) {
-                lhsTokens.remove(0);
-            }
-            boolean isLastLeftParenthesisProcessed = false;
-            for (int i = lhsTokens.size() - 1; i >= 0; i--) {
-                Token commonToken = lhsTokens.get(i);
-                int tokenType = commonToken.getType();
-                if (tokenType == BallerinaParser.LEFT_PARENTHESIS) {
-                    // Since we are traversing reverse order, we'll get the last LParenthesis first
-                    isLastLeftParenthesisProcessed = true;
-                }
-                if (tokenType == BallerinaParser.COMMA) {
-                    if (i - 1 >= 0 && lhsTokens.get(i - 1).getType() == BallerinaParser.RIGHT_PARENTHESIS) {
-                        // eg. func1(func2(10, 10, 5),[cursor]);
-                        parameterOffset = 1;
-                    } else {
-                        tokenTexts.add(commonToken.getText());
-                        if (pendingRParenthesisCount[0] == 0 && !isLastLeftParenthesisProcessed) {
-                            parameterOffset++;
-                        }
-                    }
-                } else {
-                    tokenAcceptor.accept(tokenType);
-                    tokenTexts.add(commonToken.getText());
-                }
-            }
-        }
-
-        // Reverse the order of tokens
-        Collections.reverse(tokenTexts);
-
-        // Visit Right-Hand side tokens after cursor
-        List<CommonToken> rhsTokens = context.get(SourcePruneKeys.RHS_TOKENS_KEY);
-        if (rhsTokens != null && !rhsTokens.isEmpty()) {
-            // Remove if any comma[,] when RHS next immediate token is right parenthesis
-            int lastIndex = tokenTexts.size() - 1;
-            while (lastIndex >= 0 && COMMA.equals(tokenTexts.get(lastIndex))
-                    && rhsTokens.get(0).getType() == BallerinaParser.RIGHT_PARENTHESIS) {
-                tokenTexts.remove(lastIndex);
-                lastIndex--;
-            }
-            // Collect tokens until we find a Whitespace or Newline
-            for (Token commonToken : rhsTokens) {
-                int tokenType = commonToken.getType();
-                if (tokenType == BallerinaParser.WS || tokenType == BallerinaParser.NEW_LINE) {
-                    // Break on Whitespaces or New Lines
-                    break;
-                }
-                tokenAcceptor.accept(commonToken.getType());
-                tokenTexts.add(commonToken.getText());
-            }
-        }
-
-        // Remove if any comma[,] when pendingRParenthesis is less than zero
-        int lastIndex = tokenTexts.size() - 1;
-        if (COMMA.equals(tokenTexts.get(lastIndex)) && pendingRParenthesisCount[0] <= 0) {
-            tokenTexts.remove(lastIndex);
-        }
-
-        //  Remove if any semi-colon[;]
-        lastIndex = tokenTexts.size() - 1;
-        if (SEMI_COLON.equals(tokenTexts.get(lastIndex))) {
-            tokenTexts.remove(lastIndex);
-        }
-
-        // Add Missing Parenthesis
-        while (pendingRParenthesisCount[0] < 0) {
-            tokenTexts.add(")");
-            pendingRParenthesisCount[0]++;
-        }
-        return Pair.of(String.join("", tokenTexts), parameterOffset);
+        return parseAndGetFunctionInvocationPath(subRule, serviceContext);
     }
 
     private static Optional<String> parseAndGetFunctionInvocationPath(String subRule, LSContext context)
@@ -329,61 +234,56 @@ public class SignatureHelpUtil {
         }
     }
 
-    public static Optional<Scope.ScopeEntry> getFuncScopeEntry(LSContext context, String funcName,
+    public static Optional<Scope.ScopeEntry> getFuncScopeEntry(LSContext context, String pathStr,
                                                                List<Scope.ScopeEntry> visibleSymbols) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
         Types types = Types.getInstance(compilerContext);
-
-        String[] nameComps = funcName.split("\\.");
+        Scope.ScopeEntry searchSymbol = null;
+        // Resolve package prefixes first
+        int pkgPrefix = pathStr.indexOf(":");
+        if (pkgPrefix > -1) {
+            String packagePart = pathStr.substring(0, pkgPrefix);
+            pathStr = pathStr.substring(pkgPrefix + 1);
+            String alias = packagePart.split("\\sversion\\s")[0].split("\\sas\\s")[0].split("/")[1];
+            Optional<Scope.ScopeEntry> moduleSymbol = visibleSymbols.stream()
+                    .filter(entry -> entry.symbol.name.getValue().equals(alias))
+                    .findFirst();
+            visibleSymbols = new ArrayList<>(moduleSymbol.get().symbol.scope.entries.values());
+        }
+        // Resolve rest of the path
+        String[] nameComps = pathStr.split("\\.");
         int index = 0;
-        Optional<Scope.ScopeEntry> searchSymbol = Optional.empty();
         while (index < nameComps.length) {
             String name = nameComps[index];
-            int pkgPrefix = name.indexOf(":");
-            boolean hasPkgPrefix = pkgPrefix > -1;
-            if (!hasPkgPrefix) {
-                searchSymbol = visibleSymbols.stream()
-                        .filter(symbol ->
-                                name.equals(getLastItem(symbol.symbol.name.getValue().split("\\."))))
-                        .findFirst();
-            } else {
-                String[] moduleComps = name.substring(0, pkgPrefix).split("/");
-                String alias = moduleComps[1].split(" ")[0];
-                Optional<Scope.ScopeEntry> moduleSymbol = visibleSymbols.stream()
-                        .filter(entry -> entry.symbol.name.getValue().equals(alias))
-                        .findFirst();
-                visibleSymbols = new ArrayList<>(moduleSymbol.get().symbol.scope.entries.values());
-                searchSymbol = visibleSymbols.stream()
-                        .filter(entry -> name.substring(pkgPrefix + 1)
-                                .equals(getLastItem(entry.symbol.name.getValue().split("\\."))))
-                        .findFirst();
-            }
+            searchSymbol = visibleSymbols.stream()
+                    .filter(symbol -> name.equals(getLastItem(symbol.symbol.name.getValue().split("\\."))))
+                    .findFirst().orElse(null);
             // If search symbol not found, return
-            if (!searchSymbol.isPresent()) {
+            if (searchSymbol == null) {
                 break;
             }
             // The `searchSymbol` found, resolve further
-            boolean isInvocation = searchSymbol.get().symbol instanceof BInvokableSymbol;
-            boolean isObject = searchSymbol.get().symbol instanceof BObjectTypeSymbol;
-            boolean isVariable = searchSymbol.get().symbol instanceof BVarSymbol;
+            boolean isInvocation = searchSymbol.symbol instanceof BInvokableSymbol;
+            boolean isObject = searchSymbol.symbol instanceof BObjectTypeSymbol;
+            boolean isVariable = searchSymbol.symbol instanceof BVarSymbol;
             boolean hasNextNameComp = index + 1 < nameComps.length;
             if (isInvocation && hasNextNameComp) {
-                BInvokableSymbol invokableSymbol = (BInvokableSymbol) searchSymbol.get().symbol;
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) searchSymbol.symbol;
                 BTypeSymbol returnTypeSymbol = invokableSymbol.getReturnType().tsymbol;
                 if (returnTypeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) returnTypeSymbol;
                     visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
                 }
             } else if (isObject && hasNextNameComp) {
-                BObjectTypeSymbol bObjectTypeSymbol = (BObjectTypeSymbol) searchSymbol.get().symbol;
+                BObjectTypeSymbol bObjectTypeSymbol = (BObjectTypeSymbol) searchSymbol.symbol;
                 BTypeSymbol typeSymbol = bObjectTypeSymbol.type.tsymbol;
                 if (typeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
                     visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
                 }
             } else if (isVariable && hasNextNameComp) {
-                BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.get().symbol;
+                BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.symbol;
                 BTypeSymbol typeSymbol = bVarSymbol.type.tsymbol;
                 if (typeSymbol.type instanceof BUnionType) {
                     // Check for optional field accesses.
@@ -406,26 +306,27 @@ public class SignatureHelpUtil {
                     BRecordTypeSymbol bRecordTypeSymbol = (BRecordTypeSymbol) typeSymbol;
                     visibleSymbols = new ArrayList<>(bRecordTypeSymbol.scope.entries.values());
                 } else {
-                    visibleSymbols = new ArrayList<>(getLangLibScopeEntries(typeSymbol.type, symbolTable, types)
-                            .values());
+                    visibleSymbols = getLangLibScopeEntries(typeSymbol.type, symbolTable, types);
                 }
             }
             index++;
         }
-        return searchSymbol;
+        return searchSymbol != null ? Optional.of(searchSymbol) : Optional.empty();
     }
 
     /**
      * Get the signature information for the given Ballerina function.
      *
-     * @param bInvokableSymbol                  BLang Invokable symbol
-     * @param context                      Lang Server Signature Help Context
+     * @param bInvokableSymbol BLang Invokable symbol
+     * @param isMethodCall
+     * @param context          Lang Server Signature Help Context
      * @return {@link SignatureInformation}     Signature information for the function
      */
-    public static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol, LSContext context) {
+    public static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol,
+                                                               boolean isMethodCall, LSContext context) {
         List<ParameterInformation> parameterInformationList = new ArrayList<>();
         SignatureInformation signatureInformation = new SignatureInformation();
-        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol, context);
+        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol, isMethodCall, context);
 
         // Override label for 'new' constructor
         String label = bInvokableSymbol.name.value;
@@ -469,11 +370,13 @@ public class SignatureHelpUtil {
     /**
      * Get the required signature information filled model.
      *
-     * @param bInvokableSymbol                  Invokable symbol
-     * @param signatureCtx                      Lang Server Signature Help Context
+     * @param bInvokableSymbol Invokable symbol
+     * @param isMethodCall     Whether invoked on an object
+     * @param signatureCtx     Lang Server Signature Help Context
      * @return {@link SignatureInfoModel}       SignatureInfoModel containing signature information
      */
-    private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol, LSContext signatureCtx) {
+    private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol, boolean isMethodCall,
+                                                            LSContext signatureCtx) {
         Map<String, String> paramToDesc = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
@@ -520,8 +423,14 @@ public class SignatureHelpUtil {
         if (restParam != null) {
             parameters.add(new Parameter(restParam.name.value, restParam.type, false, true));
         }
+        boolean skipFirstParam = isMethodCall && CommonUtil.isLangLibSymbol(bInvokableSymbol);
         // Create a list of param info models
-        parameters.forEach(param -> {
+        for (int i = 0; i < parameters.size(); i++) {
+            if (i == 0 && skipFirstParam) {
+                // If langlib, skip first param
+                continue;
+            }
+            Parameter param = parameters.get(i);
             String name = param.isOptional ? param.name + "?" : param.name;
             String desc = "";
             if (paramToDesc.containsKey(param.name)) {
@@ -536,7 +445,7 @@ public class SignatureHelpUtil {
                 type += "...";
             }
             paramModels.add(new ParameterInfoModel(name, type, desc));
-        });
+        }
         signatureInfoModel.setParameterInfoModels(paramModels);
         return signatureInfoModel;
     }
@@ -550,30 +459,6 @@ public class SignatureHelpUtil {
         markupContent += parameterInfoModel.paramValue + "**: ";
         paramDocumentation.setValue(markupContent + parameterInfoModel.description);
         return new ParameterInformation(parameterInfoModel.toString(), paramDocumentation);
-    }
-
-    /**
-     * Prune source if syntax errors exists.
-     *
-     * @param lsContext {@link LSContext}
-     * @throws SourcePruneException when file uri is invalid
-     * @throws WorkspaceDocumentException when document read error occurs
-     */
-    public static void pruneSource(LSContext lsContext) throws SourcePruneException, WorkspaceDocumentException {
-        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
-        if (uri == null) {
-            throw new SourcePruneException("fileUri cannot be null!");
-        }
-
-        Path filePath = Paths.get(URI.create(uri));
-
-        TokenTraverserFactory tokenTraverserFactory = new SignatureTokenTraverserFactory(filePath, documentManager,
-                                                                                         SourcePruner.newContext());
-        SourcePruner.pruneSource(lsContext, tokenTraverserFactory);
-
-        // Update document manager
-        documentManager.setPrunedContent(filePath, tokenTraverserFactory.getTokenStream().getText());
     }
 
     /**

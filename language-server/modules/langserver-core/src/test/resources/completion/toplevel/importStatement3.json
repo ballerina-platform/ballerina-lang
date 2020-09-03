@@ -246,14 +246,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "nats",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "nats",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "lang.decimal",
       "kind": "Module",
       "detail": "Module",

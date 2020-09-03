@@ -25,7 +25,6 @@ import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.Variable;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -53,7 +52,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
 
     @Test
     public void parentVariableVisibilityTest() throws BallerinaTestException {
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 150));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 154));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(10000);
@@ -258,12 +257,6 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         assertVariable(jsonChildVariables[0], "color", "red", "string");
         assertVariable(jsonChildVariables[1], "name", "apple", "string");
         assertVariable(jsonChildVariables[2], "price", "40", "int");
-    }
-
-    private void assertVariable(Variable variable, String variableName, String variableValue, String variableType) {
-        Assert.assertEquals(variable.getName(), variableName);
-        Assert.assertEquals(variable.getValue(), variableValue);
-        Assert.assertEquals(variable.getType(), variableType);
     }
 
     @AfterClass

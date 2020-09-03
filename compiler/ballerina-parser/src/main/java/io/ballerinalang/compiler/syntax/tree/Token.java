@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
@@ -42,12 +42,20 @@ public class Token extends Node {
         return ((STToken) this.internalNode).text();
     }
 
+    public boolean containsLeadingMinutiae() {
+        return internalNode.leadingMinutiae().bucketCount() > 0;
+    }
+
     public MinutiaeList leadingMinutiae() {
         if (leadingMinutiaeList != null) {
             return leadingMinutiaeList;
         }
         leadingMinutiaeList = new MinutiaeList(this, internalNode.leadingMinutiae(), this.position());
         return leadingMinutiaeList;
+    }
+
+    public boolean containsTrailingMinutiae() {
+        return internalNode.trailingMinutiae().bucketCount() > 0;
     }
 
     public MinutiaeList trailingMinutiae() {

@@ -1,9 +1,0 @@
-
-@module: Record {
-     
-                 
-                
-}
-function testFunction() {
-    
-}

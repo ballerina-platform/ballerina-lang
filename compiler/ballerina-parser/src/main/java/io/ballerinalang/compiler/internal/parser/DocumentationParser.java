@@ -46,11 +46,6 @@ public class DocumentationParser extends AbstractParser {
         return parseDocumentationLines();
     }
 
-    @Override
-    public STNode resumeParsing(ParserRuleContext context, Object... args) {
-        return null;
-    }
-
     /**
      * Parse documentation lines.
      * <p>
@@ -274,10 +269,148 @@ public class DocumentationParser extends AbstractParser {
      */
     private STNode parseBacktickContent() {
         STToken token = peek();
+        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            STNode identifier = consume();
+            return parseBacktickExpr(identifier);
+        }
+        return parseBacktickContentToken();
+    }
+
+    /**
+     * Parse back-tick content token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseBacktickContentToken() {
+        STToken token = peek();
         if (token.kind == SyntaxKind.BACKTICK_CONTENT) {
             return consume();
         } else {
             return STNodeFactory.createMissingToken(SyntaxKind.BACKTICK_CONTENT);
+        }
+    }
+
+    /**
+     * Parse back-tick expr.
+     *
+     * @param identifier Initial identifier
+     * @return Function call, method call or name reference node
+     */
+    private STNode parseBacktickExpr(STNode identifier) {
+        STNode referenceName = parseQualifiedIdentifier(identifier);
+
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case BACKTICK_TOKEN:
+                return referenceName;
+            case DOT_TOKEN:
+                STNode dotToken = consume();
+                return parseMethodCall(referenceName, dotToken);
+            default:
+                return parseFuncCall(referenceName);
+        }
+    }
+
+    /**
+     * Parse qualified name reference or simple name reference.
+     *
+     * @param identifier Initial identifier
+     * @return Parsed node
+     */
+    private STNode parseQualifiedIdentifier(STNode identifier) {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.COLON_TOKEN) {
+            STNode colon = consume();
+            return parseQualifiedIdentifier(identifier, colon);
+        }
+        return STNodeFactory.createSimpleNameReferenceNode(identifier);
+    }
+
+    private STNode parseQualifiedIdentifier(STNode identifier, STNode colon) {
+        STNode refName = parseIdentifier();
+        return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, refName);
+    }
+
+    /**
+     * Parse identifier token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseIdentifier() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        }
+    }
+
+    /**
+     * Parse function call expression.
+     * <code>function-call-expr := function-reference ( )</code>
+     *
+     * @param referenceName Function name
+     * @return Function call expression
+     */
+    private STNode parseFuncCall(STNode referenceName) {
+        STNode openParen = parseOpenParenthesis();
+        STNode args = STNodeFactory.createEmptyNodeList();
+        STNode closeParen = parseCloseParenthesis();
+        return STNodeFactory.createFunctionCallExpressionNode(referenceName, openParen, args, closeParen);
+    }
+
+    /**
+     * Parse method call expression.
+     * <code>method-call-expr := reference-name . method-name ( )</code>
+     *
+     * @param referenceName Reference name
+     * @param dotToken Dot token
+     * @return Method call expression
+     */
+    private STNode parseMethodCall(STNode referenceName, STNode dotToken) {
+        STNode methodName = parseSimpleNameReference();
+        STNode openParen = parseOpenParenthesis();
+        STNode args = STNodeFactory.createEmptyNodeList();
+        STNode closeParen = parseCloseParenthesis();
+        return STNodeFactory.createMethodCallExpressionNode(referenceName, dotToken, methodName, openParen, args,
+                closeParen);
+    }
+
+    /**
+     * Parse simple name reference.
+     *
+     * @return Parsed node
+     */
+    private STNode parseSimpleNameReference() {
+        STNode identifier = parseIdentifier();
+        return STNodeFactory.createSimpleNameReferenceNode(identifier);
+    }
+
+    /**
+     * Parse open parenthesis.
+     *
+     * @return Parsed node
+     */
+    private STNode parseOpenParenthesis() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
+        }
+    }
+
+    /**
+     * Parse close parenthesis.
+     *
+     * @return Parsed node
+     */
+    private STNode parseCloseParenthesis() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
         }
     }
 

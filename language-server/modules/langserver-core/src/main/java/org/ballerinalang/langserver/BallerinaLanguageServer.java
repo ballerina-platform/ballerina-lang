@@ -74,17 +74,18 @@ import static org.ballerinalang.langserver.Experimental.SEMANTIC_SYNTAX_HIGHLIGH
 public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         implements ExtendedLanguageServer, ExtendedLanguageClientAware {
     private ExtendedLanguageClient client = null;
-    private TextDocumentService textService;
-    private WorkspaceService workspaceService;
-    private BallerinaDocumentService ballerinaDocumentService;
-    private BallerinaConnectorService ballerinaConnectorService;
-    private BallerinaProjectService ballerinaProjectService;
-    private BallerinaExampleService ballerinaExampleService;
-    private BallerinaTraceService ballerinaTraceService;
-    private Listener ballerinaTraceListener;
-    private BallerinaSymbolService ballerinaSymbolService;
-    private BallerinaFragmentService ballerinaFragmentService;
+    private final TextDocumentService textService;
+    private final WorkspaceService workspaceService;
+    private final BallerinaDocumentService ballerinaDocumentService;
+    private final BallerinaConnectorService ballerinaConnectorService;
+    private final BallerinaProjectService ballerinaProjectService;
+    private final BallerinaExampleService ballerinaExampleService;
+    private final BallerinaTraceService ballerinaTraceService;
+    private final Listener ballerinaTraceListener;
+    private final BallerinaSymbolService ballerinaSymbolService;
+    private final BallerinaFragmentService ballerinaFragmentService;
     private int shutdown = 1;
+    private final WorkspaceDocumentManager documentManager;
 
     public BallerinaLanguageServer() {
         this(WorkspaceDocumentManagerImpl.getInstance());
@@ -107,6 +108,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl();
         this.ballerinaFragmentService = new BallerinaFragmentServiceImpl();
+        this.documentManager = documentManager;
 
         LSAnnotationCache.initiate();
     }
@@ -232,6 +234,10 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
     public BallerinaSymbolService getBallerinaSymbolService() {
         return ballerinaSymbolService;
+    }
+
+    public WorkspaceDocumentManager getDocumentManager() {
+        return documentManager;
     }
 
     @Override

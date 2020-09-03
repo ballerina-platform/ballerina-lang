@@ -17,13 +17,13 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.internal.diagnostics.SyntaxDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
-import io.ballerinalang.compiler.text.LineRange;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextRange;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public abstract class Node {
     /**
      * A reference to the syntaxTree to which this node belongs.
      */
-    private SyntaxTree syntaxTree;
+    protected SyntaxTree syntaxTree;
     private LineRange lineRange;
 
     // TextRange - starting startOffset and width

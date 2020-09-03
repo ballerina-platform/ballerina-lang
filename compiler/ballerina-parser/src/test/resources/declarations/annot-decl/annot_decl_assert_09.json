@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "ANNOTATION_KEYWORD",
               "isMissing": true,
               "hasDiagnostics": true,
@@ -108,15 +99,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "ANNOTATION_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -166,15 +148,18 @@
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "MyAnnot2",
-                    "trailingMinutiae": [
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
                       {
-                        "kind": "WHITESPACE_MINUTIAE",
-                        "value": " "
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "MyAnnot2"
                       }
                     ]
                   }
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ],
               "trailingMinutiae": [
@@ -285,15 +270,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "ANNOTATION_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -375,13 +351,8 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",

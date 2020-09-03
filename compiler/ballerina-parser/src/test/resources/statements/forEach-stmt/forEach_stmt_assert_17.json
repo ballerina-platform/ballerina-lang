@@ -3,20 +3,16 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -177,14 +173,17 @@
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
-                                    "kind": "PUBLIC_KEYWORD",
-                                    "trailingMinutiae": [
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "children": [
                                       {
-                                        "kind": "WHITESPACE_MINUTIAE",
-                                        "value": " "
+                                        "kind": "PUBLIC_KEYWORD"
                                       }
                                     ]
                                   }
+                                },
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
                                 }
                               ],
                               "trailingMinutiae": [
@@ -220,7 +219,12 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "PUBLIC_KEYWORD"
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "PUBLIC_KEYWORD"
+                                  }
+                                ]
                               }
                             }
                           ],
@@ -331,10 +335,10 @@
                               ]
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "2"
                                 }
                               ]
@@ -375,10 +379,10 @@
                               "kind": "EQUAL_TOKEN"
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "5"
                                 }
                               ]

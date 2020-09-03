@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 2,
+    "character": 14
+  },
+  "source": "statement_context/source/worker_declaration_ctx_source3.bal",
+  "items": [
+    {
+      "label": "returns",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "returns ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

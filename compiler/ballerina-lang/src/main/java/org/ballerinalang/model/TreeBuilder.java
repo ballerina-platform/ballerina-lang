@@ -23,6 +23,8 @@ import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.LimitClauseNode;
 import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.clauses.OnConflictClauseNode;
+import org.ballerinalang.model.clauses.OrderByClauseNode;
+import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -178,6 +180,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -776,6 +780,14 @@ public class TreeBuilder {
 
     public static OnClauseNode createOnClauseNode() {
         return new BLangOnClause();
+    }
+
+    public static OrderKeyNode createOrderKeyNode() {
+        return new BLangOrderKey();
+    }
+
+    public static OrderByClauseNode createOrderByClauseNode() {
+        return new BLangOrderByClause();
     }
 
     public static SelectClauseNode createSelectClauseNode() {

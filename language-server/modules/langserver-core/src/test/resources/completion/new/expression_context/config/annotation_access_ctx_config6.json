@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 5,
+    "character": 16
+  },
+  "source": "expression_context/source/annotation_access_ctx_source6.bal",
+  "items": [
+    {
+      "label": "a2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "a2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

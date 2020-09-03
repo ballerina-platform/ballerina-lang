@@ -57,11 +57,16 @@
           "children": [
             {
               "kind": "STRING_LITERAL",
-              "value": "c",
-              "trailingMinutiae": [
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "c",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },

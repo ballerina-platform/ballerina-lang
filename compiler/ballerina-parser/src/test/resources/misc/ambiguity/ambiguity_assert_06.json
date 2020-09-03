@@ -15,13 +15,8 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -215,79 +210,79 @@
                                                 {
                                                   "kind": "INVALID_NODE_MINUTIAE",
                                                   "invalidNode": {
-                                                    "kind": "BINARY_EXPRESSION",
-                                                    "hasDiagnostics": true,
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                                     "children": [
                                                       {
-                                                        "kind": "QUALIFIED_NAME_REFERENCE",
-                                                        "children": [
-                                                          {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "foo"
-                                                          },
-                                                          {
-                                                            "kind": "COLON_TOKEN",
-                                                            "trailingMinutiae": [
-                                                              {
-                                                                "kind": "WHITESPACE_MINUTIAE",
-                                                                "value": " "
-                                                              }
-                                                            ]
-                                                          },
-                                                          {
-                                                            "kind": "SIMPLE_NAME_REFERENCE",
-                                                            "children": [
-                                                              {
-                                                                "kind": "IDENTIFIER_TOKEN",
-                                                                "value": "bar"
-                                                              }
-                                                            ]
-                                                          }
-                                                        ]
-                                                      },
-                                                      {
-                                                        "kind": "PLUS_TOKEN"
-                                                      },
-                                                      {
-                                                        "kind": "BINARY_EXPRESSION",
-                                                        "hasDiagnostics": true,
-                                                        "children": [
-                                                          {
-                                                            "kind": "SIMPLE_NAME_REFERENCE",
-                                                            "hasDiagnostics": true,
-                                                            "children": [
-                                                              {
-                                                                "kind": "IDENTIFIER_TOKEN",
-                                                                "isMissing": true,
-                                                                "hasDiagnostics": true,
-                                                                "diagnostics": [
-                                                                  "ERROR_MISSING_IDENTIFIER"
-                                                                ]
-                                                              }
-                                                            ]
-                                                          },
-                                                          {
-                                                            "kind": "SLASH_TOKEN"
-                                                          },
-                                                          {
-                                                            "kind": "SIMPLE_NAME_REFERENCE",
-                                                            "children": [
-                                                              {
-                                                                "kind": "IDENTIFIER_TOKEN",
-                                                                "value": "baz",
-                                                                "trailingMinutiae": [
-                                                                  {
-                                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                                    "value": "  "
-                                                                  }
-                                                                ]
-                                                              }
-                                                            ]
-                                                          }
-                                                        ]
+                                                        "kind": "IDENTIFIER_TOKEN",
+                                                        "value": "foo"
                                                       }
                                                     ]
                                                   }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "children": [
+                                                      {
+                                                        "kind": "COLON_TOKEN"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "children": [
+                                                      {
+                                                        "kind": "IDENTIFIER_TOKEN",
+                                                        "value": "bar"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "children": [
+                                                      {
+                                                        "kind": "PLUS_TOKEN"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "children": [
+                                                      {
+                                                        "kind": "SLASH_TOKEN"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "children": [
+                                                      {
+                                                        "kind": "IDENTIFIER_TOKEN",
+                                                        "value": "baz"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": "  "
                                                 }
                                               ]
                                             }

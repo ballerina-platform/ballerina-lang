@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.runtime;
 
+import com.google.gson.Gson;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -49,12 +50,19 @@ import org.ballerinalang.test.runtime.entity.TesterinaResult;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -182,10 +190,10 @@ public class BTestRunner {
         }
 
         // Create a queue and enqueue all vertices with indegree 0
-        Queue<Integer> q = new LinkedList<Integer>();
+        Stack<Integer> stack = new Stack<>();
         for (i = 0; i < numberOfNodes; i++) {
             if (indegrees[i] == 0) {
-                q.add(i);
+                stack.add(i);
             }
         }
 
@@ -194,16 +202,16 @@ public class BTestRunner {
 
         // Create a vector to store result (A topological ordering of the vertices)
         Vector<Integer> topOrder = new Vector<Integer>();
-        while (!q.isEmpty()) {
+        while (!stack.isEmpty()) {
             // Extract front of queue (or perform dequeue) and add it to topological order
-            int u = q.poll();
+            int u = stack.pop();
             topOrder.add(u);
 
             // Iterate through all its neighbouring nodes of dequeued node u and decrease their in-degree by 1
             for (int node : dependencyMatrix[u]) {
                 // If in-degree becomes zero, add it to queue
                 if (--indegrees[node] == 0) {
-                    q.add(node);
+                    stack.push(node);
                 }
             }
             cnt++;
@@ -235,6 +243,8 @@ public class BTestRunner {
             return;
         }
         AtomicBoolean shouldSkip = new AtomicBoolean();
+        AtomicBoolean shouldSkipAfterSuite = new AtomicBoolean();
+        AtomicBoolean shouldSkipAfterGroups = new AtomicBoolean();
         String packageName = suite.getPackageName();
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         // Load module init class
@@ -268,17 +278,19 @@ public class BTestRunner {
             outStream.println("\t" + suite.getSourceFileName());
         }
         shouldSkip.set(false);
+        shouldSkipAfterSuite.set(false);
+        shouldSkipAfterGroups.set(false);
         tReport.addPackageReport(packageName);
         tReport.setReportRequired(suite.isReportRequired());
         // Initialize the test suite.
         // This will init and start the test module.
         startSuite(suite, initScheduler, initClazz, testInitClazz, hasTestablePackage);
         // Run Before suite functions
-        executeBeforeSuiteFunctions(suite, classLoader, scheduler, shouldSkip);
+        executeBeforeSuiteFunctions(suite, classLoader, scheduler, shouldSkip, shouldSkipAfterSuite);
         // Run Tests
-        executeTests(suite, packageName, classLoader, scheduler, shouldSkip);
+        executeTests(suite, packageName, classLoader, scheduler, shouldSkip, shouldSkipAfterGroups);
         // Run After suite functions
-        executeAfterSuiteFunctions(suite, classLoader, scheduler);
+        executeAfterSuiteFunctions(suite, classLoader, scheduler, shouldSkipAfterSuite);
         // Call module stop and test stop function
         stopSuite(suite, scheduler, initClazz, testInitClazz, hasTestablePackage);
         // print module test results
@@ -286,13 +298,14 @@ public class BTestRunner {
     }
 
     private void executeBeforeSuiteFunctions(TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
-                                             AtomicBoolean shouldSkip) {
+                                             AtomicBoolean shouldSkip, AtomicBoolean shouldSkipAfterSuite) {
         suite.getBeforeSuiteFunctionNames().forEach(test -> {
             String errorMsg;
             try {
                 invokeTestFunction(suite, test, classLoader, scheduler);
             } catch (Throwable e) {
                 shouldSkip.set(true);
+                shouldSkipAfterSuite.set(true);
                 errorMsg = "\t[fail] " + test + " [before test suite function]" + ":\n\t    "
                         + formatErrorMessage(e);
                 errStream.println(errorMsg);
@@ -301,22 +314,60 @@ public class BTestRunner {
     }
 
     private void executeTests(TestSuite suite, String packageName, ClassLoader classLoader, Scheduler scheduler,
-                              AtomicBoolean shouldSkip) {
+                              AtomicBoolean shouldSkip, AtomicBoolean shouldSkipAfterGroups) {
         List<String> failedOrSkippedTests = new ArrayList<>();
+        List<String> failedAfterFuncTests = new ArrayList<>();
         suite.getTests().forEach(test -> {
             AtomicBoolean shouldSkipTest = new AtomicBoolean(false);
+
+            // execute the before groups functions
+            executeBeforeGroupFunctions(test, suite, classLoader, scheduler, shouldSkip,
+                    shouldSkipTest, shouldSkipAfterGroups);
+
             // run the before each tests
             executeBeforeEachFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
             // run the before tests
             executeBeforeFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
             // run the test
             executeFunction(test, suite, packageName, classLoader, scheduler, shouldSkip, shouldSkipTest,
-                            failedOrSkippedTests);
+                            failedOrSkippedTests, failedAfterFuncTests);
             // run the after tests
-            executeAfterFunction(test, suite, classLoader, scheduler);
+            executeAfterFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest, failedAfterFuncTests);
             // run the after each tests
-            executeAfterEachFunction(test, suite, classLoader, scheduler);
+            executeAfterEachFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
+
+            // execute the after groups functions
+            executeAfterGroupFunctions(test, suite, classLoader, scheduler, shouldSkip,
+                    shouldSkipTest, shouldSkipAfterGroups);
         });
+    }
+
+    private void executeBeforeGroupFunctions(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
+                                       AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
+                                             AtomicBoolean shouldSkipAfterGroups)  {
+        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+            for (String groupName : test.getGroups()) {
+                if (!suite.getGroups().get(groupName).getBeforeGroupsFunctions().isEmpty()
+                        && !suite.getGroups().get(groupName).isFirstTestExecuted()) {
+                    // run before tests
+                    String errorMsg;
+                    for (String beforeGroupFunc : suite.getGroups().get(groupName).getBeforeGroupsFunctions()) {
+                        try {
+                            invokeTestFunction(suite, beforeGroupFunc, classLoader, scheduler);
+                        } catch (Throwable e) {
+                            shouldSkip.set(true);
+                            shouldSkipTest.set(true);
+                            shouldSkipAfterGroups.set(true);
+                            errorMsg = String.format("\t[fail] " + beforeGroupFunc +
+                                            " [before test group function for the test %s] :\n\t    %s", test,
+                                    formatErrorMessage(e));
+                            errStream.println(errorMsg);
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
     private void executeBeforeEachFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
@@ -328,7 +379,7 @@ public class BTestRunner {
                 try {
                     invokeTestFunction(suite, beforeEachTest, classLoader, scheduler);
                 } catch (Throwable e) {
-                    shouldSkipTest.set(true);
+                    shouldSkip.set(true);
                     errorMsg = String.format("\t[fail] " + beforeEachTest +
                                                      " [before each test function for the test %s] :\n\t    %s",
                                              test,
@@ -360,10 +411,18 @@ public class BTestRunner {
 
     private void executeFunction(Test test, TestSuite suite, String packageName, ClassLoader classLoader,
                                  Scheduler scheduler, AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
-                                 List<String> failedOrSkippedTests) {
+                                 List<String> failedOrSkippedTests, List<String> failedAfterFuncTests) {
         TesterinaResult functionResult;
+        Path sourceRootPath = Paths.get(suite.getSourceRootPath());
+        Path jsonCacheDir = sourceRootPath.resolve("target").resolve("caches").resolve("json_cache");
+        Path rerunJson =
+                jsonCacheDir.resolve(suite.getOrgName()).resolve(suite.getPackageID()).resolve(suite.getVersion());
+        Path jsonPath = Paths.get(rerunJson.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
+        File jsonFile = new File(jsonPath.toString());
+
         try {
-            if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests)) {
+            if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests) ||
+                isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedAfterFuncTests)) {
                 shouldSkipTest.set(true);
             }
 
@@ -404,43 +463,89 @@ public class BTestRunner {
                                                  formatErrorMessage(e));
             tReport.addFunctionResult(packageName, functionResult);
         }
+        for (String groupName : test.getGroups()) {
+            suite.getGroups().get(groupName).incrementExecutedCount();
+        }
+
+        writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
+
     }
 
-    private void executeAfterFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler)  {
-        try {
-            if (test.getAfterTestFunction() != null) {
-                invokeTestFunction(suite, test.getAfterTestFunction(), classLoader, scheduler);
+    private void executeAfterFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
+                                      AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
+                                      List<String> failedAfterFuncTests)  {
+        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+            try {
+                if (test.getAfterTestFunction() != null) {
+                    invokeTestFunction(suite, test.getAfterTestFunction(), classLoader, scheduler);
+                }
+            } catch (Throwable e) {
+                failedAfterFuncTests.add(test.getTestName());
+                String error = String.format("\t[fail] " + test + " [after test function for the test %s] :\n\t    %s",
+                        test, formatErrorMessage(e));
+                errStream.println(error);
             }
-        } catch (Throwable e) {
-            String error = String.format("\t[fail] " + test + " [after test function for the test %s] :\n\t    %s",
-                                  test, formatErrorMessage(e));
-            errStream.println(error);
         }
     }
 
-    private void executeAfterEachFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler) {
-        suite.getAfterEachFunctionNames().forEach(afterEachTest -> {
-            String errorMsg2;
-            try {
-                invokeTestFunction(suite, afterEachTest, classLoader, scheduler);
-            } catch (Throwable e) {
-                errorMsg2 = String.format("\t[fail] " + afterEachTest +
-                                                  " [after each test function for the test %s] :\n\t    %s",
-                                          test, formatErrorMessage(e));
-                errStream.println(errorMsg2);
-            }
-        });
+    private void executeAfterEachFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
+                                          AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest) {
+        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+            suite.getAfterEachFunctionNames().forEach(afterEachTest -> {
+                try {
+                    invokeTestFunction(suite, afterEachTest, classLoader, scheduler);
+                } catch (Throwable e) {
+                    shouldSkip.set(true);
+                    String errorMsg = String.format("\t[fail] " + afterEachTest +
+                                    " [after each test function for the test %s] :\n\t    %s",
+                            test, formatErrorMessage(e));
+                    errStream.println(errorMsg);
+                }
+            });
+        }
     }
 
-    private void executeAfterSuiteFunctions(TestSuite suite, ClassLoader classLoader, Scheduler scheduler) {
-        suite.getAfterSuiteFunctionNames().forEach(func -> {
-            String errorMsg;
-            try {
-                invokeTestFunction(suite, func, classLoader, scheduler);
-            } catch (Throwable e) {
-                errorMsg = String.format("\t[fail] " + func + " [after test suite function] :\n\t    " +
-                                                 "%s", formatErrorMessage(e));
-                errStream.println(errorMsg);
+    private void executeAfterGroupFunctions(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
+                                             AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
+                                            AtomicBoolean shouldSkipAfterGroups)  {
+        if (!shouldSkipAfterGroups.get() && !shouldSkip.get() && !shouldSkipTest.get()) {
+            for (String groupName : test.getGroups()) {
+                if (!suite.getGroups().get(groupName).getAfterGroupsFunctions().isEmpty()
+                        && suite.getGroups().get(groupName).isLastTestExecuted()) {
+                    // run before tests
+                    String errorMsg;
+                    for (String afterGroupFunc : suite.getGroups().get(groupName).getAfterGroupsFunctions()) {
+                        try {
+
+                            invokeTestFunction(suite, afterGroupFunc, classLoader, scheduler);
+                        } catch (Throwable e) {
+                            shouldSkip.set(true);
+                            shouldSkipTest.set(true);
+                            shouldSkipAfterGroups.set(true);
+                            errorMsg = String.format("\t[fail] " + afterGroupFunc +
+                                            " [after test group function for the test %s] :\n\t    %s", test,
+                                    formatErrorMessage(e));
+                            errStream.println(errorMsg);
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    private void executeAfterSuiteFunctions(TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
+                                            AtomicBoolean shouldSkipAfterSuite) {
+        suite.getAfterSuiteFunctionNames().forEach((func, alwaysRun) -> {
+            if (!shouldSkipAfterSuite.get() || alwaysRun.get()) {
+                String errorMsg;
+                try {
+                    invokeTestFunction(suite, func, classLoader, scheduler);
+                } catch (Throwable e) {
+                    errorMsg = String.format("\t[fail] " + func + " [after test suite function] :\n\t    " +
+                            "%s", formatErrorMessage(e));
+                    errStream.println(errorMsg);
+                }
             }
         });
     }
@@ -635,6 +740,25 @@ public class BTestRunner {
      */
     public TesterinaReport getTesterinaReport() {
         return tReport;
+    }
+
+    /**
+     * Store the failed tests as an array in the JSON cache.
+     * @param failedTests List of failed tests
+     * @param jsonFile File to save failed tests
+     */
+    private void writeFailedTestsToJson(List<String> failedTests, File jsonFile) {
+        String errorMsg;
+
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            String json = gson.toJson(failedTests);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
+            errStream.println(errorMsg);
+        }
+
     }
 
 }

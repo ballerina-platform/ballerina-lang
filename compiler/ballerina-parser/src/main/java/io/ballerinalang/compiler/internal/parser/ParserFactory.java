@@ -17,14 +17,15 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerina.tools.text.CharReader;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocumentChange;
+import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.internal.parser.incremental.HybridNodeStorage;
 import io.ballerinalang.compiler.internal.parser.incremental.HybridTokenReader;
 import io.ballerinalang.compiler.internal.parser.incremental.IncrementalParser;
 import io.ballerinalang.compiler.internal.parser.incremental.UnmodifiedSubtreeSupplier;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocumentChange;
-import io.ballerinalang.compiler.text.TextDocuments;
 
 /**
  * A factory for creating {@code BallerinaParser} instances.
@@ -81,6 +82,6 @@ public class ParserFactory {
     }
 
     private static BallerinaLexer getLexer(TextDocument textDocument) {
-        return new BallerinaLexer(textDocument.getCharacterReader());
+        return new BallerinaLexer(CharReader.from(textDocument));
     }
 }

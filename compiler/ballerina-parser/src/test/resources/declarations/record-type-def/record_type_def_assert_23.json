@@ -2,15 +2,6 @@
   "kind": "TYPE_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -56,15 +47,6 @@
             {
               "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
               "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
                 {
                   "kind": "READONLY_KEYWORD",
                   "leadingMinutiae": [
@@ -162,10 +144,10 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "1"
                             }
                           ]
@@ -180,10 +162,10 @@
                           ]
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "2"
                             }
                           ]
@@ -209,15 +191,6 @@
             {
               "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
               "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
                 {
                   "kind": "READONLY_KEYWORD",
                   "leadingMinutiae": [
@@ -315,10 +288,10 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "1"
                             }
                           ]
@@ -333,10 +306,10 @@
                           ]
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "2"
                             }
                           ]

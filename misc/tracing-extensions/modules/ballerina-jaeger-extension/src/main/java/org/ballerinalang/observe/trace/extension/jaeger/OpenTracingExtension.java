@@ -91,8 +91,7 @@ public class OpenTracingExtension implements OpenTracer {
     }
 
     @Override
-    public Tracer getTracer(String tracerName, String serviceName) {
-
+    public Tracer getTracer(String serviceName) {
         if (Objects.isNull(configRegistry)) {
             throw new IllegalStateException("Tracer not initialized with configurations");
         }

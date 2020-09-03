@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,18 +8,23 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "TYPE_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "MARKDOWN_DOCUMENTATION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "MARKDOWN_DOCUMENTATION_LINE",
@@ -63,6 +69,7 @@
                         },
                         {
                           "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -97,6 +104,7 @@
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
@@ -104,6 +112,7 @@
                                 },
                                 {
                                   "kind": "DOCUMENTATION_REFERENCE",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "ANNOTATION_DOC_REFERENCE_TOKEN",
@@ -119,6 +128,10 @@
                                     },
                                     {
                                       "kind": "BACKTICK_CONTENT",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "WARNING_INVALID_DOCUMENTATION_IDENTIFIER"
+                                      ],
                                       "value": "field a"
                                     },
                                     {
@@ -142,6 +155,7 @@
                         },
                         {
                           "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -176,6 +190,7 @@
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
@@ -183,6 +198,7 @@
                                 },
                                 {
                                   "kind": "DOCUMENTATION_REFERENCE",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "ANNOTATION_DOC_REFERENCE_TOKEN",
@@ -198,6 +214,10 @@
                                     },
                                     {
                                       "kind": "BACKTICK_CONTENT",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "WARNING_INVALID_DOCUMENTATION_IDENTIFIER"
+                                      ],
                                       "value": "field b"
                                     },
                                     {
@@ -221,6 +241,7 @@
                         },
                         {
                           "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -255,6 +276,7 @@
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
@@ -262,6 +284,7 @@
                                 },
                                 {
                                   "kind": "DOCUMENTATION_REFERENCE",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "ANNOTATION_DOC_REFERENCE_TOKEN",
@@ -277,6 +300,10 @@
                                     },
                                     {
                                       "kind": "BACKTICK_CONTENT",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "WARNING_INVALID_DOCUMENTATION_IDENTIFIER"
+                                      ],
                                       "value": "field c"
                                     },
                                     {
@@ -410,8 +437,28 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "bar()"
+                                      "kind": "FUNCTION_CALL",
+                                      "children": [
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "bar"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN"
@@ -441,6 +488,10 @@
                   "children": []
                 }
               ]
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",

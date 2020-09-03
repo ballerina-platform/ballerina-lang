@@ -1,0 +1,247 @@
+{
+  "kind": "QUERY_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "QUERY_PIPELINE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "FROM_CLAUSE",
+          "children": [
+            {
+              "kind": "FROM_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "IN_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "LIST",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "JOIN_CLAUSE",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "OUTER_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "JOIN_KEYWORD",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_JOIN_KEYWORD"
+                  ]
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INT_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "c",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "IN_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "d",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "ON_CLAUSE",
+                  "children": [
+                    {
+                      "kind": "ON_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "e",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUALS_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "f",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SELECT_CLAUSE",
+      "children": [
+        {
+          "kind": "SELECT_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "g"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

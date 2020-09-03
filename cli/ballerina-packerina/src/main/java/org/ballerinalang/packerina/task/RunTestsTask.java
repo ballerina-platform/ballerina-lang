@@ -30,6 +30,7 @@ import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
+import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.tool.util.BFileUtil;
@@ -47,6 +48,7 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -61,6 +63,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOC
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DIR_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RUNTIME_JAR_PREFIX;
@@ -77,6 +80,9 @@ public class RunTestsTask implements Task {
     private final String[] args;
     private boolean report;
     private boolean coverage;
+    private boolean isSingleTestExecution;
+    private boolean isRerunTestExection;
+    private List<String> singleExecTests;
     TestReport testReport;
     private JarResolver jarResolver;
 
@@ -89,18 +95,30 @@ public class RunTestsTask implements Task {
         }
     }
 
-    public RunTestsTask(boolean report, boolean coverage, String[] args, List<String> groupList,
-                        List<String> disableGroupList) {
+    public RunTestsTask(boolean report, boolean coverage, boolean rerunTests, String[] args,
+                        List<String> groupList,
+                        List<String> disableGroupList,  List<String> testList) {
         this.args = args;
         this.report = report;
         this.coverage = coverage;
+        this.isSingleTestExecution = false;
+        this.isRerunTestExection = rerunTests;
         TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
+
+        // If rerunTests is true, we get the rerun test list and assign it to 'testList'
+        if (rerunTests) {
+            testList = new ArrayList<>();
+        }
+
         if (disableGroupList != null) {
             testerinaRegistry.setGroups(disableGroupList);
             testerinaRegistry.setShouldIncludeGroups(false);
         } else if (groupList != null) {
             testerinaRegistry.setGroups(groupList);
             testerinaRegistry.setShouldIncludeGroups(true);
+        } else if (testList != null) {
+            isSingleTestExecution = true;
+            singleExecTests = testList;
         }
 
         if (report || coverage) {
@@ -134,12 +152,29 @@ public class RunTestsTask implements Task {
         // in packages.
         for (BLangPackage bLangPackage : moduleBirMap) {
             TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
+
+            if (isRerunTestExection) {
+                Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
+                singleExecTests = readFailedTestsFromFile(jsonPath);
+            }
+
+            if (isSingleTestExecution || isRerunTestExection) {
+                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
+            }
             if (suite == null) {
                 if (!DOT.equals(bLangPackage.packageID.toString())) {
                     buildContext.out().println();
                     buildContext.out().println("\t" + bLangPackage.packageID);
                 }
                 buildContext.out().println("\t" + "No tests found");
+                buildContext.out().println();
+                continue;
+            } else if (isRerunTestExection && suite.getTests().size() == 0) {
+                buildContext.out().println("\t" + "No failed test/s found in cache");
+                buildContext.out().println();
+                continue;
+            } else if (isSingleTestExecution && suite.getTests().size() == 0) {
+                buildContext.out().println("\t" + "No tests found with the given name/s");
                 buildContext.out().println();
                 continue;
             }
@@ -417,5 +452,20 @@ public class RunTestsTask implements Task {
         Gson gson = new Gson();
         BufferedReader bufferedReader = Files.newBufferedReader(statusJsonPath, StandardCharsets.UTF_8);
         return gson.fromJson(bufferedReader, ModuleStatus.class);
+    }
+
+    private List<String> readFailedTestsFromFile(Path rerunTestJsonPath) {
+        Gson gson = new Gson();
+        rerunTestJsonPath = Paths.get(rerunTestJsonPath.toString(), RERUN_TEST_JSON_FILE);
+
+        try (BufferedReader bufferedReader = Files.newBufferedReader(rerunTestJsonPath, StandardCharsets.UTF_8)) {
+            return gson.fromJson(bufferedReader, ArrayList.class);
+        } catch (NoSuchFileException e) {
+            createLauncherException("No failed test cache present in target directory. ", e);
+        } catch (IOException e) {
+            createLauncherException("error while running failed tests. ", e);
+        }
+
+        return new ArrayList<String>();
     }
 }

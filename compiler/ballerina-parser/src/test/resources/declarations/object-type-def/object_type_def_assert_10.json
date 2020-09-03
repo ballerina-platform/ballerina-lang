@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -64,15 +55,6 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
                   "kind": "PUBLIC_KEYWORD",
                   "leadingMinutiae": [
                     {
@@ -120,15 +102,6 @@
               "kind": "OBJECT_FIELD",
               "hasDiagnostics": true,
               "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
                 {
                   "kind": "OBJECT_TYPE_DESC",
                   "hasDiagnostics": true,
@@ -178,15 +151,6 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
                               "kind": "INT_TYPE_DESC",
                               "children": [
                                 {
@@ -231,13 +195,8 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
+                              "kind": "LIST",
+                              "children": []
                             },
                             {
                               "kind": "FUNCTION_KEYWORD",
@@ -333,22 +292,23 @@
                   "value": "parent",
                   "leadingMinutiae": [
                     {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    },
+                    {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "CLOSE_BRACE_TOKEN",
-                        "leadingMinutiae": [
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
                           {
-                            "kind": "WHITESPACE_MINUTIAE",
-                            "value": "    "
-                          }
-                        ],
-                        "trailingMinutiae": [
-                          {
-                            "kind": "WHITESPACE_MINUTIAE",
-                            "value": " "
+                            "kind": "CLOSE_BRACE_TOKEN"
                           }
                         ]
                       }
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ],
                   "trailingMinutiae": [
@@ -372,13 +332,8 @@
               "kind": "OBJECT_METHOD_DEFINITION",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_KEYWORD",

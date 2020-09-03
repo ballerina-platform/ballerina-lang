@@ -120,8 +120,8 @@ public class MetricsTestCase extends BaseTest {
         expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\",src_module=\"_anon/.:0.0.0\"," +
                 "http_status_code_group=\"2xx\",src_remote=\"true\",src_position=\"metrics_test.bal:57:20\"," +
                 "action=\"respond\",resource=\"getProduct\",connector_name=\"ballerina/http/Caller\",}", regexNumber);
-        expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\",connector_name=\"http\"," +
-                "src_position=\"metrics_test.bal:33:5\",src_module=\"_anon/.:0.0.0\"," +
+        expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\"," +
+                "src_position=\"metrics_test.bal:36:5\",connector_name=\"http\",src_module=\"_anon/.:0.0.0\"," +
                 "src_entry_point_resource=\"true\",protocol=\"http\",resource=\"getProduct\",http_url=\"/test\"," +
                 "http_method=\"GET\",}", regexNumber);
         expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\"," +
@@ -134,8 +134,8 @@ public class MetricsTestCase extends BaseTest {
                 "src_module=\"_anon/.:0.0.0\",http_status_code_group=\"2xx\",src_remote=\"true\"," +
                 "src_position=\"metrics_test.bal:57:20\",action=\"respond\",resource=\"getProduct\"," +
                 "connector_name=\"ballerina/http/Caller\",}", regexNumber);
-        expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\",connector_name=\"http\"," +
-                "src_position=\"metrics_test.bal:33:5\",src_module=\"_anon/.:0.0.0\"," +
+        expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\"," +
+                "src_position=\"metrics_test.bal:36:5\",connector_name=\"http\",src_module=\"_anon/.:0.0.0\"," +
                 "src_entry_point_resource=\"true\",protocol=\"http\",resource=\"getProduct\",http_url=\"/test\"," +
                 "http_method=\"GET\",}", regexNumber);
         expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\"," +

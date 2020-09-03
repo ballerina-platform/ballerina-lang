@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter.variable;
 
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Map;
@@ -26,27 +27,20 @@ import java.util.Map;
  */
 public abstract class BCompoundVariable implements BVariable {
 
-    protected final VariableContext context;
+    protected final SuspendedContext context;
+    private final String name;
+    private final BVariableType type;
     protected Value jvmValue;
-    private final Variable dapVariable;
-    private final Map<String, Value> childVariables;
+    private Variable dapVariable;
+    private Map<String, Value> childVariables;
 
-    public BCompoundVariable(VariableContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
-        this(context, bVariableType.getString(), jvmValue, dapVar);
-    }
-
-    public BCompoundVariable(VariableContext context, String bVariableType, Value jvmValue, Variable dapVar) {
+    public BCompoundVariable(SuspendedContext context, String varName, BVariableType bVariableType, Value jvmValue) {
         this.context = context;
+        this.name = varName;
+        this.type = bVariableType;
         this.jvmValue = jvmValue;
-        dapVar.setType(bVariableType);
-        dapVar.setValue(computeValue());
-        this.dapVariable = dapVar;
-        this.childVariables = computeChildVariables();
-    }
-
-    @Override
-    public VariableContext getContext() {
-        return context;
+        this.dapVariable = null;
+        this.childVariables = null;
     }
 
     /**
@@ -55,12 +49,51 @@ public abstract class BCompoundVariable implements BVariable {
      */
     protected abstract Map<String, Value> computeChildVariables();
 
-    public Map<String, Value> getChildVariables() {
-        return childVariables;
+    @Override
+    public SuspendedContext getContext() {
+        return context;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public BVariableType getBType() {
+        return type;
+    }
+
+    @Override
+    public Value getJvmValue() {
+        return jvmValue;
     }
 
     @Override
     public Variable getDapVariable() {
+        if (dapVariable == null) {
+            dapVariable = new Variable();
+            dapVariable.setName(this.name);
+            dapVariable.setType(this.type.getString());
+            dapVariable.setValue(computeValue());
+        }
         return dapVariable;
+    }
+
+    public Map<String, Value> getChildVariables() {
+        if (childVariables == null) {
+            childVariables = computeChildVariables();
+        }
+        return childVariables;
+    }
+
+    public Value getChildByName(String name) throws DebugVariableException {
+        if (childVariables == null) {
+            childVariables = computeChildVariables();
+        }
+        if (!childVariables.containsKey(name)) {
+            throw new DebugVariableException("No child variables found with name: '" + name + "'");
+        }
+        return childVariables.get(name);
     }
 }

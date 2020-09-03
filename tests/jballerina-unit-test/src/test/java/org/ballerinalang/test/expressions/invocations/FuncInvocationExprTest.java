@@ -168,7 +168,7 @@ public class FuncInvocationExprTest {
         Assert.assertEquals(i,  funcInvocationNegative.getErrorCount());
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testMethodCallNegativeCases() {
         int i = 0;
         validateError(methodInvocationNegative, i++, "incompatible types: expected 'string', found 'int'", 23, 16);

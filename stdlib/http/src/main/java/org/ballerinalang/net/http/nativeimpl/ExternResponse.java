@@ -33,14 +33,22 @@ public class ExternResponse {
     }
 
     public static Object getEntity(ObjectValue responseObj) {
-        return HttpUtil.getEntity(responseObj, false, true);
+        return HttpUtil.getEntity(responseObj, false, true, true);
     }
 
-    public static ObjectValue getEntityWithoutBody(ObjectValue responseObj) {
-        return HttpUtil.getEntity(responseObj, false, false);
+    public static ObjectValue getEntityWithoutBodyAndHeaders(ObjectValue responseObj) {
+        return HttpUtil.getEntity(responseObj, false, false, false);
+    }
+
+    public static ObjectValue getEntityWithBodyAndWithoutHeaders(ObjectValue requestObj) {
+        return HttpUtil.getEntity(requestObj, false, true, false);
     }
 
     public static void setEntity(ObjectValue requestObj, ObjectValue entityObj) {
-        HttpUtil.setEntity(requestObj, entityObj, false);
+        HttpUtil.setEntity(requestObj, entityObj, false, true);
+    }
+
+    public static void setEntityAndUpdateContentTypeHeader(ObjectValue requestObj, ObjectValue entityObj) {
+        HttpUtil.setEntity(requestObj, entityObj, false, false);
     }
 }

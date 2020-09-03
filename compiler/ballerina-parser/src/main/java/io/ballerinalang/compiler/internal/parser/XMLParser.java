@@ -18,7 +18,6 @@
 package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
-import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
@@ -46,29 +45,6 @@ public class XMLParser extends AbstractParser {
     @Override
     public STNode parse() {
         return parseXMLContent();
-    }
-
-    @Override
-    public STNode resumeParsing(ParserRuleContext context, Object... args) {
-        switch (context) {
-            case SLASH:
-                return parseSlashToken();
-            case LT_TOKEN:
-                return parseLTToken();
-            case GT_TOKEN:
-                return parseGTToken();
-            case XML_NAME:
-                return parseXMLNCName();
-            case ASSIGN_OP:
-                return parseAssignOp();
-            case XML_START_OR_EMPTY_TAG_END:
-                return parseXMLElementTagEnd((STNode) args[0], (STNode) args[1], (STNode) args[2]);
-            case XML_QUOTE_START:
-            case XML_QUOTE_END:
-                return parseStartQuote(context);
-            default:
-                throw new IllegalStateException("cannot resume parsing the rule: " + context);
-        }
     }
 
     /**
@@ -239,14 +215,6 @@ public class XMLParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution =
                         recover(token, ParserRuleContext.XML_START_OR_EMPTY_TAG_END, tagOpen, name, attributes);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
                 return parseXMLElementTagEnd(solution.tokenKind, tagOpen, name, attributes);
         }
     }
@@ -261,8 +229,8 @@ public class XMLParser extends AbstractParser {
         if (token.kind == SyntaxKind.SLASH_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.SLASH);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.SLASH);
+            return parseSlashToken();
         }
     }
 
@@ -295,8 +263,8 @@ public class XMLParser extends AbstractParser {
         if (token.kind == SyntaxKind.LT_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.LT_TOKEN);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.LT_TOKEN);
+            return parseLTToken();
         }
     }
 
@@ -310,8 +278,8 @@ public class XMLParser extends AbstractParser {
         if (token.kind == SyntaxKind.GT_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.GT_TOKEN);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.GT_TOKEN);
+            return parseGTToken();
         }
     }
 
@@ -332,8 +300,8 @@ public class XMLParser extends AbstractParser {
             return SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(xmlNCName, interpolation,
                     DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES);
         } else {
-            Solution sol = recover(token, ParserRuleContext.XML_NAME);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.XML_NAME);
+            return parseXMLNCName();
         }
     }
 
@@ -408,8 +376,8 @@ public class XMLParser extends AbstractParser {
         if (token.kind == SyntaxKind.EQUAL_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ASSIGN_OP);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.ASSIGN_OP);
+            return parseAssignOp();
         }
     }
 
@@ -453,8 +421,8 @@ public class XMLParser extends AbstractParser {
         if (token.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN || token.kind == SyntaxKind.SINGLE_QUOTE_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ctx);
-            return sol.recoveredNode;
+            recover(token, ctx);
+            return parseStartQuote(ctx);
         }
     }
 
@@ -540,8 +508,8 @@ public class XMLParser extends AbstractParser {
         if (token.kind == SyntaxKind.XML_COMMENT_START_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.XML_COMMENT_START);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.XML_COMMENT_START);
+            return parseXMLCommentStart();
         }
     }
 
@@ -555,8 +523,8 @@ public class XMLParser extends AbstractParser {
         if (token.kind == SyntaxKind.XML_COMMENT_END_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.XML_COMMENT_END);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.XML_COMMENT_END);
+            return parseXMLCommentEnd();
         }
     }
 
@@ -614,8 +582,8 @@ public class XMLParser extends AbstractParser {
         if (token.kind == SyntaxKind.XML_PI_START_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.XML_PI_START);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.XML_PI_START);
+            return parseXMLPIStart();
         }
     }
 
@@ -629,8 +597,8 @@ public class XMLParser extends AbstractParser {
         if (token.kind == SyntaxKind.XML_PI_END_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.XML_PI_END);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.XML_PI_END);
+            return parseXMLPIEnd();
         }
     }
 

@@ -41,21 +41,16 @@
         {
             "name": "FunctionDefinitionNode",
             "base": "ModuleMemberDeclarationNode",
-            "kind": "FUNCTION_DEFINITION",
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
-                },
-                {
-                    "name": "visibilityQualifier",
-                    "type": "Token",
+                    "type": "MetadataNode",
                     "isOptional": true
                 },
                 {
-                    "name": "transactionalKeyword",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",
@@ -117,7 +112,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -157,7 +153,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -189,7 +186,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "serviceKeyword",
@@ -206,7 +204,7 @@
                 {
                     "name": "expressions",
                     "type": "ExpressionNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "serviceBody",
@@ -678,7 +676,7 @@
             "attributes": [
                 {
                     "name": "functionName",
-                    "type": "Node"
+                    "type": "NameReferenceNode"
                 },
                 {
                     "name": "openParenToken",
@@ -835,11 +833,13 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "constKeyword",
@@ -847,7 +847,8 @@
                 },
                 {
                     "name": "typeDescriptor",
-                    "type": "TypeDescriptorNode"
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
                 },
                 {
                     "name": "variableName",
@@ -877,11 +878,6 @@
             "base": "ParameterNode",
             "kind": "DEFAULTABLE_PARAM",
             "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
                 {
                     "name": "annotations",
                     "type": "AnnotationNode",
@@ -917,11 +913,6 @@
             "kind": "REQUIRED_PARAM",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "annotations",
                     "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
@@ -948,11 +939,6 @@
             "kind": "REST_PARAM",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "annotations",
                     "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
@@ -969,22 +955,6 @@
                     "name": "paramName",
                     "type": "Token",
                     "isOptional": true
-                }
-            ]
-        },
-        {
-            "name": "ExpressionListItemNode",
-            "base": "Node",
-            "kind": "EXPRESSION_LIST_ITEM",
-            "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "expression",
-                    "type": "ExpressionNode"
                 }
             ]
         },
@@ -1019,22 +989,6 @@
             ]
         },
         {
-            "name": "ImportSubVersionNode",
-            "base": "Node",
-            "kind": "IMPORT_SUB_VERSION",
-            "attributes": [
-                {
-                    "name": "leadingDot",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "versionNumber",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
             "name": "ImportVersionNode",
             "base": "Node",
             "kind": "IMPORT_VERSION",
@@ -1045,8 +999,8 @@
                 },
                 {
                     "name": "versionNumber",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
+                    "type": "Token",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 }
             ]
         },
@@ -1067,15 +1021,17 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Token"
+                    "type": "Node"
                 },
                 {
                     "name": "colon",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "valueExpr",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -1179,7 +1135,7 @@
             "kind": "RECORD_TYPE_DESC",
             "attributes": [
                 {
-                    "name": "objectKeyword",
+                    "name": "recordKeyword",
                     "type": "Token"
                 },
                 {
@@ -1190,6 +1146,11 @@
                     "name": "fields",
                     "type": "Node",
                     "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "recordRestDescriptor",
+                    "type": "RecordRestDescriptorNode",
+                    "isOptional": true
                 },
                 {
                     "name": "bodyEndDelimiter",
@@ -1254,7 +1215,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -1276,11 +1238,13 @@
                 },
                 {
                     "name": "equalsToken",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "expression",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "isOptional": true
                 },
                 {
                     "name": "semicolonToken",
@@ -1295,7 +1259,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "readonlyKeyword",
@@ -1328,7 +1293,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "readonlyKeyword",
@@ -1459,7 +1425,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "finalKeyword",
@@ -1550,16 +1517,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "ltToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "typeNode",
-                    "type": "Node"
-                },
-                {
-                    "name": "gtToken",
-                    "type": "Token"
+                    "name": "typeParameter",
+                    "type": "TypeParameterNode"
                 }
             ]
         },
@@ -1585,7 +1544,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -1656,11 +1616,13 @@
                 },
                 {
                     "name": "asKeyword",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "namespacePrefix",
-                    "type": "IdentifierToken"
+                    "type": "IdentifierToken",
+                    "isOptional": true
                 },
                 {
                     "name": "semicolonToken",
@@ -1929,7 +1891,8 @@
                 },
                 {
                     "name": "keySpecifier",
-                    "type": "KeySpecifierNode"
+                    "type": "KeySpecifierNode",
+                    "isOptional": true
                 },
                 {
                     "name": "openBracket",
@@ -2136,7 +2099,8 @@
             "attributes": [
                 {
                     "name": "type",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "startBacktick",
@@ -2441,7 +2405,7 @@
                 },
                 {
                     "name": "typeNode",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode"
                 },
                 {
                     "name": "gtToken",
@@ -2491,7 +2455,7 @@
                 {
                     "name": "parameters",
                     "type": "ParameterNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -2743,7 +2707,7 @@
                 },
                 {
                     "name": "intermediateClauses",
-                    "type": "Node",
+                    "type": "ClauseNode",
                     "occurrences": "MULTIPLE"
                 }
             ]
@@ -2904,12 +2868,13 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
-                    "name": "visibilityQualifier",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",
@@ -3386,7 +3351,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "qualifier",
@@ -3422,7 +3388,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "identifier",
@@ -3430,11 +3397,13 @@
                 },
                 {
                     "name": "equalToken",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "constExprNode",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3742,48 +3711,6 @@
             ]
         },
         {
-            "name": "ObjectMethodDefinitionNode",
-            "base": "Node",
-            "kind": "OBJECT_METHOD_DEFINITION",
-            "attributes": [
-                {
-                    "name": "metadata",
-                    "type": "MetadataNode"
-                },
-                {
-                    "name": "visibilityQualifier",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "remoteKeyword",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "transactionalKeyword",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "functionKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "methodName",
-                    "type": "IdentifierToken"
-                },
-                {
-                    "name": "methodSignature",
-                    "type": "FunctionSignatureNode"
-                },
-                {
-                    "name": "functionBody",
-                    "type": "FunctionBodyNode"
-                }
-            ]
-        },
-        {
             "name": "DistinctTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "DISTINCT_TYPE_DESC",
@@ -3860,8 +3787,7 @@
                 },
                 {
                     "name": "onCondition",
-                    "type": "OnClauseNode",
-                    "isOptional": true
+                    "type": "OnClauseNode"
                 }
             ]
         },
@@ -3875,7 +3801,15 @@
                     "type": "Token"
                 },
                 {
-                    "name": "expression",
+                    "name": "lhsExpression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "equalsKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "rhsExpression",
                     "type": "ExpressionNode"
                 }
             ]
@@ -4086,11 +4020,47 @@
                 },
                 {
                     "name": "backtickContent",
-                    "type": "Token"
+                    "type": "Node"
                 },
                 {
                     "name": "endBacktick",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "OrderByClauseNode",
+            "base": "ClauseNode",
+            "kind": "ORDER_BY_CLAUSE",
+            "attributes": [
+                {
+                    "name": "orderKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "byKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "orderKey",
+                    "type": "OrderKeyNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                }
+            ]
+        },
+        {
+            "name": "OrderKeyNode",
+            "base": "Node",
+            "kind": "ORDER_KEY",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "orderDirection",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         }
