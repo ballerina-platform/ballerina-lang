@@ -34,6 +34,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.api.BString;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +72,7 @@ public class BallerinaErrors {
     }
 
     public static ErrorValue createError(BString message) {
-        return new ErrorValue(message, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return new ErrorValue(message, new MapValueImpl<>(BTypes.typeErrorDetail).frozenCopy(new HashMap<>()));
     }
 
     @Deprecated
@@ -84,7 +85,12 @@ public class BallerinaErrors {
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }
-        return new ErrorValue(reason, detailMap);
+        return new ErrorValue(reason, readonlyCloneDetailMap(detailMap));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static MapValueImpl<BString, Object> readonlyCloneDetailMap(MapValueImpl<BString, Object> detailMap) {
+        return (MapValueImpl<BString, Object>) detailMap.frozenCopy(new HashMap<>());
     }
 
     @Deprecated
@@ -97,7 +103,7 @@ public class BallerinaErrors {
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }
-        return new ErrorValue(type, message, null, detailMap);
+        return new ErrorValue(type, message, null, readonlyCloneDetailMap(detailMap));
     }
 
     public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message) {
@@ -106,7 +112,7 @@ public class BallerinaErrors {
 
     public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message,
                                                  MapValue<BString, Object> detailRecord) {
-        ErrorValue error = createError(message, detailRecord);
+        ErrorValue error = createError(message, (MapValue) detailRecord.frozenCopy(new HashMap<>()));
         setTypeId(typeIdName, typeIdPkg, error);
         return error;
     }
@@ -115,8 +121,10 @@ public class BallerinaErrors {
                                                  ErrorValue cause) {
         MapValueImpl<Object, Object> details = new MapValueImpl<>(BTypes.typeErrorDetail);
         ErrorValue error = new ErrorValue(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
-                                                         TypeChecker.getType(details)),
-                                          StringUtils.fromString(message), cause, details);
+                TypeChecker.getType(details)),
+                StringUtils.fromString(message),
+                cause,
+                details.frozenCopy(new HashMap<>()));
         setTypeId(typeIdName, typeIdPkg, error);
         return error;
     }
@@ -134,7 +142,7 @@ public class BallerinaErrors {
     }
 
     public static ErrorValue createError(BString message, MapValue detailMap) {
-        return new ErrorValue(message, detailMap);
+        return new ErrorValue(message, detailMap.frozenCopy(new HashMap<>()));
     }
 
     public static ErrorValue createError(Throwable error) {
