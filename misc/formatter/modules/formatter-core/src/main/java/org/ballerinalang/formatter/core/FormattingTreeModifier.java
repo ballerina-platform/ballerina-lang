@@ -536,7 +536,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(qualifiedNameReferenceNode)) {
             return qualifiedNameReferenceNode;
         }
-        int startCol = getStartColumn(qualifiedNameReferenceNode, qualifiedNameReferenceNode.kind(), false);
+        boolean addSpaces = false;
+        if (qualifiedNameReferenceNode.parent() != null &&
+                qualifiedNameReferenceNode.parent().kind().equals(SyntaxKind.TYPED_BINDING_PATTERN)) {
+            addSpaces = true;
+        }
+        int startCol = getStartColumn(qualifiedNameReferenceNode, qualifiedNameReferenceNode.kind(), addSpaces);
         Token modulePrefix = getToken(qualifiedNameReferenceNode.modulePrefix());
         Token identifier = getToken(qualifiedNameReferenceNode.identifier());
         Token colon = getToken((Token) qualifiedNameReferenceNode.colon());
@@ -1562,10 +1567,18 @@ public class FormattingTreeModifier extends TreeModifier {
         Token startBacktick = getToken(templateExpressionNode.startBacktick());
         NodeList<TemplateMemberNode> content = modifyNodeList(templateExpressionNode.content());
         Token endBacktick = getToken(templateExpressionNode.endBacktick());
+        int leadingSpaces = 1;
+        if (templateExpressionNode.parent() != null &&
+                templateExpressionNode.parent().kind().equals(SyntaxKind.LOCAL_VAR_DECL)) {
+            leadingSpaces = 0;
+        }
+        if (type != null) {
+            templateExpressionNode = templateExpressionNode.modify()
+                    .withType(formatToken(type, 0, 1, 0, 0)).apply();
+        }
         return templateExpressionNode.modify()
-                .withStartBacktick(formatToken(startBacktick, 1, 0, 0, 0))
+                .withStartBacktick(formatToken(startBacktick, leadingSpaces, 0, 0, 0))
                 .withContent(content)
-                .withType(formatToken(type, 0, 0, 0, 0))
                 .withEndBacktick(formatToken(endBacktick, 0, 0, 0, 0))
                 .apply();
     }
