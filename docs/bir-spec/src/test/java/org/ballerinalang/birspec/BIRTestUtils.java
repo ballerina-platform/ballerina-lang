@@ -25,6 +25,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -51,41 +52,57 @@ import java.util.stream.Collectors;
  */
 class BIRTestUtils {
 
-    private static final String TEST_RESOURCE_ROOT = "test-src/";
+    private static final String TEST_RESOURCES_ROOT = "src/test/resources/test-src";
+    private static final Path TEST_RESOURCES_ROOT_PATH = Paths.get(TEST_RESOURCES_ROOT);
 
     private static final String LANG_LIB_TEST_SRC_ROOT = "../../langlib/langlib-test/src/test/resources/test-src";
+    private static final Path LANG_LIB_TEST_ROOT_PATH = Paths.get(LANG_LIB_TEST_SRC_ROOT);
 
-    private static final Path TEST_ROOT_PATH = Paths.get(LANG_LIB_TEST_SRC_ROOT);
+    @DataProvider(name = "createTestSources")
+    public static Object[][] createTestDataProvider() throws IOException {
 
-    static void validateBIRSpec() throws IOException {
+        assert LANG_LIB_TEST_ROOT_PATH.toFile().exists();
+        List<String> testSources = findBallerinaSourceFiles(LANG_LIB_TEST_ROOT_PATH);
 
-        assert TEST_ROOT_PATH.toFile().exists();
-        List<String> testSources = Files.walk(TEST_ROOT_PATH)
-                .filter(file -> Files.isRegularFile(file))
-                .map(file -> file.toAbsolutePath().normalize().toString())
-                .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
-                .collect(Collectors.toList());
+        assert TEST_RESOURCES_ROOT_PATH.toFile().exists();
+        testSources.addAll(findBallerinaSourceFiles(TEST_RESOURCES_ROOT_PATH));
 
-        for (String testSource : testSources) {
-            BIRCompileResult compileResult = compile(testSource);
-            BIRNode.BIRPackage expectedBIRModule = compileResult.getExpectedBIR();
-            Bir actualBIR = compileResult.getActualBIR();
-
-            ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
-            Bir.Module actualBIRModule = actualBIR.module();
-
-            // assert constants
-            assertValues(expectedBIRModule, actualBIRModule, constantPoolEntries);
-
-            // assert type definitions
-            assertTypeDefs(expectedBIRModule, actualBIRModule, constantPoolEntries);
-
-            // assert annotations
-            assertAnnotations(expectedBIRModule, actualBIRModule, constantPoolEntries);
-
-            // assert functions
-            assertFunctions(expectedBIRModule, actualBIRModule, constantPoolEntries);
+        Object[][] data = new Object[testSources.size()][];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = new Object[]{testSources.get(i)};
         }
+        return data;
+    }
+
+    private static List<String> findBallerinaSourceFiles(Path testSourcesPath) throws IOException {
+
+        return Files.walk(testSourcesPath)
+                    .filter(file -> Files.isRegularFile(file))
+                    .map(file -> file.toAbsolutePath().normalize().toString())
+                    .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
+                    .collect(Collectors.toList());
+    }
+
+    static void validateBIRSpec(String testSource) {
+
+        BIRCompileResult compileResult = compile(testSource);
+        BIRNode.BIRPackage expectedBIRModule = compileResult.getExpectedBIR();
+        Bir actualBIR = compileResult.getActualBIR();
+
+        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
+        Bir.Module actualBIRModule = actualBIR.module();
+
+        // assert constants
+        assertValues(expectedBIRModule, actualBIRModule, constantPoolEntries);
+
+        // assert type definitions
+        assertTypeDefs(expectedBIRModule, actualBIRModule, constantPoolEntries);
+
+        // assert annotations
+        assertAnnotations(expectedBIRModule, actualBIRModule, constantPoolEntries);
+
+        // assert functions
+        assertFunctions(expectedBIRModule, actualBIRModule, constantPoolEntries);
     }
 
     private static BIRCompileResult compile(String testSource) {
@@ -103,18 +120,6 @@ class BIRTestUtils {
 
         Bir kaitaiBir = new Bir(new ByteBufferKaitaiStream(birBinaryContent));
         return new BIRCompileResult(packageSymbol.bir, kaitaiBir);
-    }
-
-    static void assertFunctions() {
-
-        BIRCompileResult compileResult = compile(TEST_RESOURCE_ROOT + "functions.bal");
-        BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
-        Bir actualBIR = compileResult.getActualBIR();
-
-        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
-        Bir.Module birModule = actualBIR.module();
-
-        assertFunctions(expectedBIR, birModule, constantPoolEntries);
     }
 
     private static void assertFunctions(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
@@ -276,19 +281,6 @@ class BIRTestUtils {
         }
     }
 
-    static void assertValues() {
-
-        BIRCompileResult compileResult = compile(TEST_RESOURCE_ROOT + "values.bal");
-        BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
-        Bir actualBIR = compileResult.getActualBIR();
-
-        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
-        Bir.Module birModule = actualBIR.module();
-
-        assertValues(expectedBIR, birModule, constantPoolEntries);
-    }
-
-
     private static void assertValues(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
                                      ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
 
@@ -312,18 +304,6 @@ class BIRTestUtils {
             // assert value
             assertConstantValue(actualConstant.constantValue(), expectedConstant.constValue.value, constantPoolEntries);
         }
-    }
-
-    static void assertTypeDefs() {
-
-        BIRCompileResult compileResult = compile(TEST_RESOURCE_ROOT + "typedefs.bal");
-        BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
-        Bir actualBIR = compileResult.getActualBIR();
-
-        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
-        Bir.Module birModule = actualBIR.module();
-
-        assertTypeDefs(expectedBIR, birModule, constantPoolEntries);
     }
 
     private static void assertTypeDefs(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
@@ -362,18 +342,6 @@ class BIRTestUtils {
         Assert.assertEquals(actualPosition.eLine(), expectedPosition.eLine);
         Assert.assertEquals(actualPosition.sCol(), expectedPosition.sCol);
         Assert.assertEquals(actualPosition.eCol(), expectedPosition.eCol);
-    }
-
-    static void assertAnnotations() {
-
-        BIRCompileResult compileResult = compile(TEST_RESOURCE_ROOT + "annotations.bal");
-        BIRNode.BIRPackage expectedBIR = compileResult.getExpectedBIR();
-        Bir actualBIR = compileResult.getActualBIR();
-
-        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
-        Bir.Module birModule = actualBIR.module();
-
-        assertAnnotations(expectedBIR, birModule, constantPoolEntries);
     }
 
     private static void assertAnnotations(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
