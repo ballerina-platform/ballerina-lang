@@ -1,24 +1,29 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocumentChange;
+import io.ballerina.tools.text.TextDocuments;
+import io.ballerina.tools.text.TextEdit;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -26,6 +31,8 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -54,7 +61,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     protected WorkspaceDocumentManagerImpl() {
     }
-    
+
     public static WorkspaceDocumentManagerImpl getInstance() {
         return INSTANCE;
     }
@@ -90,12 +97,36 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
      * {@inheritDoc}
      */
     @Override
-    public void updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
-        if (isFileOpen(filePath)) {
-            documentList.get(filePath).getDocument().ifPresent(document -> document.setContent(updatedContent));
-        } else {
+    public void updateFile(Path filePath, List<TextDocumentContentChangeEvent> changeEvent)
+            throws WorkspaceDocumentException {
+        if (!isFileOpen(filePath)) {
             throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
         }
+        if (changeEvent.size() == 1 && changeEvent.get(0).getRange() == null) {
+            // Full Sync
+            documentList.get(filePath).getDocument().ifPresent(
+                    document -> document.setContent(changeEvent.get(0).getText())
+            );
+        } else {
+            // Incremental Sync
+            documentList.get(filePath).getDocument().ifPresent(document -> {
+                TextEdit[] edits = new TextEdit[changeEvent.size()];
+                TextDocument textDocument = document.getTree().textDocument();
+                for (int i = 0; i < changeEvent.size(); i++) {
+                    TextDocumentContentChangeEvent change = changeEvent.get(i);
+                    edits[i] = TextEdit.from(getTextRange(textDocument, change), change.getText());
+                }
+                document.setTree(SyntaxTree.from(document.getTree(), TextDocumentChange.from(edits)));
+            });
+        }
+    }
+
+    private TextRange getTextRange(TextDocument textDocument, TextDocumentContentChangeEvent change) {
+        Position start = change.getRange().getStart();
+        Position end = change.getRange().getEnd();
+        int startOffset = textDocument.textPositionFrom(LinePosition.from(start.getLine(), start.getCharacter()));
+        int endOffset = textDocument.textPositionFrom(LinePosition.from(end.getLine(), end.getCharacter()));
+        return TextRange.from(startOffset, endOffset - startOffset);
     }
 
     /**
@@ -105,31 +136,6 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     public void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
             documentList.get(filePath).getDocument().ifPresent(document -> document.setCodeLenses(codeLens));
-        } else {
-            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setPrunedContent(Path filePath, String prunedSource) throws WorkspaceDocumentException {
-        if (isFileOpen(filePath)) {
-            documentList.get(filePath).getDocument().ifPresent(document -> document.setPrunedContent(prunedSource));
-        } else {
-            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void resetPrunedContent(Path filePath) throws WorkspaceDocumentException {
-
-        if (isFileOpen(filePath)) {
-            documentList.get(filePath).getDocument().ifPresent(WorkspaceDocument::resetPrunedContent);
         } else {
             throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
         }
@@ -186,9 +192,9 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     @Override
     public String getFileContent(Path filePath) throws WorkspaceDocumentException {
         if (isFileOpen(filePath) && documentList.get(filePath) != null) {
-            return documentList.get(filePath).getDocument().map(WorkspaceDocument::getContent).orElse(null);
+            return documentList.get(filePath).getDocument().map(doc -> doc.getTree().toSourceCode()).orElse(null);
         }
-        return readFromFileSystem(filePath);
+        return readFromFileSystem(filePath).toSourceCode();
     }
 
     /**
@@ -242,7 +248,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
         if (isFileOpen(filePath) && documentList.get(filePath) != null) {
             return documentList.get(filePath).getDocument().map(WorkspaceDocument::getTree).orElse(null);
         }
-        return SyntaxTree.from(TextDocuments.from(readFromFileSystem(filePath)));
+        return readFromFileSystem(filePath);
     }
 
     /**
@@ -257,11 +263,11 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
         }
     }
 
-    private String readFromFileSystem(Path filePath) throws WorkspaceDocumentException {
+    private SyntaxTree readFromFileSystem(Path filePath) throws WorkspaceDocumentException {
         try {
             if (Files.exists(filePath)) {
                 byte[] encoded = Files.readAllBytes(filePath);
-                return new String(encoded, Charset.defaultCharset());
+                return SyntaxTree.from(TextDocuments.from(new String(encoded, Charset.defaultCharset())));
             }
             throw new WorkspaceDocumentException("Error in reading non-existent file '" + filePath);
         } catch (IOException e) {

@@ -72,9 +72,16 @@ public transactional function info() returns Info = @java:Method {
     name: "info"
 } external;
 
-public transactional function setRollbackOnly(error? e) = @java:Method {
-    class: "org.ballerinalang.langlib.transaction.SetRollbackOnly",
-    name: "setRollbackOnly"
+public transactional function setRollbackOnly(error? e) {
+    if(e is error) {
+      TransactionError trxError = prepareError(e.message(), e);
+      wrapRollbackError(trxError);
+    }
+}
+
+function wrapRollbackError(Error? e) = @java:Method {
+    class: "org.ballerinalang.langlib.transaction.WrapRollbackError",
+    name: "wrapRollbackError"
 } external;
 
 public transactional function getRollbackOnly() returns boolean = @java:Method {

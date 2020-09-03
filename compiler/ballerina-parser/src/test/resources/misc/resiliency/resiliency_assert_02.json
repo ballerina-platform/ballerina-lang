@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -42,14 +33,17 @@
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "PUBLIC_KEYWORD",
-                            "trailingMinutiae": [
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": " "
+                                "kind": "PUBLIC_KEYWORD"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ],
                       "trailingMinutiae": [
@@ -93,15 +87,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -138,15 +123,6 @@
                           "kind": "OBJECT_FIELD",
                           "hasDiagnostics": true,
                           "children": [
-                            {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
                             {
                               "kind": "PUBLIC_KEYWORD",
                               "leadingMinutiae": [
@@ -251,9 +227,11 @@
                                     },
                                     {
                                       "kind": "POSITIONAL_ARG",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "INDEXED_EXPRESSION",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "SIMPLE_NAME_REFERENCE",
@@ -269,10 +247,24 @@
                                             },
                                             {
                                               "kind": "LIST",
-                                              "children": []
+                                              "children": [
+                                                {
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "isMissing": true
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             },
                                             {
-                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                              "kind": "CLOSE_BRACKET_TOKEN",
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR"
+                                              ]
                                             }
                                           ]
                                         }
@@ -306,15 +298,6 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
                               "kind": "OBJECT_TYPE_DESC",
                               "hasDiagnostics": true,
                               "children": [
@@ -347,15 +330,6 @@
                                       "kind": "OBJECT_FIELD",
                                       "hasDiagnostics": true,
                                       "children": [
-                                        {
-                                          "kind": "METADATA",
-                                          "children": [
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            }
-                                          ]
-                                        },
                                         {
                                           "kind": "SIMPLE_NAME_REFERENCE",
                                           "children": [
@@ -448,7 +422,7 @@
                                                       "kind": "STRING_LITERAL",
                                                       "children": [
                                                         {
-                                                          "kind": "STRING_LITERAL",
+                                                          "kind": "STRING_LITERAL_TOKEN",
                                                           "value": "Java Hello World"
                                                         }
                                                       ]

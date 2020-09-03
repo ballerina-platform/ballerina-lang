@@ -284,6 +284,15 @@ public type FunctionStub object {
             panic result;
         }
     }
+
+    # Sets the original function to be invoked.
+    public function callOriginal() {
+        self.returnValue = "__ORIGINAL__";
+        Error? result = thenReturnFuncExt(self);
+        if (result is Error) {
+            panic result;
+        }
+    }
 };
 
 # Creates and returns a mock object of provided type description.
@@ -292,7 +301,7 @@ public type FunctionStub object {
 # + mockObject - mock object to replace the original (optional)
 # + return - created mock object or throw an error if validation failed
 public function mock(public typedesc<object{}> T, object{} mockObject = new) returns T = @java:Method {
-    class: "org.ballerinalang.testerina.natives.test.Mock"
+    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to validate the mock object.
@@ -301,7 +310,7 @@ public function mock(public typedesc<object{}> T, object{} mockObject = new) ret
 # + return - Return Value Description
 function validatePreparedObjExt(object{} mockObject) returns Error? = @java:Method {
     name: "validatePreparedObj",
-    class: "org.ballerinalang.testerina.natives.test.Mock"
+    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to validate the provided function name
@@ -311,7 +320,7 @@ function validatePreparedObjExt(object{} mockObject) returns Error? = @java:Meth
 # + return - error if function does not exist or in case of a signature mismatch
 function validateFunctionNameExt(handle functionName, object{} mockObject) returns Error? = @java:Method {
     name: "validateFunctionName",
-    class: "org.ballerinalang.testerina.natives.test.Mock"
+    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to validate the field name.
@@ -321,7 +330,7 @@ function validateFunctionNameExt(handle functionName, object{} mockObject) retur
 # + return - error if field does not exist
 function validateFieldNameExt(handle fieldName, object{} mockObject) returns Error? = @java:Method {
     name: "validateFieldName",
-    class: "org.ballerinalang.testerina.natives.test.Mock"
+    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to validate the arguments list.
@@ -330,7 +339,7 @@ function validateFieldNameExt(handle fieldName, object{} mockObject) returns Err
 # + return - error in case of an argument mismatch
 function validateArgumentsExt(MemberFunctionStub case) returns Error? = @java:Method {
     name: "validateArguments",
-    class: "org.ballerinalang.testerina.natives.test.Mock"
+    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to register the return value
@@ -339,7 +348,7 @@ function validateArgumentsExt(MemberFunctionStub case) returns Error? = @java:Me
 # + return - error if case registration failed
 function thenReturnExt(MemberFunctionStub|MemberVariableStub case) returns Error? = @java:Method {
     name: "thenReturn",
-    class: "org.ballerinalang.testerina.natives.test.Mock"
+    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to register the sequence of return values;
@@ -348,7 +357,7 @@ function thenReturnExt(MemberFunctionStub|MemberVariableStub case) returns Error
 # + return - error if case registration failed
 function thenReturnSeqExt(MemberFunctionStub case) returns Error? = @java:Method {
     name: "thenReturnSequence",
-    class: "org.ballerinalang.testerina.natives.test.Mock"
+    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to register return value
@@ -357,7 +366,7 @@ function thenReturnSeqExt(MemberFunctionStub case) returns Error? = @java:Method
 # + return - error if case registration failed
 function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Method {
     name: "thenReturn",
-    class: "org.ballerinalang.testerina.natives.test.FunctionMock"
+    class: "org.ballerinalang.testerina.natives.mock.FunctionMock"
 } external;
 
 # Inter-op to handle function mocking.
@@ -365,8 +374,7 @@ function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Method {
 # + mockFunction - mockFunction object
 # + args - function arguments
 # + return - function return value or error if case registration failed
-public function mockHandler(MockFunction mockFunction, anydata|error[] args) returns any|Error = @java:Method {
+public function mockHandler(MockFunction mockFunction, (any|error)... args) returns any|Error = @java:Method {
     name: "mockHandler",
-    class: "org.ballerinalang.testerina.natives.test.FunctionMock"
+    class: "org.ballerinalang.testerina.natives.mock.FunctionMock"
 } external;
-

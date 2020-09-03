@@ -40,6 +40,7 @@ public class LSPackageLoader {
     private static final String LIB_REPO_DIR = "lib/repo";
     private static final String DOT = ".";
     private static final String BALLERINA_HOME = "ballerina.home";
+    private static List<String> visibleOrgs = new ArrayList<>();
     private static List<BallerinaPackage> sdkPackages = getSDKPackagesFromSrcDir();
     private static List<BallerinaPackage> homeRepoPackages = getPackagesFromHomeRepo();
 
@@ -110,6 +111,9 @@ public class LSPackageLoader {
                                 for (String version : versions) {
                                     BallerinaPackage ballerinaPackage = new BallerinaPackage(repo, name, version);
                                     ballerinaPackages.add(ballerinaPackage);
+                                    if (!visibleOrgs.contains(repo)) {
+                                        visibleOrgs.add(repo);
+                                    }
                                 }
                             }
                         }
@@ -147,6 +151,9 @@ public class LSPackageLoader {
                                             if (versionDir.isDirectory()) {
                                                 String version = versionDir.getName();
                                                 ballerinaPackages.add(new BallerinaPackage(orgName, pkgName, version));
+                                                if (!visibleOrgs.contains(orgName)) {
+                                                    visibleOrgs.add(orgName);
+                                                }
                                             }
                                         }
                                     }

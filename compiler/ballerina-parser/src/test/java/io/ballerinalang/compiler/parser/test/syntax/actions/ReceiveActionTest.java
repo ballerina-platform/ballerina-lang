@@ -39,4 +39,9 @@ public class ReceiveActionTest extends AbstractActionTest {
     public void testRecoveryInReceiveAction() {
         testFile("receive-action/receive_action_source_02.bal", "receive-action/receive_action_assert_02.json");
     }
+
+    @Test
+    public void testInvalidNodeInReceiveAction() {
+        testFile("receive-action/receive_action_source_03.bal", "receive-action/receive_action_assert_03.json");
+    }
 }

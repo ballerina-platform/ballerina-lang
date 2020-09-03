@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -67,15 +62,6 @@
                           "kind": "RECORD_FIELD",
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
                               "kind": "STRING_TYPE_DESC",
                               "children": [
                                 {
@@ -113,15 +99,6 @@
                         {
                           "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
                           "children": [
-                            {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
                             {
                               "kind": "FLOAT_TYPE_DESC",
                               "children": [
@@ -162,10 +139,10 @@
                               ]
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "0"
                                 }
                               ]
@@ -184,15 +161,6 @@
                         {
                           "kind": "RECORD_FIELD",
                           "children": [
-                            {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
                             {
                               "kind": "INT_TYPE_DESC",
                               "children": [
@@ -232,15 +200,6 @@
                           "kind": "RECORD_FIELD",
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
                               "kind": "RECORD_TYPE_DESC",
                               "children": [
                                 {
@@ -277,15 +236,6 @@
                                     {
                                       "kind": "RECORD_FIELD",
                                       "children": [
-                                        {
-                                          "kind": "METADATA",
-                                          "children": [
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            }
-                                          ]
-                                        },
                                         {
                                           "kind": "STRING_TYPE_DESC",
                                           "children": [
@@ -324,15 +274,6 @@
                                     {
                                       "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
                                       "children": [
-                                        {
-                                          "kind": "METADATA",
-                                          "children": [
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            }
-                                          ]
-                                        },
                                         {
                                           "kind": "INT_TYPE_DESC",
                                           "children": [
@@ -373,10 +314,10 @@
                                           ]
                                         },
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "NUMERIC_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                               "value": "50"
                                             }
                                           ]
@@ -493,35 +434,35 @@
                               ]
                             }
                           ]
-                        },
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "RECORD_REST_TYPE",
+                      "children": [
                         {
-                          "kind": "RECORD_REST_TYPE",
+                          "kind": "STRING_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "STRING_TYPE_DESC",
-                              "children": [
+                              "kind": "STRING_KEYWORD",
+                              "leadingMinutiae": [
                                 {
-                                  "kind": "STRING_KEYWORD",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "                "
-                                    }
-                                  ]
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "                "
                                 }
                               ]
-                            },
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "ELLIPSIS_TOKEN"
+                        },
+                        {
+                          "kind": "SEMICOLON_TOKEN",
+                          "trailingMinutiae": [
                             {
-                              "kind": "ELLIPSIS_TOKEN"
-                            },
-                            {
-                              "kind": "SEMICOLON_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ]
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
                             }
                           ]
                         }
@@ -551,17 +492,17 @@
               ]
             },
             {
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
               "kind": "REQUIRED_PARAM",
               "children": [
-                {
-                  "kind": "COMMA_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
                 {
                   "kind": "LIST",
                   "children": []

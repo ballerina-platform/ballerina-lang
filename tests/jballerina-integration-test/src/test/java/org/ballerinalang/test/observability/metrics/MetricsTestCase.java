@@ -48,7 +48,7 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_
 /**
  * Integration test for observability of metrics.
  */
-@Test(groups = "metrics-test")
+@Test(groups = {"metrics-test", "brokenOnTableRemove"}, enabled = false)
 public class MetricsTestCase extends BaseTest {
     private static BServerInstance serverInstance;
 

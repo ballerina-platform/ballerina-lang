@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -33,17 +34,23 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.ListInitialValueEntry;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StringValue;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BDecimal;
+import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BFuture;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTypedesc;
 import org.ballerinalang.jvm.values.api.BValueCreator;
+import org.ballerinalang.jvm.values.api.BXML;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -142,6 +149,10 @@ public class StaticMethods {
     public static ObjectValue acceptObjectAndObjectReturn(ObjectValue p, int newVal) {
         p.set(StringUtils.fromString("age"), newVal);
         return p;
+    }
+
+    public static int acceptObjectAndReturnField(ObjectValue p) {
+        return ((Long) p.get(StringUtils.fromString("age"))).intValue();
     }
 
     public static MapValue acceptRecordAndRecordReturn(MapValue e, BString newVal) {
@@ -426,5 +437,80 @@ public class StaticMethods {
 
     public static boolean echoImmutableRecordField(MapValue value, BString key) {
         return value.getBooleanValue(key);
+    }
+
+    public static Object acceptAndReturnReadOnly(Object value) {
+        BType type = TypeChecker.getType(value);
+
+        switch (type.getTag()) {
+            case TypeTags.INT_TAG:
+                return 100L;
+            case TypeTags.ARRAY_TAG:
+            case TypeTags.OBJECT_TYPE_TAG:
+                return value;
+            case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.MAP_TAG:
+                return ((MapValue) value).get(StringUtils.fromString("first"));
+        }
+        return StringUtils.fromString("other");
+    }
+
+    public static void getNilAsReadOnly() {
+    }
+
+    public static boolean getBooleanAsReadOnly() {
+        return true;
+    }
+
+    public static Long getIntAsReadOnly() {
+        return 100L;
+    }
+
+    public static double getFloatAsReadOnly(double f) {
+        return f;
+    }
+
+    public static BDecimal getDecimalAsReadOnly(BDecimal d) {
+        return d;
+    }
+
+    public static BString getStringAsReadOnly(BString s1, BString s2) {
+        return s1.concat(s2);
+    }
+
+    public static BError getErrorAsReadOnly(BError e) {
+        return e;
+    }
+
+    public static FPValue getFunctionPointerAsReadOnly(FPValue func) {
+        return func;
+    }
+
+    public static ObjectValue getObjectOrServiceAsReadOnly(ObjectValue ob) {
+        return ob;
+    }
+
+    public static TypedescValue getTypedescAsReadOnly(TypedescValue t) {
+        return t;
+    }
+
+    public static HandleValue getHandleAsReadOnly(HandleValue h) {
+        return h;
+    }
+
+    public static BXML getXmlAsReadOnly(BXML x) {
+        return x;
+    }
+
+    public static ArrayValue getListAsReadOnly(ArrayValue list) {
+        return list;
+    }
+
+    public static MapValue getMappingAsReadOnly(MapValue mp) {
+        return mp;
+    }
+
+    public static TableValue getTableAsReadOnly(TableValue tb) {
+        return tb;
     }
 }

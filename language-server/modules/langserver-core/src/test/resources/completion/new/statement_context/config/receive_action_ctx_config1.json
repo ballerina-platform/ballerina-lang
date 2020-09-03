@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 8,
+    "character": 17
+  },
+  "source": "statement_context/source/receive_action_ctx_source1.bal",
+  "items": [
+    {
+      "label": "w1",
+      "kind": "Variable",
+      "detail": "future<()>",
+      "sortText": "130",
+      "insertText": "w1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w2",
+      "kind": "Variable",
+      "detail": "future<()>",
+      "sortText": "130",
+      "insertText": "w2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "default",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "default",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

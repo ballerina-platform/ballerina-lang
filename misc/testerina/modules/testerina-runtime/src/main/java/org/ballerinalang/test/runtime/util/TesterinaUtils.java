@@ -20,6 +20,7 @@ package org.ballerinalang.test.runtime.util;
 import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.test.runtime.BTestRunner;
+import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 
 import java.io.File;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -123,4 +125,89 @@ public class TesterinaUtils {
         }
         return className;
     }
+
+    /**
+     * Provides the updated list of test functions for single Execution after adding the dependent tests.
+     *
+     * @param currentTests the tests available in current test suite
+     * @param functions    the list of test functions provided by user
+     * @return updated list of test function names
+     */
+    private static List<String> getUpdatedFunctionList(List<Test> currentTests, List<String> functions) {
+        List<String> updatedFunctionList = new ArrayList<>(functions);
+        for (String functionName : functions) {
+            List<String> dependentFunctions = getAllDependentFunctions(getTest(functionName, currentTests),
+                    currentTests);
+            for (String dependentTest : dependentFunctions) {
+                if (!updatedFunctionList.contains(dependentTest)) {
+                    updatedFunctionList.add(dependentTest);
+                }
+            }
+        }
+        return updatedFunctionList;
+    }
+
+    /**
+     * Get the Relevant Test object for a given test function name.
+     *
+     * @param testName name of the test function
+     * @param tests    the tests available in current test suite
+     * @return
+     */
+    private static Test getTest(String testName, List<Test> tests) {
+        for (Test test : tests) {
+            if (testName.equals(test.getTestName())) {
+                return test;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get all dependent functions for a given test function.
+     *
+     * @param test         the Test to find dependencies
+     * @param currentTests the tests available in current test suite
+     * @return list of dependent functions
+     */
+    private static List<String> getAllDependentFunctions(Test test, List<Test> currentTests) {
+        List<String> completeDependentTestList = new ArrayList<>();
+        if (test != null) {
+            List<String> dependentTests = test.getDependsOnTestFunctions();
+            if (dependentTests != null) {
+                for (String dependentTest : dependentTests) {
+                    if (!completeDependentTestList.contains(dependentTest)) {
+                        completeDependentTestList.add(dependentTest);
+                    }
+                    List<String> otherDependentTests = getAllDependentFunctions(getTest(dependentTest, currentTests),
+                            currentTests);
+                    for (String otherDependentTest : otherDependentTests) {
+                        if (!completeDependentTestList.contains(otherDependentTest)) {
+                            completeDependentTestList.add(otherDependentTest);
+                        }
+                    }
+                }
+            }
+        }
+        return completeDependentTestList;
+    }
+
+    /**
+     * Provides the updated test functions for single Execution after adding the dependent tests.
+     *
+     * @param currentTests the tests available in current test suite
+     * @param functions    the list of test functions provided by user
+     * @return updated list of test functions
+     */
+    public static List<Test> getSingleExecutionTests(List<Test> currentTests, List<String> functions) {
+        List<String> updatedFunctionList = getUpdatedFunctionList(currentTests, functions);
+        List<Test> updatedTestList = new ArrayList<>();
+        for (Test test : currentTests) {
+            if (updatedFunctionList.contains(test.getTestName())) {
+                updatedTestList.add(test);
+            }
+        }
+        return updatedTestList;
+    }
+
 }

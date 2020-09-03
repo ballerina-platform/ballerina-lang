@@ -18,18 +18,26 @@
 {{/partial}}
 
 {{#partial "content" }}
+
     <p>
         {{#if record.isDeprecated}}
         <span class="stab">Deprecated</span>
         {{/if}}
         {{{ record.description }}}
     </p>
+    {{#if record.isClosed}}
+        <div class="ui horizontal label" data-tooltip="A record with a fixed set of fields" data-position="top left">Closed record</div>
+    {{/if}}
+
     <div class="constants">
+        {{#unless record.fields}}
+            <p>This record doesn't contain any fields.</p>
+        {{/unless}}
         {{#if record.fields}}
-        {{#record}}
-        <h2>Fields</h2>
-        {{> fields }}
-        {{/record}}
+            {{#record}}
+            <h2>Fields</h2>
+            {{> fields }}
+            {{/record}}
         {{/if}}
     </div>
 {{/partial}}

@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPED_BINDING_PATTERN",
       "hasDiagnostics": true,
       "children": [
@@ -23,28 +14,34 @@
               "kind": "MAP_KEYWORD"
             },
             {
-              "kind": "LT_TOKEN"
-            },
-            {
-              "kind": "TYPE_DESC",
+              "kind": "TYPE_PARAMETER",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "TYPE_DESC",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_TYPE_DESC"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "GT_TOKEN",
-              "trailingMinutiae": [
+                  "kind": "LT_TOKEN"
+                },
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_TYPE_DESC"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "GT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }

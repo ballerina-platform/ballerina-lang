@@ -25,6 +25,7 @@ import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -34,6 +35,7 @@ import java.nio.file.Paths;
 /**
  * Test class for multi module related debug scenarios for run command.
  */
+@Test(enabled = false)
 public class MultiModuleRunDebugTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
@@ -45,7 +47,7 @@ public class MultiModuleRunDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
         String fileName = "helloBal" + File.separator + "hello.bal";
         String filePath1 = Paths.get(testProjectPath, "src", testModuleName, fileName).toString();
@@ -72,7 +74,7 @@ public class MultiModuleRunDebugTest extends DebugAdapterBaseTestCase {
         // Test for step in within same file
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_IN);
         debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 39));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 43));
 
         // Test for step out within same file
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OUT);
@@ -103,6 +105,27 @@ public class MultiModuleRunDebugTest extends DebugAdapterBaseTestCase {
         debugHitInfo = waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 33));
 
+        // Add on-the-fly debug points
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 35));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 36));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 37));
+
+        // Test for on-the-fly debug point add
+        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(2));
+
+        // Remove on-the-fly debug point
+        removeBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 36));
+
+        // Test for on-the-fly debug point remove
+        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(3));
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void cleanUp() {
         terminateDebugSession();
     }
 }

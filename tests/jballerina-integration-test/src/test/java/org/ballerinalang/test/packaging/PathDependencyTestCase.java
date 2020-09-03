@@ -61,7 +61,7 @@ public class PathDependencyTestCase extends BaseTest {
     private String orgName = "bcintegrationtest";
     private String beeModuleName = "bee" + PackerinaTestUtils.randomModuleName(10);
     
-    @BeforeClass()
+    @BeforeClass(enabled = false)
     public void setUp() throws IOException, BallerinaTestException {
         this.tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-pathdep-home-");
         this.tempTestResources = Files.createTempDirectory("bal-test-integration-packaging-pathdep-project-");
@@ -81,7 +81,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case1: Test path between 2 projects.")
+    @Test(enabled = false, description = "Case1: Test path between 2 projects.")
     public void testBaloPathCase1() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case1");
         // Build bee module of TestProject1
@@ -117,7 +117,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case2: Test path between 2 projects where 3 modules are " +
+    @Test(enabled = false, description = "Case2: Test path between 2 projects where 3 modules are " +
             "involved and imported as a chain.")
     public void testBaloPathCase2() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case2");
@@ -161,7 +161,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case3: Test path between 2 projects which the import is a native.")
+    @Test(enabled = false, description = "Case3: Test path between 2 projects which the import is a native.")
     public void testBaloPathCase3() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case3");
         // Build bee module of TestProject1
@@ -201,7 +201,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test()
+    @Test(enabled = false)
     public void testBaloPathCase4() throws BallerinaTestException, IOException, InterruptedException {
         Path caseResources = tempTestResources.resolve("case4");
         // Build bee module of TestProject1
@@ -337,7 +337,8 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case5: Push with path dependency.", expectedExceptions = BallerinaTestException.class)
+    @Test(enabled = false, description = "Case5: Push with path dependency.",
+            expectedExceptions = BallerinaTestException.class)
     public void testBaloPathCase5() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case5");
         // Build bee module of TestProject1
@@ -374,7 +375,8 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case6: Test dependency between two porject with common module as an import.")
+    @Test(enabled = false, description = "Case6: Test dependency between two porject with " +
+            "common module as an import.")
     public void testBaloPathCase6() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case6");
 
@@ -421,7 +423,8 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case7: Test platform dependency of two project with common module as an interop dependency")
+    @Test(enabled = false, description = "Case7: Test platform dependency of two project with " +
+            "common module as an interop dependency")
     public void testBaloPathCase7() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case7");
         // Build all modules of TestProject3
@@ -457,7 +460,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case8: Test single bal file using external module with interop dependency",
+    @Test(enabled = false, description = "Case8: Test single bal file using external module with interop dependency",
     dependsOnMethods = "testBaloPathCase4")
     public void testBaloSingleBalFileCase8() throws BallerinaTestException, IOException {
 
@@ -500,8 +503,8 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case9: Test path between 2 projects which the import is a native and libraries are in " +
-            "resources directory.")
+    @Test(enabled = false, description = "Case9: Test path between 2 projects which the import is " +
+            "a native and libraries are in resources directory.")
     public void testBaloPathCase9() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case9");
         // Build bee module of TestProject1
@@ -535,8 +538,8 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case10: Test build and run project which imports module with \"ballerina\" org name via" +
-            " balo path.")
+    @Test(enabled = false, description = "Case10: Test build and run project which imports " +
+            "module with \"ballerina\" org name via balo path.")
     public void testBaloPathCase10() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case10");
         String printBarLog = "Bar";
@@ -563,7 +566,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test platform library dependency valid path")
+    @Test(enabled = false, description = "Test platform library dependency valid path")
     public void testValidatePlatformLibraryPath() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("platform-dependency");
         String msg = "error: path or maven dependency properties are not specified for given platform library " +
@@ -580,7 +583,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test runtime test dependency from different modules")
+    @Test(enabled = false, description = "Test runtime test dependency from different modules")
     public void testRuntimeTimeDependencyForExecutingModuleTests() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("test-dependency");
         String msg = "invoked fooFn";
@@ -607,7 +610,8 @@ public class PathDependencyTestCase extends BaseTest {
         buildLogLeecher.waitForText(10000);
     }
 
-    @Test(description = "Test if observability jar gets packed with executable if observability flag is given.")
+    @Test(enabled = false, description = "Test if observability jar gets packed with executable " +
+            "if observability flag is given.")
     public void testObservabilityFlag() throws BallerinaTestException, IOException {
         // Test ballerina init
         Path projectPath = tempTestResources.resolve("test-dependency");
@@ -649,7 +653,7 @@ public class PathDependencyTestCase extends BaseTest {
         }
     }
     
-    @AfterClass
+    @AfterClass(enabled = false)
     private void cleanup() throws Exception {
         deleteFiles(this.tempHomeDirectory);
         deleteFiles(this.tempTestResources);

@@ -34,6 +34,7 @@ import java.nio.file.Paths;
 /**
  * Test class for single bal file related debug scenarios for run command.
  */
+@Test(enabled = false)
 public class SingleBalFileRunDebugTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
@@ -43,7 +44,7 @@ public class SingleBalFileRunDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testSingleFileBaseDir.toString(), testSingleFileName).toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSingleBalFileDebugScenarios() throws BallerinaTestException {
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 21));
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 31));

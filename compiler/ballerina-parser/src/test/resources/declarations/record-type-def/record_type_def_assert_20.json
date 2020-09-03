@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -54,20 +45,10 @@
         },
         {
           "kind": "LIST",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "RECORD_FIELD",
               "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
                 {
                   "kind": "INT_TYPE_DESC",
                   "children": [
@@ -101,15 +82,6 @@
               "kind": "RECORD_FIELD",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
                   "kind": "STRING_TYPE_DESC",
                   "children": [
                     {
@@ -137,77 +109,76 @@
                   ]
                 }
               ]
+            }
+          ]
+        },
+        {
+          "kind": "RECORD_REST_TYPE",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "STRING_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "STRING_KEYWORD"
+                }
+              ]
             },
             {
-              "kind": "RECORD_REST_TYPE",
+              "kind": "ELLIPSIS_TOKEN"
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
               "hasDiagnostics": true,
               "diagnostics": [
                 "ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD"
               ],
-              "children": [
+              "trailingMinutiae": [
                 {
-                  "kind": "STRING_TYPE_DESC",
-                  "children": [
-                    {
-                      "kind": "STRING_KEYWORD"
-                    }
-                  ]
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
                 },
                 {
-                  "kind": "ELLIPSIS_TOKEN"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    },
-                    {
-                      "kind": "INVALID_NODE_MINUTIAE",
-                      "invalidNode": {
-                        "kind": "RECORD_FIELD",
-                        "children": [
-                          {
-                            "kind": "METADATA",
-                            "children": [
-                              {
-                                "kind": "LIST",
-                                "children": []
-                              }
-                            ]
-                          },
-                          {
-                            "kind": "INT_TYPE_DESC",
-                            "children": [
-                              {
-                                "kind": "INT_KEYWORD",
-                                "trailingMinutiae": [
-                                  {
-                                    "kind": "WHITESPACE_MINUTIAE",
-                                    "value": " "
-                                  }
-                                ]
-                              }
-                            ]
-                          },
-                          {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "a"
-                          },
-                          {
-                            "kind": "SEMICOLON_TOKEN",
-                            "trailingMinutiae": [
-                              {
-                                "kind": "END_OF_LINE_MINUTIAE",
-                                "value": "\n"
-                              }
-                            ]
-                          }
-                        ]
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
+                      {
+                        "kind": "INT_KEYWORD"
                       }
-                    }
-                  ]
+                    ]
+                  }
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                },
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
+                      {
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "a"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
+                      {
+                        "kind": "SEMICOLON_TOKEN"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
                 }
               ]
             }

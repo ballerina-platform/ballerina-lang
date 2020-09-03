@@ -31,12 +31,12 @@ public class OpenapiValidatorOn extends BaseTestCase {
     private BMainInstance balClient;
     private String projectPath;
 
-    @BeforeClass
+    @BeforeClass(enabled = false)
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
         projectPath = basicTestsProjectPath.toString();
     }
-    @Test
+    @Test(enabled = false)
     public void testOpenapiValidatorOn() throws BallerinaTestException {
 
         String msg = "error: openapi-test/openapi-validator-on:";

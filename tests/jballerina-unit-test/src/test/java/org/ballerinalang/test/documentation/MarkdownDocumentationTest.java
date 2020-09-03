@@ -321,6 +321,50 @@ public class MarkdownDocumentationTest {
 
     }
 
+    @Test(description = "Test doc function with function keyword", groups = { "disableOnOldParser" })
+    public void testDocFunctionSpecial() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_function_special.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
+        Assert.assertEquals(compileResult.getWarnCount(), 3);
+
+        PackageNode packageNode = compileResult.getAST();
+        BLangMarkdownDocumentation documentationAttachment =
+                packageNode.getFunctions().get(0).getMarkdownDocumentationAttachment();
+        Assert.assertNotNull(documentationAttachment);
+
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
+        Assert.assertEquals(references.size(), 6);
+
+        Assert.assertEquals(references.get(0).type, DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(0).referenceName, "foo");
+        Assert.assertEquals(references.get(0).identifier, "foo");
+
+        Assert.assertEquals(references.get(1).type, DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(1).referenceName, "foo()");
+        Assert.assertEquals(references.get(1).identifier, "foo");
+
+        Assert.assertEquals(references.get(2).type, DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(2).referenceName, "bar.baz()");
+        Assert.assertEquals(references.get(2).typeName, "bar");
+        Assert.assertEquals(references.get(2).identifier, "baz");
+
+        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(3).referenceName, "m:foo");
+        Assert.assertEquals(references.get(3).qualifier, "m");
+        Assert.assertEquals(references.get(3).identifier, "foo");
+
+        Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(4).referenceName, "m:foo()");
+        Assert.assertEquals(references.get(4).qualifier, "m");
+        Assert.assertEquals(references.get(4).identifier, "foo");
+
+        Assert.assertEquals(references.get(5).type, DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(5).referenceName, "m:bar.baz()");
+        Assert.assertEquals(references.get(5).qualifier, "m");
+        Assert.assertEquals(references.get(5).typeName, "bar");
+        Assert.assertEquals(references.get(5).identifier, "baz");
+    }
+
     @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
