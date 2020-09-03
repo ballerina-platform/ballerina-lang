@@ -544,9 +544,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if(!this.failureHandled) {
             this.failureHandled = transactionNode.onFailClause != null;
         }
-//        boolean statementReturns = this.statementReturns;
         analyzeNode(transactionNode.transactionBody, env);
-//        this.statementReturns = statementReturns;
+        this.resetLastStatement();
         this.failureHandled = failureHandled;
         if (commitCount < 1) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.INVALID_COMMIT_COUNT);
@@ -572,9 +571,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.doneWithinTransactionCheckStack.pop();
 
         if (transactionNode.onFailClause != null) {
-                    this.resetLastStatement();
+            boolean statementReturns = this.statementReturns;
             transactionNode.transactionBody.isBreakable = true;
             analyzeNode(transactionNode.onFailClause, env);
+            this.statementReturns = statementReturns;
+            this.resetLastStatement();
         }
         this.errorTypes.pop();
     }
@@ -626,15 +627,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetry retryNode) {
         this.returnWithinLambdaWrappingCheckStack.push(false);
+        this.errorTypes.push(new LinkedHashSet<>());
+        boolean failureHandled = this.failureHandled;
+        this.checkStatementExecutionValidity(retryNode);
+        if(!this.failureHandled) {
+            this.failureHandled = retryNode.onFailClause != null;
+        }
         retryNode.retrySpec.accept(this);
         retryNode.retryBody.accept(this);
+        this.failureHandled = failureHandled;
         retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();
-
+        this.resetLastStatement();
         if (retryNode.onFailClause != null) {
+            boolean currentStatementReturns = this.statementReturns;
             retryNode.retryBody.isBreakable = true;
             analyzeNode(retryNode.onFailClause, env);
+            this.statementReturns = currentStatementReturns;
         }
+        this.errorTypes.pop();
     }
 
     @Override
@@ -1379,59 +1390,76 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangForeach foreach) {
         this.loopWithinTransactionCheckStack.push(true);
+        this.errorTypes.push(new LinkedHashSet<>());
         boolean statementReturns = this.statementReturns;
+        boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(foreach);
+        if (!this.failureHandled) {
+            this.failureHandled = foreach.onFailClause != null;
+        }
         this.loopCount++;
         analyzeNode(foreach.body, env);
         this.loopCount--;
         this.statementReturns = statementReturns;
+        this.failureHandled = failureHandled;
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(foreach.collection);
-
         if (foreach.onFailClause != null) {
+            boolean currentStatementReturns = this.statementReturns;
             foreach.body.isBreakable = true;
             analyzeNode(foreach.onFailClause, env);
+            this.statementReturns = currentStatementReturns;
+            this.resetLastStatement();
         }
+        this.errorTypes.pop();
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
         this.loopWithinTransactionCheckStack.push(true);
-        boolean failureHandled = this.failureHandled;
+        this.errorTypes.push(new LinkedHashSet<>());
         boolean statementReturns = this.statementReturns;
+        boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(whileNode);
-        if (whileNode.onFailClause != null) {
-            whileNode.body.isBreakable = true;
-            analyzeNode(whileNode.onFailClause, env);
+        if(!this.failureHandled) {
+            this.failureHandled = whileNode.onFailClause != null;
         }
         this.loopCount++;
         analyzeNode(whileNode.body, env);
         this.loopCount--;
         this.statementReturns = statementReturns;
+        this.failureHandled = failureHandled;
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(whileNode.expr);
-
-        this.failureHandled = failureHandled;
+        if (whileNode.onFailClause != null) {
+            boolean currentStatementReturns = this.statementReturns;
+            whileNode.body.isBreakable = true;
+            analyzeNode(whileNode.onFailClause, env);
+            this.statementReturns = currentStatementReturns;
+            this.resetLastStatement();
+        }
+        this.errorTypes.pop();
     }
 
     @Override
     public void visit(BLangDo doNode) {
         this.errorTypes.push(new LinkedHashSet<>());
-        boolean statementReturns = this.statementReturns;
         boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(doNode);
         if(!this.failureHandled) {
             this.failureHandled = doNode.onFailClause != null;
         }
         analyzeNode(doNode.body, env);
-        this.statementReturns = statementReturns;
         this.failureHandled = failureHandled;
         this.resetLastStatement();
         if (doNode.onFailClause != null) {
+            boolean statementReturns = this.statementReturns;
             doNode.body.isBreakable = true;
             analyzeNode(doNode.onFailClause, env);
+            this.statementReturns = statementReturns;
+            this.resetLastStatement();
         }
         this.errorTypes.pop();
     }
@@ -1477,6 +1505,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             lockNode.body.isBreakable = true;
             analyzeNode(lockNode.onFailClause, env);
             this.statementReturns = statementReturns;
+            this.resetLastStatement();
         }
         this.failureHandled = failureHandled;
         this.errorTypes.pop();
