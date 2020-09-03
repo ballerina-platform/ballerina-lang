@@ -2477,10 +2477,13 @@ public class FormattingTreeModifier extends TreeModifier {
         Token tableKeywordToken = getToken(tableTypeDescriptorNode.tableKeywordToken());
         Node rowTypeParameterNode = this.modifyNode(tableTypeDescriptorNode.rowTypeParameterNode());
         Node keyConstraintNode = this.modifyNode(tableTypeDescriptorNode.keyConstraintNode());
+        if (keyConstraintNode != null) {
+            tableTypeDescriptorNode = tableTypeDescriptorNode.modify()
+                    .withKeyConstraintNode(keyConstraintNode).apply();
+        }
         return tableTypeDescriptorNode.modify()
                 .withTableKeywordToken(formatToken(tableKeywordToken, 0, 1, 0, 0))
                 .withRowTypeParameterNode(rowTypeParameterNode)
-                .withKeyConstraintNode(keyConstraintNode)
                 .apply();
     }
 
