@@ -65,7 +65,7 @@ function testStringAndIntConcat(){
     test:assertEquals(concatenated, "John18", msg = "string and int concatenation failed");
 }
 
-@test:AfterSuite
+@test:AfterSuite {}
 function afterTest(){
 	io:println("Finishing tests in afterTest function");
 }

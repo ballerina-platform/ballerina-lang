@@ -17,18 +17,17 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
-import org.eclipse.lsp4j.debug.Variable;
 
 /**
  * Ballerina nil variable type.
  */
 public class BNil extends BSimpleVariable {
 
-    public BNil(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.NIL, value, dapVariable);
+    public BNil(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.NIL, value);
     }
 
     @Override

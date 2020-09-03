@@ -53,12 +53,19 @@ public class ItemResolverConstants {
     public static final String LENGTHOF = "lengthof";
     public static final String TYPEOF = "typeof";
     public static final String COMMIT = "commit";
+    public static final String IS = "is";
+    public static final String DEFAULT = "default";
 
     public static final String FUNCTION = "function";
     public static final String FUNCTION_SIGNATURE = "function signature";
     public static final String MAIN_FUNCTION = "public main function";
     public static final String SERVICE_HTTP = "service/http";
     public static final String SERVICE = "service";
+    public static final String TABLE = "table";
+    public static final String STRING = "string";
+    public static final String XML = "xml";
+    public static final String LET = "let";
+    public static final String KEY = "key";
     public static final String SERVICE_WEBSOCKET = "service/webSocket";
     public static final String SERVICE_WEBSOCKET_CLIENT = "service/webSocketClient";
     public static final String SERVICE_WEBSUB = "service/webSub";
@@ -89,6 +96,7 @@ public class ItemResolverConstants {
     public static final String BOOLEAN_TYPE = "boolean";
     public static final String OBJECT_TYPE = "type <ObjectName> object";
     public static final String RECORD_TYPE = "type <RecordName> record";
+    public static final String ERROR_TYPE = "type <ErrorName> error<?>";
     public static final String CLOSED_RECORD_TYPE = "type <RecordName> closed record";
     public static final String TYPE_TYPE = "type";
     public static final String REMOTE_FUNCTION_TYPE = "remote function";
@@ -102,11 +110,15 @@ public class ItemResolverConstants {
     
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
+    public static final String IN_KEYWORD = "in";
+    public static final String ENUM_KEYWORD = "enum";
     public static final String ROLLBACK_KEYWORD = "rollback";
     public static final String CHECK_KEYWORD = "check";
     public static final String CHECKPANIC_KEYWORD = "checkpanic";
     public static final String WAIT_KEYWORD = "wait";
     public static final String START_KEYWORD = "start";
+    public static final String AS_KEYWORD = "as";
+    public static final String FROM_KEYWORD = "from";
     public static final String FLUSH_KEYWORD = "flush";
     public static final String LISTENER_KEYWORD = "listener";
     public static final String RETURNS_KEYWORD = "returns";

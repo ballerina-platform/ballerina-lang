@@ -52,6 +52,14 @@ OPTIONS
            function can be grouped using the 'groups' parameter within the
            '@test:Config' annotation.
 
+       --tests <test_function_name, ...>
+            Specifies the test functions to be executed. A specific set of
+            test functions can be executed using this command.
+
+       --rerun-failed
+            Executes only the previously failed test cases for the specified
+            module.
+
        --sourceroot <path>
            Location of the remote project root with source files. All
            executions will be relative to the path provided for
@@ -100,6 +108,12 @@ EXAMPLES
 
         Run only the set of tests belonging to group_x in current project.
            $ ballerina test --groups group_x  --all
+
+        Run only the given set of functions in current project.
+            $ ballerina test --tests testFunction --all
+
+        Run only the previously failed test cases in math module.
+            $ ballerina test --rerun-failed math
 
         Run tests in single bal file.
            $ ballerina test main_test.bal

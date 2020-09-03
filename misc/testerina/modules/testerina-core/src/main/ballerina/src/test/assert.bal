@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerina/java;
 
 const string assertFailureErrorCategory = "assert-failure";
 const string arraysNotEqualMessage = "Arrays are not equal";
@@ -67,17 +67,11 @@ public function assertFalse(boolean condition, public string msg = "Assertion Fa
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
-    boolean isEqual = false;
-    if (actual is anydata|error && expected is anydata|error) {
-        isEqual = actual == expected;
-    } else {
-        isEqual = actual === expected;
-    }
-
+public function assertEquals(anydata|error actual, anydata|error expected, public string msg = "Assertion Failed!") {
+    boolean isEqual = (actual == expected);
     if (!isEqual) {
-        string expectedStr = io:sprintf("%s", expected);
-        string actualStr = io:sprintf("%s", actual);
+        string expectedStr = sprintf("%s", expected);
+        string actualStr = sprintf("%s", actual);
         string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
@@ -88,18 +82,42 @@ public function assertEquals(any|error actual, any|error expected, public string
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertNotEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
-    boolean isEqual = false;
-    if (actual is anydata|error && expected is anydata|error) {
-        isEqual = actual == expected;
-    } else {
-        isEqual = actual === expected;
-    }
-
+public function assertNotEquals(anydata|error actual, anydata|error expected, public string msg = "Assertion Failed!") {
+    boolean isEqual = (actual == expected);
     if (isEqual) {
-        string expectedStr = io:sprintf("%s", expected);
-        string actualStr = io:sprintf("%s", actual);
+        string expectedStr = sprintf("%s", expected);
+        string actualStr = sprintf("%s", actual);
         string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
+        panic createBallerinaError(errorMsg, assertFailureErrorCategory);
+    }
+}
+
+# Asserts whether the given values are exactly equal. If it is not, an AssertError is thrown with the given errorMessage.
+#
+# + actual - Actual value
+# + expected - Expected value
+# + msg - Assertion error message
+public function assertExactEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
+    boolean isEqual = (actual === expected);
+    if (!isEqual) {
+        string expectedStr = sprintf("%s", expected);
+        string actualStr = sprintf("%s", actual);
+        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        panic createBallerinaError(errorMsg, assertFailureErrorCategory);
+    }
+}
+
+# Asserts whether the given values are not exactly equal. If it is equal, an AssertError is thrown with the given errorMessage.
+#
+# + actual - Actual value
+# + expected - Expected value
+# + msg - Assertion error message
+public function assertNotExactEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
+    boolean isEqual = (actual === expected);
+    if (isEqual) {
+        string expectedStr = sprintf("%s", expected);
+        string actualStr = sprintf("%s", actual);
+        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -110,3 +128,8 @@ public function assertNotEquals(any|error actual, any|error expected, public str
 public function assertFail(public string msg = "Test Failed!") {
     panic createBallerinaError(msg, assertFailureErrorCategory);
 }
+
+function sprintf(string format, (any|error)... args) returns string = @java:Method {
+    name : "sprintf",
+    class : "org.ballerinalang.testerina.natives.io.Sprintf"
+} external;

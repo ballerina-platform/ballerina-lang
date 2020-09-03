@@ -2517,8 +2517,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     protected BLangSimpleVariableDef createRetryManagerDef(BLangRetrySpec retrySpec, DiagnosticPos pos) {
-        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langTransactionModuleSymbol
-                .scope.lookup(names.fromString("DefaultRetryManager")).symbol;
+        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) transactionDesugar
+                .getTransactionLibInvokableSymbol(names.fromString("DefaultRetryManager"));
         BType retryManagerType = retryManagerTypeSymbol.type;
         if (retrySpec.retryManagerType != null) {
             retryManagerType = retrySpec.retryManagerType.type;
@@ -4565,8 +4565,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
-        BInvokableSymbol isTransactionalSymbol = (BInvokableSymbol) symResolver.
-                lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol, IS_TRANSACTIONAL);
+        BInvokableSymbol isTransactionalSymbol =
+                (BInvokableSymbol) transactionDesugar.getTransactionLibInvokableSymbol(IS_TRANSACTIONAL);
         result = ASTBuilderUtil
                 .createInvocationExprMethod(transactionalExpr.pos, isTransactionalSymbol, Collections.emptyList(),
                         Collections.emptyList(), symResolver);
@@ -5201,7 +5201,7 @@ public class Desugar extends BLangNodeVisitor {
         if (expr.type.tag == TypeTags.ERROR) {
             return expr;
         }
-        BLangInvocation cloneInvok = createLangLibInvocationNode("clone", expr, new ArrayList<>(), expr.type, expr.pos);
+        BLangInvocation cloneInvok = createLangLibInvocationNode("clone", expr, new ArrayList<>(), null, expr.pos);
         return addConversionExprIfRequired(cloneInvok, lhsType);
     }
 

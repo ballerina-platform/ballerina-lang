@@ -22,10 +22,10 @@
           "kind": "POSITIONAL_ARG",
           "children": [
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "NUMERIC_LITERAL",
               "children": [
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                   "value": "5"
                 }
               ]
@@ -96,37 +96,35 @@
               ]
             },
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "NUMERIC_LITERAL",
               "children": [
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                   "value": "18",
                   "trailingMinutiae": [
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "COMMA_TOKEN",
-                        "trailingMinutiae": [
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
                           {
-                            "kind": "WHITESPACE_MINUTIAE",
-                            "value": " "
+                            "kind": "COMMA_TOKEN"
                           }
                         ]
                       }
                     },
                     {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    },
+                    {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "POSITIONAL_ARG",
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                         "children": [
                           {
-                            "kind": "DECIMAL_INTEGER_LITERAL",
-                            "children": [
-                              {
-                                "kind": "DECIMAL_INTEGER_LITERAL",
-                                "value": "10"
-                              }
-                            ]
+                            "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                            "value": "10"
                           }
                         ]
                       }

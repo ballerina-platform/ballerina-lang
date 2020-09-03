@@ -221,7 +221,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             }
         }
         BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName(), request.getDisplayName(), ast, error);
+                request.getVersion(), request.getName(), request.getDisplayName(), ast, error, request.getBeta());
         return CompletableFuture.supplyAsync(() -> response);
     }
 
@@ -235,9 +235,14 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         String error = "";
         if (ast == null) {
             try {
-                Path baloPath = getBaloPath(request.getOrg(), request.getModule(), request.getVersion());
+                int versionSeparator = request.getModule().lastIndexOf("_");
+                int modNameSeparator = request.getModule().indexOf("_");
+                String version = request.getModule().substring(versionSeparator + 1);
+                String moduleName = request.getModule().substring(modNameSeparator + 1, versionSeparator);
+                String orgName = request.getModule().substring(0, modNameSeparator);
+                Path baloPath = getBaloPath(orgName, moduleName, version);
                 boolean isExternalModule = baloPath.toString().endsWith(".balo");
-                String moduleName = request.getModule();
+
                 String projectDir = CommonUtil.LS_CONNECTOR_CACHE_DIR.resolve(cacheableKey).toString();
                 if (isExternalModule) {
                     LSConnectorUtil.extract(baloPath, cacheableKey);
@@ -304,7 +309,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
         }
         BallerinaRecordResponse response = new BallerinaRecordResponse(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName(), ast, error);
+                request.getVersion(), request.getName(), ast, error, request.getBeta());
         return CompletableFuture.supplyAsync(() -> response);
     }
 

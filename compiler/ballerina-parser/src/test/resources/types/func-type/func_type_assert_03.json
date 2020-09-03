@@ -12,13 +12,8 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -402,17 +397,17 @@
                                               ]
                                             },
                                             {
+                                              "kind": "COMMA_TOKEN",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            },
+                                            {
                                               "kind": "REQUIRED_PARAM",
                                               "children": [
-                                                {
-                                                  "kind": "COMMA_TOKEN",
-                                                  "trailingMinutiae": [
-                                                    {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": " "
-                                                    }
-                                                  ]
-                                                },
                                                 {
                                                   "kind": "LIST",
                                                   "children": []
@@ -530,15 +525,6 @@
           "kind": "TYPE_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPE_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -590,15 +576,6 @@
                     {
                       "kind": "RECORD_FIELD",
                       "children": [
-                        {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
                         {
                           "kind": "FUNCTION_TYPE_DESC",
                           "children": [
@@ -703,15 +680,6 @@
           "kind": "TYPE_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPE_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -767,15 +735,6 @@
                     {
                       "kind": "OBJECT_FIELD",
                       "children": [
-                        {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
                         {
                           "kind": "FUNCTION_TYPE_DESC",
                           "children": [

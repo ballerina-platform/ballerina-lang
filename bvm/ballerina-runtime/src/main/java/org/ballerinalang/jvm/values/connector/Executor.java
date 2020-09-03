@@ -29,6 +29,8 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -51,8 +53,11 @@ import java.util.function.Function;
 public class Executor {
 
     private static final BUnionType OPTIONAL_ERROR_TYPE = new BUnionType(
-            new BType[] { BTypes.typeError, BTypes.typeNull },
+            new BType[]{BTypes.typeError, BTypes.typeNull},
             TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.PURETYPE));
+
+    private Executor() {
+    }
 
     /**
      * This method will execute Ballerina resource in non-blocking manner. It will use Ballerina worker-pool for the
@@ -73,10 +78,10 @@ public class Executor {
 
         Function<Object[], Object> func = objects -> {
             Strand strand = (Strand) objects[0];
-            if (ObserveUtils.isObservabilityEnabled() && properties != null &&
-                    properties.containsKey(ObservabilityConstants.KEY_OBSERVER_CONTEXT)) {
-                strand.observerContext =
-                        (ObserverContext) properties.remove(ObservabilityConstants.KEY_OBSERVER_CONTEXT);
+            if (ObserveUtils.isObservabilityEnabled() && properties != null && properties.containsKey(
+                    ObservabilityConstants.KEY_OBSERVER_CONTEXT)) {
+                strand.observerContext = (ObserverContext) properties.remove(
+                        ObservabilityConstants.KEY_OBSERVER_CONTEXT);
             }
             return service.call(strand, resourceName, args);
         };
@@ -99,8 +104,8 @@ public class Executor {
         int requiredArgNo = resource.type.paramTypes.length;
         int providedArgNo = (args.length / 2); // due to additional boolean args being added for each arg
         if (requiredArgNo != providedArgNo) {
-            throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
-                                               providedArgNo + ".");
+            throw new RuntimeException(
+                    "Wrong number of arguments. Required: " + requiredArgNo + " , found: " + providedArgNo + ".");
         }
 
         return service.call(new Strand(strandName, metaData, strand.scheduler, null, null), resource.getName(), args);
@@ -126,8 +131,8 @@ public class Executor {
                                          String packageName, String version, String className, String methodName,
                                          Object... paramValues) {
         try {
-            Class<?> clazz = classLoader.loadClass(orgName + "." + packageName + "." + version.replace(".", "_") +
-                                                           "." + className);
+            Class<?> clazz = classLoader.loadClass(
+                    orgName + "." + packageName + "." + version.replace(".", "_") + "." + className);
             int paramCount = paramValues.length * 2 + 1;
             Class<?>[] jvmParamTypes = new Class[paramCount];
             Object[] jvmArgs = new Object[paramCount];
@@ -185,12 +190,11 @@ public class Executor {
             return double.class;
         } else if (paramValue instanceof Float) {
             return double.class;
+        } else if (paramValue instanceof ArrayValueImpl) {
+            return ArrayValue.class;
         } else {
             // This is done temporarily, until blocks are added here for all possible cases.
             throw new RuntimeException("unknown param type: " + paramValue.getClass());
         }
-    }
-
-    private Executor() {
     }
 }

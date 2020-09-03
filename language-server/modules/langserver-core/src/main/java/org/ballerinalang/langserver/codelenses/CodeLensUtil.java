@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeLens;
@@ -41,7 +40,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 /**
  * Provides code lenses related common functionalities.
@@ -66,8 +64,8 @@ public class CodeLensUtil {
                 .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_LENS)
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
-        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager,
-                                                               LSCustomErrorStrategy.class, false, false, true);
+        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager, null,
+                false, false, true);
         // Source compilation has no errors, continue
         Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                 .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
