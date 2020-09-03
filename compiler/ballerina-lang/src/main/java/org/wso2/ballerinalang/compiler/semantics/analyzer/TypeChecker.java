@@ -5119,6 +5119,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BSymbol getLangLibMethod(BLangInvocation iExpr, BType bType) {
+
         Name funcName = names.fromString(iExpr.name.value);
         BSymbol funcSymbol = symResolver.lookupLangLibMethod(bType, funcName);
 
@@ -5142,7 +5143,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
         resultType = types.checkType(iExpr, actualType, this.expType);
-
     }
 
     private BType checkInvocationParam(BLangInvocation iExpr) {
