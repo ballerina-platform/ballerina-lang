@@ -36,7 +36,6 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -189,42 +188,6 @@ public class LangLibArrayTest {
         assertEquals(arr.getString(0), "Foo");
         assertEquals(arr.getString(1), "Bar");
         assertEquals(arr.getString(2), "BarBar");
-    }
-
-    @Test
-    public void testSort() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSort");
-
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
-        BValueArray arr = (BValueArray) returns[0];
-
-        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
-        assertEquals(arr.size(), 8);
-        assertEquals(arr.getInt(0), 1);
-        assertEquals(arr.getInt(1), 2);
-        assertEquals(arr.getInt(2), 13);
-        assertEquals(arr.getInt(3), 13);
-        assertEquals(arr.getInt(4), 34);
-        assertEquals(arr.getInt(5), 44);
-        assertEquals(arr.getInt(6), 87);
-        assertEquals(arr.getInt(7), 98);
-
-        assertSame(returns[0], returns[1]);
-    }
-
-    @Test
-    public void testSort2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSort2");
-
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
-        BValueArray arr = (BValueArray) returns[0];
-
-        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
-        assertEquals(arr.size(), 100);
-
-        for (int i = 1; i < arr.size(); i++) {
-            assertTrue(arr.getInt(i) > arr.getInt(i - 1));
-        }
     }
 
     @Test
@@ -480,5 +443,45 @@ public class LangLibArrayTest {
     @Test
     public void testShiftOperation() {
         BRunUtil.invoke(compileResult, "testShiftOperation");
+    }
+
+    @Test
+    public void testSort1() {
+        BRunUtil.invoke(compileResult, "testSort1");
+    }
+
+    @Test
+    public void testSort2() {
+        BRunUtil.invoke(compileResult, "testSort2");
+    }
+
+    @Test
+    public void testSort3() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSort3");
+
+        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        BValueArray arr = (BValueArray) returns[0];
+
+        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
+        assertEquals(arr.size(), 100);
+
+        for (int i = 1; i < arr.size(); i++) {
+            assertTrue(arr.getInt(i) < arr.getInt(i - 1));
+        }
+    }
+
+    @Test
+    public void testSort4() {
+        BRunUtil.invoke(compileResult, "testSort4");
+    }
+
+    @Test
+    public void testSort5() {
+        BRunUtil.invoke(compileResult, "testSort5");
+    }
+
+    @Test
+    public void testSort6() {
+        BRunUtil.invoke(compileResult, "testSort6");
     }
 }

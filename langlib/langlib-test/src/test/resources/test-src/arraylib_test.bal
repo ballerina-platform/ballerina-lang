@@ -110,14 +110,6 @@ function testRemove() returns [string, string[]] {
     return [elem, arr];
 }
 
-function testSort() returns [int[], int[]] {
-    int[] arr = [98, 34, 44, 87, 13, 2, 1, 13];
-    int[] sorted = arr.sort(function (int x, int y) returns int {
-        return x - y;
-    });
-    return [sorted, arr];
-}
-
 function testReduce() returns float {
     int[] arr = [12, 15, 7, 10, 25];
     float avg = arr.reduce(function (float accum, int val) returns float {
@@ -358,23 +350,6 @@ function testTupleSetLengthToSameAsOriginal() returns boolean {
     return t.length() == 2;
 }
 
-function testSort2() returns int[] {
-    int[] arr = [618917, 342612, 134235, 330412, 361634, 106132, 664844, 572601, 898935, 752462, 422849, 967630,
-    261402, 947587, 818112, 225958, 625762, 979376, -374104, 194169, 306130, 930271, 579739, 4141, 391419, 529224,
-    92583, 709992, 481213, 851703, 152557, 995605, 88360, 595013, 526619, 497868, -246544, 17351, 601903, 634524,
-    959892, 569029, 924409, 735469, -561796, 548484, 741307, 451201, 309875, 229568, 808232, 420862, 729149, 958388,
-    228636, 834740, -147418, 756897, 872064, 670287, 487870, 984526, 352034, 868342, 705354, 21468, 101992, 716704,
-    842303, 463375, 796488, -45917, 74477, 111826, 205038, 267499, 381564, 311396, 627858, 898090, 66917, 119980,
-    601003, 962077, 757150, 636247, 965398, 993533, 780387, 797889, 384359, -80982, 817361, 117263, 819125, 162680,
-    374341, 297625, 89008, 564847];
-
-    int[] sorted = arr.sort(function (int x, int y) returns int {
-        return x - y;
-    });
-
-    return sorted;
-}
-
 function testPush() {
     testBooleanPush();
     testBytePush();
@@ -545,6 +520,205 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     error err = <error> res;
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
     assertValueEquality("shift() not supported on type 'null'", err.detail()["message"].toString());
+}
+
+type Student record {|
+   int id;
+   string? fname;
+   float? fee;
+   decimal impact;
+   boolean isUndergrad;
+|};
+
+function getStudentList() returns Student[] {
+    Student s1 = {id: 1, fname: "Amber", fee: 10000.56, impact: 0.127, isUndergrad: true};
+    Student s2 = {id: 20, fname: (), fee: 2000.56, impact: 0.45, isUndergrad: false};
+    Student s3 = {id: 2, fname: "Dan", fee: (), impact: 0.3, isUndergrad: true};
+    Student s4 = {id: 10, fname: "Kate", fee: (0.0/0.0), impact: 0.146, isUndergrad: false};
+    Student s5 = {id: 3, fname: "Kate", fee: 5000.56, impact: 0.4, isUndergrad: false};
+
+    Student[] studentList = [s1, s2, s3, s4, s5];
+
+    return studentList;
+}
+
+function testSort1() {
+    Student[] studentArr = getStudentList();
+
+    Student[] sortedArr = studentArr.sort("descending", function(Student s) returns int {
+        return s.id;
+    });
+
+    assertValueEquality(sortedArr[0].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
+    assertValueEquality(sortedArr[1].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
+    assertValueEquality(sortedArr[2].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
+    assertValueEquality(sortedArr[3].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
+    assertValueEquality(sortedArr[4].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
+    assertValueEquality(studentArr, sortedArr);
+
+    Student[] sortedArr2 = studentArr.sort("descending", function(Student s) returns string? {
+        return s.fname;
+    });
+
+    assertValueEquality(sortedArr2[0].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
+    assertValueEquality(sortedArr2[1].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
+    assertValueEquality(sortedArr2[2].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
+    assertValueEquality(sortedArr2[3].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
+    assertValueEquality(sortedArr2[4].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
+    assertValueEquality(studentArr, sortedArr2);
+
+    Student[] sortedArr3 = studentArr.sort("ascending", function(Student s) returns float? {
+        return s.fee;
+    });
+
+    assertValueEquality(sortedArr3[0].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
+    assertValueEquality(sortedArr3[1].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
+    assertValueEquality(sortedArr3[2].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
+    assertValueEquality(sortedArr3[3].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
+    assertValueEquality(sortedArr3[4].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
+    assertValueEquality(studentArr, sortedArr3);
+
+    Student[] sortedArr4 = studentArr.sort("ascending", function(Student s) returns decimal {
+        return s.impact;
+    });
+
+    assertValueEquality(sortedArr4[0].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
+    assertValueEquality(sortedArr4[1].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
+    assertValueEquality(sortedArr4[2].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
+    assertValueEquality(sortedArr4[3].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
+    assertValueEquality(sortedArr4[4].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
+    assertValueEquality(studentArr, sortedArr4);
+
+    Student[] sortedArr5 = studentArr.sort("ascending", function(Student s) returns boolean {
+        return s.isUndergrad;
+    });
+
+    assertValueEquality(sortedArr5[0].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
+    assertValueEquality(sortedArr5[1].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
+    assertValueEquality(sortedArr5[2].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
+    assertValueEquality(sortedArr5[3].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
+    assertValueEquality(sortedArr5[4].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
+    assertValueEquality(studentArr, sortedArr5);
+
+
+}
+
+function testSort2() {
+    byte[] arr = base16 ` 5A B C3 4 `;
+
+    byte[] sortedArr = arr.sort("descending", function(byte b) returns byte {
+        return b;
+    });
+
+    assertValueEquality(sortedArr[0], 188);
+    assertValueEquality(sortedArr[1], 90);
+    assertValueEquality(sortedArr[2], 52);
+    assertValueEquality(arr, sortedArr);
+}
+
+function testSort3() returns int[] {
+    int[] arr = [618917, 342612, 134235, 330412, 361634, 106132, 664844, 572601, 898935, 752462, 422849, 967630,
+    261402, 947587, 818112, 225958, 625762, 979376, -374104, 194169, 306130, 930271, 579739, 4141, 391419, 529224,
+    92583, 709992, 481213, 851703, 152557, 995605, 88360, 595013, 526619, 497868, -246544, 17351, 601903, 634524,
+    959892, 569029, 924409, 735469, -561796, 548484, 741307, 451201, 309875, 229568, 808232, 420862, 729149, 958388,
+    228636, 834740, -147418, 756897, 872064, 670287, 487870, 984526, 352034, 868342, 705354, 21468, 101992, 716704,
+    842303, 463375, 796488, -45917, 74477, 111826, 205038, 267499, 381564, 311396, 627858, 898090, 66917, 119980,
+    601003, 962077, 757150, 636247, 965398, 993533, 780387, 797889, 384359, -80982, 817361, 117263, 819125, 162680,
+    374341, 297625, 89008, 564847];
+
+    int[] sorted = arr.sort("descending", function (int x) returns int {
+        return x;
+    });
+
+    return sorted;
+}
+
+function testSort4() {
+    [Grade, int][] grades = [["A+", 2], ["A-", 3], ["B", 3], ["C", 2]];
+
+    [Grade, int][] sortedArr = grades.sort("ascending", function([Grade, int] val) returns float[] {
+        if (val[0] == "A+") {
+            return [<float>val[1], 6.5];
+        }
+        return [<float>val[1], 5.2];
+    });
+
+    assertValueEquality(sortedArr[0].toString(), "C 2");
+    assertValueEquality(sortedArr[1].toString(), "A+ 2");
+    assertValueEquality(sortedArr[2].toString(), "A- 3");
+    assertValueEquality(sortedArr[3].toString(), "B 3");
+    assertValueEquality(grades, sortedArr);
+}
+
+function testSort5() {
+    Student[] studentArr = getStudentList();
+
+    Student[] sortedArr = studentArr.sort("descending", function(Student s) returns string? {
+        return getFullName(s.id, s.fname);
+    });
+
+    assertValueEquality(sortedArr[0].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
+    assertValueEquality(sortedArr[1].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
+    assertValueEquality(sortedArr[2].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
+    assertValueEquality(sortedArr[3].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
+    assertValueEquality(sortedArr[4].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
+    assertValueEquality(studentArr, sortedArr);
+}
+
+function getFullName(int id, string? name) returns string? {
+    if (name is string) {
+        if (id == 10) {
+            return name + " Middleton";
+        }
+        return name + "Rogers";
+    }
+    return name;
+}
+
+function testSort6() {
+    anydata[] arr = [90, 2.0, 1, true, 32, "AA", 12.09, 100, 3, <map<string>>{"k":"Bar"}, ["BB", true]];
+
+    anydata[] sortedArr = arr.sort("ascending", function(anydata a) returns int? {
+        if (a is int) {
+            return a;
+        } else if (a is float) {
+            return <int>a;
+        } else if (a is boolean) {
+            return 0;
+        } else if (a is map<string>) {
+            return -1;
+        }
+        return ();
+    });
+
+    assertValueEquality(sortedArr.toString(), "k=Bar true 1 2.0 3 12.09 32 90 100 AA BB true");
+    assertValueEquality(arr, sortedArr);
+
+    string?[] arr2 = ["Hello", "World!", (), "from", "Ballerina"];
+
+    string?[] sortedArr2 = arr2.sort();
+    assertValueEquality(sortedArr2.toString(), "Ballerina from Hello World! ");
+
+    Obj obj1 = new Obj(1, 1);
+    Obj obj2 = new Obj(1,2);
+    Obj obj3 = new Obj(1,10);
+    Obj[] arr3 = [obj1, obj2, obj3];
+
+    Obj[] sortedArr3 = arr3.sort("descending", function(Obj obj) returns int {
+        return obj.j;
+    });
+
+    assertValueEquality(sortedArr3[0].j, 10);
+    assertValueEquality(sortedArr3[1].j, 2);
+    assertValueEquality(sortedArr3[2].j, 1);
+
+    int[2]|int[] arr4 = [1, 9, 3, 21, 0, 7];
+
+    int[2]|int[] sortedArr4 = arr4.sort("ascending", function(int i) returns int{
+        return i;
+    });
+
+    assertValueEquality(sortedArr4.toString(), "0 1 3 7 9 21");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
