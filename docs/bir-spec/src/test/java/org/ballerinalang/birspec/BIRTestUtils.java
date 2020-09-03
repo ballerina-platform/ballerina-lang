@@ -60,7 +60,6 @@ class BIRTestUtils {
 
     @DataProvider(name = "createTestSources")
     public static Object[][] createTestDataProvider() throws IOException {
-
         assert LANG_LIB_TEST_ROOT_PATH.toFile().exists();
         List<String> testSources = findBallerinaSourceFiles(LANG_LIB_TEST_ROOT_PATH);
 
@@ -75,16 +74,14 @@ class BIRTestUtils {
     }
 
     private static List<String> findBallerinaSourceFiles(Path testSourcesPath) throws IOException {
-
         return Files.walk(testSourcesPath)
-                    .filter(file -> Files.isRegularFile(file))
-                    .map(file -> file.toAbsolutePath().normalize().toString())
-                    .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
-                    .collect(Collectors.toList());
+                .filter(file -> Files.isRegularFile(file))
+                .map(file -> file.toAbsolutePath().normalize().toString())
+                .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
+                .collect(Collectors.toList());
     }
 
     static void validateBIRSpec(String testSource) {
-
         BIRCompileResult compileResult = compile(testSource);
         BIRNode.BIRPackage expectedBIRModule = compileResult.getExpectedBIR();
         Bir actualBIR = compileResult.getActualBIR();
@@ -106,7 +103,6 @@ class BIRTestUtils {
     }
 
     private static BIRCompileResult compile(String testSource) {
-
         CompileResult result = BCompileUtil.compileAndGetBIR(testSource);
         Assert.assertEquals(result.getErrorCount(), 0);
 
@@ -124,7 +120,6 @@ class BIRTestUtils {
 
     private static void assertFunctions(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
                                         ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         List<BIRNode.BIRFunction> expectedFunctions = expectedBIR.functions;
         ArrayList<Bir.Function> actualFunctions = birModule.functions();
         Assert.assertEquals(birModule.functionCount(), expectedFunctions.size());
@@ -154,7 +149,6 @@ class BIRTestUtils {
     private static void assertBasicBlocks(Bir.BasicBlocksInfo actualBasicBlocksInfo,
                                           List<BIRNode.BIRBasicBlock> expectedBasicBlocks,
                                           ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         Assert.assertEquals(actualBasicBlocksInfo.basicBlocksCount(), expectedBasicBlocks.size());
 
         ArrayList<Bir.BasicBlock> actualBasicBlocks = actualBasicBlocksInfo.basicBlocks();
@@ -181,7 +175,6 @@ class BIRTestUtils {
 
     private static void assertInstruction(Bir.Instruction actualInstruction, BIRInstruction expectedInstruction,
                                           ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         Bir.Instruction.InstructionKindEnum instructionKindEnum = actualInstruction.instructionKind();
         KaitaiStruct instructionStructure = actualInstruction.instructionStructure();
         switch (instructionKindEnum) {
@@ -210,7 +203,6 @@ class BIRTestUtils {
     private static void assertBranchInstruction(Bir.InstructionBranch actualBranch,
                                                 BIRTerminator.Branch expectedBranch,
                                                 ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         assertOperand(actualBranch.branchOperand(), expectedBranch.op, constantPoolEntries);
 
         // assert true bb name
@@ -224,7 +216,6 @@ class BIRTestUtils {
 
     private static void assertCallInstruction(Bir.InstructionCall actualCall, BIRTerminator.Call expectedCall,
                                               ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         Bir.CallInstructionInfo callInstructionInfo = actualCall.callInstructionInfo();
 
         Assert.assertEquals(callInstructionInfo.argumentsCount(), expectedCall.args.size());
@@ -246,7 +237,6 @@ class BIRTestUtils {
 
     private static void assertGotoInstruction(Bir.InstructionGoto actualGoto, BIRTerminator.GOTO expectedInstruction,
                                               ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         // assert goto bb id
         Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualGoto.targetBbIdNameCpIndex());
         assertConstantPoolEntry(constantPoolEntry, expectedInstruction.targetBB.id.value);
@@ -254,7 +244,6 @@ class BIRTestUtils {
 
     private static void assertMoveInstruction(Bir.InstructionMove actual, BIRNonTerminator.Move expected,
                                               ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         Bir.Operand actualLhsOperand = actual.lhsOperand();
         BIROperand expectedLhsOp = expected.lhsOp;
         assertOperand(actualLhsOperand, expectedLhsOp, constantPoolEntries);
@@ -266,7 +255,6 @@ class BIRTestUtils {
 
     private static void assertOperand(Bir.Operand actual, BIROperand expected,
                                       ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         BIRNode.BIRVariableDcl expectedVar = expected.variableDcl;
         Assert.assertEquals(actual.ignoredVariable() == 1, expectedVar.ignoreVariable);
 
@@ -283,7 +271,6 @@ class BIRTestUtils {
 
     private static void assertValues(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
                                      ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         List<BIRNode.BIRConstant> expectedConstants = expectedBIR.constants;
         ArrayList<Bir.Constant> actualConstants = birModule.constants();
         Assert.assertEquals(birModule.constCount(), expectedConstants.size());
@@ -308,7 +295,6 @@ class BIRTestUtils {
 
     private static void assertTypeDefs(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
                                        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         List<BIRNode.BIRTypeDefinition> expectedTypeDefs = expectedBIR.typeDefs;
         ArrayList<Bir.TypeDefinition> actualTypeDefinitions = birModule.typeDefinitions();
 
@@ -337,7 +323,6 @@ class BIRTestUtils {
     }
 
     private static void assertPosition(Bir.Position actualPosition, DiagnosticPos expectedPosition) {
-
         Assert.assertEquals(actualPosition.sLine(), expectedPosition.sLine);
         Assert.assertEquals(actualPosition.eLine(), expectedPosition.eLine);
         Assert.assertEquals(actualPosition.sCol(), expectedPosition.sCol);
@@ -346,7 +331,6 @@ class BIRTestUtils {
 
     private static void assertAnnotations(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
                                           ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         List<BIRNode.BIRAnnotation> expectedAnnotations = expectedBIR.annotations;
         ArrayList<Bir.Annotation> actualAnnotations = birModule.annotations();
 
@@ -372,7 +356,6 @@ class BIRTestUtils {
     private static void assertAttachPoints(ArrayList<Bir.AttachPoint> actualAttachPoints,
                                            Set<AttachPoint> expectedAttachPoints,
                                            ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         Assert.assertEquals(actualAttachPoints.size(), expectedAttachPoints.size());
         AttachPoint[] expected = expectedAttachPoints.toArray(new AttachPoint[0]);
         for (int i = 0; i < expected.length; i++) {
@@ -385,7 +368,6 @@ class BIRTestUtils {
     }
 
     private static void assertConstantPoolEntry(Bir.ConstantPoolEntry constantPoolEntry, Object expectedValue) {
-
         switch (constantPoolEntry.tag()) {
             case CP_ENTRY_INTEGER:
                 Bir.IntCpInfo intCpInfo = (Bir.IntCpInfo) constantPoolEntry.cpInfo();
@@ -427,7 +409,6 @@ class BIRTestUtils {
     }
 
     private static void assertType(Bir.ConstantPoolEntry constantPoolEntry, BType expectedValue) {
-
         Bir.TypeInfo typeInfo = ((Bir.ShapeCpInfo) constantPoolEntry.cpInfo()).shape();
         Assert.assertEquals(typeInfo.typeTag().id(), expectedValue.tag);
         Assert.assertEquals(typeInfo.nameAsStr(), expectedValue.name.getValue());
@@ -441,7 +422,6 @@ class BIRTestUtils {
 
     private static void assertConstantValue(Bir.ConstantValue actualConstantValue, Object expectedValue,
                                             ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
-
         KaitaiStruct constantValueInfo = actualConstantValue.constantValueInfo();
         Bir.TypeTagEnum typeTag = actualConstantValue.type().shape().typeTag();
         switch (typeTag) {
@@ -484,18 +464,15 @@ class BIRTestUtils {
         private Bir actualBIR;
 
         BIRCompileResult(BIRNode.BIRPackage expectedBIR, Bir actualBIR) {
-
             this.expectedBIR = expectedBIR;
             this.actualBIR = actualBIR;
         }
 
         BIRNode.BIRPackage getExpectedBIR() {
-
             return expectedBIR;
         }
 
         Bir getActualBIR() {
-
             return actualBIR;
         }
     }
