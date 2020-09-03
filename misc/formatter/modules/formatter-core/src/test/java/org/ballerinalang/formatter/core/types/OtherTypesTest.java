@@ -44,7 +44,8 @@ public class OtherTypesTest extends FormatterTest {
     public Object[][] testSubset() {
         return new Object[][] {
                 {"optional_type_1.bal", this.getTestResourceDir()},
-                {"union_type_1.bal", this.getTestResourceDir()}
+                {"union_type_1.bal", this.getTestResourceDir()},
+                {"never_type_1.bal", this.getTestResourceDir()}
         };
     }
 
