@@ -55,7 +55,7 @@ public class Sort {
     public static ArrayValue sort(Strand strand, ArrayValue arr, Object direction, Object func) {
         checkIsArrayOnlyOperation(arr.getType(), "sort()");
         FPValue<Object, Object> function = (FPValue<Object, Object>) func;
-        BType elemType = arr.getType();
+        BType elemType = ((BArrayType) arr.getType()).getElementType();
         boolean isAscending = true;
         if (direction.toString().equals("descending")) {
             isAscending = false;
@@ -65,7 +65,6 @@ public class Sort {
         Object[][] sortArrClone = new Object[arr.size()][2];
         for (int i = 0; i < arr.size(); i++) {
             if (function != null) {
-                elemType = ((BFunctionType) function.getType()).retType;
                 Object x = function.call(new Object[]{strand, arr.get(i), true});
                 sortArr[i][0] = x;
             } else {
@@ -74,9 +73,13 @@ public class Sort {
             sortArr[i][1] = arr.get(i);
         }
 
+        if (function != null) {
+            elemType = ((BFunctionType) function.getType()).retType;
+        }
         if (elemType.getTag() == TypeTags.UNION_TAG) {
             elemType = getType(elemType);
-        } else if (elemType.getTag() == TypeTags.ARRAY_TAG) {
+        }
+        if (elemType.getTag() == TypeTags.ARRAY_TAG) {
             BType type = ((BArrayType) elemType).getElementType();
             if (type.getTag() == TypeTags.UNION_TAG) {
                 elemType = getType(type);
@@ -101,7 +104,6 @@ public class Sort {
         if (mainType.isPresent()) {
             type = mainType.get();
         }
-
         return type;
     }
 
@@ -185,9 +187,9 @@ public class Sort {
         } else if (type.getTag() == TypeTags.BYTE_TAG) {
             c = Integer.compare((int) value1, (int) value2);
         } else if (type.getTag() == TypeTags.ARRAY_TAG) {
-            for (int i = 0; i < ((ArrayValue)value1).size(); i++) {
-                c = sortFunc(((ArrayValue)value1).get(i), ((ArrayValue)value2).get(i),
-                        ((ArrayValue)value1).getElementType(), isAscending);
+            for (int i = 0; i < ((ArrayValue) value1).size(); i++) {
+                c = sortFunc(((ArrayValue) value1).get(i), ((ArrayValue) value2).get(i),
+                        ((ArrayValue) value1).getElementType(), isAscending);
                 if (c != 0) {
                     break;
                 }

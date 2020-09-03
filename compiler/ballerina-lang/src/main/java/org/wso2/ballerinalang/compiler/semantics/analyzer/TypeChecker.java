@@ -5119,7 +5119,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BSymbol getLangLibMethod(BLangInvocation iExpr, BType bType) {
-
         Name funcName = names.fromString(iExpr.name.value);
         BSymbol funcSymbol = symResolver.lookupLangLibMethod(bType, funcName);
 
@@ -5143,6 +5142,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
         resultType = types.checkType(iExpr, actualType, this.expType);
+
     }
 
     private BType checkInvocationParam(BLangInvocation iExpr) {
@@ -5211,9 +5211,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, BLangExpression vararg) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
-        if (iExpr.langLibInvocation && invokableSymbol.name.value.equals("sort")) {
-            checkArrayLibSortFuncArgs(iExpr);
-        }
         BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
         BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
         List<BVarSymbol> nonRestParams = new ArrayList<>(invokableTypeSymbol.params);
@@ -5229,6 +5226,11 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             requiredParams.add(nonRestParam);
+        }
+
+        // check argument types in arr:sort function
+        if (iExpr.langLibInvocation && iExpr.name.value.equals("sort")) {
+            checkArrayLibSortFuncArgs(iExpr);
         }
 
         int i = 0;
@@ -5394,17 +5396,19 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkArrayLibSortFuncArgs(BLangInvocation iExpr) {
-        if (iExpr.argExprs.isEmpty() || iExpr.argExprs.size() == 1) {
+        if (iExpr.argExprs.size() <= 2) {
             if (!types.isBasicType(iExpr.expr.type)) {
                 dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
             }
-        } else if (iExpr.argExprs.size() == 2) {
-            if (iExpr.argExprs.get(1).type != null && iExpr.argExprs.get(1).type.tag == TypeTags.NIL) {
-                if (!types.isBasicType(iExpr.expr.type)) {
+        } else if (iExpr.argExprs.size() == 3) {
+            if (iExpr.argExprs.get(2).type != null) {
+                if (iExpr.argExprs.get(2).type.tag == TypeTags.SEMANTIC_ERROR) {
+                    return;
+                } else if (iExpr.argExprs.get(2).type.tag == TypeTags.NIL && !types.isBasicType(iExpr.expr.type)) {
                     dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
                 }
             } else {
-                BLangLambdaFunction func = (BLangLambdaFunction) iExpr.argExprs.get(1);
+                BLangLambdaFunction func = (BLangLambdaFunction) iExpr.argExprs.get(2);
                 BType returnType = func.function.type.getReturnType();
                 if (!types.isBasicType(returnType)) {
                     dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
