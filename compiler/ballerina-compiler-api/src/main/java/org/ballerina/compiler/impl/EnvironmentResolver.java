@@ -939,7 +939,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
-        
+        this.acceptNode(bLangStatementExpression.stmt, this.symbolEnv);
     }
 
     @Override
