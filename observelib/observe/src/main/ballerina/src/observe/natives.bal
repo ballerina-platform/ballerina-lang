@@ -89,7 +89,7 @@ public  class Counter {
     # + desc - Description of the Counter instance. If no description is provided, the the default empty string
     #          will be used.
     # + tags - The key/value pair of Tags. If no tags are provided, the default nil value will be used.
-    public function init(string name, public string? desc = "", public map<string>? tags = ()) {
+    public function init(string name, string? desc = "", map<string>? tags = ()) {
         self.name = name;
         if (desc is string) {
             self.description = desc;

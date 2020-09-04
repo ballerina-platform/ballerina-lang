@@ -670,7 +670,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static DefaultableParameterNode createDefaultableParameterNode(
             NodeList<AnnotationNode> annotations,
-            Token visibilityQualifier,
             Node typeName,
             Token paramName,
             Token equalsToken,
@@ -682,7 +681,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stDefaultableParameterNode = STNodeFactory.createDefaultableParameterNode(
                 annotations.underlyingListNode().internalNode(),
-                getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
                 getOptionalSTNode(paramName),
                 equalsToken.internalNode(),
@@ -692,7 +690,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static RequiredParameterNode createRequiredParameterNode(
             NodeList<AnnotationNode> annotations,
-            Token visibilityQualifier,
             Node typeName,
             Token paramName) {
         Objects.requireNonNull(annotations, "annotations must not be null");
@@ -700,7 +697,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stRequiredParameterNode = STNodeFactory.createRequiredParameterNode(
                 annotations.underlyingListNode().internalNode(),
-                getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
                 getOptionalSTNode(paramName));
         return stRequiredParameterNode.createUnlinkedFacade();
@@ -2237,22 +2233,24 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRestBindingPatternNode.createUnlinkedFacade();
     }
 
-    public static FunctionalBindingPatternNode createFunctionalBindingPatternNode(
+    public static ErrorBindingPatternNode createErrorBindingPatternNode(
+            Token errorKeyword,
             Node typeReference,
             Token openParenthesis,
             SeparatedNodeList<BindingPatternNode> argListBindingPatterns,
             Token closeParenthesis) {
-        Objects.requireNonNull(typeReference, "typeReference must not be null");
+        Objects.requireNonNull(errorKeyword, "errorKeyword must not be null");
         Objects.requireNonNull(openParenthesis, "openParenthesis must not be null");
         Objects.requireNonNull(argListBindingPatterns, "argListBindingPatterns must not be null");
         Objects.requireNonNull(closeParenthesis, "closeParenthesis must not be null");
 
-        STNode stFunctionalBindingPatternNode = STNodeFactory.createFunctionalBindingPatternNode(
-                typeReference.internalNode(),
+        STNode stErrorBindingPatternNode = STNodeFactory.createErrorBindingPatternNode(
+                errorKeyword.internalNode(),
+                getOptionalSTNode(typeReference),
                 openParenthesis.internalNode(),
                 argListBindingPatterns.underlyingListNode().internalNode(),
                 closeParenthesis.internalNode());
-        return stFunctionalBindingPatternNode.createUnlinkedFacade();
+        return stErrorBindingPatternNode.createUnlinkedFacade();
     }
 
     public static NamedArgBindingPatternNode createNamedArgBindingPatternNode(
