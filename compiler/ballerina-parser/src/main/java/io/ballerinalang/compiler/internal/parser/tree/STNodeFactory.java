@@ -512,7 +512,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createDefaultableParameterNode(
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName,
             STNode equalsToken,
@@ -520,7 +519,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STDefaultableParameterNode(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -529,13 +527,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRequiredParameterNode(
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName) {
 
         return new STRequiredParameterNode(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName);
     }

@@ -670,7 +670,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static DefaultableParameterNode createDefaultableParameterNode(
             NodeList<AnnotationNode> annotations,
-            Token visibilityQualifier,
             Node typeName,
             Token paramName,
             Token equalsToken,
@@ -682,7 +681,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stDefaultableParameterNode = STNodeFactory.createDefaultableParameterNode(
                 annotations.underlyingListNode().internalNode(),
-                getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
                 getOptionalSTNode(paramName),
                 equalsToken.internalNode(),
@@ -692,7 +690,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static RequiredParameterNode createRequiredParameterNode(
             NodeList<AnnotationNode> annotations,
-            Token visibilityQualifier,
             Node typeName,
             Token paramName) {
         Objects.requireNonNull(annotations, "annotations must not be null");
@@ -700,7 +697,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stRequiredParameterNode = STNodeFactory.createRequiredParameterNode(
                 annotations.underlyingListNode().internalNode(),
-                getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
                 getOptionalSTNode(paramName));
         return stRequiredParameterNode.createUnlinkedFacade();

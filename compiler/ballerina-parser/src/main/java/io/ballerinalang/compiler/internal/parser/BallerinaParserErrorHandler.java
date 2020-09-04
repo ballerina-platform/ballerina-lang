@@ -284,10 +284,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.REQUIRED_PARAM };
 
     private static final ParserRuleContext[] PARAMETER_START =
-            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESC_IN_PARAM };
-
-    private static final ParserRuleContext[] PARAMETER_WITHOUT_ANNOTS =
-            { ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESC_IN_PARAM };
+            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.TYPE_DESC_IN_PARAM };
 
     private static final ParserRuleContext[] REQUIRED_PARAM_NAME_RHS =
             { ParserRuleContext.PARAM_END, ParserRuleContext.ASSIGN_OP };
@@ -639,7 +636,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_DEF_QUALIFIERS:
             case RESOURCE_DEF_START_WITHOUT_RESOURCE:
             case RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL:
-            case PARAMETER_WITHOUT_ANNOTS:
             case PARAMETER_START:
             case STMT_START_WITH_EXPR_RHS:
             case EXPR_STMT_RHS:
@@ -1220,7 +1216,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CONST_DECL_RHS:
             case ARRAY_LENGTH:
             case PARAMETER_START:
-            case PARAMETER_WITHOUT_ANNOTS:
             case STMT_START_WITH_EXPR_RHS:
             case EXPR_STMT_RHS:
             case EXPRESSION_STATEMENT_START:
@@ -1479,9 +1474,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case PARAMETER_START:
                 alternativeRules = PARAMETER_START;
-                break;
-            case PARAMETER_WITHOUT_ANNOTS:
-                alternativeRules = PARAMETER_WITHOUT_ANNOTS;
                 break;
             case ANNOT_DECL_OPTIONAL_TYPE:
                 alternativeRules = ANNOT_DECL_OPTIONAL_TYPE;
@@ -1916,7 +1908,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
-     * @param fixes Fixes made so far
      * @param isEntryPoint
      * @return Recovery result
      */
@@ -4136,7 +4127,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     /**
      * Check whether the given context is a statement.
      *
-     * @param ctx Parser context to check
+     * @param parentCtx Parser context to check
      * @return <code>true</code> if the given context is a statement. <code>false</code> otherwise
      */
     private boolean isStatement(ParserRuleContext parentCtx) {
@@ -4258,7 +4249,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case REST_PARAM:
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case RECORD_FIELD_WITHOUT_METADATA:
-            case PARAMETER_WITHOUT_ANNOTS:
             case TYPE_DESCRIPTOR:
                 // From SIMPLE_TYPE_DESCRIPTOR to TYPE_DESCRIPTOR expects a type descriptor.
             case TYPE_NAME:

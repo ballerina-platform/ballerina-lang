@@ -2621,12 +2621,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVariable simpleVar = createSimpleVar(requiredParameter.paramName(),
                                                         requiredParameter.typeName(), requiredParameter.annotations());
 
-        Optional<Token> visibilityQual = requiredParameter.visibilityQualifier();
-        //TODO: Check and Fix flags OPTIONAL, REQUIRED
-        if (visibilityQual.isPresent() && visibilityQual.get().kind() == SyntaxKind.PUBLIC_KEYWORD) {
-            simpleVar.flagSet.add(Flag.PUBLIC);
-        }
-
         simpleVar.pos = getPosition(requiredParameter);
         if (requiredParameter.paramName().isPresent()) {
             simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
@@ -2640,12 +2634,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVariable simpleVar = createSimpleVar(defaultableParameter.paramName(),
                                                         defaultableParameter.typeName(),
                                                         defaultableParameter.annotations());
-
-        Optional<Token> visibilityQual = defaultableParameter.visibilityQualifier();
-        // TODO: Check and Fix flags OPTIONAL, REQUIRED
-        if (visibilityQual.isPresent() && visibilityQual.get().kind() == SyntaxKind.PUBLIC_KEYWORD) {
-            simpleVar.flagSet.add(Flag.PUBLIC);
-        }
 
         simpleVar.setInitialExpression(createExpression(defaultableParameter.expression()));
 
