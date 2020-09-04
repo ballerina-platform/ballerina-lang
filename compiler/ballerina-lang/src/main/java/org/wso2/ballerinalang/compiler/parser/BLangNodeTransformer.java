@@ -2547,7 +2547,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             tupleVar.setInitialExpression(createExpression(initializer.get()));
         }
 
-        BLangErrorVariableDef varDefNode = (BLangErrorVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
+        BLangErrorVariableDef varDefNode = (BLangErrorVariableDef) TreeBuilder.createErrorVariableDefinitionNode();
         varDefNode.pos = getPosition(null);
         varDefNode.setVariable(tupleVar);
         return varDefNode;
