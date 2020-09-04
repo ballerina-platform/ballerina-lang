@@ -68,8 +68,9 @@ public class IndexedExpressionEvaluator extends Evaluator {
 
             switch (containerVar.getBType()) {
                 // Index access of strings
-                // If it is string, and k is < 0 or ≥ the length of c, then the evaluation completes abruptly with a panic;
-                // otherwise, the result is a string of length 1 containing the character with index k in c.
+                // If it is string, and index is < 0 or ≥ the length of the string, then the evaluation completes
+                // abruptly with a panic;
+                // otherwise, the result is a string of length 1 containing the character with index k of the string.
                 case STRING: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.INT) {
@@ -88,8 +89,8 @@ public class IndexedExpressionEvaluator extends Evaluator {
                     return EvaluationUtils.make(context, substring);
                 }
                 // Index access of lists
-                // If it is list, and k is < 0 or ≥ the length of c, then the evaluation completes abruptly with a
-                // panic; otherwise, the result is the member of c with index k.
+                // If it is list, and index is < 0 or ≥ the length of the list, then the evaluation completes abruptly
+                // with a panic; otherwise, the result is the member of the list with index k.
                 case ARRAY: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.INT) {
@@ -109,8 +110,8 @@ public class IndexedExpressionEvaluator extends Evaluator {
                     return new BExpressionValue(context, child);
                 }
                 // Index access of mappings (map, json)
-                // If it is mapping, then if c is () or c does not contain a member with key k, then the result is ();
-                // otherwise, the result is the member of c with key k.
+                // If it is mapping, then if the mapping is () or c does not contain a member with key k, then the
+                // result is (); otherwise, the result is the member of the mapping with key k.
                 case MAP:
                 case JSON: {
                     // Validates key expression result type.
@@ -131,9 +132,9 @@ public class IndexedExpressionEvaluator extends Evaluator {
                     }
                 }
                 // Index access for XMLs
-                // If it is xml, and k is < 0, then the evaluation completes abruptly with a panic; if k is ≥ the length of
-                // c, then the result is an empty xml value; otherwise, the result is a singleton xml value containing
-                // the item with index k in c.
+                // If it is xml, and index is < 0, then the evaluation completes abruptly with a panic; if k is ≥ the
+                // length of the xml, then the result is an empty xml value; otherwise, the result is a singleton xml
+                // value containing the item with index k in the xml.
                 // Todo - Enable after new xml changes
                 case XML: {
                     // Validates key expression result type.
