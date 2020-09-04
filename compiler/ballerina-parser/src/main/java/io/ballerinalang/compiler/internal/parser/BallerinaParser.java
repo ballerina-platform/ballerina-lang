@@ -988,34 +988,33 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseVarDeclWithFunctionType(STNode typeDesc, boolean isObjectMember, STNode qualifiers,
                                                 STNode metadata) {
         STNodeList qualifierList = (STNodeList) qualifiers;
-        if (isObjectMember) {
-            // public qualifier allowed in object field.
-            STNode readonlyQualifier = STNodeFactory.createEmptyNode();
-            STNode fieldName = parseVariableName();
-            if (qualifierList.isEmpty()) {
-                return parseObjectFieldRhs(metadata, STNodeFactory.createEmptyNode(), readonlyQualifier,
-                        typeDesc, fieldName);
-            } else {
-                return parseObjectFieldRhs(metadata, qualifiers.childInBucket(0), readonlyQualifier, typeDesc,
-                        fieldName);
-            }
-        }
-
-        STNode finalKeyword = STNodeFactory.createEmptyNode();
-        // Only the final keyword is allowed as a qualifier
+        STNode visibilityQualifier = STNodeFactory.createEmptyNode();
+        // qualifiers are not allowed except for object filed
         for (int position = 0; position < qualifierList.size(); position++) {
             STNode qualifier = qualifierList.get(position);
-            if (qualifier.kind == SyntaxKind.FINAL_KEYWORD) {
-                finalKeyword = qualifier;
-            } else {
+            if (isObjectMember) {
+                // public or private qualifier allowed in object field.
+                if (qualifier.kind == SyntaxKind.PUBLIC_KEYWORD || qualifier.kind == SyntaxKind.PRIVATE_KEYWORD) {
+                    visibilityQualifier = qualifier;
+                } else {
+                    // if remote or transactional qualifier present
+                    typeDesc = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDesc, qualifier,
+                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
+                }
+            }
+            else {
                 typeDesc = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDesc, qualifier,
                         DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
             }
         }
-
+        if (isObjectMember) {
+            STNode readonlyQualifier = STNodeFactory.createEmptyNode();
+            STNode fieldName = parseVariableName();
+            return parseObjectFieldRhs(metadata, visibilityQualifier, readonlyQualifier, typeDesc, fieldName);
+        }
         startContext(ParserRuleContext.VAR_DECL_STMT);
         STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
-        return parseVarDeclRhs(metadata, finalKeyword, typedBindingPattern, true);
+        return parseVarDeclRhs(metadata, STNodeFactory.createEmptyNode(), typedBindingPattern, true);
     }
 
     /**
