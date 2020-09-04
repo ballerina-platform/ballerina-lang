@@ -196,20 +196,12 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(restParameterNode);
     }
 
-    public T transform(ExpressionListItemNode expressionListItemNode) {
-        return transformSyntaxNode(expressionListItemNode);
-    }
-
     public T transform(ImportOrgNameNode importOrgNameNode) {
         return transformSyntaxNode(importOrgNameNode);
     }
 
     public T transform(ImportPrefixNode importPrefixNode) {
         return transformSyntaxNode(importPrefixNode);
-    }
-
-    public T transform(ImportSubVersionNode importSubVersionNode) {
-        return transformSyntaxNode(importSubVersionNode);
     }
 
     public T transform(ImportVersionNode importVersionNode) {
@@ -736,10 +728,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(matchGuardNode);
     }
 
-    public T transform(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        return transformSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public T transform(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         return transformSyntaxNode(distinctTypeDescriptorNode);
     }
@@ -798,6 +786,14 @@ public abstract class NodeTransformer<T> {
 
     public T transform(DocumentationReferenceNode documentationReferenceNode) {
         return transformSyntaxNode(documentationReferenceNode);
+    }
+
+    public T transform(OrderByClauseNode orderByClauseNode) {
+        return transformSyntaxNode(orderByClauseNode);
+    }
+
+    public T transform(OrderKeyNode orderKeyNode) {
+        return transformSyntaxNode(orderKeyNode);
     }
 
     public T transform(OnFailClauseNode onFailClauseNode) {

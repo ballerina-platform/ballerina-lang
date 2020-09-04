@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -67,6 +66,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -190,6 +191,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -456,11 +458,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWorker worker) {
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(worker, this.env);
         analyzeBranch(worker.body, workerEnv);
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpoint) {
-        analyzeNode(endpoint.configurationExpr, env);
     }
 
     @Override
@@ -791,22 +788,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private List<String> getFieldNames(BLangTableConstructorExpr constructorExpr) {
-        List<String> fieldNames = ((BTableType) constructorExpr.type).fieldNameList;
-
-        if (fieldNames != null) {
-            return fieldNames;
+        List<String> fieldNames = null;
+        if (constructorExpr.type.tag == TypeTags.TABLE) {
+            fieldNames = ((BTableType) constructorExpr.type).fieldNameList;
+            if (fieldNames != null) {
+                return fieldNames;
+            }
         }
-
         if (constructorExpr.tableKeySpecifier != null &&
                 !constructorExpr.tableKeySpecifier.fieldNameIdentifierList.isEmpty()) {
             BLangTableKeySpecifier tableKeySpecifier = constructorExpr.tableKeySpecifier;
-            fieldNames = tableKeySpecifier.fieldNameIdentifierList.stream().map(identifier ->
+            return tableKeySpecifier.fieldNameIdentifierList.stream().map(identifier ->
                     ((BLangIdentifier) identifier).value).collect(Collectors.toList());
         } else {
             return new ArrayList<>();
         }
-
-        return fieldNames;
     }
 
     @Override
@@ -944,7 +940,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        analyzeNode(onClause.expression, env);
+        analyzeNode(onClause.lhsExpr, env);
+        analyzeNode(onClause.rhsExpr, env);
+    }
+
+    @Override
+    public void visit(BLangOrderKey orderKeyClause) {
+        analyzeNode(orderKeyClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangOrderByClause orderByClause) {
+        orderByClause.orderByKeyList.forEach(value -> analyzeNode((BLangNode) value, env));
     }
 
     @Override

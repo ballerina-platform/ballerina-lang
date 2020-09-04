@@ -39,18 +39,23 @@
                   "kind": "MAP_KEYWORD"
                 },
                 {
-                  "kind": "LT_TOKEN"
-                },
-                {
-                  "kind": "INT_TYPE_DESC",
+                  "kind": "TYPE_PARAMETER",
                   "children": [
                     {
-                      "kind": "INT_KEYWORD"
+                      "kind": "LT_TOKEN"
+                    },
+                    {
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INT_KEYWORD"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "GT_TOKEN"
                     }
                   ]
-                },
-                {
-                  "kind": "GT_TOKEN"
                 }
               ]
             }

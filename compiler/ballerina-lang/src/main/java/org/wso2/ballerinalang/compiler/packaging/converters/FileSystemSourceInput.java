@@ -1,7 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
+import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.repository.CompilerInput;
 

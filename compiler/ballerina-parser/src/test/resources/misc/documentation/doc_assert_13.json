@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,6 +8,7 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FUNCTION_DEFINITION",
@@ -333,6 +335,10 @@
               ]
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -397,15 +403,19 @@
         },
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "MARKDOWN_DOCUMENTATION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "MARKDOWN_DOCUMENTATION_LINE",
@@ -536,12 +546,14 @@
                         },
                         {
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
@@ -549,6 +561,7 @@
                                 },
                                 {
                                   "kind": "DOCUMENTATION_REFERENCE",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "PARAMETER_DOC_REFERENCE_TOKEN",
@@ -564,6 +577,10 @@
                                     },
                                     {
                                       "kind": "BACKTICK_CONTENT",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "WARNING_INVALID_DOCUMENTATION_IDENTIFIER"
+                                      ],
                                       "value": "with no ending backtick",
                                       "trailingMinutiae": [
                                         {
@@ -632,6 +649,10 @@
                   "children": []
                 }
               ]
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",

@@ -2,15 +2,6 @@
   "kind": "MODULE_VAR_DECL",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
@@ -20,23 +11,28 @@
               "kind": "FUTURE_KEYWORD"
             },
             {
-              "kind": "LT_TOKEN"
-            },
-            {
-              "kind": "SIMPLE_NAME_REFERENCE",
+              "kind": "TYPE_PARAMETER",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "T"
-                }
-              ]
-            },
-            {
-              "kind": "GT_TOKEN",
-              "trailingMinutiae": [
+                  "kind": "LT_TOKEN"
+                },
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "T"
+                    }
+                  ]
+                },
+                {
+                  "kind": "GT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }

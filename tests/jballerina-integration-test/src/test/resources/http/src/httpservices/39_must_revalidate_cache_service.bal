@@ -16,13 +16,13 @@
 
 import ballerina/http;
 
-http:Client cachingEP3 = new("http://localhost:9248", { cache: { isShared: true } });
+http:Client cachingEP3 = new("http://localhost:9243", { cache: { isShared: true } });
 int numberOfProxyHits = 0;
 
 @http:ServiceConfig {
     basePath: "/mustRevalidate"
 }
-service mustRevalidateProxyService on new http:Listener(9247) {
+service mustRevalidateProxyService on cachingProxyListener {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
@@ -47,7 +47,7 @@ int numberOfHits = 0;
 @http:ServiceConfig {
     basePath: "/mustRevalidateBE"
 }
-service mustRevalidateBackend on new http:Listener(9248) {
+service mustRevalidateBackend on cachingBackendListener {
 
     @http:ResourceConfig { path: "/" }
     resource function mustRevalidate(http:Caller caller, http:Request req) {

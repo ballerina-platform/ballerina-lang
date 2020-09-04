@@ -31,6 +31,10 @@ public function main() {
    
     printHello();
     printMyName();
+
+    io:print("On the fly debug point add");
+    io:print("On the fly debug point remove");
+    io:print("On the fly debug point add");
 }
 
 // Prints hello

@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPED_BINDING_PATTERN",
       "hasDiagnostics": true,
       "children": [
@@ -47,8 +38,13 @@
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "DECIMAL_INTEGER_LITERAL",
-                    "value": "4"
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
+                      {
+                        "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                        "value": "4"
+                      }
+                    ]
                   }
                 }
               ],

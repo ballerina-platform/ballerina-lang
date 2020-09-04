@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -51,15 +42,18 @@
             {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
-                "kind": "IDENTIFIER_TOKEN",
-                "value": "Bar",
-                "trailingMinutiae": [
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
                   {
-                    "kind": "WHITESPACE_MINUTIAE",
-                    "value": " "
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "Bar"
                   }
                 ]
               }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
             }
           ],
           "trailingMinutiae": [
@@ -75,15 +69,6 @@
             {
               "kind": "RECORD_FIELD",
               "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
                 {
                   "kind": "INT_TYPE_DESC",
                   "children": [
@@ -122,15 +107,6 @@
             {
               "kind": "RECORD_FIELD",
               "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
                 {
                   "kind": "INT_TYPE_DESC",
                   "children": [

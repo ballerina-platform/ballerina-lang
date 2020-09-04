@@ -3,7 +3,12 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "ERROR_KEYWORD"
+      "kind": "ERROR_TYPE_DESC",
+      "children": [
+        {
+          "kind": "ERROR_KEYWORD"
+        }
+      ]
     },
     {
       "kind": "OPEN_PAREN_TOKEN",
@@ -15,7 +20,12 @@
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
-            "kind": "BITWISE_AND_TOKEN"
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
+              {
+                "kind": "BITWISE_AND_TOKEN"
+              }
+            ]
           }
         }
       ]
@@ -30,7 +40,7 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "STRING_LITERAL_TOKEN",
                   "value": "message"
                 }
               ]

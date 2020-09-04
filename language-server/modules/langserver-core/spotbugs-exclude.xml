@@ -59,6 +59,12 @@
         </OR>
     </Match>
     <Match>
+        <Package name="org.ballerinalang.langserver.completions.providers.context" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
+    <Match>
         <Class name="org.ballerinalang.langserver.signature.SignatureHelpUtil" />
         <OR>
             <Bug pattern="BC_UNCONFIRMED_CAST" />

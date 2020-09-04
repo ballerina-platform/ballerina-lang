@@ -44,6 +44,7 @@ class JMethodRequest {
     BType bReturnType = null;
     boolean returnsBErrorType = false;
     boolean restParamExist = false;
+    BType receiverType = null;
 
     private static ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
 
@@ -58,21 +59,20 @@ class JMethodRequest {
         jMethodReq.kind = methodValidationRequest.methodKind;
         jMethodReq.methodName = methodValidationRequest.name;
         jMethodReq.declaringClass = JInterop.loadClass(methodValidationRequest.klass, classLoader);
+        jMethodReq.receiverType = methodValidationRequest.receiverType;
         jMethodReq.paramTypeConstraints =
                 JInterop.buildParamTypeConstraints(methodValidationRequest.paramTypeConstraints, classLoader);
 
         BInvokableType bFuncType = methodValidationRequest.bFuncType;
-        List<BType> currentParamTypes = bFuncType.paramTypes;
         List<BType> paramTypes = new ArrayList<>();
-
         if (!isEntryModuleValidation) {
             int i = 0;
-            while (i < currentParamTypes.size()) {
-                paramTypes.add(currentParamTypes.get(i));
+            while (i < bFuncType.paramTypes.size()) {
+                paramTypes.add(bFuncType.paramTypes.get(i));
                 i = i + 2;
             }
         } else {
-            paramTypes = currentParamTypes;
+            paramTypes.addAll(bFuncType.paramTypes);
         }
 
         BType restType = bFuncType.restType;

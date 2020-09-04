@@ -22,7 +22,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
  *
  * @since 1.2.0
  */
-class JMethodFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
+public class JMethodFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
 
     JMethod jMethod;
 

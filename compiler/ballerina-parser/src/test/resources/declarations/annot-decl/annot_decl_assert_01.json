@@ -12,15 +12,6 @@
           "kind": "ANNOTATION_DECLARATION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "ANNOTATION_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -51,15 +42,6 @@
         {
           "kind": "ANNOTATION_DECLARATION",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "ANNOTATION_KEYWORD",
               "leadingMinutiae": [
@@ -113,15 +95,6 @@
           "kind": "ANNOTATION_DECLARATION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "PUBLIC_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -168,15 +141,6 @@
           "kind": "ANNOTATION_DECLARATION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "CONST_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -222,15 +186,6 @@
         {
           "kind": "ANNOTATION_DECLARATION",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "PUBLIC_KEYWORD",
               "leadingMinutiae": [

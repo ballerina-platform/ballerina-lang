@@ -22,6 +22,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * {@code BRecordTypeSymbol} represents a record type symbol in a scope.
@@ -30,13 +31,14 @@ import org.wso2.ballerinalang.compiler.util.Names;
  */
 public class BRecordTypeSymbol extends BStructureTypeSymbol {
 
-    public BRecordTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(SymbolKind.RECORD, symTag, flags, name, pkgID, type, owner);
+    public BRecordTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+                             DiagnosticPos pos) {
+        super(SymbolKind.RECORD, symTag, flags, name, pkgID, type, owner, pos);
     }
 
     @Override
     public BRecordTypeSymbol createLabelSymbol() {
-        BRecordTypeSymbol copy = Symbols.createRecordSymbol(flags, Names.EMPTY, pkgID, type, owner);
+        BRecordTypeSymbol copy = Symbols.createRecordSymbol(flags, Names.EMPTY, pkgID, type, owner, pos);
         copy.attachedFuncs = attachedFuncs;
         copy.initializerFunc = initializerFunc;
         copy.isLabel = true;

@@ -3,26 +3,22 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "leadingMinutiae": [
-        {
-          "kind": "END_OF_LINE_MINUTIAE",
-          "value": "\n"
-        }
-      ],
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "leadingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -77,11 +73,11 @@
               "children": []
             },
             {
-              "kind": "TYPE_DESC",
+              "kind": "SIMPLE_NAME_REFERENCE",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "TYPE_DESC",
+                  "kind": "IDENTIFIER_TOKEN",
                   "isMissing": true,
                   "hasDiagnostics": true,
                   "diagnostics": [

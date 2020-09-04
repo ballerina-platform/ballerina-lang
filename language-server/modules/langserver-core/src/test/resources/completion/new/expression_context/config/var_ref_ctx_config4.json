@@ -1,0 +1,101 @@
+{
+  "position": {
+    "line": 3,
+    "character": 29
+  },
+  "source": "expression_context/source/var_ref_ctx_source4.bal",
+  "items": [
+    {
+      "label": "TEST_INT_CONST1",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "130",
+      "insertText": "TEST_INT_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TEST_STRING_CONST1",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "130",
+      "insertText": "TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function1()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ls_org1/module1:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "function1();",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function2()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ls_org1/module1:0.1.0_  \n  \nThis is function2  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "function2();",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function3(int param1, int param2)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ls_org1/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description"
+        }
+      },
+      "sortText": "120",
+      "insertText": "function3(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "function4(int param1, int param2)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ls_org1/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description"
+        }
+      },
+      "sortText": "120",
+      "insertText": "function4(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

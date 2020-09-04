@@ -105,7 +105,7 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "STRING_LITERAL_TOKEN",
                           "value": "supuns@wso2.com"
                         }
                       ]
@@ -141,7 +141,7 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "STRING_LITERAL_TOKEN",
                           "value": "IPaaS",
                           "trailingMinutiae": [
                             {
@@ -211,7 +211,7 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "STRING_LITERAL_TOKEN",
                           "value": "lochanaj@wso2.com"
                         }
                       ]
@@ -247,7 +247,7 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "STRING_LITERAL_TOKEN",
                           "value": "IPaaS",
                           "trailingMinutiae": [
                             {

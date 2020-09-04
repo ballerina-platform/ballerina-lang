@@ -20,6 +20,7 @@ package org.ballerinalang.model.symbols;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.types.Type;
+import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 
 import java.util.List;
 import java.util.Set;
@@ -43,4 +44,6 @@ public interface Symbol {
     Symbol getEnclosingSymbol();
 
     List<? extends Symbol> getEnclosedSymbols();
+
+    DiagnosticPosition getPosition();
 }

@@ -19,9 +19,11 @@ package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -77,8 +79,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
     private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
+    private static final String AFTER_SUITE_ALWAYS_RUN_FIELD_NAME = "alwaysRun";
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
     private static final String MOCK_FN_DELIMITER = "~";
+    private static final String BEFORE_GROUPS_ANNOTATION_NAME = "BeforeGroups";
+    private static final String AFTER_GROUPS_ANNOTATION_NAME = "AfterGroups";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private boolean enabled = true;
@@ -123,10 +128,19 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         TestSuite suite = registry.getTestSuites().get(packageName);
         // Check if the registry contains a test suite for the package
         if (suite == null) {
-            // Add a test suite to the registry if it does not contain one pertaining to the package name
-            suite = registry.getTestSuites().computeIfAbsent(packageName, func ->
-                    new TestSuite(parent.packageID.name.value, packageName, parent.packageID.orgName.value,
-                            parent.packageID.version.value));
+            //Set testable flag for single bal file execution
+            if ((Names.DOT.getValue()).equals(packageName)) {
+                parent.flagSet.add(Flag.TESTABLE);
+            }
+            // Skip adding test suite if no tests are available in the tests path
+            if (parent.getFlags().contains(Flag.TESTABLE)) {
+                // Add a test suite to the registry if it does not contain one pertaining to the package name
+                suite = registry.getTestSuites().computeIfAbsent(packageName, func ->
+                        new TestSuite(parent.packageID.name.value, packageName, parent.packageID.orgName.value,
+                                parent.packageID.version.value));
+            } else {
+                return;
+            }
         }
         // Remove the duplicated annotations.
         annotations = annotations.stream().distinct().collect(Collectors.toList());
@@ -138,7 +152,62 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             if (BEFORE_SUITE_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addBeforeSuiteFunction(functionName);
             } else if (AFTER_SUITE_ANNOTATION_NAME.equals(annotationName)) {
-                suite.addAfterSuiteFunction(functionName);
+                AtomicBoolean alwaysRun = new AtomicBoolean(false);
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+                    attributes.forEach(field -> {
+                        BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                        String name = attributeNode.getKey().toString();
+                        BLangExpression valueExpr = attributeNode.getValue();
+                        if (AFTER_SUITE_ALWAYS_RUN_FIELD_NAME.equals(name) &&
+                                Boolean.TRUE.toString().equals(valueExpr.toString())) {
+                            alwaysRun.set(true);
+                        }
+                    });
+                }
+                suite.addAfterSuiteFunction(functionName, alwaysRun);
+            } else if (BEFORE_GROUPS_ANNOTATION_NAME.equals(annotationName)) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+
+                    for (RecordLiteralNode.RecordField field : attributes) {
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                            BLangExpression valueExpr = attributeNode.getValue();
+                            if (valueExpr instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
+                                suite.addBeforeGroupsFunction(functionName,
+                                        values.exprs.stream().map(node -> node.toString())
+                                                .collect(Collectors.toList()));
+                            }
+                        }
+
+                    }
+                }
+            } else if (AFTER_GROUPS_ANNOTATION_NAME.equals(annotationName)) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+
+                    for (RecordLiteralNode.RecordField field : attributes) {
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                            BLangExpression valueExpr = attributeNode.getValue();
+                            if (valueExpr instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
+                                suite.addAfterGroupFunction(functionName,
+                                        values.exprs.stream().map(node -> node.toString())
+                                                .collect(Collectors.toList()));
+                            }
+                        }
+
+                    }
+                }
             } else if (BEFORE_EACH_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addBeforeEachFunction(functionName);
             } else if (AFTER_EACH_ANNOTATION_NAME.equals(annotationName)) {
@@ -151,11 +220,10 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 List<String> groups = registry.getGroups();
                 boolean shouldIncludeGroups = registry.shouldIncludeGroups();
 
-                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                     List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getFields();
-
-                    attributes.forEach(field -> {
+                    for (RecordLiteralNode.RecordField field : attributes) {
                         String name;
                         BLangExpression valueExpr;
 
@@ -176,7 +244,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                 .toString())) {
                             // If enable is false, disable the test, no further processing is needed
                             shouldSkip.set(true);
-                            return;
+                            continue;
                         }
 
                         // check if groups attribute is present in the annotation
@@ -185,6 +253,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                 BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
                                 test.setGroups(values.exprs.stream().map(node -> node.toString())
                                         .collect(Collectors.toList()));
+                                suite.addTestToGroups(test);
+
                                 // Check whether user has provided a group list
                                 if (groups != null && !groups.isEmpty()) {
                                     boolean isGroupPresent = isGroupAvailable(groups, test.getGroups());
@@ -193,14 +263,14 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                         if (!isGroupPresent) {
                                             // skip the test if this group is not defined in this test
                                             shouldSkip.set(true);
-                                            return;
+                                            continue;
                                         }
                                     } else {
                                         // exclude only if the test belong to one of these groups
                                         if (isGroupPresent) {
                                             // skip if this test belongs to one of the excluded groups
                                             shouldSkip.set(true);
-                                            return;
+                                            continue;
                                         }
                                     }
                                     groupsFound.set(true);
@@ -226,7 +296,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                         (test::addDependsOnTestFunction);
                             }
                         }
-                    });
+                    }
                 }
                 if (groups != null && !groups.isEmpty() && !groupsFound.get() && shouldIncludeGroups) {
                     // if the user has asked to run only a specific list of groups and this test doesn't have
@@ -240,7 +310,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 String[] vals = new String[2];
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;
-                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                     List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getFields();
                     attributes.forEach(field -> {
@@ -309,7 +379,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 // disregard this annotation
             }
         }
-
     }
 
     // Extract mock function information
@@ -332,7 +401,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     String[] annotationValues = new String[2]; // [0] - moduleName, [1] - functionName
                     annotationValues[0] = packageName; // Set default value of the annotation as the current package
 
-                    if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                    if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                         // Get list of attributes in the Mock annotation
                         List<RecordLiteralNode.RecordField> fields =
                                 ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();

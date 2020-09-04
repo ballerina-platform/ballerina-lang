@@ -17,22 +17,14 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocReferenceErrorType;
 import org.ballerinalang.model.tree.DocumentableNode;
-import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.parser.BLangReferenceParserListener;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.parser.antlr4.ReferenceParserErrorListener;
-import org.wso2.ballerinalang.compiler.parser.antlr4.SilentParserErrorStrategy;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -41,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
@@ -93,10 +84,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private SymbolEnv env;
     private Names names;
 
-    // Used to parse the content inside backticks for Ballerina Flavored Markdown.
-    private BLangReferenceParserListener listener;
-    private BallerinaParser parser;
-
     public static DocumentationAnalyzer getInstance(CompilerContext context) {
         DocumentationAnalyzer documentationAnalyzer = context.get(DOCUMENTATION_ANALYZER_KEY);
         if (documentationAnalyzer == null) {
@@ -111,20 +98,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
-        setupReferenceParser();
-    }
-
-    private void setupReferenceParser() {
-        ANTLRInputStream ais = new ANTLRInputStream();
-        BallerinaLexer lexer = new BallerinaLexer(ais);
-        lexer.removeErrorListeners();
-        lexer.addErrorListener(new ReferenceParserErrorListener());
-        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-        SilentParserErrorStrategy errorStrategy = new SilentParserErrorStrategy();
-        parser = new BallerinaParser(tokenStream);
-        this.listener = new BLangReferenceParserListener();
-        parser.addParseListener(this.listener);
-        parser.setErrorHandler(errorStrategy);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -146,11 +119,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
-
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpointNode) {
 
     }
 
@@ -273,7 +241,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isDeprecationDocumentationAvailable && !isDeprecationAnnotationAvailable) {
-            dlog.error(pos, DiagnosticCode.INVALID_DEPRECATION_DOCUMENTATION);
+            dlog.error(deprecationDocumentation.pos, DiagnosticCode.INVALID_DEPRECATION_DOCUMENTATION);
         } else if (!isDeprecationDocumentationAvailable && isDeprecationAnnotationAvailable) {
             dlog.error(pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
         }
@@ -299,16 +267,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         LinkedList<BLangMarkdownReferenceDocumentation> references = documentation.getReferences();
         for (BLangMarkdownReferenceDocumentation reference : references) {
-            DocReferenceErrorType status = invokeDocumentationReferenceParser(reference);
-            if (status != DocReferenceErrorType.NO_ERROR) {
-                // Log warning only if not backticked content.
-                if (status != DocReferenceErrorType.BACKTICK_IDENTIFIER_ERROR) {
-                    dlog.warning(reference.pos, DiagnosticCode.INVALID_DOCUMENTATION_IDENTIFIER,
-                            reference.referenceName);
-                }
+            if (reference.hasParserWarnings) {
                 continue;
             }
-            status = validateIdentifier(reference, documentableNode);
+            DocReferenceErrorType status = validateIdentifier(reference, documentableNode);
             if (status != DocReferenceErrorType.NO_ERROR) {
                 if (status == DocReferenceErrorType.REFERENCE_ERROR) {
                     dlog.warning(reference.pos, DiagnosticCode.INVALID_DOCUMENTATION_REFERENCE,
@@ -418,39 +380,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    private DocReferenceErrorType invokeDocumentationReferenceParser(BLangMarkdownReferenceDocumentation reference) {
-        ANTLRInputStream ais = new ANTLRInputStream(reference.referenceName);
-        BallerinaLexer lexer = new BallerinaLexer(ais);
-        lexer.removeErrorListeners();
-        lexer.addErrorListener(new ReferenceParserErrorListener());
-        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-        this.listener.reset();
-        parser.setInputStream(tokenStream);
-
-        // Invoke function identifier rule for backticked block for cases such as `function()` if is Function is true.
-        if (reference.getType() == DocumentationReferenceType.BACKTICK_CONTENT) {
-            parser.documentationFullyqualifiedFunctionIdentifier();
-            if (this.listener.getState()) {
-                return DocReferenceErrorType.BACKTICK_IDENTIFIER_ERROR;
-            }
-        } else {
-            // Else the normal rule to capture type `identifier` type references.
-            parser.documentationFullyqualifiedIdentifier();
-            if (this.listener.getState()) {
-                return DocReferenceErrorType.IDENTIFIER_ERROR;
-            }
-        }
-        // If brackets are used with keywords other than function, its invalid.
-        if ((reference.getType() != DocumentationReferenceType.FUNCTION) && this.listener.hasBrackets()) {
-            return DocReferenceErrorType.IDENTIFIER_ERROR;
-        }
-        reference.qualifier = listener.getPkgName();
-        reference.typeName = listener.getTypeName();
-        reference.identifier = listener.getIdentifier();
-
-        return DocReferenceErrorType.NO_ERROR;
-    }
-
     private void validateParameters(DocumentableNode documentableNode,
                                     List<BLangSimpleVariable> actualParameters,
                                     BLangSimpleVariable restParam,
@@ -536,7 +465,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
         if (returnParameter == null && isExpected) {
-            dlog.warning(node.pos, DiagnosticCode.UNDOCUMENTED_RETURN_PARAMETER);
+            dlog.warning(documentationAttachment.pos, DiagnosticCode.UNDOCUMENTED_RETURN_PARAMETER);
         } else if (returnParameter != null && !isExpected) {
             dlog.warning(returnParameter.pos, DiagnosticCode.NO_DOCUMENTABLE_RETURN_PARAMETER);
         } else if (returnParameter != null) {
@@ -609,7 +538,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         String name = parameter.getName().value;
         if (!documentedDeprecatedParameterMap.containsKey(name)) {
             if (Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {
-                dlog.error(parameter.pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
+                dlog.error(parameter.annAttachments.get(0).pos,
+                        DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
             }
         } else {
             if (!Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {

@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -127,15 +122,18 @@
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
-                                    "kind": "DECIMAL_INTEGER_LITERAL",
-                                    "value": "5",
-                                    "trailingMinutiae": [
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "children": [
                                       {
-                                        "kind": "WHITESPACE_MINUTIAE",
-                                        "value": " "
+                                        "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                        "value": "5"
                                       }
                                     ]
                                   }
+                                },
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
                                 }
                               ],
                               "trailingMinutiae": [
@@ -256,15 +254,18 @@
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
-                                    "kind": "DECIMAL_INTEGER_LITERAL",
-                                    "value": "6",
-                                    "trailingMinutiae": [
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "children": [
                                       {
-                                        "kind": "WHITESPACE_MINUTIAE",
-                                        "value": " "
+                                        "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                        "value": "6"
                                       }
                                     ]
                                   }
+                                },
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
                                 }
                               ]
                             },

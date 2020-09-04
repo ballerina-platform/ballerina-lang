@@ -33,6 +33,7 @@ under the License.
             <class name="org.ballerinalang.testerina.test.BasicCasesTest" />
             <class name="org.ballerinalang.testerina.test.negative.MissingFunctionsTestCase"/>
             <class name="org.ballerinalang.testerina.test.GroupingTest" />
+            <class name="org.ballerinalang.testerina.test.SelectedFunctionTest" />
             <class name="org.ballerinalang.testerina.test.negative.SkipTestsTestCase" />
             <class name="org.ballerinalang.testerina.test.negative.InvalidDataProviderTestCase" />
             <class name="org.ballerinalang.testerina.test.DisableTestsTestCase" />
@@ -40,6 +41,8 @@ under the License.
             <class name="org.ballerinalang.testerina.test.ServicesTest" />
             <class name="org.ballerinalang.testerina.test.TestReportTest" />
             <class name="org.ballerinalang.testerina.test.AnnotationAccessTest" />
+            <class name="org.ballerinalang.testerina.test.PathVerificationTest" />
+            <class name="org.ballerinalang.testerina.test.RerunFailedTest"/>
         </classes>
     </test>
 </suite>

@@ -88,7 +88,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPORT_ER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CALLABLE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 
 /**
  * BIR desugar to inject observations class.
@@ -188,88 +187,90 @@ class JvmObservabilityGen {
             scopeFunctionsList = attachedTypeDef.attachedFuncs;
         }
         for (BIRBasicBlock currentBB : func.basicBlocks) {
-            if (currentBB.terminator.kind == InstructionKind.ASYNC_CALL
-                    && isObservable((AsyncCall) currentBB.terminator)) {
-                AsyncCall asyncCallIns = (AsyncCall) currentBB.terminator;
-                /*
-                 * The wrapper function generated below invokes the actual function synchronously, allowing the
-                 * instrumentation to record the actual start and end times of the function. The wrapper function
-                 * is invoked asynchronously preserving the asynchronous behaviour.
-                 */
+            if (currentBB.terminator.kind != InstructionKind.ASYNC_CALL
+                    || !isObservable((AsyncCall) currentBB.terminator)) {
+                continue;
+            }
 
-                // Creating the lambda for this async call
-                BType returnType = ((BFutureType) asyncCallIns.lhsOp.variableDcl.type).constraint;
-                List<BType> argTypes = asyncCallIns.args.stream()
-                        .map(arg -> arg.variableDcl.type)
-                        .collect(Collectors.toList());
-                Name lambdaName = new Name(String.format("$lambda$observability%d$%s", lambdaIndex++,
-                        asyncCallIns.name.value.replace(".", "_")));
-                BInvokableType bInvokableType = new BInvokableType(argTypes, null,
-                        returnType, null);
-                BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
-                        func.workerName, 0, null);
-                desugaredFunc.receiver = func.receiver;
-                scopeFunctionsList.add(desugaredFunc);
+            AsyncCall asyncCallIns = (AsyncCall) currentBB.terminator;
+            /*
+             * The wrapper function generated below invokes the actual function synchronously, allowing the
+             * instrumentation to record the actual start and end times of the function. The wrapper function
+             * is invoked asynchronously preserving the asynchronous behaviour.
+             */
 
-                // Creating the return variable
-                BIRVariableDcl funcReturnVariableDcl = new BIRVariableDcl(returnType,
-                        new Name(String.format("$%s$retVal", lambdaName.value)), VarScope.FUNCTION, VarKind.RETURN);
-                BIROperand funcReturnOperand = new BIROperand(funcReturnVariableDcl);
-                desugaredFunc.localVars.add(funcReturnVariableDcl);
-                desugaredFunc.returnVariable = funcReturnVariableDcl;
+            // Creating the lambda for this async call
+            BType returnType = ((BFutureType) asyncCallIns.lhsOp.variableDcl.type).constraint;
+            List<BType> argTypes = asyncCallIns.args.stream()
+                    .map(arg -> arg.variableDcl.type)
+                    .collect(Collectors.toList());
+            Name lambdaName = new Name(String.format("$lambda$observability%d$%s", lambdaIndex++,
+                    asyncCallIns.name.value.replace(".", "_")));
+            BInvokableType bInvokableType = new BInvokableType(argTypes, null,
+                    returnType, null);
+            BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
+                    func.workerName, 0, null);
+            desugaredFunc.receiver = func.receiver;
+            scopeFunctionsList.add(desugaredFunc);
 
-                // Creating and adding invokable symbol to the relevant scope
-                BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, lambdaName,
-                        currentPkgId, bInvokableType, functionOwner);
-                invokableSymbol.retType = funcReturnVariableDcl.type;
-                invokableSymbol.kind = SymbolKind.FUNCTION;
-                invokableSymbol.params = asyncCallIns.args.stream()
-                        .map(arg -> new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
-                                invokableSymbol))
-                        .collect(Collectors.toList());
-                invokableSymbol.scope = new Scope(invokableSymbol);
-                invokableSymbol.params.forEach(param -> invokableSymbol.scope.define(param.name, param));
-                if (attachedTypeDef == null) {
-                    functionOwner.scope.define(lambdaName, invokableSymbol);
+            // Creating the return variable
+            BIRVariableDcl funcReturnVariableDcl = new BIRVariableDcl(returnType,
+                    new Name(String.format("$%s$retVal", lambdaName.value)), VarScope.FUNCTION, VarKind.RETURN);
+            BIROperand funcReturnOperand = new BIROperand(funcReturnVariableDcl);
+            desugaredFunc.localVars.add(funcReturnVariableDcl);
+            desugaredFunc.returnVariable = funcReturnVariableDcl;
+
+            // Creating and adding invokable symbol to the relevant scope
+            BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, lambdaName,
+                    currentPkgId, bInvokableType, functionOwner, desugaredFunc.pos);
+            invokableSymbol.retType = funcReturnVariableDcl.type;
+            invokableSymbol.kind = SymbolKind.FUNCTION;
+            invokableSymbol.params = asyncCallIns.args.stream()
+                    .map(arg -> new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
+                                               invokableSymbol, arg.pos))
+                    .collect(Collectors.toList());
+            invokableSymbol.scope = new Scope(invokableSymbol);
+            invokableSymbol.params.forEach(param -> invokableSymbol.scope.define(param.name, param));
+            if (attachedTypeDef == null) {
+                functionOwner.scope.define(lambdaName, invokableSymbol);
+            }
+
+            // Creating and adding function parameters
+            List<BIROperand> funcParamOperands = new ArrayList<>();
+            Name selfArgName = new Name("%self");
+            for (int i = 0; i < asyncCallIns.args.size(); i++) {
+                BIROperand arg = asyncCallIns.args.get(i);
+                BIRFunctionParameter funcParam;
+                if (arg.variableDcl.kind == VarKind.SELF) {
+                    funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
+                            VarScope.FUNCTION, VarKind.SELF, selfArgName.value, false);
+                } else {
+                    Name argName = new Name(String.format("$funcParam%d", i));
+                    funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type,
+                            argName, VarScope.FUNCTION, VarKind.ARG, argName.value, false);
+                    desugaredFunc.localVars.add(funcParam);
+                    desugaredFunc.parameters.put(funcParam, Collections.emptyList());
+                    desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
+                    desugaredFunc.argsCount++;
                 }
+                funcParamOperands.add(new BIROperand(funcParam));
+            }
 
-                // Creating and adding function parameters
-                List<BIROperand> funcParamOperands = new ArrayList<>();
-                Name selfArgName = new Name("%self");
-                for (int i = 0; i < asyncCallIns.args.size(); i++) {
-                    BIROperand arg = asyncCallIns.args.get(i);
-                    BIRFunctionParameter funcParam;
-                    if (arg.variableDcl.kind == VarKind.SELF) {
-                        funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
-                                VarScope.FUNCTION, VarKind.SELF, selfArgName.value, false);
-                    } else {
-                        Name argName = new Name(String.format("$funcParam%d", i));
-                        funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type,
-                                argName, VarScope.FUNCTION, VarKind.ARG, argName.value, false);
-                        desugaredFunc.localVars.add(funcParam);
-                        desugaredFunc.parameters.put(funcParam, Collections.emptyList());
-                        desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
-                        desugaredFunc.argsCount++;
-                    }
-                    funcParamOperands.add(new BIROperand(funcParam));
-                }
+            // Generating function body
+            BIRBasicBlock callInsBB = insertBasicBlock(desugaredFunc, 0);
+            BIRBasicBlock returnInsBB = insertBasicBlock(desugaredFunc, 1);
+            callInsBB.terminator = new Call(asyncCallIns.pos, InstructionKind.CALL, asyncCallIns.isVirtual,
+                    asyncCallIns.calleePkg, asyncCallIns.name, funcParamOperands, funcReturnOperand,
+                    returnInsBB, asyncCallIns.calleeAnnotAttachments, asyncCallIns.calleeFlags);
+            returnInsBB.terminator = new Return(asyncCallIns.pos);
 
-                // Generating function body
-                BIRBasicBlock callInsBB = insertBasicBlock(desugaredFunc, 0);
-                BIRBasicBlock returnInsBB = insertBasicBlock(desugaredFunc, 1);
-                callInsBB.terminator = new Call(asyncCallIns.pos, InstructionKind.CALL, asyncCallIns.isVirtual,
-                        asyncCallIns.calleePkg, asyncCallIns.name, funcParamOperands, funcReturnOperand,
-                        returnInsBB, asyncCallIns.calleeAnnotAttachments, asyncCallIns.calleeFlags);
-                returnInsBB.terminator = new Return(asyncCallIns.pos);
-
-                // Updating terminator to call the generated lambda asynchronously
-                asyncCallIns.name = lambdaName;
-                asyncCallIns.calleePkg = currentPkgId;
-                asyncCallIns.isVirtual = attachedTypeDef != null;
-                if (attachedTypeDef != null) {
-                    asyncCallIns.args.add(0, new BIROperand(new BIRVariableDcl(attachedTypeDef.type,
-                            selfArgName, VarScope.FUNCTION, VarKind.SELF)));
-                }
+            // Updating terminator to call the generated lambda asynchronously
+            asyncCallIns.name = lambdaName;
+            asyncCallIns.calleePkg = currentPkgId;
+            asyncCallIns.isVirtual = attachedTypeDef != null;
+            if (attachedTypeDef != null) {
+                asyncCallIns.args.add(0, new BIROperand(new BIRVariableDcl(attachedTypeDef.type,
+                        selfArgName, VarScope.FUNCTION, VarKind.SELF)));
             }
         }
     }
@@ -375,7 +376,7 @@ class JvmObservabilityGen {
 
                 // If a panic is captured, it does not need to be reported
                 Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
-                        .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, currentBB))
+                        .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, func.basicBlocks, currentBB))
                         .findAny();
                 if (!existingEE.isPresent()) {
                     BIRBasicBlock errorCheckBB = insertBasicBlock(func, i + 1);
@@ -491,7 +492,7 @@ class JvmObservabilityGen {
                      * the invocation.
                      */
                     Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
-                            .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, newCurrentBB))
+                            .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, func.basicBlocks, newCurrentBB))
                             .findAny();
                     DiagnosticPos desugaredInsPos = callIns.pos;
                     if (existingEE.isPresent()) {
@@ -776,8 +777,9 @@ class JvmObservabilityGen {
         boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
         boolean isObservableAnnotationPresent = false;
         for (BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
-            if (OBSERVABLE_ANNOTATION.equals(getPackageName(annot.packageID.orgName, annot.packageID.name, Names.EMPTY)
-                    + annot.annotTagRef.value)) {
+            if (OBSERVABLE_ANNOTATION.equals(
+                    JvmCodeGenUtil.getPackageName(annot.packageID.orgName, annot.packageID.name, Names.EMPTY) +
+                            annot.annotTagRef.value)) {
                 isObservableAnnotationPresent = true;
                 break;
             }
@@ -807,20 +809,35 @@ class JvmObservabilityGen {
      * Check if a basic block is covered in a error entry.
      *
      * @param errorEntry The error entry from the error table
+     * @param basicBlocksList The basic blocks list which contains the basic block to be checked for
      * @param basicBlock The basic block which should be checked for
      * @return True if the basic block is covered in the error entry
      */
-    private boolean isBBCoveredInErrorEntry(BIRErrorEntry errorEntry, BIRBasicBlock basicBlock) {
+    private boolean isBBCoveredInErrorEntry(BIRErrorEntry errorEntry, List<BIRBasicBlock> basicBlocksList,
+                                            BIRBasicBlock basicBlock) {
         boolean isCovered = Objects.equals(basicBlock, errorEntry.trapBB)
                 || Objects.equals(basicBlock, errorEntry.endBB);
         if (!isCovered) {
-            BIRBasicBlock currentBB = errorEntry.trapBB.terminator.thenBB;
-            while (currentBB != null && currentBB != errorEntry.endBB) {
-                if (Objects.equals(currentBB, basicBlock)) {
+            /*
+             * Traverse in the same way JvmMethodGen.generateBasicBlocks traverses through basic blocks to generate
+             * method body to check if the basic block is covered in the error entry.
+             */
+            int i = 0;
+            for (; i < basicBlocksList.size(); i++) {
+                BIRBasicBlock currentBB = basicBlocksList.get(i);
+                if (currentBB == errorEntry.trapBB) {
+                    break;
+                }
+            }
+            for (; i < basicBlocksList.size(); i++) {
+                BIRBasicBlock currentBB = basicBlocksList.get(i);
+                if (currentBB == basicBlock) {
                     isCovered = true;
                     break;
                 }
-                currentBB = currentBB.terminator.thenBB;
+                if (currentBB == errorEntry.endBB) {
+                    break;
+                }
             }
         }
         return isCovered;

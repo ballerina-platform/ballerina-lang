@@ -23,6 +23,7 @@ import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.AttachPoints;
 
 import java.util.EnumSet;
@@ -40,17 +41,9 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public Set<AttachPoint> points;
     public int maskedPoints;
 
-    @Deprecated
-    public BAnnotationSymbol(Name name, int flags, int maskedPoints, PackageID pkgID, BType type,
-                             BSymbol owner) {
-        super(ANNOTATION, flags, name, pkgID, type, owner);
-        this.maskedPoints = maskedPoints;
-        this.points = new HashSet<>();
-    }
-
     public BAnnotationSymbol(Name name, int flags, Set<AttachPoint> points, PackageID pkgID,
-                             BType type, BSymbol owner) {
-        super(ANNOTATION, flags, name, pkgID, type, owner);
+                             BType type, BSymbol owner, DiagnosticPos pos) {
+        super(ANNOTATION, flags, name, pkgID, type, owner, pos);
         this.points = points;
         this.maskedPoints = getMaskedPoints(points);
     }
@@ -68,7 +61,7 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
 
     @Override
     public BAnnotationSymbol createLabelSymbol() {
-        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, points, Names.EMPTY, pkgID, type, owner);
+        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, points, Names.EMPTY, pkgID, type, owner, pos);
         copy.attachedType = attachedType;
         copy.isLabel = true;
         return copy;

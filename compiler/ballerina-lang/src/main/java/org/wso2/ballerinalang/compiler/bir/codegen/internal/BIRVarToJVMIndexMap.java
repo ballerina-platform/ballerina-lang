@@ -34,7 +34,7 @@ import java.util.Map;
 public class BIRVarToJVMIndexMap {
 
     private int localVarIndex = 0;
-    private Map<String, Integer> jvmLocalVarIndexMap = new HashMap<>();
+    private final Map<String, Integer> jvmLocalVarIndexMap = new HashMap<>();
 
     private void add(BIRNode.BIRVariableDcl varDcl) {
 
@@ -62,7 +62,7 @@ public class BIRVarToJVMIndexMap {
         return varDcl.name.value;
     }
 
-    public int getIndex(BIRNode.BIRVariableDcl varDcl) {
+    public int addToMapIfNotFoundAndGetIndex(BIRNode.BIRVariableDcl varDcl) {
 
         String varRefName = this.getVarRefName(varDcl);
         if (!(this.jvmLocalVarIndexMap.containsKey(varRefName))) {

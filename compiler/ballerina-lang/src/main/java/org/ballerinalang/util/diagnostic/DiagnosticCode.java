@@ -425,6 +425,7 @@ public enum DiagnosticCode {
     MISMATCHED_INPUT("mismatched.input"),
     FAILED_PREDICATE("failed.predicate"),
     SYNTAX_ERROR("syntax.error"),
+    SYNTAX_WARNING("syntax.warning"),
     INVALID_SHIFT_OPERATOR("invalid.shift.operator"),
 
     // Streaming related codes
@@ -433,6 +434,7 @@ public enum DiagnosticCode {
     NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
     ERROR_TYPE_EXPECTED("error.type.expected"),
     MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
+    ORDER_BY_NOT_SUPPORTED("order.by.not.supported"),
 
     // Table related codes
     TABLE_CONSTRAINT_INVALID_SUBTYPE("invalid.table.constraint.subtype"),
