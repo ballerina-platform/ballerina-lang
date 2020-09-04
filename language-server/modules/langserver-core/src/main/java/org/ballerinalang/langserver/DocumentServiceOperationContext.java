@@ -51,6 +51,7 @@ public class DocumentServiceOperationContext extends LSContextImpl {
 
         ServiceOperationContextBuilder withCompletionParams(CompletionCapabilities capabilities) {
             this.lsContext.put(CompletionKeys.CLIENT_CAPABILITIES_KEY, capabilities);
+            this.lsContext.put(CompletionKeys.RESOLVER_CHAIN, new ArrayList<>());
             return this;
         }
 

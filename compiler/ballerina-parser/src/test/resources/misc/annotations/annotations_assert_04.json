@@ -40,11 +40,16 @@
               ]
             },
             {
-              "kind": "PUBLIC_KEYWORD",
-              "trailingMinutiae": [
+              "kind": "LIST",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "PUBLIC_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },

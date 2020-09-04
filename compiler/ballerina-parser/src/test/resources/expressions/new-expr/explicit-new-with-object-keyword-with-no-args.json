@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -136,15 +131,6 @@
                               "kind": "OBJECT_FIELD",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
-                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -183,13 +169,8 @@
                               "kind": "OBJECT_METHOD_DEFINITION",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
@@ -301,10 +282,10 @@
                                               ]
                                             },
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "NUMERIC_LITERAL",
                                               "children": [
                                                 {
-                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                   "value": "10"
                                                 }
                                               ]

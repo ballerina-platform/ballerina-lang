@@ -12,13 +12,8 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -405,6 +400,10 @@
                             {
                               "kind": "LOCAL_VAR_DECL",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "ARRAY_TYPE_DESC",
                                   "children": [

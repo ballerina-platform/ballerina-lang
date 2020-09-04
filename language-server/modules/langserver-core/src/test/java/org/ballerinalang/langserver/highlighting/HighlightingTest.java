@@ -22,7 +22,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.commons.semantichighlighter.SemanticHighlightingParams;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -46,6 +48,7 @@ import java.nio.file.Path;
 public class HighlightingTest {
 
     private Endpoint serviceEndpoint;
+    private WorkspaceDocumentManager docManager;
     private Path sourceRoot = FileUtils.RES_DIR.resolve("highlighting").resolve("sources").resolve("endpoint");
     private Path expectedRoot = FileUtils.RES_DIR.resolve("highlighting").resolve("expected").resolve("endpoint");
     private JsonParser parser = new JsonParser();
@@ -53,7 +56,9 @@ public class HighlightingTest {
 
     @BeforeClass
     public void loadLangServer() throws IOException {
-        serviceEndpoint = TestUtil.initializeLanguageSever();
+        Pair<Endpoint, WorkspaceDocumentManager> pair = TestUtil.initializeLanguageSeverAndGetDocManager();
+        this.serviceEndpoint = pair.getLeft();
+        this.docManager = pair.getRight();
     }
 
     @Test(description = "Test highlighting endpoint variables", dataProvider = "endpointDataProvider")
@@ -65,7 +70,9 @@ public class HighlightingTest {
 
     private void compareResults(Path sourceFilePath, String expectedFile)
             throws IOException, CompilationFailedException {
-        SemanticHighlightingParams semanticHighlightingParams = TestUtil.getHighlightingResponse(sourceFilePath);
+        TestUtil.openDocument(serviceEndpoint, sourceFilePath);
+        SemanticHighlightingParams semanticHighlightingParams = TestUtil.getHighlightingResponse(this.docManager,
+                                                                                                 sourceFilePath);
         TestUtil.closeDocument(serviceEndpoint, sourceFilePath);
 
         //Convert response to JSON

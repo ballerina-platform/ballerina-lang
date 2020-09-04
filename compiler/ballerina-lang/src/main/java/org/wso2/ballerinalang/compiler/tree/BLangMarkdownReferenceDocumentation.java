@@ -36,6 +36,7 @@ public class BLangMarkdownReferenceDocumentation extends BLangNode
     public String referenceName; // Complete reference inside backticked block
     public NodeKind kind;
     public DocumentationReferenceType type;
+    public boolean hasParserWarnings = false; // Only used by new parser at BLangNodeTransformer
 
     @Override
     public NodeKind getKind() {

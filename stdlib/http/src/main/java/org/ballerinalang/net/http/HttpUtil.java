@@ -41,6 +41,7 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -51,6 +52,7 @@ import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityHeaderHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -92,9 +94,12 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
@@ -108,8 +113,9 @@ import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_TRAILER_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.HEADERS_MAP_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.HEADER_NAMES_ARRAY_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_LENGTH_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
@@ -137,10 +143,14 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STO
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_HEADERS;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_TRAILER_HEADERS;
 import static org.ballerinalang.net.http.HttpConstants.LISTENER_CONFIGURATION;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_CERTIFICATE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
+import static org.ballerinalang.net.http.HttpConstants.NO_CONTENT_LENGTH_FOUND;
+import static org.ballerinalang.net.http.HttpConstants.ONE_BYTE;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
@@ -206,11 +216,11 @@ public class HttpUtil {
         ObjectValue entity = ValueCreatorUtils.createEntityObject();
         HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
                 HttpUtil.createHttpCarbonMessage(isRequest(httpMessageStruct)));
-        entity.addNativeData(ENTITY_HEADERS, httpCarbonMessage.getHeaders());
-        entity.addNativeData(ENTITY_TRAILER_HEADERS, httpCarbonMessage.getTrailerHeaders());
         entity.addNativeData(ENTITY_BYTE_CHANNEL, null);
-        httpMessageStruct.set(isRequest(httpMessageStruct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD
-                , entity);
+
+        httpMessageStruct.addNativeData(HTTP_HEADERS, httpCarbonMessage.getHeaders());
+        httpMessageStruct.addNativeData(HTTP_TRAILER_HEADERS, httpCarbonMessage.getTrailerHeaders());
+        httpMessageStruct.set(isRequest(httpMessageStruct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD , entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
         return entity;
     }
@@ -221,8 +231,10 @@ public class HttpUtil {
      * @param messageObj Represent ballerina request/response
      * @param entityObj  Represent an entity
      * @param isRequest  boolean representing whether the message is a request or a response
+     * @param updateAllHeaders  boolean representing whether the headers need to be updated in the transport message
      */
-    public static void setEntity(ObjectValue messageObj, ObjectValue entityObj, boolean isRequest) {
+    public static void setEntity(ObjectValue messageObj, ObjectValue entityObj, boolean isRequest,
+                                 boolean updateAllHeaders) {
         HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(messageObj,
                 HttpUtil.createHttpCarbonMessage(isRequest));
         String contentType = MimeUtil.getContentTypeWithParameters(entityObj);
@@ -231,10 +243,14 @@ public class HttpUtil {
             if (contentType == null) {
                 contentType = OCTET_STREAM;
             }
-            HeaderUtil.setHeaderToEntity(entityObj, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+            ((HttpHeaders) messageObj.getNativeData(HTTP_HEADERS)).set(HttpHeaderNames.CONTENT_TYPE.toString(),
+                                                                       contentType);
         }
         messageObj.set(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entityObj);
         messageObj.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, checkEntityBodyAvailability(entityObj));
+        if (updateAllHeaders) {
+            HttpUtil.setEntityHeaderToTransportHeader(entityObj, (HttpHeaders) messageObj.getNativeData(HTTP_HEADERS));
+        }
     }
 
     /**
@@ -243,9 +259,11 @@ public class HttpUtil {
      * @param messageObj         Ballerina context
      * @param isRequest          boolean representing whether the message is a request or a response
      * @param entityBodyRequired boolean representing whether the entity body is required
+     * @param entityHeadersRequired boolean representing whether the entity headers are required
      * @return Entity of the request or response
      */
-    public static ObjectValue getEntity(ObjectValue messageObj, boolean isRequest, boolean entityBodyRequired) {
+    public static ObjectValue getEntity(ObjectValue messageObj, boolean isRequest, boolean entityBodyRequired,
+                                        boolean entityHeadersRequired) {
         ObjectValue entity = (ObjectValue) messageObj.get(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
         boolean byteChannelAlreadySet = false;
 
@@ -253,7 +271,10 @@ public class HttpUtil {
             byteChannelAlreadySet = (Boolean) messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
         }
         if (entityBodyRequired && !byteChannelAlreadySet) {
-            populateEntityBody(messageObj, entity, isRequest, false);
+            populateEntityBody(messageObj, entity, isRequest, entityHeadersRequired);
+        }
+        if (entityHeadersRequired) {
+            populateEntityHeaders(messageObj, entity);
         }
         return entity;
     }
@@ -277,7 +298,7 @@ public class HttpUtil {
             MultipartDecoder.parseBody(entityObj, contentType,
                                        new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
         } else {
-            long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
+            long contentLength = HttpUtil.extractContentLength(httpCarbonMessage);
             if (contentLength > 0) {
                 if (streaming) {
                     entityObj.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
@@ -294,6 +315,48 @@ public class HttpUtil {
         }
         messageObj.set(request ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entityObj);
         messageObj.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
+    }
+
+    private static void populateEntityHeaders(ObjectValue messageObj, ObjectValue entity) {
+        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) messageObj.getNativeData(TRANSPORT_MESSAGE);
+        if (httpCarbonMessage == null) {
+            return;
+        }
+
+        MapValue<BString, Object> headers = EntityHeaderHandler.getNewHeaderMap();
+        HttpHeaders httpHeaders = httpCarbonMessage.getHeaders();
+        for (String key : httpHeaders.names()) {
+            String[] values = httpHeaders.getAll(key).toArray(new String[0]);
+            headers.put(org.ballerinalang.jvm.StringUtils.fromString(key.toLowerCase()),
+                        new ArrayValueImpl(org.ballerinalang.jvm.StringUtils.fromStringArray(values)));
+        }
+        entity.set(HEADERS_MAP_FIELD, headers);
+
+        Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        distinctNames.addAll(httpHeaders.names());
+        entity.set(HEADER_NAMES_ARRAY_FIELD, new ArrayValueImpl(
+                org.ballerinalang.jvm.StringUtils.fromStringSet(distinctNames)));
+    }
+
+    /**
+     * Given a {@link HttpCarbonMessage}, returns the content length extracting from headers.
+     *
+     * @param httpCarbonMessage Represent the message
+     * @return length of the content
+     */
+    public static long extractContentLength(HttpCarbonMessage httpCarbonMessage) {
+        long contentLength = NO_CONTENT_LENGTH_FOUND;
+        String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
+        try {
+            contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
+            if (contentLength == NO_CONTENT_LENGTH_FOUND) {
+                //Read one byte to make sure the incoming stream has data
+                contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
+            }
+        } catch (NumberFormatException e) {
+            throw MimeUtil.createError(INVALID_CONTENT_LENGTH_ERROR, "Invalid content length");
+        }
+        return contentLength;
     }
 
     public static ObjectValue extractEntity(ObjectValue request) {
@@ -627,7 +690,7 @@ public class HttpUtil {
         enrichWithInboundRequestInfo(inboundRequest, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequest, inboundRequestMsg);
 
-        populateEntity(entity, inboundRequestMsg);
+        populateEntity(inboundRequest, entity, inboundRequestMsg);
         inboundRequest.set(REQUEST_ENTITY_FIELD, entity);
         inboundRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
 
@@ -751,18 +814,19 @@ public class HttpUtil {
             inboundResponse.set(RESPONSE_CACHE_CONTROL_FIELD, responseCacheControl.getObj());
         }
 
-        populateEntity(entity, inboundResponseMsg);
+        populateEntity(inboundResponse, entity, inboundResponseMsg);
         inboundResponse.set(RESPONSE_ENTITY_FIELD, entity);
         inboundResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
     }
 
     /**
-     * Populate entity with headers, content-type and content-length.
+     * Populate entity with headers and content-length.
      *
+     * @param requestObj Represent an inbound request
      * @param entity Represent an entity struct
      * @param cMsg   Represent a carbon message
      */
-    private static void populateEntity(ObjectValue entity, HttpCarbonMessage cMsg) {
+    private static void populateEntity(ObjectValue requestObj, ObjectValue entity, HttpCarbonMessage cMsg) {
         long contentLength = -1;
         String lengthStr = cMsg.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         try {
@@ -771,8 +835,8 @@ public class HttpUtil {
         } catch (NumberFormatException e) {
             throw createHttpError("Invalid content length", HttpErrorType.INVALID_CONTENT_LENGTH);
         }
-        entity.addNativeData(ENTITY_HEADERS, cMsg.getHeaders());
-        entity.addNativeData(ENTITY_TRAILER_HEADERS, cMsg.getTrailerHeaders());
+        requestObj.addNativeData(HTTP_HEADERS, cMsg.getHeaders());
+        requestObj.addNativeData(HTTP_TRAILER_HEADERS, cMsg.getTrailerHeaders());
     }
 
     /**
@@ -788,8 +852,6 @@ public class HttpUtil {
 
     private static void setHeadersToTransportMessage(HttpCarbonMessage outboundMsg, ObjectValue messageObj) {
         boolean request = isRequest(messageObj);
-        ObjectValue entityObj = (ObjectValue) messageObj
-                .get(request ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
         HttpHeaders transportHeaders = outboundMsg.getHeaders();
         if (request || isResponse(messageObj)) {
             addRemovedPropertiesBackToHeadersMap(messageObj, transportHeaders);
@@ -799,21 +861,33 @@ public class HttpUtil {
             // TODO: refactor this logic properly.
             // return;
         }
-        HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
+        HttpHeaders httpHeaders = (HttpHeaders) messageObj.getNativeData(HTTP_HEADERS);
         if (httpHeaders != transportHeaders) {
             //This is done only when the entity map and transport message do not refer to the same header map
             if (httpHeaders != null) {
                 transportHeaders.add(httpHeaders);
             }
-            //Once the headers are synced, set the entity headers to transport message headers so that they
-            //both refer the same header map for future operations
-            entityObj.addNativeData(ENTITY_HEADERS, outboundMsg.getHeaders());
         }
         if (!request) {
             HttpHeaders transportTrailingHeaders = outboundMsg.getTrailerHeaders();
-            HttpHeaders trailingHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_TRAILER_HEADERS);
+            HttpHeaders trailingHeaders = (HttpHeaders) messageObj.getNativeData(HTTP_TRAILER_HEADERS);
             if (trailingHeaders != null && trailingHeaders != transportTrailingHeaders) {
                 transportTrailingHeaders.add(trailingHeaders);
+            }
+        }
+    }
+
+    private static void setEntityHeaderToTransportHeader(ObjectValue entityObj, HttpHeaders httpHeaders) {
+        MapValue<BString, Object> entityHeaders = EntityHeaderHandler.getEntityHeaderMap(entityObj);
+
+        for (BString entryKey : entityHeaders.getKeys()) {
+            ArrayValueImpl entryValues = (ArrayValueImpl) entityHeaders.get(entryKey);
+            if (entryValues.size() > 1) {
+                Iterator<String> valueIterator = Arrays.stream(entryValues.getStringArray()).map(String::valueOf)
+                        .iterator();
+                httpHeaders.add(entryKey.getValue(), valueIterator);
+            } else if (entryValues.size() == 1) {
+                httpHeaders.set(entryKey.getValue(), entryValues.getBString(0).getValue());
             }
         }
     }

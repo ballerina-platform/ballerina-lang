@@ -22,7 +22,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -56,7 +55,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangCompilationUnit> compUnits;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
-    public List<BLangEndpoint> globalEndpoints;
     public List<BLangConstant> constants;
     public List<BLangSimpleVariable> globalVars;
     public List<BLangService> services;
@@ -85,7 +83,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.compUnits = new ArrayList<>();
         this.imports = new ArrayList<>();
         this.xmlnsList = new ArrayList<>();
-        this.globalEndpoints = new ArrayList<>();
         this.constants = new ArrayList<>();
         this.globalVars = new ArrayList<>();
         this.services = new ArrayList<>();
@@ -119,11 +116,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<BLangXMLNS> getNamespaceDeclarations() {
         return xmlnsList;
-    }
-
-    @Override
-    public List<? extends EndpointNode> getGlobalEndpoints() {
-        return globalEndpoints;
     }
 
     @Override

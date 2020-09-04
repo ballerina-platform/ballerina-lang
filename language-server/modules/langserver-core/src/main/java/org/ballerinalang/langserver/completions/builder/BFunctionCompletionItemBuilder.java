@@ -17,11 +17,14 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.eclipse.lsp4j.Command;
@@ -31,8 +34,11 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +63,7 @@ public final class BFunctionCompletionItemBuilder {
      * @param bSymbol    BSymbol or null
      * @param label      label
      * @param insertText insert text
-     * @param context {@link LSContext}
+     * @param context    {@link LSContext}
      * @return {@link CompletionItem}
      */
     public static CompletionItem build(BInvokableSymbol bSymbol, String label, String insertText, LSContext context) {
@@ -89,6 +95,39 @@ public final class BFunctionCompletionItemBuilder {
         return item;
     }
 
+    public static CompletionItem build(BObjectTypeSymbol objectTypeSymbol, InitializerBuildMode mode, LSContext ctx) {
+        BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc == null
+                ? null : objectTypeSymbol.initializerFunc.symbol;
+        CompletionItem item = new CompletionItem();
+        setMeta(item, invokableSymbol, ctx);
+        String functionName;
+        if (mode == InitializerBuildMode.EXPLICIT) {
+            NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+            functionName = objectTypeSymbol.name.value;
+            // null check added in the filter, in order to avoid 
+            Optional<BLangIdentifier> moduleAlias = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
+                    .filter(pkg -> pkg.symbol != null && pkg.symbol.pkgID == objectTypeSymbol.pkgID)
+                    .map(BLangImportPackage::getAlias)
+                    .findAny();
+            if (nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE && moduleAlias.isPresent()) {
+                /*
+                Handles the following case
+                (1) ... = new <cursor>
+                (1) ... = new m<cursor> // blocked by #25210
+                 */
+                functionName = moduleAlias.get().getValue() + ":" + functionName;
+            }
+        } else {
+            functionName = "new";
+        }
+        Pair<String, String> functionSignature = CommonUtil.getFunctionInvocationSignature(invokableSymbol,
+                functionName, ctx);
+        item.setInsertText(functionSignature.getLeft());
+        item.setLabel(functionSignature.getRight());
+
+        return item;
+    }
+
     private static void setMeta(CompletionItem item, BInvokableSymbol bSymbol, LSContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
@@ -99,9 +138,7 @@ public final class BFunctionCompletionItemBuilder {
                 Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");
                 item.setCommand(cmd);
             }
-            int invocationType = (ctx == null || ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
-                    : ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-            boolean skipFirstParam = CommonUtil.skipFirstParam(bSymbol, invocationType);
+            boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, bSymbol);
             if (bSymbol.markdownDocumentation != null) {
                 item.setDocumentation(getDocumentation(bSymbol, skipFirstParam, ctx));
             }
@@ -169,5 +206,15 @@ public final class BFunctionCompletionItemBuilder {
         docMarkupContent.setValue(documentation);
 
         return Either.forRight(docMarkupContent);
+    }
+
+    /**
+     * Build mode, either explicit or implicit initializer.
+     *
+     * @since 2.0.0
+     */
+    public enum InitializerBuildMode {
+        EXPLICIT,
+        IMPLICIT
     }
 }

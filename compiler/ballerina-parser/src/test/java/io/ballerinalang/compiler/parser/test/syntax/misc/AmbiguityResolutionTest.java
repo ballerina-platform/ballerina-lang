@@ -105,6 +105,11 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     public void testStmtStartsStringAndXMLKeywords() {
         testFile("ambiguity/ambiguity_source_22.bal", "ambiguity/ambiguity_assert_22.json");
     }
+    
+    @Test
+    public void testAmbiguousXMLStepExpr() {
+        testFile("ambiguity/ambiguity_source_24.bal", "ambiguity/ambiguity_assert_24.json");
+    }
 
     // Recovery tests
 
@@ -136,5 +141,35 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     @Test
     public void testStatementConsistOfOnlyBasicLiterals() {
         testFile("ambiguity/ambiguity_source_23.bal", "ambiguity/ambiguity_assert_23.json");
+    }
+
+    @Test
+    public void testListBindingPatternOrListConstrcRecovery() {
+        testFile("ambiguity/ambiguity_source_25.bal", "ambiguity/ambiguity_assert_25.json");
+    }
+
+    @Test
+    public void testTypeTupleDescOrListConstructorRecovery() {
+        testFile("ambiguity/ambiguity_source_26.bal", "ambiguity/ambiguity_assert_26.json");
+    }
+
+    @Test
+    public void testInvalidNodeWithMappingBindingPatternOrMappingConstructorRecovery() {
+        testFile("ambiguity/ambiguity_source_27.bal", "ambiguity/ambiguity_assert_27.json");
+    }
+
+    @Test
+    public void testInvalidNodeInFieldBindingPatternRHS() {
+        testFile("ambiguity/ambiguity_source_28.bal", "ambiguity/ambiguity_assert_28.json");
+    }
+
+    @Test
+    public void testInvalidNodeInBracedList() {
+        testFile("ambiguity/ambiguity_source_29.bal", "ambiguity/ambiguity_assert_29.json");
+    }
+
+    @Test
+    public void testIncompleteSource() {
+        testFile("ambiguity/ambiguity_source_30.bal", "ambiguity/ambiguity_assert_30.json");
     }
 }

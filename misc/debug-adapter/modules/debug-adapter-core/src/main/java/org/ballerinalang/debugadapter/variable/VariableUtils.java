@@ -20,6 +20,7 @@ import com.sun.jdi.Field;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class VariableUtils {
     public static final String FIELD_TYPE = "type";
     public static final String FIELD_TYPENAME = "typeName";
     public static final String FIELD_VALUE = "value";
+    public static final String FIELD_CONSTRAINT = "constraint";
     public static final String METHOD_STRINGVALUE = "stringValue";
     public static final String UNKNOWN_VALUE = "unknown";
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
@@ -92,12 +94,12 @@ public class VariableUtils {
      * @param jvmObject ballerina jvm variable instance.
      * @return result of the method invocation as a string.
      */
-    public static String getStringValue(VariableContext context, Value jvmObject) {
+    public static String getStringValue(SuspendedContext context, Value jvmObject) {
         try {
             Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STRINGVALUE);
             if (method.isPresent()) {
-                Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread(),
-                        method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
+                        .getThreadReference(), method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
                 return VariableUtils.getStringFrom(stringValue);
             }
             return UNKNOWN_VALUE;
@@ -107,10 +109,10 @@ public class VariableUtils {
     }
 
     /**
-     * Verifies whether a given JDI value is a ballerina object instance.
+     * Verifies whether a given JDI value is a ballerina object variable instance.
      *
      * @param value JDI value instance.
-     * @return true the given JDI value is a ballerina object instance.
+     * @return true the given JDI value is a ballerina object variable instance.
      */
     static boolean isObject(Value value) {
         try {
@@ -122,15 +124,37 @@ public class VariableUtils {
     }
 
     /**
-     * Verifies whether a given JDI value is a ballerina record instance.
+     * Verifies whether a given JDI value is a ballerina record variable instance.
      *
      * @param value JDI value instance.
-     * @return true the given JDI value is a ballerina record instance.
+     * @return true the given JDI value is a ballerina record variable instance.
      */
     static boolean isRecord(Value value) {
         try {
             return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
                     (JVMValueType.BTYPE_RECORD.getString())).orElse(false);
+        } catch (DebugVariableException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Verifies whether a given JDI value is a ballerina JSON variable instance.
+     *
+     * @param value JDI value instance.
+     * @return true the given JDI value is a ballerina JSON variable instance.
+     */
+    static boolean isJson(Value value) {
+        try {
+            Optional<Value> typeField = getFieldValue(value, FIELD_TYPE);
+            if (!typeField.isPresent()) {
+                return false;
+            }
+            if (typeField.get().type().name().endsWith(JVMValueType.BTYPE_JSON.getString())) {
+                return true;
+            }
+            Optional<Value> constraint = getFieldValue(typeField.get(), FIELD_CONSTRAINT);
+            return constraint.map(val -> val.type().name().endsWith(JVMValueType.BTYPE_JSON.getString())).orElse(false);
         } catch (DebugVariableException e) {
             return false;
         }

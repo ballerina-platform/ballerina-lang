@@ -1,4 +1,5 @@
-function foo(){
-    error err = error("Custom error thrown explicitly.");
-    fail ;
-}
+type foo object {
+     remote transactional function foo(){
+
+     }
+};

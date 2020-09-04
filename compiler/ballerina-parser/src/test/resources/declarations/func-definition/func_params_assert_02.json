@@ -3,26 +3,22 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "leadingMinutiae": [
-        {
-          "kind": "END_OF_LINE_MINUTIAE",
-          "value": "\n"
-        }
-      ],
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "leadingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -78,21 +74,21 @@
               ]
             },
             {
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
               "kind": "DEFAULTABLE_PARAM",
               "hasDiagnostics": true,
               "diagnostics": [
                 "ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER"
               ],
               "children": [
-                {
-                  "kind": "COMMA_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
                 {
                   "kind": "LIST",
                   "children": []
@@ -131,44 +127,47 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "value": "7",
                       "trailingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "REQUIRED_PARAM",
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                             "children": [
                               {
-                                "kind": "COMMA_TOKEN",
-                                "trailingMinutiae": [
-                                  {
-                                    "kind": "WHITESPACE_MINUTIAE",
-                                    "value": " "
-                                  }
-                                ]
-                              },
+                                "kind": "COMMA_TOKEN"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "LIST",
-                                "children": []
-                              },
-                              {
-                                "kind": "INT_TYPE_DESC",
-                                "children": [
-                                  {
-                                    "kind": "INT_KEYWORD",
-                                    "trailingMinutiae": [
-                                      {
-                                        "kind": "WHITESPACE_MINUTIAE",
-                                        "value": " "
-                                      }
-                                    ]
-                                  }
-                                ]
-                              },
+                                "kind": "INT_KEYWORD"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
                                 "kind": "IDENTIFIER_TOKEN",
                                 "value": "b"
@@ -179,38 +178,49 @@
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "REST_PARAM",
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                             "children": [
                               {
-                                "kind": "COMMA_TOKEN",
-                                "trailingMinutiae": [
-                                  {
-                                    "kind": "WHITESPACE_MINUTIAE",
-                                    "value": " "
-                                  }
-                                ]
-                              },
+                                "kind": "COMMA_TOKEN"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "LIST",
-                                "children": []
-                              },
+                                "kind": "STRING_KEYWORD"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "STRING_TYPE_DESC",
-                                "children": [
-                                  {
-                                    "kind": "STRING_KEYWORD"
-                                  }
-                                ]
-                              },
-                              {
-                                "kind": "ELLIPSIS_TOKEN",
-                                "trailingMinutiae": [
-                                  {
-                                    "kind": "WHITESPACE_MINUTIAE",
-                                    "value": " "
-                                  }
-                                ]
-                              },
+                                "kind": "ELLIPSIS_TOKEN"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
                                 "kind": "IDENTIFIER_TOKEN",
                                 "value": "d"

@@ -2,20 +2,16 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -125,10 +121,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "value": "0"
                     }
                   ]
@@ -196,10 +192,10 @@
                           ]
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "3"
                             }
                           ]
@@ -293,10 +289,10 @@
                                   ]
                                 },
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "NUMERIC_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                       "value": "1"
                                     }
                                   ]
@@ -374,7 +370,12 @@
                               "kind": "FUNCTION_CALL",
                               "children": [
                                 {
-                                  "kind": "ERROR_KEYWORD"
+                                  "kind": "ERROR_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "ERROR_KEYWORD"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
@@ -389,7 +390,7 @@
                                           "kind": "STRING_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "STRING_LITERAL",
+                                              "kind": "STRING_LITERAL_TOKEN",
                                               "value": "Custom error thrown explicitly."
                                             }
                                           ]
@@ -415,34 +416,29 @@
                           ]
                         },
                         {
-                          "kind": "ACTION_STATEMENT",
+                          "kind": "FAIL_STATEMENT",
                           "children": [
                             {
-                              "kind": "FAIL_EXPRESSION",
+                              "kind": "FAIL_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "        "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
-                                  "kind": "FAIL_KEYWORD",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "        "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "err"
-                                    }
-                                  ]
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "err"
                                 }
                               ]
                             },
@@ -577,7 +573,7 @@
                                               "kind": "STRING_LITERAL",
                                               "children": [
                                                 {
-                                                  "kind": "STRING_LITERAL",
+                                                  "kind": "STRING_LITERAL_TOKEN",
                                                   "value": "Exception thrown..."
                                                 }
                                               ]

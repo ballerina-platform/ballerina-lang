@@ -143,6 +143,7 @@
             <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
             <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
             <class name="org.ballerinalang.test.statements.transaction.TransactionStmtTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.RetryTransactionBlockStmtOutcomesTest"/>
             <class name="org.ballerinalang.test.statements.transaction.NestedTransactionTest"/>
             <class name="org.ballerinalang.test.statements.transaction.NestedRetryTransactionStmtsTest" />
             <class name="org.ballerinalang.test.statements.transaction.SetRollbackOnlyTest" />
@@ -152,7 +153,6 @@
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest"></class>
             <class name="org.ballerinalang.test.expressions.unaryoperations.UnaryExprTest"></class>
-            <class name="org.ballerinalang.test.javainterop.arrays.JavaArrayBasicTest"></class>
             <class name="org.ballerinalang.test.statements.ifelse.IfElseStmtTest"></class>
             <class name="org.ballerinalang.test.worker.StackOverflowTest"></class>
             <class name="org.ballerinalang.test.worker.WaitForAllWorkersTest"></class>
@@ -162,7 +162,6 @@
             <class name="org.ballerinalang.test.javainterop.basic.JavaToBallerinaTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.FunctionsReturningPrimitivesTest"></class>
             <class name="org.ballerinalang.test.javainterop.basic.HandleRefersNullTest"></class>
-            <class name="org.ballerinalang.test.javainterop.arrays.JavaArrayBasicTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionInFunctionReturnsTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionsInFunctionParamsTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveTypeFunctionParamTest"></class>

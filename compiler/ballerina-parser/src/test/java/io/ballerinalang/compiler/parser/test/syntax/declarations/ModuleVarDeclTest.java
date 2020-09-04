@@ -74,4 +74,9 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
     public void testIncompleteQualifiedIdentifierInListner() {
         testFile("module-var-decl/module_var_decl_source_09.bal", "module-var-decl/module_var_decl_assert_09.json");
     }
+
+    @Test
+    public void testIncompleteModuleVarDecl() {
+        testFile("module-var-decl/module_var_decl_source_10.bal", "module-var-decl/module_var_decl_assert_10.json");
+    }
 }

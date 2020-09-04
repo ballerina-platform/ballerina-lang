@@ -37,6 +37,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
@@ -61,6 +63,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -75,13 +79,18 @@ public class Generator {
      *
      * @param module  module model to fill.
      * @param balPackage module tree.
+     * @return whether the module has any public constructs.
      */
-    public static void generateModuleConstructs(Module module, BLangPackage balPackage) {
+    public static boolean generateModuleConstructs(Module module, BLangPackage balPackage) {
+
+        boolean hasPublicConstructs = false;
 
         // Check for type definitions in the package
         for (BLangTypeDefinition typeDefinition : balPackage.getTypeDefinitions()) {
-            if (typeDefinition.getFlags().contains(Flag.PUBLIC)) {
+            if (typeDefinition.getFlags().contains(Flag.PUBLIC) &&
+                    !typeDefinition.getFlags().contains(Flag.ANONYMOUS)) {
                 createTypeDefModels(typeDefinition, module);
+                hasPublicConstructs = true;
             }
         }
 
@@ -89,6 +98,24 @@ public class Generator {
         for (BLangFunction function : balPackage.getFunctions()) {
             if (function.getFlags().contains(Flag.PUBLIC) && !function.getFlags().contains(Flag.ATTACHED)) {
                 module.functions.add(createDocForFunction(function, module));
+                hasPublicConstructs = true;
+            }
+        }
+
+        // Create the anon types
+        while (!module.linkedAnonObjects.isEmpty()) {
+            String typeName = module.linkedAnonObjects.remove();
+            BLangTypeDefinition typeDef = null;
+            for (BLangTypeDefinition typeDefinition : balPackage.getTypeDefinitions()) {
+                if (typeDefinition.name != null) {
+                    if (typeDefinition.name.value.equals(typeName)) {
+                        typeDef = typeDefinition;
+                        break;
+                    }
+                }
+            }
+            if (typeDef != null) {
+                createTypeDefModels(typeDef, module);
             }
         }
 
@@ -96,6 +123,7 @@ public class Generator {
         for (BLangAnnotation annotation : balPackage.getAnnotations()) {
             if (annotation.getFlags().contains(Flag.PUBLIC)) {
                 module.annotations.add(createDocForAnnotation(annotation, module));
+                hasPublicConstructs = true;
             }
         }
 
@@ -103,8 +131,11 @@ public class Generator {
         for (BLangConstant constant : balPackage.getConstants()) {
             if (constant.getFlags().contains(Flag.PUBLIC)) {
                 module.constants.add(createDocForConstant(constant, module));
+                hasPublicConstructs = true;
             }
         }
+
+        return hasPublicConstructs;
     }
 
     /**
@@ -221,6 +252,10 @@ public class Generator {
         if (functionNode.getParameters().size() > 0) {
             for (BLangSimpleVariable param : functionNode.getParameters()) {
                 DefaultableVariable variable = getVariable(functionNode, param, module);
+                if (param.typeNode instanceof BLangUserDefinedType &&
+                        ((BLangUserDefinedType) param.typeNode).typeName.value.contains("$anonType$")) {
+                    module.linkedAnonObjects.add(((BLangUserDefinedType) param.typeNode).typeName.value);
+                }
                 parameters.add(variable);
             }
         }
@@ -241,6 +276,14 @@ public class Generator {
             BLangType returnType = functionNode.getReturnTypeNode();
             String dataType = getTypeName(returnType);
             if (!dataType.equals("null")) {
+                // add anonymous type to be created
+                if (dataType.contains("$anonType$")) {
+                    Pattern pattern = Pattern.compile("\\$anonType\\$\\d\\d?\\d?");
+                    Matcher match = pattern.matcher(dataType);
+                    if (match.find()) {
+                        module.linkedAnonObjects.add(match.group(0));
+                    }
+                }
                 String desc = returnParamAnnotation(functionNode);
                 Variable variable = new Variable(EMPTY_STRING, desc, false, Type.fromTypeNode(returnType, module.id));
                 returnParams.add(variable);
@@ -282,11 +325,9 @@ public class Generator {
         }
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
         List<DefaultableVariable> fields = getFields(recordType, recordType.fields, documentationNode, module);
-        // only add records that are not empty
-        if (!fields.isEmpty()) {
-            module.records.add(new Record(recordName, description(typeDefinition),
-                    isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, fields));
-        }
+        module.records.add(new Record(recordName, description(typeDefinition),
+                isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, recordType.sealed,
+                fields));
     }
 
     private static List<DefaultableVariable> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
@@ -307,6 +348,10 @@ public class Generator {
                         } else {
                             defaultValue = ((BLangTypeInit) param.getInitialExpression()).getType().toString();
                         }
+                    } else if (param.getInitialExpression() instanceof BLangLiteral &&
+                                param.getInitialExpression().expectedType.getKind() == TypeKind.STRING &&
+                                param.getInitialExpression().toString().equals("")) {
+                        defaultValue = "\"\"";
                     } else {
                         defaultValue = param.getInitialExpression().toString();
                     }
@@ -314,6 +359,9 @@ public class Generator {
                 DefaultableVariable field = new DefaultableVariable(name, desc,
                         isDeprecated(param.getAnnotationAttachments()),
                         Type.fromTypeNode(param.typeNode, param.type, module.id), defaultValue);
+                if (param.getFlags().contains(Flag.OPTIONAL)) {
+                    field.type.isNullable = true;
+                }
                 fields.add(field);
             }
         }

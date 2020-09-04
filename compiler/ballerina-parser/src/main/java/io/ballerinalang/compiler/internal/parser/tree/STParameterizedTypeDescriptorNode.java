@@ -32,69 +32,49 @@ import java.util.Collections;
  */
 public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode parameterizedType;
-    public final STNode ltToken;
-    public final STNode typeNode;
-    public final STNode gtToken;
+    public final STNode typeParameter;
 
     STParameterizedTypeDescriptorNode(
             STNode parameterizedType,
-            STNode ltToken,
-            STNode typeNode,
-            STNode gtToken) {
+            STNode typeParameter) {
         this(
                 parameterizedType,
-                ltToken,
-                typeNode,
-                gtToken,
+                typeParameter,
                 Collections.emptyList());
     }
 
     STParameterizedTypeDescriptorNode(
             STNode parameterizedType,
-            STNode ltToken,
-            STNode typeNode,
-            STNode gtToken,
+            STNode typeParameter,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.PARAMETERIZED_TYPE_DESC, diagnostics);
         this.parameterizedType = parameterizedType;
-        this.ltToken = ltToken;
-        this.typeNode = typeNode;
-        this.gtToken = gtToken;
+        this.typeParameter = typeParameter;
 
         addChildren(
                 parameterizedType,
-                ltToken,
-                typeNode,
-                gtToken);
+                typeParameter);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STParameterizedTypeDescriptorNode(
                 this.parameterizedType,
-                this.ltToken,
-                this.typeNode,
-                this.gtToken,
+                this.typeParameter,
                 diagnostics);
     }
 
     public STParameterizedTypeDescriptorNode modify(
             STNode parameterizedType,
-            STNode ltToken,
-            STNode typeNode,
-            STNode gtToken) {
+            STNode typeParameter) {
         if (checkForReferenceEquality(
                 parameterizedType,
-                ltToken,
-                typeNode,
-                gtToken)) {
+                typeParameter)) {
             return this;
         }
 
         return new STParameterizedTypeDescriptorNode(
                 parameterizedType,
-                ltToken,
-                typeNode,
-                gtToken,
+                typeParameter,
                 diagnostics);
     }
 

@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -380,15 +375,12 @@
                     },
                     {
                       "kind": "MATCH_CLAUSE",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
-                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "TYPED_BINDING_PATTERN",
-                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "VAR_KEYWORD",
@@ -407,30 +399,13 @@
                                 },
                                 {
                                   "kind": "LIST_BINDING_PATTERN",
-                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "OPEN_BRACKET_TOKEN"
                                     },
                                     {
                                       "kind": "LIST",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "CAPTURE_BINDING_PATTERN",
-                                          "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_IDENTIFIER"
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
+                                      "children": []
                                     },
                                     {
                                       "kind": "CLOSE_BRACKET_TOKEN",
@@ -641,7 +616,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "east",
                                   "leadingMinutiae": [
                                     {
@@ -702,7 +677,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "west",
                                   "leadingMinutiae": [
                                     {

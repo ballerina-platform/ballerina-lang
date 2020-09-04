@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.sourcegen;
 
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSTestOperationContext;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -23,7 +24,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.slf4j.Logger;
@@ -58,11 +58,14 @@ public class SourceGenTest {
             .toAbsolutePath();
     private List<File> ballerinaTestResources;
     private Endpoint serviceEndpoint;
+    private WorkspaceDocumentManager documentManager;
     private static final Logger log = LoggerFactory.getLogger(SourceGenTest.class);
 
     @BeforeClass
     public void loadExampleFiles() throws IOException {
-        this.serviceEndpoint = TestUtil.initializeLanguageSever();
+        Pair<Endpoint, WorkspaceDocumentManager> pair = TestUtil.initializeLanguageSeverAndGetDocManager();
+        this.serviceEndpoint = pair.getLeft();
+        this.documentManager = pair.getRight();
         this.ballerinaTestResources = getBallerinaUnitTestFiles();
     }
 
@@ -75,7 +78,6 @@ public class SourceGenTest {
             Path filePath = Paths.get(file.getPath());
             formatContext.put(DocumentServiceKeys.FILE_URI_KEY, filePath.toUri().toString());
 
-            WorkspaceDocumentManager documentManager = WorkspaceDocumentManagerImpl.getInstance();
             byte[] encoded1 = Files.readAllBytes(filePath);
             String expected = new String(encoded1, StandardCharsets.UTF_8);
             TestUtil.openDocument(serviceEndpoint, filePath);

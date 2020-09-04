@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConstructs a value with a specified type by cloning another value.  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed  \n  \n**Returns** `(anydata|error)`   \n- a new value that belongs to `t`, or an error if this cannot be done  \n  \nWhen `v` is a structural value, the inherent type of the value to be constructed  \ncomes from `t`. When `t` is a union, it must be possible to determine which  \nmember of the union to use for the inherent type by following the same rules  \nthat are used by list constructor expressions and mapping constructor expressions  \nwith the contextually expected type. If not, then an error is returned.  \nThe `constructFrom` operation is recursively applied to each member of `v` using  \nthe type descriptor that the inherent type requires for that member.  \n  \nLike the Clone abstract operation, this does a deep copy, but differs in  \nthe following respects:  \n- the inherent type of any structural values constructed comes from the specified  \n  type descriptor rather than the value being constructed  \n- the read-only bit of values and fields comes from the specified type descriptor  \n- the graph structure of `v` is not preserved; the result will always be a tree;  \n  an error will be returned if `v` has cycles  \n- immutable structural values are copied rather being returned as is; all  \n  structural values in the result will be mutable, except for error values  \n  (which are always immutable)  \n- numeric values can be converted using the NumericConvert abstract operation  \n- if a record type descriptor specifies default values, these will be used  \n  to supply any missing members  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen `v` is a structural value, the inherent type of the value to be constructed\ncomes from `t`. When `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `constructFrom` operation is recursively applied to each member of `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable, except for error values\n(which are always immutable)\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed  \n  \n**Returns** `(anydata|error)`   \n- a new value that belongs to `t`, or an error if this cannot be done  \n  \n"
         }
       },
       "sortText": "120",
@@ -104,7 +104,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\nThe iterator will iterate over the members of the map not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Returns** ``   \n- a new iterator object that will iterate over the members of `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\nThe iterator will iterate over the members of the map not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Returns** ``   \n- a new iterator object that will iterate over the members of `m`  \n  \n  \n"
         }
       },
       "sortText": "120",
@@ -136,7 +136,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Returns** `(any|error)[]`   \n- an array whose members are the members of `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Returns** `(any|error)[]`   \n- an array whose members are the members of `m`  \n  \n  \n"
         }
       },
       "sortText": "120",
@@ -190,7 +190,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining parameter `func`  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining parameter `func`\n  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n  \n"
         }
       },
       "sortText": "120",
@@ -282,7 +282,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nMerges two json values.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- the merge of `j1` with `j2` or an error if the merge fails  \n  \nThe merge of `j1` with `j2` is defined as follows:  \n- if `j1` is `()`, then the result is `j2`  \n- if `j2` is `()`, then the result is `j1`  \n- if `j1` is a mapping and `j2` is a mapping, then for each entry [k, j] in j2,  \n  set `j1[k]` to the merge of `j1[k]` with `j`  \n    - if `j1[k]` is undefined, then set `j1[k]` to `j`  \n    - if any merge fails, then the merge of `j1` with `j2` fails  \n    - otherwise, the result is `j1`.  \n- otherwise, the merge fails  \nIf the merge fails, then `j1` is unchanged.  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nMerges two json values.\n\n\nThe merge of `j1` with `j2` is defined as follows:\n- if `j1` is `()`, then the result is `j2`\n\n- if `j2` is `()`, then the result is `j1`\n\n- if `j1` is a mapping and `j2` is a mapping, then for each entry [k, j] in j2,\nset `j1[k]` to the merge of `j1[k]` with `j`\n\n- if `j1[k]` is undefined, then set `j1[k]` to `j`\n\n- if any merge fails, then the merge of `j1` with `j2` fails\n- otherwise, the result is `j1`.\n- otherwise, the merge fails\nIf the merge fails, then `j1` is unchanged.  \n**Params**  \n- `json` j2  \n  \n**Returns** `(json|error)`   \n- the merge of `j1` with `j2` or an error if the merge fails  \n  \n"
         }
       },
       "sortText": "120",
@@ -392,7 +392,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `(any|error)`   \n- the member of `m` that had key `k`  \nThis removed the member of `m` with key `k` and returns it.  \nIt panics if there is no such member.  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map.\n\nThis removed the member of `m` with key `k` and returns it.\nIt panics if there is no such member.  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `(any|error)`   \n- the member of `m` that had key `k`  \n  \n  \n"
         }
       },
       "sortText": "120",
@@ -424,7 +424,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns the member of map `m` with key `k`.\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if `m` does not have a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `(any|error)`   \n- member with key `k`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns the member of map `m` with key `k`.\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if `m` does not have a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `(any|error)`   \n- member with key `k`  \n  \n  \n"
         }
       },
       "sortText": "120",
@@ -460,11 +460,29 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nTests whether m has a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `boolean`   \n- true if m has a member with key `k`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nTests whether m has a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `boolean`   \n- true if m has a member with key `k`  \n  \n  \n"
         }
       },
       "sortText": "120",
       "insertText": "hasKey(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "createOrderByFunction(boolean[] sortTypes, stream<(any|error),error?><(any|error)> strm, (any|error)[] arr)(stream<(any|error),error?><(any|error)>)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n**Params**  \n- `boolean[]` sortTypes  \n- `stream<(any|error),error?><(any|error)>` strm  \n- `(any|error)[]` arr"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createOrderByFunction(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -514,7 +532,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns number of members of a map.\n  \n  \n  \n**Returns** `int`   \n- number of members in `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns number of members of a map.\n  \n  \n  \n**Returns** `int`   \n- number of members in `m`  \n  \n  \n"
         }
       },
       "sortText": "120",
@@ -542,7 +560,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `((any|error)|())`   \n- the member of `m` that had key `k`, or `()` if `m` does not have a key `k`  \nIf `m` has a member with key `k`, it removes and returns it;  \notherwise it returns `()`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n\nIf `m` has a member with key `k`, it removes and returns it;\notherwise it returns `()`.  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `((any|error)|())`   \n- the member of `m` that had key `k`, or `()` if `m` does not have a key `k`  \n  \n  \n"
         }
       },
       "sortText": "120",

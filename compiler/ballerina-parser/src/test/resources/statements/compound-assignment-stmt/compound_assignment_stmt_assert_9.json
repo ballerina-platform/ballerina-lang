@@ -3,20 +3,16 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -88,60 +84,69 @@
                       ],
                       "leadingMinutiae": [
                         {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        },
+                        {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "FIELD_ACCESS",
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                             "children": [
                               {
-                                "kind": "FUNCTION_CALL",
-                                "children": [
-                                  {
-                                    "kind": "SIMPLE_NAME_REFERENCE",
-                                    "children": [
-                                      {
-                                        "kind": "IDENTIFIER_TOKEN",
-                                        "value": "foo",
-                                        "leadingMinutiae": [
-                                          {
-                                            "kind": "WHITESPACE_MINUTIAE",
-                                            "value": "    "
-                                          }
-                                        ]
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    "kind": "OPEN_PAREN_TOKEN"
-                                  },
-                                  {
-                                    "kind": "LIST",
-                                    "children": []
-                                  },
-                                  {
-                                    "kind": "CLOSE_PAREN_TOKEN"
-                                  }
-                                ]
-                              },
-                              {
-                                "kind": "DOT_TOKEN"
-                              },
-                              {
-                                "kind": "SIMPLE_NAME_REFERENCE",
-                                "children": [
-                                  {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "bar",
-                                    "trailingMinutiae": [
-                                      {
-                                        "kind": "WHITESPACE_MINUTIAE",
-                                        "value": " "
-                                      }
-                                    ]
-                                  }
-                                ]
+                                "kind": "IDENTIFIER_TOKEN",
+                                "value": "foo"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
+                              {
+                                "kind": "OPEN_PAREN_TOKEN"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
+                              {
+                                "kind": "CLOSE_PAREN_TOKEN"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
+                              {
+                                "kind": "DOT_TOKEN"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
+                              {
+                                "kind": "IDENTIFIER_TOKEN",
+                                "value": "bar"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ]
                     }
@@ -163,10 +168,10 @@
                   "kind": "BINARY_EXPRESSION",
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "4",
                           "trailingMinutiae": [
                             {
@@ -187,10 +192,10 @@
                       ]
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "6"
                         }
                       ]
@@ -265,10 +270,10 @@
                   "kind": "BINARY_EXPRESSION",
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "4",
                           "trailingMinutiae": [
                             {
@@ -289,10 +294,10 @@
                       ]
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "6"
                         }
                       ]
@@ -341,10 +346,10 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "4"
                                 }
                               ]
@@ -392,10 +397,10 @@
                   "kind": "BINARY_EXPRESSION",
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "4",
                           "trailingMinutiae": [
                             {
@@ -416,10 +421,10 @@
                       ]
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "6"
                         }
                       ]

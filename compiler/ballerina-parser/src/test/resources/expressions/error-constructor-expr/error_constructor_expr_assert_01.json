@@ -2,20 +2,16 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -128,7 +124,12 @@
                   "kind": "FUNCTION_CALL",
                   "children": [
                     {
-                      "kind": "ERROR_KEYWORD"
+                      "kind": "ERROR_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "ERROR_KEYWORD"
+                        }
+                      ]
                     },
                     {
                       "kind": "OPEN_PAREN_TOKEN"
@@ -143,7 +144,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "ERROR_REASON"
                                 }
                               ]
@@ -190,7 +191,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "error message"
                                 }
                               ]

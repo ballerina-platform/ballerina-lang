@@ -1,3 +1,0 @@
-function testFunction() {
-    int a = 
-}

@@ -96,6 +96,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -262,6 +264,8 @@ public class BLangPackageBuilder {
     private Stack<List<BLangVariable>> varListStack = new Stack<>();
 
     private Stack<List<BLangLetVariable>> letVarListStack = new Stack<>();
+
+    private Stack<BLangOrderKey> orderKeyListStack = new Stack<>();
 
     private Stack<List<BLangRecordVariableKeyValue>> recordVarListStack = new Stack<>();
 
@@ -2083,9 +2087,29 @@ public class BLangPackageBuilder {
         BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
         onClause.addWS(ws);
         onClause.pos = pos;
-        onClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        onClause.rhsExpr = (BLangExpression) this.exprNodeStack.pop();
+        onClause.lhsExpr = (BLangExpression) this.exprNodeStack.pop();
         BLangJoinClause joinClause = (BLangJoinClause) inputClauseStack.peek();
         joinClause.onClause = onClause;
+    }
+
+    void createOrderByKey(DiagnosticPos pos, Set<Whitespace> ws, boolean isAscending) {
+        BLangOrderKey orderKey = (BLangOrderKey) TreeBuilder.createOrderKeyNode();
+        orderKey.pos = pos;
+        orderKey.setOrderKey(this.exprNodeStack.pop());
+        orderKey.setOrderDirection(isAscending);
+        orderKeyListStack.push(orderKey);
+    }
+
+    void createOrderByClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangOrderByClause orderByClause = (BLangOrderByClause) TreeBuilder.createOrderByClauseNode();
+        orderByClause.addWS(ws);
+        orderByClause.pos = pos;
+        Collections.reverse(orderKeyListStack);
+        while (orderKeyListStack.size() > 0) {
+            orderByClause.addOrderKey(orderKeyListStack.pop());
+        }
+        queryClauseStack.push(orderByClause);
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {

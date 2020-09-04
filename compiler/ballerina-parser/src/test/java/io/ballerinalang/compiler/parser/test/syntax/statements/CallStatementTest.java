@@ -36,6 +36,11 @@ public class CallStatementTest extends AbstractStatementTest {
         testFile("call-stmt/call_stmt_source_02.bal", "call-stmt/call_stmt_assert_02.json");
     }
 
+    @Test
+    public void testCallStmtWithMethodCall() {
+        testFile("call-stmt/call_stmt_source_08.bal", "call-stmt/call_stmt_assert_08.json");
+    }
+
     // Recovery tests
 
     @Test

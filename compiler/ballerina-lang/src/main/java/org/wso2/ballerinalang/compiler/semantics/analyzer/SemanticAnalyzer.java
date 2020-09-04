@@ -60,7 +60,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -591,7 +590,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (isIgnoredOrEmpty(varNode)) {
             // Fake symbol to prevent runtime failures down the line.
-            varNode.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID, symTable.anyType, env.scope.owner);
+            varNode.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID, symTable.anyType, env.scope.owner,
+                                            varNode.pos);
         }
 
         BType lhsType = varNode.symbol.type;
@@ -1188,7 +1188,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 if (possibleTypes.size() > 1) {
                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0,
-                            names.fromString(ANONYMOUS_RECORD_NAME), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                                                                                names.fromString(ANONYMOUS_RECORD_NAME),
+                                                                                env.enclPkg.symbol.pkgID, null,
+                                                                                env.scope.owner, recordVar.pos);
                     recordVarType = (BRecordType) symTable.recordType;
 
                     LinkedHashMap<String, BField> fields =
@@ -1364,7 +1366,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return validateErrorVariable(errorVariable, errorType);
         } else if (errorType.detailType.getKind() == TypeKind.UNION) {
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
-                    env.enclPkg.packageID, symTable.errorType, env.scope.owner);
+                                                                    env.enclPkg.packageID, symTable.errorType,
+                                                                    env.scope.owner, errorVariable.pos);
             // TODO: detail type need to be a union representing all details of members of `errorType`
             errorVariable.type = new BErrorType(errorTypeSymbol, symTable.detailType);
             return validateErrorVariable(errorVariable);
@@ -1494,7 +1497,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private BTypeSymbol createTypeSymbol(int type) {
         return new BTypeSymbol(type, Flags.PUBLIC, Names.EMPTY, env.enclPkg.packageID,
-                            null, env.scope.owner);
+                               null, env.scope.owner, symTable.builtinPos); // TODO: Check with Dhananjaya
     }
 
     /**
@@ -1543,7 +1546,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     BUnionType.create(null, memberTypes) : memberTypes.iterator().next();
             BField field = new BField(names.fromString(fieldName), recordVar.pos,
                                       new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                                     fieldType, recordSymbol));
+                                                     fieldType, recordSymbol, recordVar.pos));
             fields.put(field.name.value, field);
         }
         return fields;
@@ -1558,14 +1561,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(ANONYMOUS_RECORD_NAME),
-                env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                                                                    recordVar.pos);
         //TODO check below field position
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
             String fieldName = bLangRecordVariableKeyValue.key.value;
             BField bField = new BField(names.fromString(fieldName), recordVar.pos,
                                        new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                                      fieldType, recordSymbol));
+                                                      fieldType, recordSymbol, recordVar.pos));
             fields.put(fieldName, bField);
         }
 
@@ -2602,11 +2606,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env);
         this.analyzeNode(workerNode.body, workerEnv);
     }
-
-    @Override
-    public void visit(BLangEndpoint endpointNode) {
-    }
-
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {

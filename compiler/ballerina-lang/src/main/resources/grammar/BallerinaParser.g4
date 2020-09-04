@@ -836,7 +836,6 @@ expression
     |   expression (LT | GT | LT_EQUAL | GT_EQUAL) expression               # binaryCompareExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
-    |   expression JOIN_EQUALS expression                                   # binaryEqualsExpression
     |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
@@ -920,8 +919,20 @@ selectClause
     :   SELECT expression
     ;
 
+orderDirection
+    :   ASCENDING|DESCENDING
+    ;
+
+orderKey
+    :   expression orderDirection?
+    ;
+
+orderByClause
+    :   ORDER BY orderKey (COMMA orderKey)*
+    ;
+
 onClause
-    :   ON expression
+    :   ON expression JOIN_EQUALS expression
     ;
 
 whereClause
@@ -933,7 +944,7 @@ letClause
     ;
 
 joinClause
-    :   (JOIN (typeName | VAR) bindingPattern | OUTER JOIN (typeName | VAR) bindingPattern) IN expression onClause?
+    :   (JOIN (typeName | VAR) bindingPattern | OUTER JOIN (typeName | VAR) bindingPattern) IN expression onClause
     ;
 
 fromClause
@@ -957,7 +968,7 @@ queryConstructType
     ;
 
 queryExpr
-    :   queryConstructType? queryPipeline selectClause onConflictClause? limitClause?
+    :   queryConstructType? queryPipeline orderByClause? selectClause onConflictClause? limitClause?
     ;
 
 queryAction

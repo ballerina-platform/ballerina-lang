@@ -40,18 +40,19 @@ public class BallerinaApiDocsTestCase extends BaseTest {
     private static final String DOCS = "docs";
     private static final String INDEX_HTML = "index.html";
 
-    @Test(description = "Test docs directory generated in the server home")
+    @Test(enabled = false, description = "Test docs directory generated in the server home")
     public void testDocsDirectory() {
         Assert.assertTrue(Files.exists(Paths.get(balServer.getServerHome(), DOCS)));
         Assert.assertTrue(Files.exists(Paths.get(balServer.getServerHome(), DOCS, INDEX_HTML)));
     }
 
-    @Test(description = "Test docs directories of bir-cache modules", dependsOnMethods = "testDocsDirectory")
+    @Test(enabled = false, description = "Test docs directories of bir-cache modules",
+            dependsOnMethods = "testDocsDirectory")
     public void testBirCacheModuleDocs() throws BallerinaTestException {
         PrintStream out = System.out;
         List<String> skipModules = new ArrayList<>(
-                Arrays.asList("ldap", "lang.__internal", "lang.annotations", "mysql", "sql", "testobserve",
-                        "java.jdbc"));
+                Arrays.asList("lang.__internal", "lang.annotations", "testobserve",
+                        "lang.query", "lang.typedesc"));
         Path birCacheBallerinaDir = Paths.get(balServer.getServerHome(), "bir-cache", "ballerina");
         File[] birCacheBalDirFiles = new File(String.valueOf(birCacheBallerinaDir)).listFiles();
 
@@ -69,7 +70,7 @@ public class BallerinaApiDocsTestCase extends BaseTest {
         }
     }
 
-    @Test(description = "Test auth module docs", dependsOnMethods = "testBirCacheModuleDocs")
+    @Test(enabled = false, description = "Test auth module docs", dependsOnMethods = "testBirCacheModuleDocs")
     public void testAuthModuleDocs() {
         Path authDocsDir = Paths.get(balServer.getServerHome(), DOCS, "auth");
         Assert.assertTrue(Files.exists(authDocsDir));

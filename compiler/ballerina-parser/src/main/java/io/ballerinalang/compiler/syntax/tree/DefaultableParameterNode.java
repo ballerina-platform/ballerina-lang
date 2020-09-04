@@ -33,32 +33,24 @@ public class DefaultableParameterNode extends ParameterNode {
         super(internalNode, position, parent);
     }
 
-    public Optional<Token> leadingComma() {
-        return optionalChildInBucket(0);
-    }
-
     public NodeList<AnnotationNode> annotations() {
-        return new NodeList<>(childInBucket(1));
-    }
-
-    public Optional<Token> visibilityQualifier() {
-        return optionalChildInBucket(2);
+        return new NodeList<>(childInBucket(0));
     }
 
     public Node typeName() {
-        return childInBucket(3);
+        return childInBucket(1);
     }
 
     public Optional<Token> paramName() {
-        return optionalChildInBucket(4);
+        return optionalChildInBucket(2);
     }
 
     public Token equalsToken() {
-        return childInBucket(5);
+        return childInBucket(3);
     }
 
     public Node expression() {
-        return childInBucket(6);
+        return childInBucket(4);
     }
 
     @Override
@@ -74,9 +66,7 @@ public class DefaultableParameterNode extends ParameterNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "leadingComma",
                 "annotations",
-                "visibilityQualifier",
                 "typeName",
                 "paramName",
                 "equalsToken",
@@ -84,17 +74,13 @@ public class DefaultableParameterNode extends ParameterNode {
     }
 
     public DefaultableParameterNode modify(
-            Token leadingComma,
             NodeList<AnnotationNode> annotations,
-            Token visibilityQualifier,
             Node typeName,
             Token paramName,
             Token equalsToken,
             Node expression) {
         if (checkForReferenceEquality(
-                leadingComma,
                 annotations.underlyingListNode(),
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -103,9 +89,7 @@ public class DefaultableParameterNode extends ParameterNode {
         }
 
         return NodeFactory.createDefaultableParameterNode(
-                leadingComma,
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -123,9 +107,7 @@ public class DefaultableParameterNode extends ParameterNode {
      */
     public static class DefaultableParameterNodeModifier {
         private final DefaultableParameterNode oldNode;
-        private Token leadingComma;
         private NodeList<AnnotationNode> annotations;
-        private Token visibilityQualifier;
         private Node typeName;
         private Token paramName;
         private Token equalsToken;
@@ -133,33 +115,17 @@ public class DefaultableParameterNode extends ParameterNode {
 
         public DefaultableParameterNodeModifier(DefaultableParameterNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma().orElse(null);
             this.annotations = oldNode.annotations();
-            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.typeName = oldNode.typeName();
             this.paramName = oldNode.paramName().orElse(null);
             this.equalsToken = oldNode.equalsToken();
             this.expression = oldNode.expression();
         }
 
-        public DefaultableParameterNodeModifier withLeadingComma(
-                Token leadingComma) {
-            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
-            this.leadingComma = leadingComma;
-            return this;
-        }
-
         public DefaultableParameterNodeModifier withAnnotations(
                 NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
-            return this;
-        }
-
-        public DefaultableParameterNodeModifier withVisibilityQualifier(
-                Token visibilityQualifier) {
-            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
-            this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
@@ -193,9 +159,7 @@ public class DefaultableParameterNode extends ParameterNode {
 
         public DefaultableParameterNode apply() {
             return oldNode.modify(
-                    leadingComma,
                     annotations,
-                    visibilityQualifier,
                     typeName,
                     paramName,
                     equalsToken,

@@ -1595,7 +1595,7 @@ public class Types {
 
         if (unionType.getMemberTypes().size() > 1) {
             unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                    Names.EMPTY, recordType.tsymbol.pkgID, null, recordType.tsymbol.owner);
+                    Names.EMPTY, recordType.tsymbol.pkgID, null, recordType.tsymbol.owner, symTable.builtinPos);
             return unionType;
         }
 
@@ -2574,7 +2574,7 @@ public class Types {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
                                                                 names.fromString("$anonType$" + finiteTypeCount++),
                                                                 finiteType.tsymbol.pkgID, null,
-                                                                finiteType.tsymbol.owner);
+                                                                finiteType.tsymbol.owner, finiteType.tsymbol.pos);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3050,7 +3050,7 @@ public class Types {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
                                                                 names.fromString("$anonType$" + finiteTypeCount++),
                                                                 originalType.tsymbol.pkgID, null,
-                                                                originalType.tsymbol.owner);
+                                                                originalType.tsymbol.owner, originalType.tsymbol.pos);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3431,5 +3431,66 @@ public class Types {
             return true;
         }
         return hasFillerValue(type.eType);
+    }
+
+    /**
+     * Get result type of the query output.
+     *
+     * @param type type of query expression.
+     * @return result type.
+     */
+    public BType resolveExprType(BType type) {
+        switch (type.tag) {
+            case TypeTags.STREAM:
+                return ((BStreamType) type).constraint;
+            case TypeTags.TABLE:
+                return ((BTableType) type).constraint;
+            case TypeTags.ARRAY:
+                return ((BArrayType) type).eType;
+            case TypeTags.UNION:
+                List<BType> exprTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
+                for (BType returnType : exprTypes) {
+                    switch (returnType.tag) {
+                        case TypeTags.STREAM:
+                            return ((BStreamType) returnType).constraint;
+                        case TypeTags.TABLE:
+                            return ((BTableType) returnType).constraint;
+                        case TypeTags.ARRAY:
+                            return ((BArrayType) returnType).eType;
+                        case TypeTags.STRING:
+                        case TypeTags.XML:
+                            return returnType;
+                    }
+                }
+            default:
+                return type;
+        }
+    }
+
+    /**
+     * Check whether a order-key expression type is a basic type.
+     *
+     * @param type type of the order-key expression.
+     * @return boolean whether the type is basic type or not.
+     */
+    public boolean isBasicType(BType type) {
+        switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+            case TypeTags.NIL:
+                return true;
+            case TypeTags.UNION:
+                if (((BUnionType) type).getMemberTypes().contains(symTable.nilType)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            default:
+                return false;
+        }
     }
 }
