@@ -57,7 +57,6 @@ import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.FailExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternNode;
@@ -1741,19 +1740,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withInKeyword(formatToken(inKeyword, 1, 1, 0,  0))
                 .withActionOrExpressionNode(actionOrExpressionNode)
                 .withBlockStatement(blockStatement)
-                .apply();
-    }
-
-    @Override
-    public FailExpressionNode transform(FailExpressionNode failExpressionNode) {
-        if (!isInLineRange(failExpressionNode)) {
-            return failExpressionNode;
-        }
-        Token failKeyword = getToken(failExpressionNode.failKeyword());
-        ExpressionNode expression = this.modifyNode(failExpressionNode.expression());
-        return failExpressionNode.modify()
-                .withFailKeyword(formatToken(failKeyword, 0, 0, 0, 0))
-                .withExpression(expression)
                 .apply();
     }
 
