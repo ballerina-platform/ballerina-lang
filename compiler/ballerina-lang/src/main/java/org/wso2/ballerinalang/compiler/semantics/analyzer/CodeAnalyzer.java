@@ -84,8 +84,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -1381,7 +1381,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean statementReturns = this.statementReturns;
         boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(doNode);
-        if(doNode.onFailClause != null) {
+        if (doNode.onFailClause != null) {
             this.failureHandled = true;
         }
         analyzeNode(doNode.body, env);
