@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.util.Objects;
@@ -39,7 +40,7 @@ public abstract class BType {
     private int hashCode;
 
     protected BType(String typeName, BPackage pkg, Class<? extends Object> valueClass) {
-        this.typeName = typeName;
+        this.typeName = RuntimeUtils.decodeTypeName(typeName);
         this.pkg = pkg;
         this.valueClass = valueClass;
         if (pkg != null && typeName != null) {

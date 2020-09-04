@@ -34,6 +34,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
@@ -48,6 +50,7 @@ public class RuntimeUtils {
 
     private static final String CRASH_LOGGER = "b7a.log.crash";
     private static final String DEFAULT_CRASH_LOG_FILE = "ballerina-internal.log";
+    private static final String ENCODING_PATTERN = "\\$(\\d{4})";
     private static PrintStream errStream = System.err;
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
@@ -105,6 +108,20 @@ public class RuntimeUtils {
     public static boolean isByteLiteral(int intValue) {
 
         return (intValue >= BBYTE_MIN_VALUE && intValue <= BBYTE_MAX_VALUE);
+    }
+
+    public static String decodeTypeName(String typeName) {
+        if (typeName == null) {
+            return typeName;
+        }
+        Matcher matcher = Pattern.compile(ENCODING_PATTERN).matcher(typeName);
+        StringBuffer buffer = new StringBuffer(typeName.length());
+        while (matcher.find()) {
+            String character = String.valueOf((char) Integer.parseInt(matcher.group(1)));
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(character));
+        }
+        matcher.appendTail(buffer);
+        return String.valueOf(buffer).replaceAll("(\\$#)(\\d{4})", "\\$$2");
     }
 
     /**

@@ -866,7 +866,7 @@ class JvmTypeGen {
             mv.visitInsn(DUP);
 
             // Load field name
-            mv.visitLdcInsn(optionalField.name.value);
+            mv.visitLdcInsn(IdentifierEncoder.decodeIdentifiers(optionalField.name.value));
 
             // create and load field type
             createObjectField(mv, optionalField);
