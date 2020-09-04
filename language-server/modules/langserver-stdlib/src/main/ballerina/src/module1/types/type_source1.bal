@@ -15,11 +15,11 @@ type TestRecord3 record {
     string rec3Field2 = "TestRecord3";
 };
 
-public type TestObject1 object {
+public class TestObject1 {
 	int field1;
 	int field2;
 	public function init(int field1, int field2) {
 	    self.field1 = field1;
 	    self.field2 = field2;
     }
-};
+}

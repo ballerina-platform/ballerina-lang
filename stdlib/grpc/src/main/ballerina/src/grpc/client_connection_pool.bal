@@ -32,7 +32,7 @@ public type PoolConfiguration record {|
 
 //This is a hack to get the global map initialized, without involving locking.
 class ConnectionManager {
-    private PoolConfiguration poolConfig = {}
+    private PoolConfiguration poolConfig = {};
 
     public function init() {
         self.initGlobalPool(self.poolConfig);
@@ -45,7 +45,7 @@ class ConnectionManager {
     public function getPoolConfiguration() returns PoolConfiguration {
         return self.poolConfig;
     }
-};
+}
 
 function externInitGlobalPool(ConnectionManager connectionManager, PoolConfiguration poolConfig) =
 @java:Method {

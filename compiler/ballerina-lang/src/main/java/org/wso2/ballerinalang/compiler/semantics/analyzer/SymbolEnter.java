@@ -2088,7 +2088,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineUndefinedReadOnlyTypes(List<BLangTypeDefinition> typeDefNodes, List<BLangNode> typDefs, SymbolEnv pkgEnv) {
+    private void defineUndefinedReadOnlyTypes(List<BLangTypeDefinition> typeDefNodes, List<BLangNode> typDefs,
+                                              SymbolEnv pkgEnv) {
         // Any newly added typedefs are due to `T & readonly` typed fields. Once the fields are set for all
         // type-definitions we can revisit the newly added type-definitions and define the fields and members for them.
         populateImmutableTypeFieldsAndMembers(typeDefNodes, pkgEnv);

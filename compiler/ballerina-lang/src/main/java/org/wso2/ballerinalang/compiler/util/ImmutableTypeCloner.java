@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -60,7 +59,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -132,7 +130,8 @@ public class ImmutableTypeCloner {
                                                                   BSymbol owner, SymbolTable symTable,
                                                                   BLangAnonymousModelHelper anonymousModelHelper,
                                                                   Names names,
-                                                                  Set<Flag> origObjFlagSet, Set<BType> unresolvedTypes) {
+                                                                  Set<Flag> origObjFlagSet,
+                                                                  Set<BType> unresolvedTypes) {
         BType origBType =  (BType) type;
         if (origBType.tag == TypeTags.INTERSECTION && Symbols.isFlagOn(origBType.flags, Flags.READONLY)) {
             return (BIntersectionType) origBType;

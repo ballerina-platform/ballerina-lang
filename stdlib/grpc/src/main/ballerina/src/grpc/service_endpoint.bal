@@ -25,7 +25,7 @@ public class Listener {
     *lang:Listener;
 
     private int port = 0;
-    private ListenerConfiguration config = {}
+    private ListenerConfiguration config = {};
 
 # Starts the registered service.
 # ```ballerina
@@ -92,7 +92,7 @@ public class Listener {
             panic err;
         }
     }
-};
+}
 
 # The stream iterator object that is used to iterate through the stream messages.
 #
@@ -109,7 +109,7 @@ class StreamIterator {
                 self.isClosed = true;
                 return EOS("End of stream reached");
             }
-            return {value: result}
+            return {value: result};
         } else if (result is handle) {
             return {value: java:toString(result)};
         } else {
@@ -125,7 +125,7 @@ class StreamIterator {
             return StreamClosedError("Stream is closed. Therefore, no operations are allowed further on the stream.");
         }
     }
-};
+}
 
 function externInitEndpoint(Listener listenerObject) returns error? =
 @java:Method {

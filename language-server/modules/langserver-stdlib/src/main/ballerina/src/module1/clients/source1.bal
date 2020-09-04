@@ -25,10 +25,10 @@ public client class Client {
 #
 # + statusCode - The response status code
 # + reasonPhrase - The status code reason phrase
-public type Response object {
+public class Response {
     public int statusCode = 200;
     public string reasonPhrase = "Test Reason phrase";
-};
+}
 
 # The types of messages that are accepted by HTTP `listener` when sending out the outbound response.
 public type ResponseMessage string|xml|json|byte[]|();

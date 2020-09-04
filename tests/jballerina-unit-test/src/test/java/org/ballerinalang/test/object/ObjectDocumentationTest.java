@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 
 /**
  * Test cases for user defined documentation attachment in ballerina.
