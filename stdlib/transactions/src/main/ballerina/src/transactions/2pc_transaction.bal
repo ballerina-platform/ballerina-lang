@@ -24,7 +24,7 @@ class TwoPhaseCommitTransaction {
     string transactionBlockId;
     string coordinationType;
     boolean isInitiated = false; // Indicates whether this is a transaction that was initiated or is participated in
-    map<Participant> participants = {}
+    map<Participant> participants = {};
     UProtocol?[] coordinatorProtocols = [];
     int createdTime = time:currentTime().time;
     TransactionState state = TXN_STATE_ACTIVE;
@@ -279,4 +279,4 @@ class TwoPhaseCommitTransaction {
             log:printError(failedMessage);
         }
     }
-};
+}

@@ -78,7 +78,7 @@ public class OutboundOAuth2Provider {
             accessToken: "",
             refreshToken: "",
             expTime: 0
-        }
+        };
     }
 
 # Generate a token for the OAuth2 authentication.
@@ -129,7 +129,7 @@ public class OutboundOAuth2Provider {
             return ();
         }
     }
-};
+}
 
 # The data structure, which is used to configure the OAuth2 client credentials grant type.
 #

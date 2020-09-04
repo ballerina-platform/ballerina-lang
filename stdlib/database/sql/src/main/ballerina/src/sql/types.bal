@@ -366,7 +366,7 @@ class ResultIterator {
             if (result is record {}) {
                 record {|
                     record {} value;
-                |} streamRecord = {value: result}
+                |} streamRecord = {value: result};
                 return streamRecord;
             } else if (result is Error) {
                 self.err = result;
@@ -390,7 +390,7 @@ class ResultIterator {
             }
         }
     }
-};
+}
 
 # Represents SQL OutParameter used in procedure calls.
 public class OutParameter {
