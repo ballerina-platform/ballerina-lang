@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter.evaluation;
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
@@ -39,6 +40,7 @@ import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.ConditionalExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.FieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator;
@@ -220,6 +222,20 @@ public class EvaluatorBuilder extends NodeVisitor {
         optionalFieldAccessExpressionNode.expression().accept(this);
         Evaluator expression = result;
         result = new OptionalFieldAccessExpressionEvaluator(context, expression, optionalFieldAccessExpressionNode);
+    }
+
+    @Override
+    public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        visitSyntaxNode(conditionalExpressionNode);
+        // Visits all the sub expressions.
+        conditionalExpressionNode.lhsExpression().accept(this);
+        Evaluator lhsExprEvaluator = result;
+        conditionalExpressionNode.middleExpression().accept(this);
+        Evaluator middleExprEvaluator = result;
+        conditionalExpressionNode.endExpression().accept(this);
+        Evaluator endExprEvaluator = result;
+        result = new ConditionalExpressionEvaluator(context, conditionalExpressionNode, lhsExprEvaluator,
+                middleExprEvaluator, endExprEvaluator);
     }
 
     @Override
@@ -476,7 +492,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addConditionalExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.CONDITIONAL_EXPRESSION);
     }
 
     private void addCheckingExpressionSyntax() {
