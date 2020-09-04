@@ -2906,7 +2906,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         for (BType errorType : errorTypes.peek()) {
             if (!types.isAssignable(errorType, onFailVarNode.type)) {
-                dlog.error(onFailVarNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, errorType, onFailClause.varType);
+                dlog.error(onFailVarNode.pos, DiagnosticCode.INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION, errorType,
+                        onFailVarNode.type);
             }
         }
         analyzeNode(onFailClause.body, env);
