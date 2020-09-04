@@ -988,6 +988,19 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseVarDeclWithFunctionType(STNode typeDesc, boolean isObjectMember, STNode qualifiers,
                                                 STNode metadata) {
         STNodeList qualifierList = (STNodeList) qualifiers;
+        if (isObjectMember) {
+            // public qualifier allowed in object field.
+            STNode readonlyQualifier = STNodeFactory.createEmptyNode();
+            STNode fieldName = parseVariableName();
+            if (qualifierList.isEmpty()) {
+                return parseObjectFieldRhs(metadata, STNodeFactory.createEmptyNode(), readonlyQualifier,
+                        typeDesc, fieldName);
+            } else {
+                return parseObjectFieldRhs(metadata, qualifiers.childInBucket(0), readonlyQualifier, typeDesc,
+                        fieldName);
+            }
+        }
+
         STNode finalKeyword = STNodeFactory.createEmptyNode();
         // Only the final keyword is allowed as a qualifier
         for (int position = 0; position < qualifierList.size(); position++) {
@@ -999,17 +1012,7 @@ public class BallerinaParser extends AbstractParser {
                         DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
             }
         }
-        if (isObjectMember) {
-            STNode readonlyQualifier = STNodeFactory.createEmptyNode();
-            STNode fieldName = parseVariableName();
-            if (qualifierList.isEmpty()) {
-                return parseObjectFieldRhs(metadata, STNodeFactory.createEmptyNode(), readonlyQualifier,
-                        typeDesc, fieldName);
-            } else {
-                return parseObjectFieldRhs(metadata, qualifiers.childInBucket(0), readonlyQualifier, typeDesc,
-                        fieldName);
-            }
-        }
+
         startContext(ParserRuleContext.VAR_DECL_STMT);
         STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
         return parseVarDeclRhs(metadata, finalKeyword, typedBindingPattern, true);
