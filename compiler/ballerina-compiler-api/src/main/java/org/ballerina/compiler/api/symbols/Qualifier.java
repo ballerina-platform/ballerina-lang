@@ -22,7 +22,7 @@ package org.ballerina.compiler.api.symbols;
  * 
  * @since 2.0.0
  */
-public enum Qualifiers {
+public enum Qualifier {
 
     PUBLIC("public"),
     PRIVATE("private"),
@@ -30,7 +30,7 @@ public enum Qualifiers {
 
     private String value;
 
-    private Qualifiers(String value) {
+    private Qualifier(String value) {
         this.value = value;
     }
 

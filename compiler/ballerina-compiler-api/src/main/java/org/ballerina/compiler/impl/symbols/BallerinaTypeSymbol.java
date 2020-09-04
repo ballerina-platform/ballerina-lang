@@ -17,7 +17,7 @@
  */
 package org.ballerina.compiler.impl.symbols;
 
-import org.ballerina.compiler.api.symbols.Qualifiers;
+import org.ballerina.compiler.api.symbols.Qualifier;
 import org.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
@@ -36,13 +36,13 @@ import java.util.Optional;
  */
 public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
 
-    private final List<Qualifiers> qualifiers;
+    private final List<Qualifier> qualifiers;
 
     private final BallerinaTypeDescriptor typeDescriptor;
 
     protected BallerinaTypeSymbol(String name,
                                  PackageID moduleID,
-                                 List<Qualifiers> qualifiers,
+                                 List<Qualifier> qualifiers,
                                  BallerinaTypeDescriptor typeDescriptor,
                                  BSymbol bSymbol) {
         super(name, moduleID, SymbolKind.TYPE, bSymbol);
@@ -56,7 +56,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
     }
 
     @Override
-    public List<Qualifiers> qualifiers() {
+    public List<Qualifier> qualifiers() {
         return qualifiers;
     }
 
@@ -72,7 +72,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
      */
     public static class TypeDefSymbolBuilder extends SymbolBuilder<TypeDefSymbolBuilder> {
 
-        protected List<Qualifiers> qualifiers = new ArrayList<>();
+        protected List<Qualifier> qualifiers = new ArrayList<>();
         protected BallerinaTypeDescriptor typeDescriptor;
 
         public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
@@ -84,7 +84,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
             return this;
         }
 
-        public TypeDefSymbolBuilder withAccessModifier(Qualifiers qualifier) {
+        public TypeDefSymbolBuilder withAccessModifier(Qualifier qualifier) {
             this.qualifiers.add(qualifier);
             return this;
         }

@@ -34,7 +34,7 @@ public interface FunctionSymbol extends Symbol {
      *
      * @return {@link List} of qualifiers
      */
-    List<Qualifiers> qualifiers();
+    List<Qualifier> qualifiers();
 
     /**
      * Get the Function Type Descriptor.

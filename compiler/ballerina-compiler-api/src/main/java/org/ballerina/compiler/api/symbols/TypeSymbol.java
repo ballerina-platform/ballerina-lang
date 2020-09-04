@@ -41,7 +41,7 @@ public interface TypeSymbol extends Symbol {
      * 
      * @return {@link List} of qualifiers
      */
-    List<Qualifiers> qualifiers();
+    List<Qualifier> qualifiers();
 
     /**
      * Type descriptor of the definition.

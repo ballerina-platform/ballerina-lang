@@ -18,7 +18,7 @@
 package org.ballerina.compiler.impl.types;
 
 import org.ballerina.compiler.api.symbols.Documentation;
-import org.ballerina.compiler.api.symbols.Qualifiers;
+import org.ballerina.compiler.api.symbols.Qualifier;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import org.ballerina.compiler.api.types.FieldDescriptor;
 import org.ballerina.compiler.impl.TypesFactory;
@@ -91,11 +91,11 @@ public class BallerinaFieldDescriptor implements FieldDescriptor {
      * @return {@link Optional} accessibility modifier
      */
     @Override
-    public Optional<Qualifiers> qualifier() {
+    public Optional<Qualifier> qualifier() {
         if ((this.bField.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            return Optional.of(Qualifiers.PUBLIC);
+            return Optional.of(Qualifier.PUBLIC);
         } else if ((this.bField.symbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
-            return Optional.of(Qualifiers.PRIVATE);
+            return Optional.of(Qualifier.PRIVATE);
         }
 
         return Optional.empty();

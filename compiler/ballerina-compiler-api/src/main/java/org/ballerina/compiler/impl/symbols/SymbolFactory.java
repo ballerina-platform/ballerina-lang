@@ -17,7 +17,7 @@
  */
 package org.ballerina.compiler.impl.symbols;
 
-import org.ballerina.compiler.api.symbols.Qualifiers;
+import org.ballerina.compiler.api.symbols.Qualifier;
 import org.ballerina.compiler.api.symbols.Symbol;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import org.ballerina.compiler.api.types.Parameter;
@@ -97,10 +97,10 @@ public class SymbolFactory {
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
                 new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol);
         if ((invokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            builder.withQualifier(Qualifiers.PUBLIC);
+            builder.withQualifier(Qualifier.PUBLIC);
         }
         if ((invokableSymbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
-            builder.withQualifier(Qualifiers.PRIVATE);
+            builder.withQualifier(Qualifier.PRIVATE);
         }
 
         return builder.build();
@@ -158,9 +158,9 @@ public class SymbolFactory {
         }
         String name = symbol.getName().getValue();
         BallerinaTypeDescriptor typeDescriptor = TypesFactory.getTypeDescriptor(symbol.getType());
-        List<Qualifiers> qualifiers = new ArrayList<>();
+        List<Qualifier> qualifiers = new ArrayList<>();
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            qualifiers.add(Qualifiers.PUBLIC);
+            qualifiers.add(Qualifier.PUBLIC);
         }
         return new BallerinaParameter(name, typeDescriptor, qualifiers, symbol.defaultableParam);
     }
@@ -178,7 +178,7 @@ public class SymbolFactory {
                         typeSymbol.pkgID,
                         typeSymbol);
         if ((typeSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            symbolBuilder.withAccessModifier(Qualifiers.PUBLIC);
+            symbolBuilder.withAccessModifier(Qualifier.PUBLIC);
         }
 
         return symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(typeSymbol.type))

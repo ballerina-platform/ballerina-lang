@@ -18,7 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.symbols.Documentation;
-import org.ballerina.compiler.api.symbols.Qualifiers;
+import org.ballerina.compiler.api.symbols.Qualifier;
 
 import java.util.Optional;
 
@@ -62,7 +62,7 @@ public interface FieldDescriptor {
      *
      * @return {@link Optional} accessibility modifier
      */
-    public Optional<Qualifiers> qualifier();
+    public Optional<Qualifier> qualifier();
 
     /**
      * Get the signature of the field.

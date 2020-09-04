@@ -21,7 +21,7 @@ import org.ballerina.compiler.api.ModuleID;
 import org.ballerina.compiler.api.symbols.Documentation;
 import org.ballerina.compiler.api.symbols.FunctionSymbol;
 import org.ballerina.compiler.api.symbols.MethodSymbol;
-import org.ballerina.compiler.api.symbols.Qualifiers;
+import org.ballerina.compiler.api.symbols.Qualifier;
 import org.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 
@@ -67,7 +67,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
-    public List<Qualifiers> qualifiers() {
+    public List<Qualifier> qualifiers() {
         return this.functionSymbol.qualifiers();
     }
 }

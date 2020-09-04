@@ -17,7 +17,7 @@
  */
 package org.ballerina.compiler.impl.types;
 
-import org.ballerina.compiler.api.symbols.Qualifiers;
+import org.ballerina.compiler.api.symbols.Qualifier;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import org.ballerina.compiler.api.types.Parameter;
 
@@ -34,12 +34,12 @@ import java.util.StringJoiner;
 public class BallerinaParameter implements Parameter {
 
     // add the metadata field
-    private List<Qualifiers> qualifiers;
+    private List<Qualifier> qualifiers;
     private String parameterName;
     private BallerinaTypeDescriptor typeDescriptor;
     private boolean defaultable;
 
-    public BallerinaParameter(String parameterName, BallerinaTypeDescriptor typeDescriptor, List<Qualifiers> qualifiers,
+    public BallerinaParameter(String parameterName, BallerinaTypeDescriptor typeDescriptor, List<Qualifier> qualifiers,
             boolean defaultable) {
         // TODO: Add the metadata
         this.parameterName = parameterName;
@@ -74,7 +74,7 @@ public class BallerinaParameter implements Parameter {
      * @return {@link List} of access modifiers
      */
     @Override
-    public List<Qualifiers> qualifiers() {
+    public List<Qualifier> qualifiers() {
         return qualifiers;
     }
 
