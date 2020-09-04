@@ -34,7 +34,7 @@ public interface VariableSymbol extends Symbol {
      *
      * @return {@link List} of access modifiers
      */
-    List<Qualifier> qualifiers();
+    List<Qualifiers> qualifiers();
 
     /**
      * Get the Type of the variable.

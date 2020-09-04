@@ -17,7 +17,7 @@
  */
 package org.ballerina.compiler.impl.symbols;
 
-import org.ballerina.compiler.api.symbols.Qualifier;
+import org.ballerina.compiler.api.symbols.Qualifiers;
 import org.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
@@ -36,16 +36,16 @@ import java.util.Optional;
  */
 public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
 
-    private final List<Qualifier> qualifiers;
+    private final List<Qualifiers> qualifiers;
 
     private final BallerinaTypeDescriptor typeDescriptor;
 
     protected BallerinaTypeSymbol(String name,
                                  PackageID moduleID,
-                                 List<Qualifier> qualifiers,
+                                 List<Qualifiers> qualifiers,
                                  BallerinaTypeDescriptor typeDescriptor,
                                  BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.TYPE_DEF, bSymbol);
+        super(name, moduleID, SymbolKind.TYPE, bSymbol);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
     }
@@ -56,7 +56,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
     }
 
     @Override
-    public List<Qualifier> qualifiers() {
+    public List<Qualifiers> qualifiers() {
         return qualifiers;
     }
 
@@ -68,15 +68,15 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
     /**
      * Represents a type definition symbol builder.
      *
-     * @since 1.3.0
+     * @since 2.0.0
      */
     public static class TypeDefSymbolBuilder extends SymbolBuilder<TypeDefSymbolBuilder> {
 
-        protected List<Qualifier> qualifiers = new ArrayList<>();
+        protected List<Qualifiers> qualifiers = new ArrayList<>();
         protected BallerinaTypeDescriptor typeDescriptor;
 
         public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
-            super(name, moduleID, SymbolKind.TYPE_DEF, symbol);
+            super(name, moduleID, SymbolKind.TYPE, symbol);
         }
 
         public TypeDefSymbolBuilder withTypeDescriptor(BallerinaTypeDescriptor typeDescriptor) {
@@ -84,7 +84,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
             return this;
         }
 
-        public TypeDefSymbolBuilder withAccessModifier(Qualifier qualifier) {
+        public TypeDefSymbolBuilder withAccessModifier(Qualifiers qualifier) {
             this.qualifiers.add(qualifier);
             return this;
         }

@@ -25,7 +25,7 @@ import java.util.Optional;
 /**
  * Represents a ballerina type definition.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public interface TypeSymbol extends Symbol {
 
@@ -41,7 +41,7 @@ public interface TypeSymbol extends Symbol {
      * 
      * @return {@link List} of qualifiers
      */
-    List<Qualifier> qualifiers();
+    List<Qualifiers> qualifiers();
 
     /**
      * Type descriptor of the definition.

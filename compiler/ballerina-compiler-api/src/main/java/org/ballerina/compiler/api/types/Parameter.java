@@ -17,7 +17,7 @@
  */
 package org.ballerina.compiler.api.types;
 
-import org.ballerina.compiler.api.symbols.Qualifier;
+import org.ballerina.compiler.api.symbols.Qualifiers;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +48,7 @@ public interface Parameter {
      *
      * @return {@link List} of access modifiers
      */
-    public List<Qualifier> qualifiers();
+    public List<Qualifiers> qualifiers();
 
     /**
      * Get a string representation of the signature of the parameter.

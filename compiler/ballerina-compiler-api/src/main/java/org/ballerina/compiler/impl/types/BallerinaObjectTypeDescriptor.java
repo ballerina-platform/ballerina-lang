@@ -37,7 +37,7 @@ import java.util.StringJoiner;
 /**
  * Represents an object type descriptor.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implements ObjectTypeDescriptor {
 

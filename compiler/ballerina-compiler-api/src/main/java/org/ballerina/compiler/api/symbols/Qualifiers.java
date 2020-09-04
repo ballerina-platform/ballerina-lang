@@ -15,12 +15,26 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.types;
+package org.ballerina.compiler.api.symbols;
 
 /**
- * Represents the builtin type descriptor.
- *
+ * Represents the access modifier types.
+ * 
  * @since 2.0.0
  */
-public interface BuiltinTypeDescriptor extends BallerinaTypeDescriptor {
+public enum Qualifiers {
+
+    PUBLIC("public"),
+    PRIVATE("private"),
+    FINAL("final");
+
+    private String value;
+
+    private Qualifiers(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }

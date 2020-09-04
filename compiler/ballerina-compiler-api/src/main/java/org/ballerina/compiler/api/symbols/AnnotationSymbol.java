@@ -34,7 +34,7 @@ public interface AnnotationSymbol extends Symbol {
      *
      * @return {@link List} of qualifiers
      */
-    List<Qualifier> qualifiers();
+    List<Qualifiers> qualifiers();
 
     /**
      * Get the type descriptor.

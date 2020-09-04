@@ -17,7 +17,7 @@
  */
 package org.ballerina.compiler.impl.symbols;
 
-import org.ballerina.compiler.api.symbols.Qualifier;
+import org.ballerina.compiler.api.symbols.Qualifiers;
 import org.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerina.compiler.api.symbols.VariableSymbol;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
@@ -32,17 +32,17 @@ import java.util.Optional;
 /**
  * Represents a ballerina variable.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaVariableSymbol extends BallerinaSymbol implements VariableSymbol {
 
-    private final List<Qualifier> qualifiers;
+    private final List<Qualifiers> qualifiers;
     private final BallerinaTypeDescriptor typeDescriptorImpl;
 
     protected BallerinaVariableSymbol(String name,
                                           PackageID moduleID,
                                           SymbolKind ballerinaSymbolKind,
-                                          List<Qualifier> qualifiers,
+                                          List<Qualifiers> qualifiers,
                                           BallerinaTypeDescriptor typeDescriptorImpl,
                                           BSymbol bSymbol) {
         super(name, moduleID, ballerinaSymbolKind, bSymbol);
@@ -56,7 +56,7 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
      * @return {@link List} of access modifiers
      */
     @Override
-    public List<Qualifier> qualifiers() {
+    public List<Qualifiers> qualifiers() {
         return qualifiers;
     }
 
@@ -75,7 +75,7 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
      */
     static class VariableSymbolBuilder extends SymbolBuilder<VariableSymbolBuilder> {
 
-        protected List<Qualifier> qualifiers = new ArrayList<>();
+        protected List<Qualifiers> qualifiers = new ArrayList<>();
         protected BallerinaTypeDescriptor typeDescriptor;
 
         public VariableSymbolBuilder(String name, PackageID moduleID, BSymbol bSymbol) {
@@ -97,7 +97,7 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
             return this;
         }
 
-        public VariableSymbolBuilder withAccessModifier(Qualifier qualifier) {
+        public VariableSymbolBuilder withAccessModifier(Qualifiers qualifier) {
             this.qualifiers.add(qualifier);
             return this;
         }

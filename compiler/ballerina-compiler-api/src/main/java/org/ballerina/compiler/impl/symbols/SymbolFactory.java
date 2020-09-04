@@ -17,7 +17,7 @@
  */
 package org.ballerina.compiler.impl.symbols;
 
-import org.ballerina.compiler.api.symbols.Qualifier;
+import org.ballerina.compiler.api.symbols.Qualifiers;
 import org.ballerina.compiler.api.symbols.Symbol;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import org.ballerina.compiler.api.types.Parameter;
@@ -42,7 +42,7 @@ import java.util.List;
 /**
  * Represents a set of factory methods to generate the {@link Symbol}s.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class SymbolFactory {
 
@@ -97,10 +97,10 @@ public class SymbolFactory {
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
                 new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol);
         if ((invokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            builder.withQualifier(Qualifier.PUBLIC);
+            builder.withQualifier(Qualifiers.PUBLIC);
         }
         if ((invokableSymbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
-            builder.withQualifier(Qualifier.PRIVATE);
+            builder.withQualifier(Qualifiers.PRIVATE);
         }
 
         return builder.build();
@@ -158,9 +158,9 @@ public class SymbolFactory {
         }
         String name = symbol.getName().getValue();
         BallerinaTypeDescriptor typeDescriptor = TypesFactory.getTypeDescriptor(symbol.getType());
-        List<Qualifier> qualifiers = new ArrayList<>();
+        List<Qualifiers> qualifiers = new ArrayList<>();
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            qualifiers.add(Qualifier.PUBLIC);
+            qualifiers.add(Qualifiers.PUBLIC);
         }
         return new BallerinaParameter(name, typeDescriptor, qualifiers, symbol.defaultableParam);
     }
@@ -178,7 +178,7 @@ public class SymbolFactory {
                         typeSymbol.pkgID,
                         typeSymbol);
         if ((typeSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            symbolBuilder.withAccessModifier(Qualifier.PUBLIC);
+            symbolBuilder.withAccessModifier(Qualifiers.PUBLIC);
         }
 
         return symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(typeSymbol.type))

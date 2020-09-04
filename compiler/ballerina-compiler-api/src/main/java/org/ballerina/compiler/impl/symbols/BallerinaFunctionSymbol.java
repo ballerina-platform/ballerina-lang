@@ -18,7 +18,7 @@
 package org.ballerina.compiler.impl.symbols;
 
 import org.ballerina.compiler.api.symbols.FunctionSymbol;
-import org.ballerina.compiler.api.symbols.Qualifier;
+import org.ballerina.compiler.api.symbols.Qualifiers;
 import org.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import org.ballerina.compiler.api.types.FunctionTypeDescriptor;
@@ -38,11 +38,11 @@ import java.util.Optional;
 public class BallerinaFunctionSymbol extends BallerinaSymbol implements FunctionSymbol {
 
     private final FunctionTypeDescriptor typeDescriptor;
-    private final List<Qualifier> qualifiers;
+    private final List<Qualifiers> qualifiers;
 
     protected BallerinaFunctionSymbol(String name,
                                      PackageID moduleID,
-                                     List<Qualifier> qualifiers,
+                                     List<Qualifiers> qualifiers,
                                      FunctionTypeDescriptor typeDescriptor,
                                      BInvokableSymbol invokableSymbol) {
         super(name, moduleID, SymbolKind.FUNCTION, invokableSymbol);
@@ -56,7 +56,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
      * @return {@link List} of qualifiers
      */
     @Override
-    public List<Qualifier> qualifiers() {
+    public List<Qualifiers> qualifiers() {
         return qualifiers;
     }
 
@@ -70,7 +70,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
      */
     static class FunctionSymbolBuilder extends SymbolBuilder<FunctionSymbolBuilder> {
 
-        protected List<Qualifier> qualifiers = new ArrayList<>();
+        protected List<Qualifiers> qualifiers = new ArrayList<>();
         protected FunctionTypeDescriptor typeDescriptor;
 
         public FunctionSymbolBuilder(String name, PackageID moduleID, BInvokableSymbol bSymbol) {
@@ -87,7 +87,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
             return this;
         }
 
-        public FunctionSymbolBuilder withQualifier(Qualifier qualifier) {
+        public FunctionSymbolBuilder withQualifier(Qualifiers qualifier) {
             this.qualifiers.add(qualifier);
             return this;
         }

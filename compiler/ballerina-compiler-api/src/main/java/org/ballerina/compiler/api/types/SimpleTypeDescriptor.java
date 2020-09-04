@@ -15,26 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.symbols;
+package org.ballerina.compiler.api.types;
 
 /**
- * Represents the access modifier types.
- * 
+ * Represents the built-in simple type descriptor.
+ *
  * @since 2.0.0
  */
-public enum Qualifier {
-
-    PUBLIC("public"),
-    PRIVATE("private"),
-    FINAL("final");
-
-    private String value;
-
-    private Qualifier(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
+public interface SimpleTypeDescriptor extends BallerinaTypeDescriptor {
 }

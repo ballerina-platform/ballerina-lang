@@ -18,7 +18,7 @@
 package org.ballerina.compiler.impl.symbols;
 
 import org.ballerina.compiler.api.symbols.ConstantSymbol;
-import org.ballerina.compiler.api.symbols.Qualifier;
+import org.ballerina.compiler.api.symbols.Qualifiers;
 import org.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
@@ -37,7 +37,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
 
     private BallerinaConstantSymbol(String name,
                                      PackageID moduleID,
-                                     List<Qualifier> qualifiers,
+                                     List<Qualifiers> qualifiers,
                                      BallerinaTypeDescriptor typeDescriptor,
                                      Object constValue,
                                      BSymbol bSymbol) {

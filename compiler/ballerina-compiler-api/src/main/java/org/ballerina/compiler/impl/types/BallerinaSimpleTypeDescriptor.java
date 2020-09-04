@@ -18,32 +18,26 @@
 package org.ballerina.compiler.impl.types;
 
 import org.ballerina.compiler.api.ModuleID;
-import org.ballerina.compiler.api.types.BuiltinTypeDescriptor;
-import org.ballerina.compiler.api.types.TypeDescKind;
+import org.ballerina.compiler.api.types.SimpleTypeDescriptor;
+import org.ballerina.compiler.impl.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
- * Represents the builtin type descriptor.
+ * Represents the built-in simple type descriptor.
  * 
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class BallerinaBuiltinTypeDescriptor extends AbstractTypeDescriptor implements BuiltinTypeDescriptor {
+public class BallerinaSimpleTypeDescriptor extends AbstractTypeDescriptor implements SimpleTypeDescriptor {
 
     private String typeName;
 
-    public BallerinaBuiltinTypeDescriptor(ModuleID moduleID, String name, BType bType) {
-        super(TypeDescKind.BUILTIN, moduleID, bType);
-        this.typeName = name;
+    public BallerinaSimpleTypeDescriptor(ModuleID moduleID, BType bType) {
+        super(TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
+        this.typeName = bType.getKind().typeName();
     }
 
     @Override
     public String signature() {
-        // For the builtin types, return the type kind as the type name
         return this.typeName;
-    }
-
-    @Override
-    public TypeDescKind kind() {
-        return TypeDescKind.getFromName(this.typeName);
     }
 }
