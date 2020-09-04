@@ -4831,6 +4831,11 @@ public class BallerinaParser extends AbstractParser {
                     return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc);
                 }
                 break;
+            case FINAL_KEYWORD:
+                if (isTypeStartingToken(peek(2).kind)) {
+                    return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc);
+                }
+                // Else fall through
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc);
