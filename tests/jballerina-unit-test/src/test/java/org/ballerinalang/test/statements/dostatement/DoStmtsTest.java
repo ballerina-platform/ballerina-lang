@@ -17,28 +17,38 @@
  */
 package org.ballerinalang.test.statements.dostatement;
 
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for flow validation in nested RetryTransactionStatement.
+ * Test cases for flow validation in Do Statements.
  */
-
 public class DoStmtsTest {
 
-    private CompileResult programFile;
+    private CompileResult programFile, negativeFile;
 
     @BeforeClass
     public void setup() {
         programFile = BCompileUtil.compile("test-src/statements/dostatement/do-stmt.bal");
+        negativeFile = BCompileUtil.compile("test-src/statements/dostatement/do-stmt-negative.bal");
     }
 
     @Test
-    public void testRetry() {
+    public void testOnFailStatement() {
         BRunUtil.invoke(programFile, "testOnFailStatement");
     }
 
+    @Test(description = "Check not incompatible types and reachable statements.")
+    public void testNegative() {
+        Assert.assertEquals(negativeFile.getErrorCount(), 3);
+        BAssertUtil.validateError(negativeFile, 0, "unreachable code", 15, 6);
+        BAssertUtil.validateError(negativeFile, 1, "incompatible error definition type: " +
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 30, 4);
+        BAssertUtil.validateError(negativeFile, 2, "unreachable code", 60, 7);
+    }
 }
