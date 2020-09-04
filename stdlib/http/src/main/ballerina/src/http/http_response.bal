@@ -92,7 +92,7 @@ public class Response {
     # + headerName - The header name
     # + position - Represents the position of the header as an optional parameter
     # + return - `true` if the specified header key exists
-    public function hasHeader(string headerName, public HeaderPosition position = LEADING) returns boolean {
+    public function hasHeader(string headerName, HeaderPosition position = LEADING) returns boolean {
         return externResponseHasHeader(self, headerName, position);
     }
 
@@ -104,7 +104,7 @@ public class Response {
     #              the entity-body of the `Response` must be accessed initially.
     # + return - The first header value for the specified header name. Panic if the header is not found. Use the
     #            `Response.hasHeader()` beforehand to check the existence of a header.
-    public function getHeader(string headerName, public HeaderPosition position = LEADING) returns @tainted string {
+    public function getHeader(string headerName, HeaderPosition position = LEADING) returns @tainted string {
         return externResponseGetHeader(self, headerName, position);
     }
 
@@ -114,7 +114,7 @@ public class Response {
     # + headerValue - The header value
     # + position - Represents the position of the header as an optional parameter. If the position is `http:TRAILING`,
     #              the entity-body of the `Response` must be accessed initially.
-    public function addHeader(string headerName, string headerValue, public HeaderPosition position = LEADING) {
+    public function addHeader(string headerName, string headerValue, HeaderPosition position = LEADING) {
         return externResponseAddHeader(self, headerName, headerValue, position);
     }
 
@@ -125,7 +125,7 @@ public class Response {
     #              the entity-body of the `Response` must be accessed initially.
     # + return - The header values the specified header key maps to. Panic if the header is not found. Use the
     #            `Response.hasHeader()` beforehand to check the existence of a header.
-    public function getHeaders(string headerName, public HeaderPosition position = LEADING) returns @tainted string[] {
+    public function getHeaders(string headerName, HeaderPosition position = LEADING) returns @tainted string[] {
         return externResponseGetHeaders(self, headerName, position);
     }
 
@@ -136,7 +136,7 @@ public class Response {
     # + headerValue - The header value
     # + position - Represents the position of the header as an optional parameter. If the position is `http:TRAILING`,
     #              the entity-body of the `Response` must be accessed initially.
-    public function setHeader(string headerName, string headerValue, public HeaderPosition position = LEADING) {
+    public function setHeader(string headerName, string headerValue, HeaderPosition position = LEADING) {
         externResponseSetHeader(self, headerName, headerValue, position);
 
 
@@ -151,7 +151,7 @@ public class Response {
     # + headerName - The header name
     # + position - Represents the position of the header as an optional parameter. If the position is `http:TRAILING`,
     #              the entity-body of the `Response` must be accessed initially.
-    public function removeHeader(string headerName, public HeaderPosition position = LEADING) {
+    public function removeHeader(string headerName, HeaderPosition position = LEADING) {
         externResponseRemoveHeader(self, headerName, position);
     }
 
@@ -159,7 +159,7 @@ public class Response {
     #
     # + position - Represents the position of the header as an optional parameter. If the position is `http:TRAILING`,
     #              the entity-body of the `Response` must be accessed initially.
-    public function removeAllHeaders(public HeaderPosition position = LEADING) {
+    public function removeAllHeaders(HeaderPosition position = LEADING) {
         externResponseRemoveAllHeaders(self, position);
     }
 
@@ -168,7 +168,7 @@ public class Response {
     # + position - Represents the position of the header as an optional parameter. If the position is `http:TRAILING`,
     #              the entity-body of the `Response` must be accessed initially.
     # + return - An array of all the header names
-    public function getHeaderNames(public HeaderPosition position = LEADING) returns @tainted string[] {
+    public function getHeaderNames(HeaderPosition position = LEADING) returns @tainted string[] {
         return externResponseGetHeaderNames(self, position);
     }
 
@@ -336,7 +336,7 @@ public class Response {
     # + payload - The `json` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `json`
-    public function setJsonPayload(json payload, public string contentType = "application/json") {
+    public function setJsonPayload(json payload, string contentType = "application/json") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setJson(payload, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -347,7 +347,7 @@ public class Response {
     # + payload - The `xml` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `xml`
-    public function setXmlPayload(xml payload, public string contentType = "application/xml") {
+    public function setXmlPayload(xml payload, string contentType = "application/xml") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setXml(payload, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -358,7 +358,7 @@ public class Response {
     # + payload - The `string` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `string`
-    public function setTextPayload(string payload, public string contentType = "text/plain") {
+    public function setTextPayload(string payload, string contentType = "text/plain") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setText(payload, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -369,7 +369,7 @@ public class Response {
     # + payload - The `byte[]` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `byte[]`
-    public function setBinaryPayload(byte[] payload, public string contentType = "application/octet-stream") {
+    public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setByteArray(payload, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -380,7 +380,7 @@ public class Response {
     # + bodyParts - The entities which make up the message body
     # + contentType - The content type of the top level message. Set this to override the default
     #                 `content-type` header value
-    public function setBodyParts(mime:Entity[] bodyParts, public string contentType = "multipart/form-data") {
+    public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setBodyParts(bodyParts, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -391,7 +391,7 @@ public class Response {
     # + filePath - Path to the file to be set as the payload
     # + contentType - The content type of the specified file. Set this to override the default `content-type`
     #                 header value
-    public function setFileAsPayload(string filePath, public string contentType = "application/octet-stream") {
+    public function setFileAsPayload(string filePath, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setFileAsEntityBody(filePath, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -402,7 +402,7 @@ public class Response {
     # + payload - A `ByteChannel` through which the message payload can be read
     # + contentType - The content type of the payload. Set this to override the default `content-type`
     #                 header value
-    public function setByteChannel(io:ReadableByteChannel payload, public string contentType = "application/octet-stream") {
+    public function setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setByteChannel(payload, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);

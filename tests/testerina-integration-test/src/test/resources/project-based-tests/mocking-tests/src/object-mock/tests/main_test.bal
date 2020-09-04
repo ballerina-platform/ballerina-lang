@@ -22,7 +22,7 @@ import ballerina/http;
 public client class MockHttpClient {
   public string url = "http://mockUrl";
 
-  public remote function get(@untainted string path, public http:RequestMessage message = ()) returns http:Response|http:ClientError {
+  public remote function get(@untainted string path, http:RequestMessage message = ()) returns http:Response|http:ClientError {
       http:Response res = new;
       res.statusCode = 500;
       return res;

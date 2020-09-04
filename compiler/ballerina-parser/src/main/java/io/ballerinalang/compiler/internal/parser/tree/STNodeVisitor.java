@@ -585,8 +585,8 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(restBindingPatternNode);
     }
 
-    public void visit(STFunctionalBindingPatternNode functionalBindingPatternNode) {
-        visitSyntaxNode(functionalBindingPatternNode);
+    public void visit(STErrorBindingPatternNode errorBindingPatternNode) {
+        visitSyntaxNode(errorBindingPatternNode);
     }
 
     public void visit(STNamedArgBindingPatternNode namedArgBindingPatternNode) {
