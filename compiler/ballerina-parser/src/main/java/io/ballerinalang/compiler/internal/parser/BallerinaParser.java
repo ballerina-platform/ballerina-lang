@@ -1001,8 +1001,7 @@ public class BallerinaParser extends AbstractParser {
                     typeDesc = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDesc, qualifier,
                             DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
                 }
-            }
-            else {
+            } else {
                 typeDesc = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDesc, qualifier,
                         DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
             }
