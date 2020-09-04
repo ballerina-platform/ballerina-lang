@@ -1670,13 +1670,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 variableName);
     }
 
-    public static STNode createFunctionalBindingPatternNode(
+    public static STNode createErrorBindingPatternNode(
+            STNode errorKeyword,
             STNode typeReference,
             STNode openParenthesis,
             STNode argListBindingPatterns,
             STNode closeParenthesis) {
 
-        return new STFunctionalBindingPatternNode(
+        return new STErrorBindingPatternNode(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,

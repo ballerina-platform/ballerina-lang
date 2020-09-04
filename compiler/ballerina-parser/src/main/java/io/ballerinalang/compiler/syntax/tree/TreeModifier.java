@@ -2256,17 +2256,20 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public FunctionalBindingPatternNode transform(
-            FunctionalBindingPatternNode functionalBindingPatternNode) {
+    public ErrorBindingPatternNode transform(
+            ErrorBindingPatternNode errorBindingPatternNode) {
+        Token errorKeyword =
+                modifyToken(errorBindingPatternNode.errorKeyword());
         Node typeReference =
-                modifyNode(functionalBindingPatternNode.typeReference());
+                modifyNode(errorBindingPatternNode.typeReference().orElse(null));
         Token openParenthesis =
-                modifyToken(functionalBindingPatternNode.openParenthesis());
+                modifyToken(errorBindingPatternNode.openParenthesis());
         SeparatedNodeList<BindingPatternNode> argListBindingPatterns =
-                modifySeparatedNodeList(functionalBindingPatternNode.argListBindingPatterns());
+                modifySeparatedNodeList(errorBindingPatternNode.argListBindingPatterns());
         Token closeParenthesis =
-                modifyToken(functionalBindingPatternNode.closeParenthesis());
-        return functionalBindingPatternNode.modify(
+                modifyToken(errorBindingPatternNode.closeParenthesis());
+        return errorBindingPatternNode.modify(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,

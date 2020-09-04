@@ -3027,13 +3027,18 @@
             ]
         },
         {
-            "name": "FunctionalBindingPatternNode",
+            "name": "ErrorBindingPatternNode",
             "base": "BindingPatternNode",
-            "kind": "FUNCTIONAL_BINDING_PATTERN",
+            "kind": "ERROR_BINDING_PATTERN",
             "attributes": [
                 {
+                    "name": "errorKeyword",
+                    "type": "Token"
+                },
+                {
                     "name": "typeReference",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 },
                 {
                     "name": "openParenthesis",

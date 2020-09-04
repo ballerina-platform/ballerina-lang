@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionalBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.ErrorBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -30,18 +30,21 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STFunctionalBindingPatternNode extends STBindingPatternNode {
+public class STErrorBindingPatternNode extends STBindingPatternNode {
+    public final STNode errorKeyword;
     public final STNode typeReference;
     public final STNode openParenthesis;
     public final STNode argListBindingPatterns;
     public final STNode closeParenthesis;
 
-    STFunctionalBindingPatternNode(
+    STErrorBindingPatternNode(
+            STNode errorKeyword,
             STNode typeReference,
             STNode openParenthesis,
             STNode argListBindingPatterns,
             STNode closeParenthesis) {
         this(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,
@@ -49,19 +52,22 @@ public class STFunctionalBindingPatternNode extends STBindingPatternNode {
                 Collections.emptyList());
     }
 
-    STFunctionalBindingPatternNode(
+    STErrorBindingPatternNode(
+            STNode errorKeyword,
             STNode typeReference,
             STNode openParenthesis,
             STNode argListBindingPatterns,
             STNode closeParenthesis,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.FUNCTIONAL_BINDING_PATTERN, diagnostics);
+        super(SyntaxKind.ERROR_BINDING_PATTERN, diagnostics);
+        this.errorKeyword = errorKeyword;
         this.typeReference = typeReference;
         this.openParenthesis = openParenthesis;
         this.argListBindingPatterns = argListBindingPatterns;
         this.closeParenthesis = closeParenthesis;
 
         addChildren(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,
@@ -69,7 +75,8 @@ public class STFunctionalBindingPatternNode extends STBindingPatternNode {
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STFunctionalBindingPatternNode(
+        return new STErrorBindingPatternNode(
+                this.errorKeyword,
                 this.typeReference,
                 this.openParenthesis,
                 this.argListBindingPatterns,
@@ -77,12 +84,14 @@ public class STFunctionalBindingPatternNode extends STBindingPatternNode {
                 diagnostics);
     }
 
-    public STFunctionalBindingPatternNode modify(
+    public STErrorBindingPatternNode modify(
+            STNode errorKeyword,
             STNode typeReference,
             STNode openParenthesis,
             STNode argListBindingPatterns,
             STNode closeParenthesis) {
         if (checkForReferenceEquality(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,
@@ -90,7 +99,8 @@ public class STFunctionalBindingPatternNode extends STBindingPatternNode {
             return this;
         }
 
-        return new STFunctionalBindingPatternNode(
+        return new STErrorBindingPatternNode(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,
@@ -99,7 +109,7 @@ public class STFunctionalBindingPatternNode extends STBindingPatternNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FunctionalBindingPatternNode(this, position, parent);
+        return new ErrorBindingPatternNode(this, position, parent);
     }
 
     @Override
