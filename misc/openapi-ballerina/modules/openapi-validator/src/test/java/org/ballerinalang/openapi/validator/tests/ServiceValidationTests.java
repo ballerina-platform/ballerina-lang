@@ -48,7 +48,7 @@ public class ServiceValidationTests {
     private DiagnosticLog dLog;
     private Filters filters;
 
-    @Test(description = "test for undocumented Path in contract")
+    @Test(enabled = false, description = "test for undocumented Path in contract")
     public void testUndocumentedPath() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstore.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -59,7 +59,7 @@ public class ServiceValidationTests {
         filters = new Filters(tag, excludeTag, operation, excludeOperation, kind);
 //        ServiceValidator.validateResource(api, extractBLangservice, filters, kind, dLog);
     }
-    @Test(description = "test for undocumented Method in contract")
+    @Test(enabled = false, description = "test for undocumented Method in contract")
     public void testUndocumentedMethod() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstoreMethod.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -72,7 +72,7 @@ public class ServiceValidationTests {
 
     }
 
-    @Test(description = "test for undocumented TypeMisMatch in contract")
+    @Test(enabled = false, description = "test for undocumented TypeMisMatch in contract")
     public void testParameterTypeMismatch() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstoreParameterTM.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -84,7 +84,7 @@ public class ServiceValidationTests {
 //        ServiceValidator.validateResource(api, extractBLangservice, filters, kind, dLog);
     }
 
-    @Test(description = "test for undocumented TypeMisMatch in contract")
+    @Test(enabled = false, description = "test for undocumented TypeMisMatch in contract")
     public void testRecordTypeMismatch() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/invalid/petstoreRecordType.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -95,7 +95,7 @@ public class ServiceValidationTests {
         filters = new Filters(tag, excludeTag, operation, excludeOperation, kind);
 //        ServiceValidator.validateResource(api, extractBLangservice, filters, kind, dLog);
     }
-    @Test(description = "test for undocumented record field  in contract")
+    @Test(enabled = false, description = "test for undocumented record field  in contract")
     public void testRecordFieldMiss() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/invalid/petstoreRecordFieldMiss.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -107,7 +107,7 @@ public class ServiceValidationTests {
 //        ServiceValidator.validateResource(api, extractBLangservice, filters, kind, dLog);
     }
 
-    @Test(description = "test for undocumented path parameter  in contract")
+    @Test(enabled = false, description = "test for undocumented path parameter  in contract")
     public void testPathParameter() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/invalid/petstorePathParameter.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -119,7 +119,7 @@ public class ServiceValidationTests {
 //        ServiceValidator.validateResource(api, extractBLangservice, filters, kind, dLog);
     }
 
-    @Test(description = "test for undocumented field oneOf type record in contract")
+    @Test(enabled = false, description = "test for undocumented field oneOf type record in contract")
     public void testOneofscenario_01() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/invalid/oneOf.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -131,7 +131,7 @@ public class ServiceValidationTests {
 //        ServiceValidator.validateResource(api, extractBLangservice, filters, kind, dLog);
     }
 
-    @Test(description = "test for scenario 02")
+    @Test(enabled = false, description = "test for scenario 02")
     public void testOneofscenario_02() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/invalid/oneOf-scenario02.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -143,7 +143,7 @@ public class ServiceValidationTests {
 //        ServiceValidator.validateResource(api, extractBLangservice, filters, kind, dLog);
     }
 
-    @Test(description = "test for scenario 03")
+    @Test(enabled = false, description = "test for scenario 03")
     public void testOneofscenario_03() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/invalid/oneOf-scenario03.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
