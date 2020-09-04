@@ -18,34 +18,20 @@
 
 package org.ballerinalang.packerina.cmd;
 
-import com.moandjiezana.toml.Toml;
-import io.ballerina.projects.utils.FileUtils;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
-import org.ballerinalang.toml.model.Module;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.ballerinalang.packerina.cmd.Constants.ADD_COMMAND;
 
@@ -57,7 +43,7 @@ public class AddCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
-    private Path homeCache;
+//    private Path homeCache;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -66,15 +52,12 @@ public class AddCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--template", "-t"})
-    private String template = "main";
-
-    @CommandLine.Option(names = {"--list", "-l"})
-    private boolean list = false;
+    private String template = "lib";
 
     public AddCommand() {
         userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         errStream = System.err;
-        homeCache = RepoUtils.createAndGetHomeReposPath();
+//        homeCache = RepoUtils.createAndGetHomeReposPath();
         CommandUtil.initJarFs();
     }
 
@@ -86,7 +69,7 @@ public class AddCommand implements BLauncherCmd {
         this.userDir = userDir;
         this.errStream = errStream;
         CommandUtil.initJarFs();
-        this.homeCache = homeCache;
+//        this.homeCache = homeCache;
     }
 
     @Override
@@ -98,17 +81,18 @@ public class AddCommand implements BLauncherCmd {
             return;
         }
 
-        if (list) {
-            errStream.println("Available templates:");
-            for (String template : CommandUtil.getTemplates()) {
-                errStream.println("    - " + template);
-            }
-            // Get templates from balos
-            for (String template : getBaloTemplates()) {
-                errStream.println("    - " + template);
-            }
-            return;
-        }
+        // TODO: 9/4/20 to be enabled once it gets finalised.
+//        if (list) {
+//            errStream.println("Available templates:");
+//            for (String template : CommandUtil.getTemplates()) {
+//                errStream.println("    - " + template);
+//            }
+//            // Get templates from balos
+//            for (String template : getBaloTemplates()) {
+//                errStream.println("    - " + template);
+//            }
+//            return;
+//        }
 
         // Check if inside a project repo
         Path projectPath = ProjectUtils.findProjectRoot(userDir);
@@ -163,9 +147,9 @@ public class AddCommand implements BLauncherCmd {
         }
 
         // Check if the template exists
-        if (!CommandUtil.getTemplates().contains(template) && findBaloTemplate(template) == null) {
+        if (!template.equalsIgnoreCase("lib")) {
             CommandUtil.printError(errStream,
-                    "Template not found, use `ballerina add --list` to view available templates.",
+                    "Using Ballerina Central module templates is not yet supported",
                     null,
                     false);
             return;
@@ -223,160 +207,157 @@ public class AddCommand implements BLauncherCmd {
         // - modules/
         // -- mymodule/
         // --- Module.md      <- module level documentation
-        // --- main.bal       <- Contains default main method.
+        // --- lib.bal       <- Contains default main method.
         // --- resources/     <- resources for the module (available at runtime)
         // --- tests/         <- tests for this module (e.g. unit tests)
-        // ---- main_test.bal  <- test file for main
+        // ---- lib_test.bal  <- test file for main
         // ---- resources/    <- resources for these tests
-        if (CommandUtil.getTemplates().contains(template)) {
-            CommandUtil.applyTemplate(modulePath, template);
-        } else {
-            applyBaloTemplate(modulePath, template);
-        }
+        CommandUtil.applyTemplate(modulePath, template);
     }
 
-    private void applyBaloTemplate(Path modulePath, String template) {
-        // find all balos matching org and module name.
-        Path baloTemplate = findBaloTemplate(template);
-        if (baloTemplate != null) {
-            String moduleName = getModuleName(baloTemplate);
+    // TODO: 9/4/20  Needs to be enabled once layout gets finalised
+//    private void applyBaloTemplate(Path modulePath, String template) {
+//        // find all balos matching org and module name.
+//        Path baloTemplate = findBaloTemplate(template);
+//        if (baloTemplate != null) {
+//            String moduleName = getModuleName(baloTemplate);
+//
+//            URI zipURI = URI.create("jar:" + baloTemplate.toUri().toString());
+//            try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+//                // Copy sources
+//                Path srcDir = zipfs.getPath("/modules").resolve(moduleName);
+//                // We do a string comparison to be efficient.
+//                Files.walkFileTree(srcDir, new FileUtils.Copy(srcDir, modulePath));
+//
+//                // Copy resources
+//                Path resourcesDir = zipfs.getPath("/" + ProjectConstants.RESOURCE_DIR_NAME);
+//                Path moduleResources = modulePath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+//                Files.createDirectories(moduleResources);
+//                // We do a string comparison to be efficient.
+//                Files.walkFileTree(resourcesDir, new FileUtils.Copy(resourcesDir, moduleResources));
+//                // Copy Module.md
+//                Path moduleMd = zipfs.getPath("/docs").resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+//                Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+//                Files.copy(moduleMd, toModuleMd, StandardCopyOption.REPLACE_EXISTING);
+//            } catch (IOException e) {
+//                CommandUtil.printError(errStream,
+//                        "Error while applying template : " + e.getMessage(),
+//                        null,
+//                        false);
+//                Runtime.getRuntime().exit(1);
+//            }
+//        }
+//    }
 
-            URI zipURI = URI.create("jar:" + baloTemplate.toUri().toString());
-            try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-                // Copy sources
-                Path srcDir = zipfs.getPath("/modules").resolve(moduleName);
-                // We do a string comparison to be efficient.
-                Files.walkFileTree(srcDir, new FileUtils.Copy(srcDir, modulePath));
+//    private String getModuleName(Path baloTemplate) {
+//        Path baloName = baloTemplate.getFileName();
+//        if (baloName != null) {
+//            String fileName = baloName.toString();
+//            return fileName.split("-")[0];
+//        }
+//        return "";
+//    }
 
-                // Copy resources
-                Path resourcesDir = zipfs.getPath("/" + ProjectConstants.RESOURCE_DIR_NAME);
-                Path moduleResources = modulePath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
-                Files.createDirectories(moduleResources);
-                // We do a string comparison to be efficient.
-                Files.walkFileTree(resourcesDir, new FileUtils.Copy(resourcesDir, moduleResources));
-                // Copy Module.md
-                Path moduleMd = zipfs.getPath("/docs").resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                Files.copy(moduleMd, toModuleMd, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                CommandUtil.printError(errStream,
-                        "Error while applying template : " + e.getMessage(),
-                        null,
-                        false);
-                Runtime.getRuntime().exit(1);
-            }
-        }
-    }
+//    private Path findBaloTemplate(String template) {
+//        // Split the template in to parts
+//        String[] orgSplit = template.split("/");
+//        String orgName = orgSplit[0].trim();
+//        String moduleName = "";
+//        String version = "*";
+//        String modulePart = (orgSplit.length > 1) ? orgSplit[1] : "";
+//        String[] moduleSplit = modulePart.split(":");
+//        moduleName = moduleSplit[0].trim();
+//        version = (moduleSplit.length > 1) ? moduleSplit[1].trim() : version;
+//
+//        String baloGlob = "glob:**/" + orgName + "/" + moduleName + "/" + version + "/*.balo";
+//        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(baloGlob);
+//        Path baloCache = this.homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
+//        // Iterate directories
+//        try (Stream<Path> walk = Files.walk(baloCache)) {
+//
+//            List<Path> baloList = walk
+//                    .filter(pathMatcher::matches)
+//                    .collect(Collectors.toList());
+//
+//            Collections.sort(baloList);
+//            // get the latest
+//            if (baloList.size() > 0) {
+//                return baloList.get(baloList.size() - 1);
+//            } else {
+//                return null;
+//            }
+//        } catch (IOException e) {
+//            CommandUtil.printError(errStream,
+//                    "Unable to read home cache",
+//                    null,
+//                    false);
+//            Runtime.getRuntime().exit(1);
+//        }
+//
+//        return homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
+//    }
+//
+//    /**
+//     * Iterate home cache and search for template balos.
+//     *
+//     * @return list of templates
+//     */
+//    private List<String> getBaloTemplates() {
+//        List<String> templates = new ArrayList<>();
+//        // get the path to home cache
+//        Path baloCache = this.homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
+//        final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.balo");
+//        // Iterate directories
+//        try (Stream<Path> walk = Files.walk(baloCache)) {
+//
+//            List<Path> baloList = walk
+//                    .filter(pathMatcher::matches)
+//                    .filter(this::isTemplateBalo)
+//                    .collect(Collectors.toList());
+//
+//            // Convert the balo list to string list.
+//            templates = baloList.stream()
+//                    .map(this::getModuleToml)
+//                    .filter(o -> o != null)
+//                    .map(m -> {
+//                        return m.getModule_organization() + "/" + m.getModule_name();
+//                    })
+//                    .distinct()
+//                    .collect(Collectors.toList());
+//        } catch (IOException e) {
+//            CommandUtil.printError(errStream,
+//                    "Unable to read home cache",
+//                    null,
+//                    false);
+//            Runtime.getRuntime().exit(1);
+//        }
+//        // filter template modules
+//        return templates;
+//    }
+//
+//    private Module getModuleToml(Path baloPath) {
+//        URI zipURI = URI.create("jar:" + baloPath.toUri().toString());
+//        try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+//            Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
+//            // We do a string comparison to be efficient.
+//            String content = new String(Files.readAllBytes(metaDataToml), StandardCharsets.UTF_8);
+//            Toml toml = new Toml().read(content);
+//            return toml.to(Module.class);
+//        } catch (IOException e) {
+//            return null;
+//        }
+//    }
 
-    private String getModuleName(Path baloTemplate) {
-        Path baloName = baloTemplate.getFileName();
-        if (baloName != null) {
-            String fileName = baloName.toString();
-            return fileName.split("-")[0];
-        }
-        return "";
-    }
-
-    private Path findBaloTemplate(String template) {
-        // Split the template in to parts
-        String[] orgSplit = template.split("/");
-        String orgName = orgSplit[0].trim();
-        String moduleName = "";
-        String version = "*";
-        String modulePart = (orgSplit.length > 1) ? orgSplit[1] : "";
-        String[] moduleSplit = modulePart.split(":");
-        moduleName = moduleSplit[0].trim();
-        version = (moduleSplit.length > 1) ? moduleSplit[1].trim() : version;
-
-        String baloGlob = "glob:**/" + orgName + "/" + moduleName + "/" + version + "/*.balo";
-        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(baloGlob);
-        Path baloCache = this.homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
-        // Iterate directories
-        try (Stream<Path> walk = Files.walk(baloCache)) {
-
-            List<Path> baloList = walk
-                    .filter(pathMatcher::matches)
-                    .collect(Collectors.toList());
-
-            Collections.sort(baloList);
-            // get the latest
-            if (baloList.size() > 0) {
-                return baloList.get(baloList.size() - 1);
-            } else {
-                return null;
-            }
-        } catch (IOException e) {
-            CommandUtil.printError(errStream,
-                    "Unable to read home cache",
-                    null,
-                    false);
-            Runtime.getRuntime().exit(1);
-        }
-
-        return homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
-    }
-
-    /**
-     * Iterate home cache and search for template balos.
-     *
-     * @return list of templates
-     */
-    private List<String> getBaloTemplates() {
-        List<String> templates = new ArrayList<>();
-        // get the path to home cache
-        Path baloCache = this.homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
-        final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.balo");
-        // Iterate directories
-        try (Stream<Path> walk = Files.walk(baloCache)) {
-
-            List<Path> baloList = walk
-                    .filter(pathMatcher::matches)
-                    .filter(this::isTemplateBalo)
-                    .collect(Collectors.toList());
-
-            // Convert the balo list to string list.
-            templates = baloList.stream()
-                    .map(this::getModuleToml)
-                    .filter(o -> o != null)
-                    .map(m -> {
-                        return m.getModule_organization() + "/" + m.getModule_name();
-                    })
-                    .distinct()
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            CommandUtil.printError(errStream,
-                    "Unable to read home cache",
-                    null,
-                    false);
-            Runtime.getRuntime().exit(1);
-        }
-        // filter template modules
-        return templates;
-    }
-
-    private Module getModuleToml(Path baloPath) {
-        URI zipURI = URI.create("jar:" + baloPath.toUri().toString());
-        try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-            Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
-            // We do a string comparison to be efficient.
-            String content = new String(Files.readAllBytes(metaDataToml), StandardCharsets.UTF_8);
-            Toml toml = new Toml().read(content);
-            return toml.to(Module.class);
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    private boolean isTemplateBalo(Path baloPath) {
-        URI zipURI = URI.create("jar:" + baloPath.toUri().toString());
-        try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-            Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
-            // We do a string comparison to be efficient.
-            return new String(Files.readAllBytes(metaDataToml), StandardCharsets.UTF_8)
-                    .contains("template = \"true\"");
-        } catch (IOException e) {
-            // we simply ignore the balo file
-        }
-        return false;
-    }
+//    private boolean isTemplateBalo(Path baloPath) {
+//        URI zipURI = URI.create("jar:" + baloPath.toUri().toString());
+//        try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+//            Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
+//            // We do a string comparison to be efficient.
+//            return new String(Files.readAllBytes(metaDataToml), StandardCharsets.UTF_8)
+//                    .contains("template = \"true\"");
+//        } catch (IOException e) {
+//            // we simply ignore the balo file
+//        }
+//        return false;
+//    }
 }

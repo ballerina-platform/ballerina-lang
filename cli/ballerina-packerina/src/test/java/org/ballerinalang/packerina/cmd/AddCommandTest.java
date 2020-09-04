@@ -116,7 +116,7 @@ public class AddCommandTest extends CommandTest {
     public void testAddCommandMultipleArgs() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"module2", "module3"};
-        AddCommand addCommand = new AddCommand(tmpDir, printStream);
+        AddCommand addCommand = new AddCommand(projectPath, printStream);
         new CommandLine(addCommand).parse(args);
         addCommand.execute();
 
@@ -133,7 +133,7 @@ public class AddCommandTest extends CommandTest {
         // Validate against spec
         // -- mymodule/
         // --- Module.md      <- module level documentation
-        // --- main.bal       <- Contains default main method.
+        // --- lib.bal       <- Contains default main method.
         // --- resources/     <- resources for the module (available at runtime)
         // --- tests/         <- tests for this module (e.g. unit tests)
         // ---- testmain.bal  <- test file for main
@@ -143,49 +143,14 @@ public class AddCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(moduleDir));
         Assert.assertTrue(Files.isDirectory(moduleDir));
         Assert.assertTrue(Files.exists(moduleDir.resolve("Module.md")));
-        Assert.assertTrue(Files.exists(moduleDir.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(moduleDir.resolve("lib.bal")));
         Assert.assertTrue(Files.exists(moduleDir.resolve("resources")));
         Assert.assertTrue(Files.isDirectory(moduleDir.resolve("resources")));
 
         Path moduleTests = moduleDir.resolve("tests");
         Assert.assertTrue(Files.exists(moduleTests));
         Assert.assertTrue(Files.isDirectory(moduleTests));
-        Assert.assertTrue(Files.exists(moduleTests.resolve("main_test.bal")));
-        Assert.assertTrue(Files.exists(moduleTests.resolve("resources")));
-        Assert.assertTrue(Files.isDirectory(moduleTests.resolve("resources")));
-
-        Assert.assertTrue(readOutput().contains("Added new ballerina module"));
-    }
-
-    @Test(description = "Test add command with service template")
-    public void testAddCommandWithService() throws IOException {
-        // Test if no arguments was passed in
-        String[] args = {"servicemodule", "-t", "service"};
-        AddCommand addCommand = new AddCommand(projectPath, printStream);
-        new CommandLine(addCommand).parseArgs(args);
-        addCommand.execute();
-
-        // Validate against spec
-        // -- mymodule/
-        // --- Module.md      <- module level documentation
-        // --- main.bal       <- Contains default main method.
-        // --- resources/     <- resources for the module (available at runtime)
-        // --- tests/         <- tests for this module (e.g. unit tests)
-        // ---- testmain.bal  <- test file for main
-        // ---- resources/    <- resources for these tests
-        Path moduleDir = modulesPath.resolve("servicemodule");
-
-        Assert.assertTrue(Files.exists(moduleDir));
-        Assert.assertTrue(Files.isDirectory(moduleDir));
-        Assert.assertTrue(Files.exists(moduleDir.resolve("Module.md")));
-        Assert.assertTrue(Files.exists(moduleDir.resolve("hello_service.bal")));
-        Assert.assertTrue(Files.exists(moduleDir.resolve("resources")));
-        Assert.assertTrue(Files.isDirectory(moduleDir.resolve("resources")));
-
-        Path moduleTests = moduleDir.resolve("tests");
-        Assert.assertTrue(Files.exists(moduleTests));
-        Assert.assertTrue(Files.isDirectory(moduleTests));
-        Assert.assertTrue(Files.exists(moduleTests.resolve("hello_service_test.bal")));
+        Assert.assertTrue(Files.exists(moduleTests.resolve("lib_test.bal")));
         Assert.assertTrue(Files.exists(moduleTests.resolve("resources")));
         Assert.assertTrue(Files.isDirectory(moduleTests.resolve("resources")));
 
@@ -201,7 +166,7 @@ public class AddCommandTest extends CommandTest {
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Template not found"));
+        Assert.assertTrue(readOutput().contains("Using Ballerina Central module templates is not yet supported"));
     }
 
 
@@ -215,23 +180,6 @@ public class AddCommandTest extends CommandTest {
         addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("Invalid module name"));
-    }
-
-
-    @Test(description = "Test add list")
-    public void testAddCommandList() throws IOException {
-        // Test if no arguments was passed in
-        String[] args = {"--list"};
-        AddCommand addCommand = new AddCommand(projectPath, printStream, homeCache);
-        new CommandLine(addCommand).parseArgs(args);
-        addCommand.execute();
-
-        String output = readOutput();
-        Assert.assertTrue(output.contains("Available templates:"));
-        Assert.assertTrue(output.contains("main"));
-        Assert.assertTrue(output.contains("service"));
-        Assert.assertTrue(output.contains("testOrg/mytemplate"));
-        Assert.assertFalse(output.contains("testOrg/another"));
     }
 
     @Test(description = "Test add command with help flag")

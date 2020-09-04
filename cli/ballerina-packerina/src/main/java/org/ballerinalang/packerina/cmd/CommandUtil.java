@@ -55,6 +55,7 @@ public class CommandUtil {
     public static final String GITIGNORE = "gitignore";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
+    public static final String PACKAGE_MD_DEFAULTS = "package_md_defaults";
     private static FileSystem jarFs;
     private static Map<String, String> env;
 
@@ -182,15 +183,20 @@ public class CommandUtil {
         //      - main_test.bal
         //      - resources/
         // - .gitignore       <- git ignore file
+        String templateMD = template + "_template.md";
         initProject(path, packageName);
         applyTemplate(path, template);
         Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
+        Path packageMD = path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
 
         Files.createFile(gitignore);
+        Files.createFile(packageMD);
 
         String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + File.separator + GITIGNORE);
+        String defaultPackageMD = FileUtils.readFileAsString(PACKAGE_MD_DEFAULTS + File.separator + templateMD);
 
         Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
+        Files.write(packageMD, defaultPackageMD.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
