@@ -592,8 +592,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(restBindingPatternNode);
     }
 
-    public T transform(FunctionalBindingPatternNode functionalBindingPatternNode) {
-        return transformSyntaxNode(functionalBindingPatternNode);
+    public T transform(ErrorBindingPatternNode errorBindingPatternNode) {
+        return transformSyntaxNode(errorBindingPatternNode);
     }
 
     public T transform(NamedArgBindingPatternNode namedArgBindingPatternNode) {

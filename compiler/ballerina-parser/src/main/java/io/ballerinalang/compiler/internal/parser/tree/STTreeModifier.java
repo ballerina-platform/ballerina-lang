@@ -542,14 +542,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STDefaultableParameterNode transform(
             STDefaultableParameterNode defaultableParameterNode) {
         STNode annotations = modifyNode(defaultableParameterNode.annotations);
-        STNode visibilityQualifier = modifyNode(defaultableParameterNode.visibilityQualifier);
         STNode typeName = modifyNode(defaultableParameterNode.typeName);
         STNode paramName = modifyNode(defaultableParameterNode.paramName);
         STNode equalsToken = modifyNode(defaultableParameterNode.equalsToken);
         STNode expression = modifyNode(defaultableParameterNode.expression);
         return defaultableParameterNode.modify(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -560,12 +558,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STRequiredParameterNode transform(
             STRequiredParameterNode requiredParameterNode) {
         STNode annotations = modifyNode(requiredParameterNode.annotations);
-        STNode visibilityQualifier = modifyNode(requiredParameterNode.visibilityQualifier);
         STNode typeName = modifyNode(requiredParameterNode.typeName);
         STNode paramName = modifyNode(requiredParameterNode.paramName);
         return requiredParameterNode.modify(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName);
     }
@@ -1801,13 +1797,15 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STFunctionalBindingPatternNode transform(
-            STFunctionalBindingPatternNode functionalBindingPatternNode) {
-        STNode typeReference = modifyNode(functionalBindingPatternNode.typeReference);
-        STNode openParenthesis = modifyNode(functionalBindingPatternNode.openParenthesis);
-        STNode argListBindingPatterns = modifyNode(functionalBindingPatternNode.argListBindingPatterns);
-        STNode closeParenthesis = modifyNode(functionalBindingPatternNode.closeParenthesis);
-        return functionalBindingPatternNode.modify(
+    public STErrorBindingPatternNode transform(
+            STErrorBindingPatternNode errorBindingPatternNode) {
+        STNode errorKeyword = modifyNode(errorBindingPatternNode.errorKeyword);
+        STNode typeReference = modifyNode(errorBindingPatternNode.typeReference);
+        STNode openParenthesis = modifyNode(errorBindingPatternNode.openParenthesis);
+        STNode argListBindingPatterns = modifyNode(errorBindingPatternNode.argListBindingPatterns);
+        STNode closeParenthesis = modifyNode(errorBindingPatternNode.closeParenthesis);
+        return errorBindingPatternNode.modify(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,

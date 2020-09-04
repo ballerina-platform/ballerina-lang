@@ -692,8 +692,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             DefaultableParameterNode defaultableParameterNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(defaultableParameterNode.annotations());
-        Token visibilityQualifier =
-                modifyToken(defaultableParameterNode.visibilityQualifier().orElse(null));
         Node typeName =
                 modifyNode(defaultableParameterNode.typeName());
         Token paramName =
@@ -704,7 +702,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(defaultableParameterNode.expression());
         return defaultableParameterNode.modify(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -716,15 +713,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             RequiredParameterNode requiredParameterNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(requiredParameterNode.annotations());
-        Token visibilityQualifier =
-                modifyToken(requiredParameterNode.visibilityQualifier().orElse(null));
         Node typeName =
                 modifyNode(requiredParameterNode.typeName());
         Token paramName =
                 modifyToken(requiredParameterNode.paramName().orElse(null));
         return requiredParameterNode.modify(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName);
     }
@@ -2273,17 +2267,20 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public FunctionalBindingPatternNode transform(
-            FunctionalBindingPatternNode functionalBindingPatternNode) {
+    public ErrorBindingPatternNode transform(
+            ErrorBindingPatternNode errorBindingPatternNode) {
+        Token errorKeyword =
+                modifyToken(errorBindingPatternNode.errorKeyword());
         Node typeReference =
-                modifyNode(functionalBindingPatternNode.typeReference());
+                modifyNode(errorBindingPatternNode.typeReference().orElse(null));
         Token openParenthesis =
-                modifyToken(functionalBindingPatternNode.openParenthesis());
+                modifyToken(errorBindingPatternNode.openParenthesis());
         SeparatedNodeList<BindingPatternNode> argListBindingPatterns =
-                modifySeparatedNodeList(functionalBindingPatternNode.argListBindingPatterns());
+                modifySeparatedNodeList(errorBindingPatternNode.argListBindingPatterns());
         Token closeParenthesis =
-                modifyToken(functionalBindingPatternNode.closeParenthesis());
-        return functionalBindingPatternNode.modify(
+                modifyToken(errorBindingPatternNode.closeParenthesis());
+        return errorBindingPatternNode.modify(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,

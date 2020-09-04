@@ -20,32 +20,37 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
  * @since 2.0.0
  */
-public class FunctionalBindingPatternNode extends BindingPatternNode {
+public class ErrorBindingPatternNode extends BindingPatternNode {
 
-    public FunctionalBindingPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ErrorBindingPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node typeReference() {
+    public Token errorKeyword() {
         return childInBucket(0);
     }
 
+    public Optional<Node> typeReference() {
+        return optionalChildInBucket(1);
+    }
+
     public Token openParenthesis() {
-        return childInBucket(1);
+        return childInBucket(2);
     }
 
     public SeparatedNodeList<BindingPatternNode> argListBindingPatterns() {
-        return new SeparatedNodeList<>(childInBucket(2));
+        return new SeparatedNodeList<>(childInBucket(3));
     }
 
     public Token closeParenthesis() {
-        return childInBucket(3);
+        return childInBucket(4);
     }
 
     @Override
@@ -61,18 +66,21 @@ public class FunctionalBindingPatternNode extends BindingPatternNode {
     @Override
     protected String[] childNames() {
         return new String[]{
+                "errorKeyword",
                 "typeReference",
                 "openParenthesis",
                 "argListBindingPatterns",
                 "closeParenthesis"};
     }
 
-    public FunctionalBindingPatternNode modify(
+    public ErrorBindingPatternNode modify(
+            Token errorKeyword,
             Node typeReference,
             Token openParenthesis,
             SeparatedNodeList<BindingPatternNode> argListBindingPatterns,
             Token closeParenthesis) {
         if (checkForReferenceEquality(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns.underlyingListNode(),
@@ -80,15 +88,16 @@ public class FunctionalBindingPatternNode extends BindingPatternNode {
             return this;
         }
 
-        return NodeFactory.createFunctionalBindingPatternNode(
+        return NodeFactory.createErrorBindingPatternNode(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,
                 closeParenthesis);
     }
 
-    public FunctionalBindingPatternNodeModifier modify() {
-        return new FunctionalBindingPatternNodeModifier(this);
+    public ErrorBindingPatternNodeModifier modify() {
+        return new ErrorBindingPatternNodeModifier(this);
     }
 
     /**
@@ -96,51 +105,61 @@ public class FunctionalBindingPatternNode extends BindingPatternNode {
      *
      * @since 2.0.0
      */
-    public static class FunctionalBindingPatternNodeModifier {
-        private final FunctionalBindingPatternNode oldNode;
+    public static class ErrorBindingPatternNodeModifier {
+        private final ErrorBindingPatternNode oldNode;
+        private Token errorKeyword;
         private Node typeReference;
         private Token openParenthesis;
         private SeparatedNodeList<BindingPatternNode> argListBindingPatterns;
         private Token closeParenthesis;
 
-        public FunctionalBindingPatternNodeModifier(FunctionalBindingPatternNode oldNode) {
+        public ErrorBindingPatternNodeModifier(ErrorBindingPatternNode oldNode) {
             this.oldNode = oldNode;
-            this.typeReference = oldNode.typeReference();
+            this.errorKeyword = oldNode.errorKeyword();
+            this.typeReference = oldNode.typeReference().orElse(null);
             this.openParenthesis = oldNode.openParenthesis();
             this.argListBindingPatterns = oldNode.argListBindingPatterns();
             this.closeParenthesis = oldNode.closeParenthesis();
         }
 
-        public FunctionalBindingPatternNodeModifier withTypeReference(
+        public ErrorBindingPatternNodeModifier withErrorKeyword(
+                Token errorKeyword) {
+            Objects.requireNonNull(errorKeyword, "errorKeyword must not be null");
+            this.errorKeyword = errorKeyword;
+            return this;
+        }
+
+        public ErrorBindingPatternNodeModifier withTypeReference(
                 Node typeReference) {
             Objects.requireNonNull(typeReference, "typeReference must not be null");
             this.typeReference = typeReference;
             return this;
         }
 
-        public FunctionalBindingPatternNodeModifier withOpenParenthesis(
+        public ErrorBindingPatternNodeModifier withOpenParenthesis(
                 Token openParenthesis) {
             Objects.requireNonNull(openParenthesis, "openParenthesis must not be null");
             this.openParenthesis = openParenthesis;
             return this;
         }
 
-        public FunctionalBindingPatternNodeModifier withArgListBindingPatterns(
+        public ErrorBindingPatternNodeModifier withArgListBindingPatterns(
                 SeparatedNodeList<BindingPatternNode> argListBindingPatterns) {
             Objects.requireNonNull(argListBindingPatterns, "argListBindingPatterns must not be null");
             this.argListBindingPatterns = argListBindingPatterns;
             return this;
         }
 
-        public FunctionalBindingPatternNodeModifier withCloseParenthesis(
+        public ErrorBindingPatternNodeModifier withCloseParenthesis(
                 Token closeParenthesis) {
             Objects.requireNonNull(closeParenthesis, "closeParenthesis must not be null");
             this.closeParenthesis = closeParenthesis;
             return this;
         }
 
-        public FunctionalBindingPatternNode apply() {
+        public ErrorBindingPatternNode apply() {
             return oldNode.modify(
+                    errorKeyword,
                     typeReference,
                     openParenthesis,
                     argListBindingPatterns,

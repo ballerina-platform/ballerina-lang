@@ -581,8 +581,8 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(restBindingPatternNode);
     }
 
-    public T transform(STFunctionalBindingPatternNode functionalBindingPatternNode) {
-        return transformSyntaxNode(functionalBindingPatternNode);
+    public T transform(STErrorBindingPatternNode errorBindingPatternNode) {
+        return transformSyntaxNode(errorBindingPatternNode);
     }
 
     public T transform(STNamedArgBindingPatternNode namedArgBindingPatternNode) {
