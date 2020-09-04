@@ -803,11 +803,15 @@ public class BIRPackageSymbolEnter {
 
         // Extract and set taint table to the symbol
         invokableSymbol.taintTable = new HashMap<>();
+
+        dataInStream.readInt(); // read and ignore table size
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             int paramIndex = dataInStream.readShort();
             TaintRecord.TaintedStatus returnTaintedStatus =
                     convertByteToTaintedStatus(dataInStream.readByte());
             List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>();
+
+            dataInStream.readInt(); // read and ignore taint record size
             for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
                 parameterTaintedStatusList.add(convertByteToTaintedStatus(dataInStream.readByte()));
             }
@@ -890,7 +894,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private class BIRTypeReader {
-        public static final int SERVICE_TYPE_TAG = 51;
+        public static final int SERVICE_TYPE_TAG = 52;
         private DataInputStream inputStream;
 
         public BIRTypeReader(DataInputStream inputStream) {
@@ -1351,6 +1355,9 @@ public class BIRPackageSymbolEnter {
     private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType, BIRTypeReader typeReader)
             throws IOException {
         BType valueType = typeReader.readTypeFromCp();
+
+        dataInStream.readInt(); // read and ignore value length
+
         BLangLiteral litExpr = createLiteralBasedOnType(valueType);
         switch (valueType.tag) {
             case TypeTags.INT:
@@ -1373,7 +1380,7 @@ public class BIRPackageSymbolEnter {
                 litExpr.value = getStringCPEntryValue(dataInStream);
                 break;
             case TypeTags.BOOLEAN:
-                litExpr.value = dataInStream.readByte() == 1;
+                litExpr.value = dataInStream.readBoolean();
                 break;
             case TypeTags.NIL:
                 break;
