@@ -41,7 +41,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         return optionalChildInBucket(1);
     }
 
-    public Optional<Token> readonlyKeyword() {
+    public Optional<Token> finalKeyword() {
         return optionalChildInBucket(2);
     }
 
@@ -80,7 +80,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         return new String[]{
                 "metadata",
                 "visibilityQualifier",
-                "readonlyKeyword",
+                "finalKeyword",
                 "typeName",
                 "fieldName",
                 "equalsToken",
@@ -91,7 +91,7 @@ public class ObjectFieldNode extends NonTerminalNode {
     public ObjectFieldNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,
-            Token readonlyKeyword,
+            Token finalKeyword,
             Node typeName,
             Token fieldName,
             Token equalsToken,
@@ -100,7 +100,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
-                readonlyKeyword,
+                finalKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -112,7 +112,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         return NodeFactory.createObjectFieldNode(
                 metadata,
                 visibilityQualifier,
-                readonlyKeyword,
+                finalKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -133,7 +133,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         private final ObjectFieldNode oldNode;
         private MetadataNode metadata;
         private Token visibilityQualifier;
-        private Token readonlyKeyword;
+        private Token finalKeyword;
         private Node typeName;
         private Token fieldName;
         private Token equalsToken;
@@ -144,7 +144,7 @@ public class ObjectFieldNode extends NonTerminalNode {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
-            this.readonlyKeyword = oldNode.readonlyKeyword().orElse(null);
+            this.finalKeyword = oldNode.finalKeyword().orElse(null);
             this.typeName = oldNode.typeName();
             this.fieldName = oldNode.fieldName();
             this.equalsToken = oldNode.equalsToken();
@@ -166,10 +166,10 @@ public class ObjectFieldNode extends NonTerminalNode {
             return this;
         }
 
-        public ObjectFieldNodeModifier withReadonlyKeyword(
-                Token readonlyKeyword) {
-            Objects.requireNonNull(readonlyKeyword, "readonlyKeyword must not be null");
-            this.readonlyKeyword = readonlyKeyword;
+        public ObjectFieldNodeModifier withFinalKeyword(
+                Token finalKeyword) {
+            Objects.requireNonNull(finalKeyword, "finalKeyword must not be null");
+            this.finalKeyword = finalKeyword;
             return this;
         }
 
@@ -212,7 +212,7 @@ public class ObjectFieldNode extends NonTerminalNode {
             return oldNode.modify(
                     metadata,
                     visibilityQualifier,
-                    readonlyKeyword,
+                    finalKeyword,
                     typeName,
                     fieldName,
                     equalsToken,

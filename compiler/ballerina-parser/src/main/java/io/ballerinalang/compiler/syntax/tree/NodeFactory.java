@@ -935,7 +935,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ObjectFieldNode createObjectFieldNode(
             MetadataNode metadata,
             Token visibilityQualifier,
-            Token readonlyKeyword,
+            Token finalKeyword,
             Node typeName,
             Token fieldName,
             Token equalsToken,
@@ -950,7 +950,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stObjectFieldNode = STNodeFactory.createObjectFieldNode(
                 getOptionalSTNode(metadata),
                 getOptionalSTNode(visibilityQualifier),
-                getOptionalSTNode(readonlyKeyword),
+                getOptionalSTNode(finalKeyword),
                 typeName.internalNode(),
                 fieldName.internalNode(),
                 equalsToken.internalNode(),

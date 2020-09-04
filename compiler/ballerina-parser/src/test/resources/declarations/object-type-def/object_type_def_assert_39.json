@@ -1,5 +1,6 @@
 {
   "kind": "TYPE_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "TYPE_KEYWORD",
@@ -22,6 +23,7 @@
     },
     {
       "kind": "OBJECT_TYPE_DESC",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "LIST",
@@ -47,27 +49,18 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "OBJECT_FIELD",
+              "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "READONLY_KEYWORD",
-                  "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
                   "kind": "INTERSECTION_TYPE_DESC",
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_QUALIFIER_NOT_ALLOWED"
+                  ],
                   "children": [
                     {
                       "kind": "ARRAY_TYPE_DESC",
@@ -109,6 +102,25 @@
                         {
                           "kind": "READONLY_KEYWORD",
                           "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "READONLY_KEYWORD"
+                                  }
+                                ]
+                              }
+                            },
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": " "
@@ -136,24 +148,14 @@
             },
             {
               "kind": "OBJECT_FIELD",
+              "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "READONLY_KEYWORD",
-                  "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
                   "kind": "INTERSECTION_TYPE_DESC",
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_QUALIFIER_NOT_ALLOWED"
+                  ],
                   "children": [
                     {
                       "kind": "READONLY_TYPE_DESC",
@@ -195,6 +197,25 @@
                         {
                           "kind": "CLOSE_BRACKET_TOKEN",
                           "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "READONLY_KEYWORD"
+                                  }
+                                ]
+                              }
+                            },
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": " "

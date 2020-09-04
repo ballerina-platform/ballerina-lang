@@ -953,8 +953,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(objectFieldNode.metadata().orElse(null));
         Token visibilityQualifier =
                 modifyToken(objectFieldNode.visibilityQualifier().orElse(null));
-        Token readonlyKeyword =
-                modifyToken(objectFieldNode.readonlyKeyword().orElse(null));
+        Token finalKeyword =
+                modifyToken(objectFieldNode.finalKeyword().orElse(null));
         Node typeName =
                 modifyNode(objectFieldNode.typeName());
         Token fieldName =
@@ -968,7 +968,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return objectFieldNode.modify(
                 metadata,
                 visibilityQualifier,
-                readonlyKeyword,
+                finalKeyword,
                 typeName,
                 fieldName,
                 equalsToken,

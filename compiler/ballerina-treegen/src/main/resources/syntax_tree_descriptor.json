@@ -1259,7 +1259,7 @@
                     "isOptional": true
                 },
                 {
-                    "name": "readonlyKeyword",
+                    "name": "finalKeyword",
                     "type": "Token",
                     "isOptional": true
                 },
