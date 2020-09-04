@@ -35,8 +35,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ExternalFunctionBodyNodeContext extends AbstractCompletionProvider<ExternalFunctionBodyNode> {
     public ExternalFunctionBodyNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(ExternalFunctionBodyNode.class);
+        super(ExternalFunctionBodyNode.class);
     }
 
     @Override

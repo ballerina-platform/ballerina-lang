@@ -35,8 +35,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ForkStatementNodeContext extends AbstractCompletionProvider<ForkStatementNode> {
     public ForkStatementNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ForkStatementNode.class);
+        super(ForkStatementNode.class);
     }
 
     @Override

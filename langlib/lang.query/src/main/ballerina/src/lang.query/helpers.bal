@@ -38,16 +38,18 @@ function createLetFunction(function(_Frame _frame) returns _Frame|error? letFunc
     return new _LetFunction(letFunc);
 }
 
-function createInnerJoinFunction(_StreamPipeline joinedPipeline,
-                                        function(_Frame _frame) returns boolean onCondition)
-        returns _StreamFunction {
-    return new _InnerJoinFunction(joinedPipeline, onCondition);
+function createInnerJoinFunction(
+        _StreamPipeline joinedPipeline,
+        function (_Frame _frame) returns any lhsKeyFunction,
+        function (_Frame _frame) returns any rhsKeyFunction) returns _StreamFunction {
+    return new _InnerJoinFunction(joinedPipeline, lhsKeyFunction, rhsKeyFunction);
 }
 
-function createOuterJoinFunction(_StreamPipeline joinedPipeline,
-                                        function(_Frame _frame) returns boolean onCondition)
-        returns _StreamFunction {
-    return new _OuterJoinFunction(joinedPipeline, onCondition);
+function createOuterJoinFunction(
+        _StreamPipeline joinedPipeline,
+        function (_Frame _frame) returns any lhsKeyFunction,
+        function (_Frame _frame) returns any rhsKeyFunction, _Frame nilFrame) returns _StreamFunction {
+    return new _OuterJoinFunction(joinedPipeline, lhsKeyFunction, rhsKeyFunction, nilFrame);
 }
 
 function createFilterFunction(function(_Frame _frame) returns boolean filterFunc)

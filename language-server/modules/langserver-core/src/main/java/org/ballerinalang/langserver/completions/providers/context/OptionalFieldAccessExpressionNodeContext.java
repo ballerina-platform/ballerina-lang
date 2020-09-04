@@ -35,8 +35,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class OptionalFieldAccessExpressionNodeContext extends FieldAccessContext<OptionalFieldAccessExpressionNode> {
     public OptionalFieldAccessExpressionNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(OptionalFieldAccessExpressionNode.class);
+        super(OptionalFieldAccessExpressionNode.class);
     }
 
     @Override

@@ -284,6 +284,15 @@ public class FunctionStub {
             panic result;
         }
     }
+
+    # Sets the original function to be invoked.
+    public function callOriginal() {
+        self.returnValue = "__ORIGINAL__";
+        Error? result = thenReturnFuncExt(self);
+        if (result is Error) {
+            panic result;
+        }
+    }
 }
 
 # Creates and returns a mock object of provided type description.

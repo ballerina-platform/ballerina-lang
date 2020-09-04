@@ -58,7 +58,7 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
     private Map<String, String> envVariables;
     private BMainInstance balClient;
 
-    @BeforeClass()
+    @BeforeClass(enabled = false)
     public void setUp() throws IOException, BallerinaTestException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-versions-project-");
         printModuleName = printModuleName + PackerinaTestUtils.randomModuleName(8);
@@ -70,7 +70,8 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
         balClient = new BMainInstance(balServer);
     }
 
-    @Test(description = "Test pushing multiple versions of same module to central and use them in a project")
+    @Test(enabled = false, description = "Test pushing multiple versions of same module " +
+            "to central and use them in a project")
     public void testMultipleVersionsOfSameModuleImport() throws Exception {
 
         // Build and Push  print module of PrintProjectV1
@@ -168,7 +169,7 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
         return envVariables;
     }
 
-    @AfterClass
+    @AfterClass(enabled = false)
     private void cleanup() throws Exception {
         PackerinaTestUtils.deleteFiles(tempProjectDirectory);
     }

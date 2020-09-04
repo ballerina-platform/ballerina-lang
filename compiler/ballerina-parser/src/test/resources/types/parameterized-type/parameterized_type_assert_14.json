@@ -90,11 +90,11 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "TYPE_DESC",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "TYPE_DESC",
+                                  "kind": "IDENTIFIER_TOKEN",
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
@@ -168,10 +168,10 @@
                               ]
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "50"
                                 }
                               ]
@@ -204,10 +204,10 @@
                               ]
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "60"
                                 }
                               ]

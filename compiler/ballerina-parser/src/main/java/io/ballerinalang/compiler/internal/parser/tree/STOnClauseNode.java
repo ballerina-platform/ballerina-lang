@@ -32,49 +32,69 @@ import java.util.Collections;
  */
 public class STOnClauseNode extends STClauseNode {
     public final STNode onKeyword;
-    public final STNode expression;
+    public final STNode lhsExpression;
+    public final STNode equalsKeyword;
+    public final STNode rhsExpression;
 
     STOnClauseNode(
             STNode onKeyword,
-            STNode expression) {
+            STNode lhsExpression,
+            STNode equalsKeyword,
+            STNode rhsExpression) {
         this(
                 onKeyword,
-                expression,
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression,
                 Collections.emptyList());
     }
 
     STOnClauseNode(
             STNode onKeyword,
-            STNode expression,
+            STNode lhsExpression,
+            STNode equalsKeyword,
+            STNode rhsExpression,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.ON_CLAUSE, diagnostics);
         this.onKeyword = onKeyword;
-        this.expression = expression;
+        this.lhsExpression = lhsExpression;
+        this.equalsKeyword = equalsKeyword;
+        this.rhsExpression = rhsExpression;
 
         addChildren(
                 onKeyword,
-                expression);
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STOnClauseNode(
                 this.onKeyword,
-                this.expression,
+                this.lhsExpression,
+                this.equalsKeyword,
+                this.rhsExpression,
                 diagnostics);
     }
 
     public STOnClauseNode modify(
             STNode onKeyword,
-            STNode expression) {
+            STNode lhsExpression,
+            STNode equalsKeyword,
+            STNode rhsExpression) {
         if (checkForReferenceEquality(
                 onKeyword,
-                expression)) {
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression)) {
             return this;
         }
 
         return new STOnClauseNode(
                 onKeyword,
-                expression,
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression,
                 diagnostics);
     }
 

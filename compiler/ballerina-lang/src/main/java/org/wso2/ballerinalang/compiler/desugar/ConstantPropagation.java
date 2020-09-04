@@ -900,7 +900,8 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        onClause.expression = rewrite(onClause.expression);
+        onClause.lhsExpr = rewrite(onClause.lhsExpr);
+        onClause.rhsExpr = rewrite(onClause.rhsExpr);
         result = onClause;
     }
 

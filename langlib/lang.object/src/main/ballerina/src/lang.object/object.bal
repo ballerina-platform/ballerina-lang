@@ -17,7 +17,7 @@
 # Represents the shape expected from all listeners.
 public type Listener object {
     # Handle service attachment to the listener.
-    #
+    #d
     # + s - the service to attach
     # + name - optionally a name associated with the service
     # + return - `()` if no error occurred, and an error otherwise

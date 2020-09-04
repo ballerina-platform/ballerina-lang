@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -605,7 +604,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
                 names.fromIdNode(classDefinition.name),
-                env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                env.enclPkg.symbol.pkgID, null, env.scope.owner, classDefinition.pos);
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
@@ -652,7 +651,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                             annotationNode.getAttachPoints(),
                                                                             names.fromIdNode(annotationNode.name),
                                                                             env.enclPkg.symbol.pkgID, null,
-                                                                            env.scope.owner);
+                                                                            env.scope.owner, annotationNode.pos);
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
         if (isDeprecated(annotationNode.annAttachments)) {
@@ -855,7 +854,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BXMLNSSymbol xmlnsSymbol = Symbols.createXMLNSSymbol(names.fromIdNode(xmlnsNode.prefix), nsURI,
-                env.enclPkg.symbol.pkgID, env.scope.owner);
+                env.enclPkg.symbol.pkgID, env.scope.owner, xmlnsNode.pos);
         xmlnsNode.symbol = xmlnsSymbol;
 
         // First check for package-imports with the same alias.
@@ -1104,7 +1103,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
             definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
                                                            Names.EMPTY, env.enclPkg.symbol.pkgID, definedType,
-                                                           env.scope.owner);
+                                                           env.scope.owner, typeDefinition.pos);
         }
 
         typeDefinition.precedence = this.typePrecedence++;
@@ -1281,7 +1280,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineErrorConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {
         BErrorType errorType = (BErrorType) typeDefSymbol.type;
         BConstructorSymbol symbol = new BConstructorSymbol(typeDefSymbol.flags, typeDefSymbol.name,
-                typeDefSymbol.pkgID, errorType, typeDefSymbol.owner);
+                                                           typeDefSymbol.pkgID, errorType, typeDefSymbol.owner, pos);
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
         symbol.retType = errorType;
@@ -1295,7 +1294,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         BInvokableSymbol workerSymbol = Symbols.createWorkerSymbol(Flags.asMask(workerNode.flagSet),
-                names.fromIdNode(workerNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                                                                   names.fromIdNode(workerNode.name),
+                                                                   env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                                                                   workerNode.pos);
         workerSymbol.markdownDocumentation = getMarkdownDocAttachment(workerNode.markdownDocumentationAttachment);
         workerNode.symbol = workerSymbol;
         defineSymbolWithCurrentEnvOwner(workerNode.pos, workerSymbol);
@@ -1304,7 +1305,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
-                names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, serviceNode.type, env.scope.owner);
+                                                                   names.fromIdNode(serviceNode.name),
+                                                                   env.enclPkg.symbol.pkgID, serviceNode.type,
+                                                                   env.scope.owner, serviceNode.name.pos);
         serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
 
         BType serviceObjectType = serviceNode.serviceClass.symbol.type;
@@ -1337,7 +1340,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                                                                    getFuncSymbolName(funcNode),
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                   funcNode.hasBody());
+                                                                   funcNode.hasBody(), funcNode.pos);
         funcSymbol.source = funcNode.pos.src.cUnitName;
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
@@ -1440,7 +1443,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         return new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                symTable.semanticError, symTable.noType, env.scope.owner);
+                                   symTable.semanticError, symTable.noType, env.scope.owner, constant.pos);
     }
 
     @Override
@@ -1522,10 +1525,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangEndpoint endpoint) {
-    }
-
     public void visit(BLangXMLAttribute bLangXMLAttribute) {
         if (!(bLangXMLAttribute.name.getKind() == NodeKind.XML_QNAME)) {
             return;
@@ -1537,7 +1536,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // If no duplicates, then define this attribute symbol.
         if (!bLangXMLAttribute.isNamespaceDeclr) {
             BXMLAttributeSymbol attrSymbol = new BXMLAttributeSymbol(qname.localname.value, qname.namespaceURI,
-                    env.enclPkg.symbol.pkgID, env.scope.owner);
+                                                                     env.enclPkg.symbol.pkgID, env.scope.owner,
+                                                                     bLangXMLAttribute.pos);
             if (symResolver.checkForUniqueMemberSymbol(bLangXMLAttribute.pos, env, attrSymbol)) {
                 env.scope.define(attrSymbol.name, attrSymbol);
                 bLangXMLAttribute.symbol = attrSymbol;
@@ -1562,7 +1562,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             symbolName = XMLConstants.DEFAULT_NS_PREFIX;
         }
         BXMLNSSymbol xmlnsSymbol =
-                new BXMLNSSymbol(names.fromString(symbolName), nsURI, env.enclPkg.symbol.pkgID, env.scope.owner);
+                new BXMLNSSymbol(names.fromString(symbolName), nsURI, env.enclPkg.symbol.pkgID, env.scope.owner,
+                                 qname.localname.pos);
         if (symResolver.checkForUniqueMemberSymbol(bLangXMLAttribute.pos, env, xmlnsSymbol)) {
             env.scope.define(xmlnsSymbol.name, xmlnsSymbol);
             bLangXMLAttribute.symbol = xmlnsSymbol;
@@ -2128,7 +2129,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BObjectType mutableObjectType = immutableObjectType.mutableType;
 
             ImmutableTypeCloner.defineObjectFunctions((BObjectTypeSymbol) immutableObjectType.tsymbol,
-                                                      (BObjectTypeSymbol) mutableObjectType.tsymbol, names);
+                                                      (BObjectTypeSymbol) mutableObjectType.tsymbol, names, symTable);
         }
     }
 
@@ -2313,9 +2314,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         BInvokableTypeSymbol functionTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
-                invokableSymbol.flags,
-                env.enclPkg.symbol.pkgID,
-                invokableSymbol.type, env.scope.owner);
+                                                                                    invokableSymbol.flags,
+                                                                                    env.enclPkg.symbol.pkgID,
+                                                                                    invokableSymbol.type,
+                                                                                    env.scope.owner, invokableNode.pos);
         functionTypeSymbol.params = invokableSymbol.params;
         functionTypeSymbol.returnType = invokableSymbol.retType;
 
@@ -2364,7 +2366,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv);
+        BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv, pos);
         if (type.tag == TypeTags.INVOKABLE && type.tsymbol != null) {
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) type.tsymbol;
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;
@@ -2389,7 +2391,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                       SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
-        BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env);
+        BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos);
 
         // Add it to the enclosing scope
         if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
@@ -2406,19 +2408,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         env.scope.define(varSymbol.name, varSymbol);
     }
 
-    public BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {
-        return createVarSymbol(Flags.asMask(flagSet), varType, varName, env);
+    public BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env,
+                                      DiagnosticPos pos) {
+        return createVarSymbol(Flags.asMask(flagSet), varType, varName, env, pos);
     }
 
-    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env) {
+    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env, DiagnosticPos pos) {
         BType safeType = types.getSafeType(varType, true, false);
         BVarSymbol varSymbol;
         if (safeType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
-                                             env.scope.owner);
+                                             env.scope.owner, pos);
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
-            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, pos);
             if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
             }
@@ -2476,15 +2479,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) funcNode.receiver.type.tsymbol;
 
         recordSymbol.initializerFunc = new BAttachedFunction(
-                names.fromIdNode(funcNode.name), funcSymbol, funcType);
+                names.fromIdNode(funcNode.name), funcSymbol, funcType, funcNode.pos);
     }
 
     private void validateFunctionsAttachedToObject(BLangFunction funcNode, BInvokableSymbol funcSymbol) {
 
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) funcNode.receiver.type.tsymbol;
-        BAttachedFunction attachedFunc = new BAttachedFunction(
-                names.fromIdNode(funcNode.name), funcSymbol, funcType);
+        BAttachedFunction attachedFunc = new BAttachedFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType,
+                                                               funcNode.pos);
 
         validateRemoteFunctionAttachedToObject(funcNode, objectSymbol);
         validateResourceFunctionAttachedToObject(funcNode, objectSymbol);
@@ -2610,29 +2613,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         return docAttachment;
     }
 
-    private void createDummyTypeDefSymbol(TypeDefinition typeDefNode, SymbolEnv env) {
-        if (typeDefNode.getKind() == NodeKind.CONSTANT) {
-            return;
-        }
-
-        BLangTypeDefinition typeDef = (BLangTypeDefinition) typeDefNode;
-        // This is only to keep the flow running so that at the end there will be proper semantic errors
-        typeDef.symbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
-                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, typeDef.typeNode.type, env.scope.owner);
-        typeDef.symbol.scope = env.scope;
-
-        // Todo - Add more kinds.
-        switch (typeDef.typeNode.type.tag) {
-            case TypeTags.RECORD:
-            case TypeTags.OBJECT:
-                typeDef.symbol.kind = ((BLangStructureTypeNode) typeDef.typeNode).symbol.kind;
-                ((BLangStructureTypeNode) typeDef.typeNode).symbol.scope = env.scope;
-                break;
-        }
-
-        defineSymbol(typeDef.pos, typeDef.symbol, env);
-    }
-
     private void resolveReferencedFields(BLangStructureTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
         Set<BSymbol> referencedTypes = new HashSet<>();
         List<BLangType> invalidTypeRefs = new ArrayList<>();
@@ -2749,7 +2729,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // If not, define the function symbol within the object.
         // Take a copy of the symbol, with the new name, and the package ID same as the object type.
         BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateFunctionDeclarationSymbol(referencedFunc.symbol,
-                typeDefSymbol, funcName, typeDefSymbol.pkgID);
+                typeDefSymbol, funcName, typeDefSymbol.pkgID,
+                                                                                        typeRef.pos);
         defineSymbol(typeRef.pos, funcSymbol, objEnv);
 
         // Create and define the parameters and receiver. This should be done after defining the function symbol.
@@ -2763,7 +2744,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Cache the function symbol.
         BAttachedFunction attachedFunc =
-                new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type);
+                new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
+                                      referencedFunc.pos);
         ((BObjectTypeSymbol) typeDefSymbol).attachedFuncs.add(attachedFunc);
         ((BObjectTypeSymbol) typeDefSymbol).referencedFunctions.add(attachedFunc);
     }
@@ -2840,7 +2822,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private BPackageSymbol duplicatePackagSymbol(BPackageSymbol originalSymbol) {
-        BPackageSymbol copy = new BPackageSymbol(originalSymbol.pkgID, originalSymbol.owner, originalSymbol.flags);
+        BPackageSymbol copy = new BPackageSymbol(originalSymbol.pkgID, originalSymbol.owner, originalSymbol.flags,
+                                                 originalSymbol.pos);
         copy.initFunctionSymbol = originalSymbol.initFunctionSymbol;
         copy.startFunctionSymbol = originalSymbol.startFunctionSymbol;
         copy.stopFunctionSymbol = originalSymbol.stopFunctionSymbol;
@@ -2867,7 +2850,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void resolveAndSetFunctionTypeFromRHSLambda(BLangSimpleVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
         variable.type = symResolver.createInvokableType(function.getParameters(),
-                function.restParam, function.returnTypeNode, Flags.asMask(variable.flagSet), env);
+                                                        function.restParam, function.returnTypeNode,
+                                                        Flags.asMask(variable.flagSet), env, function.pos);
     }
 
     /**

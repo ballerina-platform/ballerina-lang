@@ -838,7 +838,8 @@
                 },
                 {
                     "name": "visibilityQualifier",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "constKeyword",
@@ -846,7 +847,8 @@
                 },
                 {
                     "name": "typeDescriptor",
-                    "type": "TypeDescriptorNode"
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
                 },
                 {
                     "name": "variableName",
@@ -1019,15 +1021,17 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Token"
+                    "type": "Node"
                 },
                 {
                     "name": "colon",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "valueExpr",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -1273,11 +1277,13 @@
                 },
                 {
                     "name": "equalsToken",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "expression",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "isOptional": true
                 },
                 {
                     "name": "semicolonToken",
@@ -1649,11 +1655,13 @@
                 },
                 {
                     "name": "asKeyword",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "namespacePrefix",
-                    "type": "IdentifierToken"
+                    "type": "IdentifierToken",
+                    "isOptional": true
                 },
                 {
                     "name": "semicolonToken",
@@ -1922,7 +1930,8 @@
                 },
                 {
                     "name": "keySpecifier",
-                    "type": "KeySpecifierNode"
+                    "type": "KeySpecifierNode",
+                    "isOptional": true
                 },
                 {
                     "name": "openBracket",
@@ -2129,7 +2138,8 @@
             "attributes": [
                 {
                     "name": "type",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "startBacktick",
@@ -3426,11 +3436,13 @@
                 },
                 {
                     "name": "equalToken",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "constExprNode",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3814,8 +3826,7 @@
                 },
                 {
                     "name": "onCondition",
-                    "type": "OnClauseNode",
-                    "isOptional": true
+                    "type": "OnClauseNode"
                 }
             ]
         },
@@ -3829,7 +3840,15 @@
                     "type": "Token"
                 },
                 {
-                    "name": "expression",
+                    "name": "lhsExpression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "equalsKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "rhsExpression",
                     "type": "ExpressionNode"
                 }
             ]

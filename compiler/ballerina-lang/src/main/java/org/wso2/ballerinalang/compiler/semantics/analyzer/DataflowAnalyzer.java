@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -191,6 +190,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -504,11 +504,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangEndpoint endpoint) {
-        analyzeNode(endpoint.configurationExpr, env);
-    }
-
-    @Override
     public void visit(BLangAssignment assignment) {
         analyzeNode(assignment.expr, env);
         checkAssignment(assignment.varRef);
@@ -807,22 +802,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private List<String> getFieldNames(BLangTableConstructorExpr constructorExpr) {
-        List<String> fieldNames = ((BTableType) constructorExpr.type).fieldNameList;
-
-        if (fieldNames != null) {
-            return fieldNames;
+        List<String> fieldNames = null;
+        if (constructorExpr.type.tag == TypeTags.TABLE) {
+            fieldNames = ((BTableType) constructorExpr.type).fieldNameList;
+            if (fieldNames != null) {
+                return fieldNames;
+            }
         }
-
         if (constructorExpr.tableKeySpecifier != null &&
                 !constructorExpr.tableKeySpecifier.fieldNameIdentifierList.isEmpty()) {
             BLangTableKeySpecifier tableKeySpecifier = constructorExpr.tableKeySpecifier;
-            fieldNames = tableKeySpecifier.fieldNameIdentifierList.stream().map(identifier ->
+            return tableKeySpecifier.fieldNameIdentifierList.stream().map(identifier ->
                     ((BLangIdentifier) identifier).value).collect(Collectors.toList());
         } else {
             return new ArrayList<>();
         }
-
-        return fieldNames;
     }
 
     @Override
@@ -960,7 +954,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        analyzeNode(onClause.expression, env);
+        analyzeNode(onClause.lhsExpr, env);
+        analyzeNode(onClause.rhsExpr, env);
     }
 
     @Override

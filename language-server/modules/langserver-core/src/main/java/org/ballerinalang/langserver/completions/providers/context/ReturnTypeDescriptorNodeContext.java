@@ -15,10 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
@@ -41,9 +40,9 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<ReturnTypeDescriptorNode> {
+
     public ReturnTypeDescriptorNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(ReturnTypeDescriptorNode.class);
+        super(ReturnTypeDescriptorNode.class);
     }
 
     @Override
@@ -51,7 +50,7 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (node.type().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
+        if (this.onQualifiedNameIdentifier(context, node.type())
                 && withinIdentifierContext(context, (QualifiedNameReferenceNode) node.type())) {
             /*
             Covers the following cases.

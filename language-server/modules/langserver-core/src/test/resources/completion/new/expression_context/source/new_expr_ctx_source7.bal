@@ -1,0 +1,24 @@
+import ballerina/module1;
+
+function testNewFunction() {
+    module1:TestObject1 obj1 = new 
+    int testVar = 12;
+}
+
+type TestObject1 object {
+	int field1;
+	int field2;
+	public function init(int field1, int field2) {
+	    self.field1 = field1;
+	    self.field2 = field2;
+    }
+};
+
+type TestObject2 object {
+	int field1;
+	int field2;
+	public function init() {
+	    self.field1 = 10;
+	    self.field2 = 20;
+    }
+};

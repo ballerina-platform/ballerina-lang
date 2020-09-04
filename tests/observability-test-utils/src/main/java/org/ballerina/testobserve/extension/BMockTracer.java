@@ -35,7 +35,7 @@ public class BMockTracer implements OpenTracer {
     private static final String NAME = "BMockTracer";
 
     @Override
-    public Tracer getTracer(String tracerName, String serviceName) {
+    public Tracer getTracer(String serviceName) {
         MockTracer mockTracer = new MockTracer();
         BMockTracer.tracerMap.put(serviceName, mockTracer);
         return mockTracer;
