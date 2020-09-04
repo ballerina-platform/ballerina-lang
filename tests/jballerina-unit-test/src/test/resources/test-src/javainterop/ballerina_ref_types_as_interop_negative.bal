@@ -33,23 +33,23 @@ function acceptMixType(MIX_TYPE x) returns any = @java:Method {
 function testInvalidIntersectionParamType(map<int> & readonly m) =
     @java:Method {
         name:"acceptImmutableValue",
-        class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
+        'class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
     } external;
 
 function testInvalidIntersectionReturnType(int[] & readonly a) returns int[] & readonly =
     @java:Method {
         name:"acceptAndReturnImmutableArray",
-        class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
+        'class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
     } external;
 
 function testInvalidReadOnlyParamType(readonly r) =
     @java:Method {
         name:"acceptReadOnlyValue",
-        class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
+        'class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
     } external;
 
 function testReturnReadOnlyValue(function () returns int f) returns readonly =
     @java:Method {
         name:"returnReadOnlyValue",
-        class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
+        'class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
     } external;

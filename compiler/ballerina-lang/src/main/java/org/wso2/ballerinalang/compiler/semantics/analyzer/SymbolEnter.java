@@ -604,7 +604,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
                 names.fromIdNode(classDefinition.name),
-                env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                env.enclPkg.symbol.pkgID, null, env.scope.owner, classDefinition.pos);
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 

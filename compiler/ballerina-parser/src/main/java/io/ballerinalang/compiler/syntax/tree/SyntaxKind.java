@@ -320,7 +320,7 @@ public enum SyntaxKind {
     OBJECT_CONSTRUCTOR(1344),
 
     // Type descriptors
-//    TYPE_DESC(2000),
+    TYPE_DESC(2000),
     RECORD_TYPE_DESC(2001),
     OBJECT_TYPE_DESC(2002),
     NIL_TYPE_DESC(2003),

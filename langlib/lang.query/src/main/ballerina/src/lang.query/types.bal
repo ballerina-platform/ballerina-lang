@@ -788,7 +788,7 @@ class StreamOrderBy {
     }
 }
 
-type _FrameMultiMap object {
+class _FrameMultiMap {
 
     map<_Frame[]> m;
 
@@ -816,4 +816,4 @@ type _FrameMultiMap object {
         }
     }
 
-};
+}

@@ -960,6 +960,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INVALID_EXPRESSION_STATEMENT;
 
             // Types
+            case "TYPE_DESC":
+                return SyntaxKind.TYPE_DESC;
             case "INT_TYPE_DESC":
                 return SyntaxKind.INT_TYPE_DESC;
             case "FLOAT_TYPE_DESC":

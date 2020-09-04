@@ -131,5 +131,5 @@ public function assertFail(public string msg = "Test Failed!") {
 
 function sprintf(string format, (any|error)... args) returns string = @java:Method {
     name : "sprintf",
-    class : "org.ballerinalang.testerina.natives.io.Sprintf"
+    'class : "org.ballerinalang.testerina.natives.io.Sprintf"
 } external;

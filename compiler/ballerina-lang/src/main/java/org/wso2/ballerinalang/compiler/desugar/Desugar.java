@@ -4591,7 +4591,7 @@ public class Desugar extends BLangNodeVisitor {
                         symTable, classDefn.type);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefn.type.tsymbol);
         typeSymbol.initializerFunc = new BAttachedFunction(Names.USER_DEFINED_INIT_SUFFIX, initFunction.symbol,
-                                                           (BInvokableType) initFunction.type, objectTypeNode.pos);
+                                                           (BInvokableType) initFunction.type, classDefn.pos);
         classDefn.initFunction = initFunction;
         initFunction.returnTypeNode.type = symTable.nilType;
 
@@ -4603,7 +4603,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             BVarSymbol fieldSym = field.symbol;
             BVarSymbol paramSym = new BVarSymbol(Flags.FINAL, fieldSym.name, this.env.scope.owner.pkgID, fieldSym.type,
-                                                 initFunction.symbol, objectTypeNode.pos);
+                                                 initFunction.symbol, classDefn.pos);
             BLangSimpleVariable param = ASTBuilderUtil.createVariable(classDefn.pos, fieldSym.name.value,
                                                                       fieldSym.type, null, paramSym);
             param.flagSet.add(Flag.FINAL);
@@ -6924,7 +6924,7 @@ public class Desugar extends BLangNodeVisitor {
                         env, names, Names.GENERATED_INIT_SUFFIX, symTable, classDefinition.type);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefinition.type.tsymbol);
         typeSymbol.generatedInitializerFunc = new BAttachedFunction(Names.GENERATED_INIT_SUFFIX, initFunction.symbol,
-                (BInvokableType) initFunction.type);
+                (BInvokableType) initFunction.type, classDefinition.pos);
         classDefinition.generatedInitFunction = initFunction;
         initFunction.returnTypeNode.type = symTable.nilType;
         return rewrite(initFunction, env);

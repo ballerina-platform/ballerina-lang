@@ -497,16 +497,10 @@ function testReadOnlyAsParamAndReturnTypes() {
     readonly missingMemAsReadOnly = acceptAndReturnReadOnly(m2);
     assertTrue(missingMemAsReadOnly is ());
 
-    readonly object {
-        int i = 21;
-
-        function getInt() returns int {
-            return self.i;
-        }
-    } ob = new;
+    ReadOnlyIntProvider ob = new;
     readonly objectAsReadOnly = acceptAndReturnReadOnly(ob);
-    assertTrue(objectAsReadOnly is readonly & abstract object { int i; function getInt() returns int; });
-    var cObj = <abstract object { int i; function getInt() returns int; } & readonly> objectAsReadOnly;
+    assertTrue(objectAsReadOnly is readonly & object { int i; function getInt() returns int; });
+    var cObj = <object { int i; function getInt() returns int; } & readonly> objectAsReadOnly;
     assertEquality(21, cObj.getInt());
     assertEquality(ob, objectAsReadOnly);
 
@@ -517,8 +511,16 @@ function testReadOnlyAsParamAndReturnTypes() {
     assertEquality(arr, arrayAsReadOnly);
 }
 
+readonly class ReadOnlyIntProvider {
+    int i = 21;
+
+    function getInt() returns int {
+        return self.i;
+    }
+}
+
 function acceptAndReturnReadOnly(readonly value) returns readonly = @java:Method {
-     class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+     'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function testNarrowerTypesAsReadOnlyReturnTypes() {
@@ -608,14 +610,14 @@ function testNarrowerTypesAsReadOnlyReturnTypes() {
     assertEquality(tb, tableAsReadOnly);
 }
 
-type Bar readonly object {
+readonly class Bar {
     readonly int i;
     readonly string s = "hello world";
 
     function init(int i) {
         self.i = i;
     }
-};
+}
 
 function getNilAsReadOnly() returns readonly = @java:Method {
     'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
