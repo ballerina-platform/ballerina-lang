@@ -714,7 +714,7 @@ function testSort6() {
 
     int[2]|int[] arr4 = [1, 9, 3, 21, 0, 7];
 
-    int[2]|int[] sortedArr4 = arr4.sort("ascending", function(int i) returns int{
+    int[2]|int[] sortedArr4 = arr4.sort("ascending", function(int i) returns int {
         return i;
     });
 
@@ -744,6 +744,17 @@ function testSort6() {
     assertValueEquality(sortedArr7.toString(), "Ballerina from Hello  World!");
 
     int[] sortedArr8 = arr5.sort("ascending", ());
+    assertValueEquality(sortedArr8.toString(), "0 1 2 3 12 23 55 100");
+
+    int[] arr6 = [4294967295, 4194967295, 4294967290, 4284967295, 3294967295, 1294967295];
+
+    int[] sortedArr9 = arr6.sort();
+    assertValueEquality(sortedArr9.toString(), "1294967295 3294967295 4194967295 4284967295 4294967290 4294967295");
+
+    string[] arr7 = ["s", "a", "b", "M", "Z"];
+
+    string[] sortedArr10 = arr7.sort("descending");
+    assertValueEquality(sortedArr10.toString(), "Z s M b a");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -2761,6 +2761,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         checkIllegalStorageSizeChangeMethodCall(iExpr, varRefType);
+
+        // check argument types in arr:sort function
+        if (iExpr.langLibInvocation && iExpr.name.value.equals("sort")) {
+            checkArrayLibSortFuncArgs(iExpr);
+        }
     }
 
     private boolean checkInvalidImmutableValueUpdate(BLangInvocation iExpr, BType varRefType,
@@ -4352,7 +4357,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangOrderByClause orderByClause) {
         for (OrderKeyNode orderKeyNode : orderByClause.getOrderKeyList()) {
             BType exprType = checkExpr((BLangExpression) orderKeyNode.getOrderKey(), queryEnvs.peek());
-            if (!types.isBasicType(exprType)) {
+            if (!types.isOrderedType(exprType)) {
                 dlog.error(((BLangOrderKey) orderKeyNode).expression.pos, DiagnosticCode.ORDER_BY_NOT_SUPPORTED);
             }
         }
@@ -5222,11 +5227,6 @@ public class TypeChecker extends BLangNodeVisitor {
             requiredParams.add(nonRestParam);
         }
 
-        // check argument types in arr:sort function
-        if (iExpr.langLibInvocation && iExpr.name.value.equals("sort")) {
-            checkArrayLibSortFuncArgs(iExpr);
-        }
-
         int i = 0;
         for (; i < nonRestArgs.size(); i++) {
             BLangExpression arg = nonRestArgs.get(i);
@@ -5390,24 +5390,33 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkArrayLibSortFuncArgs(BLangInvocation iExpr) {
-        if (iExpr.argExprs.size() <= 2) {
-            if (!types.isBasicType(iExpr.expr.type)) {
-                dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
+        if (iExpr.argExprs.size() <= 2 && !types.isOrderedType(iExpr.expr.type)) {
+            dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
+        }
+
+        if (iExpr.argExprs.size() != 3) {
+            return;
+        }
+
+        BLangExpression argThree = iExpr.argExprs.get(2);
+        BType argThreeType = argThree.type;
+        if (argThreeType != null) {
+            if (argThreeType.tag == TypeTags.SEMANTIC_ERROR) {
+                return;
             }
-        } else if (iExpr.argExprs.size() == 3) {
-            if (iExpr.argExprs.get(2).type != null) {
-                if (iExpr.argExprs.get(2).type.tag == TypeTags.SEMANTIC_ERROR) {
-                    return;
-                } else if (iExpr.argExprs.get(2).type.tag == TypeTags.NIL && !types.isBasicType(iExpr.expr.type)) {
+
+            if (argThreeType.tag == TypeTags.NIL) {
+                if (!types.isOrderedType(iExpr.expr.type)) {
                     dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
                 }
-            } else {
-                BLangLambdaFunction func = (BLangLambdaFunction) iExpr.argExprs.get(2);
-                BType returnType = func.function.type.getReturnType();
-                if (!types.isBasicType(returnType)) {
-                    dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
-                }
+                return;
             }
+        }
+
+        BLangLambdaFunction func = (BLangLambdaFunction) argThree;
+        BType returnType = func.function.type.getReturnType();
+        if (!types.isOrderedType(returnType)) {
+            dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
     }
 

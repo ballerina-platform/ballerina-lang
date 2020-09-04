@@ -376,7 +376,7 @@ public class LangLibArrayTest {
         assertEquals(bValueArray.getInt(2), 3);
 
     }
-
+    @Test
     public void callingLengthModificationFunctionsOnFixedLengthLists() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative.bal");
         int errorIndex = 0;

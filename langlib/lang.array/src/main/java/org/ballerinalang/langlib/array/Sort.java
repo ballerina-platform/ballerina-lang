@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.List;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
@@ -63,26 +63,25 @@ public class Sort {
 
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];
-        for (int i = 0; i < arr.size(); i++) {
-            if (function != null) {
-                Object x = function.call(new Object[]{strand, arr.get(i), true});
-                sortArr[i][0] = x;
-            } else {
-                sortArr[i][0] = arr.get(i);
-            }
-            sortArr[i][1] = arr.get(i);
-        }
-
         if (function != null) {
             elemType = ((BFunctionType) function.getType()).retType;
+            for (int i = 0; i < arr.size(); i++) {
+                sortArr[i][0] = function.call(new Object[]{strand, arr.get(i), true});
+                sortArr[i][1] = arr.get(i);
+            }
+        } else {
+            for (int i = 0; i < arr.size(); i++) {
+                sortArr[i][0] = sortArr[i][1] = arr.get(i);
+            }
         }
+
         if (elemType.getTag() == TypeTags.UNION_TAG) {
-            elemType = getType(elemType);
+            elemType = getMemberType((BUnionType) elemType);
         }
         if (elemType.getTag() == TypeTags.ARRAY_TAG) {
             BType type = ((BArrayType) elemType).getElementType();
             if (type.getTag() == TypeTags.UNION_TAG) {
-                elemType = getType(type);
+                elemType = getMemberType((BUnionType) type);
             }
         }
 
@@ -95,18 +94,17 @@ public class Sort {
         return arr;
     }
 
-    private static BType getType(BType type) {
-        Optional<BType> mainType = ((BUnionType) type).getMemberTypes().stream()
-                .filter(m -> m.getTag() == TypeTags.INT_TAG || m.getTag() == TypeTags.BYTE_TAG ||
-                        m.getTag() == TypeTags.FLOAT_TAG || m.getTag() == TypeTags.DECIMAL_TAG ||
-                        m.getTag() == TypeTags.STRING_TAG || m.getTag() == TypeTags.BOOLEAN_TAG ||
-                        m.getTag() == TypeTags.ARRAY_TAG).findFirst();
-        if (mainType.isPresent()) {
-            type = mainType.get();
+    private static BType getMemberType(BUnionType unionType) {
+        List<BType> memberTypes = unionType.getMemberTypes();
+        for (BType type : memberTypes) {
+            if (type.getTag() != TypeTags.NULL_TAG) {
+                return type;
+            }
         }
-        return type;
+        return unionType;
     }
 
+    // Adapted from https://algs4.cs.princeton.edu/22mergesort/Merge.java.html
     private static void mergesort(Object[][] input, Object[][] aux, int lo, int hi, boolean isAscending, BType type) {
         if (hi <= lo) {
             return;
@@ -154,12 +152,14 @@ public class Sort {
                 return 1;
             }
             return -1;
-        } else if (value2 == null) {
+        }
+        if (value2 == null) {
             if (isAscending) {
                 return -1;
             }
             return 1;
-        } else if (type.getTag() == TypeTags.INT_TAG) {
+        }
+        if (TypeTags.isIntegerTypeTag(type.getTag())) {
             c = Long.compare((long) value1, (long) value2);
         } else if (type.getTag() == TypeTags.FLOAT_TAG) {
             // NaN should be placed last or one before the last when () is present irrespective of the sort direction.
@@ -182,7 +182,7 @@ public class Sort {
             c = new BigDecimal(value1.toString()).compareTo(new BigDecimal(value2.toString()));
         } else if (type.getTag() == TypeTags.BOOLEAN_TAG) {
             c = Boolean.compare((boolean) value1, (boolean) value2);
-        } else if (type.getTag() == TypeTags.STRING_TAG) {
+        } else if (TypeTags.isStringTypeTag(type.getTag())) {
             c = value1.toString().compareToIgnoreCase(value2.toString());
         } else if (type.getTag() == TypeTags.BYTE_TAG) {
             c = Integer.compare((int) value1, (int) value2);
@@ -195,7 +195,8 @@ public class Sort {
                 }
             }
         } else {
-            throw BallerinaErrors.createError("invalid sort key type", "Failed to sort array");
+            throw BallerinaErrors.createError("Invalid type to sort", "Expected an ordered type, but found type: "
+                    + type.toString());
         }
         return c;
     }
