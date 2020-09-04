@@ -48,7 +48,7 @@ public class OperationHandleIVTests {
     private ResourceMethod resourceMethod;
     private Operation operation;
 
-    @Test(description = "Operation model has path parameters with request body ")
+    @Test(enabled = false, description = "Operation model has path parameters with request body ")
     public void testRBwithPath() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/invalid/petstoreRBwithPathParameter.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -61,7 +61,7 @@ public class OperationHandleIVTests {
         Assert.assertTrue(validationErrors.get(0) instanceof TypeMismatch);
     }
 
-    @Test(description = "Operation model has path parameters with request body ")
+    @Test(enabled = false, description = "Operation model has path parameters with request body ")
     public void testExtraRB() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/invalid/petstoreExtraRBParameter.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -74,7 +74,7 @@ public class OperationHandleIVTests {
         Assert.assertEquals(validationErrors.get(0).getFieldName(), "bark");
     }
 
-    @Test(description = "Operation model has OneOf parameters with request body ")
+    @Test(enabled = false, description = "Operation model has OneOf parameters with request body ")
     public void testOneOfRB() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/invalid/petstoreOneOfTypeMismatch.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());

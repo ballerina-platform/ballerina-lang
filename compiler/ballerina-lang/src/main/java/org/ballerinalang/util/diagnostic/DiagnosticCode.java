@@ -229,7 +229,6 @@ public enum DiagnosticCode {
     AMBIGUOUS_TYPES("ambiguous.type"),
 
     TOO_MANY_ARGS_FUNC_CALL("too.many.args.call"),
-    NON_PUBLIC_ARG_ACCESSED_WITH_NAMED_ARG("non.public.arg.accessed.with.named.arg"),
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
     ASSIGNMENT_REQUIRED("assignment.required"),
     MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),

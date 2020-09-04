@@ -32,7 +32,6 @@ import java.util.Collections;
  */
 public class STDefaultableParameterNode extends STParameterNode {
     public final STNode annotations;
-    public final STNode visibilityQualifier;
     public final STNode typeName;
     public final STNode paramName;
     public final STNode equalsToken;
@@ -40,14 +39,12 @@ public class STDefaultableParameterNode extends STParameterNode {
 
     STDefaultableParameterNode(
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName,
             STNode equalsToken,
             STNode expression) {
         this(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -57,7 +54,6 @@ public class STDefaultableParameterNode extends STParameterNode {
 
     STDefaultableParameterNode(
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName,
             STNode equalsToken,
@@ -65,7 +61,6 @@ public class STDefaultableParameterNode extends STParameterNode {
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.DEFAULTABLE_PARAM, diagnostics);
         this.annotations = annotations;
-        this.visibilityQualifier = visibilityQualifier;
         this.typeName = typeName;
         this.paramName = paramName;
         this.equalsToken = equalsToken;
@@ -73,7 +68,6 @@ public class STDefaultableParameterNode extends STParameterNode {
 
         addChildren(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -83,7 +77,6 @@ public class STDefaultableParameterNode extends STParameterNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STDefaultableParameterNode(
                 this.annotations,
-                this.visibilityQualifier,
                 this.typeName,
                 this.paramName,
                 this.equalsToken,
@@ -93,14 +86,12 @@ public class STDefaultableParameterNode extends STParameterNode {
 
     public STDefaultableParameterNode modify(
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName,
             STNode equalsToken,
             STNode expression) {
         if (checkForReferenceEquality(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -110,7 +101,6 @@ public class STDefaultableParameterNode extends STParameterNode {
 
         return new STDefaultableParameterNode(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,

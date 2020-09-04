@@ -33,14 +33,14 @@ under the License.
             <package name="org.ballerinalang.openapi.validator.*"/>
         </packages>
         <classes>
-            <class name="org.ballerinalang.openapi.validator.tests.InvalidValidatorUtilTests" />
-            <class name="org.ballerinalang.openapi.validator.tests.ValidValidatorUtilTests" />
+<!--            <class name="org.ballerinalang.openapi.validator.tests.InvalidValidatorUtilTests" />-->
+<!--            <class name="org.ballerinalang.openapi.validator.tests.ValidValidatorUtilTests" />-->
 <!--            <class name="org.ballerinalang.openapi.validator.tests.OpenApiComponentByRefTest" />-->
 <!--            <class name="org.ballerinalang.openapi.validator.tests.RCUtilGetMethodTest"/>-->
 <!--            <class name="org.ballerinalang.openapi.validator.tests.RCUtilPostMethodTest"/>-->
-            <class name="org.ballerinalang.openapi.validator.tests.IVPrimitiveUtilTests"/>
-            <class name="org.ballerinalang.openapi.validator.tests.ResourceHandleIVTests"/>
-            <class name="org.ballerinalang.openapi.validator.tests.ResourceHandleVTests"/>
+<!--            <class name="org.ballerinalang.openapi.validator.tests.IVPrimitiveUtilTests"/>-->
+<!--            <class name="org.ballerinalang.openapi.validator.tests.ResourceHandleIVTests"/>-->
+<!--            <class name="org.ballerinalang.openapi.validator.tests.ResourceHandleVTests"/>-->
         </classes>
     </test>
 </suite>

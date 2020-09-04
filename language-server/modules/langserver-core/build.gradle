@@ -49,7 +49,7 @@ dependencies {
     // Standard libs
     implementation project(':ballerina-lang:annotations')
     implementation project(':language-server:language-server-stdlib')
-    
+
     implementation project(':ballerina-tool')
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
