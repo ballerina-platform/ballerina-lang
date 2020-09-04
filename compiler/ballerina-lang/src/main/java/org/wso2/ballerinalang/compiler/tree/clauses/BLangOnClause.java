@@ -32,19 +32,30 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangOnClause extends BLangNode implements OnClauseNode {
 
-    public BLangExpression expression;
+    public BLangExpression lhsExpr;
+    public BLangExpression rhsExpr;
 
     public BLangOnClause() {
     }
 
     @Override
-    public ExpressionNode getExpression() {
-        return expression;
+    public ExpressionNode getLeftExpression() {
+        return lhsExpr;
     }
 
     @Override
-    public void setExpression(ExpressionNode expression) {
-        this.expression = (BLangExpression) expression;
+    public void setLeftExpression(ExpressionNode expression) {
+        this.lhsExpr = (BLangExpression) expression;
+    }
+
+    @Override
+    public ExpressionNode getRightExpression() {
+        return rhsExpr;
+    }
+
+    @Override
+    public void setRightExpression(ExpressionNode expression) {
+        this.rhsExpr = (BLangExpression) expression;
     }
 
     @Override
@@ -59,6 +70,6 @@ public class BLangOnClause extends BLangNode implements OnClauseNode {
 
     @Override
     public String toString() {
-        return "on " + expression;
+        return "on " + lhsExpr + " equals " + rhsExpr;
     }
 }

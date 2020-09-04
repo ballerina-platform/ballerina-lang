@@ -92,6 +92,12 @@ public class BinaryExpressionEvaluator extends Evaluator {
             case LT_EQUAL_TOKEN:
             case GT_EQUAL_TOKEN:
                 return compare(lVar, rVar, operatorType);
+            case BITWISE_AND_TOKEN:
+                return bitwiseAND(lVar, rVar);
+            case PIPE_TOKEN:
+                return bitwiseOR(lVar, rVar);
+            case BITWISE_XOR_TOKEN:
+                return bitwiseXOR(lVar, rVar);
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operatorType);
         }
@@ -290,6 +296,51 @@ public class BinaryExpressionEvaluator extends Evaluator {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
         }
         throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+    }
+
+    /**
+     * Performs bitwise AND operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue bitwiseAND(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
+            long result = Long.parseLong(lVar.computeValue()) & Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            // Todo - Add support for signed and unsigned integers
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_AND_TOKEN);
+        }
+    }
+
+    /**
+     * Performs bitwise OR operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue bitwiseOR(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
+            long result = Long.parseLong(lVar.computeValue()) | Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            // Todo - Add support for signed and unsigned integers
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PIPE_TOKEN);
+        }
+    }
+
+    /**
+     * Performs bitwise XOR operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue bitwiseXOR(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
+            long result = Long.parseLong(lVar.computeValue()) ^ Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            // Todo - Add support for signed and unsigned integers
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_XOR_TOKEN);
+        }
     }
 
     private EvaluationException createUnsupportedOperationException(BVariable lVar, BVariable rVar,

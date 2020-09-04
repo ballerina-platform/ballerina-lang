@@ -65,6 +65,7 @@ public class ItemResolverConstants {
     public static final String STRING = "string";
     public static final String XML = "xml";
     public static final String LET = "let";
+    public static final String KEY = "key";
     public static final String SERVICE_WEBSOCKET = "service/webSocket";
     public static final String SERVICE_WEBSOCKET_CLIENT = "service/webSocketClient";
     public static final String SERVICE_WEBSUB = "service/webSub";
@@ -95,6 +96,7 @@ public class ItemResolverConstants {
     public static final String BOOLEAN_TYPE = "boolean";
     public static final String OBJECT_TYPE = "type <ObjectName> object";
     public static final String RECORD_TYPE = "type <RecordName> record";
+    public static final String ERROR_TYPE = "type <ErrorName> error<?>";
     public static final String CLOSED_RECORD_TYPE = "type <RecordName> closed record";
     public static final String TYPE_TYPE = "type";
     public static final String REMOTE_FUNCTION_TYPE = "remote function";
