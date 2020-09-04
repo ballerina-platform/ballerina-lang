@@ -49,7 +49,7 @@ import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
 import org.ballerinalang.debugadapter.variable.types.BXmlText;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.STRAND_VAR_NAME;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isJson;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isObject;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
 
@@ -100,15 +100,19 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  */
 public class VariableFactory {
 
+    public static BVariable getVariable(SuspendedContext context, Value value) {
+        return getVariable(context, "unknown", value);
+    }
+
     /**
      * Returns the corresponding BType variable instance for a given java variable.
      *
-     * @param value          jdi value instance of the java variable
-     * @param parentTypeName variable type of the java parent variable
-     * @param varName        variable name
+     * @param context suspended context
+     * @param varName variable name
+     * @param value   jdi value instance of the java variable
      * @return Ballerina type variable instance which corresponds to the given java variable
      */
-    public static BVariable getVariable(SuspendedContext context, Value value, String parentTypeName, String varName) {
+    public static BVariable getVariable(SuspendedContext context, String varName, Value value) {
 
         if (varName == null || varName.isEmpty() || varName.startsWith("$") || varName.equals(STRAND_VAR_NAME)) {
             return null;
@@ -168,13 +172,9 @@ public class VariableFactory {
         } else if (valueTypeName.contains(JVMValueType.ANON_SERVICE.getString())) {
             return new BService(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
-            // Todo - Remove checks on parentTypeName, after backend is fixed to contain correct BTypes for JSON
-            //  variables.
-            String bType = getBType(value);
-            if (bType.equals(BVariableType.JSON.getString())
-                    || parentTypeName.equals(JVMValueType.J_OBJECT.getString())) {
+            if (isJson(value)) {
                 return new BJson(context, varName, value);
-            } else if (bType.equals(BVariableType.MAP.getString())) {
+            } else {
                 return new BMap(context, varName, value);
             }
         } else if (value instanceof ObjectReference) {

@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
@@ -56,13 +57,13 @@ public class BPackageSymbol extends BTypeSymbol {
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
 
-    public BPackageSymbol(PackageID pkgID, BSymbol owner) {
-        super(PACKAGE, 0, pkgID.name, pkgID, null, owner);
+    public BPackageSymbol(PackageID pkgID, BSymbol owner, DiagnosticPos pos) {
+        super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos);
         this.type = new BPackageType(this);
     }
 
-    public BPackageSymbol(PackageID pkgID, BSymbol owner, int flags) {
-        this(pkgID, owner);
+    public BPackageSymbol(PackageID pkgID, BSymbol owner, int flags, DiagnosticPos pos) {
+        this(pkgID, owner, pos);
         this.flags = flags;
     }
 
@@ -92,7 +93,7 @@ public class BPackageSymbol extends BTypeSymbol {
 
     @Override
     public BPackageSymbol createLabelSymbol() {
-        BPackageSymbol copy = new BPackageSymbol(pkgID, owner);
+        BPackageSymbol copy = new BPackageSymbol(pkgID, owner, pos);
         copy.initFunctionSymbol = initFunctionSymbol;
         copy.startFunctionSymbol = startFunctionSymbol;
         copy.stopFunctionSymbol = stopFunctionSymbol;

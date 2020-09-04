@@ -238,10 +238,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangEndpoint endpointNode) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangIdentifier identifierNode) {
         throw new AssertionError();
     }

@@ -17,12 +17,12 @@
  */
 package io.ballerinalang.compiler.internal.parser.incremental;
 
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.utils.PersistentStack;
 import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.text.TextRange;
 
 /**
  * Contains utility methods to retrieve {@code HybridNode}s from

@@ -125,11 +125,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangEndpoint endpointNode) {
-
-    }
-
-    @Override
     public void visit(BLangLetExpression letExpression) {
 
     }

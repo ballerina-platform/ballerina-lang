@@ -17,6 +17,11 @@
  */
 package io.ballerinalang.compiler.parser.test.incremental;
 
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocumentChange;
+import io.ballerina.tools.text.TextDocuments;
+import io.ballerina.tools.text.TextEdit;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
@@ -24,11 +29,6 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocumentChange;
-import io.ballerinalang.compiler.text.TextDocuments;
-import io.ballerinalang.compiler.text.TextEdit;
-import io.ballerinalang.compiler.text.TextRange;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

@@ -299,16 +299,26 @@ class _LetFunction {
 
 class _InnerJoinFunction {
     *_StreamFunction;
+    function (_Frame _frame) returns any lhsKeyFunction;
+    function (_Frame _frame) returns any rhsKeyFunction;
+    _FrameMultiMap rhsFramesMap = new;
+    _Frame[]? rhsCandidates;
+    _Frame|error? lhsFrame;
 
-    function (_Frame _frame) returns boolean onCondition;
-    _StreamPipeline pipelineToJoin;
-    _Frame|error? currentFrame;
-
-    function init(_StreamPipeline pipelineToJoin, function (_Frame _frame) returns boolean onCondition) {
-        self.pipelineToJoin = pipelineToJoin;
-        self.onCondition = onCondition;
+    function init(
+            _StreamPipeline pipelineToJoin,
+            function (_Frame _frame) returns any lhsKeyFunction,
+            function (_Frame _frame) returns any rhsKeyFunction) {
+        self.lhsKeyFunction = lhsKeyFunction;
+        self.rhsKeyFunction = rhsKeyFunction;
+        self.rhsCandidates = ();
         self.prevFunc = ();
-        self.currentFrame = ();
+        self.lhsFrame = ();
+        _Frame|error? f = pipelineToJoin.next();
+        while (f is _Frame) {
+            self.rhsFramesMap.put(rhsKeyFunction(f).toString(), f);
+            f = pipelineToJoin.next();
+        }
     }
 
     # Desugared function to do;
@@ -316,37 +326,43 @@ class _InnerJoinFunction {
     # join var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
-        function (_Frame _frame) returns boolean onCondition = self.onCondition;
+        function (_Frame _frame) returns any lhsKF = self.lhsKeyFunction;
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        _StreamPipeline j = self.pipelineToJoin;
-        _Frame|error? cf = self.currentFrame;
-        if (cf is ()) {
-            cf = pf.process();
-            self.currentFrame = cf;
+         _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
+        _Frame[]? rhsCandidates = self.rhsCandidates;
+        _Frame|error? lhsFrame = self.lhsFrame;
+        string lhsKey = "";
+
+        if (lhsFrame is ()) {
+            lhsFrame = pf.process();
+            self.lhsFrame = lhsFrame;
         }
-        if (cf is _Frame) {
-            _Frame|error? f = j.next();
-            if (f is _Frame) {
-                _Frame jf = {...f, ...cf};
-                if (onCondition(jf)) {
-                    return jf;
-                }
-                return self.process();
-            } else if (f is error) {
-                return f;
+
+        if (lhsFrame is _Frame) {
+            lhsKey = lhsKF(lhsFrame).toString();
+            if (rhsCandidates is ()) {
+                rhsCandidates = rhsFramesMap.get(lhsKey);
+                self.rhsCandidates = rhsCandidates;
+            }
+            if (rhsCandidates is _Frame[] && rhsCandidates.length() > 0) {
+                _Frame rhsFrame = rhsCandidates.shift();
+                self.rhsCandidates = rhsCandidates;
+                _Frame joinedFrame = {...lhsFrame, ...rhsFrame};
+                return joinedFrame;
             } else {
-                // Move to next frame
-                self.currentFrame = pf.process();
-                j.reset();
+                // Move to next lhs frame
+                self.lhsFrame = ();
+                self.rhsCandidates = ();
                 return self.process();
             }
         }
-        return cf;
+        return lhsFrame;
     }
 
     public function reset() {
-        // Reset the state of currentFrame
-        self.currentFrame = ();
+        // Reset the state of lhsFrame
+        self.lhsFrame = ();
+        self.rhsCandidates = ();
         _StreamFunction? pf = self.prevFunc;
         if (pf is _StreamFunction) {
             pf.reset();
@@ -356,16 +372,28 @@ class _InnerJoinFunction {
 
 class _OuterJoinFunction {
     *_StreamFunction;
+    function (_Frame _frame) returns any lhsKeyFunction;
+    function (_Frame _frame) returns any rhsKeyFunction;
+    _FrameMultiMap rhsFramesMap = new;
+    _Frame[]? rhsCandidates;
+    _Frame|error? lhsFrame;
+    _Frame nilFrame;
 
-    function (_Frame _frame) returns boolean onCondition;
-    _StreamPipeline pipelineToJoin;
-    _Frame|error? currentFrame;
-
-    function init(_StreamPipeline pipelineToJoin, function (_Frame _frame) returns boolean onCondition) {
-        self.pipelineToJoin = pipelineToJoin;
-        self.onCondition = onCondition;
+    function init(
+            _StreamPipeline pipelineToJoin,
+            function (_Frame _frame) returns any lhsKeyFunction,
+            function (_Frame _frame) returns any rhsKeyFunction, _Frame nilFrame) {
+        self.lhsKeyFunction = lhsKeyFunction;
+        self.rhsKeyFunction = rhsKeyFunction;
+        self.rhsCandidates = ();
         self.prevFunc = ();
-        self.currentFrame = ();
+        self.lhsFrame = ();
+        self.nilFrame = nilFrame;
+        _Frame|error? f = pipelineToJoin.next();
+        while (f is _Frame) {
+            self.rhsFramesMap.put(rhsKeyFunction(f).toString(), f);
+            f = pipelineToJoin.next();
+        }
     }
 
     # Desugared function to do;
@@ -373,53 +401,55 @@ class _OuterJoinFunction {
     # outer join var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
-        function (_Frame _frame) returns boolean onCondition = self.onCondition;
+        function (_Frame _frame) returns any lhsKF = self.lhsKeyFunction;
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        _StreamPipeline j = self.pipelineToJoin;
-        _Frame|error? cf = self.currentFrame;
-        if (cf is ()) {
-            cf = pf.process();
-            self.currentFrame = cf;
+         _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
+        _Frame[]? rhsCandidates = self.rhsCandidates;
+        _Frame|error? lhsFrame = self.lhsFrame;
+        _Frame nilFrame = self.nilFrame;
+        string lhsKey = "";
+
+        if (lhsFrame is ()) {
+            lhsFrame = pf.process();
+            self.lhsFrame = lhsFrame;
         }
-        if (cf is _Frame) {
-            _Frame|error? f = j.next();
-            if (f is _Frame) {
-                _Frame jf = {...cf, ...f};
-                if (!onCondition(jf)) {
-                    jf = {...cf, ...self.getNilFrame(f)};
+
+        if (lhsFrame is _Frame) {
+            lhsKey = lhsKF(lhsFrame).toString();
+            if (rhsCandidates is ()) {
+                rhsCandidates = rhsFramesMap.get(lhsKey);
+                self.rhsCandidates = rhsCandidates;
+            }
+
+            if (rhsCandidates is _Frame[]) {
+                _Frame rhsFrame = rhsCandidates.shift();
+                if (rhsCandidates.length() > 0) {
+                    self.rhsCandidates = rhsCandidates;
+                } else {
+                    // Move to next lhs frame in next iteration.
+                    self.rhsCandidates = ();
+                    self.lhsFrame = ();
                 }
-                return jf;
-            } else if (f is error) {
-                return f;
+                _Frame joinedFrame = {...lhsFrame, ...rhsFrame};
+                return joinedFrame;
             } else {
-                // Move to next frame
-                self.currentFrame = pf.process();
-                j.reset();
-                return self.process();
+                // rhsCandidates is nil, move to next lhs frame in next iteration.
+                _Frame joinedFrame = {...lhsFrame, ...nilFrame};
+                self.lhsFrame = ();
+                return joinedFrame;
             }
         }
-        return cf;
+        return lhsFrame;
     }
 
     public function reset() {
-        // Reset the state of currentFrame
-        self.currentFrame = ();
+        // Reset the state of lhsFrame
+        self.lhsFrame = ();
+        self.rhsCandidates = ();
         _StreamFunction? pf = self.prevFunc;
         if (pf is _StreamFunction) {
             pf.reset();
         }
-    }
-
-    function getNilFrame(_Frame f) returns _Frame {
-        _Frame nilFrame = {};
-        foreach var e in f.entries() {
-            if (e[1] is _Frame) {
-                nilFrame[e[0]] = self.getNilFrame(<_Frame>e[1]);
-            } else {
-                nilFrame[e[0]] = ();
-            }
-        }
-        return nilFrame;
     }
 }
 
@@ -757,3 +787,33 @@ class StreamOrderBy {
         return result;
     }
 }
+
+type _FrameMultiMap object {
+
+    map<_Frame[]> m;
+
+    function init() {
+        self.m = {};
+    }
+
+    function put(string k, _Frame v) {
+        _Frame[]? vals = self.m[k];
+        if (vals is _Frame[]) {
+            vals.push(v);
+        } else {
+            self.m[k] = [v];
+        }
+    }
+
+    function get(string k) returns _Frame[]? {
+        _Frame[]? vals = self.m[k];
+        if (vals is _Frame[]) {
+            _Frame[] frames = [];
+            foreach _Frame v in vals {
+                frames.push(v);
+            }
+            return frames;
+        }
+    }
+
+};

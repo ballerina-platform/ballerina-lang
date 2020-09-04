@@ -89,7 +89,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPORT_ER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CALLABLE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 
 /**
  * BIR desugar to inject observations class.
@@ -224,12 +223,12 @@ class JvmObservabilityGen {
 
             // Creating and adding invokable symbol to the relevant scope
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, lambdaName,
-                    currentPkgId, bInvokableType, functionOwner);
+                    currentPkgId, bInvokableType, functionOwner, desugaredFunc.pos);
             invokableSymbol.retType = funcReturnVariableDcl.type;
             invokableSymbol.kind = SymbolKind.FUNCTION;
             invokableSymbol.params = asyncCallIns.args.stream()
                     .map(arg -> new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
-                            invokableSymbol))
+                                               invokableSymbol, arg.pos))
                     .collect(Collectors.toList());
             invokableSymbol.scope = new Scope(invokableSymbol);
             invokableSymbol.params.forEach(param -> invokableSymbol.scope.define(param.name, param));
@@ -779,8 +778,9 @@ class JvmObservabilityGen {
         boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
         boolean isObservableAnnotationPresent = false;
         for (BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
-            if (OBSERVABLE_ANNOTATION.equals(getPackageName(annot.packageID.orgName, annot.packageID.name, Names.EMPTY)
-                    + annot.annotTagRef.value)) {
+            if (OBSERVABLE_ANNOTATION.equals(
+                    JvmCodeGenUtil.getPackageName(annot.packageID.orgName, annot.packageID.name, Names.EMPTY) +
+                            annot.annotTagRef.value)) {
                 isObservableAnnotationPresent = true;
                 break;
             }

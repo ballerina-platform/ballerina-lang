@@ -55,7 +55,7 @@ public class SingleBalFileTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When creating the ballerina client.
      */
-    @BeforeClass()
+    @BeforeClass(enabled = false)
     public void setUp() throws BallerinaTestException, IOException {
         balClient = new BMainInstance(balServer);
         testDatabase = new SQLDBUtils
@@ -82,7 +82,7 @@ public class SingleBalFileTestCase extends BaseTest {
      * @throws BallerinaTestException When running commands.
      */
     //TODO Table remove - Fix
-    @Test(description = "Test building and running TestProject", enabled = false)
+    @Test(enabled = false, description = "Test building and running TestProject")
     public void testSingleBalFileWithJDBCUsage() throws BallerinaTestException {
         String sqlBalFile = "jdbc_select.bal";
         Path testProjectPath = Paths.get("src", "test", "resources", "packaging", "singleBalFile", "sql")
@@ -100,7 +100,7 @@ public class SingleBalFileTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test running bal with relative path")
+    @Test(enabled = false, description = "Test running bal with relative path")
     public void testRunWithRelativePath() throws BallerinaTestException {
         String testBalFile = "hello_world.bal";
         Path testRelativeFilePath = Paths.get("src", "test", "resources", "packaging", "singleBalFile",
@@ -114,7 +114,7 @@ public class SingleBalFileTestCase extends BaseTest {
         fooRunLeecher.waitForText(10000);
     }
 
-    @AfterClass
+    @AfterClass(enabled = false)
     private void cleanup() throws Exception {
         if (testDatabase != null) {
             testDatabase.stop();

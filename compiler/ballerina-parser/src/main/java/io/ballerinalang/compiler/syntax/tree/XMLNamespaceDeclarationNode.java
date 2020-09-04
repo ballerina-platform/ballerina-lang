@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -40,12 +41,12 @@ public class XMLNamespaceDeclarationNode extends StatementNode {
         return childInBucket(1);
     }
 
-    public Token asKeyword() {
-        return childInBucket(2);
+    public Optional<Token> asKeyword() {
+        return optionalChildInBucket(2);
     }
 
-    public IdentifierToken namespacePrefix() {
-        return childInBucket(3);
+    public Optional<IdentifierToken> namespacePrefix() {
+        return optionalChildInBucket(3);
     }
 
     public Token semicolonToken() {
@@ -116,8 +117,8 @@ public class XMLNamespaceDeclarationNode extends StatementNode {
             this.oldNode = oldNode;
             this.xmlnsKeyword = oldNode.xmlnsKeyword();
             this.namespaceuri = oldNode.namespaceuri();
-            this.asKeyword = oldNode.asKeyword();
-            this.namespacePrefix = oldNode.namespacePrefix();
+            this.asKeyword = oldNode.asKeyword().orElse(null);
+            this.namespacePrefix = oldNode.namespacePrefix().orElse(null);
             this.semicolonToken = oldNode.semicolonToken();
         }
 

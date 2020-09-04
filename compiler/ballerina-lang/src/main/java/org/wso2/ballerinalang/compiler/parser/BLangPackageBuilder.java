@@ -2090,7 +2090,8 @@ public class BLangPackageBuilder {
         BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
         onClause.addWS(ws);
         onClause.pos = pos;
-        onClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        onClause.rhsExpr = (BLangExpression) this.exprNodeStack.pop();
+        onClause.lhsExpr = (BLangExpression) this.exprNodeStack.pop();
         BLangJoinClause joinClause = (BLangJoinClause) inputClauseStack.peek();
         joinClause.onClause = onClause;
     }

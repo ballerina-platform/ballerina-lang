@@ -34,6 +34,7 @@ public class VariableUtils {
     public static final String FIELD_TYPE = "type";
     public static final String FIELD_TYPENAME = "typeName";
     public static final String FIELD_VALUE = "value";
+    public static final String FIELD_CONSTRAINT = "constraint";
     public static final String METHOD_STRINGVALUE = "stringValue";
     public static final String UNKNOWN_VALUE = "unknown";
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
@@ -108,10 +109,10 @@ public class VariableUtils {
     }
 
     /**
-     * Verifies whether a given JDI value is a ballerina object instance.
+     * Verifies whether a given JDI value is a ballerina object variable instance.
      *
      * @param value JDI value instance.
-     * @return true the given JDI value is a ballerina object instance.
+     * @return true the given JDI value is a ballerina object variable instance.
      */
     static boolean isObject(Value value) {
         try {
@@ -123,15 +124,37 @@ public class VariableUtils {
     }
 
     /**
-     * Verifies whether a given JDI value is a ballerina record instance.
+     * Verifies whether a given JDI value is a ballerina record variable instance.
      *
      * @param value JDI value instance.
-     * @return true the given JDI value is a ballerina record instance.
+     * @return true the given JDI value is a ballerina record variable instance.
      */
     static boolean isRecord(Value value) {
         try {
             return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
                     (JVMValueType.BTYPE_RECORD.getString())).orElse(false);
+        } catch (DebugVariableException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Verifies whether a given JDI value is a ballerina JSON variable instance.
+     *
+     * @param value JDI value instance.
+     * @return true the given JDI value is a ballerina JSON variable instance.
+     */
+    static boolean isJson(Value value) {
+        try {
+            Optional<Value> typeField = getFieldValue(value, FIELD_TYPE);
+            if (!typeField.isPresent()) {
+                return false;
+            }
+            if (typeField.get().type().name().endsWith(JVMValueType.BTYPE_JSON.getString())) {
+                return true;
+            }
+            Optional<Value> constraint = getFieldValue(typeField.get(), FIELD_CONSTRAINT);
+            return constraint.map(val -> val.type().name().endsWith(JVMValueType.BTYPE_JSON.getString())).orElse(false);
         } catch (DebugVariableException e) {
             return false;
         }
