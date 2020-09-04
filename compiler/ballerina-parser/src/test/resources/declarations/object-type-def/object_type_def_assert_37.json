@@ -65,11 +65,7 @@
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "value": "T",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        },
+                      "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": "    "
@@ -85,6 +81,12 @@
                             ]
                           }
                         },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ],
+                      "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": " "
@@ -121,11 +123,7 @@
                   "children": [
                     {
                       "kind": "READONLY_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        },
+                      "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": "    "
@@ -141,6 +139,12 @@
                             ]
                           }
                         },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ],
+                      "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": " "

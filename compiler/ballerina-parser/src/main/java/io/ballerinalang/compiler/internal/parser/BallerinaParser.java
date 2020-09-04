@@ -5015,7 +5015,7 @@ public class BallerinaParser extends AbstractParser {
         STNode fieldName = parseVariableName();
 
         if (readonlyQualifier != null) {
-            type = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(type, readonlyQualifier);
+            type = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(type, readonlyQualifier);
             type = SyntaxErrors.addDiagnostic(type, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
                     ((STToken) readonlyQualifier).text());
         }
