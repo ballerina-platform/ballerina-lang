@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,22 +15,26 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.semantics.model.symbols;
-
-import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
+package org.ballerina.compiler.api.symbols;
 
 /**
- * Represents variable symbol of an endpoint.
- *
- * @since 0.965.0
+ * Represents the access modifier types.
+ * 
+ * @since 2.0.0
  */
-@Deprecated
-public class BEndpointVarSymbol extends BVarSymbol {
+public enum Qualifier {
 
-    public BEndpointVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(flags, name, pkgID, type, owner);
-        this.tag = SymTag.ENDPOINT;
+    PUBLIC("public"),
+    PRIVATE("private"),
+    FINAL("final");
+
+    private String value;
+
+    private Qualifier(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
     }
 }
