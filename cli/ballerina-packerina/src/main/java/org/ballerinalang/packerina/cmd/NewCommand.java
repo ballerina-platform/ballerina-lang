@@ -128,8 +128,8 @@ public class NewCommand implements BLauncherCmd {
 
         if (!ProjectUtils.validatePkgName(packageName)) {
             CommandUtil.printError(errStream,
-                "Invalid package name : '" + packageName + "' :\n" +
-                        "Module name can only contain alphanumerics, underscores and periods " +
+                "Invalid project name : '" + packageName + "' :\n" +
+                        "Project name can only contain alphanumerics, underscores and periods " +
                         "and the maximum length is 256 characters",
                 null,
                 false);
@@ -151,6 +151,7 @@ public class NewCommand implements BLauncherCmd {
             CommandUtil.initProjectByTemplate(path, packageName, template);
         } catch (AccessDeniedException e) {
             errStream.println("error: Error occurred while creating project : " + "Insufficient Permission");
+            return;
         } catch (IOException | URISyntaxException e) {
             errStream.println("error: Error occurred while creating project : " + e.getMessage());
             return;
