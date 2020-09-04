@@ -40,7 +40,7 @@ public class MockTest extends BaseTestCase {
         projectPath2 = mockProjectPath2.toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFunctionMocking() throws BallerinaTestException {
         String msg1 = "11 passing";
         String msg2 = "3 failing";
@@ -52,7 +52,7 @@ public class MockTest extends BaseTestCase {
         clientLeecher2.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFunctionMocking2() throws BallerinaTestException {
         String msg1 = "2 passing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
@@ -61,7 +61,7 @@ public class MockTest extends BaseTestCase {
         clientLeecher1.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testObjectMocking() throws BallerinaTestException {
         String msg1 = "7 passing";
         String msg2 = "13 failing";

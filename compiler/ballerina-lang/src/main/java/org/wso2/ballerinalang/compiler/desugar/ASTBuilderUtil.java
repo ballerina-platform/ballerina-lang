@@ -147,7 +147,7 @@ public class ASTBuilderUtil {
 
     static void defineVariable(BLangSimpleVariable variable, BSymbol targetSymbol, Names names) {
         variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), targetSymbol.pkgID, variable.type,
-                targetSymbol);
+                                         targetSymbol, variable.pos);
         targetSymbol.scope.define(variable.symbol.name, variable.symbol);
     }
 
@@ -485,16 +485,6 @@ public class ASTBuilderUtil {
         return varRef;
     }
 
-    static BLangSimpleVarRef createIgnoreVariableRef(DiagnosticPos pos, SymbolTable symTable) {
-        final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.pos = pos;
-        varRef.variableName = createIdentifier(pos, Names.IGNORE.value);
-        varRef.symbol = new BVarSymbol(0, Names.IGNORE, symTable.rootPkgSymbol.scope.owner.pkgID, symTable.noType,
-                symTable.rootPkgSymbol.scope.owner);
-        varRef.type = symTable.noType;
-        return varRef;
-    }
-
     public static BLangSimpleVariable createVariable(DiagnosticPos pos,
                                                      String name,
                                                      BType type,
@@ -574,14 +564,15 @@ public class ASTBuilderUtil {
                                                         BLangExpression lhsExpr,
                                                         BType targetType,
                                                         BType type,
-                                                        Names names) {
+                                                        Names names,
+                                                        DiagnosticPos opSymPos) {
         final BLangIsAssignableExpr assignableExpr = new BLangIsAssignableExpr();
         assignableExpr.pos = pos;
         assignableExpr.lhsExpr = lhsExpr;
         assignableExpr.targetType = targetType;
         assignableExpr.type = type;
         assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
-                null, targetType, null);
+                null, targetType, null, opSymPos);
         return assignableExpr;
     }
 
@@ -781,19 +772,6 @@ public class ASTBuilderUtil {
         return argExpr;
     }
 
-    public static BVarSymbol duplicateVarSymbol(BVarSymbol varSymbol) {
-        BVarSymbol dupVarSymbol = new BVarSymbol(varSymbol.flags, varSymbol.name,
-                varSymbol.pkgID, varSymbol.type, varSymbol.owner);
-        dupVarSymbol.tainted = varSymbol.tainted;
-        dupVarSymbol.closure = varSymbol.closure;
-        dupVarSymbol.markdownDocumentation = varSymbol.markdownDocumentation;
-        dupVarSymbol.scope = varSymbol.scope;
-        dupVarSymbol.type = varSymbol.type;
-        dupVarSymbol.kind = varSymbol.kind;
-
-        return dupVarSymbol;
-    }
-
     private static IdentifierNode createIdentifier(String value) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
         if (value != null) {
@@ -803,8 +781,10 @@ public class ASTBuilderUtil {
     }
 
     public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
-        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name,
-                invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist);
+        BInvokableSymbol dupFuncSymbol =
+                Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name, invokableSymbol.pkgID,
+                                             invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist,
+                                             invokableSymbol.pos);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.restParam = invokableSymbol.restParam;
@@ -825,9 +805,10 @@ public class ASTBuilderUtil {
     }
 
     public static BInvokableSymbol duplicateFunctionDeclarationSymbol(BInvokableSymbol invokableSymbol, BSymbol owner,
-                                                                      Name newName, PackageID newPkgID) {
+                                                                      Name newName, PackageID newPkgID,
+                                                                      DiagnosticPos pos) {
         BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newPkgID,
-                                                                      null, owner, invokableSymbol.bodyExist);
+                                                                      null, owner, invokableSymbol.bodyExist, pos);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.receiverSymbol = null;
@@ -853,8 +834,8 @@ public class ASTBuilderUtil {
     }
 
     private static BVarSymbol duplicateParamSymbol(BVarSymbol paramSymbol, BInvokableSymbol owner) {
-        BVarSymbol newParamSymbol =
-                new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID, paramSymbol.type, owner);
+        BVarSymbol newParamSymbol = new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID,
+                                                   paramSymbol.type, owner, paramSymbol.pos);
         newParamSymbol.tainted = paramSymbol.tainted;
         newParamSymbol.defaultableParam = paramSymbol.defaultableParam;
         newParamSymbol.markdownDocumentation = paramSymbol.markdownDocumentation;
