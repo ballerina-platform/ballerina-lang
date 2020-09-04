@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -36,7 +37,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.IdentifierEncoder;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -147,7 +147,7 @@ public class JvmCodeGenUtil {
     }
 
     static String rewriteInsName(String value) {
-        return value.contains("\\") ? IdentifierEncoder.encodeIdentifier(value) : value;
+        return value.contains("\\") ? StringEscapeUtils.unescapeJava(value) : value;
     }
 
     private static String cleanupBalExt(String name) {

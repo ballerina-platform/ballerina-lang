@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
+import org.wso2.ballerinalang.compiler.util.IdentifierEncoder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -213,7 +214,7 @@ class JvmValueGen {
         for (NamedNode node : nodes) {
             if (node != null) {
                 labels.add(i, new Label());
-                hashCodes[i] = getName(node).hashCode();
+                hashCodes[i] = IdentifierEncoder.decodeIdentifiers(getName(node)).hashCode();
                 i += 1;
             }
         }
@@ -283,7 +284,7 @@ class JvmValueGen {
             }
             mv.visitLabel(labels.get(i));
             mv.visitVarInsn(ALOAD, nameRegIndex);
-            mv.visitLdcInsn(getName(node));
+            mv.visitLdcInsn(IdentifierEncoder.decodeIdentifiers(getName(node)));
             mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
                     String.format("(L%s;)Z", OBJECT), false);
             Label targetLabel = new Label();
@@ -815,11 +816,12 @@ class JvmValueGen {
             if (field == null) {
                 continue;
             }
-            FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.type), null, null);
+            String fieldName = field.name.value;
+            FieldVisitor fv = cw.visitField(0, fieldName, getTypeDesc(field.type), null, null);
             fv.visitEnd();
 
             if (this.isOptionalRecordField(field)) {
-                fv = cw.visitField(0, this.getFieldIsPresentFlagName(field.name.value), getTypeDesc(booleanType),
+                fv = cw.visitField(0, this.getFieldIsPresentFlagName(fieldName), getTypeDesc(booleanType),
                         null, null);
                 fv.visitEnd();
             }
@@ -997,7 +999,8 @@ class JvmValueGen {
             String fieldName = optionalField.name.value;
             if (this.isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
+                mv.visitFieldInsn(GETFIELD, className,
+                        this.getFieldIsPresentFlagName(IdentifierEncoder.decodeIdentifiers(fieldName)),
                         getTypeDesc(booleanType));
                 mv.visitJumpInsn(IFEQ, ifNotPresent);
             }
@@ -1007,9 +1010,10 @@ class JvmValueGen {
             mv.visitInsn(DUP);
 
             // field name as key
-            mv.visitLdcInsn(fieldName);
+            mv.visitLdcInsn(IdentifierEncoder.decodeIdentifiers(fieldName));
             mv.visitMethodInsn(INVOKESTATIC, JvmConstants.B_STRING_UTILS, "fromString",
                                String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+
             // field value as the map-entry value
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
@@ -1286,7 +1290,7 @@ class JvmValueGen {
             Label ifNotPresent = new Label();
 
             // If its an optional field, generate if-condition to check the presense of the field.
-            String fieldName = optionalField.name.value;
+            String fieldName = IdentifierEncoder.decodeIdentifiers(optionalField.name.value);
             if (this.isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0); // this
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),

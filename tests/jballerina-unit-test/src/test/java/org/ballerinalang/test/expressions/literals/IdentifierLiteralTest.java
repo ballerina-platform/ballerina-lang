@@ -242,4 +242,15 @@ public class IdentifierLiteralTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "I am an integer");
     }
+
+    @Test
+    public void testMemberAccessWithIL() {
+        BValue[] returns = BRunUtil.invoke(result, "testMemberAccessWithIL");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "Jack");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 50);
+        Assert.assertEquals(returns[2].stringValue(), "John");
+        Assert.assertEquals(returns[3].stringValue(), "25");
+
+    }
 }

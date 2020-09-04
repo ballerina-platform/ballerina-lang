@@ -106,7 +106,7 @@ function testConnectorActionWithIL() returns string {
 function useILInStructName() returns [string, string, int, string?] {
     'family\ person 'person\ one = {'first\ name: "Tom", 'last\ name:"hank", 'current\ age: 50};
     return ['person\ one.'first\ name, 'person\ one.'last\ name, 'person\ one.'current\ age,
-    'person\ one["first\\ name"]];
+    'person\ one["first name"]];
 }
 
 type 'family\ person record {
@@ -128,4 +128,13 @@ function testAcessILWithoutPipe() returns [string, string] {
 function testAcessJSONFielAsIL() returns (json|error) {
     json j = {"foo" : {"int" : "I am an integer"}};
     return j.foo.'int;
+}
+
+function testMemberAccessWithIL() returns [string?, int?, string?, string?]{
+    'family\ person person = {'first\ name: "Jack", 'last\ name:"Sparrow", 'current\ age: 50};
+    map<string> personMap = {
+        '\ \/\:\@\[\`\{\~\u{2324}_First_name: "John",
+        'Ȧɢέ: "25"
+    };
+    return [person["first name"], person["current age"], personMap[" /:@[`{~⌤_First_name"], personMap["Ȧɢέ"]];
 }

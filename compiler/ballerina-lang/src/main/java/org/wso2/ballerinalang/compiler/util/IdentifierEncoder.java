@@ -34,10 +34,8 @@ public class IdentifierEncoder {
     private static final String ESCAPE_PREFIX = "\\";
     private static final String ENCODABLE_CHAR_SET = "(\\\\)[\\\\.:;\\[\\]/<>$]";
     private static final String ENCODING_PATTERN = "\\$(\\d{4})";
-    private static final String SPECIAL_CHARACTERS = "[&+,= ?@#|'\\\"^*{}~`()%!-]";
 
     private IdentifierEncoder() {
-
     }
 
     private static String encodeSpecialCharacters(String identifier) {
@@ -55,9 +53,9 @@ public class IdentifierEncoder {
         return replaceStringPattern(encodedName, ENCODING_PATTERN, "").replaceAll("(\\$#)(\\d{4})", "\\$$2");
     }
 
-    public static String getUserDefinedName(String encodedName) {
-        return replaceStringPattern(encodedName, ENCODING_PATTERN, ESCAPE_PREFIX).replaceAll("(\\$#)(\\d{4})", "\\$$2")
-                .replaceAll(SPECIAL_CHARACTERS, "\\\\$1");
+    public static String escapeSpecialCharacters(String identifier) {
+        String specialCharSet = "([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])";
+        return identifier.replaceAll("(?<!\\\\)(?:\\\\\\\\)*" + specialCharSet, "\\\\$1");
     }
 
     private static String replaceStringPattern(String identifier, String pattern, String prefix) {
