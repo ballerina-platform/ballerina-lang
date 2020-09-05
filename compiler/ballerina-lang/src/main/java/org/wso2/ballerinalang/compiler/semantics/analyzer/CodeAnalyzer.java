@@ -538,7 +538,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.doneWithinTransactionCheckStack.push(false);
         this.returnWithinLambdaWrappingCheckStack.push(false);
         this.transactionCount++;
-        if(!this.failureHandled) {
+        if (!this.failureHandled) {
             this.failureHandled = transactionNode.onFailClause != null;
         }
         analyzeNode(transactionNode.transactionBody, env);
@@ -632,7 +632,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.errorTypes.push(new LinkedHashSet<>());
         boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(retryNode);
-        if(!this.failureHandled) {
+        if (!this.failureHandled) {
             this.failureHandled = retryNode.onFailClause != null;
         }
         retryNode.retrySpec.accept(this);
@@ -1393,7 +1393,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean statementReturns = this.statementReturns;
         boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(whileNode);
-        if(!this.failureHandled) {
+        if (!this.failureHandled) {
             this.failureHandled = whileNode.onFailClause != null;
         }
         this.loopCount++;
@@ -1414,7 +1414,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.errorTypes.push(new LinkedHashSet<>());
         boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(doNode);
-        if(!this.failureHandled) {
+        if (!this.failureHandled) {
             this.failureHandled = doNode.onFailClause != null;
         }
         analyzeNode(doNode.body, env);
@@ -1452,7 +1452,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.errorTypes.push(new LinkedHashSet<>());
         boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(lockNode);
-        if(!this.failureHandled) {
+        if (!this.failureHandled) {
             this.failureHandled = lockNode.onFailClause != null;
         }
         boolean previousWithinLockBlock = this.withinLockBlock;
