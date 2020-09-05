@@ -98,6 +98,8 @@ public class BinaryExpressionEvaluator extends Evaluator {
                 return bitwiseOR(lVar, rVar);
             case BITWISE_XOR_TOKEN:
                 return bitwiseXOR(lVar, rVar);
+            case ELVIS_TOKEN:
+                return conditionalReturn(lVar, rVar);
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operatorType);
         }
@@ -340,6 +342,20 @@ public class BinaryExpressionEvaluator extends Evaluator {
         } else {
             // Todo - Add support for signed and unsigned integers
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_XOR_TOKEN);
+        }
+    }
+
+    /**
+     * Performs elvis conditional operation.
+     */
+    private BExpressionValue conditionalReturn(BVariable lVar, BVariable rVar) {
+        // Evaluate LHS to get a value x.
+        // If x is not nil, then return x.
+        // Otherwise, return the result of evaluating RHS.
+        if (lVar.getBType() != BVariableType.NIL) {
+            return new BExpressionValue(context, lVar.getJvmValue());
+        } else {
+            return new BExpressionValue(context, rVar.getJvmValue());
         }
     }
 
