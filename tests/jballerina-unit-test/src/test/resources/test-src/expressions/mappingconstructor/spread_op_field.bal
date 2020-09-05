@@ -58,13 +58,13 @@ public function testRecordRefAsSpreadOp() {
     assertEquality(123.4, f["f"]);
 }
 
-type Bla record {
+type Quux record {
     int j;
     never i?;
 };
 
 public function testRecordRefWithNeverType() {
-    Bla b = {j: 2, "k": 3};
+    Quux b = {j: 2, "k": 3};
     map<anydata> m = {i: 0, ...b};
 
     assertEquality(3, m.length());
