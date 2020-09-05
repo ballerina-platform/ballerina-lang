@@ -123,7 +123,8 @@ public class OpenApiCmd implements BLauncherCmd {
                 List<String> operation = new ArrayList<>();
                 if (tags != null) {
                      tag.addAll(Arrays.asList(tags.split(",")));
-                } else if (operations != null) {
+                }
+                if (operations != null) {
                     operation.addAll(Arrays.asList(operations.split(",")));
                 }
                 Filter filter = new Filter(tag, operation);

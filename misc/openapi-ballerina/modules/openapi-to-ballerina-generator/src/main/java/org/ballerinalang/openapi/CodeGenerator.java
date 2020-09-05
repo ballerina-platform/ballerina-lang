@@ -305,11 +305,9 @@ public class CodeGenerator {
                 for (File file : listFiles) {
                     for (GenSrcFile gFile : sources) {
                         if (file.getName().equals(gFile.getFileName())) {
-                            outStream.println("do you want overide the file " + file.getName() + " [Y/N]");
-                            String userInput = System.console().readLine();
-                            if (Objects.equals(userInput.toLowerCase(), "y")) {
-                                file.deleteOnExit();
-                            } else {
+                            String userInput = System.console().readLine("There is already a/an " + file.getName() +
+                                    " in the location. Do you want to override the file [Y/N]? ");
+                            if (!Objects.equals(userInput.toLowerCase(), "y")) {
                                 int duplicateCount = 0;
                                 setGeneratedFileName(listFiles, gFile, duplicateCount);
                             }
@@ -318,26 +316,6 @@ public class CodeGenerator {
                 }
             }
         }
-//        // Remove old generated files - if any - before regenerate
-//        // if srcPackage was not provided and source was written to main package nothing will be deleted.
-//        if (srcPackage != null && !srcPackage.isEmpty() && Files.exists(srcPath)) {
-//            final File[] listFiles = new File(String.valueOf(srcPath)).listFiles();
-//            if (listFiles != null) {
-//                Arrays.stream(listFiles).forEach(file -> {
-//                    boolean deleteStatus = true;
-//                    if (!file.isDirectory() && !file.getName().equals(MODULE_MD)) {
-//                        deleteStatus = file.delete();
-//                    }
-//
-//                    //Capture return value of file.delete() since if
-//                    //unable to delete returns false from file.delete() without an exception.
-//                    if (!deleteStatus) {
-//                        outStream.println("Unable to clean module directory.");
-//                    }
-//                });
-//            }
-//
-//        }
 
         for (GenSrcFile file : sources) {
             Path filePath;
@@ -370,10 +348,10 @@ public class CodeGenerator {
     }
 
     /**
-     *
-     * @param listFiles
-     * @param gFile
-     * @param duplicateCount
+     *  This method for setting the file name for generated file.
+     * @param listFiles         generated files
+     * @param gFile             GenSrcFile object
+     * @param duplicateCount    add the tag with duplicate number if file already exist
      */
     private void setGeneratedFileName(File[] listFiles, GenSrcFile gFile, int duplicateCount) {
 

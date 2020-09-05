@@ -27,6 +27,7 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.oas.models.tags.Tag;
 import org.ballerinalang.openapi.cmd.Filter;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiComponent;
@@ -66,7 +67,21 @@ public class TypeExtractorUtil {
      */
     public static BallerinaOpenApiType extractOpenApiObject(OpenAPI apiDef, Filter filter) throws BallerinaOpenApiException {
         BallerinaOpenApiType typeDef = new BallerinaOpenApiType();
-
+        if (!filter.getTags().isEmpty()) {
+            List<Tag> tags = new ArrayList<>();
+            for (String tagName: filter.getTags()) {
+                apiDef.getTags().stream().filter(tagOpenApi -> tagName.equals(tagOpenApi.getName()))
+                        .forEachOrdered(tags::add);
+            }
+            typeDef.setFilteredTags(tags);
+        }
+        if (!filter.getOperations().isEmpty()) {
+            List<Tag> operations = new ArrayList<>();
+//            for (String operationId: filter.getOperations()) {
+//                for
+//            }
+//            typeDef.setOperations(operations);
+        }
         if (apiDef.getPaths() != null) {
             typeDef.setPathList(extractOpenApiPaths(apiDef.getPaths(), filter));
         }
@@ -135,30 +150,9 @@ public class TypeExtractorUtil {
             // tag and operation +
             // tag and operation null
 
-//            if ((filter.getTags() != null) && (hasTags(filter.getTags(), operationTags))) {
-//                if ((filter.getOperations() != null) && (hasOperations(filter.getOperations(), operationId))) {
-//                    setFilteredOperation(pathName, nextOp, opObject, operation);
-//                    typeOpList.add(operation);
-//                } else {
-//                    setFilteredOperation(pathName, nextOp, opObject, operation);
-//                    typeOpList.add(operation);
-//                }
-//            } else {
-//                if ((filter.getOperations() != null) && (hasOperations(filter.getOperations(), operationId))) {
-//                    setFilteredOperation(pathName, nextOp, opObject, operation);
-//                    typeOpList.add(operation);
-//                } else {
-//                    setFilteredOperation(pathName, nextOp, opObject, operation);
-//                    typeOpList.add(operation);
-//                }
-//            }
-
-            if ((!(filter.getTags().isEmpty()) && !(filter.getOperations().isEmpty())) ||
-                    ((hasTags(filter.getTags(), operationTags)) && (hasOperations(filter.getOperations(), operationId)))
-                    || ((!filter.getTags().isEmpty()) && hasTags(filter.getTags(), operationTags) &&
-                    (filter.getOperations().isEmpty()))
-                    || ((!filter.getOperations().isEmpty()) && hasOperations(filter.getOperations(), operationId) &&
-                    (filter.getTags().isEmpty()))) {
+            if (((filter.getTags().isEmpty()) && (filter.getOperations().isEmpty()))
+                    || ((!filter.getTags().isEmpty()) && hasTags(filter.getTags(), operationTags))
+                    || ((!filter.getOperations().isEmpty()) && hasOperations(filter.getOperations(), operationId))) {
 
                 setFilteredOperation(pathName, nextOp, opObject, operation);
                 typeOpList.add(operation);
@@ -167,6 +161,14 @@ public class TypeExtractorUtil {
         return typeOpList;
     }
 
+    /**
+     * This method will set ballerinaOpenApiOperation with given values from openApi operations.
+     * @param pathName      pathName for operation
+     * @param nextOp        operation http methods
+     * @param opObject      operation object
+     * @param operation     ballerinaOpenApiOperation object
+     * @throws BallerinaOpenApiException throws ballerina openApi exception
+     */
     private static void setFilteredOperation(String pathName, Map.Entry<PathItem.HttpMethod, Operation> nextOp,
                                              Operation opObject, BallerinaOpenApiOperation operation)
             throws BallerinaOpenApiException {
@@ -436,8 +438,13 @@ public class TypeExtractorUtil {
             if (identifier.equals("error")) {
                 identifier = "_error";
             } else {
-                identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "$1");
+                identifier = identifier.replaceAll("([\\[\\]\\\\?!<>@#&~`*\\-=^+();:\\_{}\\s|.$])", "\\\\$1");
                 if (identifier.endsWith("?")) {
+                    if (identifier.charAt(identifier.length()-2) == '\\') {
+                        StringBuilder stringBuilder = new StringBuilder(identifier);
+                        stringBuilder.deleteCharAt(identifier.length() - 2);
+                        identifier = stringBuilder.toString();
+                    }
                     if (BAL_KEYWORDS.stream().anyMatch(Optional.ofNullable(identifier)
                             .filter(sStr -> sStr.length() != 0)
                             .map(sStr -> sStr.substring(0, sStr.length() - 1))
@@ -450,9 +457,7 @@ public class TypeExtractorUtil {
                     identifier = "'" + identifier;
                 }
             }
-            
         }
-        
         return identifier;
     }
     
@@ -495,20 +500,20 @@ public class TypeExtractorUtil {
     }
 
     /**
-     *
-     * @param tags
-     * @param operationTags
-     * @return
+     * This method for checking the availability of tag with filtered tag.
+     * @param tags              filter tags values
+     * @param operationTags     tag values with operation
+     * @return      Boolean value with availability
      */
     public static boolean hasTags(List<String> tags, List<String> operationTags) {
         return !Collections.disjoint(tags, operationTags);
     }
 
     /**
-     *
-     * @param operationslist
-     * @param operation
-     * @return
+     * This method for checking the availability of operationID with filtered operationIds.
+     * @param operationslist    filtered operationId list
+     * @param operation         operationId
+     * @return      Boolean value with availability
      */
     public static boolean hasOperations(List<String> operationslist, String operation) {
         return operationslist.contains(operation);
