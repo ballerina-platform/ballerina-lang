@@ -38,7 +38,16 @@ type Alpha record {|
 
 function testDuplicateKeyWithOptionalField() {
     Alpha alpha = {i:2};
-    map<int> m = {i:1, ...alpha};   // invalid usage of map literal: duplicate key 'i' via spread operator '...alpha'
+    map<int> m = {i:1, ...alpha};
+}
+
+type AlphaWithRest record {|
+    int...;
+|};
+
+function testClosedRecordWithRestField() {
+    AlphaWithRest a = {"i": 1, "k": 2};
+    map<int> m = {i: 1, ...a};
 }
 
 type Beta record {
@@ -47,25 +56,52 @@ type Beta record {
 
 function testInclusiveRecordWithSpreadOp1() {
     Beta b = {j: 1, "i": 2};
-    map<anydata> m = {i: 0, ...b};  // invalid usage of mapping constructor expression: inclusive record 'b' may consist of already-occurred keys.
+    map<anydata> m = {i: 0, ...b};
 }
 
 function testInclusiveRecordWithSpreadOp2() {
     Beta b = {j: 1, "i": 2};
-    map<anydata> m = {...b, i:3};  // invalid usage of map literal: duplicate key 'i'.
+    map<anydata> m = {...b, i:3};
 }
 
-function testMappWithSpreadOp() {
-    map<string> m1 = {x:"aa", y:"bb"};
-    map<string> m2 = {...m1, y:"cc"};   // mapping constructor expression: inclusive mapping 'm1' may consist of already-occurred keys.
+function testMappWithSpreadOp1() {
+    map<string> m1 = {x: "aa", y: "bb"};
+    map<string> m2 = {...m1, y: "cc"};
+}
+
+function testMappWithSpreadOp2() {
+    map<string> m1 = {x: "aa", y: "bb"};
+    map<string> m2 = {y: "cc", ...m1};
 }
 
 type Beta2 record {
     int i;
 };
 
-function testMultipleInclRecordsWithSpreadOp() {
+function testMultipleInclRecordsWithSpreadOp1() {
     Beta b1 = {j: 1, "k": 4};
     Beta2 b2 = {i: 2, "k": 4};
     map<any|error> m = {...b1, ...b2};
+}
+
+type Beta3 record {
+    int i;
+};
+
+function testMultipleInclRecordsWithSpreadOp2() {
+    Beta2 b2 = {i: 2};
+    Beta3 b3 = {i: 3};
+    map<any|error> m = {...b2, ...b3};
+}
+
+function testMultipleMapSpreadField() {
+    map<int> m1 = {i: 1};
+    map<int> m2 = {i: 2};
+    map<int> mm = {...m1, ...m2};
+}
+
+function testMultipleMapIncRecordSpreadField() {
+    Beta2 beta = {i: 2};
+    map<int> m1 = {i: 2};
+    map<anydata> mm = {...m1, ...beta};
 }
