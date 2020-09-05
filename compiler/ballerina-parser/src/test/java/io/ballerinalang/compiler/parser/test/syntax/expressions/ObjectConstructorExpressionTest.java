@@ -98,4 +98,10 @@ public class ObjectConstructorExpressionTest extends AbstractExpressionsTest {
         testFile("object-constructor/object_constructor_source_05.bal",
                 "object-constructor/object_constructor_assert_05.json");
     }
+
+    @Test
+    public void testMethodDefinitionWithFinalQualifier() {
+        testFile("object-constructor/object_constructor_source_09.bal",
+                "object-constructor/object_constructor_assert_09.json");
+    }
 }

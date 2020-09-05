@@ -4724,7 +4724,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseObjectMemberWithoutMeta(STNode metadata, ParserRuleContext context) {
-        boolean isObjectTypeDes = context == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR;
+        boolean isObjectTypeDesc = context == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR;
         STNode member;
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -4741,14 +4741,14 @@ public class BallerinaParser extends AbstractParser {
                             visibilityQualifier.toString().trim());
                     visibilityQualifier = STNodeFactory.createEmptyNode();
                 }
-                member = parseObjectMethodOrField(metadata, visibilityQualifier, isObjectTypeDes);
+                member = parseObjectMethodOrField(metadata, visibilityQualifier, isObjectTypeDesc);
                 break;
             case REMOTE_KEYWORD:
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
             case RESOURCE_KEYWORD: // resource qualifier is not allowed but let it pass here and validate in
                 // parseFunctionQualifiers method
-                member = parseObjectMethod(metadata, new ArrayList<>(), isObjectTypeDes);
+                member = parseObjectMethod(metadata, new ArrayList<>(), isObjectTypeDesc);
                 break;
             case ASTERISK_TOKEN:
                 STNode asterisk = consume();
@@ -4757,14 +4757,15 @@ public class BallerinaParser extends AbstractParser {
                 member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
                 break;
             case FINAL_KEYWORD:
-                if (isTypeStartingToken(peek(2).kind)) {
-                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectTypeDes);
+                STToken nextNextToken = peek(2);
+                if (nextNextToken.kind != SyntaxKind.FUNCTION_KEYWORD && isTypeStartingToken(nextNextToken.kind)) {
+                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectTypeDesc);
                     break;
                 }
                 // Else fall through
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
-                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectTypeDes);
+                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectTypeDesc);
                     break;
                 }
 
@@ -4809,6 +4810,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseObjectMethodOrField(STNode metadata, STNode visibilityQualifier, boolean isObjectTypeDesc) {
         STToken nextToken = peek(1);
+        STToken nextNextToken = peek(2);
         List<STNode> qualifiers = new ArrayList<>();
         switch (nextToken.kind) {
             case REMOTE_KEYWORD:
@@ -4823,7 +4825,6 @@ public class BallerinaParser extends AbstractParser {
 
             // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case IDENTIFIER_TOKEN:
-                STToken nextNextToken = peek(2);
                 if (nextNextToken.kind != SyntaxKind.OPEN_PAREN_TOKEN) {
                     // Here we try to catch the common user error of missing the function keyword.
                     // In such cases, lookahead for the open-parenthesis and figure out whether
@@ -4832,7 +4833,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             case FINAL_KEYWORD:
-                if (isTypeStartingToken(peek(2).kind)) {
+                if (nextNextToken.kind != SyntaxKind.FUNCTION_KEYWORD && isTypeStartingToken(nextNextToken.kind)) {
                     return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc);
                 }
                 // Else fall through
