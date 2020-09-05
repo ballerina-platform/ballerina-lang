@@ -185,8 +185,19 @@ public class IdentifierLiteralTest {
     public void testInvalidILEscapeChar() {
         CompileResult resultNeg =
                 BCompileUtil.compile("test-src/expressions/literals/identifierliteral/invalid_IL_escape_char.bal");
-        Assert.assertEquals(resultNeg.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNeg, 0, "undefined symbol ''", 19, 12);
+        Assert.assertEquals(resultNeg.getErrorCount(), 12);
+        BAssertUtil.validateError(resultNeg, 0, "invalid escape sequence '\\B'", 18, 12);
+        BAssertUtil.validateError(resultNeg, 1, "invalid escape sequence '\\a'", 18, 12);
+        BAssertUtil.validateError(resultNeg, 2, "invalid escape sequence '\\c'", 18, 12);
+        BAssertUtil.validateError(resultNeg, 3, "invalid escape sequence '\\x'", 18, 12);
+        BAssertUtil.validateError(resultNeg, 4, "invalid escape sequence '\\y'", 18, 12);
+        BAssertUtil.validateError(resultNeg, 5, "invalid escape sequence '\\z'", 18, 12);
+        BAssertUtil.validateError(resultNeg, 6, "invalid escape sequence '\\B'", 19, 12);
+        BAssertUtil.validateError(resultNeg, 7, "invalid escape sequence '\\a'", 19, 12);
+        BAssertUtil.validateError(resultNeg, 8, "invalid escape sequence '\\c'", 19, 12);
+        BAssertUtil.validateError(resultNeg, 9, "invalid escape sequence '\\x'", 19, 12);
+        BAssertUtil.validateError(resultNeg, 10, "invalid escape sequence '\\y'", 19, 12);
+        BAssertUtil.validateError(resultNeg, 11, "invalid escape sequence '\\z'", 19, 12);
     }
 
     @Test(description = "Tests quoted identifier literal containing invalid unicode characters")
