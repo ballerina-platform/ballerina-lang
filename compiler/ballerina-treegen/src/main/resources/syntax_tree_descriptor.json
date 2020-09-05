@@ -884,11 +884,6 @@
                     "occurrences": "MULTIPLE"
                 },
                 {
-                    "name": "visibilityQualifier",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "typeName",
                     "type": "Node"
                 },
@@ -916,11 +911,6 @@
                     "name": "annotations",
                     "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "visibilityQualifier",
-                    "type": "Token",
-                    "isOptional": true
                 },
                 {
                     "name": "typeName",
@@ -3037,13 +3027,18 @@
             ]
         },
         {
-            "name": "FunctionalBindingPatternNode",
+            "name": "ErrorBindingPatternNode",
             "base": "BindingPatternNode",
-            "kind": "FUNCTIONAL_BINDING_PATTERN",
+            "kind": "ERROR_BINDING_PATTERN",
             "attributes": [
                 {
+                    "name": "errorKeyword",
+                    "type": "Token"
+                },
+                {
                     "name": "typeReference",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 },
                 {
                     "name": "openParenthesis",

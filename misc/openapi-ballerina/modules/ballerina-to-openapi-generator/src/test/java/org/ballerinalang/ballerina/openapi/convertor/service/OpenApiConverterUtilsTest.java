@@ -200,7 +200,7 @@ public class OpenApiConverterUtilsTest {
             "   }\n" +
             "}";
 
-    @Test(description = "Test ballerina to openApi conversion")
+    @Test(enabled = false, description = "Test ballerina to openApi conversion")
     public void testBallerinaToOpenApiConversion() {
         String serviceName = "";
         try {
