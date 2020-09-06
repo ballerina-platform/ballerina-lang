@@ -26,6 +26,7 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -34,11 +35,12 @@ import org.testng.annotations.Test;
 public class FinalAccessTest {
 
     private CompileResult compileResult;
+    private CompileResult finalLocalNoInitVarResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/finaltypes/TestProject",
-                "final-field-test");
+        compileResult = BCompileUtil.compile("test-src/types/finaltypes/TestProject", "final-field-test");
+        finalLocalNoInitVarResult = BCompileUtil.compile("test-src/types/finaltypes/test_final_local_no_init_var.bal");
     }
 
     @Test(description = "Test negative cases for implicitly final params/variables")
@@ -68,6 +70,13 @@ public class FinalAccessTest {
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 31, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 36, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 41, 5);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'i'", 52, 5);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 's'", 63, 5);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to potentially initialized final 'i'",
+                                  75, 5);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 's'", 82, 5);
+        BAssertUtil.validateError(resultNegative, i++, "variable 'i' may not have been initialized", 94, 13);
+
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -147,5 +156,18 @@ public class FinalAccessTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithoutTypeInitializedFromFunction");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
+
+    @Test(dataProvider = "finalLocalNoInitVarTests")
+    public void testFinalLocalNoInitVar(String function) {
+        BRunUtil.invoke(finalLocalNoInitVarResult, function);
+    }
+
+    @DataProvider(name = "finalLocalNoInitVarTests")
+    public Object[][] finalLocalNoInitVarTests() {
+        return new Object[][]{
+                {"testSubsequentInitializationOfFinalVar"},
+                {"testSubsequentInitializationOfFinalVarInBranches"}
+        };
     }
 }

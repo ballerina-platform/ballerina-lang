@@ -44,3 +44,59 @@ function testLocalFinalValueWithoutTypeInitializedFromFunction() {
 function getName() returns string {
     return "Ballerina";
 }
+
+function testAssignmentToSubsequentlyInitializedFinalNoInitVar(boolean b) {
+    final int i;
+    i = 12; // OK, first assignment.
+
+    i = 13; // cannot assign a value to final 'i'
+
+    final string s;
+
+    if b {
+        s = "true";
+    } else if i == 2 {
+        s = "i is 2";
+    } else {
+        s = "else";
+    }
+    s = "after if-else";
+}
+
+function testAssignmentToSubsequentlyPotentiallyInitializedFinalNoInitVar() {
+    final int i;
+    boolean b = false;
+
+    if b {
+        i = 10;
+    } else {
+        b = true;
+    }
+    i = 12;
+
+    final string s;
+
+    while b {
+        s = "initialized";
+    }
+    s = "after while";
+}
+
+function testAccessOfSubsequentlyPotentiallyInitializedFinalNoInitVar() {
+    final int i;
+    boolean b = false;
+
+    if b {
+        i = 10;
+    } else {
+        b = true;
+    }
+    int x = i;
+
+    final string s;
+
+    while b {
+        s = "initialized";
+    }
+    string t = s; // should result in an error - see https://github.com/ballerina-platform/ballerina-lang/issues/25634
+}
