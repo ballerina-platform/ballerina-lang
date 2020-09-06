@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -227,6 +228,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private final Names names;
     private SymbolEnv env;
     private SymbolTable symTable;
+    private Types types;
     private BLangDiagnosticLogHelper dlog;
     private Map<BSymbol, InitStatus> uninitializedVars;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
@@ -240,6 +242,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private DataflowAnalyzer(CompilerContext context) {
         context.put(DATAFLOW_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
+        this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
@@ -1726,11 +1729,32 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 return;
             case INDEX_BASED_ACCESS_EXPR:
             case FIELD_BASED_ACCESS_EXPR:
-                if (isObjectMemberAccessWithSelf((BLangAccessExpression) varRef)) {
-                    this.uninitializedVars.remove(((BLangVariableReference) varRef).symbol);
-                } else {
-                    analyzeNode(((BLangAccessExpression) varRef).expr, env);
+                BLangAccessExpression accessExpr = (BLangAccessExpression) varRef;
+
+                BLangExpression expr = accessExpr.expr;
+                BType type = expr.type;
+                if (isObjectMemberAccessWithSelf(accessExpr)) {
+                    BObjectType objectType = (BObjectType) type;
+
+                    BSymbol symbol = accessExpr.symbol;
+                    if (this.uninitializedVars.containsKey(symbol)) {
+                        this.uninitializedVars.remove(symbol);
+                        return;
+                    }
+
+                    BLangIdentifier field = ((BLangFieldBasedAccess) varRef).field;
+                    String fieldName = field.value;
+                    checkFinalEntityUpdate(varRef.pos, fieldName, objectType.fields.get(fieldName).symbol);
+                    return;
                 }
+
+                if (types.isSubTypeOfBaseType(type, TypeTags.OBJECT)) {
+                    BLangIdentifier field = ((BLangFieldBasedAccess) varRef).field;
+                    String fieldName = field.value;
+                    checkFinalEntityUpdate(varRef.pos, fieldName, ((BObjectType) type).fields.get(fieldName).symbol);
+                }
+
+                analyzeNode(expr, env);
                 return;
             default:
                 break;
@@ -1744,23 +1768,29 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // So global variable assignments happen in functions.
         if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BSymbol symbol = ((BLangSimpleVarRef) varRef).symbol;
-            if (Symbols.isFlagOn(symbol.flags, Flags.FINAL)) {
-                if (!this.uninitializedVars.containsKey(symbol)) {
-                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
-                } else {
-                    InitStatus initStatus = this.uninitializedVars.get(symbol);
-                    if (initStatus == InitStatus.PARTIAL_INIT) {
-                        dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_POTENTIALLY_INITIALIZED_FINAL,
-                                   varRef);
-                    }
-                }
-            }
+            checkFinalEntityUpdate(varRef.pos, varRef, symbol);
 
             BSymbol owner = this.env.scope.owner;
             addFunctionToGlobalVarDependency(owner, symbol);
         }
 
         this.uninitializedVars.remove(((BLangVariableReference) varRef).symbol);
+    }
+
+    private void checkFinalEntityUpdate(DiagnosticPos pos, Object field, BSymbol symbol) {
+        if (!Symbols.isFlagOn(symbol.flags, Flags.FINAL)) {
+            return;
+        }
+
+        if (!this.uninitializedVars.containsKey(symbol)) {
+            dlog.error(pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, field);
+            return;
+        }
+
+        InitStatus initStatus = this.uninitializedVars.get(symbol);
+        if (initStatus == InitStatus.PARTIAL_INIT) {
+            dlog.error(pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_POTENTIALLY_INITIALIZED_FINAL, field);
+        }
     }
 
     private void terminateFlow() {
