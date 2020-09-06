@@ -167,14 +167,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupTypeName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecordField;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getStrandMetadataVarName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
- import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsForEqualCheck;

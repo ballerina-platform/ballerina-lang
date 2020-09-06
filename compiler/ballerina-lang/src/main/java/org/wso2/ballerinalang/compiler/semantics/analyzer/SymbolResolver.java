@@ -128,6 +128,8 @@ import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_EN
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 
+import static java.lang.String.format;
+
 /**
  * @since 0.94
  */
@@ -845,7 +847,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
             symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
-            symTable.defineOperators();
+//            symTable.defineOperators();
             symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
             symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
             symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
@@ -855,6 +857,10 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
         throw new IllegalStateException("built-in error not found ?");
+    }
+
+    public void defineOperators() {
+        symTable.defineOperators();
     }
 
     public void loadAnydataAndDependentTypes() {
@@ -869,20 +875,20 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.arrayAnydataType = new BArrayType(symTable.anydataType);
             symTable.mapAnydataType = new BMapType(TypeTags.MAP, symTable.anydataType, null);
             symTable.anydataOrReadonly = BUnionType.create(null, symTable.anydataType, symTable.readonlyType);
-            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.anydataType, null, null);
-            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.anydataType, null);
-            symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
-            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
-            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
-            symTable.defineOperators();
-            symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
-                    PackageID.ERROR, symTable.errorType, symTable.rootPkgSymbol);
-            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
-            symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
-            symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
-            symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
-            symTable.typeDesc.constraint = symTable.anyOrErrorType;
-            symTable.futureType.constraint = symTable.anyOrErrorType;
+//            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.anydataType, null, null);
+//            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.anydataType, null);
+//            symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
+//            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
+//            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
+//            symTable.defineOperators() ;
+//            symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
+//                    PackageID.ERROR, symTable.errorType, symTable.rootPkgSymbol);
+//            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+//            symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
+//            symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
+//            symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
+//            symTable.typeDesc.constraint = symTable.anyOrErrorType;
+//            symTable.futureType.constraint = symTable.anyOrErrorType;
             return;
         }
         throw new IllegalStateException("built-in 'anydata' type not found");
@@ -915,8 +921,17 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
             symTable.cloneableType.tsymbol =
                     new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                            symTable.cloneableType,
-                            symTable.rootPkgSymbol);
+                            symTable.cloneableType, symTable.rootPkgSymbol, symTable.builtinPos);
+            symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
+            symTable.errorType = new BErrorType(null, symTable.detailType);
+            symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
+                    symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos);
+            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+            symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
+            symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
+            symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
+            symTable.typeDesc.constraint = symTable.anyOrErrorType;
+            symTable.futureType.constraint = symTable.anyOrErrorType;
             return;
         }
         throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");
@@ -1044,9 +1059,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         LinkedHashSet<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .flatMap(memBType ->
-//                        memBType.tag == TypeTags.UNION &&
-                        memBType != null
-                                && memBType.tag == TypeTags.UNION
+//                        memBType != null &&
+                        memBType.tag == TypeTags.UNION
                                 && memBType.tsymbol != null
                                 && !Symbols.isFlagOn(memBType.tsymbol.flags, Flags.TYPE_PARAM) ?
                                 ((BUnionType) memBType).getMemberTypes().stream() :

@@ -43,6 +43,12 @@ public class BJSONType extends BUnionType implements SelectivelyImmutableReferen
     }
 
     @Override
+    public String toString() {
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
+                getKind().typeName().concat(" & readonly");
+    }
+
+    @Override
     public TypeKind getKind() {
         return TypeKind.JSON;
     }

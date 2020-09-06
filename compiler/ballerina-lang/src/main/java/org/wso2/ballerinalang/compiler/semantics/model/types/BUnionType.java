@@ -93,9 +93,9 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
-        if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
-            return this.tsymbol.name.value;
-        }
+//        if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
+//            return this.tsymbol.name.value;
+//        }
         // This logic is added to prevent duplicate recursive calls to toString
         if (this.resolvingToString) {
             return "...";

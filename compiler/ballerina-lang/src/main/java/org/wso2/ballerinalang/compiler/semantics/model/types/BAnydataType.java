@@ -22,10 +22,12 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.LinkedHashSet;
+import java.util.StringJoiner;
 
 /**
  * {@code BAnydataType} represents the data types in Ballerina.
@@ -39,16 +41,19 @@ public class BAnydataType extends BUnionType implements SelectivelyImmutableRefe
         this.tag = tag;
         this.name = name;
         this.flags = flag;
+        this.tag = TypeTags.UNION;
     }
 
     public BAnydataType(int tag, BTypeSymbol tsymbol) {
         super(tsymbol, new LinkedHashSet<>(), true, false);
         this.tag = tag;
+//        this.tag = TypeTags.UNION;
     }
 
     public BAnydataType(int tag, BTypeSymbol tsymbol, boolean nullable) {
         super(tsymbol, new LinkedHashSet<>(), nullable, false);
         this.tag = tag;
+//        this.tag = TypeTags.UNION;
     }
 
     public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
@@ -56,6 +61,7 @@ public class BAnydataType extends BUnionType implements SelectivelyImmutableRefe
         this.tag = tag;
         this.name = name;
         this.flags = flags;
+//        this.tag = TypeTags.UNION;
     }
 
     public BAnydataType(BUnionType type) {
@@ -63,6 +69,12 @@ public class BAnydataType extends BUnionType implements SelectivelyImmutableRefe
                 Flags.READONLY));
         this.immutableType = type.immutableType;
         this.tag = TypeTags.ANYDATA;
+    }
+
+    @Override
+    public String toString() {
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
+                getKind().typeName().concat(" & readonly");
     }
 
     @Override

@@ -1146,7 +1146,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BType getCyclicDefinedType(BLangTypeDefinition typeDef) {
         BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>());
         BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
-                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, unionType, env.scope.owner);
+                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, unionType, env.scope.owner, symTable.builtinPos);
         typeDef.symbol = typeDefSymbol;
         if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
             handleLangLibTypes(typeDef);
