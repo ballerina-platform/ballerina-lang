@@ -1743,8 +1743,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // So global variable assignments happen in functions.
         if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BSymbol symbol = ((BLangSimpleVarRef) varRef).symbol;
+            if (Symbols.isFlagOn(symbol.flags, Flags.FINAL)) {
+                if (!this.uninitializedVars.containsKey(symbol)) {
+                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+                } else {
+                    InitStatus initStatus = this.uninitializedVars.get(symbol);
+                    if (initStatus == InitStatus.PARTIAL_INIT) {
+                        dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_POTENTIALLY_INITIALIZED_FINAL,
+                                   varRef);
+                    }
+                }
+            }
+
             BSymbol owner = this.env.scope.owner;
-            addFunctionToGlobalVarDependency(owner, ((BLangSimpleVarRef) varRef).symbol);
+            addFunctionToGlobalVarDependency(owner, symbol);
         }
 
         this.uninitializedVars.remove(((BLangVariableReference) varRef).symbol);

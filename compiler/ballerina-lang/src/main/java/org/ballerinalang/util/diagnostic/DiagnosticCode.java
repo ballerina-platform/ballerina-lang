@@ -258,6 +258,7 @@ public enum DiagnosticCode {
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
     INVALID_ASSIGNMENT_DECLARATION_FINAL("invalid.variable.assignment.declaration.final"),
     CANNOT_ASSIGN_VALUE_FINAL("cannot.assign.value.to.final.field"),
+    CANNOT_ASSIGN_VALUE_TO_POTENTIALLY_INITIALIZED_FINAL("cannot.assign.value.to.potentially.initialized.final"),
     CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT("cannot.assign.value.to.function.argument"),
     CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
     CANNOT_UPDATE_READONLY_VALUE_OF_TYPE("cannot.update.readonly.value.of.type"),

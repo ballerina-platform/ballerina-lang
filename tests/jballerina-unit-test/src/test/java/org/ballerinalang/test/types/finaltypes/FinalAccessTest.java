@@ -41,27 +41,34 @@ public class FinalAccessTest {
                 "final-field-test");
     }
 
-    @Test(description = "Test final field access failures")
-    public void testFinalFailCase() {
+    @Test(description = "Test negative cases for implicitly final params/variables")
+    public void testImplicitlyFinalNegative() {
         CompileResult compileResultNegative = BCompileUtil.compile(
-                "test-src/types/finaltypes/final-field-test-negative.bal");
-        Assert.assertEquals(compileResultNegative.getErrorCount(), 14);
-        BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to final 'globalFinalInt'", 8, 5);
-        BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to function argument 'a'", 19, 5);
-        BAssertUtil.validateError(compileResultNegative, 2, "cannot assign a value to function argument 'a'", 25, 5);
-        BAssertUtil.validateError(compileResultNegative, 3, "cannot assign a value to function argument 'f'", 30, 5);
-        BAssertUtil.validateError(compileResultNegative, 4, "cannot assign a value to function argument 's'", 31, 5);
-        BAssertUtil.validateError(compileResultNegative, 5, "cannot assign a value to function argument 'b'", 32, 5);
-        BAssertUtil.validateError(compileResultNegative, 6, "cannot assign a value to function argument 'j'", 33, 5);
-        BAssertUtil.validateError(compileResultNegative, 7, "cannot assign a value to function argument 'a'", 46, 5);
-        BAssertUtil.validateError(compileResultNegative, 8, "cannot assign a value to final 'name'", 53, 5);
-        BAssertUtil.validateError(compileResultNegative, 9, "cannot assign a value to final 'name'", 58, 5);
-        BAssertUtil.validateError(compileResultNegative, 10, "cannot assign a value to final 'name'", 63, 5);
-        BAssertUtil.validateError(compileResultNegative, 11, "cannot assign a value to final 'name'", 68, 5);
-        BAssertUtil.validateError(compileResultNegative, 12, "invalid assignment: 'listener' declaration is final",
-                                  78, 5);
-        BAssertUtil.validateError(compileResultNegative, 13, "invalid assignment: 'service' declaration is final",
-                                  84, 5);
+                "test-src/types/finaltypes/test_implicitly_final_negative.bal");
+        Assert.assertEquals(compileResultNegative.getErrorCount(), 9);
+        BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to function argument 'a'", 11, 5);
+        BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to function argument 'a'", 17, 5);
+        BAssertUtil.validateError(compileResultNegative, 2, "cannot assign a value to function argument 'f'", 22, 5);
+        BAssertUtil.validateError(compileResultNegative, 3, "cannot assign a value to function argument 's'", 23, 5);
+        BAssertUtil.validateError(compileResultNegative, 4, "cannot assign a value to function argument 'b'", 24, 5);
+        BAssertUtil.validateError(compileResultNegative, 5, "cannot assign a value to function argument 'j'", 25, 5);
+        BAssertUtil.validateError(compileResultNegative, 6, "cannot assign a value to function argument 'a'", 38, 5);
+        BAssertUtil.validateError(compileResultNegative, 7, "invalid assignment: 'listener' declaration is final",
+                                  45, 5);
+        BAssertUtil.validateError(compileResultNegative, 8, "invalid assignment: 'service' declaration is final",
+                                  51, 5);
+    }
+
+    @Test
+    public void testFinalVariableNegative() {
+        CompileResult resultNegative = BCompileUtil.compile("test-src/types/finaltypes/test_final_var_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'globalFinalInt'", 21, 5);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 26, 5);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 31, 5);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 36, 5);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 41, 5);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @Test(description = "Test final global variable")
