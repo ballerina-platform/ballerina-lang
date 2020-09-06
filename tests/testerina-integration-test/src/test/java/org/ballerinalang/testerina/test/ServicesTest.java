@@ -39,7 +39,7 @@ public class ServicesTest extends BaseTestCase {
         projectPath = serviceProjectBuildPath.toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testHttpService() throws BallerinaTestException {
         String moduleServiceCallMsg = "Hello, Module!";
         String testServiceCallMsg = "Hello, Test!";

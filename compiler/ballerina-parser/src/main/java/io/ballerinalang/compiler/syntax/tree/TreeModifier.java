@@ -652,11 +652,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         MetadataNode metadata =
                 modifyNode(constantDeclarationNode.metadata().orElse(null));
         Token visibilityQualifier =
-                modifyToken(constantDeclarationNode.visibilityQualifier());
+                modifyToken(constantDeclarationNode.visibilityQualifier().orElse(null));
         Token constKeyword =
                 modifyToken(constantDeclarationNode.constKeyword());
         TypeDescriptorNode typeDescriptor =
-                modifyNode(constantDeclarationNode.typeDescriptor());
+                modifyNode(constantDeclarationNode.typeDescriptor().orElse(null));
         Token variableName =
                 modifyToken(constantDeclarationNode.variableName());
         Token equalsToken =
@@ -681,8 +681,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             DefaultableParameterNode defaultableParameterNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(defaultableParameterNode.annotations());
-        Token visibilityQualifier =
-                modifyToken(defaultableParameterNode.visibilityQualifier().orElse(null));
         Node typeName =
                 modifyNode(defaultableParameterNode.typeName());
         Token paramName =
@@ -693,7 +691,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(defaultableParameterNode.expression());
         return defaultableParameterNode.modify(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -705,15 +702,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             RequiredParameterNode requiredParameterNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(requiredParameterNode.annotations());
-        Token visibilityQualifier =
-                modifyToken(requiredParameterNode.visibilityQualifier().orElse(null));
         Node typeName =
                 modifyNode(requiredParameterNode.typeName());
         Token paramName =
                 modifyToken(requiredParameterNode.paramName().orElse(null));
         return requiredParameterNode.modify(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName);
     }
@@ -780,9 +774,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node fieldName =
                 modifyNode(specificFieldNode.fieldName());
         Token colon =
-                modifyToken(specificFieldNode.colon());
+                modifyToken(specificFieldNode.colon().orElse(null));
         ExpressionNode valueExpr =
-                modifyNode(specificFieldNode.valueExpr());
+                modifyNode(specificFieldNode.valueExpr().orElse(null));
         return specificFieldNode.modify(
                 readonlyKeyword,
                 fieldName,
@@ -933,9 +927,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token fieldName =
                 modifyToken(objectFieldNode.fieldName());
         Token equalsToken =
-                modifyToken(objectFieldNode.equalsToken());
+                modifyToken(objectFieldNode.equalsToken().orElse(null));
         ExpressionNode expression =
-                modifyNode(objectFieldNode.expression());
+                modifyNode(objectFieldNode.expression().orElse(null));
         Token semicolonToken =
                 modifyToken(objectFieldNode.semicolonToken());
         return objectFieldNode.modify(
@@ -1215,9 +1209,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode namespaceuri =
                 modifyNode(xMLNamespaceDeclarationNode.namespaceuri());
         Token asKeyword =
-                modifyToken(xMLNamespaceDeclarationNode.asKeyword());
+                modifyToken(xMLNamespaceDeclarationNode.asKeyword().orElse(null));
         IdentifierToken namespacePrefix =
-                modifyNode(xMLNamespaceDeclarationNode.namespacePrefix());
+                modifyNode(xMLNamespaceDeclarationNode.namespacePrefix().orElse(null));
         Token semicolonToken =
                 modifyToken(xMLNamespaceDeclarationNode.semicolonToken());
         return xMLNamespaceDeclarationNode.modify(
@@ -1423,7 +1417,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token tableKeyword =
                 modifyToken(tableConstructorExpressionNode.tableKeyword());
         KeySpecifierNode keySpecifier =
-                modifyNode(tableConstructorExpressionNode.keySpecifier());
+                modifyNode(tableConstructorExpressionNode.keySpecifier().orElse(null));
         Token openBracket =
                 modifyToken(tableConstructorExpressionNode.openBracket());
         SeparatedNodeList<Node> mappingConstructors =
@@ -1580,7 +1574,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public TemplateExpressionNode transform(
             TemplateExpressionNode templateExpressionNode) {
         Token type =
-                modifyToken(templateExpressionNode.type());
+                modifyToken(templateExpressionNode.type().orElse(null));
         Token startBacktick =
                 modifyToken(templateExpressionNode.startBacktick());
         NodeList<TemplateMemberNode> content =
@@ -2262,17 +2256,20 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public FunctionalBindingPatternNode transform(
-            FunctionalBindingPatternNode functionalBindingPatternNode) {
+    public ErrorBindingPatternNode transform(
+            ErrorBindingPatternNode errorBindingPatternNode) {
+        Token errorKeyword =
+                modifyToken(errorBindingPatternNode.errorKeyword());
         Node typeReference =
-                modifyNode(functionalBindingPatternNode.typeReference());
+                modifyNode(errorBindingPatternNode.typeReference().orElse(null));
         Token openParenthesis =
-                modifyToken(functionalBindingPatternNode.openParenthesis());
+                modifyToken(errorBindingPatternNode.openParenthesis());
         SeparatedNodeList<BindingPatternNode> argListBindingPatterns =
-                modifySeparatedNodeList(functionalBindingPatternNode.argListBindingPatterns());
+                modifySeparatedNodeList(errorBindingPatternNode.argListBindingPatterns());
         Token closeParenthesis =
-                modifyToken(functionalBindingPatternNode.closeParenthesis());
-        return functionalBindingPatternNode.modify(
+                modifyToken(errorBindingPatternNode.closeParenthesis());
+        return errorBindingPatternNode.modify(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,
@@ -2536,9 +2533,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         IdentifierToken identifier =
                 modifyNode(enumMemberNode.identifier());
         Token equalToken =
-                modifyToken(enumMemberNode.equalToken());
+                modifyToken(enumMemberNode.equalToken().orElse(null));
         ExpressionNode constExprNode =
-                modifyNode(enumMemberNode.constExprNode());
+                modifyNode(enumMemberNode.constExprNode().orElse(null));
         return enumMemberNode.modify(
                 metadata,
                 identifier,
@@ -2827,7 +2824,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode expression =
                 modifyNode(joinClauseNode.expression());
         OnClauseNode onCondition =
-                modifyNode(joinClauseNode.onCondition().orElse(null));
+                modifyNode(joinClauseNode.onCondition());
         return joinClauseNode.modify(
                 outerKeyword,
                 joinKeyword,
@@ -2842,11 +2839,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             OnClauseNode onClauseNode) {
         Token onKeyword =
                 modifyToken(onClauseNode.onKeyword());
-        ExpressionNode expression =
-                modifyNode(onClauseNode.expression());
+        ExpressionNode lhsExpression =
+                modifyNode(onClauseNode.lhsExpression());
+        Token equalsKeyword =
+                modifyToken(onClauseNode.equalsKeyword());
+        ExpressionNode rhsExpression =
+                modifyNode(onClauseNode.rhsExpression());
         return onClauseNode.modify(
                 onKeyword,
-                expression);
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression);
     }
 
     @Override

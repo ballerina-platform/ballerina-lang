@@ -28,42 +28,41 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 /**
  * Summary of the OpenAPI documentation for a API path.
  */
-class OpenAPIPathSummary {
+public class OpenAPIPathSummary {
     private String path;
     private List<String> availableOperations;
     private Map<String, Operation> operations;
 
-    OpenAPIPathSummary() {
+    public OpenAPIPathSummary() {
         this.availableOperations = new ArrayList<>();
         this.operations = new HashMap<>();
         this.path = null;
     }
 
-    String getPath() {
+    public String getPath() {
         return path;
     }
 
-    void setPath(String path) {
+    public void setPath(String path) {
         this.path = path;
     }
 
-    List<String> getAvailableOperations() {
+    public List<String> getAvailableOperations() {
         return availableOperations;
     }
 
-    void addOperation(String method, Operation operation) {
+    public void addOperation(String method, Operation operation) {
         this.operations.put(method, operation);
     }
 
-    void addAvailableOperation(String operation) {
+    public void addAvailableOperation(String operation) {
         this.availableOperations.add(operation);
     }
 
-    boolean hasTags(List<String> tags, String method) {
+    public boolean hasTags(List<String> tags, String method) {
         Operation operation = operations.get(method);
         if (operation == null) {
             return false;
@@ -71,7 +70,7 @@ class OpenAPIPathSummary {
         return !Collections.disjoint(tags, operation.getTags());
     }
 
-    boolean hasOperations(List<String> operationslist, String method) {
+    public boolean hasOperations(List<String> operationslist, String method) {
         Operation operation = operations.get(method);
         if (operation == null) {
             return false;
@@ -80,7 +79,7 @@ class OpenAPIPathSummary {
 
     }
 
-    List<OpenAPIParameter> getParamNamesForOperation(String operation) {
+    public List<OpenAPIParameter> getParamNamesForOperation(String operation) {
         List<OpenAPIParameter> paramNames = new ArrayList<>();
         for (Map.Entry<String, Operation> entry : this.operations.entrySet()) {
             if (entry.getKey().equals(operation)
@@ -108,7 +107,7 @@ class OpenAPIPathSummary {
         return paramNames;
     }
 
-    Map<String, Schema> getRequestBodyForOperation(String operation) {
+    public Map<String, Schema> getRequestBodyForOperation(String operation) {
         Map<String, Schema> requestBodySchemas = new HashMap<>();
         for (Map.Entry<String, Operation> entry : this.operations.entrySet()) {
             if (entry.getKey().equals(operation)) {
@@ -122,5 +121,8 @@ class OpenAPIPathSummary {
             }
         }
         return requestBodySchemas;
+    }
+    public Map<String, Operation> getOperations() {
+        return this.operations;
     }
 }
