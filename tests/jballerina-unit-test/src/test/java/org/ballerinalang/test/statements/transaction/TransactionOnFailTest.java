@@ -24,12 +24,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for flow validation in TransactionStatement.
+ * Test cases for flow on-fail validation in Transaction Statement.
  */
 
 public class TransactionOnFailTest {
 
-    private CompileResult programFile, resultNegative, trxHandlersNegative;
+    private CompileResult programFile;
 
     @BeforeClass
     public void setup() {
@@ -37,9 +37,6 @@ public class TransactionOnFailTest {
     }
 
     @Test
-//    public void testRollback() {
-//        BRunUtil.invoke(programFile, "testLocalTransaction1");
-//    }
     public void testRollback2() {
         BRunUtil.invoke(programFile, "testTrxReturnVal");
     }
