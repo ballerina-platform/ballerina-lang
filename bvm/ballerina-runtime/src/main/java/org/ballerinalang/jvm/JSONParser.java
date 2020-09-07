@@ -83,7 +83,8 @@ public class JSONParser {
      */
     public static Object parse(InputStream in, String charsetName) throws BallerinaException {
         try {
-            Object jsonObj = parse(new InputStreamReader(new BufferedInputStream(in), charsetName));
+            Object jsonObj = parse(new InputStreamReader(new BufferedInputStream(in), charsetName),
+                    NonStringValueProcessingMode.FROM_JSON_STRING);
             return changeForBString(jsonObj);
         } catch (IOException e) {
             throw BallerinaErrors.createError("Error in parsing JSON data: " + e.getMessage());
@@ -98,15 +99,15 @@ public class JSONParser {
      * @throws BallerinaException for any parsing error
      */
     public static Object parse(String jsonStr) throws BallerinaException {
-        return parse(new StringReader(jsonStr));
+        return parse(new StringReader(jsonStr), NonStringValueProcessingMode.FROM_JSON_STRING);
     }
 
     /**
      * Parses the contents in the given string and returns a json.
      *
      * @param jsonStr the string which contains the JSON content
-     * @param mode    set the mode which process numeric values
-     * @return JSON structure
+     * @param mode    the mode to use when processing numeric values
+     * @return JSON   value if parsing is successful
      * @throws BallerinaException for any parsing error
      */
     public static Object parse(String jsonStr, NonStringValueProcessingMode mode) throws BallerinaException {
@@ -124,25 +125,6 @@ public class JSONParser {
      * Parses the contents in the given {@link Reader} and returns a json.
      *
      * @param reader reader which contains the JSON content
-     * @return JSON structure
-     * @throws BallerinaException for any parsing error
-     */
-    public static Object parse(Reader reader) throws BallerinaException {
-        StateMachine sm = tlStateMachine.get();
-        try {
-            return sm.execute(reader);
-        } finally {
-            // Need to reset the state machine before leaving. Otherwise references to the created
-            // JSON values will be maintained and the java GC will not happen properly.
-            sm.reset();
-        }
-    }
-
-    /**
-     * Parses the contents in the given {@link Reader} and returns a json.
-     *
-     * @param reader reader which contains the JSON content
-     * @param mode   set the mode which process numeric values
      * @return JSON structure
      * @throws BallerinaException for any parsing error
      */
@@ -221,7 +203,7 @@ public class JSONParser {
                 new StringFieldUnicodeHexProcessingState();
         private static final State STRING_VALUE_UNICODE_HEX_PROCESSING_STATE =
                 new StringValueUnicodeHexProcessingState();
-        private static NonStringValueProcessingMode mode = NonStringValueProcessingMode.FROM_JSON_STRING;
+        private NonStringValueProcessingMode mode = NonStringValueProcessingMode.FROM_JSON_STRING;
 
         private Object currentJsonNode;
         private Deque<Object> nodesStack;
@@ -858,7 +840,7 @@ public class JSONParser {
                             setValueToJsonType(type, new DecimalValue(str));
                             break;
                         default:
-                            if (ch == '-' && isZero(str)) {
+                            if (isNegativeZero(str)) {
                                 setValueToJsonType(type, Double.parseDouble(str));
                             } else {
                                 setValueToJsonType(type, new DecimalValue(str));
@@ -925,7 +907,7 @@ public class JSONParser {
                                 setValueToJsonType(type, new DecimalValue(str));
                                 break;
                             default:
-                                if (ch == '-' && isZero(str)) {
+                                if (isNegativeZero(str)) {
                                     setValueToJsonType(type, Double.parseDouble(str));
                                 } else {
                                     setValueToJsonType(type, Long.parseLong(str));
@@ -956,8 +938,8 @@ public class JSONParser {
             }
         }
 
-        private boolean isZero(String str) {
-            return 0 == Double.parseDouble(str);
+        private boolean isNegativeZero(String str) {
+            return '-' == str.charAt(0) && 0 == Double.parseDouble(str);
         }
 
         /**

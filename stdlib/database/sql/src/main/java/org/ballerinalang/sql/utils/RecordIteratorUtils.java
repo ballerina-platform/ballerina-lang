@@ -213,7 +213,7 @@ public class RecordIteratorUtils {
                             .getValue();
                     Reader reader = new StringReader(jsonString);
                     try {
-                        return JSONParser.parse(reader);
+                        return JSONParser.parse(reader, JSONParser.NonStringValueProcessingMode.FROM_JSON_STRING);
                     } catch (BallerinaException e) {
                         throw new ApplicationError("Error while converting to JSON type. " + e.getDetail());
                     }
