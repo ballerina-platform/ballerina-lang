@@ -232,3 +232,92 @@ function getDeptName(int id) returns string {
         return "Operations";
     }
 }
+
+function testOnClauseWithFunction() returns DeptPerson[]{
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       join Department dept in deptList
+       on condition(person.fname)
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : dept.name
+       };
+
+    return deptPersonList;
+}
+
+function testOuterJoinWithOnClauseWithFunction() returns boolean {
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       outer join Department dept in deptList
+       on condition(person.fname)
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : dept.name
+       };
+}
+
+function testOuterJoinWithOutOnClause() returns boolean {
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       outer join Department dept in deptList
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : dept.name
+       };
+}
+
+//function testOnClauseWithoutEquals() returns boolean {
+//    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+//    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+//
+//    Department d1 = {id: 1, name:"HR"};
+//    Department d2 = {id: 2, name:"Operations"};
+//
+//    Person[] personList = [p1, p2];
+//    Department[] deptList = [d1, d2];
+//
+//    DeptPerson[] deptPersonList =
+//       from var person in personList
+//       outer join Department dept in deptList
+//       on person.id == dept.id
+//       select {
+//           fname : person.fname,
+//           lname : person.lname,
+//           dept : dept.name
+//       };
+//}
+
+function condition(string name) returns boolean{
+    return name == "Alex";
+}

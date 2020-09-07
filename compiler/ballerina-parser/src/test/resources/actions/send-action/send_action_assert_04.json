@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -336,6 +331,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -377,9 +373,14 @@
                 },
                 {
                   "kind": "BINARY_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "SYNC_SEND_ACTION",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_EXPRESSION_EXPECTED_ACTION_FOUND"
+                      ],
                       "children": [
                         {
                           "kind": "SIMPLE_NAME_REFERENCE",

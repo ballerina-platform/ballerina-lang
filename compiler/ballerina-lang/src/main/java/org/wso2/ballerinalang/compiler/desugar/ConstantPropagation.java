@@ -50,6 +50,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -902,8 +904,21 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        onClause.expression = rewrite(onClause.expression);
+        onClause.lhsExpr = rewrite(onClause.lhsExpr);
+        onClause.rhsExpr = rewrite(onClause.rhsExpr);
         result = onClause;
+    }
+
+    @Override
+    public void visit(BLangOrderKey orderKeyClause) {
+        orderKeyClause.expression = rewrite(orderKeyClause.expression);
+        result = orderKeyClause;
+    }
+
+    @Override
+    public void visit(BLangOrderByClause orderByClause) {
+        orderByClause.orderByKeyList.forEach(value -> rewrite((BLangNode) value));
+        result = orderByClause;
     }
 
     @Override

@@ -1,0 +1,103 @@
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+//apply plugin: 'jacoco'
+
+configurations {
+    dist {
+        transitive false
+    }
+    dependency {
+        transitive false
+    }
+    libs
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-parser')
+    implementation project(':ballerina-runtime')
+    implementation project(':language-server:language-server-commons')
+    implementation project(':language-server:language-server-compiler')
+    implementation project(':language-server:language-server-core')
+    implementation project(':language-server:language-server-cli')
+    implementation project(':openapi-ballerina:openapi-validator')
+    implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
+    implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
+
+    // Standard libs
+    implementation project(':ballerina-auth')
+    implementation project(':ballerina-lang:annotations')
+    implementation project(':ballerina-cache')
+    implementation project(':ballerina-config-api')
+    implementation project(':ballerina-crypto')
+    implementation project(':ballerina-java')
+    implementation project(':ballerina-file')
+    implementation project(':ballerina-http')
+    implementation project(':ballerina-io')
+    implementation project(':ballerina-log-api')
+    implementation project(':ballerina-mime')
+    implementation project(':ballerina-observability')
+    implementation project(':ballerina-openapi')
+    implementation project(':ballerina-reflect')
+    implementation project(':ballerina-system')
+    implementation project(':ballerina-task')
+    implementation project(':ballerina-time')
+    implementation project(':ballerina-transactions')
+    implementation project(':testerina:testerina-core')
+    implementation project(':ballerina-tool')
+
+    implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    implementation 'org.mockito:mockito-all:1.10.19'
+    implementation 'org.powermock:powermock-mockito-release-full:1.6.4'
+    implementation 'org.powermock:powermock-module-testng-common:1.6.4'
+
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.1.2'
+
+    testCompile 'org.testng:testng'
+}
+
+test {
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/test/"
+    systemProperty "experimental", "true"
+    systemProperty "ballerina.version", project.version
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
+CopySpec copyJarSpec = copySpec {
+    from configurations.dependency
+    into("lib")
+}
+
+task createZip(type: Zip) {
+    dependsOn createBalHome
+    with copyJarSpec
+}
+
+task buildAndCopy(type: Copy) {
+    dependsOn build
+    from 'build/libs/ballerinalang-data-mapper-' + project.version + '.jar'
+    into  project(':jballerina-tools').projectDir.absolutePath +
+            '/build/extracted-distributions/jballerina-tools-' + project.version +
+            '/bre/lib';
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true // coveralls plugin depends on xml format report
+        html.enabled true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: '**/utils/**')
+        }))
+    }
+}
+
+sourceCompatibility = 1.8

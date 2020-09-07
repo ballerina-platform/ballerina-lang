@@ -17,10 +17,9 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
-import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,8 +37,8 @@ public class BXmlItem extends BCompoundVariable {
     private static final String FIELD_CHILDREN = "children";
     private static final String FIELD_ATTRIBUTES = "attributes";
 
-    public BXmlItem(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.XML, value, dapVariable);
+    public BXmlItem(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.XML, value);
     }
 
     @Override

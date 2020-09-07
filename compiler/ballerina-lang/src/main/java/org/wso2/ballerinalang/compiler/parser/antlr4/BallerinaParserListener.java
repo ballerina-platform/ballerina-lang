@@ -2294,18 +2294,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code binaryEqualsExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBinaryEqualsExpression(BallerinaParser.BinaryEqualsExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code binaryEqualsExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBinaryEqualsExpression(BallerinaParser.BinaryEqualsExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code queryExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -2663,6 +2651,36 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSelectClause(BallerinaParser.SelectClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#orderDirection}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrderDirection(BallerinaParser.OrderDirectionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#orderDirection}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrderDirection(BallerinaParser.OrderDirectionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#orderKey}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrderKey(BallerinaParser.OrderKeyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#orderKey}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrderKey(BallerinaParser.OrderKeyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#orderByClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrderByClause(BallerinaParser.OrderByClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#orderByClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrderByClause(BallerinaParser.OrderByClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#onClause}.
 	 * @param ctx the parse tree

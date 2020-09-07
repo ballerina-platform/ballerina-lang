@@ -14,7 +14,7 @@
               "kind": "OPEN_PAREN_TOKEN"
             },
             {
-              "kind": "NULL_KEYWORD",
+              "kind": "NULL_LITERAL",
               "children": [
                 {
                   "kind": "NULL_KEYWORD"

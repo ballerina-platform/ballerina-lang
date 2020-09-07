@@ -141,7 +141,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -807,7 +806,7 @@ public class BIRGen extends BLangNodeVisitor {
 
 
     private boolean isWorkerSend(String chnlName, String workerName) {
-        return chnlName.startsWith(workerName) && chnlName.split(workerName)[1].startsWith("->");
+        return chnlName.split("->")[0].equals(workerName);
     }
 
     @Override
@@ -823,11 +822,8 @@ public class BIRGen extends BLangNodeVisitor {
 
         lambdaExpr.function.requiredParams.forEach(param -> {
 
-            // skip adding debug info for identifier literals FTM as they break java identifier rules
-            String metaVarName = param.name.isLiteral ? null : param.name.value;
-
             BIRVariableDcl birVarDcl = new BIRVariableDcl(param.pos, param.symbol.type,
-                    this.env.nextLambdaVarId(names), VarScope.FUNCTION, VarKind.ARG, metaVarName);
+                    this.env.nextLambdaVarId(names), VarScope.FUNCTION, VarKind.ARG, param.name.value);
             params.add(birVarDcl);
         });
 
@@ -1029,12 +1025,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef astVarDefStmt) {
-
-        // skip adding debug info for identifier literals FTM as they break java identifier rules
-        String metaVarName = astVarDefStmt.var.name.isLiteral ? null : astVarDefStmt.var.name.value;
-
         BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.LOCAL, metaVarName);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.LOCAL, astVarDefStmt.var.name.value);
         birVarDcl.startBB = this.env.enclBB;
         this.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
         this.env.enclFunc.localVars.add(birVarDcl);

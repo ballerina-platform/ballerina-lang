@@ -8,14 +8,18 @@
     {{/if}}
     <ul>
         {{#if module.records}}
-        <li>
-            <a data="records" href="{{ ../rootPath }}{{ ../module.id }}/index.html#records" onclick="menuLinkClick()">Records</a>
-        </li>
+            {{#unless (areAllAnonymous module.records) }}
+                <li>
+                    <a data="records" href="{{ ../rootPath }}{{ ../module.id }}/index.html#records" onclick="menuLinkClick()">Records</a>
+                </li>
+            {{/unless}}
         {{/if}}
         {{#if module.objects}}
-            <li>
-                <a  data="objects" href="{{ ../rootPath }}{{ ../module.id }}/index.html#objects" onclick="menuLinkClick()">Objects</a>
-            </li>
+            {{#unless (areAllAnonymous module.objects) }}
+                <li>
+                    <a  data="objects" href="{{ ../rootPath }}{{ ../module.id }}/index.html#objects" onclick="menuLinkClick()">Objects</a>
+                </li>
+            {{/unless}}
         {{/if}}
         {{#if module.clients}}
             <li>

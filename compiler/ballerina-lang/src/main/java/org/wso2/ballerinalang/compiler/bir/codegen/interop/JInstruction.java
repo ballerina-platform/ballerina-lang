@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -40,5 +41,10 @@ public class JInstruction extends BIRNonTerminator {
     public void accept(BIRVisitor visitor) {
 
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BIROperand[] getRhsOperands() {
+        return new BIROperand[0];
     }
 }

@@ -66,6 +66,17 @@ public final class STNodeList extends STNode {
         return new STNodeList(newNodesArray);
     }
 
+    public STNodeList addAll(int index, Collection<STNode> c) {
+        rangeCheckForAdd(index, bucketCount);
+        int newLength = bucketCount + c.size();
+        STNode[] newNodesArray = Arrays.copyOf(childBuckets, newLength);
+        System.arraycopy(childBuckets, index, newNodesArray, index + c.size(), bucketCount - index);
+        for (STNode stNode : c) {
+            newNodesArray[index++] = stNode;
+        }
+        return new STNodeList(newNodesArray);
+    }
+
     public STNodeList addAll(Collection<STNode> c) {
         int newLength = bucketCount + c.size();
         STNode[] newNodesArray = Arrays.copyOf(childBuckets, newLength);

@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -92,6 +91,11 @@ public class MockDesugar {
         return node;
     }
 
+    /**
+     * Generates all the Mock Functions and adds them to the BLangPackage's TestablePkg function list.
+     *
+     * @param pkgNode BLangPackage
+     */
     public void generateMockFunctions(BLangPackage pkgNode) {
         // Set the BLangPackage
         this.bLangPackage = pkgNode;
@@ -109,6 +113,12 @@ public class MockDesugar {
         }
     }
 
+    /**
+     * Generates a BLangFunction based on the function name provided.
+     *
+     * @param functionName Name of the function to generate the mock
+     * @return Generated BLangFunction
+     */
     private BLangFunction generateMockFunction(String functionName) {
         // Set the current mock object
         this.mockFnObjectName = this.bLangPackage.getTestablePkg().getMockFunctionNamesMap().get(functionName);
@@ -117,13 +127,9 @@ public class MockDesugar {
         this.importFunction = null;
         this.originalFunction = null;
 
-        // Function name is going to be 'ballerina/math:1.0.0 # absInt'
-        String currentPackageId = this.bLangPackage.packageID.toString();
-
-
-        // We need to identify if the function is part of the current package or imported package
-        if (functionName.contains(currentPackageId)) {
-            // Simply extract the name only and set it to function name
+        // Identify if function is part of current package or import package
+        if (functionName.contains(this.bLangPackage.packageID.toString())) {
+            // Simply extract the name only
             functionName = functionName.substring(functionName.indexOf(MOCK_ANNOTATION_DELIMITER) + 1);
             this.originalFunction = getOriginalFunction(functionName);
         } else {
@@ -175,8 +181,7 @@ public class MockDesugar {
         return bInvokableSymbol;
     }
 
-    private BInvokableSymbol getInvokableSymbol(String functionName,
-                                                String packageName,
+    private BInvokableSymbol getInvokableSymbol(String functionName, String packageName,
                                                 List<BLangImportPackage> importList) {
         // Loop through each BLangImportPackage
         for (BLangImportPackage importPkg : importList) {
@@ -193,10 +198,10 @@ public class MockDesugar {
     private List<BLangSimpleVariable> generateRequiredParams() {
         List<BLangSimpleVariable> requiredParams;
 
-        if (this.originalFunction == null) {
-            requiredParams = generateImportRequiredParams();
-        } else {
+        if (this.originalFunction != null) {
             requiredParams = this.originalFunction.requiredParams;
+        } else {
+            requiredParams = generateImportRequiredParams();
         }
 
         return requiredParams;
@@ -209,10 +214,9 @@ public class MockDesugar {
         for (BVarSymbol bVarSymbol : this.importFunction.params) {
             BLangSimpleVariable bLangSimpleVariable =
                     ASTBuilderUtil.createVariable(bLangPackage.pos, bVarSymbol.name.getValue(),
-                            bVarSymbol.type, null, bVarSymbol);
+                                                  bVarSymbol.type, null, bVarSymbol);
             bLangSimpleVariables.add(bLangSimpleVariable);
         }
-
 
         return bLangSimpleVariables;
     }
@@ -221,13 +225,15 @@ public class MockDesugar {
         BLangSimpleVariable bLangSimpleVariable = null;
 
         if (this.importFunction != null) {
-            BVarSymbol restParam = this.importFunction.restParam;
-
             if (this.importFunction.restParam != null) {
-                bLangSimpleVariable = ASTBuilderUtil.createVariable(bLangPackage.pos, restParam.name.getValue(),
-                        restParam.type, null, restParam);
-                bLangSimpleVariable.typeNode = ASTBuilderUtil.createTypeNode(restParam.type);
+                bLangSimpleVariable =
+                        ASTBuilderUtil.createVariable(bLangPackage.pos, this.importFunction.restParam.name.getValue(),
+                                                      this.importFunction.restParam.type, null,
+                                                      this.importFunction.restParam);
+                bLangSimpleVariable.typeNode = ASTBuilderUtil.createTypeNode(this.importFunction.restParam.type);
             }
+        } else {
+            bLangSimpleVariable = this.originalFunction.restParam;
         }
 
         return bLangSimpleVariable;
@@ -261,7 +267,8 @@ public class MockDesugar {
                 new Name(functionName),
                 bLangPackage.packageID,
                 generateSymbolInvokableType(),
-                bLangPackage.symbol
+                bLangPackage.symbol,
+                symTable.builtinPos
         );
 
         return symbol;
@@ -285,7 +292,7 @@ public class MockDesugar {
     }
 
     private List<BLangStatement> generateStatements() {
-        // <MockFunctionObj>.functionToMock = (functionToMock);
+        // The following synthesizes the equivalent of : `<MockFunctionObj>.functionToMock = (functionToMock);`
         String functionToMockVal = (this.originalFunction == null) ?
                 this.importFunction.name.toString() : this.originalFunction.name.toString();
         BLangAssignment bLangAssignment1 = ASTBuilderUtil.createAssignmentStmt(
@@ -293,7 +300,8 @@ public class MockDesugar {
                 generateFieldBasedAccess("functionToMock"),
                 generateRHSExpr(functionToMockVal));
 
-        // <MockFunctionObj>.functionToMockPackage = (functionToMockPackage);
+        // The following synthesizes the equivalent of :
+        // `<MockFunctionObj>.functionToMockPackage = `(functionToMockPackage);`
         String functionToMockPackageVal = (this.originalFunction == null) ?
                 this.importFunction.pkgID.toString()
                         + "/" + getFunctionSource(this.importFunction.source) :
@@ -304,7 +312,8 @@ public class MockDesugar {
                 generateFieldBasedAccess("functionToMockPackage"),
                 generateRHSExpr(functionToMockPackageVal));
 
-        // BLangReturn Statement <retType> test:MockHandler(<MockFunctionObj>, [<args?>])
+        // The following synthesizes the equivalent of :
+        // `BLangReturn Statement <retType> test:MockHandler(<MockFunctionObj>, [<args?>])`
         BLangReturn blangReturn =
                 ASTBuilderUtil.createReturnStmt(bLangPackage.pos, generateTypeConversionExpression());
 
@@ -321,7 +330,7 @@ public class MockDesugar {
         return source.replaceAll(".bal", "");
     }
 
-    // <mockobj>.functionToMock =
+    // This function synthesizes the Ballerina equivalent of : `<mockobj>.functionToMock =`
     private BLangFieldBasedAccess generateFieldBasedAccess(String fieldName) {
         BLangVariableReference expr = getMockFunctionReference();
         BLangIdentifier field = ASTBuilderUtil.createIdentifier(bLangPackage.pos, fieldName);
@@ -337,7 +346,7 @@ public class MockDesugar {
         return bLangFieldBasedAccess;
     }
 
-    // = (functionToMock)
+    // This function synthesizes the Ballerina equivalent of : `= (functionToMock)`
     private BLangLiteral generateRHSExpr(String val) {
         BType type = symTable.stringType;
         BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(bLangPackage.pos, type, val);
@@ -346,6 +355,7 @@ public class MockDesugar {
         return bLangLiteral;
     }
 
+    // This function synthesizes the Ballerina equivalent of : `Return: <type> MockHandler(<mockFnObj>, args)`
     private BLangTypeConversionExpr generateTypeConversionExpression() {
         BLangInvocation bLangInvocation = generateBLangInvocation();
         BType target = generateType();
@@ -359,19 +369,24 @@ public class MockDesugar {
         return typeConversionExpr;
     }
 
+    // This function synthesizes the Ballerina equivalent of : `test:MockHandler(<mockFnObj>, args)`
     private BLangInvocation generateBLangInvocation() {
         BInvokableSymbol invokableSymbol = getMockHandlerInvokableSymbol();
-        List<BLangExpression> argsExprs = generateInvocationRequiredArgs();
+        List<BLangExpression> argsExprs = generateInvocationArgsExprs();
+        List<BLangExpression> requiredArgs = generateInvocationRequiredArgs();
+        List<BLangExpression> restArgs = generateInvocationRestArgs();
 
-        BLangInvocation bLangInvocation =
-                ASTBuilderUtil.createInvocationExprForMethod(bLangPackage.pos, invokableSymbol, argsExprs, symResolver);
+        BLangInvocation bLangInvocation = ASTBuilderUtil.createInvocationExprForMethod(
+                bLangPackage.pos, invokableSymbol, requiredArgs, symResolver);
         bLangInvocation.pkgAlias = (BLangIdentifier) createIdentifier("test");
         bLangInvocation.argExprs = argsExprs;
         bLangInvocation.expectedType = bLangInvocation.type;
+        bLangInvocation.restArgs = restArgs;
 
         return bLangInvocation;
     }
 
+    // This function synthesizes the Ballerina equivalent of : `MockHandler()`
     private BInvokableSymbol getMockHandlerInvokableSymbol() {
         BSymbol testPkg = bLangPackage.getTestablePkg().symbol.scope.lookup(new Name("test")).symbol;
 
@@ -381,18 +396,42 @@ public class MockDesugar {
         return mockHandlerSymbol;
     }
 
-    private List<BLangExpression> generateInvocationRequiredArgs() {
-        List<BLangExpression> requiredArgs = new ArrayList<>();
+    // This function synthesizes the Ballerina equivalent of : `(<mockFnObj>, args)`
+    private List<BLangExpression> generateInvocationArgsExprs() {
+        List<BLangExpression> argExprs = new ArrayList<>();
 
         BLangSimpleVarRef bLangSimpleVarRef = getMockFunctionReference();
-        requiredArgs.add(bLangSimpleVarRef);
+        argExprs.add(bLangSimpleVarRef);
 
-        BLangListConstructorExpr argumentArray = generateMockHandlerArgs();
-        requiredArgs.add(argumentArray);
+        if (this.originalFunction != null) {
+            for (BLangSimpleVariable var : this.originalFunction.requiredParams) {
+                bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos, var.symbol);
+                argExprs.add(bLangSimpleVarRef);
+            }
 
-        return requiredArgs;
+            if (this.originalFunction.restParam != null) {
+                bLangSimpleVarRef =
+                        ASTBuilderUtil.createVariableRef(bLangPackage.pos, this.originalFunction.restParam.symbol);
+                argExprs.add(bLangSimpleVarRef);
+            }
+        } else {
+            if (!this.importFunction.params.isEmpty()) {
+                for (BVarSymbol bVarSymbol : this.importFunction.params) {
+                    bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos, bVarSymbol);
+                    argExprs.add(bLangSimpleVarRef);
+                }
+            }
+
+            if (this.importFunction.restParam != null) {
+                bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos, this.importFunction.restParam);
+                argExprs.add(bLangSimpleVarRef);
+            }
+        }
+
+        return argExprs;
     }
 
+    // This function synthesizes the Ballerina equivalent of : `(<mockFnObj>`
     private BLangSimpleVarRef getMockFunctionReference() {
         BVarSymbol mockObjectSymbol =
                 (BVarSymbol) bLangPackage.getTestablePkg().symbol.scope.lookup(new Name(this.mockFnObjectName)).symbol;
@@ -400,46 +439,64 @@ public class MockDesugar {
         return bLangSimpleVarRef;
     }
 
-    private BLangListConstructorExpr generateMockHandlerArgs() {
-        BLangListConstructorExpr argsList =
-                ASTBuilderUtil.createEmptyArrayLiteral(bLangPackage.pos, symTable.arrayAnydataType);
+    private List<BLangExpression> generateInvocationRequiredArgs() {
+        List<BLangExpression> requiredArgs = new ArrayList<>();
 
-        List<BLangSimpleVarRef> argVariables;
-        if (originalFunction == null) {
-            argVariables =
-                    ASTBuilderUtil.createVariableRefList(bLangPackage.pos, generateMockHandlerImportReqParams());
+        BLangSimpleVarRef bLangSimpleVarRef = getMockFunctionReference();
+        requiredArgs.add(bLangSimpleVarRef);
+
+        if (this.originalFunction != null) {
+            for (BLangSimpleVariable var : this.originalFunction.requiredParams) {
+                bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos, var.symbol);
+                requiredArgs.add(bLangSimpleVarRef);
+            }
         } else {
-            argVariables =
-                    ASTBuilderUtil.createVariableRefList(bLangPackage.pos, originalFunction.requiredParams);
-
+            if (!this.importFunction.params.isEmpty()) {
+                for (BVarSymbol bVarSymbol : this.importFunction.params) {
+                    bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos, bVarSymbol);
+                    requiredArgs.add(bLangSimpleVarRef);
+                }
+            }
         }
 
-        for (BLangSimpleVarRef varRef : argVariables) {
-            argsList.exprs.add((BLangExpression) varRef);
-        }
-
-        return argsList;
+        return requiredArgs;
     }
 
-    private List<BLangSimpleVariable> generateMockHandlerImportReqParams() {
-        List<BLangSimpleVariable> bLangSimpleVariables = new ArrayList<>();
+    private List<BLangExpression> generateInvocationRestArgs() {
+        List<BLangExpression> restArgs = new ArrayList<>();
+        BLangSimpleVarRef bLangSimpleVarRef = null;
 
-        if (!this.importFunction.params.isEmpty()) {
-            for (BVarSymbol bVarSymbol : this.importFunction.params) {
-                BLangSimpleVariable bLangSimpleVariable =
-                        ASTBuilderUtil.createVariable(bLangPackage.pos, bVarSymbol.name.getValue(),
-                                bVarSymbol.type, null, bVarSymbol);
-                bLangSimpleVariables.add(bLangSimpleVariable);
+        if (this.originalFunction != null) {
+            if (this.originalFunction.requiredParams != null) {
+                for (BLangSimpleVariable var : this.originalFunction.requiredParams) {
+                    bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos, var.symbol);
+                    restArgs.add(bLangSimpleVarRef);
+                }
             }
-        } else if (this.importFunction.restParam != null) {
-            BVarSymbol bVarSymbol = this.importFunction.restParam;
-            BLangSimpleVariable bLangSimpleVariable =
-                    ASTBuilderUtil.createVariable(bLangPackage.pos, bVarSymbol.name.getValue(),
-                            bVarSymbol.type, null, bVarSymbol);
-            bLangSimpleVariables.add(bLangSimpleVariable);
+
+            if (this.originalFunction.restParam != null) {
+                bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos,
+                                                                     this.originalFunction.restParam.symbol);
+                restArgs.add(bLangSimpleVarRef);
+            }
+
+        } else {
+            if (!this.importFunction.params.isEmpty()) {
+
+                for (BVarSymbol bVarSymbol : this.importFunction.params) {
+                    bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos, bVarSymbol);
+                    restArgs.add(bLangSimpleVarRef);
+                }
+            }
+
+            if (this.importFunction.restParam != null) {
+                bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos, this.importFunction.restParam);
+
+                restArgs.add(bLangSimpleVarRef);
+            }
         }
 
-        return bLangSimpleVariables;
+        return restArgs;
     }
 
     private BType generateType() {

@@ -20,11 +20,10 @@ import com.sun.jdi.IntegerValue;
 import com.sun.jdi.LongValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Optional;
 
@@ -36,8 +35,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
  */
 public class BInt extends BSimpleVariable {
 
-    public BInt(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.INT, value, dapVariable);
+    public BInt(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.INT, value);
     }
 
     @Override

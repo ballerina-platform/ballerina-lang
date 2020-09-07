@@ -37,10 +37,10 @@
           ]
         },
         {
-          "kind": "DECIMAL_INTEGER_LITERAL",
+          "kind": "NUMERIC_LITERAL",
           "children": [
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
               "value": "4"
             }
           ]
@@ -73,7 +73,12 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "COMMA_TOKEN"
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
+                          {
+                            "kind": "COMMA_TOKEN"
+                          }
+                        ]
                       }
                     }
                   ]

@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -153,14 +148,17 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "EQUAL_TOKEN",
-                                "trailingMinutiae": [
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
                                   {
-                                    "kind": "END_OF_LINE_MINUTIAE",
-                                    "value": "\n"
+                                    "kind": "EQUAL_TOKEN"
                                   }
                                 ]
                               }
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
                             },
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -203,10 +201,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "value": "6"
                     }
                   ]

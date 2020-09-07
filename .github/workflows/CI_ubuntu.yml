@@ -76,6 +76,7 @@ jobs:
 
       - name: Run integration test
         run: |
+          unset JAVA_TOOL_OPTIONS
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew :jballerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan --no-daemon
@@ -111,9 +112,10 @@ jobs:
 
       - name: Run jballerina unit test
         run: |
+          unset JAVA_TOOL_OPTIONS
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew :jballerina-unit-test:test :ballerina-http:test :ballerina-kafka:test :ballerina-mysql:test :testerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan --no-daemon
+          ./gradlew :jballerina-unit-test:test :testerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan --no-daemon
 
   run_unit_test:
     name: Run all other unit tests
@@ -146,6 +148,7 @@ jobs:
 
       - name: Run all the other unit test
         run: |
+          unset JAVA_TOOL_OPTIONS
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build -x createJavadoc -x :ballerina-http:test -x :ballerina-kafka:test -x :ballerina-mysql:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :testerina-integration-test:test --max-workers=1 --scan --no-daemon
+          ./gradlew build -x createJavadoc -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :testerina-integration-test:test --max-workers=1 --scan --no-daemon

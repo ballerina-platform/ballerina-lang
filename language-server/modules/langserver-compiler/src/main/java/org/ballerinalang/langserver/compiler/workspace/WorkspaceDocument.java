@@ -1,24 +1,24 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.eclipse.lsp4j.CodeLens;
@@ -35,8 +35,6 @@ public class WorkspaceDocument {
     private List<CodeLens> codeLenses;
     private Path path;
     private String content;
-    private String prunedContent;
-    private boolean usePrunedSource;
     private LSDocumentIdentifier lsDocument;
     private SyntaxTree tree;
 
@@ -45,7 +43,6 @@ public class WorkspaceDocument {
         this.content = content;
         setTree(SyntaxTree.from(TextDocuments.from(this.content)));
         this.codeLenses = new ArrayList<>();
-        this.usePrunedSource = false;
         lsDocument = isTempFile ? null : new LSDocumentIdentifierImpl(path.toUri().toString());
     }
 
@@ -70,14 +67,6 @@ public class WorkspaceDocument {
     }
 
     public String getContent() {
-        /*
-        If the pruned source flag is true, return the pruned source. After single access, the pruned source will be 
-        stale, and hence set to null. If a certain operation need to use the pruned source, then the operation set the
-        pruned source within the operation as well as rhe flag
-         */
-        if (this.usePrunedSource) {
-            return this.prunedContent;
-        }
         return content;
     }
 
@@ -87,26 +76,20 @@ public class WorkspaceDocument {
         setTree(SyntaxTree.from(TextDocuments.from(this.content)));
     }
 
-    public void setPrunedContent(String prunedContent) {
-        this.prunedContent = prunedContent;
-        this.usePrunedSource = true;
+    public void setIncrementContent(String content) {
+        this.content = content;
+        // TODO: Fix this, each time creates a new tree
+        setTree(SyntaxTree.from(TextDocuments.from(this.content)));
     }
 
     public SyntaxTree getTree() {
-        if (this.usePrunedSource) {
-            return SyntaxTree.from(TextDocuments.from(this.prunedContent));
-        }
         return this.tree;
     }
 
     public void setTree(SyntaxTree tree) {
         this.tree = tree;
-    }
-
-    public void resetPrunedContent() {
-
-        this.prunedContent = null;
-        this.usePrunedSource = false;
+        // TODO: Added to support inter-operability. Remove this once getContent() is removed
+        this.content = tree.toSourceCode();
     }
 
     public LSDocumentIdentifier getLSDocument() {
@@ -115,7 +98,6 @@ public class WorkspaceDocument {
 
     @Override
     public String toString() {
-        String cont = (this.usePrunedSource) ? prunedContent : this.content;
-        return "{" + "path:" + this.path + ", content:" + cont + "}";
+        return "{" + "path:" + this.path + ", content:" + this.content + "}";
     }
 }

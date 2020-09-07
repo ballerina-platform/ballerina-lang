@@ -15,13 +15,8 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -88,7 +83,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "hello",
                                   "leadingMinutiae": [
                                     {
@@ -106,7 +101,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "world"
                                 }
                               ]
@@ -150,7 +145,7 @@
                                   "kind": "STRING_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "STRING_LITERAL",
+                                      "kind": "STRING_LITERAL_TOKEN",
                                       "value": "hello"
                                     }
                                   ]
@@ -168,7 +163,7 @@
                                   "kind": "STRING_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "STRING_LITERAL",
+                                      "kind": "STRING_LITERAL_TOKEN",
                                       "value": "world"
                                     }
                                   ]
@@ -211,7 +206,7 @@
                                       "kind": "STRING_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "STRING_LITERAL",
+                                          "kind": "STRING_LITERAL_TOKEN",
                                           "value": "hello",
                                           "leadingMinutiae": [
                                             {
@@ -238,7 +233,7 @@
                                       "kind": "STRING_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "STRING_LITERAL",
+                                          "kind": "STRING_LITERAL_TOKEN",
                                           "value": "world",
                                           "trailingMinutiae": [
                                             {
@@ -307,7 +302,7 @@
                                           "kind": "STRING_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "STRING_LITERAL",
+                                              "kind": "STRING_LITERAL_TOKEN",
                                               "value": "hello"
                                             }
                                           ]
@@ -330,7 +325,7 @@
                                           "kind": "STRING_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "STRING_LITERAL",
+                                              "kind": "STRING_LITERAL_TOKEN",
                                               "value": "world"
                                             }
                                           ]

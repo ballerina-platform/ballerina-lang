@@ -25,10 +25,6 @@
             },
             {
               "kind": "SIMPLE_NAME_REFERENCE",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_XML_NAMESPACE_URI"
-              ],
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -57,15 +53,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -76,7 +63,7 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "STRING_LITERAL_TOKEN",
                           "value": "http://ballerinalang.org/ns1",
                           "trailingMinutiae": [
                             {
@@ -104,14 +91,17 @@
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "AS_KEYWORD",
-                            "trailingMinutiae": [
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": " "
+                                "kind": "AS_KEYWORD"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ],
                       "trailingMinutiae": [

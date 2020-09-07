@@ -26,7 +26,7 @@ configurations.all {
 
 configurations {
     dist {
-      transitive false
+        transitive false
     }
     dependency {
         transitive false
@@ -36,6 +36,7 @@ configurations {
 
 dependencies {
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-tools-api')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-parser')
@@ -46,34 +47,9 @@ dependencies {
     implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
 
     // Standard libs
-    implementation project(':ballerina-auth')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-cache')
-    implementation project(':ballerina-config-api')
-    implementation project(':ballerina-crypto')
-    implementation project(':ballerina-java')
-    implementation project(':ballerina-email')
-    implementation project(':ballerina-file')
-    implementation project(':ballerina-filepath')
-    implementation project(':ballerina-grpc')
-    implementation project(':ballerina-http')
-    implementation project(':ballerina-io')
-    implementation project(':ballerina-ldap')
-    implementation project(':ballerina-log-api')
-    implementation project(':ballerina-math')
-    implementation project(':ballerina-mime')
-    implementation project(':ballerina-nats')
-    implementation project(':ballerina-oauth2')
-    implementation project(':ballerina-observability')
-    implementation project(':ballerina-openapi')
-    implementation project(':ballerina-reflect')
-    implementation project(':ballerina-system')
-    implementation project(':ballerina-task')
-    implementation project(':ballerina-time')
-    implementation project(':ballerina-transactions')
-    implementation project(':ballerina-sql')
-    implementation project(':ballerina-mysql')
-    implementation project(':testerina:testerina-core')
+    implementation project(':language-server:language-server-stdlib')
+
     implementation project(':ballerina-tool')
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
@@ -99,37 +75,8 @@ dependencies {
     implementation 'com.github.jknack:handlebars:4.0.6'
     implementation 'com.moandjiezana.toml:toml4j'
 
-    baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-email', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-ldap', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-nats', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-openapi', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
-    baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
+    baloImplementation project(path: ':language-server:language-server-stdlib', configuration: 'baloImplementation')
 
     dependency 'com.h2database:h2:1.4.199'
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.8.1'
@@ -150,11 +97,6 @@ dependencies {
 
 description = 'Ballerina - Language server - Core'
 
-CopySpec copyJarSpec = copySpec {
-    from configurations.dependency
-    into("lib")
-}
-
 // Fix for windows class path too long issue
 task pathingJar(type: Jar) {
     appendix = "pathing"
@@ -173,7 +115,6 @@ task clearPathingJar(type: Delete) {
 
 task createZip(type: Zip) {
     dependsOn createBalHome
-    with copyJarSpec
 }
 
 artifacts {
@@ -199,8 +140,6 @@ task buildAndCopy(type: Copy) {
     dependsOn build
     from 'build/libs/language-server-core-' + project.version + '.jar'
     into  project(':jballerina-tools').projectDir.absolutePath +
-        '/build/extracted-distributions/jballerina-tools-' + project.version +
-        '/bre/lib';
+            '/build/extracted-distributions/jballerina-tools-' + project.version +
+            '/bre/lib';
 }
-
-

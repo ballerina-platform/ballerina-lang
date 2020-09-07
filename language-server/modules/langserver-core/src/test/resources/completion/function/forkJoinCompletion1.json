@@ -14,6 +14,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "xmlns",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "xmlns ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "var",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -54,22 +62,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "error ${1:name} = error(\"${2:errorCode}\", message = \"${3}\");",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Event",
-      "detail": "error",
-      "sortText": "200",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -94,6 +86,30 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "if",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "240",
+      "insertText": "if (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "while",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "240",
+      "insertText": "while (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lock",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "240",
+      "insertText": "lock {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "Statement",
@@ -110,35 +126,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "if",
+      "label": "transaction",
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "240",
-      "insertText": "if (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lock",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "240",
-      "insertText": "lock {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "match",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "240",
-      "insertText": "match ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "panic",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "240",
-      "insertText": "panic ",
+      "insertText": "transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -150,6 +142,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "match",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "240",
+      "insertText": "match ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "return",
       "kind": "Snippet",
       "detail": "Statement",
@@ -158,256 +158,35 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "transaction",
+      "label": "panic",
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "240",
-      "insertText": "transaction {\n\t${1}\n}",
+      "insertText": "panic ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "while",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "240",
-      "insertText": "while (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "worker",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "worker ${1:name} {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "Float",
-      "sortText": "230",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testForkJoin()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+      "label": "ls_org1/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ls_org1/module1;\n"
         }
-      },
-      "sortText": "120",
-      "insertText": "testForkJoin();",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "readonly",
-      "kind": "Unit",
-      "detail": "Readonly",
-      "sortText": "230",
-      "insertText": "readonly",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "Xml",
-      "sortText": "230",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "w1",
-      "kind": "Variable",
-      "detail": "future<()>",
-      "sortText": "130",
-      "insertText": "w1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "w2",
-      "kind": "Variable",
-      "detail": "future<()>",
-      "sortText": "130",
-      "insertText": "w2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "Unit",
-      "detail": "Byte",
-      "sortText": "230",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "handle",
-      "kind": "Unit",
-      "detail": "Handle",
-      "sortText": "230",
-      "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ArgsData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Defaultable argument names. This is for internal use.\n"
-      },
-      "sortText": "180",
-      "insertText": "ArgsData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "never",
-      "kind": "Unit",
-      "detail": "Never",
-      "sortText": "230",
-      "insertText": "never",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "null",
-      "kind": "Unit",
-      "detail": "Nil",
-      "sortText": "230",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "Decimal",
-      "sortText": "230",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "String",
-      "sortText": "230",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "Stream",
-      "sortText": "230",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "json",
-      "kind": "Unit",
-      "detail": "Json",
-      "sortText": "230",
-      "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "180",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "Map",
-      "sortText": "230",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "Table",
-      "sortText": "230",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "anydata",
-      "kind": "Unit",
-      "detail": "Anydata",
-      "sortText": "230",
-      "insertText": "anydata",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "a",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "130",
-      "insertText": "a",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "any",
-      "kind": "Unit",
-      "detail": "Any",
-      "sortText": "230",
-      "insertText": "any",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "Int",
-      "sortText": "230",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Finite",
-      "sortText": "170",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "Boolean",
-      "sortText": "230",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "Future",
-      "sortText": "230",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "Service",
-      "sortText": "230",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "Typedesc",
-      "sortText": "230",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
+      ]
     },
     {
       "label": "ballerina/lang.object",
@@ -1100,29 +879,6 @@
       ]
     },
     {
-      "label": "ballerina/nats",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "nats",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/nats;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.decimal",
       "kind": "Module",
       "detail": "Module",
@@ -1466,6 +1222,250 @@
           "newText": "import ballerina/sql;\n"
         }
       ]
+    },
+    {
+      "label": "float",
+      "kind": "Unit",
+      "detail": "Float",
+      "sortText": "230",
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "Readonly",
+      "sortText": "230",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "Unit",
+      "detail": "Xml",
+      "sortText": "230",
+      "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "Byte",
+      "sortText": "230",
+      "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "Handle",
+      "sortText": "230",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ArgsData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defaultable argument names. This is for internal use.\n"
+      },
+      "sortText": "180",
+      "insertText": "ArgsData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "Never",
+      "sortText": "230",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Unit",
+      "detail": "Nil",
+      "sortText": "230",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "decimal",
+      "kind": "Unit",
+      "detail": "Decimal",
+      "sortText": "230",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "Unit",
+      "detail": "String",
+      "sortText": "230",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "Stream",
+      "sortText": "230",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "Json",
+      "sortText": "230",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "180",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Unit",
+      "detail": "Map",
+      "sortText": "230",
+      "insertText": "map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Unit",
+      "detail": "Table",
+      "sortText": "230",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Unit",
+      "detail": "Anydata",
+      "sortText": "230",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Unit",
+      "detail": "Any",
+      "sortText": "230",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "int",
+      "kind": "Unit",
+      "detail": "Int",
+      "sortText": "230",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Finite",
+      "sortText": "170",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "boolean",
+      "kind": "Unit",
+      "detail": "Boolean",
+      "sortText": "230",
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "future",
+      "kind": "Unit",
+      "detail": "Future",
+      "sortText": "230",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Unit",
+      "detail": "Service",
+      "sortText": "230",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "Unit",
+      "detail": "Typedesc",
+      "sortText": "230",
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Event",
+      "detail": "error",
+      "sortText": "200",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testForkJoin()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "testForkJoin();",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w1",
+      "kind": "Variable",
+      "detail": "future<()>",
+      "sortText": "130",
+      "insertText": "w1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w2",
+      "kind": "Variable",
+      "detail": "future<()>",
+      "sortText": "130",
+      "insertText": "w2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "a",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "worker",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

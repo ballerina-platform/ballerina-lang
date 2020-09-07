@@ -127,14 +127,17 @@
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "PERCENT_TOKEN",
-                            "trailingMinutiae": [
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "END_OF_LINE_MINUTIAE",
-                                "value": "\n"
+                                "kind": "PERCENT_TOKEN"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
                         },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -213,10 +216,10 @@
                       ]
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "5"
                         }
                       ]
@@ -253,10 +256,10 @@
                       ]
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "7",
                           "leadingMinutiae": [
                             {
@@ -317,15 +320,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "PUBLIC_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -382,20 +376,28 @@
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "OPEN_BRACE_TOKEN"
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
+                              {
+                                "kind": "OPEN_BRACE_TOKEN"
+                              }
+                            ]
                           }
                         },
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "CLOSE_BRACE_TOKEN",
-                            "trailingMinutiae": [
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "END_OF_LINE_MINUTIAE",
-                                "value": "\n"
+                                "kind": "CLOSE_BRACE_TOKEN"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
                         },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -475,24 +477,30 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "EQUAL_TOKEN",
-                                "trailingMinutiae": [
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
                                   {
-                                    "kind": "END_OF_LINE_MINUTIAE",
-                                    "value": "\n"
+                                    "kind": "EQUAL_TOKEN"
                                   }
                                 ]
                               }
                             },
                             {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "  "
+                            },
+                            {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "DOCUMENTATION_STRING",
-                                "value": "#doc\n",
-                                "leadingMinutiae": [
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
                                   {
-                                    "kind": "WHITESPACE_MINUTIAE",
-                                    "value": "  "
+                                    "kind": "DOCUMENTATION_STRING",
+                                    "value": "#doc\n"
                                   }
                                 ]
                               }
@@ -614,15 +622,18 @@
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "ExtraEnumName",
-                    "trailingMinutiae": [
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
                       {
-                        "kind": "WHITESPACE_MINUTIAE",
-                        "value": " "
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "ExtraEnumName"
                       }
                     ]
                   }
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ],
               "trailingMinutiae": [
@@ -668,7 +679,7 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "STRING_LITERAL_TOKEN",
                           "value": "read-color"
                         }
                       ]
@@ -716,7 +727,7 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "STRING_LITERAL_TOKEN",
                           "value": "green-color"
                         }
                       ]
@@ -761,7 +772,7 @@
                       ]
                     },
                     {
-                      "kind": "TRUE_KEYWORD",
+                      "kind": "BOOLEAN_LITERAL",
                       "children": [
                         {
                           "kind": "TRUE_KEYWORD"
@@ -803,10 +814,10 @@
                       "kind": "BINARY_EXPRESSION",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "22",
                               "trailingMinutiae": [
                                 {
@@ -967,10 +978,10 @@
                           "kind": "PLUS_TOKEN"
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "5"
                             }
                           ]
@@ -1017,7 +1028,7 @@
                       ]
                     },
                     {
-                      "kind": "NULL_KEYWORD",
+                      "kind": "NULL_LITERAL",
                       "children": [
                         {
                           "kind": "NULL_KEYWORD"
@@ -1075,14 +1086,17 @@
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
-            "kind": "CLOSE_BRACE_TOKEN",
-            "trailingMinutiae": [
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
               {
-                "kind": "END_OF_LINE_MINUTIAE",
-                "value": "\n"
+                "kind": "CLOSE_BRACE_TOKEN"
               }
             ]
           }
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     }

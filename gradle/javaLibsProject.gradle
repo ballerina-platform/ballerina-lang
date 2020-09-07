@@ -38,13 +38,11 @@ dependencies {
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.9'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.11'
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
     dist 'info.picocli:picocli:4.0.1'
-    dist 'org.apache.kafka:kafka-clients:2.3.1'
-    dist 'org.apache.kafka:kafka_2.11:2.3.1'
     dist 'io.ballerina.messaging:broker-auth:0.970.0'
     dist 'io.ballerina.messaging:broker-common:0.970.0'
     dist 'io.ballerina.messaging:broker-coordination:0.970.0'
@@ -70,14 +68,11 @@ dependencies {
     dist 'commons-pool.wso2:commons-pool:1.5.6.wso2v1'
     dist 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
     dist 'org.wso2.carbon.metrics:org.wso2.carbon.metrics.core:2.3.7'
-    dist 'com.google.api.grpc:proto-google-common-protos:1.17.0'
     dist 'com.google.protobuf:protobuf-java:3.9.1'
     dist 'com.sun.mail:javax.mail:1.6.2'
     dist 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
     dist 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
     dist 'com.jcraft:jzlib:1.1.3'
-    dist 'io.nats:java-nats-streaming:2.2.1'
-    dist 'io.nats:jnats:2.6.0'
     dist 'commons-beanutils:commons-beanutils:1.9.3'
     dist 'org.jboss.logging:jboss-logging:3.3.1.Final'
     dist 'commons-collections:commons-collections:3.2.2'
@@ -90,48 +85,18 @@ dependencies {
 //    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
 //    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
 
-    dist project(':ballerina-auth')
     dist project(':ballerina-cli-utils')
-    dist project(':ballerina-config-api')
     dist project(':ballerina-core')
-    dist project(':ballerina-crypto')
-    dist project(':ballerina-cache')
-    dist project(':ballerina-email')
-    dist project(':ballerina-file')
-    dist project(':ballerina-filepath')
-    dist project(':ballerina-grpc')
-    dist project(':ballerina-sql')
-    dist project(':ballerina-jdbc')
-    dist project(':ballerina-mysql')
-    dist project(':ballerina-http')
     dist project(':ballerina-openapi')
-    dist project(':ballerina-io')
     dist project(':ballerina-lang')
-    dist project(':ballerina-log-api')
     dist project(':ballerina-logging')
-    dist project(':ballerina-math')
-    dist project(':ballerina-mime')
     dist project(':ballerina-observability')
-    dist project(':ballerina-reflect')
-    dist project(':ballerina-runtime-api')
-    dist project(':ballerina-system')
-    dist project(':ballerina-task')
-    dist project(':ballerina-time')
     dist project(':ballerina-tool')
     dist project(':ballerina-transactions')
     dist project(':ballerina-java')
-    dist project(':ballerina-java-arrays')
-    dist project(':ballerina-xslt')
     dist project(':metrics-extensions:ballerina-metrics-extension')
     dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
-    dist project(':ballerina-kafka')
-    dist project(':ballerina-nats')
-    dist project(':ballerina-stringutils')
-    dist project(':ballerina-ldap')
-    dist project(':ballerina-oauth2')
-    dist project(':ballerina-xmlutils')
-    dist project(':ballerina-jsonutils')
 
     // Lang libs
     dist project(':ballerina-lang:internal')

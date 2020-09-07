@@ -16,22 +16,20 @@
 
 import ballerina/io;
 import ballerina/test;
+import ballerina/time;
 
 # Before Suite Function
-
 @test:BeforeSuite
 function beforeSuiteFunc() {
     io:println("I'm the before suite function!");
 }
 
 # Before test function
-
 function beforeFunc() {
     io:println("I'm the before function!");
 }
 
 # Test function
-
 @test:Config {
     before: "beforeFunc",
     after: "afterFunc"
@@ -46,19 +44,28 @@ function testMain() {
     dependsOn: ["testMain"]
 }
 function testFunction() {
-    io:println("I'm in test function!");
-    test:assertTrue(true, msg = "Failed!");
+    time:Time time = time:currentTime();
+    test:when(sqrtMockFn).call("mockSqrt");
+    test:assertEquals(time:getYear(time), 125);
 }
 
 # After test function
-
 function afterFunc() {
     io:println("I'm the after function!");
 }
 
 # After Suite Function
-
-@test:AfterSuite
+@test:AfterSuite {}
 function afterSuiteFunc() {
     io:println("I'm the after suite function!");
+}
+
+@test:Mock {
+    moduleName: "ballerina/time",
+    functionName: "getYear"
+}
+test:MockFunction sqrtMockFn = new();
+
+function mockSqrt(time:Time val) returns int {
+    return 125;
 }

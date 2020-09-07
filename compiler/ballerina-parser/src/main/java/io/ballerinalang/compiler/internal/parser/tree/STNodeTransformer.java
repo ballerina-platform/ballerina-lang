@@ -185,20 +185,12 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(restParameterNode);
     }
 
-    public T transform(STExpressionListItemNode expressionListItemNode) {
-        return transformSyntaxNode(expressionListItemNode);
-    }
-
     public T transform(STImportOrgNameNode importOrgNameNode) {
         return transformSyntaxNode(importOrgNameNode);
     }
 
     public T transform(STImportPrefixNode importPrefixNode) {
         return transformSyntaxNode(importPrefixNode);
-    }
-
-    public T transform(STImportSubVersionNode importSubVersionNode) {
-        return transformSyntaxNode(importSubVersionNode);
     }
 
     public T transform(STImportVersionNode importVersionNode) {
@@ -589,8 +581,8 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(restBindingPatternNode);
     }
 
-    public T transform(STFunctionalBindingPatternNode functionalBindingPatternNode) {
-        return transformSyntaxNode(functionalBindingPatternNode);
+    public T transform(STErrorBindingPatternNode errorBindingPatternNode) {
+        return transformSyntaxNode(errorBindingPatternNode);
     }
 
     public T transform(STNamedArgBindingPatternNode namedArgBindingPatternNode) {
@@ -725,10 +717,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(matchGuardNode);
     }
 
-    public T transform(STObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        return transformSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public T transform(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         return transformSyntaxNode(distinctTypeDescriptorNode);
     }
@@ -787,6 +775,14 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STDocumentationReferenceNode documentationReferenceNode) {
         return transformSyntaxNode(documentationReferenceNode);
+    }
+
+    public T transform(STOrderByClauseNode orderByClauseNode) {
+        return transformSyntaxNode(orderByClauseNode);
+    }
+
+    public T transform(STOrderKeyNode orderKeyNode) {
+        return transformSyntaxNode(orderKeyNode);
     }
 
     public T transform(STOnFailClauseNode onFailClauseNode) {

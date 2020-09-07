@@ -18,11 +18,10 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,8 +36,8 @@ public class BJson extends BCompoundVariable {
     private static final String FIELD_JSON_KEY = "key";
     private static final String FIELD_JSON_VALUE = "value";
 
-    public BJson(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.JSON, value, dapVariable);
+    public BJson(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.JSON, value);
     }
 
     @Override
