@@ -19,6 +19,7 @@
 package io.ballerina.projects.writers;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.model.BaloJson;
@@ -27,13 +28,12 @@ import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.model.PlatformLibrary;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.model.Library;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -55,6 +55,10 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class BaloWriter {
+
+    private static final String MODULES = "modules";
+
+    private BaloWriter() {}
 
     /**
      * Write a package to a .balo and return the created .balo path.
@@ -95,8 +99,12 @@ public class BaloWriter {
 
     private static String getBaloName(BallerinaToml ballerinaToml) {
         // <orgname>-<packagename>-<platform>-<version>.balo
+        String platform = ballerinaToml.getPlatform().target;
+        if (platform == null || "".equals(platform)) {
+            platform = "any";
+        }
         return ballerinaToml.getPackage().getOrg() + "-" + ballerinaToml.getPackage().getName() + "-"
-                + ballerinaToml.getPlatform().target + "-" + ballerinaToml.getPackage().getVersion() + ".balo";
+                + platform + "-" + ballerinaToml.getPackage().getVersion() + ".balo";
     }
 
     private static FileSystem createBaloArchive(Path path) throws IOException {
@@ -150,20 +158,25 @@ public class BaloWriter {
 
         addBaloJson(root);
         addPackageJson(root, ballerinaToml);
-        addPackageDoc(root, packagePath);
+        addPackageDoc(root, packagePath, ballerinaToml.getPackage().getName());
         addPackageSource(root, baloFS, packagePath, packageName, ballerinaToml);
         // Add platform libs only if it is not a template module
-        if (ballerinaToml.isTemplateModule(packageName)) {
+        if (!ballerinaToml.isTemplateModule(packageName)) {
             addPlatformLibs(root, packagePath, ballerinaToml);
         }
     }
 
-    private static void addBaloJson(Path root) throws IOException {
-        Gson gson = new Gson();
-        gson.toJson(new BaloJson(), new FileWriter(String.valueOf(root.resolve("balo.json"))));
+    private static void addBaloJson(Path root) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String baloJson = gson.toJson(new BaloJson());
+        try {
+            Files.write(root.resolve("balo.json"), baloJson.getBytes(Charset.defaultCharset()));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write 'balo.json' file: " + e.getMessage(), e);
+        }
     }
 
-    private static void addPackageJson(Path root, BallerinaToml ballerinaToml) throws IOException {
+    private static void addPackageJson(Path root, BallerinaToml ballerinaToml) {
         PackageJson packageJson = new PackageJson();
 
         // Information extracted from Ballerina.toml
@@ -197,27 +210,70 @@ public class BaloWriter {
             }
         }
 
-        Gson gson = new Gson();
-        gson.toJson(new BaloJson(), new FileWriter(String.valueOf(root.resolve("package.json"))));
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String baloJson = gson.toJson(packageJson);
+        try {
+            Files.write(root.resolve("package.json"), baloJson.getBytes(Charset.defaultCharset()));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write 'package.json' file: " + e.getMessage(), e);
+        }
     }
 
-    private static void addPackageDoc(Path root, Path packageSourceDir) throws IOException {
-        // create the docs directory in zip
-        final String PACKAGE_MD_FILE_NAME = "Package.md";
-        Path packageMd = packageSourceDir.resolve(PACKAGE_MD_FILE_NAME);
-        Path docsDirInBalo = root.resolve(ProjectDirConstants.BALO_DOC_DIR_NAME);
-        Path packageMdInBalo = docsDirInBalo.resolve(PACKAGE_MD_FILE_NAME);
+    private static void addPackageDoc(Path root, Path packageSourceDir, String pkgName) throws IOException {
+        // Create the docs directory in zip
+        final String packageMdFileName = "Package.md";
+        final String moduleMdFileName = "Module.md";
+
+        Path packageMd = packageSourceDir.resolve(packageMdFileName);
+        Path docsDirInBalo = root.resolve("docs");
         Files.createDirectory(docsDirInBalo);
+        Path packageMdInBalo = docsDirInBalo.resolve(packageMdFileName);
 
         if (packageMd.toFile().exists()) {
             Files.copy(packageMd, packageMdInBalo);
+        }
+
+        // Create module docs
+        Path modulesDirInBaloDocs = docsDirInBalo.resolve(MODULES);
+        Files.createDirectory(modulesDirInBaloDocs);
+
+        // Add default module docs
+        Path defaultModuleMd = packageSourceDir.resolve(moduleMdFileName);
+        if (defaultModuleMd.toFile().exists()) {
+            Path defaultModuleDirInBaloDocs = modulesDirInBaloDocs.resolve(pkgName);
+            Files.createDirectory(defaultModuleDirInBaloDocs);
+            Path defaultModuleMdInBaloDocs = modulesDirInBaloDocs.resolve(pkgName).resolve(moduleMdFileName);
+            Files.copy(defaultModuleMd, defaultModuleMdInBaloDocs);
+        }
+
+        // Add other module docs
+        File modulesSourceDir = new File(String.valueOf(packageSourceDir.resolve(MODULES)));
+        File[] directoryListing = modulesSourceDir.listFiles();
+
+        if (directoryListing != null) {
+            for (File moduleDir : directoryListing) {
+                if (moduleDir.isDirectory()) {
+                    // Get `Module.md` path
+                    Path otherModuleMd = packageSourceDir.resolve(MODULES).resolve(moduleDir.getName())
+                            .resolve(moduleMdFileName);
+                    // Create `package.module` folder, if `Module.md` path exists
+                    if (otherModuleMd.toFile().exists()) {
+                        Path otherModuleDirInBaloDocs = modulesDirInBaloDocs
+                                .resolve(pkgName + "." + moduleDir.getName());
+                        Files.createDirectory(otherModuleDirInBaloDocs);
+                        Path otherModuleMdInBaloDocs = modulesDirInBaloDocs
+                                .resolve(pkgName + "." + moduleDir.getName()).resolve(moduleMdFileName);
+                        Files.copy(otherModuleMd, otherModuleMdInBaloDocs);
+                    }
+                }
+            }
         }
     }
 
     private static void addPackageSource(Path root, FileSystem fs, Path packageSourceDir, String defaultPackageName,
             BallerinaToml ballerinaToml) throws IOException {
         // create the module directory in zip
-        Path packageInBalo = root.resolve("modules");
+        Path packageInBalo = root.resolve(MODULES);
         Files.createDirectory(packageInBalo);
 
         // add default module
@@ -227,7 +283,7 @@ public class BaloWriter {
 
         // exclude modules and tests directories
         PathMatcher dirFilter = path -> {
-            String prefix = defaultPkgDirInBalo.resolve("modules").toString();
+            String prefix = defaultPkgDirInBalo.resolve(MODULES).toString();
 
             // Skip modules directory
             if (fs.getPathMatcher("glob:" + prefix + "**").matches(path)) {
@@ -245,20 +301,20 @@ public class BaloWriter {
         Files.walkFileTree(packageSourceDir, new Copy(packageSourceDir, defaultPkgDirInBalo, dirFilter));
 
         // add other modules
-        File modulesSourceDir = new File(String.valueOf(packageSourceDir.resolve("modules")));
+        File modulesSourceDir = new File(String.valueOf(packageSourceDir.resolve(MODULES)));
         File[] directoryListing = modulesSourceDir.listFiles();
 
         if (directoryListing != null) {
             for (File moduleDir : directoryListing) {
                 if (moduleDir.isDirectory()) {
                     // add module
-                    Path moduleDirInBalo = packageInBalo.resolve(moduleDir.getName());
+                    Path moduleDirInBalo = packageInBalo.resolve(defaultPackageName + "." + moduleDir.getName());
                     Files.createDirectory(moduleDirInBalo);
 
                     // exclude tests directories
                     PathMatcher modulesDirFilter = path -> {
                         // Skip tests directory
-                        String prefix = defaultPkgDirInBalo.resolve("tests").toString();
+                        String prefix = moduleDirInBalo.resolve("tests").toString();
                         // Skip test directory
                         return ballerinaToml.isTemplateModule(moduleDir.getName()) || !fs
                                 .getPathMatcher("glob:" + prefix + "**").matches(path);
@@ -319,7 +375,7 @@ public class BaloWriter {
                 // we do not visit the sub tree is the directory is filtered out
                 return FileVisitResult.SKIP_SUBTREE;
             }
-            if (!targetPath.toFile().exists()) {
+            if (!Files.exists(targetPath)) {
                 Files.createDirectory(targetPath);
             }
             return FileVisitResult.CONTINUE;
