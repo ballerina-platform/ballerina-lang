@@ -66,9 +66,10 @@ public class SymbolLookupTest {
         CompileResult result = compile("test-src/var_symbol_lookup_test.bal", context);
         BLangPackage pkg = (BLangPackage) result.getAST();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg.compUnits.get(0), pkg, context);
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
-        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "var_symbol_lookup_test.bal", line, column,
+                                                             moduleID);
 
         assertEquals(symbolsInFile.size(), expSymbols);
         for (String symName : expSymbolNames) {
@@ -96,9 +97,10 @@ public class SymbolLookupTest {
         CompileResult result = compile("test-src/symbol_lookup_with_workers_test.bal", context);
         BLangPackage pkg = (BLangPackage) result.getAST();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg.compUnits.get(0), pkg, context);
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
-        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "symbol_lookup_with_workers_test.bal", line, column,
+                                                             moduleID);
 
         assertEquals(symbolsInFile.size(), expSymbols);
         for (String symName : expSymbolNames) {
@@ -126,9 +128,10 @@ public class SymbolLookupTest {
         CompileResult result = compile("test-src/symbol_lookup_with_typedefs_test.bal", context);
         BLangPackage pkg = (BLangPackage) result.getAST();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg.compUnits.get(0), pkg, context);
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
-        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "symbol_lookup_with_typedefs_test.bal", line,
+                                                             column, moduleID);
 
         assertEquals(symbolsInFile.size(), expSymbols);
         for (String symName : expSymbolNames) {
@@ -162,14 +165,15 @@ public class SymbolLookupTest {
         CompileResult result = compile("test-src/symbol_lookup_with_imports_test.bal", context);
         BLangPackage pkg = (BLangPackage) result.getAST();
         BPackageSymbol ioPkgSymbol = pkg.imports.get(0).symbol;
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg.compUnits.get(0), pkg, context);
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
         List<String> annotationModuleSymbols = asList("deprecated", "untainted", "tainted", "icon", "strand",
                                                       "StrandData", "typeParam", "Thread", "builtinSubtype");
         List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes");
         List<String> moduleSymbols = asList("xml", "io", "object", "error");
         List<String> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
-        Map<String, Symbol> symbolsInScope = model.visibleSymbols(LinePosition.from(19, 1))
+        Map<String, Symbol> symbolsInScope = model.visibleSymbols("symbol_lookup_with_imports_test.bal",
+                                                                  LinePosition.from(19, 1))
                 .stream().collect(Collectors.toMap(Symbol::name, s -> s));
         assertList(symbolsInScope, expSymbolNames);
 
@@ -195,9 +199,10 @@ public class SymbolLookupTest {
         CompileResult result = compile("test-src/symbol_lookup_with_exprs_test.bal", context);
         BLangPackage pkg = (BLangPackage) result.getAST();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg.compUnits.get(0), pkg, context);
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
-        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "symbol_lookup_with_exprs_test.bal", line, column,
+                                                             moduleID);
         assertList(symbolsInFile, expSymbolNames);
     }
 
@@ -228,9 +233,9 @@ public class SymbolLookupTest {
         }
     }
 
-    private Map<String, Symbol> getSymbolsInFile(BallerinaSemanticModel model, int line, int column,
-                                                 ModuleID moduleID) {
-        List<Symbol> allInScopeSymbols = model.visibleSymbols(LinePosition.from(line, column));
+    private Map<String, Symbol> getSymbolsInFile(BallerinaSemanticModel model, String srcFile, int line,
+                                                 int column, ModuleID moduleID) {
+        List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(line, column));
         return allInScopeSymbols.stream()
                 .filter(s -> s.moduleID().equals(moduleID))
                 .collect(Collectors.toMap(Symbol::name, s -> s));

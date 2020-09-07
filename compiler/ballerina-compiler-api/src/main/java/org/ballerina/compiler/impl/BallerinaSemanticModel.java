@@ -61,9 +61,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     protected BLangCompilationUnit compilationUnit;
     private EnvironmentResolver envResolver;
 
-    public BallerinaSemanticModel(BLangCompilationUnit compilationUnit, BLangPackage bLangPackage,
-                                  CompilerContext context) {
-        this.compilationUnit = compilationUnit;
+    public BallerinaSemanticModel(BLangPackage bLangPackage, CompilerContext context) {
         this.compilerContext = context;
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
@@ -75,9 +73,13 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public List<Symbol> visibleSymbols(LinePosition linePosition) {
+    public List<Symbol> visibleSymbols(String srcFile, LinePosition linePosition) {
         List<Symbol> compiledSymbols = new ArrayList<>();
         SymbolResolver symbolResolver = SymbolResolver.getInstance(this.compilerContext);
+        SymbolTable symbolTable = SymbolTable.getInstance(this.compilerContext);
+        SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(this.bLangPackage.symbol);
+        SymbolsLookupVisitor lookupVisitor = new SymbolsLookupVisitor(linePosition, symbolEnv);
+        BLangCompilationUnit compilationUnit = getCompilationUnit(srcFile);
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
                 symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(this.compilationUnit, linePosition));
 
@@ -127,5 +129,12 @@ public class BallerinaSemanticModel implements SemanticModel {
     private boolean isImportedSymbol(BSymbol symbol) {
         return symbol.origin == COMPILED_SOURCE &&
                 (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC) || symbol.getKind() == SymbolKind.PACKAGE);
+    }
+
+    private BLangCompilationUnit getCompilationUnit(String srcFile) {
+        return bLangPackage.compUnits.stream()
+                .filter(unit -> unit.name.equals(srcFile))
+                .findFirst()
+                .get();
     }
 }
