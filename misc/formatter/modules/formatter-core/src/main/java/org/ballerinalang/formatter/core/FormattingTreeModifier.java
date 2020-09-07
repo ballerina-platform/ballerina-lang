@@ -1591,7 +1591,8 @@ public class FormattingTreeModifier extends TreeModifier {
         Token endBacktick = getToken(templateExpressionNode.endBacktick());
         int leadingSpaces = 1;
         if (templateExpressionNode.parent() != null &&
-                templateExpressionNode.parent().kind().equals(SyntaxKind.LOCAL_VAR_DECL)) {
+                (templateExpressionNode.parent().kind().equals(SyntaxKind.LOCAL_VAR_DECL) ||
+                templateExpressionNode.parent().kind().equals(SyntaxKind.INTERPOLATION))) {
             leadingSpaces = 0;
         }
         if (type != null) {
