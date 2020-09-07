@@ -51,7 +51,8 @@ public class ResourceHandleVTests {
     private Operation operation;
     private List<ValidationError> resourceValidationErrors = new ArrayList<>();
 
-    @Test(description = "Test for checking whether resource paths are documented in openapi contract")
+    @Test(enabled = false, description = "Test for checking whether resource paths " +
+            "are documented in openapi contract")
     public void testResourcePath() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstore.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -61,7 +62,8 @@ public class ResourceHandleVTests {
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
-    @Test(description = "Test for checking whether resource path methods are documented in openapi contract")
+    @Test(enabled = false, description = "Test for checking whether resource path " +
+            "methods are documented in openapi contract")
     public void testResourcePathMethods() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstore.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -71,7 +73,8 @@ public class ResourceHandleVTests {
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
-    @Test(description = "Test for checking whether openapi service paths are documented in ballerina resource")
+    @Test(enabled = false, description = "Test for checking whether openapi service paths are " +
+            "documented in ballerina resource")
     public void testServicePath() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/servicePetstore.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -83,7 +86,7 @@ public class ResourceHandleVTests {
         Assert.assertTrue(serviceValidationErrors.isEmpty());
     }
 
-    @Test(description = "Test resource function node with openapi operation ")
+    @Test(enabled = false, description = "Test resource function node with openapi operation ")
     public void testResourceFunctionNode() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstoreFunctionNode.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -95,7 +98,7 @@ public class ResourceHandleVTests {
         Assert.assertTrue(resourceValidationErrors.isEmpty());
     }
 
-    @Test(description = "Test resource function node with openapi operation ")
+    @Test(enabled = false, description = "Test resource function node with openapi operation ")
     public void testInlineRecord() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/inline-record.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());

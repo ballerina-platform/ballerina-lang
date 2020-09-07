@@ -34,6 +34,7 @@ import java.nio.file.Paths;
 /**
  * Test class for tests file related debug scenarios for test command.
  */
+@Test(enabled = false)
 public class MultiModuleTestDebugTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
@@ -45,7 +46,7 @@ public class MultiModuleTestDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 24));
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 29));

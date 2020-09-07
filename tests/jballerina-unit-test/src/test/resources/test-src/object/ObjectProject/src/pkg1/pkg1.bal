@@ -46,7 +46,7 @@ public type TempCache object {
     public int expiryTimeInMillis;
     public float evictionFactor;
 
-    public function init(public int expiryTimeInMillis = 900000, public int capacity = 100, public float evictionFactor = 0.25) {
+    public function init(int expiryTimeInMillis = 900000, int capacity = 100, float evictionFactor = 0.25) {
         self.capacity = capacity;
         self.expiryTimeInMillis = expiryTimeInMillis;
         self.evictionFactor = evictionFactor;

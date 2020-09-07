@@ -49,6 +49,7 @@ import io.ballerinalang.compiler.syntax.tree.DoubleGTTokenNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
+import io.ballerinalang.compiler.syntax.tree.ErrorBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
@@ -74,7 +75,6 @@ import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionalBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionalMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
@@ -399,16 +399,11 @@ public class FormattingTreeModifier extends TreeModifier {
             return requiredParameterNode;
         }
         Token paramName = getToken(requiredParameterNode.paramName().orElse(null));
-        Token visibilityQualifier = getToken(requiredParameterNode.visibilityQualifier().orElse(null));
         NodeList<AnnotationNode> annotations = this.modifyNodeList(requiredParameterNode.annotations());
         Node typeName = this.modifyNode(requiredParameterNode.typeName());
         if (paramName != null) {
             requiredParameterNode = requiredParameterNode.modify()
                     .withParamName(formatToken(paramName, 1, 0, 0, 0)).apply();
-        }
-        if (visibilityQualifier != null) {
-            requiredParameterNode = requiredParameterNode.modify()
-                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0, 0)).apply();
         }
         return requiredParameterNode.modify()
                 .withAnnotations(annotations)
@@ -1823,15 +1818,10 @@ public class FormattingTreeModifier extends TreeModifier {
             return defaultableParameterNode;
         }
         NodeList<AnnotationNode> annotations = this.modifyNodeList(defaultableParameterNode.annotations());
-        Token visibilityQualifier = getToken(defaultableParameterNode.visibilityQualifier().orElse(null));
         Node typeName = this.modifyNode(defaultableParameterNode.typeName());
         Token paramName = getToken(defaultableParameterNode.paramName().orElse(null));
         Token equalsToken = getToken(defaultableParameterNode.equalsToken());
         Node expression = this.modifyNode(defaultableParameterNode.expression());
-        if (visibilityQualifier != null) {
-            defaultableParameterNode = defaultableParameterNode.modify()
-                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 1, 0, 0)).apply();
-        }
         if (paramName != null) {
             defaultableParameterNode = defaultableParameterNode.modify()
                     .withParamName(formatToken(paramName, 1, 1, 0, 0)).apply();
@@ -2657,16 +2647,18 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public FunctionalBindingPatternNode transform(FunctionalBindingPatternNode functionalBindingPatternNode) {
-        if (!isInLineRange(functionalBindingPatternNode)) {
-            return functionalBindingPatternNode;
+    public ErrorBindingPatternNode transform(ErrorBindingPatternNode errorBindingPatternNode) {
+        if (!isInLineRange(errorBindingPatternNode)) {
+            return errorBindingPatternNode;
         }
-        Node typeReference = this.modifyNode(functionalBindingPatternNode.typeReference());
-        Token openParenthesis = getToken(functionalBindingPatternNode.openParenthesis());
+        Token errorKeyword = getToken(errorBindingPatternNode.errorKeyword());
+        Node typeReference = this.modifyNode(errorBindingPatternNode.typeReference().orElse(null));
+        Token openParenthesis = getToken(errorBindingPatternNode.openParenthesis());
         SeparatedNodeList<BindingPatternNode> argListBindingPatterns =
-                this.modifySeparatedNodeList(functionalBindingPatternNode.argListBindingPatterns());
-        Token closeParenthesis = getToken(functionalBindingPatternNode.closeParenthesis());
-        return functionalBindingPatternNode.modify()
+                this.modifySeparatedNodeList(errorBindingPatternNode.argListBindingPatterns());
+        Token closeParenthesis = getToken(errorBindingPatternNode.closeParenthesis());
+        return errorBindingPatternNode.modify()
+                .withErrorKeyword(formatToken(errorKeyword, 0, 1, 0, 0))
                 .withTypeReference(typeReference)
                 .withOpenParenthesis(formatToken(openParenthesis, 0, 0, 0, 0))
                 .withArgListBindingPatterns(argListBindingPatterns)

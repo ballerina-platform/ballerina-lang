@@ -440,29 +440,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ls_org1/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ls_org1/module1;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.object",
       "kind": "Module",
       "detail": "Module",
@@ -532,29 +509,6 @@
       ]
     },
     {
-      "label": "ballerina/crypto",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "crypto",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/crypto;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -574,75 +528,6 @@
             }
           },
           "newText": "import ballerina/lang.'array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/stringutils",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "stringutils",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/stringutils;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/cache",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "cache",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/cache;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/test;\n"
         }
       ]
     },
@@ -670,167 +555,6 @@
       ]
     },
     {
-      "label": "ballerina/file",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "file",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/file;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/grpc",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "grpc",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/grpc;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/config",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "config",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/config;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/auth",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "auth",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/auth;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/filepath",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "filepath",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/filepath;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/ldap",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "ldap",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/ldap;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/reflect",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "reflect",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/reflect;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.string",
       "kind": "Module",
       "detail": "Module",
@@ -850,98 +574,6 @@
             }
           },
           "newText": "import ballerina/lang.'string;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/io",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "io",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/io;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/oauth2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "oauth2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/oauth2;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/java;\n"
         }
       ]
     },
@@ -992,121 +624,6 @@
       ]
     },
     {
-      "label": "ballerina/openapi",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "openapi",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/openapi;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/math",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "math",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/math;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/time",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "time",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/time;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/observe",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "observe",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/observe;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/system",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "system",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/system;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.float",
       "kind": "Module",
       "detail": "Module",
@@ -1126,29 +643,6 @@
             }
           },
           "newText": "import ballerina/lang.'float;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/transactions",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "transactions",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/transactions;\n"
         }
       ]
     },
@@ -1176,75 +670,6 @@
       ]
     },
     {
-      "label": "ballerina/http",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "http",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/mysql",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "mysql",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/mysql;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/task",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "task",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/task;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.table",
       "kind": "Module",
       "detail": "Module",
@@ -1264,52 +689,6 @@
             }
           },
           "newText": "import ballerina/lang.'table;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/log",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "log",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/log;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/mime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "mime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/mime;\n"
         }
       ]
     },
@@ -1383,6 +762,29 @@
       ]
     },
     {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.map",
       "kind": "Module",
       "detail": "Module",
@@ -1402,29 +804,6 @@
             }
           },
           "newText": "import ballerina/lang.'map;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/email",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "email",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/email;\n"
         }
       ]
     },
@@ -1471,29 +850,6 @@
             }
           },
           "newText": "import ballerina/lang.'int;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/sql",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "sql",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/sql;\n"
         }
       ]
     }

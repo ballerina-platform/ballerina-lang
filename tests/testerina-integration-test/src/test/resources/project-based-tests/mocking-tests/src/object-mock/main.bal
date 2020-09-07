@@ -16,12 +16,12 @@
 
 import ballerina/io;
 import ballerina/http;
-import ballerina/email;
+//import ballerina/email;
 
 // main bal
 
 http:Client clientEndpoint = new("http://postman-echo.com");
-email:SmtpClient smtpClient = new ("localhost", "admin","admin");
+//email:SmtpClient smtpClient = new ("localhost", "admin","admin");
 
 function doGet() returns http:Response {
     http:Request req = new;
@@ -53,20 +53,20 @@ function doGetRepeat() returns http:Response {
 }
 
 
-function sendNotification(string[] emailIds) returns error? {
-    email:Email msg = {
-        'from: "builder@abc.com",
-        subject: "Error Alert ...",
-        to: emailIds,
-        body: ""
-    };
-    email:Error? response = smtpClient->send(msg);
-
-    if (response is error) {
-      io:println("error while sending the email: " + response.message());
-      return response;
-    }
-}
+//function sendNotification(string[] emailIds) returns error? {
+//    email:Email msg = {
+//        'from: "builder@abc.com",
+//        subject: "Error Alert ...",
+//        to: emailIds,
+//        body: ""
+//    };
+//    email:Error? response = smtpClient->send(msg);
+//
+//    if (response is error) {
+//      io:println("error while sending the email: " + response.message());
+//      return response;
+//    }
+//}
 
 function getClientUrl() returns string {
     return clientEndpoint.url;

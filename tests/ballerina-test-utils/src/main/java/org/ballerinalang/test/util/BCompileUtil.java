@@ -618,8 +618,8 @@ public class BCompileUtil {
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, false);
     }
 
-    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-                                                     boolean temp, boolean init, boolean withTests) {
+    public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
+                                                    boolean temp, boolean init, boolean withTests) {
 
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, withTests);
     }
