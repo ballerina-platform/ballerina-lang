@@ -34,7 +34,6 @@ function failLockWithinLock() returns [int, string] {
             error err = error("custom error", message = "error value");
             fail err;
         }
-        lockWithinLockInt1 = 77;
     } on fail error e {
         lockWithinLockInt1 = 100;
         lockWithinLockString1 = "Error caught";

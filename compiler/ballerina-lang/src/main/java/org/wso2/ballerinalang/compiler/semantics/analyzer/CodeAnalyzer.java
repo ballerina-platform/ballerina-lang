@@ -1428,7 +1428,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFail failNode) {
         analyzeExpr(failNode.expr);
-        this.lastStatement = true;
         if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
             return;
@@ -1438,6 +1437,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.errorTypes.peek().add(getErrorTypes(failNode.expr.type));
         }
         if (!this.failureHandled) {
+            this.lastStatement = true;
             this.statementReturns = true;
             BType exprType = env.enclInvokable.getReturnTypeNode().type;
             this.returnTypes.peek().add(exprType);
