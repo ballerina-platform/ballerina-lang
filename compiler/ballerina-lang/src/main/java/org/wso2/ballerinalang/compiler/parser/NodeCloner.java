@@ -2033,10 +2033,9 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression source) {
-        BLangClassDefinition classDefinition = clone(source.classNode);
         BLangObjectConstructorExpression clone = new BLangObjectConstructorExpression();
-        clone.classNode = classDefinition;
 
+        clone.classNode = clone(source.classNode);
         clone.pos = source.pos;
         clone.referenceType = clone(source.referenceType);
         clone.typeInit = clone(source.typeInit);
