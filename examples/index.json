@@ -595,22 +595,26 @@
         "column": 3,
         "category": "Language concepts",
         "samples": [{
-                "name": "Docker Deployment",
-                "url": "docker-deployment"
-            },
-            {
-                "name": "Kubernetes Deployment",
-                "url": "kubernetes-deployment"
-            },
-            {
-                "name": "OpenShift Deployment",
-                "url": "openshift-deployment"
-            },
-            {
-                "name": "AWS Lambda Deployment",
-                "url": "awslambda-deployment"
-            }
-        ]
+            "name": "Docker Deployment",
+            "url": "docker-deployment",
+            "githubLink": "https://github.com/ballerina-platform/module-ballerina-docker/tree/ballerina-1.0.x/docker-extension-examples/examples/docker-deployment"
+        },
+        {
+            "name": "Kubernetes Deployment",
+            "url": "kubernetes-deployment",
+            "githubLink": "https://github.com/ballerina-platform/module-ballerina-kubernetes/tree/ballerina-1.0.x/kubernetes-extension-examples/examples/kubernetes-deployment"
+        },
+        {
+            "name": "OpenShift Deployment",
+            "url": "openshift-deployment",
+            "githubLink": "https://github.com/ballerina-platform/module-ballerina-kubernetes/tree/ballerina-1.0.x/kubernetes-extension-examples/examples/openshift-deployment"
+        },
+        {
+            "name": "AWS Lambda Deployment",
+            "url": "awslambda-deployment",
+            "githubLink": "https://github.com/ballerina-platform/module-ballerinax-aws.lambda/tree/ballerina-1.0.x/awslambda-examples/examples/aws-lambda-deployment"
+        }
+    ]
     },
     {
         "title": "HTTP/HTTPS",
