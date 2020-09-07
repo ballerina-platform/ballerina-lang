@@ -2836,6 +2836,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(methodDeclarationNode)) {
             return methodDeclarationNode;
         }
+        boolean addSpaces = false;
         MetadataNode metadata = this.modifyNode(methodDeclarationNode.metadata().orElse(null));
         NodeList<Token> qualifierList = this.modifyNodeList(methodDeclarationNode.qualifierList());
         Token functionKeyword = getToken(methodDeclarationNode.functionKeyword());
@@ -2846,9 +2847,16 @@ public class FormattingTreeModifier extends TreeModifier {
             methodDeclarationNode = methodDeclarationNode.modify()
                     .withMetadata(metadata).apply();
         }
+        if (qualifierList != null) {
+            methodDeclarationNode = methodDeclarationNode.modify()
+                    .withQualifierList(qualifierList).apply();
+            addSpaces = true;
+
+        }
+        int startCol = getStartColumn(methodDeclarationNode, methodDeclarationNode.kind(), addSpaces);
         return methodDeclarationNode.modify()
                 .withQualifierList(qualifierList)
-                .withFunctionKeyword(formatToken(functionKeyword, 0, 1, 0, 0))
+                .withFunctionKeyword(formatToken(functionKeyword, startCol, 1, 0, 0))
                 .withMethodName(methodName)
                 .withMethodSignature(methodSignature)
                 .withSemicolon(formatToken(semicolon, 0, 0, 0, 0))
@@ -3576,12 +3584,14 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public Token transform(Token token) {
-        if (token.kind().equals(SyntaxKind.PUBLIC_KEYWORD) || token.kind().equals(SyntaxKind.COMMA_TOKEN)) {
+        int startCol = getStartColumn(token, token.kind(), true);
+        if (token.kind().equals(SyntaxKind.COMMA_TOKEN)) {
             return formatToken(token, 0, 1, 0, 0);
+        } else if (token.kind().equals(SyntaxKind.PUBLIC_KEYWORD) || token.kind().equals(SyntaxKind.ABSTRACT_KEYWORD)) {
+            return formatToken(token, startCol, 1, 0, 0);
         } else if (token.parent() != null && token.parent().kind().equals(SyntaxKind.IMPORT_DECLARATION)) {
             return formatToken(token, 0, 0, 0, 0);
         } else if (token.kind().equals(SyntaxKind.RESOURCE_KEYWORD)) {
-            int startCol = getStartColumn(token, token.kind(), true);
             return formatToken(token, startCol, 1, 0, 0);
         }
         return token;
@@ -3684,6 +3694,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 parentKind == SyntaxKind.ELSE_BLOCK ||
                 parentKind == SyntaxKind.WHILE_STATEMENT ||
                 parentKind == SyntaxKind.CONST_DECLARATION ||
+                parentKind == SyntaxKind.METHOD_DECLARATION ||
                 parentKind == SyntaxKind.TYPE_DEFINITION) {
             return parent;
         } else if (syntaxKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
