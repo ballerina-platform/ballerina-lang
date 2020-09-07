@@ -237,9 +237,9 @@ public class SymbolLookupTest {
         CompilerContext context = new CompilerContext();
         CompileResult result = compile("test-src/var_symbol_lookup_test.bal", context);
         BLangPackage pkg = (BLangPackage) result.getAST();
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg.compUnits.get(0), pkg, context);
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
-        Optional<Symbol> symbol = model.symbol(LinePosition.from(line, column));
+        Optional<Symbol> symbol = model.symbol("var_symbol_lookup_test.bal", LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
 
         if (!symbol.isPresent()) {
