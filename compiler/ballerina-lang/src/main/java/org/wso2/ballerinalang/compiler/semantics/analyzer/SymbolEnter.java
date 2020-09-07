@@ -552,12 +552,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
 
-            if (classDefinition.type.tag == TypeTags.RECORD && referredType.tag != TypeTags.RECORD) {
-                dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_RECORD_TYPE_REFERENCE, typeRef);
-                invalidTypeRefs.add(typeRef);
-                return Stream.empty();
-            }
-
             // Here it is assumed that all the fields of the referenced types are resolved
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
