@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,14 +43,14 @@ public class BObjectTypeSymbol extends BStructureTypeSymbol {
     public Scope methodScope;
 
     public BObjectTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type,
-            BSymbol owner) {
-        super(SymbolKind.OBJECT, symTag, flags, name, pkgID, type, owner);
+                             BSymbol owner, DiagnosticPos pos) {
+        super(SymbolKind.OBJECT, symTag, flags, name, pkgID, type, owner, pos);
         this.referencedFunctions = new ArrayList<>();
     }
 
     @Override
     public BObjectTypeSymbol createLabelSymbol() {
-        BObjectTypeSymbol copy = Symbols.createObjectSymbol(flags, Names.EMPTY, pkgID, type, owner);
+        BObjectTypeSymbol copy = Symbols.createObjectSymbol(flags, Names.EMPTY, pkgID, type, owner, pos);
         copy.attachedFuncs = attachedFuncs;
         copy.initializerFunc = initializerFunc;
         copy.isLabel = true;

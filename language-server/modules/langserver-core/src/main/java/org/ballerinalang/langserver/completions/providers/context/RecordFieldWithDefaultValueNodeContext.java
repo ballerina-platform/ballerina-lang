@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -51,9 +51,9 @@ import java.util.function.Predicate;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class RecordFieldWithDefaultValueNodeContext extends
         AbstractCompletionProvider<RecordFieldWithDefaultValueNode> {
+    
     public RecordFieldWithDefaultValueNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(RecordFieldWithDefaultValueNode.class);
+        super(RecordFieldWithDefaultValueNode.class);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class RecordFieldWithDefaultValueNodeContext extends
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Optional<Scope.ScopeEntry> objectType;
-        if (typeNameNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (this.onQualifiedNameIdentifier(context, typeNameNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeNameNode));
             Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, modulePrefix);
             if (!module.isPresent()) {

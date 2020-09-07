@@ -19,10 +19,12 @@ import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +48,8 @@ public class QNameReferenceUtil {
      * @param qNameRef qualified name reference
      * @return {@link List} of completion items
      */
-    public static List<Scope.ScopeEntry> expressionContextEntries(LSContext ctx, QualifiedNameReferenceNode qNameRef) {
+    public static List<Scope.ScopeEntry> getExpressionContextEntries(LSContext ctx,
+                                                                     QualifiedNameReferenceNode qNameRef) {
         String moduleAlias = QNameReferenceUtil.getAlias(qNameRef);
         Optional<Scope.ScopeEntry> moduleSymbol = CommonUtil.packageSymbolFromAlias(ctx, moduleAlias);
         return moduleSymbol.map(entry -> ((BPackageSymbol) entry.symbol).scope.entries.values()
@@ -89,5 +92,23 @@ public class QNameReferenceUtil {
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
 
+    }
+
+    /**
+     * Get the type items in a module, when given a qualified name reference.
+     *
+     * @param context  Language server operation context context
+     * @param qNameRef Qualified name reference
+     * @return {@link List} of type entries extracted
+     */
+    public static List<Scope.ScopeEntry> getTypesInModule(LSContext context, QualifiedNameReferenceNode qNameRef) {
+        Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context,
+                QNameReferenceUtil.getAlias(qNameRef));
+        return module.map(scopeEntry -> scopeEntry.symbol.scope.entries.values().stream()
+                .filter(entry -> entry.symbol instanceof BTypeSymbol
+                        || (entry.symbol instanceof BConstructorSymbol
+                        && Names.ERROR.equals(entry.symbol.name)))
+                .collect(Collectors.toList()))
+                .orElseGet(ArrayList::new);
     }
 }

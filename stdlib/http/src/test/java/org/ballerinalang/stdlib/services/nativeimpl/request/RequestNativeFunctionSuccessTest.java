@@ -506,7 +506,7 @@ public class RequestNativeFunctionSuccessTest {
                             "Payload is not set properly");
     }
 
-    @Test(description = "Test SetJsonPayload function within a service")
+    @Test(enabled = false, description = "Test SetJsonPayload function within a service")
     public void testServiceSetJsonPayload() {
         String value = "ballerina";
         String path = "/hello/SetJsonPayload/" + value;

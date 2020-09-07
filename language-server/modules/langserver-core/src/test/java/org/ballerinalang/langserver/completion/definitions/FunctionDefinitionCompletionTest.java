@@ -53,8 +53,6 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"variableBoundItemSuggestions3.json", "function"},
                 {"variableBoundItemSuggestions4.json", "function"},
                 {"panicStatementErrorSuggestions.json", "function"},
-                {"recordVarDef1.json", "function"},
-                {"recordVarDef2.json", "function"},
                 {"functionPointerAsParameter.json", "function"},
 //                {"matchStatementSuggestions1.json", "function"}, // Do not support
 //                {"matchStatementSuggestions3.json", "function"}, // Do not support
@@ -79,9 +77,6 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinElseIf.json", "function"},
                 {"completionBeforeWhile.json", "function"},
                 {"completionWithinWhile.json", "function"},
-                {"completionWithinRecord1.json", "function"},
-                {"completionWithinRecord2.json", "function"},
-                {"completionWithinRecord3.json", "function"},
                 {"typeGuardSuggestions1.json", "function"},
                 {"typeGuardSuggestions2.json", "function"},
                 {"typeGuardSuggestions3.json", "function"},
@@ -110,13 +105,13 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"newObjectCompletion3.json", "function"},
 //                {"delimiterBasedCompletionForCompleteSource1.json", "function"}, // Revamp needed
 //                {"delimiterBasedCompletionForCompleteSource2.json", "function"}, // Revamp needed
-                {"functionParamAnnotationBodyCompletion1.json", "function"},
-                {"functionParamAnnotationBodyCompletion2.json", "function"},
-                {"functionParamAnnotationBodyCompletion3.json", "function"},
-                {"functionParamAnnotationBodyCompletion4.json", "function"},
+//                {"functionParamAnnotationBodyCompletion1.json", "function"},
+//                {"functionParamAnnotationBodyCompletion2.json", "function"},
+//                {"functionParamAnnotationBodyCompletion3.json", "function"},
+//                {"functionParamAnnotationBodyCompletion4.json", "function"},
 //                {"completionWithTupleVariableDef.json", "function"},
 //                {"completionWithinComments.json", "function"}, // Revamp needed
-                {"completionWithinLiterals.json", "function"},
+//                {"completionWithinLiterals.json", "function"},
 //                {"assignmentStmt1.json", "function"},
 //                {"assignmentStmt2.json", "function"},
 //                {"assignmentStmt3.json", "function"},

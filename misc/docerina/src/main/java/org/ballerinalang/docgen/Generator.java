@@ -252,6 +252,10 @@ public class Generator {
         if (functionNode.getParameters().size() > 0) {
             for (BLangSimpleVariable param : functionNode.getParameters()) {
                 DefaultableVariable variable = getVariable(functionNode, param, module);
+                if (param.typeNode instanceof BLangUserDefinedType &&
+                        ((BLangUserDefinedType) param.typeNode).typeName.value.contains("$anonType$")) {
+                    module.linkedAnonObjects.add(((BLangUserDefinedType) param.typeNode).typeName.value);
+                }
                 parameters.add(variable);
             }
         }
@@ -321,11 +325,9 @@ public class Generator {
         }
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
         List<DefaultableVariable> fields = getFields(recordType, recordType.fields, documentationNode, module);
-        // only add records that are not empty
-        if (!fields.isEmpty()) {
-            module.records.add(new Record(recordName, description(typeDefinition),
-                    isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, fields));
-        }
+        module.records.add(new Record(recordName, description(typeDefinition),
+                isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, recordType.sealed,
+                fields));
     }
 
     private static List<DefaultableVariable> getFields(BLangNode node, List<BLangSimpleVariable> allFields,

@@ -236,5 +236,37 @@ public function withArguments_Test1() {
 
     test:when(mock_stringAdd).withArguments("string1").thenReturn("test");
     test:assertEquals(stringAdd("string1"), "test");
+}
 
+@test:Config {
+}
+public function callOriginal_Test1() {
+    io:println("\t[callOriginal_Test1] Testing .callOriginal function");
+
+    // IntAdd
+    test:when(mock_intAdd).callOriginal();
+    test:assertEquals(intAdd(10, 6), 16);
+    test:assertEquals(callIntAdd(10, 6), 16);
+
+    // StringAdd
+    test:when(mock_stringAdd).callOriginal();
+    test:assertEquals(stringAdd("Ibaqu"), "test_Ibaqu");
+
+    // FloatAdd
+    test:when(mock_floatAdd).callOriginal();
+    test:assertEquals(floatAdd(10.6, 4.5), 15.1);
+}
+
+@test:Config {}
+public function callOriginal_Test2() {
+    io:println("\t[callOriginal_Test2] Test callOriginal function in import package");
+    test:when(mock_absInt).callOriginal();
+    test:assertEquals(math:absInt(-5), 5);
+}
+
+@test:Config {}
+public function callOriginal_Test3() {
+    io:println("\t[callOriginal_Test3] Test callOriginal with import package in same project");
+    test:when(mock2_intAdd).callOriginal();
+    test:assertEquals(Mock2:intAdd2(10, 5), 15);
 }

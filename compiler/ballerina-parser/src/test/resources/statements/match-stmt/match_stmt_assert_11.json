@@ -890,9 +890,14 @@
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
-                                    "kind": "CLOSE_BRACE_TOKEN"
+                                    "kind": "CLOSE_BRACE_TOKEN",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_INVALID_TOKEN"
+                                    ]
                                   }
                                 ]
                               }
@@ -2353,7 +2358,7 @@
                                           "kind": "COLON_TOKEN"
                                         },
                                         {
-                                          "kind": "TRUE_KEYWORD",
+                                          "kind": "BOOLEAN_LITERAL",
                                           "children": [
                                             {
                                               "kind": "TRUE_KEYWORD"
@@ -2458,11 +2463,11 @@
                                               "kind": "PLUS_TOKEN"
                                             },
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "NUMERIC_LITERAL",
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                   "hasDiagnostics": true,
                                                   "diagnostics": [
                                                     "ERROR_INVALID_TOKEN"
@@ -2513,7 +2518,7 @@
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "STRING_LITERAL",
+                                              "kind": "STRING_LITERAL_TOKEN",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
                                                 "ERROR_INVALID_TOKEN",

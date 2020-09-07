@@ -38,9 +38,9 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFieldsListNode> {
+
     public WaitFieldsListNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(WaitFieldsListNode.class);
+        super(WaitFieldsListNode.class);
     }
 
     @Override

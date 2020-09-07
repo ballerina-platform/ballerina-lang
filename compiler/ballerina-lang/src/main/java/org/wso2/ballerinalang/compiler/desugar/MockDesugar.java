@@ -267,7 +267,8 @@ public class MockDesugar {
                 new Name(functionName),
                 bLangPackage.packageID,
                 generateSymbolInvokableType(),
-                bLangPackage.symbol
+                bLangPackage.symbol,
+                symTable.builtinPos
         );
 
         return symbol;

@@ -29,7 +29,7 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 /**
- * Binary expression evaluator implementation.
+ * Evaluator implementation for binary expressions.
  *
  * @since 2.0.0
  */
@@ -57,8 +57,8 @@ public class BinaryExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "An " +
-                    "internal error is occurred while evaluating the binary expression: " + syntaxNode.toSourceCode()));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
+                    syntaxNode.toSourceCode().trim()));
         }
     }
 
@@ -72,8 +72,8 @@ public class BinaryExpressionEvaluator extends Evaluator {
     private BExpressionValue performOperation(BExpressionValue lhs, BExpressionValue rhs) throws EvaluationException {
         Value lValue = lhs.getJdiValue();
         Value rValue = rhs.getJdiValue();
-        BVariable lVar = VariableFactory.getVariable(context, lValue, lValue.type().name(), "lVar");
-        BVariable rVar = VariableFactory.getVariable(context, rValue, rValue.type().name(), "rVar");
+        BVariable lVar = VariableFactory.getVariable(context, lValue);
+        BVariable rVar = VariableFactory.getVariable(context, rValue);
         SyntaxKind operatorType = syntaxNode.operator().kind();
 
         switch (operatorType) {
@@ -87,6 +87,16 @@ public class BinaryExpressionEvaluator extends Evaluator {
                 return div(lVar, rVar);
             case PERCENT_TOKEN:
                 return mod(lVar, rVar);
+            case BITWISE_AND_TOKEN:
+                return bitwiseAND(lVar, rVar);
+            case PIPE_TOKEN:
+                return bitwiseOR(lVar, rVar);
+            case BITWISE_XOR_TOKEN:
+                return bitwiseXOR(lVar, rVar);
+            case LOGICAL_AND_TOKEN:
+                return logicalAND(lVar, rVar);
+            case LOGICAL_OR_TOKEN:
+                return logicalOR(lVar, rVar);
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operatorType);
         }
@@ -237,6 +247,75 @@ public class BinaryExpressionEvaluator extends Evaluator {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
         } else {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+        }
+    }
+
+    /**
+     * Performs bitwise AND operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue bitwiseAND(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
+            long result = Long.parseLong(lVar.computeValue()) & Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            // Todo - Add support for signed and unsigned integers
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_AND_TOKEN);
+        }
+    }
+
+    /**
+     * Performs bitwise OR operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue bitwiseOR(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
+            long result = Long.parseLong(lVar.computeValue()) | Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            // Todo - Add support for signed and unsigned integers
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PIPE_TOKEN);
+        }
+    }
+
+    /**
+     * Performs bitwise XOR operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue bitwiseXOR(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
+            long result = Long.parseLong(lVar.computeValue()) ^ Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            // Todo - Add support for signed and unsigned integers
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_XOR_TOKEN);
+        }
+    }
+
+    /**
+     * Performs logical AND operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue logicalAND(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.BOOLEAN && rVar.getBType() == BVariableType.BOOLEAN) {
+            return !Boolean.parseBoolean(lVar.computeValue()) ? EvaluationUtils.make(context, false)
+                    : EvaluationUtils.make(context, Boolean.parseBoolean(rVar.computeValue()));
+        } else {
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.LOGICAL_AND_TOKEN);
+        }
+    }
+
+    /**
+     * Performs logical OR operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue logicalOR(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.BOOLEAN && rVar.getBType() == BVariableType.BOOLEAN) {
+            return Boolean.parseBoolean(lVar.computeValue()) ? EvaluationUtils.make(context, true)
+                    : EvaluationUtils.make(context, Boolean.parseBoolean(rVar.computeValue()));
+        } else {
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.LOGICAL_OR_TOKEN);
         }
     }
 

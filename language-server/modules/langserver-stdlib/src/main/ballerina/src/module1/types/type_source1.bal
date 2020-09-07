@@ -15,8 +15,14 @@ type TestRecord3 record {
     string rec3Field2 = "TestRecord3";
 };
 
+type TestMap1 map<int>;
+
+public type TestMap2 map<string>;
+
+public type TestMap3 map<int>;
+
 public type TestObject1 object {
-	int field1;
+	public int field1;
 	int field2;
 	public function init(int field1, int field2) {
 	    self.field1 = field1;
