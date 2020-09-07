@@ -696,30 +696,36 @@
         "column": 3,
         "category": "Language concepts",
         "samples": [{
-                "name": "Docker Deployment",
-                "url": "docker-deployment"
-            },
-            {
-                "name": "Kubernetes Deployment",
-                "url": "kubernetes-deployment"
-            },
-            {
-                "name": "OpenShift Deployment",
-                "url": "openshift-deployment"
-            },
-            {
-                "name": "AWS Lambda Deployment",
-                "url": "aws-lambda-deployment"
-            },
-            {
-                "name": "Knative Deployment",
-                "url": "knative-deployment"
-            },
-            {
-                "name": "Azure Functions Deployment",
-                "url": "azure-functions-deployment"
-            }
-        ]
+            "name": "Docker Deployment",
+            "url": "docker-deployment",
+            "githubLink": "https://github.com/ballerina-platform/module-ballerina-docker/tree/ballerina-1.2.x/docker-extension-examples/examples/docker-deployment"
+        },
+        {
+            "name": "Kubernetes Deployment",
+            "url": "kubernetes-deployment",
+            "githubLink": "https://github.com/ballerina-platform/module-ballerina-kubernetes/tree/ballerina-1.2.x/kubernetes-extension-examples/examples/kubernetes-deployment"
+        },
+        {
+            "name": "OpenShift Deployment",
+            "url": "openshift-deployment",
+            "githubLink": "https://github.com/ballerina-platform/module-ballerina-kubernetes/tree/ballerina-1.2.x/kubernetes-extension-examples/examples/openshift-deployment"
+        },
+        {
+            "name": "AWS Lambda Deployment",
+            "url": "aws-lambda-deployment",
+            "githubLink": "https://github.com/ballerina-platform/module-ballerinax-aws.lambda/tree/ballerina-1.2.x/awslambda-examples/examples/aws-lambda-deployment"
+        },
+        {
+            "name": "Knative Deployment",
+            "url": "knative-deployment",
+            "githubLink": "https://github.com/ballerina-platform/module-ballerina-kubernetes/tree/ballerina-1.2.x/kubernetes-extension-examples/examples/knative-deployment"
+        },
+        {
+            "name": "Azure Functions Deployment",
+            "url": "azure-functions-deployment",
+            "githubLink": "https://github.com/ballerina-platform/module-ballerinax-azure.functions/tree/ballerina-1.2.x/azurefunctions-extension-examples/examples/azure-functions-deployment"
+        }
+    ]
     },
     {
         "title": "HTTP/HTTPS",
