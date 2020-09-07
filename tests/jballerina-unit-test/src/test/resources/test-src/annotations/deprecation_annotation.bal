@@ -124,12 +124,12 @@ public function deprecated_annotation_func() {
 # # Deprecated
 # function is deprecated
 @deprecated
-function add1(@deprecated public int x, @deprecated int y, @deprecated int z) returns int {
+function add1(@deprecated int x, @deprecated int y, @deprecated int z) returns int {
     return x + y + z;
 }
 
 @deprecated
-function add2(@deprecated public int x, @deprecated int y, @deprecated int z) returns int {
+function add2(@deprecated int x, @deprecated int y, @deprecated int z) returns int {
     return x + y + z;
 }
 
@@ -209,7 +209,7 @@ public function func5() {
 # + z - third integer
 # # Deprecated parameters
 # + z - deprecated rest parameter
-function add3(public int x, public int y, @deprecated int... z) {
+function add3(int x, int y, @deprecated int... z) {
     int n = z[0];
 }
 

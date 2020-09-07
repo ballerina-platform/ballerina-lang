@@ -48,9 +48,9 @@ import java.util.function.Predicate;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class AssignmentStatementNodeContext extends AbstractCompletionProvider<AssignmentStatementNode> {
+    
     public AssignmentStatementNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(AssignmentStatementNode.class);
+        super(AssignmentStatementNode.class);
     }
 
     @Override

@@ -24,6 +24,7 @@ configurations.all {
 }
 
 dependencies {
+    implementation project(':ballerina-tools-api')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
     testCompile 'org.testng:testng'

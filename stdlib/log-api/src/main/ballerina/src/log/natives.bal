@@ -45,7 +45,7 @@ public function printDebug(anydata|(function () returns (anydata)) msg) = @java:
 # 
 # + msg - The message to be logged
 # + err - The error struct to be logged
-public function printError(anydata|(function () returns (anydata)) msg, public error? err = ()) = @java:Method {
+public function printError(anydata|(function () returns (anydata)) msg, error? err = ()) = @java:Method {
     'class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
@@ -103,6 +103,6 @@ public function printWarn(anydata|(function () returns (anydata)) msg) = @java:M
 #
 # + logLevel - Log level to be set
 # + moduleName - Name of the module
-public function setModuleLogLevel(LogLevel logLevel, public string? moduleName = ()) = @java:Method {
+public function setModuleLogLevel(LogLevel logLevel, string? moduleName = ()) = @java:Method {
     'class: "org.ballerinalang.stdlib.log.Utils"
 } external;

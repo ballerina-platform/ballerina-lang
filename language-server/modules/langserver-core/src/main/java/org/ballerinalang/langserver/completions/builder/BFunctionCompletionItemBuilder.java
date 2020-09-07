@@ -17,10 +17,14 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.eclipse.lsp4j.Command;
@@ -33,6 +37,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,7 +102,21 @@ public final class BFunctionCompletionItemBuilder {
         setMeta(item, invokableSymbol, ctx);
         String functionName;
         if (mode == InitializerBuildMode.EXPLICIT) {
+            NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
             functionName = objectTypeSymbol.name.value;
+            // null check added in the filter, in order to avoid 
+            Optional<BLangIdentifier> moduleAlias = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
+                    .filter(pkg -> pkg.symbol != null && pkg.symbol.pkgID == objectTypeSymbol.pkgID)
+                    .map(BLangImportPackage::getAlias)
+                    .findAny();
+            if (nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE && moduleAlias.isPresent()) {
+                /*
+                Handles the following case
+                (1) ... = new <cursor>
+                (1) ... = new m<cursor> // blocked by #25210
+                 */
+                functionName = moduleAlias.get().getValue() + ":" + functionName;
+            }
         } else {
             functionName = "new";
         }
@@ -190,7 +210,7 @@ public final class BFunctionCompletionItemBuilder {
 
     /**
      * Build mode, either explicit or implicit initializer.
-     * 
+     *
      * @since 2.0.0
      */
     public enum InitializerBuildMode {

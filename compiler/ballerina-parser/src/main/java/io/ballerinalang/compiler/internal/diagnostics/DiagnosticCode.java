@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.diagnostics;
 
-import io.ballerinalang.compiler.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 /**
  * Represents a diagnostic code.

@@ -285,7 +285,7 @@ public class Entity {
     # + filePath - Path of the file
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #                 The default value is `application/octet-stream`
-    public function setFileAsEntityBody(@untainted string filePath, public string contentType = "application/octet-stream") {
+    public function setFileAsEntityBody(@untainted string filePath, string contentType = "application/octet-stream") {
         io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(filePath);
         self.setByteChannel(byteChannel, contentType = contentType);
     }
@@ -300,7 +300,7 @@ public class Entity {
     # + jsonContent - JSON content, which needs to be set to the entity
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #                The default value is `application/json`
-    public function setJson(@untainted json jsonContent, @untainted public string contentType = "application/json") {
+    public function setJson(@untainted json jsonContent, @untainted string contentType = "application/json") {
         return externSetJson(self, jsonContent, contentType);
     }
 
@@ -321,7 +321,7 @@ public class Entity {
     # + xmlContent - XML content, which needs to be set to the entity
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #               The default value is `application/xml`
-    public function setXml(@untainted xml xmlContent, @untainted public string contentType = "application/xml") {
+    public function setXml(@untainted xml xmlContent, @untainted string contentType = "application/xml") {
         return externSetXml(self, xmlContent, contentType);
     }
 
@@ -342,7 +342,7 @@ public class Entity {
     # + textContent - Text content, which needs to be set to the entity
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #                The default value is `text/plain`
-    public function setText(@untainted string textContent, @untainted public string contentType = "text/plain") {
+    public function setText(@untainted string textContent, @untainted string contentType = "text/plain") {
         return externSetText(self, textContent, contentType);
     }
 
@@ -362,7 +362,7 @@ public class Entity {
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #                 The default value is `application/octet-stream`
     public function setByteArray(@untainted byte[] blobContent,
-                                 @untainted public string contentType = "application/octet-stream") {
+                                 @untainted string contentType = "application/octet-stream") {
         return externSetByteArray(self, blobContent, contentType);
     }
 
@@ -383,7 +383,7 @@ public class Entity {
     # + contentType - Content-type to be used with the payload. This is an optional parameter.
     #                 The `application/octet-stream` is the default value
     public function setByteChannel(io:ReadableByteChannel byteChannel,
-                                   @untainted public string contentType = "application/octet-stream") {
+                                   @untainted string contentType = "application/octet-stream") {
         return externSetByteChannel(self, byteChannel, contentType);
     }
 
@@ -417,7 +417,7 @@ public class Entity {
     # + contentType - Content-type to be used with the payload. This is an optional parameter.
     #                The default value is `multipart/form-data`.
     public function setBodyParts(@untainted Entity[] bodyParts,
-                                 @untainted public string contentType = "multipart/form-data") {
+                                 @untainted string contentType = "multipart/form-data") {
         return externSetBodyParts(self, bodyParts, contentType);
     }
 

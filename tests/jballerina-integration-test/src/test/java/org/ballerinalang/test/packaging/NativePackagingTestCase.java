@@ -58,7 +58,7 @@ public class NativePackagingTestCase extends BaseTest {
     private String module1Name = "test" + PackerinaTestUtils.randomModuleName(10);
     private Path testProj2Path;
     
-    @BeforeClass()
+    @BeforeClass(enabled = false)
     public void setUp() throws IOException, BallerinaTestException {
         this.tempHomeDirectory = Files.createTempDirectory("bal-test-integration-native-packaging-home-");
         this.tempProjectsDirectory = Files.createTempDirectory("bal-test-integration-native-packaging-project-");
@@ -91,7 +91,7 @@ public class NativePackagingTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test building TestProject1 and then push the native module.")
+    @Test(enabled = false, description = "Test building TestProject1 and then push the native module.")
     public void testBuildAndPushTestProject1() throws BallerinaTestException {
         // Build module
         String module1BaloFileName = module1Name + "-"
@@ -124,7 +124,8 @@ public class NativePackagingTestCase extends BaseTest {
      * @throws IOException            When updating the module names.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test building and running TestProject2", dependsOnMethods = "testBuildAndPushTestProject1")
+    @Test(enabled = false, description = "Test building and running TestProject2",
+            dependsOnMethods = "testBuildAndPushTestProject1")
     public void testBuildTestProject2() throws IOException, BallerinaTestException {
         // Replace module names in source file
         Path implBalFile = testProj2Path.resolve("src").resolve("baz").resolve("impl.bal");
@@ -182,7 +183,7 @@ public class NativePackagingTestCase extends BaseTest {
         }
     }
     
-    @AfterClass
+    @AfterClass(enabled = false)
     private void cleanup() throws Exception {
         deleteFiles(this.tempHomeDirectory);
         deleteFiles(this.tempProjectsDirectory);

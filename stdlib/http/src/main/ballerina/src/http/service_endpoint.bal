@@ -78,7 +78,7 @@ public class Listener {
     #
     # + port - Listening port of the HTTP service listener
     # + config - Configurations for the HTTP service listener
-    public function init(int port, public ListenerConfiguration? config = ()) {
+    public function init(int port, ListenerConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
         self.port = port;

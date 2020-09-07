@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.diagnostics;
 
-import io.ballerinalang.compiler.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 /**
  * Represents a diagnostic error code.
@@ -138,6 +138,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_JOIN_KEYWORD("BCE02073", "error.missing.join.keyword"),
     ERROR_MISSING_OUTER_KEYWORD("BCE02074", "error.missing.outer.keyword"),
     ERROR_MISSING_CLASS_KEYWORD("BCE02075", "error.missing.class.keyword"),
+    ERROR_MISSING_FAIL_KEYWORD("BCE02075", "error.missing.fail.keyword"),
+    ERROR_MISSING_EQUALS_KEYWORD("BCE02076", "error.missing.equals.keyword"),
 
     // Type keywords
     ERROR_MISSING_INT_KEYWORD("BCE02101", "error.missing.int.keyword"),
@@ -282,6 +284,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.required.parameter.after.the.defaultable.parameter"),
     ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG("BCE302", "error.named.arg.followed.by.positional.arg"),
     ERROR_ARG_FOLLOWED_BY_REST_ARG("BCE303", "error.arg.followed.by.rest.arg"),
+    ERROR_BINDING_PATTERN_NOT_ALLOWED("BCE304", "error.binding.pattern.not.allowed"),
 
     ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL("BCE401",
             "error.invalid.base16.content.in.byte.array.literal"),

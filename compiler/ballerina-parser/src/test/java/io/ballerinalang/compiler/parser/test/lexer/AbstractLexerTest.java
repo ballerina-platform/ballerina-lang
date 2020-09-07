@@ -17,10 +17,9 @@
  */
 package io.ballerinalang.compiler.parser.test.lexer;
 
+import io.ballerina.tools.text.CharReader;
 import io.ballerinalang.compiler.internal.parser.BallerinaLexer;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocuments;
 
 /**
  * An abstract class that contains utilities for {@code BallerinaLexer} tests.
@@ -30,8 +29,8 @@ import io.ballerinalang.compiler.text.TextDocuments;
 public class AbstractLexerTest {
 
     public STToken lexToken(String sourceText) {
-        TextDocument textDocument = TextDocuments.from(sourceText);
-        BallerinaLexer lexer = new BallerinaLexer(textDocument.getCharacterReader());
+        CharReader charReader = CharReader.from(sourceText);
+        BallerinaLexer lexer = new BallerinaLexer(charReader);
         return lexer.nextToken();
     }
 }

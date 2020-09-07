@@ -43,9 +43,7 @@ public type Foo object {
 
     function test7() returns Status;
 
-    function test8(public string s, int i);
-
-    function test9('int:Signed16 anInt, Bar... bars) returns 'int:Signed16;
+    function test8('int:Signed16 anInt, Bar... bars) returns 'int:Signed16;
 };
 
 public class FooImpl1 {
@@ -82,13 +80,8 @@ public class FooImpl1 {
         return "ON";
     }
 
-    // param visibility modifier mismatch
-    function test8(string s, public int i) {
-
-    }
-
     // not assignable : return type
-    function test9('int:Signed16 anInt, Bar... bars) returns int {
+    function test8('int:Signed16 anInt, Bar... bars) returns int {
         return 0;
     }
 }

@@ -47,7 +47,7 @@ public function func1() {
 # # Deprecated
 # function is deprecated
 @deprecated
-function add1(@deprecated public int x, @deprecated int y, @deprecated int z) returns int { // Compile error
+function add1(@deprecated int x, @deprecated int y, @deprecated int z) returns int { // Compile error
     return 5;
 }
 
@@ -56,7 +56,7 @@ function add1(@deprecated public int x, @deprecated int y, @deprecated int z) re
 # + y - second integer
 # + z - third integer
 # + return - Returns the sum
-function add2(@deprecated public int x, @deprecated int y, @deprecated int z) returns int { // Compile error
+function add2(@deprecated int x, @deprecated int y, @deprecated int z) returns int { // Compile error
     return 4;
 }
 
@@ -72,7 +72,7 @@ function add2(@deprecated public int x, @deprecated int y, @deprecated int z) re
 # # Deprecated
 # function is deprecated
 @deprecated
-function add3(@deprecated public int x, @deprecated int y, public int z) returns int {
+function add3(@deprecated int x, @deprecated int y, int z) returns int {
     return 2;
 }
 
@@ -142,7 +142,7 @@ public class Object3 {
 # + x - first integer
 # + y - second integer
 # + z - third integer
-function add4(public int x, public int y, @deprecated int... z) {       // Compiler error
+function add4(int x, int y, @deprecated int... z) {       // Compiler error
 }
 
 # Test function doc
@@ -151,7 +151,7 @@ function add4(public int x, public int y, @deprecated int... z) {       // Compi
 # + z - third integer
 # # Deprecated parameters
 # + z - deprecated rest parameter       // Compile error
-function add5(public int x, public int y, int... z) {
+function add5(int x, int y, int... z) {
     int n = z[0];
 }
 

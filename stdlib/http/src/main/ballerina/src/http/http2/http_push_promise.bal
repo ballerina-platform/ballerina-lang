@@ -29,7 +29,7 @@ public class PushPromise {
     #
     # + path - The resource path
     # + method - The HTTP method
-    public function init(public string path = "/", public string method = "GET") {
+    public function init(string path = "/", string method = "GET") {
         self.path = path;
         self.method = method;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -25,6 +26,7 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -46,20 +48,21 @@ import java.util.function.Predicate;
  * @since 2.0.0
  */
 public class VariableDeclarationProvider<T extends Node> extends AbstractCompletionProvider<T> {
-    public VariableDeclarationProvider(Kind kind) {
-        super(kind);
+
+    public VariableDeclarationProvider(Class<T> attachmentPoint) {
+        super(attachmentPoint);
     }
 
     protected List<LSCompletionItem> initializerContextCompletions(LSContext context,
-                                                                   TypeDescriptorNode typeDsc,
-                                                                   Node initializer) {
-        if (this.onQualifiedNameIdentifier(context, initializer)) {
+                                                                   TypeDescriptorNode typeDsc) {
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Captures the following cases
             (1) [module:]TypeName c = module:<cursor>
             (2) [module:]TypeName c = module:a<cursor>
              */
-            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) initializer;
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             Predicate<Scope.ScopeEntry> filter = scopeEntry -> {
                 BSymbol symbol = scopeEntry.symbol;
                 return symbol instanceof BVarSymbol && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
@@ -86,7 +89,7 @@ public class VariableDeclarationProvider<T extends Node> extends AbstractComplet
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Optional<Scope.ScopeEntry> objectType;
-        if (typeDescriptorNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (this.onQualifiedNameIdentifier(context, typeDescriptorNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeDescriptorNode));
             Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, modulePrefix);
             if (!module.isPresent()) {
