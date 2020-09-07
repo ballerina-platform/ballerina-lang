@@ -55,6 +55,7 @@ public class Flags {
     public static final int TRANSACTIONAL = FORKED << 1;
     public static final int PARAMETERIZED = TRANSACTIONAL << 1;
     public static final int DISTINCT = PARAMETERIZED << 1;
+    public static final int ISOLATED = DISTINCT << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -141,6 +142,9 @@ public class Flags {
                 case DISTINCT:
                     mask |= DISTINCT;
                     break;
+                case ISOLATED:
+                    mask |= ISOLATED;
+                    break;
             }
         }
         return mask;
@@ -225,6 +229,9 @@ public class Flags {
                     break;
                 case DISTINCT:
                     flagVal = DISTINCT;
+                    break;
+                case ISOLATED:
+                    flagVal = ISOLATED;
                     break;
                 default:
                     continue;

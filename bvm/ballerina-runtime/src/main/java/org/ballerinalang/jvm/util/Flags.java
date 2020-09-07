@@ -35,6 +35,7 @@ public class Flags {
     public static final int REMOTE = 65536;
     public static final int RESOURCE = 262144;
     public static final int SERVICE = 524288;
+    public static final int ISOLATED = 536870912;
 
     public static boolean isFlagOn(int bitmask, int flag) {
         return (bitmask & flag) == flag;

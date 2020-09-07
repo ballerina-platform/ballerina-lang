@@ -196,13 +196,19 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] OBJECT_METHOD_START =
             { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD,
-                    ParserRuleContext.TRANSACTIONAL_KEYWORD };
+                    ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.ISOLATED_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_METHOD_WITHOUT_REMOTE =
-            { ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
+            { ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD,
+                    ParserRuleContext.ISOLATED_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_METHOD_WITHOUT_TRANSACTIONAL =
-            { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
+            { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD,
+                    ParserRuleContext.ISOLATED_KEYWORD };
+
+    private static final ParserRuleContext[] OBJECT_METHOD_WITHOUT_ISOLATED =
+            { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD,
+                    ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_TYPE_DESCRIPTOR_START =
             { ParserRuleContext.OBJECT_TYPE_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
@@ -242,7 +248,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
             ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD,
-            ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION, ParserRuleContext.FAIL_KEYWORD };
+            ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION,
+            ParserRuleContext.FAIL_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -263,14 +270,17 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.SERVICE_NAME, ParserRuleContext.ON_KEYWORD };
 
     private static final ParserRuleContext[] RESOURCE_DEF_START =
-            { ParserRuleContext.RESOURCE_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.FUNC_DEF,
-                    ParserRuleContext.CLOSE_BRACE };
+            { ParserRuleContext.RESOURCE_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD,
+                    ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.FUNC_DEF, ParserRuleContext.CLOSE_BRACE };
 
     private static final ParserRuleContext[] RESOURCE_DEF_START_WITHOUT_RESOURCE =
-            { ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.FUNC_DEF };
+            { ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.FUNC_DEF };
 
     private static final ParserRuleContext[] RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL =
-            { ParserRuleContext.RESOURCE_KEYWORD, ParserRuleContext.FUNC_DEF };
+            { ParserRuleContext.RESOURCE_KEYWORD, ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.FUNC_DEF };
+
+    private static final ParserRuleContext[] RESOURCE_DEF_START_WITHOUT_ISOLATED =
+            { ParserRuleContext.RESOURCE_KEYWORD, ParserRuleContext.TRANSACTION_KEYWORD, ParserRuleContext.FUNC_DEF };
 
     private static final ParserRuleContext[] CONST_DECL_RHS =
             { ParserRuleContext.TYPE_NAME_OR_VAR_NAME, ParserRuleContext.ASSIGN_OP };
@@ -647,6 +657,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_DEF_QUALIFIERS:
             case RESOURCE_DEF_START_WITHOUT_RESOURCE:
             case RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL:
+            case RESOURCE_DEF_START_WITHOUT_ISOLATED:
             case PARAMETER_START:
             case STMT_START_WITH_EXPR_RHS:
             case EXPR_STMT_RHS:
@@ -726,6 +737,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
             case OBJECT_METHOD_WITHOUT_REMOTE:
             case OBJECT_METHOD_WITHOUT_TRANSACTIONAL:
+            case OBJECT_METHOD_WITHOUT_ISOLATED:
             case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
             case TYPE_DESC_OR_EXPR_RHS:
@@ -803,7 +815,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case FIELD_BINDING_PATTERN_NAME:
                 case XML_ATOMIC_NAME_IDENTIFIER:
                 case SIMPLE_BINDING_PATTERN:
-                case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:    
+                case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case OPEN_PARENTHESIS:
@@ -985,6 +997,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TRANSACTIONAL_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.TRANSACTIONAL_KEYWORD;
                     break;
+                case ISOLATED_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.ISOLATED_KEYWORD;
+                    break;
                 case MODULE_ENUM_NAME:
                 case ENUM_MEMBER_NAME:
                 case NAMED_ARG_BINDING_PATTERN:
@@ -1104,6 +1119,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DO_KEYWORD:
             case TRANSACTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case ISOLATED_KEYWORD:
             case COMMIT_KEYWORD:
             case RETRY_KEYWORD:
             case ROLLBACK_KEYWORD:
@@ -1225,6 +1241,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_DEF_QUALIFIERS:
             case RESOURCE_DEF_START_WITHOUT_RESOURCE:
             case RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL:
+            case RESOURCE_DEF_START_WITHOUT_ISOLATED:
             case CONST_DECL_TYPE:
             case CONST_DECL_RHS:
             case ARRAY_LENGTH:
@@ -1335,6 +1352,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
             case OBJECT_METHOD_WITHOUT_REMOTE:
             case OBJECT_METHOD_WITHOUT_TRANSACTIONAL:
+            case OBJECT_METHOD_WITHOUT_ISOLATED:
             case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
             case JOIN_CLAUSE_START:
             case INTERMEDIATE_CLAUSE_START:
@@ -1445,6 +1463,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_METHOD_WITHOUT_TRANSACTIONAL:
                 alternativeRules = OBJECT_METHOD_WITHOUT_TRANSACTIONAL;
                 break;
+            case OBJECT_METHOD_WITHOUT_ISOLATED:
+                alternativeRules = OBJECT_METHOD_WITHOUT_ISOLATED;
+                break;
             case OBJECT_FUNC_OR_FIELD:
                 alternativeRules = OBJECT_FUNC_OR_FIELD;
                 break;
@@ -1481,6 +1502,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL:
                 alternativeRules = RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL;
+                break;
+            case RESOURCE_DEF_START_WITHOUT_ISOLATED:
+                alternativeRules = RESOURCE_DEF_START_WITHOUT_ISOLATED;
                 break;
             case CONST_DECL_TYPE:
                 alternativeRules = CONST_DECL_TYPE;
@@ -2939,6 +2963,19 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         return ParserRuleContext.RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL;
                     default:
                         return ParserRuleContext.EXPRESSION_RHS;
+                }
+            case ISOLATED_KEYWORD:
+                parentCtx = getParentContext();
+                switch (parentCtx) {
+                    case COMP_UNIT:
+                        return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
+                    case OBJECT_MEMBER:
+                        return ParserRuleContext.OBJECT_METHOD_WITHOUT_ISOLATED;
+                    case SERVICE_CONSTRUCTOR_EXPRESSION:
+                    case SERVICE_DECL:
+                        return ParserRuleContext.RESOURCE_DEF_START_WITHOUT_ISOLATED;
+                    default:
+                        return ParserRuleContext.EXPRESSION_RHS; // TODO: 8/14/20 verify
                 }
             case ENUM_KEYWORD:
                 return ParserRuleContext.MODULE_ENUM_NAME;
@@ -4621,6 +4658,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.TRANSACTION_KEYWORD;
             case TRANSACTIONAL_KEYWORD:
                 return SyntaxKind.TRANSACTIONAL_KEYWORD;
+            case ISOLATED_KEYWORD:
+                return SyntaxKind.ISOLATED_KEYWORD;
             case COMMIT_KEYWORD:
                 return SyntaxKind.COMMIT_KEYWORD;
             case RETRY_KEYWORD:

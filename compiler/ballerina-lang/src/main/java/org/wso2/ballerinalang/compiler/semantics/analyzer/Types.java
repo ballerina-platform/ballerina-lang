@@ -912,6 +912,10 @@ public class Types {
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
                                              Set<TypePair> unresolvedTypes) {
+        if (hasIncompatibleIsolatedFlags(source, target)) {
+            return false;
+        }
+
         // For invokable types with typeParam parameters, we have to check whether the source param types are
         // covariant with the target param types.
         if (containsTypeParams(target)) {
@@ -1116,6 +1120,10 @@ public class Types {
 
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
                                               Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
+        if (hasIncompatibleIsolatedFlags(source, target)) {
+            return false;
+        }
+
         if (source.paramTypes.size() != target.paramTypes.size()) {
             return false;
         }
@@ -1141,6 +1149,10 @@ public class Types {
 
         // Source return type should be covariant with target return type
         return isAssignable(source.retType, target.retType, unresolvedTypes);
+    }
+
+    private boolean hasIncompatibleIsolatedFlags(BInvokableType source, BInvokableType target) {
+        return Symbols.isFlagOn(target.flags, Flags.ISOLATED) && !Symbols.isFlagOn(source.flags, Flags.ISOLATED);
     }
 
     public boolean isSameArrayType(BType source, BType target, Set<TypePair> unresolvedTypes) {
