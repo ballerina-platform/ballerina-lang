@@ -581,4 +581,8 @@ public class JvmCodeGenUtil {
         Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
         mv.visitJumpInsn(GOTO, gotoLabel);
     }
+
+    public static void cleanupScopeSet() {
+        visitedScopesSet.clear();
+    }
 }

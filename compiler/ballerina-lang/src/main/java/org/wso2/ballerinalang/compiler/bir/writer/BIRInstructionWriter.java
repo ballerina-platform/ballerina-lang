@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
@@ -69,6 +71,36 @@ public class BIRInstructionWriter extends BIRVisitor {
     void writeBBs(List<BIRBasicBlock> bbList) {
         buf.writeInt(bbList.size());
         bbList.forEach(bb -> bb.accept(this));
+    }
+
+    void writeScopes(List<BIRBasicBlock> bbList) {
+        int instructionOffset = 0;
+        BirScope currentScope = null;
+        for (BIRBasicBlock bb : bbList) {
+            for (BIRAbstractInstruction ins : bb.instructions) {
+                instructionOffset++;
+
+                if (ins.scope == currentScope) {
+                    continue;
+                }
+
+                currentScope = ins.scope;
+                writeScope(currentScope, instructionOffset);
+            }
+        }
+    }
+
+    private void writeScope(BirScope currentScope, int instructionOffset) {
+        buf.writeInt(currentScope.id);
+        buf.writeInt(instructionOffset);
+
+        if (currentScope.parent != null) {
+            buf.writeInt(1); // Parent available.
+            buf.writeInt(currentScope.parent.id);
+            writeScope(currentScope.parent, instructionOffset);
+        } else {
+            buf.writeInt(0);
+        }
     }
 
     public void visit(BIRBasicBlock birBasicBlock) {

@@ -290,6 +290,8 @@ public class InteropMethodGen {
                                             BIRFunction func, String moduleClassName,
                                             AsyncDataCollector asyncDataCollector) {
         String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
+        //Cleanup scope set in codegen utils from the previous function
+        JvmCodeGenUtil.cleanupScopeSet();
         for (BIRBasicBlock basicBlock : basicBlocks) {
             Label bbLabel = labelGen.getLabel(funcName + basicBlock.id.value);
             mv.visitLabel(bbLabel);

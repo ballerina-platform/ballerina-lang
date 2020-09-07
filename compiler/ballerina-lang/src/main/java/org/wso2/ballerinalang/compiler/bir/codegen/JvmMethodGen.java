@@ -1284,6 +1284,8 @@ public class JvmMethodGen {
 
         String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
         int caseIndex = 0;
+        //Cleanup scope set in codegen utils from the previous function
+        JvmCodeGenUtil.cleanupScopeSet();
         for (int i = 0; i < func.basicBlocks.size(); i++) {
             BIRBasicBlock bb = func.basicBlocks.get(i);
             // create jvm label

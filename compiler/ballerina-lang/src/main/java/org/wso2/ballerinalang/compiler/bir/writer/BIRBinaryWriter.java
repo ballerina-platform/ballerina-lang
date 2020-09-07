@@ -296,6 +296,8 @@ public class BIRBinaryWriter {
             birbuf.writeBoolean(details.send);
         }
 
+        funcInsWriter.writeScopes(birFunction.basicBlocks);
+
         // Write length of the function body so that it can be skipped easily.
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
