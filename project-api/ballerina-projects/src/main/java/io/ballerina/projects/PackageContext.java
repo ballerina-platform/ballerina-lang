@@ -99,4 +99,8 @@ class PackageContext {
     BallerinaToml ballerinaToml() {
         return this.ballerinaToml;
     }
+
+    PackageConfig packageConfig() {
+        return this.packageConfig;
+    }
 }

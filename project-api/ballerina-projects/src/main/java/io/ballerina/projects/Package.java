@@ -2,6 +2,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.model.BallerinaToml;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,5 +63,9 @@ public class Package {
 
     public BallerinaToml ballerinaToml() {
         return this.packageContext.ballerinaToml();
+    }
+
+    public Path packagePath() {
+        return this.packageContext.packageConfig().packagePath();
     }
 }

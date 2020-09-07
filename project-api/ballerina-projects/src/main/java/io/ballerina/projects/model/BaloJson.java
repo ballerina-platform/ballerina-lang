@@ -16,35 +16,30 @@
  *  under the License.
  */
 
-package io.ballerina.projects.test.writers;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+package io.ballerina.projects.model;
 
 /**
- * Contains cases to test the balo writer.
+ * {@code BaloJson} Model for Balo JSON file.
  *
  * @since 2.0.0
  */
-public class TestBaloWriter {
-    private static final String BALO_PATH = "tmpBaloDir";
+public class BaloJson {
+    private String balo_version = "2.0.0";
+    private String built_by = "WSO2";
 
-    @BeforeClass
-    public void setUp() throws IOException {
-        Files.createDirectory(Paths.get(BALO_PATH));
+    public String getBalo_version() {
+        return balo_version;
     }
 
-    @Test
-    public void testBaloWriter() {
-
+    public void setBalo_version(String balo_version) {
+        this.balo_version = balo_version;
     }
 
-    @Test
-    public void testBaleWriterAccessDenied() {
+    public String getBuilt_by() {
+        return built_by;
+    }
 
+    public void setBuilt_by(String built_by) {
+        this.built_by = built_by;
     }
 }

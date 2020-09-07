@@ -16,35 +16,11 @@
  *  under the License.
  */
 
-package io.ballerina.projects.test.writers;
+package io.ballerina.projects.model;
 
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-/**
- * Contains cases to test the balo writer.
- *
- * @since 2.0.0
- */
-public class TestBaloWriter {
-    private static final String BALO_PATH = "tmpBaloDir";
-
-    @BeforeClass
-    public void setUp() throws IOException {
-        Files.createDirectory(Paths.get(BALO_PATH));
-    }
-
-    @Test
-    public void testBaloWriter() {
-
-    }
-
-    @Test
-    public void testBaleWriterAccessDenied() {
-
-    }
+public class PlatformLibrary {
+    String path;
+    String artifactId; //?
+    String groupId; //?
+    String version; //?
 }
