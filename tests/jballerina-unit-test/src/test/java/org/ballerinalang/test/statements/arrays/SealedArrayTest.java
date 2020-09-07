@@ -31,6 +31,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.testng.Assert.assertEquals;
+
 /**
  * Test cases for ballerina.model.arrays.
  */
@@ -407,6 +409,17 @@ public class SealedArrayTest {
         bIntArray.add(2, 5);
         BValue[] args = {bIntArray, new BInteger(3)};
         BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMapInvalidIndex", args);
+    }
+
+    @Test(groups = { "disableOnOldParser" })
+    public void testArrayWithConstantSizeReferenceFill() {
+        int indexNo=1;
+        int value=50;
+        BValue[] args = new BValue[]{new BInteger(indexNo), new BInteger(value)};
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayWithConstantSizeReferenceFill", args);
+        BValueArray resultArray = (BValueArray) returns[0];
+        assertEquals(resultArray.size(), 2);
+        assertEquals(resultArray.getInt(indexNo), value);
     }
 
     @Test
