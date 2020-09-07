@@ -440,18 +440,14 @@ function createConstLiteralAutoFilledSealedArray() {
     assertArrayLengthPanic(5, sealedArray);
 }
 
-function testArrayWithConstantSizeReferenceFill(int index, int value) returns int[]{
-    int[constLength] a = [];
-    a[0]=value;
-    int[constLength] b = [1];
-    b[index]=value;
-    return b;
+function testArrayWithConstantSizeReferenceFill() {
+    int[constLength] sealedArray = [1];
+    sealedArray[1]=2;
+    assertArrayLengthPanic(2, sealedArray);
+    assertArrayValuePanic(2, sealedArray, 1);
 }
 
-// helper methodsfunction testArrayWithConstantSizeReferenceFillError(){
-    int[constLength] ar = [1,2];
-    ar.add(3);
-}
+// helper methods
 
 function assertArrayLengthPanic(int expected, any[] arr, string message = "Array length did not match") {
     int actual = arr.length();

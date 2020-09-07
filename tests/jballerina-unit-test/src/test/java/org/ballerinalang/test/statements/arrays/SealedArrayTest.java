@@ -412,14 +412,7 @@ public class SealedArrayTest {
     }
 
     @Test(groups = { "disableOnOldParser" })
-    public void testArrayWithConstantSizeReferenceFill() {
-        int indexNo=1;
-        int value=50;
-        BValue[] args = new BValue[]{new BInteger(indexNo), new BInteger(value)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayWithConstantSizeReferenceFill", args);
-        BValueArray resultArray = (BValueArray) returns[0];
-        assertEquals(resultArray.size(), 2);
-        assertEquals(resultArray.getInt(indexNo), value);
+    public void testArrayWithConstantSizeReferenceFill() { BRunUtil.invokeFunction(compileResult, "testArrayWithConstantSizeReferenceFill");
     }
 
     @Test
