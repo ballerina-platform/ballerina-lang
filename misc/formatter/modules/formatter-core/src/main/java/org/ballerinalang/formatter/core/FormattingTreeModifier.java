@@ -1191,12 +1191,16 @@ public class FormattingTreeModifier extends TreeModifier {
         Token asKeyword = getToken(xMLNamespaceDeclarationNode.asKeyword().orElse(null));
         IdentifierToken namespacePrefix = this.modifyNode(xMLNamespaceDeclarationNode.namespacePrefix().orElse(null));
         Token semicolonToken = getToken(xMLNamespaceDeclarationNode.semicolonToken());
+        if (asKeyword != null || namespacePrefix != null) {
+            xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
+                    .withNamespacePrefix(namespacePrefix)
+                    .withAsKeyword(formatToken(asKeyword, 1, 1, 0, 0))
+                    .apply();
+        }
         return xMLNamespaceDeclarationNode.modify()
-                .withNamespacePrefix(namespacePrefix)
                 .withNamespaceuri(namespaceuri)
-                .withXmlnsKeyword(formatToken(xmlnsKeyword, 0, 0, 0, 0))
-                .withAsKeyword(formatToken(asKeyword, 0, 0, 0, 0))
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withXmlnsKeyword(formatToken(xmlnsKeyword, 3, 1, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
@@ -1274,8 +1278,14 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public XMLSimpleNameNode transform(XMLSimpleNameNode xMLSimpleNameNode) {
         Token name = getToken(xMLSimpleNameNode.name());
+        if (xMLSimpleNameNode.parent().kind() == SyntaxKind.XML_PI &&
+                ((XMLProcessingInstruction) xMLSimpleNameNode.parent()).data() != null) {
+            return xMLSimpleNameNode.modify()
+                    .withName(formatToken(name, 0, 1, 0, 0))
+                    .apply();
+        }
         return xMLSimpleNameNode.modify()
-                .withName(name)
+                .withName(formatToken(name, 0, 0, 0, 0))
                 .apply();
     }
 
