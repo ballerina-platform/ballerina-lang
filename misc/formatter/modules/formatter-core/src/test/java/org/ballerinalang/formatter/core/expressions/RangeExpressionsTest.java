@@ -45,7 +45,7 @@ public class RangeExpressionsTest extends FormatterTest {
 
     @Override
     public List<String> skipList() {
-        return new ArrayList<>(Arrays.asList("range_expression_1.bal", "range_expression_2.bal"));
+        return new ArrayList<>(Arrays.asList("range_expression_2.bal"));
     }
 
     @Override

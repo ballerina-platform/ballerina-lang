@@ -438,6 +438,9 @@ public class FormattingTreeModifier extends TreeModifier {
                 builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.TYPE_TEST_EXPRESSION) ||
                 builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.TYPE_PARAMETER) ||
                 builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.TYPE_CAST_PARAM) ||
+                (builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.TYPED_BINDING_PATTERN) &&
+                builtinSimpleNameReferenceNode.parent().parent() != null &&
+                builtinSimpleNameReferenceNode.parent().parent().kind().equals(SyntaxKind.FOREACH_STATEMENT)) ||
                 builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC) ||
                 builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.XML_TYPE_DESC) ||
                 (builtinSimpleNameReferenceNode.parent().parent() != null &&
@@ -1021,6 +1024,7 @@ public class FormattingTreeModifier extends TreeModifier {
         boolean addSpaces = false;
         if (blockStatementNode.parent().kind().equals(SyntaxKind.NAMED_WORKER_DECLARATION) ||
                 blockStatementNode.parent().kind().equals(SyntaxKind.QUERY_ACTION) ||
+                blockStatementNode.parent().kind().equals(SyntaxKind.FOREACH_STATEMENT) ||
                 blockStatementNode.parent().kind().equals(SyntaxKind.FUNCTION_BODY_BLOCK)) {
             addSpaces = true;
         }
@@ -1927,13 +1931,14 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(forEachStatementNode)) {
             return forEachStatementNode;
         }
+        int startCol = getStartColumn(forEachStatementNode, forEachStatementNode.kind(), true);
         Token forEachKeyword = getToken(forEachStatementNode.forEachKeyword());
         TypedBindingPatternNode typedBindingPattern = this.modifyNode(forEachStatementNode.typedBindingPattern());
         Token inKeyword = getToken(forEachStatementNode.inKeyword());
         Node actionOrExpressionNode = this.modifyNode(forEachStatementNode.actionOrExpressionNode());
         StatementNode blockStatement = this.modifyNode(forEachStatementNode.blockStatement());
         return forEachStatementNode.modify()
-                .withForEachKeyword(formatToken(forEachKeyword, 0, 1, 0, 0))
+                .withForEachKeyword(formatToken(forEachKeyword, startCol, 1, 0, 0))
                 .withTypedBindingPattern(typedBindingPattern)
                 .withInKeyword(formatToken(inKeyword, 1, 1, 0,  0))
                 .withActionOrExpressionNode(actionOrExpressionNode)
