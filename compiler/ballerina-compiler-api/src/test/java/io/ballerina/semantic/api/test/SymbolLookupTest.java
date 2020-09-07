@@ -18,9 +18,10 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.tools.text.LinePosition;
-import org.ballerina.compiler.api.element.ModuleID;
-import org.ballerina.compiler.api.symbol.BCompiledSymbol;
-import org.ballerina.compiler.impl.semantic.SemanticModel;
+import org.ballerina.compiler.api.ModuleID;
+import org.ballerina.compiler.api.symbols.Symbol;
+import org.ballerina.compiler.impl.BallerinaModuleID;
+import org.ballerina.compiler.impl.BallerinaSemanticModel;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.DataProvider;
@@ -53,10 +54,10 @@ public class SymbolLookupTest {
         CompilerContext context = new CompilerContext();
         CompileResult result = compile("test-src/var_symbol_lookup_test.bal", context);
         BLangPackage pkg = (BLangPackage) result.getAST();
-        ModuleID moduleID = new ModuleID(pkg.packageID);
-        SemanticModel model = new SemanticModel(pkg.compUnits.get(0), pkg, context);
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg.compUnits.get(0), pkg, context);
 
-        Map<String, BCompiledSymbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
 
         assertEquals(symbolsInFile.size(), expSymbols);
         for (String symName : expSymbolNames) {
@@ -83,10 +84,10 @@ public class SymbolLookupTest {
         CompilerContext context = new CompilerContext();
         CompileResult result = compile("test-src/symbol_lookup_with_workers_test.bal", context);
         BLangPackage pkg = (BLangPackage) result.getAST();
-        ModuleID moduleID = new ModuleID(pkg.packageID);
-        SemanticModel model = new SemanticModel(pkg.compUnits.get(0), pkg, context);
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg.compUnits.get(0), pkg, context);
 
-        Map<String, BCompiledSymbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
 
         assertEquals(symbolsInFile.size(), expSymbols);
         for (String symName : expSymbolNames) {
@@ -113,10 +114,10 @@ public class SymbolLookupTest {
         CompilerContext context = new CompilerContext();
         CompileResult result = compile("test-src/symbol_lookup_with_typedefs_test.bal", context);
         BLangPackage pkg = (BLangPackage) result.getAST();
-        ModuleID moduleID = new ModuleID(pkg.packageID);
-        SemanticModel model = new SemanticModel(pkg.compUnits.get(0), pkg, context);
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg.compUnits.get(0), pkg, context);
 
-        Map<String, BCompiledSymbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, line, column, moduleID);
 
         assertEquals(symbolsInFile.size(), expSymbols);
         for (String symName : expSymbolNames) {
@@ -144,12 +145,12 @@ public class SymbolLookupTest {
         };
     }
 
-    private Map<String, BCompiledSymbol> getSymbolsInFile(SemanticModel model, int line, int column,
-                                                          ModuleID moduleID) {
-        List<BCompiledSymbol> allInScopeSymbols = model.lookupSymbols(LinePosition.from(line, column));
+    private Map<String, Symbol> getSymbolsInFile(BallerinaSemanticModel model, int line, int column,
+                                                 ModuleID moduleID) {
+        List<Symbol> allInScopeSymbols = model.visibleSymbols(LinePosition.from(line, column));
         return allInScopeSymbols.stream()
                 .filter(s -> s.moduleID().equals(moduleID))
-                .collect(Collectors.toMap(BCompiledSymbol::name, s -> s));
+                .collect(Collectors.toMap(Symbol::name, s -> s));
     }
 
     private CompileResult compile(String path, CompilerContext context) {

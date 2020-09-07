@@ -25,20 +25,26 @@ import org.ballerina.compiler.impl.symbols.SymbolFactory;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 
 /**
  * Semantic model representation of a given syntax tree.
@@ -47,12 +53,15 @@ import java.util.Optional;
  */
 public class BallerinaSemanticModel implements SemanticModel {
 
+    private static final int SYMBOL_POSITION = 0;
+
+    private final BLangPackage bLangPackage;
     private final CompilerContext compilerContext;
     protected BLangCompilationUnit compilationUnit;
     private EnvironmentResolver envResolver;
 
     public BallerinaSemanticModel(BLangCompilationUnit compilationUnit, BLangPackage bLangPackage,
-            CompilerContext context) {
+                                  CompilerContext context) {
         this.compilationUnit = compilationUnit;
         this.compilerContext = context;
 
@@ -71,12 +80,19 @@ public class BallerinaSemanticModel implements SemanticModel {
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
                 symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(this.compilationUnit, linePosition));
 
-        for (Entry<Name, List<ScopeEntry>> entry : scopeSymbols.entrySet()) {
+        DiagnosticPos cursorPos = new DiagnosticPos(new BDiagnosticSource(bLangPackage.packageID, compilationUnit.name),
+                                                    linePosition.line(), linePosition.line(),
+                                                    linePosition.offset(), linePosition.offset());
+
+        for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : scopeSymbols.entrySet()) {
             Name name = entry.getKey();
-            List<ScopeEntry> scopeEntries = entry.getValue();
-            for (ScopeEntry scopeEntry : scopeEntries) {
-                if (!(scopeEntry.symbol instanceof BOperatorSymbol)) {
-                    compiledSymbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol, name.getValue()));
+            List<Scope.ScopeEntry> scopeEntries = entry.getValue();
+
+            for (Scope.ScopeEntry scopeEntry : scopeEntries) {
+                BSymbol symbol = scopeEntry.symbol;
+
+                if (isASymbolInUserProject(symbol, cursorPos) || symbol.origin == COMPILED_SOURCE) {
+                    compiledSymbols.add(SymbolFactory.getBCompiledSymbol(symbol, name.getValue()));
                 }
             }
         }
@@ -98,5 +114,12 @@ public class BallerinaSemanticModel implements SemanticModel {
     @Override
     public List<Diagnostic> diagnostics(TextRange range) {
         return new ArrayList<>();
+    }
+
+    private boolean isASymbolInUserProject(BSymbol symbol, DiagnosticPos cursorPos) {
+        return symbol.origin == SOURCE &&
+                (cursorPos.compareTo(symbol.pos) > SYMBOL_POSITION ||
+                        symbol.owner instanceof BPackageSymbol ||
+                        Symbols.isFlagOn(symbol.flags, Flags.WORKER));
     }
 }
