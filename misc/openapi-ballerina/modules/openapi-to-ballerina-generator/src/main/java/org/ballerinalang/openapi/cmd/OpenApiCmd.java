@@ -19,6 +19,7 @@ package org.ballerinalang.openapi.cmd;
 
 import org.ballerinalang.ballerina.openapi.convertor.OpenApiConverterException;
 import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.OpenApiMesseges;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
@@ -130,7 +131,7 @@ public class OpenApiCmd implements BLauncherCmd {
                 Filter filter = new Filter(tag, operation);
 
                 openApiToBallerina(fileName, filter);
-            } else if ((fileName.endsWith(".bal")) && (service != null)) {
+            } else if (fileName.endsWith(".bal")) {
                 ballerinaToOpenApi(fileName);
             } else {
                 throw LauncherUtils.createLauncherException(OpenApiMesseges.MESSAGE_FOR_MISSING_INPUT);
@@ -171,7 +172,11 @@ public class OpenApiCmd implements BLauncherCmd {
                 throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
             }
         } else {
-            throw LauncherUtils.createLauncherException(OpenApiMesseges.CONTRACT_SERVICE_MANDATORY);
+            try {
+                OpenApiConverterUtils.generateOAS3DefinitionsAllService(resourcePath, targetOutputPath);
+            } catch (IOException | OpenApiConverterException | CompilationFailedException e){
+                throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+            }
         }
     }
 

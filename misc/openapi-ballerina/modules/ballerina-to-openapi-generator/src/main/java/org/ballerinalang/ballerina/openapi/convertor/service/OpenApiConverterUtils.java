@@ -283,7 +283,6 @@ public class OpenApiConverterUtils {
                         if (openApiPropertyForBallerinaField != null) {
                             propertyMap.put(field.getName().getValue(), openApiPropertyForBallerinaField);
                         }
-
                     }
 
                     model.setProperties(propertyMap);
@@ -387,7 +386,26 @@ public class OpenApiConverterUtils {
         String openApiSource = generateOAS3Definitions(balSource, serviceName);
         writeFile(outPath.resolve(openApiName), openApiSource);
     }
+    // without serviceName
+    public static void generateOAS3DefinitionsAllService(Path servicePath, Path outPath)
+            throws IOException, CompilationFailedException, OpenApiConverterException {
 
+        String ballerinaSource = readFromFile(servicePath);
+        BallerinaFile ballerinaFile = ExtendedLSCompiler.compileContent(ballerinaSource, CompilerPhase.DEFINE);
+        BLangCompilationUnit topCompilationUnit = ballerinaFile.getBLangPackage()
+                .map(bLangPackage -> bLangPackage.getCompilationUnits().get(0))
+                .orElse(null);
+        for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
+            if (topLevelNode instanceof BLangService) {
+                BLangService serviceDefinition = (BLangService) topLevelNode;
+                // Generate openApi string for the mentioned service name.
+                String serviceName = serviceDefinition.getName().getValue();
+                String openApiName = getOpenApiFileName(servicePath, serviceName);
+                String openApiSource = generateOAS3Definitions(ballerinaSource, serviceName);
+                writeFile(outPath.resolve(openApiName), openApiSource);
+            }
+        }
+    }
     /**
      * This method will compile a given ballerina package, find the service name and compile it to generate
      * an OpenApi contract.
