@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -56,7 +57,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -495,10 +495,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker worker) {
         /* ignore, remove later */
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpointNode) {
     }
 
     @Override
@@ -1465,6 +1461,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     checkForExportableType(invokableType.restType.tsymbol, pos);
                 }
                 checkForExportableType(invokableType.retType.tsymbol, pos);
+                return;
+            case TypeTags.PARAMETERIZED_TYPE:
+                BTypeSymbol parameterizedType = ((BParameterizedType) symbol.type).paramValueType.tsymbol;
+                checkForExportableType(parameterizedType, pos);
                 return;
             // TODO : Add support for other types. such as union and objects
         }
@@ -2770,7 +2770,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        analyzeExpr(onClause.expression);
+        analyzeExpr(onClause.lhsExpr);
+        analyzeExpr(onClause.rhsExpr);
     }
 
     @Override

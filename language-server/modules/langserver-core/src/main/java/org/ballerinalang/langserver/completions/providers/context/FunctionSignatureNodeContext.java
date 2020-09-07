@@ -17,9 +17,13 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.tools.text.LinePosition;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -62,6 +66,32 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 */
                 completionItems.addAll(CompletionUtil.route(context, node.returnTypeDesc().get()));
             }
+        } else if (this.withinParameterContext(context, node)) {
+            NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+
+            // skip the node kind, REQUIRED_PARAM because that maps to the variable name
+            if (nodeAtCursor.kind() == SyntaxKind.REQUIRED_PARAM) {
+                return completionItems;
+            }
+            
+            if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+                /*
+                Covers the Following
+                (1) function(mod:<cursor>)
+                (2) function(mod:T<cursor>)
+                 */
+                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+                completionItems.addAll(this.getCompletionItemList(QNameReferenceUtil
+                        .getTypesInModule(context, qNameRef), context));
+            } else {
+                /*
+                Covers the Following
+                (1) function(<cursor>)
+                (2) function(T<cursor>)
+                 */
+                completionItems.addAll(this.getTypeItems(context));
+                completionItems.addAll(this.getPackagesCompletionItems(context));
+            }
         }
         return completionItems;
     }
@@ -72,6 +102,14 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
 
         return (closeParanPosition.line() == cursor.getLine() && closeParanPosition.offset() < cursor.getCharacter())
                 || closeParanPosition.line() < cursor.getLine();
+    }
+
+    private boolean withinParameterContext(LSContext context, FunctionSignatureNode node) {
+        Integer cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int openParan = node.openParenToken().textRange().endOffset();
+        int closeParan = node.closeParenToken().textRange().startOffset();
+
+        return openParan <= cursor && cursor <= closeParan;
     }
 
     @Override

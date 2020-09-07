@@ -65,7 +65,7 @@ public class TypeDefBuilderHelper {
         for (BField field : recordType.fields.values()) {
             BVarSymbol symbol = field.symbol;
             if (symbol == null) {
-                symbol = new BVarSymbol(Flags.PUBLIC, field.name, packageID, symTable.pureType, null);
+                symbol = new BVarSymbol(Flags.PUBLIC, field.name, packageID, symTable.pureType, null, field.pos);
             }
 
             BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
@@ -114,7 +114,7 @@ public class TypeDefBuilderHelper {
                                                                         Names.INIT_FUNCTION_SUFFIX, names, symTable);
         BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.type.tsymbol);
         structureSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
-                                                             (BInvokableType) initFunction.type);
+                                                                (BInvokableType) initFunction.type, initFunction.pos);
         recordTypeNode.initFunction = initFunction;
         structureSymbol.scope.define(structureSymbol.initializerFunc.symbol.name,
                                      structureSymbol.initializerFunc.symbol);
@@ -132,7 +132,8 @@ public class TypeDefBuilderHelper {
         initFunction.receiver = ASTBuilderUtil.createReceiver(structureTypeNode.pos, structureTypeNode.type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, structureTypeNode.type, null);
+                                                   env.enclPkg.symbol.pkgID, structureTypeNode.type, null,
+                                                   structureTypeNode.pos);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
@@ -144,7 +145,8 @@ public class TypeDefBuilderHelper {
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                                      initFunction.type, structureTypeNode.symbol, initFunction.body != null);
+                                      initFunction.type, structureTypeNode.symbol, initFunction.body != null,
+                                      initFunction.pos);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
@@ -154,7 +156,7 @@ public class TypeDefBuilderHelper {
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                          initFunction.symbol.flags,
                                                                          env.enclPkg.packageID, initFunction.type,
-                                                                         initFunction.symbol);
+                                                                         initFunction.symbol, initFunction.pos);
         tsymbol.params = initFunction.symbol.params;
         tsymbol.restParam = initFunction.symbol.restParam;
         tsymbol.returnType = initFunction.symbol.retType;

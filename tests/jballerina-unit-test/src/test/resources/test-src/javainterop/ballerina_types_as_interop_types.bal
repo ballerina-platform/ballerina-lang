@@ -468,7 +468,213 @@ function echoObject(abstract object {string name; int id;} & readonly obj)
 } external;
 
 function echoImmutableRecordField(Details & readonly value, string key) returns boolean = @java:Method {
-        class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+     class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function testReadOnlyAsParamAndReturnTypes() {
+    readonly oneAsReadOnly = acceptAndReturnReadOnly(1);
+    assertTrue(oneAsReadOnly is int);
+    assertEquality(100, oneAsReadOnly);
+
+    map<int|string|float> & readonly m0 = {first: 1.0, second: 2};
+    readonly floatMemAsReadOnly = acceptAndReturnReadOnly(m0);
+    assertTrue(floatMemAsReadOnly is float);
+    assertEquality(1.0, floatMemAsReadOnly);
+
+    map<string> & readonly m1 = {
+        third: "baz",
+        first: "foo",
+        second: "bar"
+    };
+    readonly stringMemAsReadOnly = acceptAndReturnReadOnly(m1);
+    assertTrue(stringMemAsReadOnly is string);
+    assertEquality("foo", stringMemAsReadOnly);
+
+    record { } & readonly m2 = {
+        "third": "baz",
+        "num": 21231
+    };
+    readonly missingMemAsReadOnly = acceptAndReturnReadOnly(m2);
+    assertTrue(missingMemAsReadOnly is ());
+
+    readonly object {
+        int i = 21;
+
+        function getInt() returns int {
+            return self.i;
+        }
+    } ob = new;
+    readonly objectAsReadOnly = acceptAndReturnReadOnly(ob);
+    assertTrue(objectAsReadOnly is readonly & abstract object { int i; function getInt() returns int; });
+    var cObj = <abstract object { int i; function getInt() returns int; } & readonly> objectAsReadOnly;
+    assertEquality(21, cObj.getInt());
+    assertEquality(ob, objectAsReadOnly);
+
+    readonly & boolean[] arr = [true, false];
+    readonly arrayAsReadOnly = acceptAndReturnReadOnly(arr);
+    assertTrue(arrayAsReadOnly is readonly & boolean[2]);
+    assertEquality(<boolean[]> [true, false], arrayAsReadOnly);
+    assertEquality(arr, arrayAsReadOnly);
+}
+
+function acceptAndReturnReadOnly(readonly value) returns readonly = @java:Method {
+     class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function testNarrowerTypesAsReadOnlyReturnTypes() {
+    readonly nilAsReadOnly = getNilAsReadOnly();
+    assertTrue(nilAsReadOnly is ());
+
+    readonly booleanAsReadOnly = getBooleanAsReadOnly();
+    assertTrue(booleanAsReadOnly is boolean);
+    assertTrue(<boolean> booleanAsReadOnly);
+
+    readonly intAsReadOnly = getIntAsReadOnly();
+    assertTrue(intAsReadOnly is int);
+    assertEquality(100, intAsReadOnly);
+
+    float f = 12.3;
+    readonly floatAsReadOnly = getFloatAsReadOnly(f);
+    assertTrue(floatAsReadOnly is float);
+    assertEquality(f, floatAsReadOnly);
+
+    decimal d = 120.5;
+    readonly decimalAsReadOnly = getDecimalAsReadOnly(d);
+    assertTrue(decimalAsReadOnly is decimal);
+    assertEquality(d, <decimal> decimalAsReadOnly);
+
+    string s1 = "hello";
+    string s2 = "world";
+    readonly stringAsReadOnly = getStringAsReadOnly(s1, s2);
+    assertTrue(stringAsReadOnly is string);
+    assertEquality(s1 + s2, stringAsReadOnly);
+
+    error e = error("Oops!");
+    readonly errorAsReadOnly = getErrorAsReadOnly(e);
+    assertTrue(errorAsReadOnly is error);
+    assertEquality(e, errorAsReadOnly);
+
+    var func = function () returns int => 123;
+    readonly functionPointerAsReadOnly = getFunctionPointerAsReadOnly(func);
+    assertTrue(functionPointerAsReadOnly is function () returns int);
+    assertEquality(func, functionPointerAsReadOnly);
+
+    Bar bar = new (23);
+    readonly objectAsReadOnly = getObjectOrServiceAsReadOnly(bar);
+    assertTrue(objectAsReadOnly is Bar);
+    assertEquality(bar, objectAsReadOnly);
+
+    typedesc t = typeof bar;
+    readonly typedescAsReadOnly = getTypedescAsReadOnly(t);
+    assertTrue(typedescAsReadOnly is typedesc);
+    assertEquality(t, typedescAsReadOnly);
+
+    handle h = getHandle();
+    readonly handleAsReadOnly = getHandleAsReadOnly(h);
+    assertTrue(handleAsReadOnly is handle);
+    assertEquality(h, handleAsReadOnly);
+
+    'xml:Element & readonly x = xml `<Employee><name>Maryam</name></Employee>`;
+    readonly xmlAsReadOnly = getXmlAsReadOnly(x);
+    assertTrue(xmlAsReadOnly is readonly & xml);
+    assertEquality(x, xmlAsReadOnly);
+
+    int[] & readonly arr = [1, 2];
+    readonly arrayAsReadOnly = getListAsReadOnly(arr);
+    assertTrue(arrayAsReadOnly is int[] & readonly);
+    assertEquality(arr, arrayAsReadOnly);
+
+    [int, int...] & readonly tup = [1];
+    readonly tupleAsReadOnly = getListAsReadOnly(tup);
+    assertTrue(tupleAsReadOnly is [int] & readonly);
+    assertEquality(tup, tupleAsReadOnly);
+
+    map<int|string> & readonly mp = {a: 1, b: 2};
+    readonly mapAsReadOnly = getMappingAsReadOnly(mp);
+    assertTrue(mapAsReadOnly is map<int> & readonly);
+    assertEquality(mp, mapAsReadOnly);
+
+    record {|string a;|} & readonly rec = {a: "hello world"};
+    readonly recordAsReadOnly = getMappingAsReadOnly(rec);
+    assertTrue(recordAsReadOnly is record {|string a;|} & readonly);
+    assertEquality(rec, recordAsReadOnly);
+
+    table<map<int>> & readonly tb = table [
+        {a: 1, b: 2},
+        {a: 2, b: 20}
+    ];
+    readonly tableAsReadOnly = getTableAsReadOnly(tb);
+    assertTrue(tableAsReadOnly is table<map<int>> & readonly);
+    assertEquality(tb, tableAsReadOnly);
+}
+
+type Bar readonly object {
+    readonly int i;
+    readonly string s = "hello world";
+
+    function init(int i) {
+        self.i = i;
+    }
+};
+
+function getNilAsReadOnly() returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getBooleanAsReadOnly() returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getIntAsReadOnly() returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getFloatAsReadOnly(float f) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getDecimalAsReadOnly(decimal d) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getStringAsReadOnly(string s1, string s2) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getErrorAsReadOnly(error e) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getFunctionPointerAsReadOnly(function () returns int func) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getObjectOrServiceAsReadOnly(object {} ob) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getTypedescAsReadOnly(typedesc t) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getHandleAsReadOnly(handle t) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getXmlAsReadOnly(xml & readonly x) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getListAsReadOnly(int[] list) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getMappingAsReadOnly(map<int|string> mp) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getTableAsReadOnly(table<map<int>> tb) returns readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function assertTrue(anydata actual) {

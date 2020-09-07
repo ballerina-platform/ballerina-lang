@@ -37,24 +37,20 @@ public class DefaultableParameterNode extends ParameterNode {
         return new NodeList<>(childInBucket(0));
     }
 
-    public Optional<Token> visibilityQualifier() {
-        return optionalChildInBucket(1);
-    }
-
     public Node typeName() {
-        return childInBucket(2);
+        return childInBucket(1);
     }
 
     public Optional<Token> paramName() {
-        return optionalChildInBucket(3);
+        return optionalChildInBucket(2);
     }
 
     public Token equalsToken() {
-        return childInBucket(4);
+        return childInBucket(3);
     }
 
     public Node expression() {
-        return childInBucket(5);
+        return childInBucket(4);
     }
 
     @Override
@@ -71,7 +67,6 @@ public class DefaultableParameterNode extends ParameterNode {
     protected String[] childNames() {
         return new String[]{
                 "annotations",
-                "visibilityQualifier",
                 "typeName",
                 "paramName",
                 "equalsToken",
@@ -80,14 +75,12 @@ public class DefaultableParameterNode extends ParameterNode {
 
     public DefaultableParameterNode modify(
             NodeList<AnnotationNode> annotations,
-            Token visibilityQualifier,
             Node typeName,
             Token paramName,
             Token equalsToken,
             Node expression) {
         if (checkForReferenceEquality(
                 annotations.underlyingListNode(),
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -97,7 +90,6 @@ public class DefaultableParameterNode extends ParameterNode {
 
         return NodeFactory.createDefaultableParameterNode(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -116,7 +108,6 @@ public class DefaultableParameterNode extends ParameterNode {
     public static class DefaultableParameterNodeModifier {
         private final DefaultableParameterNode oldNode;
         private NodeList<AnnotationNode> annotations;
-        private Token visibilityQualifier;
         private Node typeName;
         private Token paramName;
         private Token equalsToken;
@@ -125,7 +116,6 @@ public class DefaultableParameterNode extends ParameterNode {
         public DefaultableParameterNodeModifier(DefaultableParameterNode oldNode) {
             this.oldNode = oldNode;
             this.annotations = oldNode.annotations();
-            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.typeName = oldNode.typeName();
             this.paramName = oldNode.paramName().orElse(null);
             this.equalsToken = oldNode.equalsToken();
@@ -136,13 +126,6 @@ public class DefaultableParameterNode extends ParameterNode {
                 NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
-            return this;
-        }
-
-        public DefaultableParameterNodeModifier withVisibilityQualifier(
-                Token visibilityQualifier) {
-            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
-            this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
@@ -177,7 +160,6 @@ public class DefaultableParameterNode extends ParameterNode {
         public DefaultableParameterNode apply() {
             return oldNode.modify(
                     annotations,
-                    visibilityQualifier,
                     typeName,
                     paramName,
                     equalsToken,

@@ -512,7 +512,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createDefaultableParameterNode(
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName,
             STNode equalsToken,
@@ -520,7 +519,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STDefaultableParameterNode(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -529,13 +527,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRequiredParameterNode(
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName) {
 
         return new STRequiredParameterNode(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName);
     }
@@ -1674,13 +1670,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 variableName);
     }
 
-    public static STNode createFunctionalBindingPatternNode(
+    public static STNode createErrorBindingPatternNode(
+            STNode errorKeyword,
             STNode typeReference,
             STNode openParenthesis,
             STNode argListBindingPatterns,
             STNode closeParenthesis) {
 
-        return new STFunctionalBindingPatternNode(
+        return new STErrorBindingPatternNode(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,
@@ -2098,11 +2096,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createOnClauseNode(
             STNode onKeyword,
-            STNode expression) {
+            STNode lhsExpression,
+            STNode equalsKeyword,
+            STNode rhsExpression) {
 
         return new STOnClauseNode(
                 onKeyword,
-                expression);
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression);
     }
 
     public static STNode createListMatchPatternNode(

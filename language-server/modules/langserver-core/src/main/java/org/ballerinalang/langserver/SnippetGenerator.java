@@ -1511,6 +1511,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get let keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getKeyKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.KEY, "key", ItemResolverConstants.KEYWORD_TYPE,
+                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get trap keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

@@ -32,18 +32,15 @@ import java.util.Collections;
  */
 public class STRequiredParameterNode extends STParameterNode {
     public final STNode annotations;
-    public final STNode visibilityQualifier;
     public final STNode typeName;
     public final STNode paramName;
 
     STRequiredParameterNode(
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName) {
         this(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 Collections.emptyList());
@@ -51,19 +48,16 @@ public class STRequiredParameterNode extends STParameterNode {
 
     STRequiredParameterNode(
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.REQUIRED_PARAM, diagnostics);
         this.annotations = annotations;
-        this.visibilityQualifier = visibilityQualifier;
         this.typeName = typeName;
         this.paramName = paramName;
 
         addChildren(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName);
     }
@@ -71,7 +65,6 @@ public class STRequiredParameterNode extends STParameterNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRequiredParameterNode(
                 this.annotations,
-                this.visibilityQualifier,
                 this.typeName,
                 this.paramName,
                 diagnostics);
@@ -79,12 +72,10 @@ public class STRequiredParameterNode extends STParameterNode {
 
     public STRequiredParameterNode modify(
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName) {
         if (checkForReferenceEquality(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName)) {
             return this;
@@ -92,7 +83,6 @@ public class STRequiredParameterNode extends STParameterNode {
 
         return new STRequiredParameterNode(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 diagnostics);

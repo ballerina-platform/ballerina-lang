@@ -1,4 +1,4 @@
-import ls_org1/module1;
+import ballerina/module1;
 
 const STRING_VAL = "string value";
 const STRING_VAL_TWO = "string value two";
