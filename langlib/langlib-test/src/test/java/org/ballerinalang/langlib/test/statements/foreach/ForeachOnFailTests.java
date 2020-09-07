@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -26,8 +25,6 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.Arrays;
 
 /**
  * TestCases for foreach with Arrays.
