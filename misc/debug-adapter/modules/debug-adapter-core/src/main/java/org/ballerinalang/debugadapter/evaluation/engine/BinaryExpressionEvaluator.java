@@ -93,6 +93,10 @@ public class BinaryExpressionEvaluator extends Evaluator {
                 return bitwiseOR(lVar, rVar);
             case BITWISE_XOR_TOKEN:
                 return bitwiseXOR(lVar, rVar);
+            case LOGICAL_AND_TOKEN:
+                return logicalAND(lVar, rVar);
+            case LOGICAL_OR_TOKEN:
+                return logicalOR(lVar, rVar);
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operatorType);
         }
@@ -288,6 +292,30 @@ public class BinaryExpressionEvaluator extends Evaluator {
         } else {
             // Todo - Add support for signed and unsigned integers
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_XOR_TOKEN);
+        }
+    }
+
+    /**
+     * Performs logical AND operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue logicalAND(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.BOOLEAN && rVar.getBType() == BVariableType.BOOLEAN) {
+            return !Boolean.parseBoolean(lVar.computeValue()) ? EvaluationUtils.make(context, false)
+                    : EvaluationUtils.make(context, Boolean.parseBoolean(rVar.computeValue()));
+        } else {
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.LOGICAL_AND_TOKEN);
+        }
+    }
+
+    /**
+     * Performs logical OR operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue logicalOR(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.BOOLEAN && rVar.getBType() == BVariableType.BOOLEAN) {
+            return Boolean.parseBoolean(lVar.computeValue()) ? EvaluationUtils.make(context, true)
+                    : EvaluationUtils.make(context, Boolean.parseBoolean(rVar.computeValue()));
+        } else {
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.LOGICAL_OR_TOKEN);
         }
     }
 

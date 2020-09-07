@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 

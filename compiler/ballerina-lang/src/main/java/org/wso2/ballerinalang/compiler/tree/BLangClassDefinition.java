@@ -145,4 +145,14 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public void setMarkdownDocumentationAttachment(MarkdownDocumentationNode documentationNode) {
         markdownDocumentationAttachment = (BLangMarkdownDocumentation) documentationNode;
     }
+
+    @Override
+    public int getPrecedence() {
+        return precedence;
+    }
+
+    @Override
+    public void setPrecedence(int precedence) {
+        this.precedence = precedence;
+    }
 }

@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 2.0
  */
-public interface ClassDefinition extends AnnotatableNode, DocumentableNode, TopLevelNode {
+public interface ClassDefinition extends AnnotatableNode, DocumentableNode, TopLevelNode, SortableTypeDefNode {
 
     IdentifierNode getName();
 
