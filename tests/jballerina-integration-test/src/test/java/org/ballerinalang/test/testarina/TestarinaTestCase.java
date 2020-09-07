@@ -43,7 +43,7 @@ public class TestarinaTestCase extends BaseTest {
     private Path serviceProjectPath;
     private BMainInstance balClient;
 
-    @BeforeClass()
+    @BeforeClass(enabled = false)
     public void setUp() throws IOException, BallerinaTestException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testarina-project-");
 
@@ -56,7 +56,7 @@ public class TestarinaTestCase extends BaseTest {
         balClient = new BMainInstance(balServer);
     }
 
-    @Test(description = "Test service start and stop during ballerina tests")
+    @Test(enabled = false, description = "Test service start and stop during ballerina tests")
     public void testServiceTesting() throws Exception {
         String firstMsg = "Service 2 completed";
         LogLeecher clientLeecher1 = new LogLeecher(firstMsg);
@@ -82,7 +82,7 @@ public class TestarinaTestCase extends BaseTest {
         }
     }
 
-    @AfterClass
+    @AfterClass(enabled = false)
     private void cleanup() throws Exception {
         deleteFiles(this.tempProjectDirectory);
     }

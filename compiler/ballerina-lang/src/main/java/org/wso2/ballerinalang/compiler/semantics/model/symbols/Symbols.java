@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Set;
@@ -37,14 +38,14 @@ public class Symbols {
 
     public static BPackageSymbol createPackageSymbol(PackageID packageID,
                                                      SymbolTable symTable) {
-        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol);
+        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol, symTable.builtinPos);
         return createPackageSymbolScope(symTable, pkgSymbol);
     }
 
     public static BPackageSymbol createPackageSymbol(PackageID packageID,
                                                      SymbolTable symTable,
                                                      int flags) {
-        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol, flags);
+        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol, flags, symTable.builtinPos);
         return createPackageSymbolScope(symTable, pkgSymbol);
     }
 
@@ -63,8 +64,9 @@ public class Symbols {
                                                        Name name,
                                                        PackageID pkgID,
                                                        BType type,
-                                                       BSymbol owner) {
-        BObjectTypeSymbol typeSymbol = new BObjectTypeSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
+                                                       BSymbol owner,
+                                                       DiagnosticPos pos) {
+        BObjectTypeSymbol typeSymbol = new BObjectTypeSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner, pos);
         typeSymbol.kind = SymbolKind.OBJECT;
         return typeSymbol;
     }
@@ -73,29 +75,24 @@ public class Symbols {
                                                        Name name,
                                                        PackageID pkgID,
                                                        BType type,
-                                                       BSymbol owner) {
-        BRecordTypeSymbol typeSymbol = new BRecordTypeSymbol(SymTag.RECORD, flags, name, pkgID, type, owner);
+                                                       BSymbol owner,
+                                                       DiagnosticPos pos) {
+        BRecordTypeSymbol typeSymbol = new BRecordTypeSymbol(SymTag.RECORD, flags, name, pkgID, type, owner, pos);
         typeSymbol.kind = SymbolKind.RECORD;
         return typeSymbol;
     }
 
-    public static BErrorTypeSymbol createErrorSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner);
+    public static BErrorTypeSymbol createErrorSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+                                                     DiagnosticPos pos) {
+        BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner, pos);
         typeSymbol.kind = SymbolKind.ERROR;
         return typeSymbol;
     }
 
-    @Deprecated
-    public static BAnnotationSymbol createAnnotationSymbol(int flags, int maskedPoints, Name name,
-                                                           PackageID pkgID, BType type, BSymbol owner) {
-        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, maskedPoints, pkgID, type, owner);
-        annotationSymbol.kind = SymbolKind.ANNOTATION;
-        return annotationSymbol;
-    }
-
     public static BAnnotationSymbol createAnnotationSymbol(int flags, Set<AttachPoint> points, Name name,
-                                                           PackageID pkgID, BType type, BSymbol owner) {
-        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, points, pkgID, type, owner);
+                                                           PackageID pkgID, BType type, BSymbol owner,
+                                                           DiagnosticPos pos) {
+        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, points, pkgID, type, owner, pos);
         annotationSymbol.kind = SymbolKind.ANNOTATION;
         return annotationSymbol;
     }
@@ -104,8 +101,9 @@ public class Symbols {
                                                       Name name,
                                                       PackageID pkgID,
                                                       BType type,
-                                                      BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner);
+                                                      BSymbol owner,
+                                                      DiagnosticPos pos) {
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner, pos);
         symbol.kind = SymbolKind.WORKER;
         return symbol;
     }
@@ -114,8 +112,9 @@ public class Symbols {
                                                      Name name,
                                                      PackageID pkgID,
                                                      BType type,
-                                                     BSymbol owner) {
-        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner);
+                                                     BSymbol owner,
+                                                     DiagnosticPos pos) {
+        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner, pos);
         serviceSymbol.kind = SymbolKind.SERVICE;
         return serviceSymbol;
     }
@@ -125,8 +124,9 @@ public class Symbols {
                                                         PackageID pkgID,
                                                         BType type,
                                                         BSymbol owner,
-                                                        boolean bodyExist) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner);
+                                                        boolean bodyExist,
+                                                        DiagnosticPos pos) {
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner, pos);
         symbol.bodyExist = bodyExist;
         symbol.kind = SymbolKind.FUNCTION;
         return symbol;
@@ -137,19 +137,21 @@ public class Symbols {
                                                Name name,
                                                PackageID pkgID,
                                                BType type,
-                                               BSymbol owner) {
+                                               BSymbol owner,
+                                               DiagnosticPos pos) {
         if (type != null && type.tag == TypeTags.INVOKABLE) {
-            return createInvokableTypeSymbol(symTag, flags, pkgID, type, owner);
+            return createInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos);
         }
-        return new BTypeSymbol(symTag, flags, name, pkgID, type, owner);
+        return new BTypeSymbol(symTag, flags, name, pkgID, type, owner, pos);
     }
 
     public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,
                                                                  int flags,
                                                                  PackageID pkgID,
                                                                  BType type,
-                                                                 BSymbol owner) {
-        return new BInvokableTypeSymbol(symTag, flags, pkgID, type, owner);
+                                                                 BSymbol owner,
+                                                                 DiagnosticPos pos) {
+        return new BInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos);
     }
 
     public static BInvokableSymbol createInvokableSymbol(int kind,
@@ -157,15 +159,17 @@ public class Symbols {
                                                          Name name,
                                                          PackageID pkgID,
                                                          BType type,
-                                                         BSymbol owner) {
-        return new BInvokableSymbol(kind, flags, name, pkgID, type, owner);
+                                                         BSymbol owner,
+                                                         DiagnosticPos pos) {
+        return new BInvokableSymbol(kind, flags, name, pkgID, type, owner, pos);
     }
 
     public static BXMLNSSymbol createXMLNSSymbol(Name name,
                                                  String nsURI,
                                                  PackageID pkgID,
-                                                 BSymbol owner) {
-        return new BXMLNSSymbol(name, nsURI, pkgID, owner);
+                                                 BSymbol owner,
+                                                 DiagnosticPos pos) {
+        return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos);
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {

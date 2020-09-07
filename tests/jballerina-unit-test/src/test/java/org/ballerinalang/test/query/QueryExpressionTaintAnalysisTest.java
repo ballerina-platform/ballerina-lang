@@ -64,12 +64,12 @@ public class QueryExpressionTaintAnalysisTest {
                 SQLDBUtils.getSQLResourceDir("query", "query-taint-analysis-data.sql"));
     }
 
-    @Test
+    @Test(enabled = false)
     public void testQueryExprTaintAnalysis() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "main", args);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 6);
         int i = 0;

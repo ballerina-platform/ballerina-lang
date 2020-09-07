@@ -45,21 +45,21 @@ public class StringTemplateLiteralNegativeTest {
     @Test(description = "Test string template literal syntax errors", groups = { "disableOnOldParser" })
     public void testStringTemplateLiteralSyntaxNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
+        Assert.assertEquals(resultNegative.getErrorCount(), 14);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid token 'return'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid token 's'", 4, 74);
-
         BAssertUtil.validateError(resultNegative, index++, "missing plus token", 10, 24);
         BAssertUtil.validateError(resultNegative, index++, "undefined symbol 'He'", 10, 24);
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 26);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token '$'", 10, 33);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token '\\llo'", 10, 33);
         BAssertUtil.validateError(resultNegative, index++, "unknown type 'name'", 10, 34);
         BAssertUtil.validateError(resultNegative, index++, "missing identifier", 10, 38);
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 38);
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';\n    return s;\n}\n'", 13, 1);
         BAssertUtil.validateError(resultNegative, index++, "invalid token '`'", 13, 1);
-
     }
 }

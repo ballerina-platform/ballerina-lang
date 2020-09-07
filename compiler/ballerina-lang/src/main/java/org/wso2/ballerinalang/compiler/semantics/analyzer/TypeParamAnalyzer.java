@@ -642,7 +642,7 @@ public class TypeParamAnalyzer {
         BRecordTypeSymbol expTSymbol = (BRecordTypeSymbol) expType.tsymbol;
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(expTSymbol.flags, expTSymbol.name,
                                                                     expTSymbol.pkgID, null,
-                                                                    expType.tsymbol.scope.owner);
+                                                                    expType.tsymbol.scope.owner, expTSymbol.pos);
         recordSymbol.scope = new Scope(recordSymbol);
         recordSymbol.initializerFunc = expTSymbol.initializerFunc;
 
@@ -651,7 +651,7 @@ public class TypeParamAnalyzer {
             BField field = new BField(expField.name, expField.pos,
                                       new BVarSymbol(0, expField.name, env.enclPkg.packageID,
                                                      getMatchingBoundType(expField.type, env, resolvedTypes),
-                                                     env.scope.owner));
+                                                     env.scope.owner, expField.pos));
             fields.put(field.name.value, field);
             recordSymbol.scope.define(expField.name, field.symbol);
         }
@@ -676,14 +676,17 @@ public class TypeParamAnalyzer {
                 .collect(Collectors.toList());
         BType restType = expType.restType;
         return new BInvokableType(paramTypes, restType, getMatchingBoundType(expType.retType, env, resolvedTypes),
-                Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, expType.flags,
-                        env.enclPkg.symbol.pkgID, expType, env.scope.owner));
+                                  Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, expType.flags,
+                                                                    env.enclPkg.symbol.pkgID, expType, env.scope.owner,
+                                                                    expType.tsymbol.pos));
     }
 
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
 
         BObjectTypeSymbol actObjectSymbol = Symbols.createObjectSymbol(expType.tsymbol.flags,
-                expType.tsymbol.name, expType.tsymbol.pkgID, null, expType.tsymbol.scope.owner);
+                                                                       expType.tsymbol.name, expType.tsymbol.pkgID,
+                                                                       null, expType.tsymbol.scope.owner,
+                                                                       expType.tsymbol.pos);
         BObjectType objectType = new BObjectType(actObjectSymbol);
         actObjectSymbol.type = objectType;
         actObjectSymbol.scope = new Scope(actObjectSymbol);
@@ -693,7 +696,7 @@ public class TypeParamAnalyzer {
             BField field = new BField(expField.name, expField.pos,
                                       new BVarSymbol(expField.symbol.flags, expField.name, env.enclPkg.packageID,
                                                      getMatchingBoundType(expField.type, env, resolvedTypes),
-                                                     env.scope.owner));
+                                                     env.scope.owner, expField.pos));
             objectType.fields.put(field.name.value, field);
             objectType.tsymbol.scope.define(expField.name, field.symbol);
         }
@@ -701,12 +704,14 @@ public class TypeParamAnalyzer {
         for (BAttachedFunction expFunc : ((BObjectTypeSymbol) expType.tsymbol).attachedFuncs) {
             BInvokableType matchType = getMatchingFunctionBoundType(expFunc.type, env, resolvedTypes);
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(expFunc.symbol.tag, expFunc.symbol.flags,
-                    expFunc.symbol.name, env.enclPkg.packageID, matchType, env.scope.owner);
+                                                                    expFunc.symbol.name, env.enclPkg.packageID,
+                                                                    matchType, env.scope.owner, expFunc.pos);
             invokableSymbol.retType = invokableSymbol.getType().retType;
             matchType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags, Names.EMPTY,
                                                          env.enclPkg.symbol.pkgID, invokableSymbol.type,
-                                                         env.scope.owner);
-            actObjectSymbol.attachedFuncs.add(new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType));
+                                                         env.scope.owner, invokableSymbol.pos);
+            actObjectSymbol.attachedFuncs.add(
+                    new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos));
             String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
                     expFunc.funcName.value);
             actObjectSymbol.methodScope.define(names.fromString(funcName), invokableSymbol);
@@ -729,10 +734,10 @@ public class TypeParamAnalyzer {
         }
         BType detailType = getMatchingBoundType(expType.detailType, env, resolvedTypes);
         BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR,
-                symTable.errorType.tsymbol.flags,
-                symTable.errorType.tsymbol.name,
-                symTable.errorType.tsymbol.pkgID,
-                null, null);
+                                                           symTable.errorType.tsymbol.flags,
+                                                           symTable.errorType.tsymbol.name,
+                                                           symTable.errorType.tsymbol.pkgID,
+                                                           null, null, symTable.builtinPos);
         BErrorType errorType = new BErrorType(typeSymbol, detailType);
         typeSymbol.type = errorType;
         return errorType;

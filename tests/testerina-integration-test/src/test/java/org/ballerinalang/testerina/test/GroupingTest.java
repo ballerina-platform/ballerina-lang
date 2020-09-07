@@ -106,7 +106,7 @@ public class GroupingTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void beforeGroupsAfterGroups1() throws BallerinaTestException {
         String msg = "Value of a is 12345672869";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -115,7 +115,7 @@ public class GroupingTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void beforeGroupsAfterGroups2() throws BallerinaTestException {
         String msg = "Value of a is 123456787";
         LogLeecher clientLeecher = new LogLeecher(msg);

@@ -48,13 +48,13 @@ public class DeprecationAnnotationNegativeTest {
         BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
                 "documentation", 36, 1);
         BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
-                "documentation", 50, 60);
+                "documentation", 50, 53);
         BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
                 "documentation", 59, 15);
         BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
-                "documentation", 59, 41);
+                "documentation", 59, 34);
         BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
-                "documentation", 59, 60);
+                "documentation", 59, 53);
         BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
                 "allowed on constructs annotated as '@deprecated'", 71, 5);
         BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here", 85
@@ -64,7 +64,7 @@ public class DeprecationAnnotationNegativeTest {
         BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here",
                 121, 1);
         BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
-                "documentation", 145, 43);
+                "documentation", 145, 29);
         BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
                 "allowed on constructs annotated as '@deprecated'", 153, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
