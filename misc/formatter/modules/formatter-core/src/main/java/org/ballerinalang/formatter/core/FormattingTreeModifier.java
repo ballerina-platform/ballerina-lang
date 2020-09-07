@@ -463,9 +463,14 @@ public class FormattingTreeModifier extends TreeModifier {
             addSpaces = false;
         }
         int startCol = getStartColumn(builtinSimpleNameReferenceNode, builtinSimpleNameReferenceNode.kind(), addSpaces);
+        int trailingSpaces = 0;
+        if (builtinSimpleNameReferenceNode.parent() != null &&
+                builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.CONST_DECLARATION)) {
+            trailingSpaces = 1;
+        }
         Token name = getToken(builtinSimpleNameReferenceNode.name());
         return builtinSimpleNameReferenceNode.modify()
-                .withName(formatToken(name, startCol, 0, 0, 0))
+                .withName(formatToken(name, addSpaces ? startCol : 0, trailingSpaces, 0, 0))
                 .apply();
     }
 
@@ -971,14 +976,24 @@ public class FormattingTreeModifier extends TreeModifier {
             constantDeclarationNode = constantDeclarationNode.modify()
                     .withMetadata(metadata).apply();
         }
+        if (visibilityQualifier != null) {
+            constantDeclarationNode = constantDeclarationNode.modify()
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, 1, 1, 0, 0)).apply();
+        }
+        if (typeDescriptorNode != null) {
+            constantDeclarationNode = constantDeclarationNode.modify()
+                    .withTypeDescriptor(typeDescriptorNode).apply();
+        }
+        int leadingSpaces = 0;
+        if (constantDeclarationNode.children().get(1).kind().equals(SyntaxKind.PARAMETERIZED_TYPE_DESC)) {
+            leadingSpaces = 1;
+        }
         return constantDeclarationNode.modify()
-                .withVisibilityQualifier(formatToken(visibilityQualifier, 1, 1, 0, 0))
-                .withConstKeyword(formatToken(constKeyword, 1, 1, 0, 0))
+                .withConstKeyword(formatToken(constKeyword, 0, 1, 0, 0))
                 .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
                 .withInitializer(initializer)
-                .withSemicolonToken(formatToken(semicolonToken, 1, 1, 0, 1))
-                .withTypeDescriptor(typeDescriptorNode)
-                .withVariableName(variableName)
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
+                .withVariableName(formatToken(variableName, leadingSpaces, 0, 0, 0))
                 .apply();
     }
 
@@ -1049,6 +1064,8 @@ public class FormattingTreeModifier extends TreeModifier {
         int leadingNewLines = 1;
         if (mappingConstructorExpressionNode.parent() != null &&
             (mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.LOCAL_VAR_DECL) ||
+            mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.CONST_DECLARATION) ||
+            mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.SPECIFIC_FIELD) ||
             mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.TABLE_CONSTRUCTOR))) {
             addSpaces = false;
         }
@@ -1108,7 +1125,12 @@ public class FormattingTreeModifier extends TreeModifier {
             return specificFieldNode;
         }
         int startColumn = getStartColumn(specificFieldNode, specificFieldNode.kind(), true);
-        Token fieldName = getToken((Token) specificFieldNode.fieldName());
+        Token fieldName;
+        if (specificFieldNode.fieldName() instanceof BasicLiteralNode) {
+            fieldName = getToken(((BasicLiteralNode) specificFieldNode.fieldName()).literalToken());
+        } else {
+            fieldName = getToken((Token) specificFieldNode.fieldName());
+        }
         Token readOnlyKeyword = specificFieldNode.readonlyKeyword().orElse(null);
         Token colon = getToken(specificFieldNode.colon().orElse(null));
         ExpressionNode expressionNode = this.modifyNode(specificFieldNode.valueExpr().orElse(null));
@@ -1663,7 +1685,14 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ParameterizedTypeDescriptorNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        int startCol = getStartColumn(parameterizedTypeDescriptorNode, parameterizedTypeDescriptorNode.kind(), true);
+        boolean addSpaces = true;
+        if (parameterizedTypeDescriptorNode.parent() != null &&
+                (parameterizedTypeDescriptorNode.parent().kind().equals(SyntaxKind.CONST_DECLARATION) ||
+                parameterizedTypeDescriptorNode.parent().kind().equals(SyntaxKind.TYPE_PARAMETER))) {
+            addSpaces = false;
+        }
+        int startCol = getStartColumn(parameterizedTypeDescriptorNode, parameterizedTypeDescriptorNode.kind(),
+                addSpaces);
         Token parameterizedType = getToken(parameterizedTypeDescriptorNode.parameterizedType());
         TypeParameterNode typeParameter = this.modifyNode(parameterizedTypeDescriptorNode.typeParameter());
         return parameterizedTypeDescriptorNode.modify()
@@ -3647,8 +3676,8 @@ public class FormattingTreeModifier extends TreeModifier {
         } else if (parentKind == SyntaxKind.FUNCTION_DEFINITION ||
                 parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
                 parentKind == SyntaxKind.ELSE_BLOCK ||
-                parentKind == SyntaxKind.SPECIFIC_FIELD ||
                 parentKind == SyntaxKind.WHILE_STATEMENT ||
+                parentKind == SyntaxKind.CONST_DECLARATION ||
                 parentKind == SyntaxKind.TYPE_DEFINITION) {
             return parent;
         } else if (syntaxKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
@@ -3697,7 +3726,8 @@ public class FormattingTreeModifier extends TreeModifier {
         LinePosition startPos = range.startLine();
         LinePosition endPos = range.endLine();
         int startOffset = startPos.offset();
-        if (node.kind().equals(SyntaxKind.FUNCTION_DEFINITION) || node.kind().equals(SyntaxKind.TYPE_DEFINITION)) {
+        if (node.kind().equals(SyntaxKind.FUNCTION_DEFINITION) || node.kind().equals(SyntaxKind.TYPE_DEFINITION) ||
+                node.kind().equals(SyntaxKind.CONST_DECLARATION)) {
             startOffset = (startOffset / 4) * 4;
         }
         return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
