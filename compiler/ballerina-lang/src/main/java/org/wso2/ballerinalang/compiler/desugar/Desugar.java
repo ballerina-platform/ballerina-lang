@@ -3218,7 +3218,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRollback rollbackNode) {
         BLangStatementExpression rollbackStmtExpr = transactionDesugar.desugar(rollbackNode);
-        BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(rollbackNode.pos, rollbackStmtExpr,
+        BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(rollbackNode.pos, rollbackStmtExpr,
                 symTable.nilType);
         checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
         BLangExpressionStmt rollbackExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
