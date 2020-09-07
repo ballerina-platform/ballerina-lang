@@ -936,11 +936,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return classDefinition;
     }
 
+    /**
+     * Object constructor expression creates a class definition for the type defined through the object constructor.
+     * Then add the class definition as a top level node. Using the class definition initialize the object defined in
+     * the object constructor. Therefore this can be considered as a desugar.
+     * example:
+     *  var objVariable = object { int n; };
+     *  // will be desugared to
+     *  class anonType0 { int n; }
+     *  var objVariable = new anonType0();
+     *
+     * @param objectConstructorExpressionNode object ctor expression node
+     * @return BLangTypeInit node which initialize the class definition
+     */
     @Override
     public BLangNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
-
         DiagnosticPos pos = getPositionWithoutMetadata(objectConstructorExpressionNode);
-
         BLangClassDefinition annonClassDef = createObjectExpressionBody(objectConstructorExpressionNode.members());
         annonClassDef.pos = pos;
         BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression();
