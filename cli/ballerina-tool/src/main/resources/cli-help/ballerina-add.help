@@ -16,7 +16,7 @@ DESCRIPTION
        You can download templates from Ballerina Central as well.
        In that case <template-name> becomes a qualified module name.
 
-           <package-name>/<module-name>[:<version>]
+           <org-name>/<module-name>[:<version>]
 
 
 OPTIONS
