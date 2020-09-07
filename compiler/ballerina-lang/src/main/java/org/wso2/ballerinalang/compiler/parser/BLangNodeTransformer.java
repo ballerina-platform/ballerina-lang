@@ -983,8 +983,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        BLangUserDefinedType userDefinedType = createUserDefinedType(pos,
-                identifier, annonClassDef.name);
+        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, annonClassDef.name);
 
         BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
         initNode.pos = pos;
