@@ -450,6 +450,7 @@ public class SyntaxErrors {
             case FUNC_DEF_OR_FUNC_TYPE:
             case FUNC_TYPE_DESC:
             case FUNC_TYPE_DESC_OR_ANON_FUNC:
+            case IDENT_AFTER_OBJECT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case VAR_DECL_STMT_RHS:
             case IMPORT_DECL_RHS:
@@ -461,6 +462,7 @@ public class SyntaxErrors {
             case ASSIGNMENT_OR_VAR_DECL_STMT:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
+            case CLASS_MEMBER_WITHOUT_METADATA:
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case RECORD_FIELD_WITHOUT_METADATA:
             case TYPE_DESCRIPTOR:
@@ -470,6 +472,7 @@ public class SyntaxErrors {
             case TYPE_NAME:
             case TYPE_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
+            case CLASS_NAME:
             case FUNC_NAME:
             case FUNCTION_KEYWORD_RHS:
             case VARIABLE_NAME:
@@ -529,6 +532,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
             case CONSTANT_EXPRESSION_START:
             case XML_NAMESPACE_PREFIX_DECL:
+            case OBJECT_FIELD_RHS:
+            case OPTIONAL_FIELD_INITIALIZER:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case NIL_LITERAL:
             case FUNCTIONAL_MATCH_PATTERN:
@@ -548,6 +553,8 @@ public class SyntaxErrors {
             case XML_COMMENT_CONTENT:
             case XML_PI_DATA:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_TEXT_CONTENT;
+            case CLASS_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
             default:
                 return getSeperatorTokenErrorCode(currentCtx);
         }
@@ -704,7 +711,6 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_KEYWORD;
             case TYPE_KEYWORD:
             case ATTACH_POINT_IDENT:
-            case IDENT_AFTER_OBJECT_IDENT:
             case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_KEYWORD;
             case RECORD_KEYWORD:

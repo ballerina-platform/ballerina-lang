@@ -182,10 +182,10 @@
                   ]
                 },
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "NUMERIC_LITERAL",
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                       "value": "25"
                     }
                   ]
@@ -247,7 +247,7 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
+                      "kind": "STRING_LITERAL_TOKEN",
                       "value": "Lochana"
                     }
                   ]
