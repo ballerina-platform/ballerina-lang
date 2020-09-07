@@ -163,6 +163,8 @@ public class CodeGeneratorTest {
         Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("int"), "'int");
         Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("io.foo.bar"), "'io\\.foo\\.bar");
         Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("getV1CoreVersion"), "getV1CoreVersion");
+//        Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("sample_service_\\ \\!\\:\\[\\;"), "'sample_service_\\ \\!\\:\\[\\;");
+//        Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("listPets resource_!$:[;"), "'listPets\\ resource_\\!\\$\\:\\[\\;");
     }
     
     @Test
