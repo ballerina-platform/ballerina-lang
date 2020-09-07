@@ -230,8 +230,8 @@ public class BCompileUtil {
     }
 
     private static String cleanupFunctionName(BLangIdentifier name) {
-
-        return name.value.replaceAll("[.:/<>]", "_");
+        return name.value.matches("(.*)[\\.:/<>](.*)") ? "$" + name.value.replaceAll("[\\.:/<>]", "_") :
+                name.value;
     }
 
     public static CompileResult compileWithoutExperimentalFeatures(String sourceFilePath) {

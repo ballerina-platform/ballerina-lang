@@ -133,7 +133,8 @@ public class TesterinaFunction {
     }
 
     private static String cleanupFunctionName(String name) {
-        return name.replaceAll("[.:/<>]", "_");
+        return name.matches("(.*)[\\.:/<>](.*)") ? "$" + name.replaceAll("[\\.:/<>]", "_") :
+                name;
     }
 
 }
