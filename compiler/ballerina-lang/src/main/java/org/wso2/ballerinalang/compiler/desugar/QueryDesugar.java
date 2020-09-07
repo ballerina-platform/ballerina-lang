@@ -688,8 +688,12 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference addLimitFunction(BLangBlockStmt blockStmt, BLangLimitClause limitClause) {
         DiagnosticPos pos = limitClause.pos;
-        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LIMIT_FUNCTION,
-                Lists.of(limitClause.expression), pos);
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.expr = desugar.addConversionExprIfRequired(limitClause.expression, symTable.intType);
+        returnNode.pos = pos;
+        BLangLambdaFunction limitFunction = createLambdaFunction(pos, getIntTypeNode(), returnNode, false);
+        limitFunction.accept(this);
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LIMIT_FUNCTION, Lists.of(limitFunction), pos);
     }
 
     /**
@@ -1147,6 +1151,18 @@ public class QueryDesugar extends BLangNodeVisitor {
         anyTypeNode.typeKind = TypeKind.ANY;
         anyTypeNode.type = symTable.anyType;
         return anyTypeNode;
+    }
+
+    /**
+     * Return BLangValueType of a int type.
+     *
+     * @return a int type node.
+     */
+    BLangValueType getIntTypeNode() {
+        BLangValueType intTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        intTypeNode.typeKind = TypeKind.INT;
+        intTypeNode.type = symTable.intType;
+        return intTypeNode;
     }
 
     /**

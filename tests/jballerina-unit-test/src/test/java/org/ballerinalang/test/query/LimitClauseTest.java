@@ -148,6 +148,12 @@ public class LimitClauseTest {
         Assert.assertEquals(fullName2.get("lastName").stringValue(), "Fonseka");
     }
 
+    @Test(description = "Test limit clause a let expression")
+    public void testLetExpressionWithLimitClause() {
+        BValue[] values = BRunUtil.invoke(result, "testLetExpressionWithLimitClause");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class, description = "Test limit clause with incompatible types",
             groups = { "brokenOnNewParser" })
     public void testNegativeScenarios() {
