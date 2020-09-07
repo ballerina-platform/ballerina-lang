@@ -57,7 +57,7 @@ function testNestedWhileStmtWithFail() returns string {
                 }
                 result = result + "level3";
                 fail err;
-            } on fail var e3 {
+            } on fail error e3 {
                 result = result + "-> error caught at level 3, ";
             }
             result = result + "level2";

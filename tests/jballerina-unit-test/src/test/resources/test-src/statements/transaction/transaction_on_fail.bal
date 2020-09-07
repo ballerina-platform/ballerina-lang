@@ -18,7 +18,7 @@ function testTrxReturnVal() returns string {
             var commitRes = commit;
         }
           fail err;
-    } on fail var e {
+    } on fail error e {
         str += " -> error handled";
     }
     return str;

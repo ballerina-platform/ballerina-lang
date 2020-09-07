@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  */
 public class RetryStmtWithOnFailTest {
 
-    private CompileResult programFile, managerNegative, retryStmtNegative;
+    private CompileResult programFile;
 
     @BeforeClass
     public void setup() {
