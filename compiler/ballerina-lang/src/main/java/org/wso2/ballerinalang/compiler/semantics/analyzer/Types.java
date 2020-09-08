@@ -3490,6 +3490,11 @@ public class Types {
         switch (type.tag) {
             case TypeTags.UNION:
                 Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+                for (BType memType : memberTypes) {
+                    if (!isOrderedType(memType)) {
+                        return false;
+                    }
+                }
                 // can not sort (string?|int)/(string|int)/(string|int)[]/(string?|int)[], can sort string?/string?[]
                 return memberTypes.size() <= 2 && memberTypes.contains(symTable.nilType);
             case TypeTags.ARRAY:

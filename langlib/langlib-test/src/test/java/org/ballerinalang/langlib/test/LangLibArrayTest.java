@@ -376,7 +376,7 @@ public class LangLibArrayTest {
         assertEquals(bValueArray.getInt(2), 3);
 
     }
-    @Test
+
     public void callingLengthModificationFunctionsOnFixedLengthLists() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative.bal");
         int errorIndex = 0;
@@ -459,6 +459,14 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid array sort key function return type: type '(string|int)' is not an ordered type",
                 142, 33);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid member type of the array to sort: type 'map<string>?[]' is not an ordered type",
+                148, 35);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'function ((any|error)) returns ((boolean|int|float|decimal|string|" +
+                        "(boolean|int|float|decimal|string)?[])?)?', found 'function (map<string>?) " +
+                        "returns (map<string>?)'",
+                150, 62);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 

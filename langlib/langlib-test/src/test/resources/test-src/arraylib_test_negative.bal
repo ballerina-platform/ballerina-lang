@@ -142,4 +142,12 @@ function testArrSortNegativeScenarios() {
     (string|int)[] sortedArr6 = arr2.sort(array:DESCENDING, function((string|int) val) returns string|int {
         return val;
     });
+
+    (map<string>)?[] arr3 = [{"A": "a", "B": "b"}, (), {"X": "x", "Y": "y"}];
+
+    (map<string>)?[] sortedArr7 = arr3.sort();
+
+    (map<string>)?[] sortedArr8 = arr3.sort(array:ASCENDING, function((map<string>)? x) returns (map<string>)? {
+        return x;
+    });
 }
