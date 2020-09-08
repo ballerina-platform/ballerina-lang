@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  */
 public class PackageLoader {
 
-    protected static PackageConfig loadPackage(String packageDir, boolean isSingleFile) {
+    public static PackageConfig loadPackage(String packageDir, boolean isSingleFile) {
         final PackageData packageData = ProjectFiles.loadPackageData(packageDir, isSingleFile);
         return createPackageConfig(packageData);
     }

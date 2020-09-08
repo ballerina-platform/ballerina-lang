@@ -18,6 +18,9 @@
 
 package io.ballerina.projects.model;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+
 import java.util.List;
 
 /**
@@ -49,6 +52,32 @@ public class PackageJson {
     // Templating support
     private boolean template; //?
     private String template_version; //?
+
+    public PackageJson(String organization, String name, String version) {
+        this.organization = organization;
+        this.name = name;
+        this.version = version;
+    }
+
+    private ExclusionStrategy strategy = new ExclusionStrategy() {
+        @Override
+        public boolean shouldSkipField(FieldAttributes field) {
+            if (field.getDeclaringClass() == PackageJson.class
+                    && (field.getName().equals("") || field.getName().isEmpty())) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean shouldSkipClass(Class<?> clazz) {
+            return false;
+        }
+    };
+
+    public ExclusionStrategy strategy() {
+        return strategy;
+    }
 
     public String getOrganization() {
         return organization;

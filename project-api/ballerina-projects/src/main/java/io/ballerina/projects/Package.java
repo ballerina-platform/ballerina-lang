@@ -25,7 +25,7 @@ public class Package {
                 this.packageContext.moduleContext(moduleId), this);
     }
 
-    static Package from(PackageConfig packageConfig) {
+    public static Package from(PackageConfig packageConfig) {
         // TODO create package context here by giving the package config
         // do the same for modules and documents
         // il. package context creates modules contexts and modules context create document contexts

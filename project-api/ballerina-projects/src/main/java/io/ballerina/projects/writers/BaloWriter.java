@@ -26,8 +26,10 @@ import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.model.Dependency;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.model.PlatformLibrary;
+import io.ballerina.projects.writers.exceptions.NoPermissionException;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.model.Library;
+import org.wso2.ballerinalang.compiler.util.FileUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
@@ -69,13 +71,19 @@ public class BaloWriter {
      */
     public static Path write(Package pkg, Path path) {
         // todo check if the given package is compiled properly
-        // todo check if the path is a directory
+
+        // Check if the path is a directory
+        if (!path.toFile().isDirectory()) {
+            throw new RuntimeException("Given path is not a directory: " + path);
+        }
+
         // Check directory permissions
-        // Handle any io errors
+        if (!new File(String.valueOf(path)).canWrite()) {
+            throw new NoPermissionException("No write access to create balo:" + path);
+        }
 
         BallerinaToml ballerinaToml = pkg.ballerinaToml();
         Path packagePath = pkg.packagePath();
-
         Path balo = path.resolve(getBaloName(ballerinaToml));
 
         // Create the archive over write if exists
@@ -83,7 +91,6 @@ public class BaloWriter {
             // Now lets put stuff in
             populateBaloArchive(baloFS, packagePath, ballerinaToml);
         } catch (IOException e) {
-            // todo Check for permission
             throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);
         } catch (BLangCompilerException be) {
             // clean up if an error occur
@@ -108,6 +115,7 @@ public class BaloWriter {
     }
 
     private static FileSystem createBaloArchive(Path path) throws IOException {
+        // TODO check apache commons zip file writer
         // Remove if file already exists
         if (path.toFile().exists()) {
             Files.delete(path);
@@ -177,12 +185,11 @@ public class BaloWriter {
     }
 
     private static void addPackageJson(Path root, BallerinaToml ballerinaToml) {
-        PackageJson packageJson = new PackageJson();
+        // TODO if value not there, remove the filed from json file
+        PackageJson packageJson = new PackageJson(ballerinaToml.getPackage().getOrg(),
+                ballerinaToml.getPackage().getName(), ballerinaToml.getPackage().getVersion());
 
         // Information extracted from Ballerina.toml
-        packageJson.setOrganization(ballerinaToml.getPackage().getOrg());
-        packageJson.setName(ballerinaToml.getPackage().getName());
-        packageJson.setVersion(ballerinaToml.getPackage().getVersion());
         packageJson.setLicenses(ballerinaToml.getPackage().getLicense());
         packageJson.setAuthors(ballerinaToml.getPackage().getAuthors());
         packageJson.setSourceRepository(ballerinaToml.getPackage().getRepository());
@@ -197,6 +204,7 @@ public class BaloWriter {
         List<Dependency> dependencies = new ArrayList<>();
         List<PlatformLibrary> platformLibraries = new ArrayList<>();
 
+        // TODO Need to get all the dependencies (Not mentioned in the toml)
         Map<String, Object> tomlDependencies = ballerinaToml.getDependencies();
         for (String key : tomlDependencies.keySet()) {
             Object dependency = tomlDependencies.get(key);
@@ -210,7 +218,8 @@ public class BaloWriter {
             }
         }
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder().addSerializationExclusionStrategy(packageJson.strategy())
+                .setPrettyPrinting().create();
         String baloJson = gson.toJson(packageJson);
         try {
             Files.write(root.resolve("package.json"), baloJson.getBytes(Charset.defaultCharset()));
@@ -281,50 +290,52 @@ public class BaloWriter {
         Files.createDirectory(defaultPkgDirInBalo);
         boolean isTemplate = ballerinaToml.isTemplateModule(defaultPackageName);
 
-        // exclude modules and tests directories
-        PathMatcher dirFilter = path -> {
-            String prefix = defaultPkgDirInBalo.resolve(MODULES).toString();
+        // TODO add .bal & resources only
+        // copy resources directory
+        Path resourcesDir = defaultPkgDirInBalo.resolve("resources");
+        Path resourcesSrcDir = packageSourceDir.resolve("resources");
+        Files.walkFileTree(resourcesSrcDir, new CopyResources(resourcesSrcDir, resourcesDir));
 
-            // Skip modules directory
+
+        // only add .bal files in the module root
+
+
+        PathMatcher dirFilter = path -> {
+            String prefix = defaultPkgDirInBalo.toString();
             if (fs.getPathMatcher("glob:" + prefix + "**").matches(path)) {
-                return false;
+                return true;
             }
-            // Skip tests directory
-            prefix = defaultPkgDirInBalo.resolve("tests").toString();
-            // Skip test directory
-            if (!isTemplate && fs.getPathMatcher("glob:" + prefix + "**").matches(path)) {
-                return false;
+            return false;
+        };
+        PathMatcher fileFilter = path -> {
+            String prefix = ".bal";
+            if (fs.getPathMatcher("glob:**/*" + prefix).matches(path)) {
+                return true;
             }
-            return true;
+            return false;
         };
 
-        Files.walkFileTree(packageSourceDir, new Copy(packageSourceDir, defaultPkgDirInBalo, dirFilter));
+        Files.walkFileTree(packageSourceDir, new Copy(packageSourceDir, defaultPkgDirInBalo, dirFilter, fileFilter));
+
 
         // add other modules
-        File modulesSourceDir = new File(String.valueOf(packageSourceDir.resolve(MODULES)));
-        File[] directoryListing = modulesSourceDir.listFiles();
-
-        if (directoryListing != null) {
-            for (File moduleDir : directoryListing) {
-                if (moduleDir.isDirectory()) {
-                    // add module
-                    Path moduleDirInBalo = packageInBalo.resolve(defaultPackageName + "." + moduleDir.getName());
-                    Files.createDirectory(moduleDirInBalo);
-
-                    // exclude tests directories
-                    PathMatcher modulesDirFilter = path -> {
-                        // Skip tests directory
-                        String prefix = moduleDirInBalo.resolve("tests").toString();
-                        // Skip test directory
-                        return ballerinaToml.isTemplateModule(moduleDir.getName()) || !fs
-                                .getPathMatcher("glob:" + prefix + "**").matches(path);
-                    };
-
-                    Files.walkFileTree(moduleDir.toPath(),
-                            new Copy(moduleDir.toPath(), moduleDirInBalo, modulesDirFilter));
-                }
-            }
-        }
+//        File modulesSourceDir = new File(String.valueOf(packageSourceDir.resolve(MODULES)));
+//        File[] directoryListing = modulesSourceDir.listFiles();
+//
+//        if (directoryListing != null) {
+//            for (File moduleDir : directoryListing) {
+//                if (moduleDir.isDirectory()) {
+//                    // add module
+//                    Path moduleDirInBalo = packageInBalo.resolve(defaultPackageName + "." + moduleDir.getName());
+//                    Files.createDirectory(moduleDirInBalo);
+//
+//                    Files.walkFileTree(moduleDir.toPath(),
+//                            new Copy(moduleDir.toPath(), moduleDirInBalo, dirFilter, null, true));
+//                    Files.walkFileTree(moduleDir.toPath(),
+//                            new Copy(moduleDir.toPath(), moduleDirInBalo, null, fileFilter, false));
+//                }
+//            }
+//        }
     }
 
     private static void addPlatformLibs(Path root, Path projectDirectory, BallerinaToml ballerinaToml)
@@ -360,12 +371,14 @@ public class BaloWriter {
         private Path toPath;
         private StandardCopyOption copyOption;
         private PathMatcher dirFilter;
+        private PathMatcher fileFilter;
 
-        Copy(Path fromPath, Path toPath, PathMatcher dir) {
+        Copy(Path fromPath, Path toPath, PathMatcher dir, PathMatcher file) {
             this.fromPath = fromPath;
             this.toPath = toPath;
             this.copyOption = StandardCopyOption.REPLACE_EXISTING;
             this.dirFilter = dir;
+            this.fileFilter = file;
         }
 
         @Override
@@ -373,8 +386,39 @@ public class BaloWriter {
             Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
             if (!dirFilter.matches(targetPath)) {
                 // we do not visit the sub tree is the directory is filtered out
-                return FileVisitResult.SKIP_SUBTREE;
+                return FileVisitResult.TERMINATE;
+            } else {
+                if (!Files.exists(targetPath)) {
+                    Files.createDirectory(targetPath);
+                }
+                return FileVisitResult.CONTINUE;
             }
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Path targetPath = toPath.resolve(fromPath.relativize(file).toString());
+            if (fileFilter.matches(targetPath)) {
+                Files.copy(file, targetPath, copyOption);
+            }
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
+    static class CopyResources extends SimpleFileVisitor<Path> {
+        private Path fromPath;
+        private Path toPath;
+        private StandardCopyOption copyOption;
+
+        CopyResources(Path fromPath, Path toPath) {
+            this.fromPath = fromPath;
+            this.toPath = toPath;
+            this.copyOption = StandardCopyOption.REPLACE_EXISTING;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
             if (!Files.exists(targetPath)) {
                 Files.createDirectory(targetPath);
             }
@@ -388,5 +432,4 @@ public class BaloWriter {
             return FileVisitResult.CONTINUE;
         }
     }
-
 }

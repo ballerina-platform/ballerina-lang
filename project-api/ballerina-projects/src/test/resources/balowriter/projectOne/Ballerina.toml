@@ -1,0 +1,13 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+    artifactId = "ldap"
+    version = "1.0.0"
+    path = "./libs/ballerina-io-1.0.0-java.txt"
+    groupId = "ballerina"
