@@ -2373,7 +2373,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Create a new block environment for the foreach node's body.
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
         // Check foreach node's variables and set types.
-        handleDefinitionVariables(foreach.variableDefinitionNode, foreach.varType, foreach.isDeclaredWithVar, blockEnv);
+        handleForeachDefinitionVariables(foreach.variableDefinitionNode, foreach.varType, foreach.isDeclaredWithVar,
+                false, blockEnv);
         // Analyze foreach node's statements.
         analyzeStmt(foreach.body, blockEnv);
 
@@ -2391,8 +2392,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Create a new block environment for the onfail node.
         SymbolEnv onFailEnv = SymbolEnv.createOnFailEnv(onFailClause, env);
         // Check onfail node's variables and set types.
-        handleDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
-                onFailClause.isDeclaredWithVar, onFailEnv);
+        handleForeachDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
+                onFailClause.isDeclaredWithVar, true, onFailEnv);
         analyzeStmt(onFailClause.body, onFailEnv);
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         if (!types.isAssignable(onFailVarNode.type, symTable.errorType)) {
@@ -2520,11 +2521,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, env);
-        analyzeStmt(transactionNode.transactionBody, transactionEnv);
 
         if (transactionNode.onFailClause != null) {
             this.analyzeNode(transactionNode.onFailClause, env);
         }
+        analyzeStmt(transactionNode.transactionBody, transactionEnv);
     }
 
     @Override
@@ -2749,8 +2750,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handleDefinitionVariables(VariableDefinitionNode variableDefinitionNode, BType varType,
-                                           boolean isDeclaredWithVar, SymbolEnv blockEnv) {
+    private void handleForeachDefinitionVariables(VariableDefinitionNode variableDefinitionNode, BType varType,
+                                                  boolean isDeclaredWithVar, boolean isOnFailDef, SymbolEnv blockEnv) {
         BLangVariable variableNode = (BLangVariable) variableDefinitionNode.getVariable();
         // Check whether the foreach node's variables are declared with var.
         if (isDeclaredWithVar) {
@@ -2760,6 +2761,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         // If the type node is available, we get the type from it.
         BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
+        if (isOnFailDef) {
+            BType sourceType = varType;
+            varType = typeNodeType;
+            typeNodeType = sourceType;
+        }
         // Then we need to check whether the RHS type is assignable to LHS type.
         if (types.isAssignable(varType, typeNodeType)) {
             // If assignable, we set types to the variables.

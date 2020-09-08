@@ -1469,6 +1469,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangOnFailClause source) {
 
         BLangOnFailClause clone = new BLangOnFailClause();
+        clone.pos = source.pos;
         source.cloneRef = clone;
         clone.body = clone(source.body);
         clone.variableDefinitionNode = clone(source.variableDefinitionNode);

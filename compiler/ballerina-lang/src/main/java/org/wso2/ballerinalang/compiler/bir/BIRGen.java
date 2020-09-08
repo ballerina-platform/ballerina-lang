@@ -597,20 +597,57 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockFunctionBody astBody) {
+        BIRBasicBlock blockEndBB = null;
+        BIRBasicBlock currentOnFailEndBB = this.env.enclOnFailEndBB;
+        BIRBasicBlock endLoopEndBB = this.env.enclLoopEndBB;
         BlockNode prevBlock = this.currentBlock;
         this.currentBlock = astBody;
         this.varDclsByBlock.computeIfAbsent(astBody, k -> new ArrayList<>());
 
+        if (astBody.isBreakable) {
+            blockEndBB = beginBreakableBlock(astBody.pos);
+        }
         for (BLangStatement astStmt : astBody.stmts) {
             astStmt.accept(this);
         }
-
+        if (astBody.isBreakable) {
+            endBreakableBlock(blockEndBB);
+        }
         List<BIRVariableDcl> varDecls = this.varDclsByBlock.get(astBody);
         for (BIRVariableDcl birVariableDcl : varDecls) {
             birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1);
         }
-
+        this.env.enclLoopEndBB = endLoopEndBB;
+        this.env.enclOnFailEndBB = currentOnFailEndBB;
         this.currentBlock = prevBlock;
+    }
+
+    private BIRBasicBlock beginBreakableBlock(DiagnosticPos pos) {
+        BIRBasicBlock blockBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(blockBB);
+        this.env.enclBasicBlocks.add(blockBB);
+
+        // Insert a GOTO instruction as the terminal instruction into current basic block.
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(pos, blockBB);
+
+        BIRBasicBlock blockEndBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(blockEndBB);
+
+        blockBB.terminator = new BIRTerminator.GOTO(pos, blockEndBB);
+
+        this.env.enclBB = blockBB;
+        this.env.enclOnFailEndBB = blockEndBB;
+        this.env.unlockVars.push(new BIRLockDetailsHolder());
+        return blockEndBB;
+    }
+
+    private void endBreakableBlock(BIRBasicBlock blockEndBB) {
+        this.env.unlockVars.pop();
+        if (this.env.enclBB.terminator == null) {
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, blockEndBB);
+        }
+        this.env.enclBasicBlocks.add(blockEndBB);
+        this.env.enclBB = blockEndBB;
     }
 
     @Override
@@ -942,35 +979,13 @@ public class BIRGen extends BLangNodeVisitor {
         this.currentBlock = astBlockStmt;
         this.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
         if (astBlockStmt.isBreakable) {
-            BIRBasicBlock blockBB = new BIRBasicBlock(this.env.nextBBId(names));
-            addToTrapStack(blockBB);
-            this.env.enclBasicBlocks.add(blockBB);
-
-            // Insert a GOTO instruction as the terminal instruction into current basic block.
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(astBlockStmt.pos, blockBB);
-
-            blockEndBB = new BIRBasicBlock(this.env.nextBBId(names));
-            addToTrapStack(blockEndBB);
-
-            blockBB.terminator = new BIRTerminator.GOTO(astBlockStmt.pos, blockEndBB);
-
-            this.env.enclBB = blockBB;
-            this.env.enclOnFailEndBB = blockEndBB;
-            this.env.unlockVars.push(new BIRLockDetailsHolder());
+            blockEndBB = beginBreakableBlock(astBlockStmt.pos);
         }
         for (BLangStatement astStmt : astBlockStmt.stmts) {
             astStmt.accept(this);
         }
         if (astBlockStmt.isBreakable) {
-            this.env.unlockVars.pop();
-//            if (this.env.enclLoopEndBB != null) {
-//                blockEndBB.terminator = new BIRTerminator.GOTO(astBlockStmt.pos, this.env.enclLoopEndBB);
-//            }
-            if (this.env.enclBB.terminator == null) {
-                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, blockEndBB);
-            }
-            this.env.enclBasicBlocks.add(blockEndBB);
-            this.env.enclBB = blockEndBB;
+            endBreakableBlock(blockEndBB);
         }
         this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
                 birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
