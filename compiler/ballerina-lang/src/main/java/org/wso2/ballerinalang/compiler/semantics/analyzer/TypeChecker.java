@@ -2763,7 +2763,8 @@ public class TypeChecker extends BLangNodeVisitor {
         checkIllegalStorageSizeChangeMethodCall(iExpr, varRefType);
 
         // check argument types in arr:sort function
-        if (iExpr.name.value.equals("sort")) {
+        String sortFuncName = "sort";
+        if (sortFuncName.equals(iExpr.name.value)) {
             checkArrayLibSortFuncArgs(iExpr);
         }
     }

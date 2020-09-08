@@ -467,6 +467,8 @@ public class LangLibArrayTest {
                         "(boolean|int|float|decimal|string)?[])?)?', found 'function (map<string>?) " +
                         "returns (map<string>?)'",
                 150, 62);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "too many arguments in call to 'sort()'", 154, 24);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 

@@ -144,7 +144,6 @@ public class Sort {
     }
 
     private static int sortFunc(Object value1, Object value2, BType type, boolean isAscending) {
-        int c = -999;
         // () should come last irrespective of the sort direction.
         if (value1 == null) {
             if (value2 == null) {
@@ -162,7 +161,7 @@ public class Sort {
             return 1;
         }
         if (TypeTags.isIntegerTypeTag(type.getTag())) {
-            c = Long.compare((long) value1, (long) value2);
+            return Long.compare((long) value1, (long) value2);
         } else if (type.getTag() == TypeTags.FLOAT_TAG) {
             // NaN should be placed last or one before the last when () is present irrespective of the sort direction.
             if (Double.isNaN((double) value1)) {
@@ -184,15 +183,15 @@ public class Sort {
             if ((double) value1 == 0 && (double) value2 == 0) {
                 return 0;
             }
-            c = Double.compare((double) value1, (double) value2);
+            return Double.compare((double) value1, (double) value2);
         } else if (type.getTag() == TypeTags.DECIMAL_TAG) {
-            c = new BigDecimal(value1.toString()).compareTo(new BigDecimal(value2.toString()));
+            return new BigDecimal(value1.toString()).compareTo(new BigDecimal(value2.toString()));
         } else if (type.getTag() == TypeTags.BOOLEAN_TAG) {
-            c = Boolean.compare((boolean) value1, (boolean) value2);
+            return Boolean.compare((boolean) value1, (boolean) value2);
         } else if (TypeTags.isStringTypeTag(type.getTag())) {
-            c = codePointCompare(value1.toString(), value2.toString());
+            return codePointCompare(value1.toString(), value2.toString());
         } else if (type.getTag() == TypeTags.BYTE_TAG) {
-            c = Integer.compare((int) value1, (int) value2);
+            return Integer.compare((int) value1, (int) value2);
         } else if (type.getTag() == TypeTags.ARRAY_TAG) {
             int lengthVal1 = ((ArrayValue) value1).size();
             int lengthVal2 = ((ArrayValue) value2).size();
@@ -206,6 +205,7 @@ public class Sort {
                 return 1;
             }
             int len = Math.min(lengthVal1, lengthVal2);
+            int c = 0;
             for (int i = 0; i < len; i++) {
                 c = sortFunc(((ArrayValue) value1).get(i), ((ArrayValue) value2).get(i),
                         ((BArrayType) type).getElementType(), isAscending);
@@ -217,11 +217,10 @@ public class Sort {
                     }
                 }
             }
-        } else {
-            throw BallerinaErrors.createError("Invalid type to sort", "Expected an ordered type, but found type: "
-                    + type.toString());
+            return c;
         }
-        return c;
+        throw BallerinaErrors.createError("Invalid type to sort", "Expected an ordered type, but found type: "
+                + type.toString());
     }
 
     private static int codePointCompare(String str1, String str2) {

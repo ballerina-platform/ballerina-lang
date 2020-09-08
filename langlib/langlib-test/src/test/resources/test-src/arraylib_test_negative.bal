@@ -150,4 +150,8 @@ function testArrSortNegativeScenarios() {
     (map<string>)?[] sortedArr8 = arr3.sort(array:ASCENDING, function((map<string>)? x) returns (map<string>)? {
         return x;
     });
+
+    int[] sortedArr9 = arr.sort(array:ASCENDING, function(int x) returns int {
+            return x;
+    }, "descending");
 }
