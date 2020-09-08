@@ -10720,7 +10720,8 @@ public class BallerinaParser extends AbstractParser {
             // No other cases for now
             failKeyword = STNodeFactory.createEmptyNode();
         }
-        STNode typeDescriptorNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_DEF);
+        STNode typeDescriptorNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
+                true, false);
         STNode identifierNode = parseIdentifier(ParserRuleContext.VARIABLE_REF);
         STNode blockStatement = parseBlockNode();
 

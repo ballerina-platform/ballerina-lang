@@ -82,7 +82,7 @@ function testNestedDoWithOnFail () returns string {
           error err2 = error("custom error 2", message = "error value");
           str += " -> Before error 2 is thrown";
           fail err2;
-      } on fail error e2 {
+      } on fail var e2 {
           str += " -> error 2 caught !";
       }
      fail err1;
