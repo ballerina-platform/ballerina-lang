@@ -9,7 +9,6 @@
       "label": "worker",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "240",
       "insertText": "worker ${1:name} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     }

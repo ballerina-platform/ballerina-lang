@@ -240,7 +240,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     snippet.append(restSnippet);
 
                     SnippetBlock cItemSnippet = new SnippetBlock(label, snippet.toString(), detail,
-                            SnippetBlock.SnippetType.SNIPPET);
+                            SnippetBlock.Kind.SNIPPET);
                     return new SnippetCompletionItem(ctx, cItemSnippet);
                 }).collect(Collectors.toList());
     }

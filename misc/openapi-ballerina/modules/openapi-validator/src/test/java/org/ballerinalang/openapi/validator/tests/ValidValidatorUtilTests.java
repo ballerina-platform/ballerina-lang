@@ -44,7 +44,7 @@ public class ValidValidatorUtilTests {
     private Schema extractSchema;
     private BVarSymbol extractBVarSymbol;
 
-    @Test(description = "Valid test case for all test case")
+    @Test(enabled = false, description = "Valid test case for all test case")
     public void  testValidCase() throws OpenApiValidatorException, UnsupportedEncodingException {
 //        Load yaml file
         Path contractPath = RES_DIR.resolve("validTests/valid.yaml");
@@ -56,7 +56,8 @@ public class ValidValidatorUtilTests {
         Assert.assertTrue((BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol)).isEmpty());
     }
 
-    @Test(description = "Test type mismatch with array. Same field name has ballerina type as string array and json " +
+    @Test(enabled = false, description = "Test type mismatch with array. " +
+            "Same field name has ballerina type as string array and json " +
             "type as integer array")
     public void testTypeMismatchArrayType() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("validTests/validTypeMisMatchArrayType.yaml");
@@ -68,7 +69,7 @@ public class ValidValidatorUtilTests {
         Assert.assertTrue((BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol)).isEmpty());
     }
 
-    @Test(description = "Test Nested array type")
+    @Test(enabled = false, description = "Test Nested array type")
     public void testTypeMisMatchNestedArray() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("validTests/validTypeMisMatchNestedArrayType.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -79,7 +80,7 @@ public class ValidValidatorUtilTests {
         Assert.assertTrue((BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol)).isEmpty());
     }
 
-    @Test(description = "Test record field with array type of another record")
+    @Test(enabled = false, description = "Test record field with array type of another record")
     public void testRecordArray() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("validTests/recordTypeArray.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -89,7 +90,7 @@ public class ValidValidatorUtilTests {
         Assert.assertTrue((BTypeToJsonValidatorUtil.validate(extractSchema, extractBVarSymbol)).isEmpty());
     }
 
-    @Test(description = "Test oneOf with record type")
+    @Test(enabled = false, description = "Test oneOf with record type")
     public void testOneOfType() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("validTests/oneOf.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -103,7 +104,7 @@ public class ValidValidatorUtilTests {
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
-    @Test(description = "Test for nested record")
+    @Test(enabled = false, description = "Test for nested record")
     public void testNestedRecord() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("validTests/nestedRecord.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());

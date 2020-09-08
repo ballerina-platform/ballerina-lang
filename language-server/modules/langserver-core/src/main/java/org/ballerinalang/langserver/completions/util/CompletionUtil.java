@@ -33,9 +33,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Common utility methods for the completion operation.
@@ -75,9 +74,11 @@ public class CompletionUtil {
             throws WorkspaceDocumentException, LSCompletionException {
         fillTokenInfoAtCursor(ctx);
         NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-
         List<LSCompletionItem> items = route(ctx, nodeAtCursor);
-        return getPreparedCompletionItems(ctx, items);
+
+        return items.stream()
+                .map(LSCompletionItem::getCompletionItem)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -114,29 +115,8 @@ public class CompletionUtil {
             return completionItems;
         }
         ctx.get(CompletionKeys.RESOLVER_CHAIN).add(provider.getClass());
-        
+
         return provider.getCompletions(ctx, reference);
-    }
-
-    private static List<CompletionItem> getPreparedCompletionItems(LSContext context, List<LSCompletionItem> items) {
-        List<CompletionItem> completionItems = new ArrayList<>();
-        boolean isSnippetSupported = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
-                .getSnippetSupport();
-        List<CompletionItem> sortedItems = ItemSorters.get(context.get(CompletionKeys.SCOPE_NODE_KEY).getClass())
-                .sortItems(context, items);
-
-        // TODO: Remove this
-        for (CompletionItem item : sortedItems) {
-            if (!isSnippetSupported) {
-                item.setInsertText(CommonUtil.getPlainTextSnippet(item.getInsertText()));
-                item.setInsertTextFormat(InsertTextFormat.PlainText);
-            } else {
-                item.setInsertTextFormat(InsertTextFormat.Snippet);
-            }
-            completionItems.add(item);
-        }
-
-        return completionItems;
     }
 
     /**

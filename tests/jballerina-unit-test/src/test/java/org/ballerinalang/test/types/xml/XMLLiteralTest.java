@@ -56,7 +56,7 @@ public class XMLLiteralTest {
         result = BCompileUtil.compile("test-src/types/xml/xml-literals.bal");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testXMLNegativeSemantics() {
         negativeResult = BCompileUtil.compile("test-src/types/xml/xml-literals-negative.bal");
         int index = 0;

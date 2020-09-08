@@ -52,7 +52,7 @@ public class TestReportTest extends BaseTestCase {
         resultsJsonPath = reportTestProjectPath.resolve("target").resolve("test_results.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testWithCoverage() throws BallerinaTestException, IOException {
         runCommand(true);
         validateStatuses();

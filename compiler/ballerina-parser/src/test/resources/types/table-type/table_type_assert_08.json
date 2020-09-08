@@ -574,21 +574,15 @@
                       ]
                     },
                     {
-                      "kind": "FUNCTIONAL_BINDING_PATTERN",
+                      "kind": "ERROR_BINDING_PATTERN",
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "ERROR_KEYWORD",
+                          "isMissing": true,
                           "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
-                              ]
-                            }
+                          "diagnostics": [
+                            "ERROR_MISSING_ERROR_KEYWORD"
                           ]
                         },
                         {
@@ -601,13 +595,8 @@
                               "kind": "CAPTURE_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "id"
-                                    }
-                                  ]
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "id"
                                 }
                               ]
                             }

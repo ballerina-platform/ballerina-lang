@@ -72,7 +72,7 @@ public class LockFileTestCase extends BaseTest {
      * @throws IOException            When create temp directories.
      * @throws BallerinaTestException When creating the ballerina client.
      */
-    @BeforeClass()
+    @BeforeClass(enabled = false)
     public void setUp() throws IOException, BallerinaTestException {
         this.tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         this.tempProjectsDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
@@ -112,7 +112,7 @@ public class LockFileTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test building TestProject1 and then pushing it's modules.")
+    @Test(enabled = false, description = "Test building TestProject1 and then pushing it's modules.")
     public void testBuildAndPushTestProject1() throws BallerinaTestException {
         // Build module
         String module1BaloFileName = module1Name + "-"
@@ -155,7 +155,8 @@ public class LockFileTestCase extends BaseTest {
      * @throws IOException            When updating the module names.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test building and running TestProject2", dependsOnMethods = "testBuildAndPushTestProject1")
+    @Test(enabled = false, description = "Test building and running TestProject2",
+            dependsOnMethods = "testBuildAndPushTestProject1")
     public void testBuildTestProject2() throws IOException, BallerinaTestException, InterruptedException {
         // Replace module names in source file
         Path fooSayBal = testProj2Path.resolve("src").resolve("foo").resolve("foo_say.bal");
@@ -201,7 +202,8 @@ public class LockFileTestCase extends BaseTest {
      * @throws IOException            When updating the implementation of the project.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test updating  TestProject1 and pushing.", dependsOnMethods = "testBuildTestProject2")
+    @Test(enabled = false, description = "Test updating  TestProject1 and pushing.",
+            dependsOnMethods = "testBuildTestProject2")
     public void testModifyProj1AndPush() throws IOException, BallerinaTestException {
         // Update code in module1
         Path module2SourceFile = testProj1Path.resolve("src").resolve(module2Name).resolve("say.bal");
@@ -258,7 +260,8 @@ public class LockFileTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test rebuilding and running TestProject2", dependsOnMethods = "testModifyProj1AndPush")
+    @Test(enabled = false, description = "Test rebuilding and running TestProject2",
+            dependsOnMethods = "testModifyProj1AndPush")
     public void testRebuildTestProj2() throws BallerinaTestException {
         // Build module
         String fooBaloFileName = "foo-"
@@ -292,8 +295,8 @@ public class LockFileTestCase extends BaseTest {
      * @throws IOException            When deleting the Ballerina.lock file.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test rebuilding and running TestProject2 with offline flag and lock file removed",
-          dependsOnMethods = "testRebuildTestProj2")
+    @Test(enabled = false, description = "Test rebuilding and running TestProject2 with " +
+            "offline flag and lock file removed", dependsOnMethods = "testRebuildTestProj2")
     public void testRebuildTestProj2WithLockRemovedAndOffline() throws IOException, BallerinaTestException {
         // Delete Ballerina.lock
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
@@ -336,8 +339,8 @@ public class LockFileTestCase extends BaseTest {
      * @throws IOException When deleting the lock file.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test rebuilding and running TestProject2 without lock file.",
-            dependsOnMethods = "testRebuildTestProj2WithLockRemovedAndOffline")
+    @Test(enabled = false, description = "Test rebuilding and running TestProject2 without " +
+            "lock file.", dependsOnMethods = "testRebuildTestProj2WithLockRemovedAndOffline")
     public void testRebuildTestProj2WithLockRemoved() throws BallerinaTestException, IOException, InterruptedException {
         // Delete Ballerina.lock
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
@@ -379,7 +382,7 @@ public class LockFileTestCase extends BaseTest {
      * @throws BallerinaTestException When running commands.
      * @throws InterruptedException When thread sleep is interrupted.
      */
-    @Test(description = "Test rebuilding and running TestProject2 with lock file.",
+    @Test(enabled = false, description = "Test rebuilding and running TestProject2 with lock file.",
           dependsOnMethods = "testRebuildTestProj2WithLockRemoved")
     public void testRebuildTestProj2WithUpdatedBallerinaToml() throws IOException, BallerinaTestException,
             InterruptedException {
@@ -410,7 +413,7 @@ public class LockFileTestCase extends BaseTest {
      * @throws IOException When deleting the Ballerina.lock.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test rebuilding and running TestProject2 without lock file.",
+    @Test(enabled = false, description = "Test rebuilding and running TestProject2 without lock file.",
           dependsOnMethods = "testRebuildTestProj2WithUpdatedBallerinaToml")
     public void testRebuildTestProj2WithUpdatedBallerinaTomlAndLockRemoved() throws BallerinaTestException,
             IOException {
@@ -469,7 +472,7 @@ public class LockFileTestCase extends BaseTest {
         }
     }
     
-    @AfterClass
+    @AfterClass(enabled = false)
     private void cleanup() throws Exception {
         deleteFiles(this.tempHomeDirectory);
         deleteFiles(this.tempProjectsDirectory);
