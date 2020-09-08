@@ -29,9 +29,11 @@ under the License.
         <packages>
             <package name="org.ballerinalang.formatter.core.types.*" />
             <package name="org.ballerinalang.formatter.core.expressions.*" />
-            <package name="org.ballerinalang.formatter.core.statements.XMLNSDeclarationStatementsTest" />
             <package name="org.ballerinalang.formatter.core.actions.*" />
             <package name="org.ballerinalang.formatter.core.declarations.*" />
         </packages>
+        <classes>
+            <class name="org.ballerinalang.formatter.core.statements.XMLNSDeclarationStatementsTest" />
+        </classes>
     </test>
 </suite>

@@ -1186,12 +1186,18 @@ public class FormattingTreeModifier extends TreeModifier {
         Token asKeyword = getToken(xMLNamespaceDeclarationNode.asKeyword().orElse(null));
         IdentifierToken namespacePrefix = this.modifyNode(xMLNamespaceDeclarationNode.namespacePrefix().orElse(null));
         Token semicolonToken = getToken(xMLNamespaceDeclarationNode.semicolonToken());
-        if (asKeyword != null || namespacePrefix != null) {
+
+        if (asKeyword != null) {
             xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
-                    .withNamespacePrefix(namespacePrefix)
                     .withAsKeyword(formatToken(asKeyword, 1, 1, 0, 0))
                     .apply();
         }
+        if (namespacePrefix != null) {
+            xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
+                    .withNamespacePrefix(namespacePrefix)
+                    .apply();
+        }
+
         return xMLNamespaceDeclarationNode.modify()
                 .withNamespaceuri(namespaceuri)
                 .withXmlnsKeyword(formatToken(xmlnsKeyword, 3, 1, 0, 0))
