@@ -45,7 +45,7 @@ public type Client client object {
     #
     # + url - URL of the target service
     # + config - The configurations to be used when initializing the `client`
-    public function init(string url, public ClientConfiguration? config = ()) {
+    public function init(string url, ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
         var cookieConfigVal = self.config.cookieConfig;
@@ -83,7 +83,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function head(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->head(path, message = req);
         if (observabilityEnabled && response is Response) {
@@ -144,7 +144,7 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function delete(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function delete(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->delete(path, req);
         if (observabilityEnabled && response is Response) {
@@ -159,7 +159,7 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function get(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->get(path, message = req);
         if (observabilityEnabled && response is Response) {
@@ -174,7 +174,7 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function options(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->options(path, message = req);
         if (observabilityEnabled && response is Response) {

@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 0,
-    "character": 23
+    "character": 25
   },
   "source": "import_decl/source/source5.bal",
   "items": [
@@ -9,7 +9,7 @@
       "label": "as",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "150",
+      "sortText": "220",
       "insertText": "as ",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "version",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "150",
+      "sortText": "220",
       "insertText": "version ",
       "insertTextFormat": "Snippet"
     }

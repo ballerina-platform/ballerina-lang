@@ -51,7 +51,7 @@ public class SpiServicesTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When creating the ballerina client.
      */
-    @BeforeClass()
+    @BeforeClass(enabled = false)
     public void setUp() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
     }
@@ -61,7 +61,7 @@ public class SpiServicesTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test spi service are merged")
+    @Test(enabled = false, description = "Test spi service are merged")
     public void testSpiServicesMerge() throws BallerinaTestException, IOException {
         testProjectPath = Paths.get("src", "test", "resources", "packaging", "spi", "TestProject")
                 .toAbsolutePath();
@@ -100,7 +100,7 @@ public class SpiServicesTestCase extends BaseTest {
         balRunLeecher.waitForText(2000);
     }
 
-    @AfterClass
+    @AfterClass(enabled = false)
     private void cleanup() throws Exception {
         deleteFiles(Paths.get(this.testProjectPath.toString(), "target").toAbsolutePath());
     }

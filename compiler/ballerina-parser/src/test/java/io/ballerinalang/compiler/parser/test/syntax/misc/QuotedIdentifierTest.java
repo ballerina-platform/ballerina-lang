@@ -34,27 +34,33 @@ public class QuotedIdentifierTest extends AbstractMiscTest {
     }
 
     @Test
-    public void testeSpecialCharacterIdentifier() {
+    public void testSpecialCharacterIdentifier() {
         testFile("quoted-identifiers/special_char_identifier_source.bal",
                 "quoted-identifiers/special_char_identifier_assert.json");
     }
 
     @Test
-    public void testeUnicodeCharacterIdentifier() {
+    public void testUnicodeCharacterIdentifier() {
         testFile("quoted-identifiers/unicode_char_identifier_source.bal",
                 "quoted-identifiers/unicode_char_identifier_assert.json");
     }
 
     @Test
-    public void testeUnicodeCodePointIdentifier() {
+    public void testUnicodeCodePointIdentifier() {
         testFile("quoted-identifiers/unicode_codepoint_source.bal", "quoted-identifiers/unicode_codepoint_assert.json");
     }
 
     // Invalid Syntax
 
     @Test
-    public void testeInvalidCharacterIdentifier() {
-        testFile("quoted-identifiers/invalid_identifier_source.bal",
-                "quoted-identifiers/invalid_identifier_assert.json");
+    public void testInvalidQuotedIdentifier() {
+        testFile("quoted-identifiers/invalid_identifier_source_01.bal",
+                "quoted-identifiers/invalid_identifier_assert_01.json");
+    }
+
+    @Test
+    public void testQuotedIdentifierWithInvalidEscapes() {
+        testFile("quoted-identifiers/invalid_identifier_source_02.bal",
+                "quoted-identifiers/invalid_identifier_assert_02.json");
     }
 }
