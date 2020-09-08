@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
+
 const int aInt = 4;
 const str = "Hello";
 const nameWithoutType = "Ballerina";
@@ -23,7 +25,7 @@ const float CAF = 10.0 + 5;
 const decimal CAD = 11.5 + 4;
 const string CAS = "hello" + "world";
 const map<string> aStringMap = { name : "anObject", value : "10", sub : "Science"};
-
+final int status = 1;
 
 type Address record {
     string country;
@@ -152,7 +154,6 @@ function testToStringMethod() returns [string, string, string, string] {
     return [a.toString(), b.toString(), c.toString(), d];
 }
 
-/////////////////////////// Tests for `mergeJson()` ///////////////////////////
 const MERGE_JSON_ERROR_REASON = "{ballerina/lang.value}MergeJsonError";
 const MESSAGE = "message";
 
@@ -608,7 +609,6 @@ function testCloneWithTypeStringArray() {
     assert(clonedArr[1], "world");
 }
 
-/////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
 type Student2 record {
     string name;
     int age;
@@ -790,8 +790,6 @@ function testFromJsonWithTypeTable() {
 
 }
 
-/////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
-
 function testFromJsonStringWithTypeJson() {
     string aNil = "()";
     string aNull = "null";
@@ -972,4 +970,120 @@ function assert(anydata actual, anydata expected) {
         error e = error(reason);
         panic e;
     }
+}
+
+public function functionWithImmutableValues() {
+    map<string|int> m1 = {stringVal: "str", intVal: 1};
+
+    map<string|int> m2 = m1.cloneReadOnly();
+
+    io:println("m1 === m2: ", m1 === m2);
+
+    io:println("m1 is immutable: ", m1.isReadOnly());
+
+    io:println("m2 is immutable: ", m2.isReadOnly());
+
+    map<string|int> m3 = m2.cloneReadOnly();
+
+    io:println("m2 === m3: ", m2 === m3);
+
+    map<string|int> m5 = {valueType: "map", constraint: "string"};
+
+    var frozenVal = m5.cloneReadOnly();
+
+    if (frozenVal is map<string>) {
+        io:println("frozenVal is map<string>");
+    }
+}
+
+public function functionWithRangeExpressions() {
+    io:println("foreach for 25 ... 28");
+    foreach int i in 25 ... 28 {
+        io:println(i);
+    }
+
+    io:println("\nforeach for 25 ..< 28");
+    foreach int i in 25 ..< 28 {
+        io:println(i);
+    }
+
+    abstract object {
+        public function __iterator() returns
+            abstract object {
+                public function next() returns record {|int value;|}?;
+            };
+    } iterableObj = 25 ..< 28;
+
+    abstract object {
+            public function next() returns (record {|int value;|}?);
+    } iterator = iterableObj.__iterator();
+
+    io:println("\niterable object for 25 ..< 28");
+    while (true) {
+        record {|int value;|}? r = iterator.next();
+        if (r is record {|int value;|}) {
+            io:println(r.value);
+        } else {
+            break;
+        }
+    }
+}
+
+public function functionWithStringTemplate() {
+    string name = "Ballerina";
+    string template = string `Hello ${name}!!!`;
+
+    io:println(template);
+}
+
+public function functionWithLetExpressions() {
+    int a = let int b = 1 in b * 2;
+    io:println("a: ", a);
+
+    string greeting = let string hello = "Hello ",
+                          string ballerina = "Ballerina!"
+                      in hello + ballerina;
+    io:println("greeting: ", greeting);
+
+    int three = let int one = getInt(), int two = one + one in one + two;
+    io:println("three: ", three);
+
+    int length = let var num = 10, var txt = "four" in num + txt.length();
+    io:println("length: ", length);
+
+    [int, int] v1 = [10, 20];
+    int tupleBindingResult = let [int, int] [d1, d2] = v1,
+                                 int d3 = d1 + d2
+                             in  d3 * 2;
+    io:println("tuple binding result: ", tupleBindingResult);
+
+    int age = let Person3 {
+                    name: firstName,
+                    age: personAge,
+                    ...otherDetails
+              } = getPerson()
+              in personAge;
+    io:println("age: ", age);
+    var fatal = let var error(reason, ...params) = getSampleError()
+                    in params["fatal"];
+    io:println("fatal: ", fatal);
+}
+
+public function getInt() returns int => 1;
+
+type Person3 record {
+    string name;
+    int age;
+    string country;
+};
+
+function getPerson() returns Person3 => {
+    name: "John",
+    age: 31,
+    country: "USA",
+    "occupation": "Lawyer"
+};
+
+function getSampleError() returns error {
+    return error("SampleError", message = "Detail message", fatal = true);
 }

@@ -12,14 +12,15 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
 /**
- * generate BIR spec doc.
+ * Generate BIR spec doc.
  */
 public class BIRSpecGenerator {
 
+    private static final String BIR_SPEC_FILE = "/kaitai/bir.ksy";
     private static final Yaml yaml = new Yaml();
 
     public static void main(String[] args) throws IOException {
-        Object birSpecYaml = parseResourceAsYAML("/kaitai/bir.ksy");
+        Object birSpecYaml = parseResourceAsYAML();
         String hbs = readResourceAsString("/handlebars/bir-spec.md.hbs");
 
         Handlebars handlebars = new Handlebars();
@@ -31,9 +32,9 @@ public class BIRSpecGenerator {
         }
     }
 
-    private static Object parseResourceAsYAML(String filename) throws IOException {
+    private static Object parseResourceAsYAML() throws IOException {
         try {
-            String yml = readResourceAsString(filename);
+            String yml = readResourceAsString(BIR_SPEC_FILE);
             return yaml.load(yml);
         } catch (FileNotFoundException ex) {
             return null;
