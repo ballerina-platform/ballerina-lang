@@ -58,11 +58,11 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private final BLangPackage bLangPackage;
     private final CompilerContext compilerContext;
-    protected BLangCompilationUnit compilationUnit;
-    private EnvironmentResolver envResolver;
+    private final EnvironmentResolver envResolver;
 
     public BallerinaSemanticModel(BLangPackage bLangPackage, CompilerContext context) {
         this.compilerContext = context;
+        this.bLangPackage = bLangPackage;
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
@@ -76,12 +76,9 @@ public class BallerinaSemanticModel implements SemanticModel {
     public List<Symbol> visibleSymbols(String srcFile, LinePosition linePosition) {
         List<Symbol> compiledSymbols = new ArrayList<>();
         SymbolResolver symbolResolver = SymbolResolver.getInstance(this.compilerContext);
-        SymbolTable symbolTable = SymbolTable.getInstance(this.compilerContext);
-        SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(this.bLangPackage.symbol);
-        SymbolsLookupVisitor lookupVisitor = new SymbolsLookupVisitor(linePosition, symbolEnv);
         BLangCompilationUnit compilationUnit = getCompilationUnit(srcFile);
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
-                symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(this.compilationUnit, linePosition));
+                symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(compilationUnit, linePosition));
 
         DiagnosticPos cursorPos = new DiagnosticPos(new BDiagnosticSource(bLangPackage.packageID, compilationUnit.name),
                                                     linePosition.line(), linePosition.line(),
