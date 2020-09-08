@@ -32,15 +32,6 @@ public class ListenerDeclarationTest extends CompletionTestNew {
     }
 
     @Override
-    public Object[][] testSubset() {
-        // Enable the following in order to test a subset of test cases
-         return new Object[][] {
-                  {"config4.json", this.getTestResourceDir()},
-                  {"config5.json", this.getTestResourceDir()},
-         };
-    }
-
-    @Override
     public String getTestResourceDir() {
         return "listener_decl";
     }

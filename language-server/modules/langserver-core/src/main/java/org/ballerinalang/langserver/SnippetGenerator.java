@@ -19,7 +19,7 @@ package org.ballerinalang.langserver;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.SnippetBlock.SnippetType;
+import org.ballerinalang.langserver.SnippetBlock.Kind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 
@@ -46,7 +46,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getAbortSnippet() {
         return new SnippetBlock(ItemResolverConstants.ABORT, "abort;", ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -57,7 +57,7 @@ public class SnippetGenerator {
     public static SnippetBlock getAnnotationDefSnippet() {
         String snippet = "annotation ${1:typeName} ${2:name} on ${3:attachmentPoint};";
         return new SnippetBlock(ItemResolverConstants.ANNOTATION, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -67,7 +67,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getOnSnippet() {
         return new SnippetBlock(ItemResolverConstants.ON, "on ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -77,7 +77,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getNewKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.NEW, "new ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -87,7 +87,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getDefaultKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.DEFAULT, "default", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -97,7 +97,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getAbstractKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.ABSTRACT, "abstract ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -107,7 +107,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getClientKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.CLIENT, "client ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -117,7 +117,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getReadonlyKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.READONLY, "readonly ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -127,7 +127,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getExternalKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.EXTERNAL, "external;", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -137,7 +137,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getTypeofKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.TYPEOF, "typeof ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -147,7 +147,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getCommitKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.COMMIT, "commit;", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -157,7 +157,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getIsKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.IS, "is", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -167,7 +167,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getBreakSnippet() {
         return new SnippetBlock(ItemResolverConstants.BREAK, "break;", ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -178,7 +178,7 @@ public class SnippetGenerator {
     public static SnippetBlock getMatchExpressionSnippet() {
         String snippet = "but {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "};";
         return new SnippetBlock(ItemResolverConstants.BUT, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -188,7 +188,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getCheckKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.CHECK_KEYWORD, "check ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -198,7 +198,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getCheckPanicKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.CHECKPANIC_KEYWORD, "checkpanic ",
-                ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
+                ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
     }
 
     /**
@@ -208,7 +208,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getWaitKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.WAIT_KEYWORD, "wait ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -218,7 +218,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getStartKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.START_KEYWORD, "start ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -228,7 +228,17 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getAsKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.AS_KEYWORD, "as ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
+    }
+
+    /**
+     * Get version Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getVersionKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.VERSION_KEYWORD, "version", ItemResolverConstants.KEYWORD_TYPE,
+                                Kind.KEYWORD);
     }
 
     /**
@@ -238,7 +248,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getFromKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.FROM_KEYWORD, "from ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -248,7 +258,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getFlushKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.FLUSH_KEYWORD, "flush ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -258,7 +268,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getImportKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.IMPORT, "import ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -268,7 +278,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getFunctionKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.FUNCTION, "function ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -278,7 +288,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getResourceKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.RESOURCE, "resource ", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
+                Kind.KEYWORD);
     }
 
     /**
@@ -288,7 +298,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getContinueStatmentSnippet() {
         return new SnippetBlock(ItemResolverConstants.CONTINUE, "continue;", ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -298,7 +308,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getListenerKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.LISTENER_KEYWORD, "listener ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -308,7 +318,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getReturnsKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.RETURNS_KEYWORD, "returns ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -318,7 +328,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getUntaintKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.UNTAINTED_KEYWORD, "untainted ",
-                ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
+                ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
     }
 
     /**
@@ -330,7 +340,7 @@ public class SnippetGenerator {
         String snippet = "foreach ${1:var} ${2:item} in ${3:itemList} {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.FOREACH, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -341,7 +351,7 @@ public class SnippetGenerator {
     public static SnippetBlock getForkStatementSnippet() {
         String snippet = "fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.FORK, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -353,7 +363,7 @@ public class SnippetGenerator {
         String snippet = "function ${1:name}(${2}) {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.FUNCTION, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -364,7 +374,7 @@ public class SnippetGenerator {
     public static SnippetBlock getFunctionSignatureSnippet() {
         String snippet = "function ${1:name}(${2});";
         return new SnippetBlock(ItemResolverConstants.FUNCTION_SIGNATURE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -375,7 +385,7 @@ public class SnippetGenerator {
     public static SnippetBlock getIfStatementSnippet() {
         String snippet = "if (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.IF, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -387,7 +397,7 @@ public class SnippetGenerator {
         String snippet = "else if (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.ELSE_IF, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -398,7 +408,7 @@ public class SnippetGenerator {
     public static SnippetBlock getElseStatementSnippet() {
         String snippet = "else {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.ELSE, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -409,7 +419,7 @@ public class SnippetGenerator {
     public static SnippetBlock getLockStatementSnippet() {
         String snippet = "lock {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.LOCK, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -421,7 +431,7 @@ public class SnippetGenerator {
         String snippet = "public function main() {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.MAIN_FUNCTION, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -431,7 +441,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getMatchStatementSnippet() {
         return new SnippetBlock(ItemResolverConstants.MATCH, "match ", ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -443,7 +453,7 @@ public class SnippetGenerator {
         String snippet = "xmlns \"${1}\" as ${2:ns};";
 
         return new SnippetBlock(ItemResolverConstants.XMLNS, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -455,7 +465,7 @@ public class SnippetGenerator {
         String snippet = "object {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "};";
 
         return new SnippetBlock(ItemResolverConstants.OBJECT_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -468,7 +478,7 @@ public class SnippetGenerator {
                 + CommonUtil.LINE_SEPARATOR + "};";
 
         return new SnippetBlock(ItemResolverConstants.OBJECT_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -478,7 +488,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getPublicKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.PUBLIC_KEYWORD, "public ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -488,7 +498,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getPrivateKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.PRIVATE_KEYWORD, "private ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -498,7 +508,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getTypeKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.TYPE_TYPE, "type ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -508,7 +518,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getRecordKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.RECORD_KEYWORD, "record ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -518,7 +528,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getObjectKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.OBJECT_KEYWORD, "object ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -528,7 +538,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getAnnotationKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.ANNOTATION_TYPE, "annotation ",
-                ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
+                ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
     }
 
     /**
@@ -540,7 +550,7 @@ public class SnippetGenerator {
         String snippet = "record {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "};";
 
         return new SnippetBlock(ItemResolverConstants.RECORD_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -553,7 +563,7 @@ public class SnippetGenerator {
                 + CommonUtil.LINE_SEPARATOR + "};";
 
         return new SnippetBlock(ItemResolverConstants.RECORD_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -565,7 +575,7 @@ public class SnippetGenerator {
         String snippet = "type ${1:ErrorName} error<${2:map<anydata>}>;";
 
         return new SnippetBlock(ItemResolverConstants.ERROR_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -577,7 +587,7 @@ public class SnippetGenerator {
         String snippet = "record {|" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "|};";
 
         return new SnippetBlock(ItemResolverConstants.CLOSED_RECORD_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -590,7 +600,7 @@ public class SnippetGenerator {
                 + CommonUtil.LINE_SEPARATOR + "|};";
 
         return new SnippetBlock(ItemResolverConstants.CLOSED_RECORD_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -603,7 +613,7 @@ public class SnippetGenerator {
         String snippet = "resource function ${1:newResource}(http:Caller ${2:caller}, ${3:http:Request request}) {"
                 + CommonUtil.LINE_SEPARATOR + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.HTTP_RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET, httpImport);
+                                Kind.SNIPPET, httpImport);
     }
 
     /**
@@ -615,7 +625,7 @@ public class SnippetGenerator {
         String snippet = "resource function ${1:newResource}(${2}) {"
                 + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -628,7 +638,7 @@ public class SnippetGenerator {
         String snippet = "resource function ${1:newResource}(grpc:Caller ${2:caller}, ${3:string request}) {"
                 + CommonUtil.LINE_SEPARATOR + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET, httpImport);
+                                Kind.SNIPPET, httpImport);
     }
 
     //--------------------------------------------WebSocket Service-----------------------------------------------------
@@ -847,7 +857,7 @@ public class SnippetGenerator {
         String snippet = "resource function " + name + "(" + paramsJoiner.toString() + ") {"
                 + CommonUtil.LINE_SEPARATOR + "\t${" + (1 + params.size()) + "}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(label + " " + ItemResolverConstants.RESOURCE, snippet,
-                                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET, orgToAliasImport);
+                                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET, orgToAliasImport);
     }
 
     /**
@@ -857,7 +867,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getReturnStatementSnippet() {
         return new SnippetBlock(ItemResolverConstants.RETURN, "return ", ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -872,7 +882,7 @@ public class SnippetGenerator {
                 + "http:Request ${5:request}) {" + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR +
                 "\t}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_HTTP, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET, httpImport);
+                                Kind.SNIPPET, httpImport);
     }
 
     /**
@@ -884,7 +894,7 @@ public class SnippetGenerator {
         String snippet = "service {"
                 + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "};";
         return new SnippetBlock(ItemResolverConstants.SERVICE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -903,7 +913,7 @@ public class SnippetGenerator {
                 + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_WEBSOCKET, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET, httpImport);
+                                Kind.SNIPPET, httpImport);
     }
 
     /**
@@ -921,7 +931,7 @@ public class SnippetGenerator {
                 + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}"
                 + CommonUtil.LINE_SEPARATOR + "};";
         return new SnippetBlock(ItemResolverConstants.SERVICE_WEBSOCKET_CLIENT, snippet,
-                                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET, httpImport);
+                                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET, httpImport);
     }
 
     /**
@@ -938,7 +948,7 @@ public class SnippetGenerator {
                 CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" +
                 CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_WEBSUB, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET, websubImport);
+                                Kind.SNIPPET, websubImport);
     }
 
     /**
@@ -953,7 +963,7 @@ public class SnippetGenerator {
                 CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" +
                 CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_GRPC, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET, grpcImport);
+                                Kind.SNIPPET, grpcImport);
     }
 
     /**
@@ -964,7 +974,7 @@ public class SnippetGenerator {
     public static SnippetBlock getErrorConstructorSnippet() {
         String snippet = "error(\"${1}\")";
         return new SnippetBlock("error constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
-                SnippetType.SNIPPET);
+                Kind.SNIPPET);
     }
 
     /**
@@ -974,7 +984,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getPanicStatementSnippet() {
         return new SnippetBlock(ItemResolverConstants.PANIC, "panic ", ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -984,7 +994,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getConstKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.CONST_KEYWORD, "const ", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
+                Kind.KEYWORD);
     }
 
     /**
@@ -994,7 +1004,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getFinalKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.FINAL_KEYWORD, "final ", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
+                Kind.KEYWORD);
     }
 
     /**
@@ -1006,7 +1016,7 @@ public class SnippetGenerator {
         String snippet = "transaction {" + CommonUtil.LINE_SEPARATOR
                 + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.TRANSACTION, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -1018,7 +1028,7 @@ public class SnippetGenerator {
         String snippet = "retry transaction {" + CommonUtil.LINE_SEPARATOR
                 + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.RETRY_TRANSACTION, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -1029,7 +1039,7 @@ public class SnippetGenerator {
     public static SnippetBlock getTrapSnippet() {
         String snippet = "trap ";
         return new SnippetBlock(ItemResolverConstants.TRAP, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     /**
@@ -1039,7 +1049,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getVarKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.VAR_KEYWORD, "var ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -1049,7 +1059,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getInKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.IN_KEYWORD, "in ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
     
     /**
@@ -1059,7 +1069,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getEnumKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.ENUM_KEYWORD, "enum ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
     
     /**
@@ -1069,7 +1079,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getXMLNSKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.XMLNS, "xmlns ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -1079,7 +1089,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getRollbackStatementSnippet() {
         return new SnippetBlock(ItemResolverConstants.ROLLBACK_KEYWORD, "rollback;", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+                                Kind.KEYWORD);
     }
 
     /**
@@ -1092,7 +1102,7 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.WHILE,
                                 snippet,
                                 ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+                                Kind.STATEMENT);
     }
 
     /**
@@ -1104,7 +1114,7 @@ public class SnippetGenerator {
         String snippet = "worker ${1:name} {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}";
 
         return new SnippetBlock(ItemResolverConstants.WORKER, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+                                Kind.SNIPPET);
     }
 
     // Iterable Operations Snippets
@@ -1118,7 +1128,7 @@ public class SnippetGenerator {
         String snippet = "foreach(function(%params%) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "});";
 
-        return new SnippetBlock(ItemResolverConstants.ITR_FOREACH_LABEL, snippet, "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_FOREACH_LABEL, snippet, "", Kind.SNIPPET);
     }
 
     /**
@@ -1130,7 +1140,7 @@ public class SnippetGenerator {
         String snippet = "map(function (%params%) returns any {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "})";
 
-        return new SnippetBlock(ItemResolverConstants.ITR_MAP_LABEL, snippet, "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_MAP_LABEL, snippet, "", Kind.SNIPPET);
     }
 
     /**
@@ -1142,7 +1152,7 @@ public class SnippetGenerator {
         String snippet = "filter(function(%params%) returns (boolean) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "})";
 
-        return new SnippetBlock(ItemResolverConstants.ITR_FILTER_LABEL, snippet, "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_FILTER_LABEL, snippet, "", Kind.SNIPPET);
     }
 
     /**
@@ -1151,7 +1161,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableCountSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ITR_COUNT_LABEL, "count()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_COUNT_LABEL, "count()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1160,7 +1170,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinLengthSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_LENGTH_LABEL, "length()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_LENGTH_LABEL, "length()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1169,7 +1179,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinIsCloneSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_CLONE_LABEL, "clone()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CLONE_LABEL, "clone()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1178,7 +1188,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinFreezeSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_FREEZE_LABEL, "freeze()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_FREEZE_LABEL, "freeze()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1187,7 +1197,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinIsFrozenSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, "isFrozen()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, "isFrozen()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1196,7 +1206,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinStampSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_STAMP_LABEL, "stamp(${1})", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_STAMP_LABEL, "stamp(${1})", "", Kind.SNIPPET);
     }
 
     /**
@@ -1205,7 +1215,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinHasKeySnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_HASKEY_LABEL, "hasKey(${1})", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_HASKEY_LABEL, "hasKey(${1})", "", Kind.SNIPPET);
     }
 
     /**
@@ -1214,7 +1224,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinRemoveSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_REMOVE_LABEL, "remove(${1})", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_REMOVE_LABEL, "remove(${1})", "", Kind.SNIPPET);
     }
 
     /**
@@ -1223,7 +1233,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinValuesSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_GET_VALUES_LABEL, "values()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_GET_VALUES_LABEL, "values()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1232,7 +1242,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinKeysSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_KEYS_LABEL, "keys()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_KEYS_LABEL, "keys()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1241,7 +1251,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinClearSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_CLEAR_LABEL, "clear()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CLEAR_LABEL, "clear()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1250,7 +1260,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinConvertSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_CONVERT_LABEL, "convert(${1})", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CONVERT_LABEL, "convert(${1})", "", Kind.SNIPPET);
     }
 
     /**
@@ -1259,7 +1269,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinIsNaNSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_NAN_LABEL, "isNaN()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_NAN_LABEL, "isNaN()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1268,7 +1278,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinIsFiniteSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FINITE_LABEL, "isFinite()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FINITE_LABEL, "isFinite()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1278,7 +1288,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getBuiltinIsInFiniteSnippet() {
         return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_INFINITE_LABEL, "isInfinite()", "",
-                SnippetType.SNIPPET);
+                Kind.SNIPPET);
     }
 
     /**
@@ -1288,7 +1298,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getBuiltinDetailSnippet() {
         return new SnippetBlock(ItemResolverConstants.BUILTIN_DETAIL_LABEL, "detail()", "",
-                SnippetType.SNIPPET);
+                Kind.SNIPPET);
     }
 
     /**
@@ -1298,7 +1308,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getBuiltinReasonSnippet() {
         return new SnippetBlock(ItemResolverConstants.BUILTIN_REASON_LABEL, "reason()", "",
-                SnippetType.SNIPPET);
+                Kind.SNIPPET);
     }
 
     /**
@@ -1308,7 +1318,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getIterableSelectSnippet() {
         return new SnippetBlock(ItemResolverConstants.ITR_SELECT_LABEL, "select(${1:functionReference})", "",
-                SnippetType.SNIPPET);
+                Kind.SNIPPET);
     }
 
     /**
@@ -1317,7 +1327,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableMinSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ITR_MIN_LABEL, "min()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_MIN_LABEL, "min()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1326,7 +1336,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableMaxSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ITR_MAX_LABEL, "max()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_MAX_LABEL, "max()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1335,7 +1345,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableAverageSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ITR_AVERAGE_LABEL, "average()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_AVERAGE_LABEL, "average()", "", Kind.SNIPPET);
     }
 
     /**
@@ -1344,7 +1354,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableSumSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ITR_SUM_LABEL, "sum()", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_SUM_LABEL, "sum()", "", Kind.SNIPPET);
     }
 
     // Iterable operators' lambda function parameters
@@ -1355,7 +1365,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableOnMapParamSnippet() {
-        return new SnippetBlock("(%key%, %value%) entry", SnippetType.SNIPPET);
+        return new SnippetBlock("(%key%, %value%) entry", Kind.SNIPPET);
     }
 
     /**
@@ -1364,7 +1374,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableOnJsonParamSnippet() {
-        return new SnippetBlock("json v", SnippetType.SNIPPET);
+        return new SnippetBlock("json v", Kind.SNIPPET);
     }
 
     /**
@@ -1373,7 +1383,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableOnXmlParamSnippet() {
-        return new SnippetBlock("xml v", SnippetType.SNIPPET);
+        return new SnippetBlock("xml v", Kind.SNIPPET);
     }
 
     /**
@@ -1385,7 +1395,7 @@ public class SnippetGenerator {
         String snippet = "public remote function ${1:name}(${2}) {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.REMOTE_FUNCTION_TYPE, snippet,
-                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**
@@ -1397,7 +1407,7 @@ public class SnippetGenerator {
         String snippet = "public function init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
                 CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
-                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**
@@ -1409,7 +1419,7 @@ public class SnippetGenerator {
         String snippet = "public function __attach(service ${1:s}, string? ${2:name} = ()) returns error? {"
                 + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.ATTACH_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                SnippetType.SNIPPET);
+                Kind.SNIPPET);
     }
 
     /**
@@ -1421,7 +1431,7 @@ public class SnippetGenerator {
         String snippet = "public function __start() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.START_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                SnippetType.SNIPPET);
+                Kind.SNIPPET);
     }
 
     /**
@@ -1433,7 +1443,7 @@ public class SnippetGenerator {
         String snippet = "public function __gracefulStop() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.GRACEFUL_STOP_FUNCTION_TYPE, snippet,
-                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**
@@ -1445,7 +1455,7 @@ public class SnippetGenerator {
         String snippet = "public function __immediateStop() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.IMMEDIATE_STOP_FUNCTION_TYPE, snippet,
-                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**
@@ -1457,7 +1467,7 @@ public class SnippetGenerator {
         String snippet = "public function __detach(service ${1:s}) returns error? {"
                 + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.DETACH_FUNCTION_TYPE, snippet,
-                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**
@@ -1467,7 +1477,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getTableKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.TABLE, "table", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
+                Kind.KEYWORD);
     }
 
     /**
@@ -1477,7 +1487,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getServiceKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.SERVICE, "service", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
+                Kind.KEYWORD);
     }
 
     /**
@@ -1487,7 +1497,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getStringKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.STRING, "string", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
+                Kind.KEYWORD);
     }
 
     /**
@@ -1497,7 +1507,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getXMLKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.XML, "xml", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
+                Kind.KEYWORD);
     }
 
     /**
@@ -1507,7 +1517,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getLetKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.LET, "let", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
+                Kind.KEYWORD);
     }
 
     /**
@@ -1517,7 +1527,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getKeyKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.KEY, "key", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
+                Kind.KEYWORD);
     }
 
     /**
@@ -1527,7 +1537,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getTrapKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.TRAP, "trap", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
+                Kind.KEYWORD);
     }
 
     /**
@@ -1537,6 +1547,6 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getErrorKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.ERROR, "error", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
+                Kind.KEYWORD);
     }
 }
