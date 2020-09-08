@@ -628,8 +628,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = doNode;
     }
 
-
-
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl, env);

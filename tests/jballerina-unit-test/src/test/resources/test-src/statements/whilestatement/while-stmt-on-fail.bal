@@ -1,5 +1,3 @@
-//import ballerina/lang.'float as floats;
-
 function testWhileStmtWithFail(int x) returns string {
     int a = 0;
     string str = "";
