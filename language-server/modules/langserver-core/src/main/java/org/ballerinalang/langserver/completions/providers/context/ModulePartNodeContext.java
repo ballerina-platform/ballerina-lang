@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,17 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.StaticCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+
+import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
 
 /**
  * Completion provider for {@link ModulePartNode} context.
@@ -75,38 +75,23 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             if (item instanceof SnippetCompletionItem
                     && (((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.SNIPPET
                     || ((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.STATEMENT)) {
-                cItem.setSortText(this.genSortText(1));
+                cItem.setSortText(genSortText(1));
                 continue;
             }
             if (item instanceof SnippetCompletionItem
                     && ((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.KEYWORD) {
-                cItem.setSortText(this.genSortText(2));
+                cItem.setSortText(genSortText(2));
                 continue;
             }
-            if (this.isModuleCompletionItem(item)) {
-                cItem.setSortText(this.genSortText(3));
+            if (SortingUtil.isModuleCompletionItem(item)) {
+                cItem.setSortText(genSortText(3));
                 continue;
             }
-            if (this.isTypeCompletionItem(item)) {
-                cItem.setSortText(this.genSortText(4));
+            if (SortingUtil.isTypeCompletionItem(item)) {
+                cItem.setSortText(genSortText(4));
                 continue;
             }
-            cItem.setSortText(this.genSortText(5));
+            cItem.setSortText(genSortText(5));
         }
-    }
-
-    private boolean isModuleCompletionItem(LSCompletionItem item) {
-        return (item instanceof SymbolCompletionItem
-                && ((SymbolCompletionItem) item).getSymbol() instanceof BPackageSymbol)
-                || (item instanceof StaticCompletionItem
-                && (((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.MODULE
-                || ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.LANG_LIB_MODULE));
-    }
-
-    private boolean isTypeCompletionItem(LSCompletionItem item) {
-        return (item instanceof SymbolCompletionItem
-                && ((SymbolCompletionItem) item).getSymbol() instanceof BTypeSymbol)
-                || (item instanceof StaticCompletionItem
-                && ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE);
     }
 }

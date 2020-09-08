@@ -58,9 +58,18 @@ public interface CompletionProvider<T extends Node> {
      * @param context         Language Server completion context.
      * @param node            Node instance for the parser context
      * @param completionItems list of completion items to sort
-     * @param metaData        meta data for further processing
+     * @param metaData        Meta data for further processing the sorting
      */
     void sort(LSContext context, T node, List<LSCompletionItem> completionItems, Object... metaData);
+
+    /**
+     * Sort a given list of completion Items.
+     *
+     * @param context         Language Server completion context.
+     * @param node            Node instance for the parser context
+     * @param completionItems list of completion items to sort
+     */
+    void sort(LSContext context, T node, List<LSCompletionItem> completionItems);
 
     /**
      * Get the attachment points where the current provider attached to.
@@ -88,4 +97,22 @@ public interface CompletionProvider<T extends Node> {
      * @return {@link Boolean} pre-validation status
      */
     boolean onPreValidation(LSContext context, T node);
+
+    /**
+     * Enum representing the sorting scope.
+     *
+     * @since 2.0.0
+     */
+    enum SortingScope {
+        ;
+        private final int value;
+
+        SortingScope(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }

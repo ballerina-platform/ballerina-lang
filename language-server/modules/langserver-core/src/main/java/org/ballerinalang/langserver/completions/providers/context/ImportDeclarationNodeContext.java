@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
+
 /**
  * Completion provider for {@link ImportDeclarationNode} context.
  *
@@ -125,16 +127,16 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             for (LSCompletionItem completion : cItems) {
                 CompletionItem cItem = completion.getCompletionItem();
                 String label = cItem.getLabel();
-                cItem.setSortText(this.genSortText(this.rankModuleName(label)));
+                cItem.setSortText(genSortText(this.rankModuleName(label)));
             }
             return;
         }
-        
+
         if (metaData[0] == ContextScope.SCOPE3) {
             for (LSCompletionItem completion : cItems) {
                 CompletionItem cItem = completion.getCompletionItem();
                 String label = cItem.getLabel();
-                cItem.setSortText(this.genSortText(this.rankOrgName(label)));
+                cItem.setSortText(genSortText(this.rankOrgName(label)));
             }
             return;
         }

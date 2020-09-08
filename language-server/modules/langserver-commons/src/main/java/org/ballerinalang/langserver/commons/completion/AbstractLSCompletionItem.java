@@ -39,7 +39,7 @@ public abstract class AbstractLSCompletionItem implements LSCompletionItem {
     public CompletionItem getCompletionItem() {
         return completionItem;
     }
-
+    
     /**
      * Convert the Snippet to a plain text snippet by removing the place holders.
      *
@@ -51,7 +51,7 @@ public abstract class AbstractLSCompletionItem implements LSCompletionItem {
                 .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$1")
                 .replaceAll("(\\$\\{\\d+\\})", "");
     }
-    
+
     private void setInsertTextFormat(LSContext context) {
         boolean isSnippetSupported = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
                 .getSnippetSupport();
