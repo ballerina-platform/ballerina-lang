@@ -18,9 +18,9 @@
 package org.ballerina.compiler.api.types;
 
 /**
- * Represents the nil type descriptor.
+ * Represents the built-in simple type descriptor.
  *
  * @since 2.0.0
  */
-public interface NilTypeDescriptor extends BallerinaTypeDescriptor {
+public interface SimpleTypeDescriptor extends BallerinaTypeDescriptor {
 }

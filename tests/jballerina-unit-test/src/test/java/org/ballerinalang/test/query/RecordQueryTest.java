@@ -15,12 +15,32 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.types;
+
+package org.ballerinalang.test.query;
+
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
- * Represents the nil type descriptor.
- *
- * @since 2.0.0
+ * This contains methods to test query actions with records.
+ *\
+ * @since Swan Lake
  */
-public interface NilTypeDescriptor extends BallerinaTypeDescriptor {
+public class RecordQueryTest {
+
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/query/query-expr-with-record.bal");
+    }
+
+    @Test
+    public void testSimpleQueryAction() {
+        BRunUtil.invoke(result, "testRecordBasedQueryExpr");
+    }
+
 }

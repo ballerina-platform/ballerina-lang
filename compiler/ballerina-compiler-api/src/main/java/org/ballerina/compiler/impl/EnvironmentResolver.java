@@ -157,23 +157,22 @@ import java.util.List;
 /**
  * Visitor to lookup symbols based on the location.
  * 
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class SymbolsLookupVisitor extends BLangNodeVisitor {
-    LinePosition linePosition;
+public class EnvironmentResolver extends BLangNodeVisitor {
+    LinePosition linePosition = null;
     private SymbolEnv symbolEnv;
     private SymbolEnv scope;
     
-    public SymbolsLookupVisitor(LinePosition position, SymbolEnv symbolEnv) {
-        this.linePosition = position;
-        this.symbolEnv = symbolEnv;
-        this.scope = symbolEnv;
+    public EnvironmentResolver(SymbolEnv pkgEnv) {
+        this.symbolEnv = pkgEnv;
+        this.scope = pkgEnv;
     }
     
-    public SymbolEnv lookUp(BLangCompilationUnit compilationUnit) {
+    public SymbolEnv lookUp(BLangCompilationUnit compilationUnit, LinePosition linePosition) {
+        this.linePosition = linePosition;
         compilationUnit.accept(this);
         return this.scope;
-        // return the scope
     }
 
     @Override
