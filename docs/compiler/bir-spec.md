@@ -29,22 +29,7 @@ file by passing `--dump-bir-file /location/to/save.bir`
 
 Binary file constant of two main areas, Constant Pool and the Module section.
 
-### Constant Pool
-
-Constant pool contains entry types identified by following tags
-
-
-* cp_entry_integer - 1 
-* cp_entry_float - 2 
-* cp_entry_boolean - 3 
-* cp_entry_string - 4 
-* cp_entry_package - 5 
-* cp_entry_byte - 6 
-* cp_entry_shape - 7 
-
-### Types
-
-Ballerina types are serialized with following type tags
-
+WIP
+- Issue [ballerina-lang/issues/10257](https://github.com/ballerina-platform/ballerina-lang/issues/10257)
 
 

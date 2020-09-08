@@ -9,61 +9,6 @@ seq:
     type: constant_pool_set
   - id: module
     type: module
-enums:
-  type_tag_enum:
-    1:
-      id: type_tag_int
-      doc: Basic type, 64-bit signed integers
-    2: type_tag_byte
-    3: type_tag_float
-    4: type_tag_decimal
-    5: type_tag_string
-    6: type_tag_boolean
-    7: type_tag_json
-    8: type_tag_xml
-    9: type_tag_table
-    10: type_tag_nil
-    11: type_tag_anydata
-    12: type_tag_record
-    13: type_tag_typedesc
-    14: type_tag_stream
-    15: type_tag_map
-    16: type_tag_invokable
-    17: type_tag_any
-    18: type_tag_endpoint
-    19: type_tag_array
-    20: type_tag_union
-    21: type_tag_intersection
-    22: type_tag_package
-    23: type_tag_none
-    24: type_tag_void
-    25: type_tag_xmlns
-    26: type_tag_annotation
-    27: type_tag_semantic_error
-    28: type_tag_error
-    29: type_tag_iterator
-    30: type_tag_tuple
-    31: type_tag_future
-    32: type_tag_finite
-    33: type_tag_object_or_service
-    34: type_tag_byte_array
-    35: type_tag_function_pointer
-    36: type_tag_handle
-    37: type_tag_readonly
-    38: type_tag_signed32_int
-    39: type_tag_signed16_int
-    40: type_tag_signed8_int
-    41: type_tag_unsigned32_int
-    42: type_tag_unsigned16_int
-    43: type_tag_unsigned8_int
-    44: type_tag_char_string
-    45: type_tag_xml_element
-    46: type_tag_xml_pi
-    47: type_tag_xml_comment
-    48: type_tag_xml_text
-    49: type_tag_never
-    50: type_tag_null_set
-    51: type_tag_parameterized_type
 types:
   constant_pool_set:
     seq:
@@ -1523,3 +1468,56 @@ types:
         type: s4
       - id: type_cp_index
         type: s4
+enums:
+  type_tag_enum:
+    1: type_tag_int
+    2: type_tag_byte
+    3: type_tag_float
+    4: type_tag_decimal
+    5: type_tag_string
+    6: type_tag_boolean
+    7: type_tag_json
+    8: type_tag_xml
+    9: type_tag_table
+    10: type_tag_nil
+    11: type_tag_anydata
+    12: type_tag_record
+    13: type_tag_typedesc
+    14: type_tag_stream
+    15: type_tag_map
+    16: type_tag_invokable
+    17: type_tag_any
+    18: type_tag_endpoint
+    19: type_tag_array
+    20: type_tag_union
+    21: type_tag_intersection
+    22: type_tag_package
+    23: type_tag_none
+    24: type_tag_void
+    25: type_tag_xmlns
+    26: type_tag_annotation
+    27: type_tag_semantic_error
+    28: type_tag_error
+    29: type_tag_iterator
+    30: type_tag_tuple
+    31: type_tag_future
+    32: type_tag_finite
+    33: type_tag_object_or_service
+    34: type_tag_byte_array
+    35: type_tag_function_pointer
+    36: type_tag_handle
+    37: type_tag_readonly
+    38: type_tag_signed32_int
+    39: type_tag_signed16_int
+    40: type_tag_signed8_int
+    41: type_tag_unsigned32_int
+    42: type_tag_unsigned16_int
+    43: type_tag_unsigned8_int
+    44: type_tag_char_string
+    45: type_tag_xml_element
+    46: type_tag_xml_pi
+    47: type_tag_xml_comment
+    48: type_tag_xml_text
+    49: type_tag_never
+    50: type_tag_null_set
+    51: type_tag_parameterized_type
