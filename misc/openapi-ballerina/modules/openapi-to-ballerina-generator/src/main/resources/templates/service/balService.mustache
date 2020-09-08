@@ -5,7 +5,7 @@ listener http:Listener ep{{@index}} = new({{port}}{{#host}}, config = {host: "{{
 {{/servers}}
 @openapi:ServiceInfo {{=<% %>=}}{<%={{ }}=%>
     contract: "{{defPath}}"{{#if filteredTags}},
-    tags: [ {{#filteredTags}}"{{name}}",{{/filteredTags}}]{{/if}}{{#if operations}},
+    tags: [{{#each filteredTags}} {{#if @first}}"{{name}}"{{else}},"{{name}}"{{/if}} {{/each}}]{{/if}}{{#if operations}},
     operations: [ {{#operations}}{{name}}{{/operations}} ]{{/if}}
 }
 @http:ServiceConfig {
