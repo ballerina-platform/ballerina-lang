@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 /**
  * Represents an error type descriptor.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaErrorTypeDescriptor extends AbstractTypeDescriptor implements ErrorTypeDescriptor {
 
