@@ -17,40 +17,42 @@
  */
 package org.ballerina.compiler.api.types;
 
-import java.util.Arrays;
-
 /**
  * Represents the Type Kinds.
  * 
  * @since 2.0.0
  */
 public enum TypeDescKind {
-    ARRAY("array"),
-    OBJECT("object"),
-    RECORD("record"),
-    MAP("map"),
-    ERROR("error"),
-    SIMPLE("simple"),
-    OTHER("other"),
-    FUNCTION("function"),
-    BUILTIN("builtin"),
-    NIL("nil"),
-    TUPLE("tuple"),
-    STREAM("stream"),
-    FUTURE("future"),
-    TYPEDESC("typeDesc"),
-    TYPE_REFERENCE("typeReference"),
-    UNION("union"),
     INT("int"),
     BYTE("byte"),
     FLOAT("float"),
     DECIMAL("decimal"),
     STRING("string"),
     BOOLEAN("boolean"),
+    NIL("nil"),
+    ANY("any"),
+    ANYDATA("anydata"),
+    ARRAY("array"),
+    OBJECT("object"),
+    RECORD("record"),
+    MAP("map"),
+    ERROR("error"),
+    FUNCTION("function"),
+    BUILTIN("builtin"),
+    TUPLE("tuple"),
+    STREAM("stream"),
+    FUTURE("future"),
+    TYPEDESC("typeDesc"),
+    TYPE_REFERENCE("typeReference"),
+    UNION("union"),
+    INTERSECTION("intersection"),
     JSON("json"),
-    XML("xml");
+    XML("xml"),
+    HANDLE("handle"),
+    NEVER("never");
     
-    private String name;
+    
+    private final String name;
 
     TypeDescKind(String name) {
         this.name = name;
@@ -60,10 +62,4 @@ public enum TypeDescKind {
         return name;
     }
     
-    public static TypeDescKind getFromName(String name) {
-        return Arrays.stream(TypeDescKind.values())
-                .filter(typeDescKind -> typeDescKind.getName().equals(name))
-                .findFirst()
-                .orElse(null);
-    }
 }

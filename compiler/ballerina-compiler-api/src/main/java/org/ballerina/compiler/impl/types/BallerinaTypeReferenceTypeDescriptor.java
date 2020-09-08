@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 /**
  * Represents a TypeReference type descriptor.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaTypeReferenceTypeDescriptor extends AbstractTypeDescriptor
         implements TypeReferenceTypeDescriptor {

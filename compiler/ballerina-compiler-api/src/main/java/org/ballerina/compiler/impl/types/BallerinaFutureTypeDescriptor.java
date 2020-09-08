@@ -29,7 +29,7 @@ import java.util.Optional;
 /**
  * Represents an future type descriptor.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaFutureTypeDescriptor extends AbstractTypeDescriptor implements FutureTypeDescriptor {
 
