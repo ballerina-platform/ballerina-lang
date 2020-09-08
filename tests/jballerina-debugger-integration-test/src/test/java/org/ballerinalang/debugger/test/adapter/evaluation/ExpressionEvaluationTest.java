@@ -65,7 +65,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
     private static final String streamVar = "v26_oddNumberStream";
     private static final String neverVar = "v27_neverVar";
 
-    @BeforeClass(enabled = false)
+    @BeforeClass
     public void setup() throws BallerinaTestException {
         testProjectName = "basic-project";
         testModuleName = "advanced";
@@ -79,7 +79,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         this.context = debugHitInfo.getRight();
     }
 
-    @Test(enabled = false)
+    @Test
     public void variableEvaluationTest() throws BallerinaTestException {
         // var variable test
         assertExpression(context, nilVar, "()", "nil");
@@ -139,7 +139,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         // assertVariable(context, anonObjectVar, "AnonPerson", "object");
     }
 
-    @Test(enabled = false)
+    @Test
     public void arithmeticEvaluationTest() throws BallerinaTestException {
         //////////////////////////////-------------addition------------------///////////////////////////////////////////
         // int + int
@@ -251,7 +251,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "-35", "decimal");
     }
 
-    @Test(enabled = false)
+    @Test
     public void fieldAccessEvaluationTest() throws BallerinaTestException {
         // objects fields
         assertExpression(context, objectVar + ".address", "No 20, Palm grove", "string");
@@ -261,16 +261,51 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         assertExpression(context, jsonVar + ".name", "apple", "string");
         // nested field access (chain access)
         assertExpression(context, recordVar + ".grades.maths", "80", "int");
+        // optional field access
+        assertExpression(context, recordVar + "?.undefined", "()", "nil");
     }
 
-    @Test(enabled = false)
+    @Test
     public void methodCallEvaluationTest() throws BallerinaTestException {
         // object methods
         assertExpression(context, objectVar + ".getSum(34,56)", "90", "int");
         // Todo - add lang-lib functions related tests, after the implementation
     }
 
-    @Test(enabled = false)
+    @Test
+    public void basicLiteralEvaluationTest() throws BallerinaTestException {
+        // nil literal
+        assertExpression(context, "()", "()", "nil");
+        // boolean literal
+        assertExpression(context, "true", "true", "boolean");
+        // numeric literal (int)
+        assertExpression(context, "10", "10", "int");
+        // numeric literal (float)
+        assertExpression(context, "20.0", "20.0", "float");
+        // Todo - add following tests after the implementation
+        //  - hex int
+        //  - hex float
+        //  - string literal
+        //  - byte-array literal
+    }
+
+    @Test
+    public void MemberAccessEvaluationTest() throws BallerinaTestException {
+        // strings
+        assertExpression(context, stringVar + "[0]", "f", "string");
+        // lists
+        assertExpression(context, arrayVar + "[0]", "1", "int");
+        // maps
+        // assertExpression(context, mapVar + "[\"country\"]", "Sri Lanka", "string");
+        // assertExpression(context, mapVar + "[\"undefined\"]", "()", "nil");
+        // json
+        // assertExpression(context, jsonVar + "[\"color\"]", "red", "string");
+        // assertExpression(context, jsonVar + "[\"undefined\"]", "()", "nil");
+        // Todo - add following tests after the implementation
+        //  - xml member access
+    }
+
+    @Test
     public void expressionEvaluationNegativeTest() throws BallerinaTestException {
         // empty expressions
         assertEvaluationError(context, "  ", EvaluationExceptionKind.EMPTY.getString());
