@@ -41,11 +41,8 @@ import java.util.List;
 import static org.ballerinalang.openapi.utils.GeneratorConstants.USER_DIR;
 
 /**
- * Main class to implement "openapi" command for ballerina.
- * This class will accept sub-commands and execute the relevant sub-command class as given to the sub-commands
- * parameter.
- *
- * Command usage will change according to the sub-command.
+ * Main class to implement "openapi" command for ballerina. Commands for Client Stub, Service file and OpenApi contract
+ * generation.
  */
 @CommandLine.Command(
         name = "openapi",
@@ -68,7 +65,8 @@ public class OpenApiCmd implements BLauncherCmd {
             "client and model files.")
     private String outputPath;
 
-    @CommandLine.Option(names = {"--mode"}, description = "Generate only service file or client file")
+    @CommandLine.Option(names = {"--mode"}, description = "Generate only service file or client file according to the" +
+            " given mode type")
     private String mode;
 
     @CommandLine.Option(names = {"-s", "--service"}, description = "Service name that need to documented as openapi " +
@@ -129,7 +127,6 @@ public class OpenApiCmd implements BLauncherCmd {
                     operation.addAll(Arrays.asList(operations.split(",")));
                 }
                 Filter filter = new Filter(tag, operation);
-
                 openApiToBallerina(fileName, filter);
             } else if (fileName.endsWith(".bal")) {
                 ballerinaToOpenApi(fileName);
@@ -144,7 +141,7 @@ public class OpenApiCmd implements BLauncherCmd {
     }
 
     /**
-     *  This util method to generate openApi contract based on the given service ballerina file.
+     * This util method to generate openApi contract based on the given service ballerina file.
      * @param fileName  input resource file
      */
     private void ballerinaToOpenApi(String fileName) {
@@ -154,7 +151,7 @@ public class OpenApiCmd implements BLauncherCmd {
         Path resourcePath = getResourcePath(balFile, this.targetOutputPath.toString());
         //ballerina openapi -i service.bal --serviceName serviceName --module exampleModul -o ./
         // Check service name it is mandatory
-        if (module != null) {
+        if ((module != null) && (service != null)) {
             if (!checkModuleExist(module)) {
                 throw LauncherUtils.createLauncherException(OpenApiMesseges.MESSAGE_FOR_INVALID_MODULE);
             }
@@ -213,7 +210,7 @@ public class OpenApiCmd implements BLauncherCmd {
 
     /**
      * A util to take the resource Path.
-     * @param resourceFile
+     * @param resourceFile      resource file path
      * @return path of given resource file
      */
     private Path getResourcePath(File resourceFile, String targetOutputPath) {
@@ -246,9 +243,9 @@ public class OpenApiCmd implements BLauncherCmd {
 
     /**
      * A Util to Client generation.
-     * @param generator     generator object
-     * @param clientName      file name uses to name the generated file
-     * @param resourcePath  resource Path
+     * @param generator         generator object
+     * @param clientName        file name uses to name the generated file
+     * @param resourcePath      resource Path
      */
     private void generatesClientFile(CodeGenerator generator, String clientName, Path resourcePath, Filter filter) {
 
@@ -265,7 +262,7 @@ public class OpenApiCmd implements BLauncherCmd {
     }
 
     /**
-     * A utile to generate service file.
+     * A util to generate service file.
      * @param generator     generator object
      * @param serviceName   service name uses for naming the generated file
      * @param resourcePath  resource Path
@@ -286,7 +283,7 @@ public class OpenApiCmd implements BLauncherCmd {
     /**
      * A util method to generate both service and client stub files based on the given yaml contract file.
      * @param generator         generator object
-     * @param fileName       service name  use for naming the files
+     * @param fileName          service name  use for naming the files
      * @param resourcePath      resource path
      */
     private void generateBothFiles(CodeGenerator generator, String fileName, Path resourcePath, Filter filter) {

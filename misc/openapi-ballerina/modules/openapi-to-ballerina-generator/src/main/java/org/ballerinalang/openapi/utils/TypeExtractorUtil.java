@@ -75,13 +75,10 @@ public class TypeExtractorUtil {
             }
             typeDef.setFilteredTags(tags);
         }
-        if (!filter.getOperations().isEmpty()) {
-            List<Tag> operations = new ArrayList<>();
-//            for (String operationId: filter.getOperations()) {
-//                for
-//            }
-//            typeDef.setOperations(operations);
-        }
+        //TO-DO after discuss with team
+//        if (!filter.getOperations().isEmpty()) {
+//            List<Tag> operations = new ArrayList<>();
+//        }
         if (apiDef.getPaths() != null) {
             typeDef.setPathList(extractOpenApiPaths(apiDef.getPaths(), filter));
         }
@@ -145,11 +142,6 @@ public class TypeExtractorUtil {
             operation.setOpMethod(opMethod.toString());
             List<String> operationTags = opObject.getTags();
             String operationId = opObject.getOperationId();
-            // tag filter null operation +
-            // operation null  tag +
-            // tag and operation +
-            // tag and operation null
-
             if (((filter.getTags().isEmpty()) && (filter.getOperations().isEmpty()))
                     || ((!filter.getTags().isEmpty()) && hasTags(filter.getTags(), operationTags))
                     || ((!filter.getOperations().isEmpty()) && hasOperations(filter.getOperations(), operationId))) {

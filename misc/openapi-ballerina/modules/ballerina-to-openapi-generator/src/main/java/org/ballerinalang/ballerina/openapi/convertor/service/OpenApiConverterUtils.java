@@ -391,7 +391,14 @@ public class OpenApiConverterUtils {
         writeFile(outPath.resolve(openApiName), openApiSource);
     }
 
-    // without serviceName
+    /**
+     * This util for generating files when not available with specific service name.
+     * @param servicePath               resource path
+     * @param outPath                   target path
+     * @throws IOException              exception for throwing when generating file failing
+     * @throws CompilationFailedException exception for throwing when compilation failing
+     * @throws OpenApiConverterException  exception for throwing when generating file failing
+     */
     public static void generateOAS3DefinitionsAllService(Path servicePath, Path outPath)
             throws IOException, CompilationFailedException, OpenApiConverterException {
 
