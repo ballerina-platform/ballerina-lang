@@ -426,7 +426,7 @@ public class JvmTerminatorGen {
         String orgName = calleePkgId.orgName.value;
         String moduleName = calleePkgId.name.value;
         String version = calleePkgId.version.value;
-        callIns.name.value = JvmCodeGenUtil.rewriteInsName(callIns.name.value);
+        callIns.name.value = JvmCodeGenUtil.rewriteCallInsTerminator(callIns.name.value);
 
         // invoke the function
         this.genCall(callIns, orgName, moduleName, version, localVarOffset);

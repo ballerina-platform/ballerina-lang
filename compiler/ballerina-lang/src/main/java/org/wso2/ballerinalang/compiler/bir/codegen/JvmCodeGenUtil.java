@@ -146,7 +146,7 @@ public class JvmCodeGenUtil {
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
     }
 
-    static String rewriteInsName(String value) {
+    static String rewriteCallInsTerminator(String value) {
         return value.contains("\\") ? StringEscapeUtils.unescapeJava(value) : value;
     }
 

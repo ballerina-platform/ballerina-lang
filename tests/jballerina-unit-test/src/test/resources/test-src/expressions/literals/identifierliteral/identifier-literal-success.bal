@@ -104,14 +104,22 @@ function passILValuesToFunction() {
     string '\ \/\:\@\[\`\{\~\u{2324}_last_name = "Kary";
     int 'Ȧɢέ = 40;
 
-    string expected = "first name :Bill, last name :Kary, age :40";
-    assertEquality(expected,passILValuesAsParams('1st_Name, '\ \/\:\@\[\`\{\~\u{2324}_last_name, 'Ȧɢέ));
+    string expected_output_1 = "first name :Bill, last name :Kary, age :40";
+    assertEquality(expected_output_1, passILValuesAsParams('1st_Name, '\ \/\:\@\[\`\{\~\u{2324}_last_name, 'Ȧɢέ));
+    string expected_output_2 = "This is the test for defautable parameter";
+    assertEquality(expected_output_2, passILInDefaultableParams("This is the test for"));
 }
 
 function passILValuesAsParams(string '1st_Arg, string '\ \/\:\@\[\`\{\~\u{2324}_arg2, int 'üňĩćőđę_arg3)
 returns string {
     string result = "first name :" + '1st_Arg + ", last name :" + '\ \/\:\@\[\`\{\~\u{2324}_arg2 + ", age :" +
     'üňĩćőđę_arg3.toString();
+    return result;
+}
+
+function passILInDefaultableParams(string '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Arg1,
+string '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Arg2 = " defautable parameter") returns string {
+    string result = '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Arg1 + '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Arg2;
     return result;
 }
 

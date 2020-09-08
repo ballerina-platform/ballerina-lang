@@ -34,8 +34,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
@@ -114,14 +112,30 @@ public class RuntimeUtils {
         if (typeName == null) {
             return typeName;
         }
-        Matcher matcher = Pattern.compile(ENCODING_PATTERN).matcher(typeName);
-        StringBuffer buffer = new StringBuffer(typeName.length());
-        while (matcher.find()) {
-            String character = String.valueOf((char) Integer.parseInt(matcher.group(1)));
-            matcher.appendReplacement(buffer, Matcher.quoteReplacement(character));
+        StringBuilder sb = new StringBuilder();
+        int index = 0;
+        while (index < typeName.length()) {
+            if (typeName.charAt(index) == '$' && index + 4 < typeName.length()) {
+                String unicodePoint = typeName.substring(index + 1, index + 5);
+                if (containsOnlyDigits(unicodePoint)) {
+                    sb.append((char) Integer.parseInt(unicodePoint));
+                    index += 5;
+                    continue;
+                }
+            }
+            sb.append(typeName.charAt(index));
+            index++;
         }
-        matcher.appendTail(buffer);
-        return String.valueOf(buffer).replaceAll("(\\$#)(\\d{4})", "\\$$2");
+        return sb.toString().replaceAll("(\\$#)(\\d{4})", "\\$$2");
+    }
+
+    private static boolean containsOnlyDigits(String digitString) {
+        for (int i = 0; i < digitString.length(); i++) {
+            if (!Character.isDigit(digitString.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

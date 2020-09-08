@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.util.RuntimeUtils;
 
 import java.util.Map.Entry;
 import java.util.StringJoiner;
@@ -88,11 +87,10 @@ public class BObjectType extends BStructureType {
     }
 
     public String toString() {
-        String decodedName = RuntimeUtils.decodeTypeName(typeName);
         String name = (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ?
-                decodedName : pkg.getName() + ":" + decodedName;
-        
-        if (!decodedName.contains("$anon")) {
+                typeName : pkg.getName() + ":" + typeName;
+
+        if (!typeName.contains("$anon")) {
             return name;
         }
 

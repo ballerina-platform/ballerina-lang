@@ -253,7 +253,6 @@ public class JvmDesugarPhase {
         encodeGlobalVariableIdentifiers(module.globalVars);
         encodeFunctionIdentifiers(module.functions);
         encodeTypeDefIdentifiers(module.typeDefs);
-
     }
 
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs) {
