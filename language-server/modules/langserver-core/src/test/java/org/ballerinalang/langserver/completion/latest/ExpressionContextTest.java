@@ -19,6 +19,9 @@ package org.ballerinalang.langserver.completion.latest;
 
 import org.testng.annotations.DataProvider;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Expression Context tests.
  * 
@@ -34,5 +37,10 @@ public class ExpressionContextTest extends CompletionTestNew {
     @Override
     public String getTestResourceDir() {
         return "expression_context";
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Collections.singletonList("table_constructor_expr_ctx_config2.json");
     }
 }
