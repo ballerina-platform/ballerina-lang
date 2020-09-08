@@ -3490,19 +3490,11 @@ public class Types {
         switch (type.tag) {
             case TypeTags.UNION:
                 Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
-                // can not sort (string?|int)/(string|int), can sort string?
+                // can not sort (string?|int)/(string|int)/(string|int)[]/(string?|int)[], can sort string?/string?[]
                 return memberTypes.size() <= 2 && memberTypes.contains(symTable.nilType);
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
-                if (elementType.tag == TypeTags.ARRAY) {
-                    elementType = ((BArrayType) elementType).eType;
-                }
-                if (elementType.tag == TypeTags.UNION) {
-                    Set<BType> memTypes = ((BUnionType) elementType).getMemberTypes();
-                    // can not sort (string?|int)[]/(string|int)[], can sort string?[]
-                    return memTypes.size() <= 2 && memTypes.contains(symTable.nilType);
-                }
-                return isSimpleBasicType(elementType.tag);
+                return isOrderedType(elementType);
             default:
                 return isSimpleBasicType(type.tag);
         }

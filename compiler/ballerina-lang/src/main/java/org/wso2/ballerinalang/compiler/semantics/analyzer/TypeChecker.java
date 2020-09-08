@@ -2763,7 +2763,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkIllegalStorageSizeChangeMethodCall(iExpr, varRefType);
 
         // check argument types in arr:sort function
-        if (iExpr.langLibInvocation && iExpr.name.value.equals("sort")) {
+        if (iExpr.name.value.equals("sort")) {
             checkArrayLibSortFuncArgs(iExpr);
         }
     }
@@ -5398,14 +5398,14 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        BLangExpression argThree = iExpr.argExprs.get(2);
-        BType argThreeType = argThree.type;
-        if (argThreeType != null) {
-            if (argThreeType.tag == TypeTags.SEMANTIC_ERROR) {
+        BLangExpression keyFunction = iExpr.argExprs.get(2);
+        BType keyFunctionType = keyFunction.type;
+        if (keyFunctionType != null) {
+            if (keyFunctionType.tag == TypeTags.SEMANTIC_ERROR) {
                 return;
             }
 
-            if (argThreeType.tag == TypeTags.NIL) {
+            if (keyFunctionType.tag == TypeTags.NIL) {
                 if (!types.isOrderedType(iExpr.expr.type)) {
                     dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
                 }
@@ -5413,8 +5413,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        BLangLambdaFunction func = (BLangLambdaFunction) argThree;
-        BType returnType = func.function.type.getReturnType();
+        BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
+        BType returnType = keyLambdaFunction.function.type.getReturnType();
         if (!types.isOrderedType(returnType)) {
             dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
