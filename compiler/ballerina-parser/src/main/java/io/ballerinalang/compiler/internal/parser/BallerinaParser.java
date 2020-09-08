@@ -2161,7 +2161,6 @@ public class BallerinaParser extends AbstractParser {
             case ELLIPSIS_TOKEN:
             case DOUBLE_DOT_LT_TOKEN:
             case ELVIS_TOKEN:
-            case EQUALS_KEYWORD:
                 return true;
             default:
                 return false;
@@ -2203,7 +2202,6 @@ public class BallerinaParser extends AbstractParser {
             case TRIPPLE_EQUAL_TOKEN:
             case NOT_EQUAL_TOKEN:
             case NOT_DOUBLE_EQUAL_TOKEN:
-            case EQUALS_KEYWORD:
                 return OperatorPrecedence.EQUALITY;
             case BITWISE_AND_TOKEN:
                 return OperatorPrecedence.BITWISE_AND;
@@ -2887,7 +2885,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse a single statement, given the next token kind.
      *
-     * @param tokenKind Next token kind
+     * @param annots Annotations
      * @return Parsed node
      */
     private STNode parseStatement(STNode annots) {
@@ -3349,7 +3347,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
         }
 
-        Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, annots, isRhsExpr, allowActions,
+        Solution solution = recover(nextToken, ParserRuleContext.TERMINAL_EXPRESSION, annots, isRhsExpr, allowActions,
                 isInConditionalExpr);
 
         if (solution.action == Action.KEEP) {
@@ -4125,6 +4123,7 @@ public class BallerinaParser extends AbstractParser {
             case BY_KEYWORD:
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
+            case EQUALS_KEYWORD:
                 return true;
             case RIGHT_DOUBLE_ARROW_TOKEN:
                 return isInMatchGuard;
@@ -4603,7 +4602,7 @@ public class BallerinaParser extends AbstractParser {
      * one qualifier at-most.
      *
      * @param metadata Metadata
-     * @param visibilityQualifiers Visibility qualifiers
+     * @param visibilityQualifier Visibility qualifier
      * @return Parse object member node
      */
     private STNode parseObjectMethodOrField(STNode metadata, STNode visibilityQualifier) {
@@ -6340,7 +6339,6 @@ public class BallerinaParser extends AbstractParser {
      * Parse statement which is only consists of an action or expression.
      *
      * @param annots Annotations
-     * @param nextTokenKind Next token kind
      * @return Statement node
      */
     private STNode parseExpressionStatement(STNode annots) {
@@ -6363,7 +6361,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse the component followed by the expression, at the beginning of a statement.
      *
-     * @param nextTokenKind Kind of the next token
+     * @param expression Action or expression in LHS
      * @return Statement node
      */
     private STNode parseStatementStartWithExprRhs(STNode expression) {
@@ -8948,7 +8946,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse query expression.
+     * Parse query expression or action.
      * <p>
      * <code>
      * query-expr-rhs := query-pipeline select-clause
@@ -9040,7 +9038,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseSelectClause(isRhsExpr);
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
-            case EQUALS_KEYWORD:
                 return parseJoinClause(isRhsExpr);
             case ORDER_KEYWORD:
             case BY_KEYWORD:
@@ -9398,12 +9395,12 @@ public class BallerinaParser extends AbstractParser {
      * @return On conflict clause node
      */
     private STNode parseOnConflictClause(boolean isRhsExpr) {
-        startContext(ParserRuleContext.ON_CONFLICT_CLAUSE);
         STToken nextToken = peek();
         if (nextToken.kind != SyntaxKind.ON_KEYWORD && nextToken.kind != SyntaxKind.CONFLICT_KEYWORD) {
             return STNodeFactory.createEmptyNode();
         }
 
+        startContext(ParserRuleContext.ON_CONFLICT_CLAUSE);
         STNode onKeyword = parseOnKeyword();
         STNode conflictKeyword = parseConflictKeyword();
         STNode expr = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
@@ -9448,7 +9445,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse join clause.
      * <p>
      * <code>
-     * join-clause := (join-var-decl | outer-join-var-decl) in expression on-clause?
+     * join-clause := (join-var-decl | outer-join-var-decl) in expression on-clause
      * <br/>
      * join-var-decl := join (typeName | var) bindingPattern
      * <br/>
@@ -9482,17 +9479,17 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse on clause.
      * <p>
-     * <code>on clause := on expression</code>
+     * <code>on clause := `on` expression `equals` expression</code>
      *
      * @return On clause node
      */
     private STNode parseOnClause(boolean isRhsExpr) {
+        startContext(ParserRuleContext.ON_CLAUSE);
         STNode onKeyword = parseOnKeyword();
-        // note that parsing expression includes following.
-        // equals-expr := expression `equals` expression
-        STNode lhsExpression = parseExpression(OperatorPrecedence.EQUALITY, isRhsExpr, false);
+        STNode lhsExpression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         STNode equalsKeyword = parseEqualsKeyword();
-        STNode rhsExpression = parseExpression(OperatorPrecedence.EQUALITY, isRhsExpr, false);
+        endContext();
+        STNode rhsExpression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         return STNodeFactory.createOnClauseNode(onKeyword, lhsExpression, equalsKeyword, rhsExpression);
     }
 
@@ -9931,7 +9928,6 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>receive-field := peer-worker | field-name : peer-worker</code>
      *
-     * @param nextTokenKind Kind of the next token
      * @return Receiver field node
      */
     private STNode parseReceiveField() {
@@ -10217,7 +10213,6 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>wait-field := variable-name | field-name : wait-future-expr</code>
      *
-     * @param nextTokenKind Kind of the next token
      * @return Receiver field node
      */
     private STNode parseWaitField() {
@@ -10782,7 +10777,6 @@ public class BallerinaParser extends AbstractParser {
      * Base64Literal := base64 WS ` Base64Group* [PaddedBase64Group] WS `
      * </code>
      *
-     * @param kind byte array literal kind
      * @return parsed node
      */
     private STNode parseByteArrayLiteral() {
@@ -13745,7 +13739,6 @@ public class BallerinaParser extends AbstractParser {
      * Parse a member of a list-binding-pattern, tuple-type-desc, or
      * list-constructor-expr, when the parent is ambiguous.
      *
-     * @param nextTokenKind Kind of the next token.
      * @return Parsed node
      */
     private STNode parseStatementStartBracketedListMember() {
