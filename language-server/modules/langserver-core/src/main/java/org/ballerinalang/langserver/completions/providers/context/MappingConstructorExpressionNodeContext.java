@@ -120,6 +120,11 @@ public class MappingConstructorExpressionNodeContext extends
         return completionItems;
     }
 
+    @Override
+    public boolean onPreValidation(LSContext context, MappingConstructorExpressionNode node) {
+        return !node.openBrace().isMissing() && !node.closeBrace().isMissing();
+    }
+
     private boolean withinValueExpression(LSContext context, NonTerminalNode evalNodeAtCursor) {
         Token colon = null;
 
