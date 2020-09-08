@@ -381,7 +381,7 @@ public class CodeGenerator {
 
         List<GenSrcFile> sourceFiles = new ArrayList<>();
         String srcFile = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH)
-                .replaceAll(" ", "_") + "-client.bal";
+                .replaceAll("([\\[\\]\\\\?!<>@#&~`*\\-=^+();:\\_{}\\s|.$])", "\\\\$1") + "-client.bal";
 
         // Generate ballerina service and resources.
         String mainContent = getContent(context, GeneratorConstants.DEFAULT_CLIENT_DIR,
@@ -403,7 +403,7 @@ public class CodeGenerator {
         }
 
         List<GenSrcFile> sourceFiles = new ArrayList<>();
-        String concatTitle = api.getBalServiceName().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_");
+        String concatTitle = api.getBalServiceName().toLowerCase(Locale.ENGLISH).replaceAll("([\\[\\]\\\\?!<>@#&~`*\\-=^+();:\\_{}\\s|.$])", "\\\\$1");
         String srcFile = concatTitle + "-service.bal";
 
         String mainContent = getContent(api, GeneratorConstants.DEFAULT_TEMPLATE_DIR + "/service",

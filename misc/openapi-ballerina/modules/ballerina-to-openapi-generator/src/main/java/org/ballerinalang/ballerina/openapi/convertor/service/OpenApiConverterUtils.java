@@ -50,6 +50,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -80,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -93,6 +95,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -384,8 +387,10 @@ public class OpenApiConverterUtils {
         String openApiName = getOpenApiFileName(servicePath, serviceName);
 
         String openApiSource = generateOAS3Definitions(balSource, serviceName);
+        openApiName = checkDuplicateFiles(outPath, openApiName);
         writeFile(outPath.resolve(openApiName), openApiSource);
     }
+
     // without serviceName
     public static void generateOAS3DefinitionsAllService(Path servicePath, Path outPath)
             throws IOException, CompilationFailedException, OpenApiConverterException {
@@ -402,10 +407,39 @@ public class OpenApiConverterUtils {
                 String serviceName = serviceDefinition.getName().getValue();
                 String openApiName = getOpenApiFileName(servicePath, serviceName);
                 String openApiSource = generateOAS3Definitions(ballerinaSource, serviceName);
+                //  Checked old generated file with same name
+                openApiName = checkDuplicateFiles(outPath, openApiName);
                 writeFile(outPath.resolve(openApiName), openApiSource);
             }
         }
     }
+
+    /**
+     * This method use for checking the duplicate files
+     * @param outPath       output path for file generated
+     * @param openApiName   given file name
+     * @return              file name with duplicate number tag
+     */
+    private static String checkDuplicateFiles(Path outPath, String openApiName) {
+
+        if (Files.exists(outPath)) {
+            final File[] listFiles = new File(String.valueOf(outPath)).listFiles();
+            if (listFiles != null) {
+                for (File file : listFiles) {
+                    if (file.getName().equals(openApiName)) {
+                        String userInput = System.console().readLine("There is already a/an " + file.getName() +
+                                " in the location. Do you want to override the file [Y/N]? ");
+                        if (!Objects.equals(userInput.toLowerCase(), "y")) {
+                            int duplicateCount = 0;
+                            openApiName = setGeneratedFileName(listFiles, openApiName, duplicateCount);
+                        }
+                    }
+                }
+            }
+        }
+        return openApiName;
+    }
+
     /**
      * This method will compile a given ballerina package, find the service name and compile it to generate
      * an OpenApi contract.
@@ -617,5 +651,24 @@ public class OpenApiConverterUtils {
                 }
             }, true, "UTF-8");
         }
+    }
+
+    /**
+     *  This method for setting the file name for generated file.
+     * @param listFiles         generated files
+     * @param fileName          File name
+     * @param duplicateCount    add the tag with duplicate number if file already exist
+     */
+    private static String setGeneratedFileName(File[] listFiles, String fileName, int duplicateCount) {
+
+        for (File listFile : listFiles) {
+            String listFileName = listFile.getName();
+            if (listFileName.contains(".") && ((listFileName.split("\\.")).length >= 2)
+                    && (listFileName.split("\\.")[0]
+                    .equals(fileName.split("\\.")[0]))) {
+                duplicateCount = 1 + duplicateCount;
+            }
+        }
+        return fileName.split("\\.")[0] + "." + (duplicateCount) + ".yaml";
     }
 }
