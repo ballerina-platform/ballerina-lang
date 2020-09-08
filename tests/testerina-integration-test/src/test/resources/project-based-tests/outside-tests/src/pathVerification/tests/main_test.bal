@@ -16,15 +16,19 @@
 
 import ballerina/test;
 
+string testString = "";
+
 # Before Suite Function
 
 @test:BeforeSuite
 function beforeSuiteFunc() {
+    testString += "beforeSuiteFunc";
 }
 
 # Before test function
 
 function beforeFunc() {
+    testString += "beforeFunc";
 }
 
 # Test function
@@ -34,16 +38,26 @@ function beforeFunc() {
     after: "afterFunc"
 }
 function testFunction() {
-    test:assertTrue(true, msg = "Failed!");
+    testString += "test";
 }
 
 # After test function
 
 function afterFunc() {
+    testString += "afterFunc";
 }
 
 # After Suite Function
 
 @test:AfterSuite {}
 function afterSuiteFunc() {
+    testString += "afterSuiteFunc";
+}
+
+# Second Test function
+@test:Config {
+    dependsOn : ["testFunction"]
+}
+function testFunction2() {
+    test:assertEquals(testString, "beforeSuiteFuncbeforeFunctestafterFunc");
 }
