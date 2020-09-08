@@ -79,8 +79,8 @@ public class ArraySizeDefinitionTest {
         int index = 0;
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/arrays/array-size-scope-test.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 15);
-//        BAssertUtil.validateError(result, index++, sizeMismatchError, 6, 26);
+        Assert.assertEquals(result.getDiagnostics().length, 16);
+        BAssertUtil.validateError(result, index++, sizeMismatchError, 6, 22);
         BAssertUtil.validateError(result, index++, invalidReferenceExpressionError,7, 5);
         BAssertUtil.validateError(result, index++, incompatibleTypeError, 8, 5);
         BAssertUtil.validateError(result, index++, undefinedSymbolError, 9, 1);

@@ -3,7 +3,7 @@ int intLength = 2;
 const stringLength = "2";
 
 //in module scope
-//int[constLength] a = [1, 2, 3]; // clarify
+int[constLength] a = [1, 2, 3];
 int[intLength] b = [1, 2];
 int[stringLength] c = [1, 2];
 int[length] d = [1, 2];

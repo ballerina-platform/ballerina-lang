@@ -958,10 +958,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                         continue;
                     }
 
-                    long length = (long) sizeConstSymbol.value.value;
+                    int length = Integer.parseInt(sizeConstSymbol.type.toString());
                     arrType = new BArrayType(resultType,
                             arrayTypeSymbol,
-                            (int) length,
+                            length,
                             BArrayState.CLOSED_SEALED);
                 }
             }
