@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 /**
  * Represents a ballerina worker.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymbol {
 
