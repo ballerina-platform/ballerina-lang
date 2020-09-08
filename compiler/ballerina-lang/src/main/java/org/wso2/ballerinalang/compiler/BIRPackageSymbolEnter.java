@@ -86,7 +86,9 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
@@ -343,8 +345,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {
-        skipPosition(dataInStream);
-        String source = getStringCPEntryValue(dataInStream);
+        DiagnosticPos pos = readPosition(dataInStream);
 
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
@@ -356,8 +357,8 @@ public class BIRPackageSymbolEnter {
         BInvokableSymbol invokableSymbol =
                 Symbols.createFunctionSymbol(flags, names.fromString(funcName), this.env.pkgSymbol.pkgID, funcType,
                                              this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE),
-                                             symTable.builtinPos, toOrigin(origin));
-        invokableSymbol.source = source;
+                                             pos, toOrigin(origin));
+        invokableSymbol.source = pos.src.cUnitName;
         invokableSymbol.retType = funcType.retType;
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
@@ -408,9 +409,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
-        skipPosition(dataInStream);
-        // skip source file name
-        dataInStream.readInt();
+        DiagnosticPos pos = readPosition(dataInStream);
         String typeDefName = getStringCPEntryValue(dataInStream);
 
         int flags = dataInStream.readInt();
@@ -444,6 +443,7 @@ public class BIRPackageSymbolEnter {
         symbol.pkgID = this.env.pkgSymbol.pkgID;
         symbol.flags = flags;
         symbol.origin = toOrigin(origin);
+        symbol.pos = pos;
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
             this.structureTypes.add((BStructureTypeSymbol) symbol);
@@ -562,6 +562,7 @@ public class BIRPackageSymbolEnter {
 
         int flags = dataInStream.readInt();
         byte origin = dataInStream.readByte();
+        DiagnosticPos pos = readPosition(dataInStream);
 
         int attachPointCount = dataInStream.readInt();
         Set<AttachPoint> attachPoints = new HashSet<>(attachPointCount);
@@ -575,8 +576,7 @@ public class BIRPackageSymbolEnter {
 
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),
                                                                             this.env.pkgSymbol.pkgID, null,
-                                                                            this.env.pkgSymbol, symTable.builtinPos,
-                                                                            toOrigin(origin));
+                                                                            this.env.pkgSymbol, pos, toOrigin(origin));
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
 
         defineMarkDownDocAttachment(annotationSymbol, readDocBytes(dataInStream));
@@ -591,6 +591,7 @@ public class BIRPackageSymbolEnter {
         String constantName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
         byte origin = dataInStream.readByte();
+        DiagnosticPos pos = readPosition(dataInStream);
 
         byte[] docBytes = readDocBytes(dataInStream);
 
@@ -600,7 +601,7 @@ public class BIRPackageSymbolEnter {
         // Create the constant symbol.
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
                                                              this.env.pkgSymbol.pkgID, null, type, enclScope.owner,
-                                                             symTable.builtinPos, toOrigin(origin));
+                                                             pos, toOrigin(origin));
 
         defineMarkDownDocAttachment(constantSymbol, docBytes);
 
@@ -831,6 +832,16 @@ public class BIRPackageSymbolEnter {
     private TaintRecord.TaintedStatus convertByteToTaintedStatus(byte readByte) {
         return EnumSet.allOf(TaintRecord.TaintedStatus.class).stream()
                 .filter(taintedStatus -> readByte == taintedStatus.getByteValue()).findFirst().get();
+    }
+
+    private DiagnosticPos readPosition(DataInputStream dataInStream) throws IOException {
+        String cUnitName = getStringCPEntryValue(dataInStream);
+        int sLine = dataInStream.readInt();
+        int sCol = dataInStream.readInt();
+        int eLine = dataInStream.readInt();
+        int eCol = dataInStream.readInt();
+        BDiagnosticSource diagSrc = new BDiagnosticSource(this.env.pkgSymbol.pkgID, cUnitName);
+        return new DiagnosticPos(diagSrc, sLine, eLine, sCol, eCol);
     }
 
     // private utility methods
