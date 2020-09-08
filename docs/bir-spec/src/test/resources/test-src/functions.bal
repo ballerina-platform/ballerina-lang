@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
+import ballerina/lang.'int;
+
 function foo() {
 
 }
@@ -24,6 +27,212 @@ function bar(int a) {
 
 function baz(string s, float f) returns byte {
     return 4;
+}
+
+function printValue(string value) {
+    io:println(value);
+}
+
+function add(int a, int b) returns int {
+    return a + b;
+}
+
+function printAndReturnValue(string s) returns string {
+    string t = "Hello ".concat(s);
+    io:println(t);
+    return t;
+}
+
+public function functionWithInvocations() {
+    printValue("This is a sample text");
+    int result = add(5, 6);
+    io:println(result);
+    _ = printAndReturnValue("World");
+}
+
+function calculate(int a, int b, int c) returns int {
+    return a + 2 * b + 3 * c;
+}
+
+public function functionInvocationWithRequiredParams() {
+    int result = calculate(5, 6, 7);
+    io:println(result);
+    result = calculate(5, c = 7, b = 6);
+    io:println(result);
+}
+
+function printSalaryDetails(int baseSalary,
+                            int annualIncrement = 20,
+                            float bonusRate = 0.02) {
+
+    io:println("Base Salary: ", baseSalary,
+                " | Annual Increment: ", annualIncrement,
+                " | Bonus Rate: ", bonusRate);
+}
+public function functionInvocationWithDefaultParams() {
+    printSalaryDetails(2500);
+    printSalaryDetails(2500, annualIncrement = 100);
+    printSalaryDetails(2500, 100);
+    printSalaryDetails(2500, bonusRate = 0.1);
+    printSalaryDetails(2500, 20, 0.1);
+    printSalaryDetails(2500, annualIncrement = 100, bonusRate = 0.1);
+    printSalaryDetails(annualIncrement = 100, baseSalary = 2500, bonusRate = 0.1);
+}
+
+function printDetails(string name,
+                      int age = 18,
+                      string... modules) {
+    string detailString = "Name: " + name + ", Age: " + age.toString();
+
+    if (modules.length() == 0) {
+        io:println(detailString);
+        return;
+    }
+    int index = 0;
+    string moduleString = "Module(s): ";
+    foreach string module in modules {
+        if (index == 0) {
+            moduleString += module;
+        } else {
+            moduleString += ", " + module;
+        }
+        index += 1;
+    }
+    io:println(detailString, ", ", moduleString);
+}
+public function functionWithRestParams() {
+    printDetails("Alice");
+    printDetails("Bob", 20);
+    printDetails("Corey", 19, "Math");
+    printDetails("Diana", 20, "Math", "Physics");
+    string[] modules = ["Math", "Physics"];
+    printDetails("Diana", 20, ...modules);
+}
+
+function testFunctionPointer(string s, int... x) returns float {
+    int|error y = 'int:fromString(s);
+    float f = 0.0;
+
+    if (y is int) {
+        foreach var item in x {
+            f += item * 1.0 * y;
+        }
+    } else {
+        panic y;
+    }
+    return f;
+}
+
+function invokeFunctionPointer(int x, function (string, int...) returns float bar)
+             returns float {
+    return x * bar("2", 2, 3, 4, 5);
+}
+
+function getFunctionPointer() returns
+                    (function (string, int...) returns float) {
+    return testFunctionPointer;
+}
+
+public function functionWithFunctionPointers() {
+    io:println("Answer: ", invokeFunctionPointer(10, testFunctionPointer));
+    io:println("Answer: ", invokeFunctionPointer(10, getFunctionPointer()));
+
+    function (string, int...) returns float f = getFunctionPointer();
+
+    io:println("Answer: ", invokeFunctionPointer(10, f));
+}
+
+public function anonymousFunctions() {
+    function (string, string) returns string anonFunction =
+            function (string x, string y) returns string {
+                return x + y;
+            };
+    io:println("Output: ", anonFunction("Hello ", "World.!!!"));
+
+    var anonFunction2 = function (string x, string y, string... z) returns string {
+                            string value = x + y;
+                            foreach var item in z {
+                                value += item;
+                            }
+                            return value;
+                        };
+    io:println("Output: ", anonFunction2("Ballerina ", "is ", "an ", "open ",
+     "source ", "programming ", "language."));
+
+    function (string, string) returns string arrowExpr = (x, y) => x + y;
+    io:println("Output: ", arrowExpr("Hello ", "World.!!!"));
+}
+
+public function expressionBodiedFunction() {
+
+    var toEmployee = function (PersonRec p, string pos) returns EmployeeRec => {
+        name: p.fname + " " + p.lname,
+        designation: pos
+    };
+
+    PersonRec john = { fname: "John", lname: "Doe", age: 25 };
+    EmployeeRec johnEmp = toEmployee(john, "Software Engineer");
+    io:println(johnEmp);
+}
+
+type PersonRec record {|
+    string fname;
+    string lname;
+    int age;
+|};
+
+type EmployeeRec record {|
+    string name;
+    string designation;
+|};
+
+public function functionWithIteration() {
+    map<string> words = {
+        a: "ant",
+        b: "bear",
+        c: "cat",
+        d: "dear",
+        e: "elephant"
+    };
+
+    io:println("Number of elements in 'words': ", words.length());
+
+    map<string> animals = words.map(toUpper);
+    io:println(animals);
+
+    int[] numbers = [-5, -3, 2, 7, 12];
+
+    int[] positive = numbers.filter(function (int i) returns boolean {
+        return i >= 0;
+    });
+
+    io:println("Positive numbers: ", positive);
+
+    numbers.forEach(function(int i) {
+        io:println(i);
+    });
+
+    int total = numbers.reduce(sum, 0);
+    io:println("Total: ", total);
+
+    int totalWithInitialValue = numbers.reduce(sum, 5);
+    io:println("Total with initial value: ", totalWithInitialValue);
+    io:println("\nExecution Order:-");
+    map<json> j = {name: "apple", colors: ["red", "green"], price: 5};
+    j.map(function (json value) returns string {
+        string result = value.toString();
+        io:println("- map operation's value: ", result);
+        return result;
+    }).forEach(function (string s) {
+        io:println("-- foreach operation's value: ", s);
+    });
+
+}
+function toUpper(string value) returns string {
+    return value.toUpperAscii();
+}
+function sum(int accumulator, int currentValue) returns int {
+    return accumulator + currentValue;
 }
 
 function functionWithAllTypesParams(int a, float b, string c = "John", int d = 5, string e = "Doe", int... z)
@@ -68,8 +277,6 @@ function getIntArray() returns (int[]) {
     return [1,2,3,4];
 }
 
-//------------- Testing a function having required and rest parameters --------
-
 function functionWithoutRestParams(int a, float b, string c = "John", int d = 5, string e = "Doe") returns
             [int, float, string, int, string] {
     return [a, b, c, d, e];
@@ -78,9 +285,6 @@ function functionWithoutRestParams(int a, float b, string c = "John", int d = 5,
 function testInvokeFuncWithoutRestParamsAndMissingDefaultableParam() returns [int, float, string, int, string] {
     return functionWithoutRestParams(10, b=20.0, d=30, e="Bob");
 }
-
-//------------- Testing a function having only named parameters --------
-
 
 function functionWithOnlyNamedParams(int a=5, float b=6.0, string c = "John", int d = 7, string e = "Doe")
                                                                             returns [int, float, string, int, string] {
@@ -99,8 +303,6 @@ function testInvokeFuncWithOnlyNamedParams3() returns [int, float, string, int, 
     return functionWithOnlyNamedParams();
 }
 
-//------------- Testing a function having only rest parameters --------
-
 function functionWithOnlyRestParam(int... z) returns (int[]) {
     return z;
 }
@@ -118,8 +320,6 @@ function testInvokeFuncWithOnlyRestParam3() returns (int[]) {
     return functionWithOnlyRestParam(...a);
 }
 
-//------------- Testing a function with rest parameter of any type --------
-
 function functionAnyRestParam(any... z) returns (any[]) {
     return z;
 }
@@ -130,8 +330,6 @@ function testInvokeFuncWithAnyRestParam1() returns (any[]) {
     return functionAnyRestParam(a, j);
 }
 
-// ------------------- Test function signature with union types for default parameter
-
 function funcWithUnionTypedDefaultParam(string|int? s = "John") returns string|int? {
     return s;
 }
@@ -139,9 +337,6 @@ function funcWithUnionTypedDefaultParam(string|int? s = "John") returns string|i
 function testFuncWithUnionTypedDefaultParam() returns json {
     return funcWithUnionTypedDefaultParam();
 }
-
-
-// ------------------- Test function signature with null as default parameter value
 
 function funcWithNilDefaultParamExpr_1(string? s = ()) returns string? {
     return s;
@@ -159,8 +354,6 @@ function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? {
 function testFuncWithNilDefaultParamExpr() returns [any, any] {
     return [funcWithNilDefaultParamExpr_1(), funcWithNilDefaultParamExpr_2()];
 }
-
-// ------------------- Test function signature for attached functions ------------------
 
 public type Employee object {
 
@@ -203,8 +396,6 @@ type Person object {
         return [intVal, val];
     }
 };
-
-// ------------------- Test function signature which has a function typed param with only rest param ------------------
 
 function functionOfFunctionTypedParamWithRest(int[] x, function (int...) returns int bar) returns [int, int] {
     return [x[0], bar(x[0])] ;
