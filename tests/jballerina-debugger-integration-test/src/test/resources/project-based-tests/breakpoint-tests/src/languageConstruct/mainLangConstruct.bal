@@ -3,7 +3,7 @@ import ballerina/http;
 
 http:Client clientEndpoint = new("http://postman-echo.com");
 
-type Person object {
+class Person {
     public int age;
     public string firstName;
     public string lastName;
@@ -18,7 +18,7 @@ type Person object {
         return self.firstName + " " + self.lastName;
     }
 
-};
+}
 
 function performGet() returns http:Response {
     http:Response|error result = clientEndpoint->get("/headers");
