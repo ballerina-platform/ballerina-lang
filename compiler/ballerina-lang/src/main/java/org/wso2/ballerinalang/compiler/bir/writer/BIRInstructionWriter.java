@@ -185,6 +185,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         waitAll.lhsOp.accept(this);
         buf.writeInt(waitAll.keys.size());
         waitAll.keys.forEach(key -> buf.writeInt(addStringCPEntry(key)));
+        buf.writeInt(waitAll.valueExprs.size());
         waitAll.valueExprs.forEach(val -> val.accept(this));
         addCpAndWriteString(waitAll.thenBB.id.value);
     }
