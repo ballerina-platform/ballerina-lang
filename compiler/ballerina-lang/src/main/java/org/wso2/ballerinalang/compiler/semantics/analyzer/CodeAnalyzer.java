@@ -573,12 +573,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void analyzeOnFailClause(BLangOnFailClause onFailClause) {
         if (onFailClause != null) {
             boolean currentStatementReturns = this.statementReturns;
-            boolean currentLastStatement = this.lastStatement;
             this.resetStatementReturns();
             this.resetLastStatement();
             analyzeNode(onFailClause, env);
             this.statementReturns = currentStatementReturns;
-            this.lastStatement = currentLastStatement;
         }
     }
 
@@ -1427,6 +1425,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFail failNode) {
+        this.lastStatement = true;
         analyzeExpr(failNode.expr);
         if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
@@ -1437,7 +1436,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.errorTypes.peek().add(getErrorTypes(failNode.expr.type));
         }
         if (!this.failureHandled) {
-            this.lastStatement = true;
             this.statementReturns = true;
             BType exprType = env.enclInvokable.getReturnTypeNode().type;
             this.returnTypes.peek().add(exprType);
@@ -2883,6 +2881,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
+        this.resetLastStatement();
         this.returnWithinLambdaWrappingCheckStack.push(false);
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         for (BType errorType : errorTypes.peek()) {
