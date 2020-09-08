@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Represents a Ballerina Type Descriptor.
  * 
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class AbstractTypeDescriptor implements BallerinaTypeDescriptor {
     private TypeDescKind typeDescKind;
