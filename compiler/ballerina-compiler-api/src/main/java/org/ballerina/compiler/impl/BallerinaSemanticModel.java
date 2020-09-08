@@ -47,15 +47,18 @@ import java.util.Optional;
  */
 public class BallerinaSemanticModel implements SemanticModel {
 
-    private final BLangPackage bLangPackage;
     private final CompilerContext compilerContext;
     protected BLangCompilationUnit compilationUnit;
+    private EnvironmentResolver envResolver;
 
     public BallerinaSemanticModel(BLangCompilationUnit compilationUnit, BLangPackage bLangPackage,
             CompilerContext context) {
         this.compilationUnit = compilationUnit;
         this.compilerContext = context;
-        this.bLangPackage = bLangPackage;
+
+        SymbolTable symbolTable = SymbolTable.getInstance(context);
+        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
+        this.envResolver = new EnvironmentResolver(pkgEnv);
     }
 
     /**
@@ -65,11 +68,8 @@ public class BallerinaSemanticModel implements SemanticModel {
     public List<Symbol> visibleSymbols(LinePosition linePosition) {
         List<Symbol> compiledSymbols = new ArrayList<>();
         SymbolResolver symbolResolver = SymbolResolver.getInstance(this.compilerContext);
-        SymbolTable symbolTable = SymbolTable.getInstance(this.compilerContext);
-        SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(this.bLangPackage.symbol);
-        SymbolsLookupVisitor lookupVisitor = new SymbolsLookupVisitor(linePosition, symbolEnv);
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
-                symbolResolver.getAllVisibleInScopeSymbols(lookupVisitor.lookUp(this.compilationUnit));
+                symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(this.compilationUnit, linePosition));
 
         for (Entry<Name, List<ScopeEntry>> entry : scopeSymbols.entrySet()) {
             Name name = entry.getKey();
