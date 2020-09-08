@@ -97,22 +97,4 @@ public interface CompletionProvider<T extends Node> {
      * @return {@link Boolean} pre-validation status
      */
     boolean onPreValidation(LSContext context, T node);
-
-    /**
-     * Enum representing the sorting scope.
-     *
-     * @since 2.0.0
-     */
-    enum SortingScope {
-        ;
-        private final int value;
-
-        SortingScope(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
 }
