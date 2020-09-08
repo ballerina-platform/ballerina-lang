@@ -21,6 +21,7 @@ import io.kaitai.struct.ByteBufferKaitaiStream;
 import io.kaitai.struct.KaitaiStruct;
 import org.ballerinalang.build.kaitai.Bir;
 import org.ballerinalang.model.elements.AttachPoint;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -132,6 +133,9 @@ class BIRTestUtils {
             Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualFunction.nameCpIndex());
             assertConstantPoolEntry(constantPoolEntry, expectedFunction.name.value);
 
+            // assert markdown document
+            assertMarkdownDocument(actualFunction.doc(), expectedFunction.markdownDocAttachment, constantPoolEntries);
+
             // assert required param count
             Assert.assertEquals(actualFunction.requiredParamCount(), expectedFunction.requiredParams.size());
 
@@ -144,6 +148,43 @@ class BIRTestUtils {
             assertBasicBlocks(actualFunctionBody.functionBasicBlocksInfo(), expectedFunction.basicBlocks,
                     constantPoolEntries);
         }
+    }
+
+    private static void assertMarkdownDocument(Bir.Markdown actualDocument, MarkdownDocAttachment expectedDocument,
+                                               ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+        if (actualDocument.hasDoc() == 0) {
+            Assert.assertNull(expectedDocument);
+            return;
+        }
+
+        Bir.MarkdownContent actualDocContent = actualDocument.markdownContent();
+        assertMarkdownEntry(constantPoolEntries, actualDocContent.descriptionCpIndex(), expectedDocument.description);
+
+        assertMarkdownEntry(constantPoolEntries, actualDocContent.returnValueDescriptionCpIndex(),
+                expectedDocument.returnValueDescription);
+
+        List<MarkdownDocAttachment.Parameter> expectedParameters = expectedDocument.parameters;
+        Assert.assertEquals(actualDocContent.parametersCount(), expectedParameters.size());
+        ArrayList<Bir.MarkdownParameter> actualParameters = actualDocContent.parameters();
+        for (int i = 0; i < actualParameters.size(); i++) {
+            Bir.MarkdownParameter actualParameter = actualParameters.get(i);
+            MarkdownDocAttachment.Parameter expectedParameter = expectedParameters.get(i);
+
+            assertMarkdownEntry(constantPoolEntries, actualParameter.nameCpIndex(), expectedParameter.name);
+
+            assertMarkdownEntry(constantPoolEntries, actualParameter.descriptionCpIndex(),
+                    expectedParameter.description);
+        }
+    }
+
+    private static void assertMarkdownEntry(ArrayList<Bir.ConstantPoolEntry> constantPoolEntries, int cpIndex,
+                                            String description) {
+        if (cpIndex < 0) {
+            return;
+        }
+
+        Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(cpIndex);
+        assertConstantPoolEntry(constantPoolEntry, description);
     }
 
     private static void assertBasicBlocks(Bir.BasicBlocksInfo actualBasicBlocksInfo,
@@ -319,6 +360,10 @@ class BIRTestUtils {
             if (expectedTypeDefinition.pos != null) {
                 assertPosition(actualTypeDefinition.position(), expectedTypeDefinition.pos);
             }
+
+            // assert markdown document
+            assertMarkdownDocument(actualTypeDefinition.doc(), expectedTypeDefinition.markdownDocAttachment,
+                    constantPoolEntries);
         }
     }
 

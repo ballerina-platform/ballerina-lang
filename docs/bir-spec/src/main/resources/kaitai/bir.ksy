@@ -494,9 +494,16 @@ types:
           switch-on: type.shape.type_tag
           cases:
             'type_tag_enum::type_tag_int': int_constant_info
+            'type_tag_enum::type_tag_signed32_int': int_constant_info
+            'type_tag_enum::type_tag_signed16_int': int_constant_info
+            'type_tag_enum::type_tag_signed8_int': int_constant_info
+            'type_tag_enum::type_tag_unsigned32_int': int_constant_info
+            'type_tag_enum::type_tag_unsigned16_int': int_constant_info
+            'type_tag_enum::type_tag_unsigned8_int': int_constant_info
             'type_tag_enum::type_tag_byte': byte_constant_info
             'type_tag_enum::type_tag_float': float_constant_info
             'type_tag_enum::type_tag_string': string_constant_info
+            'type_tag_enum::type_tag_char_string': string_constant_info
             'type_tag_enum::type_tag_decimal': decimal_constant_info
             'type_tag_enum::type_tag_boolean': boolean_constant_info
             'type_tag_enum::type_tag_nil': nil_constant_info
@@ -650,9 +657,16 @@ types:
             'type_tag_enum::type_tag_map': attach_value_map
             'type_tag_enum::type_tag_record': attach_value_map
             'type_tag_enum::type_tag_int': int_constant_info
+            'type_tag_enum::type_tag_signed32_int': int_constant_info
+            'type_tag_enum::type_tag_signed16_int': int_constant_info
+            'type_tag_enum::type_tag_signed8_int': int_constant_info
+            'type_tag_enum::type_tag_unsigned32_int': int_constant_info
+            'type_tag_enum::type_tag_unsigned16_int': int_constant_info
+            'type_tag_enum::type_tag_unsigned8_int': int_constant_info
             'type_tag_enum::type_tag_byte': byte_constant_info
             'type_tag_enum::type_tag_float': float_constant_info
             'type_tag_enum::type_tag_string': string_constant_info
+            'type_tag_enum::type_tag_char_string': string_constant_info
             'type_tag_enum::type_tag_decimal': decimal_constant_info
             'type_tag_enum::type_tag_boolean': boolean_constant_info
             'type_tag_enum::type_tag_nil': nil_constant_info
@@ -883,8 +897,9 @@ types:
             'instruction_kind_enum::instruction_kind_wk_send': instruction_wk_send
             'instruction_kind_enum::instruction_kind_flush': instruction_flush
             'instruction_kind_enum::instruction_kind_lock': instruction_lock
-            'instruction_kind_enum::instruction_kind_unlock': instruction_unlock
             'instruction_kind_enum::instruction_kind_field_lock': instruction_field_lock
+            'instruction_kind_enum::instruction_kind_unlock': instruction_unlock
+            'instruction_kind_enum::instruction_kind_wait_all': instruction_wait_all
             'instruction_kind_enum::instruction_kind_move': instruction_move
             'instruction_kind_enum::instruction_kind_const_load': instruction_const_load
             'instruction_kind_enum::instruction_kind_new_structure': instruction_new_structure
@@ -937,15 +952,15 @@ types:
             'instruction_kind_enum::instruction_kind_closed_range': instruction_binary_operation
             'instruction_kind_enum::instruction_kind_half_open_range': instruction_binary_operation
             'instruction_kind_enum::instruction_kind_annot_access': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_and': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_or': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_xor': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_left_shift': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_right_shift': instruction_binary_operation
+            'instruction_kind_enum::instruction_kind_bitwise_unsigned_right_shift': instruction_binary_operation
             'instruction_kind_enum::instruction_kind_typeof': instruction_unary_operation
             'instruction_kind_enum::instruction_kind_not': instruction_unary_operation
             'instruction_kind_enum::instruction_kind_negate': instruction_unary_operation
-            'instruction_kind_enum::instruction_kind_bitwise_and': instruction_unary_operation
-            'instruction_kind_enum::instruction_kind_bitwise_or': instruction_unary_operation
-            'instruction_kind_enum::instruction_kind_bitwise_xor': instruction_unary_operation
-            'instruction_kind_enum::instruction_kind_bitwise_left_shift': instruction_unary_operation
-            'instruction_kind_enum::instruction_kind_bitwise_right_shift': instruction_unary_operation
-            'instruction_kind_enum::instruction_kind_bitwise_unsigned_right_shift': instruction_unary_operation
     enums:
       instruction_kind_enum:
         1: instruction_kind_goto
@@ -1037,9 +1052,16 @@ types:
           switch-on: type.shape.type_tag
           cases:
             'type_tag_enum::type_tag_int': int_constant_info
+            'type_tag_enum::type_tag_signed32_int': int_constant_info
+            'type_tag_enum::type_tag_signed16_int': int_constant_info
+            'type_tag_enum::type_tag_signed8_int': int_constant_info
+            'type_tag_enum::type_tag_unsigned32_int': int_constant_info
+            'type_tag_enum::type_tag_unsigned16_int': int_constant_info
+            'type_tag_enum::type_tag_unsigned8_int': int_constant_info
             'type_tag_enum::type_tag_byte': byte_constant_info
             'type_tag_enum::type_tag_float': float_constant_info
             'type_tag_enum::type_tag_string': string_constant_info
+            'type_tag_enum::type_tag_char_string': string_constant_info
             'type_tag_enum::type_tag_decimal': decimal_constant_info
             'type_tag_enum::type_tag_boolean': boolean_constant_info
             'type_tag_enum::type_tag_nil': nil_constant_info
@@ -1210,6 +1232,24 @@ types:
       - id: field_name_cp_index
         type: s4
       - id: lock_bb_id_name_cp_index
+        type: s4
+  instruction_wait_all:
+    seq:
+      - id: lhs_operand
+        type: operand
+      - id: key_names_count
+        type: s4
+      - id: key_name_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: key_names_count
+      - id: value_expressions_count
+        type: s4
+      - id: value_expression
+        type: operand
+        repeat: expr
+        repeat-expr: value_expressions_count
+      - id: then_bb_id_name_cp_index
         type: s4
   instruction_map_store:
     seq:
