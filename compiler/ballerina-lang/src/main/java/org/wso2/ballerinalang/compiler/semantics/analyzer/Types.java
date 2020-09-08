@@ -3494,6 +3494,9 @@ public class Types {
                 return memberTypes.size() <= 2 && memberTypes.contains(symTable.nilType);
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
+                if (elementType.tag == TypeTags.ARRAY) {
+                    elementType = ((BArrayType) elementType).eType;
+                }
                 if (elementType.tag == TypeTags.UNION) {
                     Set<BType> memTypes = ((BUnionType) elementType).getMemberTypes();
                     // can not sort (string?|int)[]/(string|int)[], can sort string?[]

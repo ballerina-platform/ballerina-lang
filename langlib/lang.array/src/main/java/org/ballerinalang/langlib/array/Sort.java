@@ -34,6 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.PrimitiveIterator;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
@@ -81,7 +82,8 @@ public class Sort {
         if (elemType.getTag() == TypeTags.ARRAY_TAG) {
             BType type = ((BArrayType) elemType).getElementType();
             if (type.getTag() == TypeTags.UNION_TAG) {
-                elemType = getMemberType((BUnionType) type);
+                BType memberType = getMemberType((BUnionType) type);
+                elemType = new BArrayType(memberType);
             }
         }
 
@@ -171,11 +173,16 @@ public class Sort {
                     return 1;
                 }
                 return -1;
-            } else if (Double.isNaN((double) value2)) {
+            }
+            if (Double.isNaN((double) value2)) {
                 if (isAscending) {
                     return -1;
                 }
                 return 1;
+            }
+            // -0.0 = +0.0
+            if ((double) value1 == 0 && (double) value2 == 0) {
+                return 0;
             }
             c = Double.compare((double) value1, (double) value2);
         } else if (type.getTag() == TypeTags.DECIMAL_TAG) {
@@ -183,15 +190,31 @@ public class Sort {
         } else if (type.getTag() == TypeTags.BOOLEAN_TAG) {
             c = Boolean.compare((boolean) value1, (boolean) value2);
         } else if (TypeTags.isStringTypeTag(type.getTag())) {
-            c = value1.toString().compareToIgnoreCase(value2.toString());
+            c = codePointCompare(value1.toString(), value2.toString());
         } else if (type.getTag() == TypeTags.BYTE_TAG) {
             c = Integer.compare((int) value1, (int) value2);
         } else if (type.getTag() == TypeTags.ARRAY_TAG) {
-            for (int i = 0; i < ((ArrayValue) value1).size(); i++) {
+            int lengthVal1 = ((ArrayValue) value1).size();
+            int lengthVal2 = ((ArrayValue) value2).size();
+            if (lengthVal1 == 0) {
+                if (lengthVal2 == 0) {
+                    return 0;
+                }
+                return -1;
+            }
+            if (lengthVal2 == 0) {
+                return 1;
+            }
+            int len = Math.min(lengthVal1, lengthVal2);
+            for (int i = 0; i < len; i++) {
                 c = sortFunc(((ArrayValue) value1).get(i), ((ArrayValue) value2).get(i),
-                        ((ArrayValue) value1).getElementType(), isAscending);
+                        ((BArrayType) type).getElementType(), isAscending);
                 if (c != 0) {
                     break;
+                } else {
+                    if (i == len - 1 && lengthVal1 < lengthVal2) {
+                        return -1;
+                    }
                 }
             }
         } else {
@@ -199,5 +222,26 @@ public class Sort {
                     + type.toString());
         }
         return c;
+    }
+
+    private static int codePointCompare(String str1, String str2) {
+        PrimitiveIterator.OfInt iterator1 = str1.codePoints().iterator();
+        PrimitiveIterator.OfInt iterator2 = str2.codePoints().iterator();
+        while (iterator1.hasNext()) {
+            if (!iterator2.hasNext()) {
+                return 1;
+            }
+            Integer codePoint1 = iterator1.next();
+            Integer codePoint2 = iterator2.next();
+
+            int cmp = codePoint1.compareTo(codePoint2);
+            if (cmp != 0) {
+                return cmp;
+            }
+        }
+        if (iterator2.hasNext()) {
+            return -1;
+        }
+        return 0;
     }
 }

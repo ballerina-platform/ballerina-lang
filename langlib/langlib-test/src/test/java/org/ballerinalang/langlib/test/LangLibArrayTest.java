@@ -382,83 +382,83 @@ public class LangLibArrayTest {
         int errorIndex = 0;
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'push' on fixed length list(s) of type " +
                                           "'int[1]'",
-                                  19, 22);
+                                  20, 22);
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'push' on fixed length list(s) of type " +
                                           "'[int,int]'",
-                                  24, 22);
+                                  25, 22);
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'pop' on fixed length list(s) of type " +
                                           "'int[1]'",
-                                  29, 35);
+                                  30, 35);
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'pop' on fixed length list(s) of type " +
                                           "'[int,int]'",
-                                  34, 35);
+                                  35, 35);
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'shift' on fixed length list(s) of type " +
                                           "'int[1]'",
-                                  45, 30);
+                                  46, 30);
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'unshift' on fixed length list(s) of " +
                                           "type 'int[1]'",
-                                  50, 22);
+                                  51, 22);
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'shift' on fixed length list(s) of type " +
                                           "'[int,int]'",
-                                  55, 35);
+                                  56, 35);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'unshift' on fixed length list(s) of type '[int,int]'",
-                                  60, 22);
+                                  61, 22);
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'push' on fixed length list(s) of type " +
                                           "'int[2]'",
-                                  66, 22);
+                                  67, 22);
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'pop' on fixed length list(s) of type " +
                                           "'int[2]'",
-                                  67, 30);
+                                  68, 30);
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'shift' on fixed length list(s) of type " +
                                           "'int[2]'",
-                                  68, 26);
+                                  69, 26);
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'unshift' on fixed length list(s) of " +
                                           "type 'int[2]'",
-                                  69, 22);
+                                  70, 22);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'push' on fixed length list(s) of type '(int[1]|float[1])'",
-                                  74, 22);
+                                  75, 22);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'push' on fixed length list(s) of type '([int,int][1]|[float," +
                                           "float][1])'",
-                                  79, 22);
+                                  80, 22);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'shift' on tuple(s) of type '[int,string...]': cannot violate inherent" +
                                           " type",
-                                  84, 24);
+                                  85, 24);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'shift' on tuple(s) of type '[int,string,int...]': cannot violate " +
                                           "inherent type",
-                                  89, 24);
+                                  90, 24);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'push' on fixed length list(s) of type '([int,int]|[float,float])'",
-                                  100, 22);
+                                  101, 22);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'shift' on fixed length list(s) of type '[string,int]'",
-                                  118, 24);
+                                  119, 24);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "incompatible types: expected '(descending|ascending)', found 'function (int) returns (int)'",
-                125, 32);
+                126, 32);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "incompatible types: expected '(descending|ascending)', found 'function (int) returns (int)'",
-                129, 33);
+                130, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "incompatible types: expected 'function ((any|error)) returns " +
                         "((boolean|int|float|decimal|string|(boolean|int|float|decimal|string)?[])?)?', " +
-                        "found 'string'", 131, 8);
+                        "found 'string'", 132, 8);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array to sort: type '(string|int)[]' is not an ordered type",
-                135, 33);
+                136, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array to sort: type '(string|int)[]' is not an ordered type",
-                137, 33);
+                138, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array to sort: type '(string|int)[]' is not an ordered type",
-                139, 33);
+                140, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid array sort key function return type: type '(string|int)' is not an ordered type",
-                141, 33);
+                142, 33);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -505,5 +505,20 @@ public class LangLibArrayTest {
     @Test
     public void testSort6() {
         BRunUtil.invoke(compileResult, "testSort6");
+    }
+
+    @Test
+    public void testSort7() {
+        BRunUtil.invoke(compileResult, "testSort7");
+    }
+
+    @Test
+    public void testSort8() {
+        BRunUtil.invoke(compileResult, "testSort8");
+    }
+
+    @Test
+    public void testSort9() {
+        BRunUtil.invoke(compileResult, "testSort9");
     }
 }

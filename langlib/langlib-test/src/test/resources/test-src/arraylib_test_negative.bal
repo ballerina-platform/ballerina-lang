@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.array;
 
 function testPushOnFixedLengthArray() {
     int[1] fixedLengthArray = [1];
@@ -128,17 +129,17 @@ function testArrSortNegativeScenarios() {
 
     int[] sortedArr2 = arr.sort(function(int x) returns int {
         return x;
-    }, "descending");
+    }, array:DESCENDING);
 
     (string|int)[] arr2 = [23, "A", "Z", 10, "D"];
 
     (string|int)[] sortedArr3 = arr2.sort();
 
-    (string|int)[] sortedArr4 = arr2.sort("descending");
+    (string|int)[] sortedArr4 = arr2.sort(array:DESCENDING);
 
-    (string|int)[] sortedArr5 = arr2.sort("descending", ());
+    (string|int)[] sortedArr5 = arr2.sort(array:DESCENDING, ());
 
-    (string|int)[] sortedArr6 = arr2.sort("descending", function((string|int) val) returns string|int {
+    (string|int)[] sortedArr6 = arr2.sort(array:DESCENDING, function((string|int) val) returns string|int {
         return val;
     });
 }
