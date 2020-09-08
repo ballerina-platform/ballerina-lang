@@ -558,7 +558,7 @@ public class BIRGen extends BLangNodeVisitor {
             birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
                                       astFunc.sendsToThis.size(), taintTable, astFunc.symbol.origin.toBIROrigin());
         }
-        this.currentScope = new BirScope(0, null, birFunc);
+        this.currentScope = new BirScope(0, null);
         if (astFunc.receiver != null) {
             BIRFunctionParameter birVarDcl = new BIRFunctionParameter(astFunc.pos, astFunc.receiver.type,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG,
@@ -1032,11 +1032,9 @@ public class BIRGen extends BLangNodeVisitor {
         // This is required to pull the correct bir_variable declaration for variable references.
         this.env.symbolVarMap.put(astVarDefStmt.var.symbol, birVarDcl);
 
-        BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope, this.currentScope.function);
+        BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope);
         birVarDcl.insScope = newScope;
         this.currentScope = newScope;
-
-
 
         if (astVarDefStmt.var.expr == null) {
             return;

@@ -59,13 +59,19 @@ import java.util.List;
 public class BIRInstructionWriter extends BIRVisitor {
 
     private ByteBuf buf;
+    private ByteBuf scopeBuf;
     private ConstantPool cp;
     private BIRBinaryWriter binaryWriter;
+    private int instructionOffset;
+    private BirScope previousScope;
 
-    BIRInstructionWriter(ByteBuf buf, ConstantPool cp, BIRBinaryWriter birBinaryWriter) {
+    BIRInstructionWriter(ByteBuf buf, ByteBuf scopeBuf, ConstantPool cp, BIRBinaryWriter birBinaryWriter) {
         this.buf = buf;
+        this.scopeBuf = scopeBuf;
         this.binaryWriter = birBinaryWriter;
         this.cp = cp;
+        this.instructionOffset = 0;
+        this.previousScope = null;
     }
 
     void writeBBs(List<BIRBasicBlock> bbList) {
@@ -73,33 +79,28 @@ public class BIRInstructionWriter extends BIRVisitor {
         bbList.forEach(bb -> bb.accept(this));
     }
 
-    void writeScopes(List<BIRBasicBlock> bbList) {
-        int instructionOffset = 0;
-        BirScope currentScope = null;
-        for (BIRBasicBlock bb : bbList) {
-            for (BIRAbstractInstruction ins : bb.instructions) {
-                instructionOffset++;
+    void writeScopes(BIRAbstractInstruction instruction) {
+        this.instructionOffset++;
+        BirScope currentScope = instruction.scope;
 
-                if (ins.scope == currentScope) {
-                    continue;
-                }
-
-                currentScope = ins.scope;
-                writeScope(currentScope, instructionOffset);
-            }
+        if (currentScope == this.previousScope) {
+            return;
         }
+
+        this.previousScope = currentScope;
+        writeScope(currentScope);
     }
 
-    private void writeScope(BirScope currentScope, int instructionOffset) {
-        buf.writeInt(currentScope.id);
-        buf.writeInt(instructionOffset);
+    private void writeScope(BirScope currentScope) {
+        scopeBuf.writeInt(currentScope.id);
+        scopeBuf.writeInt(this.instructionOffset);
 
         if (currentScope.parent != null) {
-            buf.writeInt(1); // Parent available.
-            buf.writeInt(currentScope.parent.id);
-            writeScope(currentScope.parent, instructionOffset);
+            scopeBuf.writeBoolean(true); // Parent available.
+            scopeBuf.writeInt(currentScope.parent.id);
+            writeScope(currentScope.parent);
         } else {
-            buf.writeInt(0);
+            scopeBuf.writeBoolean(false);
         }
     }
 
@@ -113,6 +114,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         birBasicBlock.instructions.forEach(instruction -> {
             // write pos and kind
             writePosition(instruction.pos);
+            writeScopes(instruction);
             buf.writeByte(instruction.kind.getValue());
             // write instruction
             instruction.accept(this);

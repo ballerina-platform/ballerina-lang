@@ -65,8 +65,9 @@ public class BIRBinaryWriter {
 
     public byte[] serialize() {
         ByteBuf birbuf = Unpooled.buffer();
+        ByteBuf scopebuf = Unpooled.buffer();
         BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp);
-        BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, cp, this);
+        BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, scopebuf, cp, this);
 
 
         // Write the package details in the form of constant pool entry
@@ -237,7 +238,8 @@ public class BIRBinaryWriter {
         typeWriter.writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
 
         ByteBuf birbuf = Unpooled.buffer();
-        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, cp, this);
+        ByteBuf scopebuf = Unpooled.buffer();
+        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, scopebuf, cp, this);
 
         // Arg count
         birbuf.writeInt(birFunction.argsCount);
@@ -296,12 +298,19 @@ public class BIRBinaryWriter {
             birbuf.writeBoolean(details.send);
         }
 
-        funcInsWriter.writeScopes(birFunction.basicBlocks);
+        // Write the instruction vs scope table
+        writeScopes(buf, scopebuf);
 
         // Write length of the function body so that it can be skipped easily.
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeScopes(ByteBuf buf, ByteBuf scopebuf) {
+        int length = scopebuf.nioBuffer().limit();
+        buf.writeLong(length);
+        buf.writeBytes(scopebuf.nioBuffer().array(), 0, length);
     }
 
     private void writeTaintTable(ByteBuf buf, TaintTable taintTable) {

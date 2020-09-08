@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -96,8 +95,6 @@ public class JvmCodeGenUtil {
     public static final String INITIAL_MEHOD_DESC = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
 
     public static final String SCOPE_PREFIX = "_SCOPE_";
-    private static BirScope lastScope = null;
-    private static Set<BirScope> visitedScopesSet = new HashSet<>();
 
     private JvmCodeGenUtil() {
     }
@@ -515,30 +512,32 @@ public class JvmCodeGenUtil {
     }
 
     public static void generateBbInstructions(MethodVisitor mv, LabelGenerator labelGen, JvmInstructionGen instGen,
-                                              int localVarOffset, AsyncDataCollector asyncDataCollector,
-                                              String funcName,
-                                              BIRNode.BIRBasicBlock bb) {
+            int localVarOffset, AsyncDataCollector asyncDataCollector,
+            String funcName,
+            BIRNode.BIRBasicBlock bb, Set<BirScope> visitedScopesSet, BirScope lastScope) {
+
         int insCount = bb.instructions.size();
         for (int i = 0; i < insCount; i++) {
             Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + i);
             mv.visitLabel(insLabel);
             BIRInstruction inst = bb.instructions.get(i);
             if (inst != null) {
-                generateDiagnosticPos((BIRAbstractInstruction) inst, funcName, mv, labelGen);
+                generateDiagnosticPos((BIRAbstractInstruction) inst, funcName, mv, labelGen, visitedScopesSet,
+                        lastScope);
                 instGen.generateInstructions(localVarOffset, asyncDataCollector, inst);
             }
         }
     }
 
     private static void generateDiagnosticPos(BIRAbstractInstruction instruction, String funcName, MethodVisitor mv,
-            LabelGenerator labelGen) {
+            LabelGenerator labelGen, Set<BirScope> visitedScopesSet, BirScope lastScope) {
 
         BirScope scope = instruction.scope;
         if (scope != null && scope != lastScope) {
             lastScope = scope;
             Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id);
             generateDiagnosticPos(instruction.pos, mv, scopeLabel);
-            storeLabelForParentScopes(scope, scopeLabel, labelGen, funcName);
+            storeLabelForParentScopes(scope, scopeLabel, labelGen, funcName, visitedScopesSet);
             visitedScopesSet.add(scope);
         } else {
             generateDiagnosticPos(instruction.pos, mv);
@@ -558,7 +557,7 @@ public class JvmCodeGenUtil {
     }
 
     private static void storeLabelForParentScopes(BirScope scope, Label scopeLabel, LabelGenerator labelGen,
-            String funcName) {
+            String funcName, Set<BirScope> visitedScopesSet) {
 
         BirScope parent = scope.parent;
         if (parent != null && !visitedScopesSet.contains(parent)) {
@@ -566,7 +565,7 @@ public class JvmCodeGenUtil {
             labelGen.putLabel(labelName, scopeLabel);
             visitedScopesSet.add(parent);
 
-            storeLabelForParentScopes(parent, scopeLabel, labelGen, funcName);
+            storeLabelForParentScopes(parent, scopeLabel, labelGen, funcName, visitedScopesSet);
         }
     }
 
@@ -580,9 +579,5 @@ public class JvmCodeGenUtil {
         // goto thenBB
         Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
         mv.visitJumpInsn(GOTO, gotoLabel);
-    }
-
-    public static void cleanupScopeSet() {
-        visitedScopesSet.clear();
     }
 }
