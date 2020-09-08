@@ -47,7 +47,7 @@ import java.util.function.Predicate;
  * @param <T> block node type
  * @since 2.0.0
  */
-public class VariableDeclarationProvider<T extends Node> extends AbstractCompletionProvider<T> {
+public abstract class VariableDeclarationProvider<T extends Node> extends AbstractCompletionProvider<T> {
 
     public VariableDeclarationProvider(Class<T> attachmentPoint) {
         super(attachmentPoint);
