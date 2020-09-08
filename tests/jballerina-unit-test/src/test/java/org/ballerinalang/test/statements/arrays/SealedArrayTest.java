@@ -31,8 +31,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-
 /**
  * Test cases for ballerina.model.arrays.
  */
@@ -412,7 +410,8 @@ public class SealedArrayTest {
     }
 
     @Test(groups = { "disableOnOldParser" })
-    public void testArrayWithConstantSizeReferenceFill() { BRunUtil.invokeFunction(compileResult, "testArrayWithConstantSizeReferenceFill");
+    public void testArrayWithConstantSizeReferenceFill() {
+        BRunUtil.invokeFunction(compileResult, "testArrayWithConstantSizeReferenceFill");
     }
 
     @Test

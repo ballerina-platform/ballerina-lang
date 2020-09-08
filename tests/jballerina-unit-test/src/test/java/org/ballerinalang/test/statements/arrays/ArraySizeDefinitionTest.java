@@ -39,7 +39,8 @@ import org.testng.annotations.Test;
 public class ArraySizeDefinitionTest {
 
     private String sizeMismatchError = "size mismatch in sealed array. expected '2', but found '3'";
-    private String invalidReferenceExpressionError = "invalid reference expression 'intLength' as array size: expected a constant reference expression";
+    private String invalidReferenceExpressionError = "invalid reference expression " +
+            "'intLength' as array size: expected a constant reference expression";
     private String incompatibleTypeError = "incompatible types: expected 'int', found 'string'";
     private String undefinedSymbolError = "undefined symbol 'length'";
 
@@ -50,25 +51,25 @@ public class ArraySizeDefinitionTest {
                 "test-src/statements/arrays/array-size-test.bal");
         Assert.assertEquals(result.getDiagnostics().length, 20);
         BAssertUtil.validateError(result, index++, sizeMismatchError, 6, 26);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError,7, 9);
+        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 7, 9);
         BAssertUtil.validateError(result, index++, incompatibleTypeError, 8, 9);
         BAssertUtil.validateError(result, index++, undefinedSymbolError, 9, 5);
         BAssertUtil.validateError(result, index++, sizeMismatchError, 10, 16);
 
         BAssertUtil.validateError(result, index++, sizeMismatchError, 12, 36);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError,13, 12);
+        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 13, 12);
         BAssertUtil.validateError(result, index++, incompatibleTypeError, 14, 12);
         BAssertUtil.validateError(result, index++, undefinedSymbolError, 15, 5);
         BAssertUtil.validateError(result, index++, sizeMismatchError, 16, 26);
 
         BAssertUtil.validateError(result, index++, sizeMismatchError, 18, 29);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError,19, 9);
+        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 19, 9);
         BAssertUtil.validateError(result, index++, incompatibleTypeError, 20, 9);
         BAssertUtil.validateError(result, index++, undefinedSymbolError, 21, 5);
         BAssertUtil.validateError(result, index++, sizeMismatchError, 22, 19);
 
         BAssertUtil.validateError(result, index++, sizeMismatchError, 24, 33);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError,25, 12);
+        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 25, 12);
         BAssertUtil.validateError(result, index++, incompatibleTypeError, 26, 12);
         BAssertUtil.validateError(result, index++, undefinedSymbolError, 27, 5);
         BAssertUtil.validateError(result, index++, sizeMismatchError, 28, 23);
@@ -81,22 +82,22 @@ public class ArraySizeDefinitionTest {
                 "test-src/statements/arrays/array-size-scope-test.bal");
         Assert.assertEquals(result.getDiagnostics().length, 16);
         BAssertUtil.validateError(result, index++, sizeMismatchError, 6, 22);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError,7, 5);
+        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 7, 5);
         BAssertUtil.validateError(result, index++, incompatibleTypeError, 8, 5);
         BAssertUtil.validateError(result, index++, undefinedSymbolError, 9, 1);
 
         BAssertUtil.validateError(result, index++, sizeMismatchError, 13, 26);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError,14, 9);
+        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 14, 9);
         BAssertUtil.validateError(result, index++, incompatibleTypeError, 15, 9);
         BAssertUtil.validateError(result, index++, undefinedSymbolError, 16, 5);
 
         BAssertUtil.validateError(result, index++, sizeMismatchError, 21, 41);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError,22, 24);
+        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 22, 24);
         BAssertUtil.validateError(result, index++, incompatibleTypeError, 23, 24);
         BAssertUtil.validateError(result, index++, undefinedSymbolError, 24, 20);
 
         BAssertUtil.validateError(result, index++, sizeMismatchError, 33, 30);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError,34, 13);
+        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 34, 13);
         BAssertUtil.validateError(result, index++, incompatibleTypeError, 35, 13);
         BAssertUtil.validateError(result, index++, undefinedSymbolError, 36, 9);
     }
