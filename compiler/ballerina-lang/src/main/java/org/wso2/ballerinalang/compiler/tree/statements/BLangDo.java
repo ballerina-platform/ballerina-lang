@@ -25,7 +25,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 
 /**
- * @since Swan Lake
+ * Implementation for the do tree node.
+ *
+ * do {.
+ *  body.
+ * }.
+ *
+ * @since 2.0.0
  */
 public class BLangDo extends BLangStatement implements DoNode {
 
