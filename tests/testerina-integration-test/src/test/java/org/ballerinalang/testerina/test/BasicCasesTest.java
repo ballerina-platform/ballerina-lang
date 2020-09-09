@@ -31,13 +31,13 @@ public class BasicCasesTest extends BaseTestCase {
     private BMainInstance balClient;
     private String projectPath;
 
-    @BeforeClass(enabled = false)
+    @BeforeClass(enabled = true)
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
         projectPath = basicTestsProjectPath.toString();
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testAssertTrue() throws BallerinaTestException {
         String msg = "2 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -55,7 +55,7 @@ public class BasicCasesTest extends BaseTestCase {
         clientLeecher.waitForText(600000);
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testAnnotationAccess() throws BallerinaTestException {
         String msg = "3 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -64,7 +64,7 @@ public class BasicCasesTest extends BaseTestCase {
         clientLeecher.waitForText(40000);
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testJavaInterops() throws BallerinaTestException {
         String msg = "1 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
