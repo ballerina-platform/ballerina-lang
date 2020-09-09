@@ -53,7 +53,7 @@ OPTIONS
             of openApi to ballerina file generation.
 
         (--operations) <operation names>
-            This operations use to filter the operations wise need to generate services. This option uses with command
+            These operations are used to filter the operations that are needed to generate services. This option is used with the command
             of openApi to ballerina file generation.
 
 SUB COMMANDS
