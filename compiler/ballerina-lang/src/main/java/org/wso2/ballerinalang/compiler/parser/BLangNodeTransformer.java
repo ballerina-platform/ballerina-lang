@@ -3677,6 +3677,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                             if (position == 0) {
                                 bLangErrorVariable.message =
                                         (BLangSimpleVariable) getBLangVariableNode(bindingPatternNode);
+                                break;
                             }
                             // Fall through.
                         case ERROR_BINDING_PATTERN:

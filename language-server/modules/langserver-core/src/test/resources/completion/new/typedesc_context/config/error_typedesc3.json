@@ -9,7 +9,6 @@
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "180",
       "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +16,6 @@
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "180",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +23,6 @@
       "label": "TestRecord2",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "180",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +30,6 @@
       "label": "TestMap2",
       "kind": "Unit",
       "detail": "Map",
-      "sortText": "230",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -41,7 +37,6 @@
       "label": "TestMap3",
       "kind": "Unit",
       "detail": "Map",
-      "sortText": "230",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     }

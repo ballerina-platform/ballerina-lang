@@ -22,7 +22,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
@@ -47,7 +47,7 @@ public class TableTypeDescriptorNodeContext extends AbstractCompletionProvider<T
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (this.onSuggestKeyKw(context, node)) {
-            return Collections.singletonList(new StaticCompletionItem(context, Snippet.KW_KEY.get().build(context)));
+            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_KEY.get()));
         }
 
         return completionItems;
