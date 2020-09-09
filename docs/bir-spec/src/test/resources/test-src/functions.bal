@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/lang.'int;
 
 function foo() {
@@ -30,7 +29,7 @@ function baz(string s, float f) returns byte {
 }
 
 function printValue(string value) {
-    io:println(value);
+    // do nothing
 }
 
 function add(int a, int b) returns int {
@@ -39,14 +38,12 @@ function add(int a, int b) returns int {
 
 function printAndReturnValue(string s) returns string {
     string t = "Hello ".concat(s);
-    io:println(t);
     return t;
 }
 
 public function functionWithInvocations() {
     printValue("This is a sample text");
     int result = add(5, 6);
-    io:println(result);
     _ = printAndReturnValue("World");
 }
 
@@ -56,18 +53,14 @@ function calculate(int a, int b, int c) returns int {
 
 public function functionInvocationWithRequiredParams() {
     int result = calculate(5, 6, 7);
-    io:println(result);
     result = calculate(5, c = 7, b = 6);
-    io:println(result);
 }
 
 function printSalaryDetails(int baseSalary,
                             int annualIncrement = 20,
                             float bonusRate = 0.02) {
 
-    io:println("Base Salary: ", baseSalary,
-                " | Annual Increment: ", annualIncrement,
-                " | Bonus Rate: ", bonusRate);
+    // do nothing
 }
 public function functionInvocationWithDefaultParams() {
     printSalaryDetails(2500);
@@ -85,7 +78,6 @@ function printDetails(string name,
     string detailString = "Name: " + name + ", Age: " + age.toString();
 
     if (modules.length() == 0) {
-        io:println(detailString);
         return;
     }
     int index = 0;
@@ -98,7 +90,6 @@ function printDetails(string name,
         }
         index += 1;
     }
-    io:println(detailString, ", ", moduleString);
 }
 public function functionWithRestParams() {
     printDetails("Alice");
@@ -134,12 +125,12 @@ function getFunctionPointer() returns
 }
 
 public function functionWithFunctionPointers() {
-    io:println("Answer: ", invokeFunctionPointer(10, testFunctionPointer));
-    io:println("Answer: ", invokeFunctionPointer(10, getFunctionPointer()));
+    _ = invokeFunctionPointer(10, testFunctionPointer);
+    _ = invokeFunctionPointer(10, getFunctionPointer());
 
     function (string, int...) returns float f = getFunctionPointer();
 
-    io:println("Answer: ", invokeFunctionPointer(10, f));
+    _ = invokeFunctionPointer(10, f);
 }
 
 public function anonymousFunctions() {
@@ -147,7 +138,7 @@ public function anonymousFunctions() {
             function (string x, string y) returns string {
                 return x + y;
             };
-    io:println("Output: ", anonFunction("Hello ", "World.!!!"));
+    _ = anonFunction("Hello ", "World.!!!");
 
     var anonFunction2 = function (string x, string y, string... z) returns string {
                             string value = x + y;
@@ -156,11 +147,10 @@ public function anonymousFunctions() {
                             }
                             return value;
                         };
-    io:println("Output: ", anonFunction2("Ballerina ", "is ", "an ", "open ",
-     "source ", "programming ", "language."));
+    _ = anonFunction2("Ballerina ", "is ", "an ", "open ", "source ", "programming ", "language.");
 
     function (string, string) returns string arrowExpr = (x, y) => x + y;
-    io:println("Output: ", arrowExpr("Hello ", "World.!!!"));
+    _ = arrowExpr("Hello ", "World.!!!");
 }
 
 public function expressionBodiedFunction() {
@@ -172,7 +162,6 @@ public function expressionBodiedFunction() {
 
     PersonRec john = { fname: "John", lname: "Doe", age: 25 };
     EmployeeRec johnEmp = toEmployee(john, "Software Engineer");
-    io:println(johnEmp);
 }
 
 type PersonRec record {|
@@ -195,10 +184,8 @@ public function functionWithIteration() {
         e: "elephant"
     };
 
-    io:println("Number of elements in 'words': ", words.length());
 
     map<string> animals = words.map(toUpper);
-    io:println(animals);
 
     int[] numbers = [-5, -3, 2, 7, 12];
 
@@ -206,25 +193,19 @@ public function functionWithIteration() {
         return i >= 0;
     });
 
-    io:println("Positive numbers: ", positive);
 
     numbers.forEach(function(int i) {
-        io:println(i);
+        int x = i;
     });
 
     int total = numbers.reduce(sum, 0);
-    io:println("Total: ", total);
 
     int totalWithInitialValue = numbers.reduce(sum, 5);
-    io:println("Total with initial value: ", totalWithInitialValue);
-    io:println("\nExecution Order:-");
     map<json> j = {name: "apple", colors: ["red", "green"], price: 5};
     j.map(function (json value) returns string {
         string result = value.toString();
-        io:println("- map operation's value: ", result);
         return result;
     }).forEach(function (string s) {
-        io:println("-- foreach operation's value: ", s);
     });
 
 }

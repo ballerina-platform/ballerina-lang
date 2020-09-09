@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 const int aInt = 4;
 const str = "Hello";
 const nameWithoutType = "Ballerina";
@@ -977,34 +975,24 @@ public function functionWithImmutableValues() {
 
     map<string|int> m2 = m1.cloneReadOnly();
 
-    io:println("m1 === m2: ", m1 === m2);
-
-    io:println("m1 is immutable: ", m1.isReadOnly());
-
-    io:println("m2 is immutable: ", m2.isReadOnly());
-
     map<string|int> m3 = m2.cloneReadOnly();
-
-    io:println("m2 === m3: ", m2 === m3);
 
     map<string|int> m5 = {valueType: "map", constraint: "string"};
 
     var frozenVal = m5.cloneReadOnly();
 
     if (frozenVal is map<string>) {
-        io:println("frozenVal is map<string>");
+        // do nothing
     }
 }
 
 public function functionWithRangeExpressions() {
-    io:println("foreach for 25 ... 28");
     foreach int i in 25 ... 28 {
-        io:println(i);
+        // do nothing
     }
 
-    io:println("\nforeach for 25 ..< 28");
     foreach int i in 25 ..< 28 {
-        io:println(i);
+        // do nothing
     }
 
     abstract object {
@@ -1018,11 +1006,10 @@ public function functionWithRangeExpressions() {
             public function next() returns (record {|int value;|}?);
     } iterator = iterableObj.__iterator();
 
-    io:println("\niterable object for 25 ..< 28");
     while (true) {
         record {|int value;|}? r = iterator.next();
         if (r is record {|int value;|}) {
-            io:println(r.value);
+            // do nothing
         } else {
             break;
         }
@@ -1032,30 +1019,22 @@ public function functionWithRangeExpressions() {
 public function functionWithStringTemplate() {
     string name = "Ballerina";
     string template = string `Hello ${name}!!!`;
-
-    io:println(template);
 }
 
 public function functionWithLetExpressions() {
     int a = let int b = 1 in b * 2;
-    io:println("a: ", a);
-
     string greeting = let string hello = "Hello ",
                           string ballerina = "Ballerina!"
                       in hello + ballerina;
-    io:println("greeting: ", greeting);
 
     int three = let int one = getInt(), int two = one + one in one + two;
-    io:println("three: ", three);
 
     int length = let var num = 10, var txt = "four" in num + txt.length();
-    io:println("length: ", length);
 
     [int, int] v1 = [10, 20];
     int tupleBindingResult = let [int, int] [d1, d2] = v1,
                                  int d3 = d1 + d2
                              in  d3 * 2;
-    io:println("tuple binding result: ", tupleBindingResult);
 
     int age = let Person3 {
                     name: firstName,
@@ -1063,10 +1042,8 @@ public function functionWithLetExpressions() {
                     ...otherDetails
               } = getPerson()
               in personAge;
-    io:println("age: ", age);
     var fatal = let var error(reason, ...params) = getSampleError()
                     in params["fatal"];
-    io:println("fatal: ", fatal);
 }
 
 public function getInt() returns int => 1;

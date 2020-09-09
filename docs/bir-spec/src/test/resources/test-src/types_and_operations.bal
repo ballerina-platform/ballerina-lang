@@ -14,47 +14,59 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-import ballerina/io;
-import ballerina/java;
-import ballerina/runtime;
 import ballerina/lang.'xml;
 import ballerina/lang.'int;
 import ballerina/lang.'string;
+import ballerina/lang.'object as lang;
 
-service hello on new http:Listener(9090) {
+listener Listener testListener = new;
 
-    resource function sayHello(http:Caller caller,
-        http:Request req) returns error? {
+service hello on testListener {
 
-        check caller->respond("Hello, World!");
+    resource function res(int intVal) returns error? {
+        return;
     }
 }
+
+type Listener object {
+    *lang:Listener;
+
+    public function init() {
+    }
+
+    public function __attach(service s, string? name = ()) returns error? {
+    }
+
+    public function __detach(service s) returns error? {
+    }
+
+    public function __start() returns error? {
+    }
+
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
+        return ();
+    }
+};
+
 
 public function workersTest() {
     @strand {thread: "any"}
     worker w1 {
-        io:println("Hello, World! #m");
+        // do nothing
     }
 
     @strand {thread: "any"}
     worker w2 {
-        io:println("Hello, World! #n");
+        // do nothing
     }
     @strand {thread: "any"}
     worker w3 {
-        io:println("Hello, World! #k");
+        // do nothing
     }
-}
-
-public function clientTest() returns @tainted error? {
-    http:Client clientEP = new ("http://www.mocky.io");
-
-    http:Response resp = check clientEP->get("/v2/5ae082123200006b00510c3d/");
-
-    string payload = check resp.getTextPayload();
-
-    io:println(payload);
 }
 
 function 'function(int val) returns int {
@@ -65,10 +77,8 @@ public function quotedIdentifiersTest() {
     int 'int = 1;
 
     int i = 'function('int);
-    io:println(i);
 
     int '1PlusI = 1 + i;
-    io:println('1PlusI);
 }
 
 type Person record {
@@ -202,9 +212,6 @@ function inherentlyImmutableBasicTypes() {
     typedesc<any> typeDesc = typeof Employee;
     any l = typeDesc;
 
-    handle handleVal = java:fromString("val");
-    any m = handleVal;
-
     'xml:Text xmlText = xml `xml text`;
     any n = xmlText;
 }
@@ -291,7 +298,7 @@ public function functionWithQueryExpression() {
     };
 
     foreach var name in nameList {
-        io:println(name);
+
     }
 }
 
@@ -325,9 +332,9 @@ public function functionWithStreams() {
 
     record {|int value;|}|error? oddNumber = oddNumberStream.next();
     if (oddNumber is ResultValue) {
-        io:println("Retrieved odd number: ", oddNumber.value);
+        // do nothing
     }
-    io:println("Filter records and map them to a different type :");
+
     Student s1 = {firstName: "Alex", lastName: "George", score: 1.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 0.9};
     Student s3 = {firstName: "John", lastName: "David", score: 1.2};
@@ -346,36 +353,36 @@ public function functionWithStreams() {
         return subscription;
     });
 
-    io:println("Calculate the average score of the subscribed students: ");
+
     float? avg = subscriptionStream.reduce(function (float accum, Student student) returns float {
         return accum + <float>student.score / studentList.length();
     }, 0.0);
 
     if (avg is float) {
-        io:println("Average: ", avg);
+        // do nothing
     }
        stream<Student> studentStream2 = studentList.toStream();
 
-    io:println("Calls next method manually and get the next iteration value: ");
+
     record {|Student value;|}|error? student = studentStream2.next();
     if (student is StudentValue) {
-        io:println(student.value);
+        // do nothing
     }
 
-    io:println("Use foreach method to loop through the rest of the stream: ");
+
     error? e = studentStream2.forEach(function (Student student) {
-        io:println("Student ", student.firstName, " has a score of ", student.score);
+        // do nothing
     });
 
     if (e is error) {
-        io:println("ForEach operation on the stream failed: ", e);
+        // do nothing
     }
 
     stream<Student> studentStream3 = studentList.toStream();
     var iterator = studentStream3.iterator();
     record {|Student value;|}|error? nextStudent = iterator.next();
     if (nextStudent is StudentValue) {
-        io:println(nextStudent.value);
+        // do nothing
     }
 }
 
@@ -387,26 +394,18 @@ public function functionWithWorkerInteractions() {
 
         [int, float] t1 = [i, k];
         t1 -> w2;
-        io:println("[w1 -> w2] i: ", i, " k: ", k);
 
         json j = {};
         j = <- w2;
         string jStr = j.toString();
-        io:println("[w1 <- w2] j: ", jStr);
-        io:println("[w1 ->> w2] i: ", i);
 
         () send = i ->> w2;
 
-        io:println("[w1 ->> w2] successful!!");
-
-        io:println("[w1 -> w3] k: ", k);
         k -> w3;
         k -> w3;
         k -> w3;
 
-        io:println("Waiting for worker w3 to fetch messages..");
         error? flushResult = flush w3;
-        io:println("[w1 -> w3] Flushed!!");
     }
 
     worker w2 {
@@ -415,25 +414,21 @@ public function functionWithWorkerInteractions() {
         [int, float] vW1 = [0, 1.0];
         vW1 = <- w1;
         [iw, kw] = vW1;
-        io:println("[w2 <- w1] iw: ", iw, " kw: ", kw);
 
         json jw = {"name": "Ballerina"};
-        io:println("[w2 -> w1] jw: ", jw);
+
         jw -> w1;
 
         int lw;
-        runtime:sleep(5);
         lw = <- w1;
-        io:println("[w2 <- w1] lw: ", lw);
+
     }
 
     worker w3 {
         float mw;
-        runtime:sleep(50);
         mw = <- w1;
         mw = <- w1;
         mw = <- w1;
-        io:println("[w3 <- w1] mw: ", mw);
     }
 
     wait w1;
@@ -448,12 +443,7 @@ public function functionWithFork() {
     string name = <string>m["name"];
     string city = <string>m["city"];
     string postcode = <string>m["postcode"];
-    io:println("[value type variables] before fork: " +
-                   "value of integer variable is [", i, "] ",
-                   "value of string variable is [", s, "]");
-    io:println("[reference type variables] before fork: value " +
-      "of name is [", name , "] value of city is [", city, "] value of " +
-      "postcode is [", postcode, "]");
+
     fork {
         worker W1 {
 
@@ -482,23 +472,21 @@ public function functionWithFork() {
 
     _ = wait {W1, W2};
 
-
-    io:println("[value type variables] after fork: " +
-               "value of integer variable is [", i, "] ",
-               "value of string variable is [", s, "]");
-
     name = <string>m["name"];
     city = <string>m["city"];
 
     string street = <string>m["street"];
-    io:println("[reference type variables] after fork: " +
-               "value of name is [", name,
-               "] value of city is [", city, "] value of street is [", street,
-               "] value of postcode is [", postcode, "]");
 }
 
 int count = 0;
-http:Client clientEndpoint = new ("http://postman-echo.com");
+
+type ClientObject client object {
+    public remote function remoteFunc(string arg) returns int|error {
+        return 1;
+    }
+};
+
+ClientObject clientEndpoint = new;
 
 
 public function functionWithAsynchInvocations() {
@@ -507,38 +495,29 @@ public function functionWithAsynchInvocations() {
     int result = squarePlusCube(f1);
 
     _ = wait f1;
-    io:println("SQ + CB = ", result);
 
     future<()> f2 = start countInfinity();
 
     f2.cancel();
-    io:println("Counting done in one second: ", count);
 
-    future<http:Response|error> f3 = @strand {thread:"any"} start clientEndpoint-> get("/get?test=123");
+    future <int|error> f3 = @strand {thread:"any"} start clientEndpoint-> remoteFunc("/get?test=123");
 
-    http:Response|error response = wait f3;
+    int|error response = wait f3;
 
     future<int> f4 = start square(20);
     future<string> f5 = start greet("Bert");
 
     int|string anyResult = wait f4|f5;
-    io:println(anyResult);
 
     future<int> f6 = start sum(40, 60);
     future<int> f7 = start cube(3);
     future<string> f8 = start greet("Moose");
 
-    runtime:sleep(2000);
-
     map<int|string> resultMap = wait {first_field: f6, second_field: f7,
                                             third_field: f8};
-    io:println(resultMap);
 
     record {int first_field; int second_field; string third_field;} rec =
                     wait {first_field: f6, second_field: f7, third_field: f8};
-    io:println("first field of record --> ", rec.first_field);
-    io:println("second field of record --> ", rec.second_field);
-    io:println("third field of record --> ", rec.third_field);
 }
 
 function sum(int a, int b) returns int {
@@ -554,7 +533,6 @@ function cube(int n) returns int {
 }
 
 function greet(string name) returns string {
-    runtime:sleep(2000);
     return "Hello " + name + "!!";
 }
 
@@ -576,7 +554,6 @@ function squarePlusCube(future<int> f) returns int {
 
 function countInfinity() {
     while (true) {
-        runtime:sleep(1);
         count += 1;
     }
 }
@@ -585,107 +562,90 @@ public function functionWithBitwiseOperations() {
     int a = 385;
     'int:Unsigned8 b = 128;
     'int:Unsigned8 res1 = a & b;
-    io:println("`int` 385 & `int:Unsigned8` 128: ", res1);
 
     'int:Signed16 c = -32700;
     int d = 249;
     int res2 = c & d;
-    io:println("`int:Signed16` -32700 & `int` 249: ", res2);
 
     'int:Unsigned8 e = 254;
     'int:Unsigned16 f = 511;
     'int:Unsigned8 res3 = e | f;
-    io:println("`int:Unsigned8` 254 | `int:Unsigned16` 511: ", res3);
+
     'int:Unsigned8 res4 = e ^ f;
-    io:println("`int:Unsigned8` 254 ^ `int:Unsigned16` 511: ", res4);
 
     int g = 12345678;
     'int:Signed8 h = -127;
     int res5 = g | h;
-    io:println("`int` 12345678 | `int:Signed8` -127: ", res5);
+
     int res6 = g ^ h;
-    io:println("`int` 12345678 ^ `int:Signed8` -127: ", res6);
+
 }
 
 public function functionWithShiftOperations() {
     int a = 1;
     int res1 = a << 2;
-    io:println("`int` 1 << 2: ", res1);
 
     'int:Unsigned8 b = 128;
     int res2 = b << 3;
-    io:println("`int:Unsigned8` 128 << 3: ", res2);
+
     'int:Signed16 c = -32700;
     int res3 = c >> 2;
-    io:println("`int:Signed16` -32700 >> 2: ", res3);
 
     'int:Unsigned8 d = 255;
     int e = 4;
     'int:Unsigned8 res4 = d >> e;
-    io:println("`int:Unsigned8` 255 >> 4: ", res4);
 
     'int:Signed32 f = 123167;
     int res5 = f >>> 3;
-    io:println("`int:Signed32` 123167 >>> 3: ", res5);
 
     'int:Unsigned16 g = 32001;
     'int:Unsigned16 res6 = g >> 2;
-    io:println("`int:Unsigned16` 32001 >>> 2: ", res6);
 }
 
 public function functionWithStringOperations() {
     string statement = "Lion in Town. Catch the Lion";
     string s1 = statement.toUpperAscii();
-    io:println("ToUpper: ", s1);
+
     string s2 = statement.toLowerAscii();
-    io:println("ToLower: ", s2);
+
     string s3 = statement.substring(0, 4);
-    io:println("SubString: ", s3);
+
 
     int? index = statement.indexOf("on");
     if (index is int) {
-        io:println("IndexOf: ", index);
+
     }
 
     int length = statement.length();
-    io:println("Length: ", length);
 
     string hello = "Hello";
     string ballerina = "Ballerina!";
     string s4 = hello.concat(" ", ballerina);
-    io:println("Concat: ", s4);
 
     string s5 = ",".'join(hello, ballerina);
-    io:println("Join: ", s5);
 
     byte[] bArray = hello.toBytes();
 
     string|error s6 = 'string:fromBytes(bArray);
     if (s6 is string) {
-        io:println("From bytes: ", s6);
+        // do nothing
     }
 
     string toTrim = "  Ballerina Programming Language  ";
     string s7 = toTrim.trim();
-    io:println("Trim: ", s7);
 
     boolean hasSuffix = statement.endsWith("Lion");
-    io:println("HasSuffix: ", hasSuffix);
 
     boolean hasPrefix = statement.startsWith("Lion");
-    io:println("HasPrefix: ", hasPrefix);
 
     string name = "Sam";
     int marks = 90;
     string[] subjects = ["English", "Science"];
     float average = 71.5;
-    string s8 = io:sprintf("%s scored %d for %s and has an average of %.2f.",
-     name, marks, subjects[0], average);
-    io:println("Sprintf: ", s8);
 
     string country = "Sri Lanka";
     string c = country[4];
-    io:println("Member Access: ", c);
+
 }
 
 function functionWithIntSubTypes() {

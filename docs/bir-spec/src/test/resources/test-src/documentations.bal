@@ -14,12 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
-public function main() {
-    io:println("Documentation attachments are non executable constructs.");
-}
-
 # The `DummyObject` is a user-defined object.
 # This `DummyObject` has two `string` data fields and a
 # function definition (i.e., `doThatOnObject`), which performs a certain
