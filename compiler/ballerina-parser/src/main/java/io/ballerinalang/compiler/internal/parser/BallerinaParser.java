@@ -993,8 +993,7 @@ public class BallerinaParser extends AbstractParser {
             STNode qualifier = qualifierList.get(position);
             if (qualifier.kind == SyntaxKind.ISOLATED_KEYWORD) {
                 validatedQualifierList.add(qualifier);
-            }
-            else if (isObjectMember && isVisibilityQualifier(qualifier)) {
+            } else if (isObjectMember && isVisibilityQualifier(qualifier)) {
                 // public or private qualifier allowed in object field.
                 visibilityQualifier = qualifier;
             } else {
