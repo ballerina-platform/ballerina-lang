@@ -9,7 +9,6 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "220",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +16,7 @@
       "label": "rec2Field1",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "210",
+      "sortText": "120",
       "insertText": "rec2Field1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +24,7 @@
       "label": "rec3Field2",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "210",
+      "sortText": "120",
       "insertText": "rec3Field2: \"${1}\"",
       "insertTextFormat": "Snippet"
     },

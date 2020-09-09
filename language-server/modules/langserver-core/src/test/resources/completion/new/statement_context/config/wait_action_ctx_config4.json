@@ -9,7 +9,6 @@
       "label": "fs",
       "kind": "Variable",
       "detail": "future<string>",
-      "sortText": "130",
       "insertText": "fs",
       "insertTextFormat": "Snippet"
     }

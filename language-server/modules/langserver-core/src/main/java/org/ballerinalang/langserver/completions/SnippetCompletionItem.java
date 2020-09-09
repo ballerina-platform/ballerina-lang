@@ -19,8 +19,7 @@ package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 
 /**
  * Represents a snippet Completion Item.
@@ -28,21 +27,15 @@ import org.eclipse.lsp4j.CompletionItem;
  *
  * @since 1.2.0
  */
-public class SnippetCompletionItem implements LSCompletionItem {
-    private CompletionItem completionItem;
-    private SnippetBlock.SnippetType snippetType;
+public class SnippetCompletionItem extends AbstractLSCompletionItem {
+    private final SnippetBlock.Kind kind;
 
     public SnippetCompletionItem(LSContext lsContext, SnippetBlock snippetBlock) {
-        this.completionItem = snippetBlock.build(lsContext);
-        this.snippetType = snippetBlock.getSnippetType();
+        super(lsContext, snippetBlock.build(lsContext));
+        this.kind = snippetBlock.kind();
     }
 
-    @Override
-    public CompletionItem getCompletionItem() {
-        return this.completionItem;
-    }
-
-    public SnippetBlock.SnippetType getSnippetType() {
-        return snippetType;
+    public SnippetBlock.Kind kind() {
+        return kind;
     }
 }
