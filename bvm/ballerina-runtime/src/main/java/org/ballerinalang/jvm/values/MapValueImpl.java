@@ -35,6 +35,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValue;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -409,13 +410,27 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(" ");
+        StringJoiner sj = new StringJoiner(",");
         for (Map.Entry<K, V> kvEntry : this.entrySet()) {
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
-            sj.add(key + "=" + StringUtils.getStringValue(value));
+            if (value == null) {
+                sj.add("\"" + key + "\": null");
+            } else {
+                BType type = TypeChecker.getType(value);
+                switch (type.getTag()) {
+                    case TypeTags.STRING_TAG:
+                    case TypeTags.XML_TAG:
+                    case TypeTags.XML_ELEMENT_TAG:
+                        sj.add("\"" + key + "\":" + StringUtils.getStringValue(value));
+                        break;
+                    default:
+                        sj.add(key + ":" + StringUtils.getStringValue(value));
+                        break;
+                }
+            }
         }
-        return sj.toString();
+        return "{" + sj.toString() + "}";
     }
 
     @Override

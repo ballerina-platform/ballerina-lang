@@ -69,6 +69,10 @@ public class StringUtils {
             return arrayValue.stringValue();
         }
 
+        if (type.getTag() == TypeTags.TABLE_TAG) {
+            return ((RefValue) value).informalStringValue();
+        }
+
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             BObjectType objectType = objectValue.getType();

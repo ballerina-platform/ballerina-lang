@@ -115,6 +115,11 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      */
     public abstract void build();
 
+    @Override
+    public String informalStringValue() {
+        return "`" + toString() + "`";
+    }
+
     /**
      * {@inheritDoc}
      */

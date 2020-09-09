@@ -458,6 +458,10 @@ public final class XMLItem extends XMLValue {
         return STRING_NULL_VALUE;
     }
 
+    @Override
+    public String informalStringValue() {
+        return "`" + toString() + "`";
+    }
 
     /**
      * {@inheritDoc}
