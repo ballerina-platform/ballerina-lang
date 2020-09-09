@@ -35,7 +35,6 @@ import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ClauseNode;
 import io.ballerinalang.compiler.syntax.tree.CommitActionNode;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
@@ -86,6 +85,7 @@ import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
 import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.JoinClauseNode;
@@ -2503,7 +2503,8 @@ public class FormattingTreeModifier extends TreeModifier {
             return queryPipelineNode;
         }
         FromClauseNode fromClause = this.modifyNode(queryPipelineNode.fromClause());
-        NodeList<ClauseNode> intermediateClauses = this.modifyNodeList(queryPipelineNode.intermediateClauses());
+        NodeList<IntermediateClauseNode> intermediateClauses =
+                this.modifyNodeList(queryPipelineNode.intermediateClauses());
         return queryPipelineNode.modify()
                 .withFromClause(fromClause)
                 .withIntermediateClauses(intermediateClauses)
@@ -2533,7 +2534,6 @@ public class FormattingTreeModifier extends TreeModifier {
         QueryPipelineNode queryPipeline = this.modifyNode(queryExpressionNode.queryPipeline());
         SelectClauseNode selectClause = this.modifyNode(queryExpressionNode.selectClause());
         OnConflictClauseNode onConflictClause = this.modifyNode(queryExpressionNode.onConflictClause().orElse(null));
-        LimitClauseNode limitClause = this.modifyNode(queryExpressionNode.limitClause().orElse(null));
         if (queryConstructType != null) {
             queryExpressionNode = queryExpressionNode.modify()
                     .withQueryConstructType(queryConstructType).apply();
@@ -2541,10 +2541,6 @@ public class FormattingTreeModifier extends TreeModifier {
         if (onConflictClause != null) {
             queryExpressionNode = queryExpressionNode.modify()
                     .withOnConflictClause(onConflictClause).apply();
-        }
-        if (limitClause != null) {
-            queryExpressionNode = queryExpressionNode.modify()
-                    .withLimitClause(limitClause).apply();
         }
         return queryExpressionNode.modify()
                 .withQueryPipeline(queryPipeline)
@@ -2847,11 +2843,6 @@ public class FormattingTreeModifier extends TreeModifier {
         QueryPipelineNode queryPipeline = this.modifyNode(queryActionNode.queryPipeline());
         Token doKeyword = getToken(queryActionNode.doKeyword());
         BlockStatementNode blockStatement = this.modifyNode(queryActionNode.blockStatement());
-        LimitClauseNode limitClause = this.modifyNode(queryActionNode.limitClause().orElse(null));
-        if (limitClause != null) {
-            queryActionNode = queryActionNode.modify()
-                    .withLimitClause(limitClause).apply();
-        }
         return queryActionNode.modify()
                 .withQueryPipeline(queryPipeline)
                 .withDoKeyword(formatToken(doKeyword, 1, 1, 0, 0))
