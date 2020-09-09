@@ -9014,9 +9014,8 @@ public class BallerinaParser extends AbstractParser {
         STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
         STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
         STNode onConflictClause = parseOnConflictClause(isRhsExpr);
-        STNode limitClause = parseLimitClause(isRhsExpr);
         return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause,
-                onConflictClause, limitClause);
+                onConflictClause);
     }
 
     /**
@@ -9047,11 +9046,12 @@ public class BallerinaParser extends AbstractParser {
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
                 return parseOrderByClause(isRhsExpr);
+            case LIMIT_KEYWORD:
+                return parseLimitClause(isRhsExpr);
             case DO_KEYWORD:
             case SEMICOLON_TOKEN:
             case ON_KEYWORD:
             case CONFLICT_KEYWORD:
-            case LIMIT_KEYWORD:
                 return null;
             default:
                 recover(peek(), ParserRuleContext.QUERY_PIPELINE_RHS, isRhsExpr);
@@ -9176,6 +9176,21 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(token, ParserRuleContext.WHERE_KEYWORD);
             return parseWhereKeyword();
+        }
+    }
+
+    /**
+     * Parse limit-keyword.
+     *
+     * @return limit-keyword node
+     */
+    private STNode parseLimitKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.LIMIT_KEYWORD) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.LIMIT_KEYWORD);
+            return parseLimitKeyword();
         }
     }
 
@@ -9434,12 +9449,9 @@ public class BallerinaParser extends AbstractParser {
      * @return Limit expression node
      */
     private STNode parseLimitClause(boolean isRhsExpr) {
-        STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.LIMIT_KEYWORD) {
-            return STNodeFactory.createEmptyNode();
-        }
-
-        STNode limitKeyword = consume();
+        STNode limitKeyword = parseLimitKeyword();
+        // allow-actions flag is always false, since there will not be any actions
+        // within the where-clause, due to the precedence.
         STNode expr = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         return STNodeFactory.createLimitClauseNode(limitKeyword, expr);
     }
@@ -10315,8 +10327,7 @@ public class BallerinaParser extends AbstractParser {
         STNode blockStmt = parseBlockNode();
         endContext();
 
-        STNode limitClause = parseLimitClause(isRhsExpr);
-        return STNodeFactory.createQueryActionNode(queryPipeline, doKeyword, blockStmt, limitClause);
+        return STNodeFactory.createQueryActionNode(queryPipeline, doKeyword, blockStmt);
     }
 
     /**
