@@ -3331,7 +3331,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         joinClause.isDeclaredWithVar = typedBindingPattern.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
         joinClause.isOuterJoin = joinClauseNode.outerKeyword().isPresent();
 
-        OnClauseNode onClauseNode = joinClauseNode.onCondition();
+        OnClauseNode onClauseNode = joinClauseNode.joinOnCondition();
         BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
         onClause.pos = getPosition(onClauseNode);
         onClause.lhsExpr = createExpression(onClauseNode.lhsExpression());

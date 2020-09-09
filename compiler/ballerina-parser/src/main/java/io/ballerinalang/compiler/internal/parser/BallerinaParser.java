@@ -9506,12 +9506,30 @@ public class BallerinaParser extends AbstractParser {
      * @return On clause node
      */
     private STNode parseOnClause(boolean isRhsExpr) {
+        STToken nextToken = peek();
+        if (isQueryClauseStartToken(nextToken.kind)) {
+            return createMissingOnClauseNode();
+        }
+
         startContext(ParserRuleContext.ON_CLAUSE);
         STNode onKeyword = parseOnKeyword();
         STNode lhsExpression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         STNode equalsKeyword = parseEqualsKeyword();
         endContext();
         STNode rhsExpression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        return STNodeFactory.createOnClauseNode(onKeyword, lhsExpression, equalsKeyword, rhsExpression);
+    }
+
+    private STNode createMissingOnClauseNode() {
+        STNode onKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.ON_KEYWORD,
+                DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD);
+        STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER);
+        STNode equalsKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.EQUALS_KEYWORD,
+                DiagnosticErrorCode.ERROR_MISSING_EQUALS_KEYWORD);
+
+        STNode lhsExpression = STNodeFactory.createSimpleNameReferenceNode(identifier);
+        STNode rhsExpression = STNodeFactory.createSimpleNameReferenceNode(identifier);
         return STNodeFactory.createOnClauseNode(onKeyword, lhsExpression, equalsKeyword, rhsExpression);
     }
 
