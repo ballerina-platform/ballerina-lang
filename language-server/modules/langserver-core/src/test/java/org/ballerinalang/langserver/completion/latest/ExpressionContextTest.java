@@ -20,12 +20,11 @@ package org.ballerinalang.langserver.completion.latest;
 import org.testng.annotations.DataProvider;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Expression Context tests.
- * 
+ *
  * @since 2.0.0
  */
 public class ExpressionContextTest extends CompletionTestNew {

@@ -62,7 +62,9 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
              */
             return new ArrayList<>();
         }
+
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        
         if (this.onTypedBindingPatternContext(context, node)) {
             /*
             Covers the case where the cursor is within the typed binding pattern context.
@@ -74,22 +76,30 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
             }
-            List<LSCompletionItem> completionItems = new ArrayList<>();
-            completionItems.addAll(this.getPackagesCompletionItems(context));
+            List<LSCompletionItem> completionItems = this.getPackagesCompletionItems(context);
             completionItems.addAll(this.getTypeItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-
+            
             return completionItems;
         }
         if (node.inKeyword().isMissing()) {
+            /*
+            Covers the following cases
+            Eg:
+            (1) var tesVar = stream from var item <cursor>
+            (2) var tesVar = stream from var item <cursor>i
+             */
             return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
         }
-
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            /*
+            Covers the cases where the cursor is within the expression context
+             */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Scope.ScopeEntry> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
             return this.getCompletionItemList(exprEntries, context);
         }
+
         return this.expressionCompletions(context);
     }
 
