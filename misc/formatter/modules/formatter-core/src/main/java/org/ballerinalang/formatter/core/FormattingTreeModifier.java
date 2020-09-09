@@ -1256,9 +1256,10 @@ public class FormattingTreeModifier extends TreeModifier {
         int startColumn = getStartColumn(whileStatementNode, whileStatementNode.kind(), true);
         Token whileKeyword = getToken(whileStatementNode.whileKeyword());
         ExpressionNode condition = this.modifyNode(whileStatementNode.condition());
+        whileStatementNode = whileStatementNode.modify()
+                .withWhileKeyword(formatToken(whileKeyword, startColumn, 0, 0, 0)).apply();
         BlockStatementNode whileBody = this.modifyNode(whileStatementNode.whileBody());
         return whileStatementNode.modify()
-                .withWhileKeyword(formatToken(whileKeyword, startColumn, 0, 0, 0))
                 .withCondition(condition)
                 .withWhileBody(whileBody)
                 .apply();
