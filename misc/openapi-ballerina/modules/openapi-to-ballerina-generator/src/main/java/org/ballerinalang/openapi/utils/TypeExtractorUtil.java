@@ -432,7 +432,7 @@ public class TypeExtractorUtil {
             if (identifier.equals("error")) {
                 identifier = "_error";
             } else {
-                identifier = identifier.replaceAll("([\\[\\]\\\\?!<>@#&~`*\\-=^+();:\\_{}\\s|.$])", "\\\\$1");
+                identifier = identifier.replaceAll(GeneratorConstants.ESCAPE_PATTERN, "\\\\$1");
                 if (identifier.endsWith("?")) {
                     if (identifier.charAt(identifier.length() - 2) == '\\') {
                         StringBuilder stringBuilder = new StringBuilder(identifier);

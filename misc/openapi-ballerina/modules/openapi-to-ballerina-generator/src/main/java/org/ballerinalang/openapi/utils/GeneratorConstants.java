@@ -78,4 +78,5 @@ public class GeneratorConstants {
                 "source", "start", "stream", "string", "table", "transaction", "try", "type", "typedesc", "typeof",
                 "trap", "throw", "wait", "while", "with", "worker", "var", "version", "xml", "xmlns", "BOOLEAN_LITERAL",
                 "NULL_LITERAL", "ascending", "descending", "foreach", "map", "group", "from", "default", "field"));
+    public static final String ESCAPE_PATTERN = "([\\[\\]\\\\?!<>@#&~`*\\-=^+();:\\_{}\\s|.$])";
 }
