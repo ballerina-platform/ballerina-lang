@@ -73,6 +73,8 @@ public class ItemResolverConstants {
     public static final String RESOURCE = "resource";
     
     public static final String FROM_CLAUSE = "from clause";
+    public static final String LET_CLAUSE = "let clause";
+    public static final String JOIN_CLAUSE = "join clause";
 
     // End of Basic Constructs
 
@@ -119,6 +121,10 @@ public class ItemResolverConstants {
     public static final String AS_KEYWORD = "as";
     public static final String VERSION_KEYWORD = "version";
     public static final String FROM_KEYWORD = "from";
+    public static final String WHERE_KEYWORD = "where";
+    public static final String JOIN_KEYWORD = "join";
+    public static final String ORDERBY_KEYWORD = "order by";
+    public static final String LIMIT_KEYWORD = "limit";
     public static final String FLUSH_KEYWORD = "flush";
     public static final String LISTENER_KEYWORD = "listener";
     public static final String RETURNS_KEYWORD = "returns";
