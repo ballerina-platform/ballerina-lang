@@ -25,7 +25,7 @@ OPTIONS
             to start the service implementation. Generated sources contain a service definition, schema definition, and
             a copy of the OpenAPI contract, which is used for the template generation. The generated client stub is used to
             start the client application implementation to call the service defined in the OpenAPI file.
-            Ballerina service file as a given input will generate the relevant openApi specification for the service
+            The given Ballerina service file input will generate the relevant OpenAPI specification for the service
             file.
 
         (-o| --output) <target location>
