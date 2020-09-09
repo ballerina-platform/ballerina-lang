@@ -21,7 +21,15 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 
+/**
+ * Represent the location of a diagnostic in a {@code TextDocument}.
+ * <p>
+ * It is a combination of source file path, start and end line numbers, and start and end column numbers.
+ *
+ * @since 2.0.0
+ */
 public class BallerinaDiagnosticLocation implements Location {
+
     @Override
     public LineRange lineRange() {
         return null;

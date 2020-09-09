@@ -17,39 +17,36 @@
  */
 package org.wso2.ballerinalang.compiler.diagnostic;
 
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DefaultDiagnosticListener;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+/**
+ * Logger class for logging various compiler diagnostics.
+ * 
+ * @since 2.0.0
+ */
 public class BallerinaDiagnosticLog {
-    private static final CompilerContext.Key<BallerinaDiagnosticLog> DIAGNOSTIC_LOG_KEY =
-            new CompilerContext.Key<>();
 
-    private static final String errMsgKeyPrefix = "error" + ".";
-    private static final String warningMsgKeyPrefix = "warning" + ".";
-    private static final String noteMsgKeyPrefix = "note" + ".";
-
-    private static ResourceBundle messages =
-            ResourceBundle.getBundle("compiler", Locale.getDefault());
+    private static final CompilerContext.Key<BallerinaDiagnosticLog> DIAGNOSTIC_LOG_KEY = new CompilerContext.Key<>();
+    private static final String ERROR_PREFIX = "error.";
+    private static final String WARNING_PREFIX = "warning.";
+    private static final String NOTE_PREFIX = "note.";
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("compiler", Locale.getDefault());
 
     private int errorCount = 0;
-
-    private BallerinaDiagnosticListener diagnosticListener;
     private PackageCache packageCache;
+    private boolean isMute = false;
 
     private BallerinaDiagnosticLog(CompilerContext context) {
         context.put(DIAGNOSTIC_LOG_KEY, this);
-
         this.packageCache = PackageCache.getInstance(context);
-        this.diagnosticListener = context.get(BallerinaDiagnosticListener.class);
-        if (this.diagnosticListener == null) {
-            this.diagnosticListener = new BallerinaDiagnosticListener();
-        }
     }
 
     public static BallerinaDiagnosticLog getInstance(CompilerContext context) {
@@ -61,5 +58,82 @@ public class BallerinaDiagnosticLog {
         return dLogger;
     }
 
+    /**
+     * Log an error.
+     * 
+     * @param pos Position of the error in the source code.
+     * @param code Error code
+     * @param args Parameters associated with the error
+     */
+    public void error(DiagnosticPos pos, DiagnosticCode code, Object... args) {
+        String msg = formatMessage(ERROR_PREFIX, code, args);
+        reportDiagnostic(pos, msg, DiagnosticSeverity.ERROR);
+    }
 
+    /**
+     * Log a warning.
+     * 
+     * @param pos Position of the warning in the source code.
+     * @param code Error code
+     * @param args Parameters associated with the error
+     */
+    public void warning(DiagnosticPos pos, DiagnosticCode code, Object... args) {
+        String msg = formatMessage(WARNING_PREFIX, code, args);
+        reportDiagnostic(pos, msg, DiagnosticSeverity.WARNING);
+    }
+
+    /**
+     * Log an info.
+     * 
+     * @param pos Position of the info in the source code.
+     * @param code Error code
+     * @param args Parameters associated with the info
+     */
+    public void note(DiagnosticPos pos, DiagnosticCode code, Object... args) {
+        String msg = formatMessage(NOTE_PREFIX, code, args);
+        reportDiagnostic(pos, msg, DiagnosticSeverity.INFO);
+    }
+
+    /**
+     * Get the number of error logged in this logger.
+     * 
+     * @return Number of errors logged.
+     */
+    public int errorCount() {
+        return this.errorCount;
+    }
+
+    /**
+     * Mute the logger. This will stop reporting the diagnostic.
+     * However it will continue to keep track of the number of errors.
+     */
+    public void mute() {
+        this.isMute = true;
+    }
+
+    /**
+     * Unmute the logger. This will start reporting the diagnostic.
+     */
+    public void unmute() {
+        this.isMute = false;
+    }
+
+    // private helper methods
+
+    private String formatMessage(String prefix, DiagnosticCode code, Object[] args) {
+        String msgKey = MESSAGES.getString(prefix + code.getValue());
+        return MessageFormat.format(msgKey, args);
+    }
+
+    protected void reportDiagnostic(DiagnosticPos pos, String msg, DiagnosticSeverity severity) {
+        if (severity == DiagnosticSeverity.ERROR) {
+            this.errorCount++;
+        }
+
+        if (this.isMute) {
+            return;
+        }
+
+        // TODO: Create a BallerinaDiagnostic and store it in the bLangPackage
+    }
 }
