@@ -2202,6 +2202,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:
+                return ParserRuleContext.FUNCTION_KEYWORD;
             case ANON_FUNC_EXPRESSION:
                 return ParserRuleContext.ANON_FUNC_EXPRESSION_START;
             case FUNC_TYPE_DESC:
