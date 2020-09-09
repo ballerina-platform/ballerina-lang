@@ -74,7 +74,7 @@ EXAMPLES
           $ ballerina openapi
           $ ballerina openapi -h
 
-       Generate a Ballerina mock service with module name hellomock
+       Generate a Ballerina mock service with the module name `hellomock`
        and service name hello using hello.yaml OpenAPI contract.
           $ ballerina openapi -i hello.yaml --mode service
 
