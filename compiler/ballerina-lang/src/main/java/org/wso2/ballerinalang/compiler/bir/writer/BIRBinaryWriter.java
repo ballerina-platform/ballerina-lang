@@ -139,6 +139,7 @@ public class BIRBinaryWriter {
                                     List<BIRTypeDefinition> birTypeDefList) {
         List<BIRTypeDefinition> filtered = birTypeDefList.stream().filter(t -> t.type.tag == TypeTags.OBJECT
                 || t.type.tag == TypeTags.RECORD).collect(Collectors.toList());
+        buf.writeInt(filtered.size());
         filtered.forEach(typeDef -> {
             writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs);
             writeReferencedTypes(buf, typeDef.referencedTypes);
@@ -258,11 +259,11 @@ public class BIRBinaryWriter {
             birbuf.writeByte(localVar.kind.getValue());
             writeType(birbuf, localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
-            // Skip compiler added vars and only write metaVarName for user added vars
+            // skip compiler added vars and only write metaVarName for user added vars
             if (localVar.kind.equals(VarKind.ARG)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
             }
-            // Add enclosing basic block id
+            // add enclosing basic block id
             if (localVar.kind.equals(VarKind.LOCAL)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
                 birbuf.writeInt(addStringCPEntry(localVar.endBB != null ? localVar.endBB.id.value : ""));
@@ -298,9 +299,11 @@ public class BIRBinaryWriter {
         ByteBuf birbuf = Unpooled.buffer();
         birbuf.writeShort(taintTable.rowCount);
         birbuf.writeShort(taintTable.columnCount);
+        birbuf.writeInt(taintTable.taintTable.size());
         for (Integer paramIndex : taintTable.taintTable.keySet()) {
             birbuf.writeShort(paramIndex);
             List<Byte> taintRecord = taintTable.taintTable.get(paramIndex);
+            birbuf.writeInt(taintRecord.size());
             for (Byte taintStatus : taintRecord) {
                 birbuf.writeByte(taintStatus);
             }
@@ -384,7 +387,7 @@ public class BIRBinaryWriter {
                 buf.writeInt(addStringCPEntry((String) constValue.value));
                 break;
             case TypeTags.BOOLEAN:
-                buf.writeByte((Boolean) constValue.value ? 1 : 0);
+                buf.writeBoolean((Boolean) constValue.value);
                 break;
             case TypeTags.NIL:
                 break;
