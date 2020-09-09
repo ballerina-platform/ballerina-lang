@@ -77,7 +77,6 @@ public class BallerinaModuleID implements ModuleID {
             return false;
         }
 
-        // TODO: Improve this
         BallerinaModuleID target = (BallerinaModuleID) obj;
         return this.moduleID.equals(target.moduleID);
     }

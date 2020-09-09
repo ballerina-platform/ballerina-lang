@@ -46,6 +46,8 @@ public enum SymbolOrigin {
     SOURCE {
         @Override
         public SymbolOrigin toBIROrigin() {
+            // Returning COMPILED_SOURCE here since once a BIR is generated for a source, it's in a compiled form.
+            // i.e., it's no longer originating from a source file
             return COMPILED_SOURCE;
         }
 
@@ -86,10 +88,27 @@ public enum SymbolOrigin {
         }
     };
 
+    /**
+     * This method is intended for to be used during the BIR gen phase. The purpose is to get the correct origin for the
+     * symbol in question once it is in BIR form.
+     *
+     * @return The origin enum to be used in the BIR
+     */
     public abstract SymbolOrigin toBIROrigin();
 
+    /**
+     * Returns the serializable form of the enum.
+     *
+     * @return The value of the enum
+     */
     public abstract byte value();
 
+    /**
+     * Maps a given integer to a SymbolOrigin enum.
+     *
+     * @param value The value to be converted to an enum
+     * @return The corresponding enum value if there's a corresponding value. If not, an exception is thrown.
+     */
     public static SymbolOrigin toOrigin(byte value) {
         switch (value) {
             case 1:

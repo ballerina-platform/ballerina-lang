@@ -233,7 +233,7 @@ public class SymbolTable {
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
         initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
-        initializeType(mapType, TypeKind.MAP.typeName(), VIRTUAL); // TODO: Do we need these map types to be defined?
+        initializeType(mapType, TypeKind.MAP.typeName(), VIRTUAL);
         initializeType(mapStringType, TypeKind.MAP.typeName(), VIRTUAL);
         initializeType(mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
         initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);

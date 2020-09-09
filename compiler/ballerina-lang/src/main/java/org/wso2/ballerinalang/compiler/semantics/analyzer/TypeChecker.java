@@ -5004,7 +5004,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // error in provided error details
             return null;
         }
-        // TODO: Verify the origin with Dhananjaya
+
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(
                 SymTag.RECORD, targetErrorDetailsType.tsymbol.flags, Names.EMPTY, targetErrorDetailsType.tsymbol.pkgID,
                 symTable.recordType, null, targetErrorDetailsType.tsymbol.pos, VIRTUAL);

@@ -92,10 +92,11 @@ public class SymbolLookupTest {
         return new Object[][]{
                 {3, 14, 4, moduleLevelSymbols},
                 {20, 18, 4, moduleLevelSymbols},
-//                {21, 31, 4, moduleLevelSymbols}, // TODO: Feature not yet supported
+//                {21, 31, 4, moduleLevelSymbols}, // TODO: Feature not yet supported - issue #25607
                 {21, 39, 5, asList("aString", "anInt", "test", "HELLO", "greet")},
                 {22, 1, 5, asList("aString", "anInt", "test", "HELLO", "greet")},
-//                {23, 60, 6, asList("aString", "anInt", "test", "HELLO", "greet", "name")}, // TODO: Not yet supported
+                // TODO: issue #25607
+//                {23, 60, 6, asList("aString", "anInt", "test", "HELLO", "greet", "name")},
                 {31, 13, 8, getSymbolNames(moduleLevelSymbols, "greet", "a", "x", "greetFn")},
         };
     }

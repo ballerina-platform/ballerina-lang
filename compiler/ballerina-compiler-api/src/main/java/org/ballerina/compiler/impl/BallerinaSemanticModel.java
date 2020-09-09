@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -54,8 +53,6 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
  */
 public class BallerinaSemanticModel implements SemanticModel {
 
-    private static final int SYMBOL_POSITION = 0;
-
     private final BLangPackage bLangPackage;
     private final CompilerContext compilerContext;
     private final EnvironmentResolver envResolver;
@@ -73,10 +70,10 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public List<Symbol> visibleSymbols(String srcFile, LinePosition linePosition) {
+    public List<Symbol> visibleSymbols(String fileName, LinePosition linePosition) {
         List<Symbol> compiledSymbols = new ArrayList<>();
         SymbolResolver symbolResolver = SymbolResolver.getInstance(this.compilerContext);
-        BLangCompilationUnit compilationUnit = getCompilationUnit(srcFile);
+        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
                 symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(compilationUnit, linePosition));
 
@@ -118,9 +115,9 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isSymbolInUserProject(BSymbol symbol, DiagnosticPos cursorPos) {
         return symbol.origin == SOURCE &&
-                (cursorPos.compareTo(symbol.pos) > SYMBOL_POSITION ||
-                        symbol.owner instanceof BPackageSymbol ||
-                        Symbols.isFlagOn(symbol.flags, Flags.WORKER));
+                (cursorPos.compareTo(symbol.pos) > 0
+                        || symbol.owner.getKind() == SymbolKind.PACKAGE
+                        || Symbols.isFlagOn(symbol.flags, Flags.WORKER));
     }
 
     private boolean isImportedSymbol(BSymbol symbol) {

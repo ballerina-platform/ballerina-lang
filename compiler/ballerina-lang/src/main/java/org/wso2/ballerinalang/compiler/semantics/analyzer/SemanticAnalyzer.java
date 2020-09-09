@@ -1364,7 +1364,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (errorType.detailType.getKind() == TypeKind.RECORD || errorType.detailType.getKind() == TypeKind.MAP) {
             return validateErrorVariable(errorVariable, errorType);
         } else if (errorType.detailType.getKind() == TypeKind.UNION) {
-            // TODO: Verify with Dhananjaya that the origin is correct
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                                                                     env.enclPkg.packageID, symTable.errorType,
                                                                     env.scope.owner, errorVariable.pos, SOURCE);
@@ -1497,7 +1496,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private BTypeSymbol createTypeSymbol(int type) {
         return new BTypeSymbol(type, Flags.PUBLIC, Names.EMPTY, env.enclPkg.packageID,
-                               null, env.scope.owner, symTable.builtinPos, VIRTUAL); // TODO: Check with Dhananjaya
+                               null, env.scope.owner, symTable.builtinPos, VIRTUAL);
     }
 
     /**
