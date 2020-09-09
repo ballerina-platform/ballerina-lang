@@ -18,69 +18,72 @@
 
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
-import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
-import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
-
 /**
  * Test implementation for debug expression evaluation scenarios.
  */
-public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
-
-    private StoppedEventArguments context;
-
-    private static final String nilVar = "v01_varVariable";
-    private static final String booleanVar = "v02_booleanVar";
-    private static final String intVar = "v03_intVar";
-    private static final String floatVar = "v04_floatVar";
-    private static final String decimalVar = "v05_decimalVar";
-    private static final String stringVar = "v06_stringVar";
-    private static final String xmlVar = "v07_xmlVar";
-    private static final String arrayVar = "v08_arrayVar";
-    private static final String tupleVar = "v09_tupleVar";
-    private static final String mapVar = "v10_mapVar";
-    private static final String recordVar = "v11_john";
-    private static final String anonRecordVar = "v12_anonRecord";
-    private static final String errorVar = "v13_errorVar";
-    private static final String anonFunctionVar = "v14_anonFunctionVar";
-    private static final String futureVar = "v15_futureVar";
-    private static final String objectVar = "v16_objectVar";
-    private static final String anonObjectVar = "v17_anonObjectVar";
-    private static final String typeDescVar = "v18_typedescVar";
-    private static final String unionVar = "v19_unionVar";
-    private static final String optionalVar = "v20_optionalVar";
-    private static final String anyVar = "v21_anyVar";
-    private static final String anydataVar = "v22_anydataVar";
-    private static final String byteVar = "v23_byteVar";
-    private static final String jsonVar = "v24_jsonVar";
-    private static final String tableVar = "v25_tableVar";
-    private static final String streamVar = "v26_oddNumberStream";
-    private static final String neverVar = "v27_neverVar";
+public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        testProjectName = "basic-project";
-        testModuleName = "advanced";
-        testModuleFileName = "main.bal";
-        testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
-        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
-
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 154));
-        initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
-        this.context = debugHitInfo.getRight();
+        prepareForEvaluation();
     }
 
+    @Override
     @Test
-    public void variableEvaluationTest() throws BallerinaTestException {
+    public void literalEvaluationTest() throws BallerinaTestException {
+        // nil literal
+        assertExpression(context, "()", "()", "nil");
+        // boolean literal
+        assertExpression(context, "true", "true", "boolean");
+        // numeric literal (int)
+        assertExpression(context, "10", "10", "int");
+        // numeric literal (float)
+        assertExpression(context, "20.0", "20.0", "float");
+        // Todo - add following tests after the implementation
+        //  - hex int
+        //  - hex float
+        //  - string literal
+        //  - byte-array literal
+    }
+
+    @Override
+    @Test
+    public void listConstructorEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void mappingConstructorEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void stringTemplateEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void xmlTemplateEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void newConstructorEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void variableReferenceEvaluationTest() throws BallerinaTestException {
         // var variable test
         assertExpression(context, nilVar, "()", "nil");
         // boolean variable test
@@ -137,56 +140,107 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         // Todo - Enable after fixing
         // anonymous object variable test (AnonPerson object)
         // assertVariable(context, anonObjectVar, "AnonPerson", "object");
+
+        // Todo - add test for qualified name references, after adding support
     }
 
+    @Override
     @Test
-    public void arithmeticEvaluationTest() throws BallerinaTestException {
-        //////////////////////////////-------------addition------------------///////////////////////////////////////////
-        // int + int
-        assertExpression(context, String.format("%s + %s", intVar, intVar), "40", "int");
-        // float + int
-        assertExpression(context, String.format("%s + %s", floatVar, intVar), "10.0", "float");
-        // int + float
-        assertExpression(context, String.format("%s + %s", intVar, floatVar), "10.0", "float");
-        // float + float
-        assertExpression(context, String.format("%s + %s", floatVar, floatVar), "-20.0", "float");
-        // string + string
-        assertExpression(context, String.format("%s + %s", stringVar, stringVar), "foofoo", "string");
-        // Todo - Enable after adding support
-        //        // decimal + decimal
-        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "7.0", "decimal");
-        //        // int + decimal
-        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "27.0", "decimal");
-        //        // decimal + int
-        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "27.0", "decimal");
-        //        // float + decimal
-        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "-6.5", "decimal");
-        //        // decimal + float
-        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "-6.5", "decimal");
-        //        // xml + xml
-        //        assertExpression(context, String.format("%s + %s", xmlVar, xmlVar), "", "xml");
+    public void fieldAccessEvaluationTest() throws BallerinaTestException {
+        // objects fields
+        assertExpression(context, objectVar + ".address", "No 20, Palm grove", "string");
+        // record fields
+        assertExpression(context, recordVar + ".age", "20", "int");
+        // json fields
+        assertExpression(context, jsonVar + ".name", "apple", "string");
+        // nested field access (chain access)
+        assertExpression(context, recordVar + ".grades.maths", "80", "int");
+        // optional field access
+        assertExpression(context, recordVar + "?.undefined", "()", "nil");
+    }
 
-        //////////////////////////////-------------subtraction------------------////////////////////////////////////////
-        // int - int
-        assertExpression(context, String.format("%s - %s", intVar, intVar), "0", "int");
-        // float - int
-        assertExpression(context, String.format("%s - %s", floatVar, intVar), "-30.0", "float");
-        // int - float
-        assertExpression(context, String.format("%s - %s", intVar, floatVar), "30.0", "float");
-        // float - float
-        assertExpression(context, String.format("%s - %s", floatVar, floatVar), "0.0", "float");
-        // Todo - Enable after adding support
-        //        // decimal - decimal
-        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "0.0", "decimal");
-        //        // int - decimal
-        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "16.5", "decimal");
-        //        // decimal - int
-        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "-16.5", "decimal");
-        //        // float - decimal
-        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "-13.5", "decimal");
-        //        // decimal - float
-        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "13.5", "decimal");
+    @Override
+    @Test
+    public void xmlAttributeAccessEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
 
+    @Override
+    @Test
+    public void annotationAccessEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void memberAccessEvaluationTest() throws BallerinaTestException {
+        // strings
+        assertExpression(context, stringVar + "[0]", "f", "string");
+        // lists
+        assertExpression(context, arrayVar + "[0]", "1", "int");
+        // maps
+        // assertExpression(context, mapVar + "[\"country\"]", "Sri Lanka", "string");
+        // assertExpression(context, mapVar + "[\"undefined\"]", "()", "nil");
+        // json
+        // assertExpression(context, jsonVar + "[\"color\"]", "red", "string");
+        // assertExpression(context, jsonVar + "[\"undefined\"]", "()", "nil");
+        // Todo - add following tests after the implementation
+        //  - xml member access
+    }
+
+    @Override
+    @Test
+    public void functionCallEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void methodCallEvaluationTest() throws BallerinaTestException {
+        // object methods
+        assertExpression(context, objectVar + ".getSum(34,56)", "90", "int");
+        // Todo - add lang-lib functions related tests, after the implementation
+    }
+
+    @Override
+    @Test
+    public void errorConstructorEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void anonymousFunctionEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void letExpressionEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void typeCastEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void typeOfExpressionEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void unaryExpressionEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void multiplicativeExpressionEvaluationTest() throws BallerinaTestException {
         ///////////////////////////////-----------multiplication----------------////////////////////////////////////////
         // int * int
         assertExpression(context, String.format("%s * %s", intVar, intVar), "400", "int");
@@ -251,9 +305,72 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "-35", "decimal");
     }
 
+    @Override
     @Test
-    public void numericalComparisonEvaluationTest() throws BallerinaTestException {
-        // LT
+    public void additiveExpressionEvaluationTest() throws BallerinaTestException {
+        //////////////////////////////-------------addition------------------///////////////////////////////////////////
+        // int + int
+        assertExpression(context, String.format("%s + %s", intVar, intVar), "40", "int");
+        // float + int
+        assertExpression(context, String.format("%s + %s", floatVar, intVar), "10.0", "float");
+        // int + float
+        assertExpression(context, String.format("%s + %s", intVar, floatVar), "10.0", "float");
+        // float + float
+        assertExpression(context, String.format("%s + %s", floatVar, floatVar), "-20.0", "float");
+        // string + string
+        assertExpression(context, String.format("%s + %s", stringVar, stringVar), "foofoo", "string");
+        // Todo - Enable after adding support
+        //        // decimal + decimal
+        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "7.0", "decimal");
+        //        // int + decimal
+        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "27.0", "decimal");
+        //        // decimal + int
+        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "27.0", "decimal");
+        //        // float + decimal
+        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "-6.5", "decimal");
+        //        // decimal + float
+        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "-6.5", "decimal");
+        //        // xml + xml
+        //        assertExpression(context, String.format("%s + %s", xmlVar, xmlVar), "", "xml");
+
+        //////////////////////////////-------------subtraction------------------////////////////////////////////////////
+        // int - int
+        assertExpression(context, String.format("%s - %s", intVar, intVar), "0", "int");
+        // float - int
+        assertExpression(context, String.format("%s - %s", floatVar, intVar), "-30.0", "float");
+        // int - float
+        assertExpression(context, String.format("%s - %s", intVar, floatVar), "30.0", "float");
+        // float - float
+        assertExpression(context, String.format("%s - %s", floatVar, floatVar), "0.0", "float");
+        // Todo - Enable after adding support
+        //        // decimal - decimal
+        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "0.0", "decimal");
+        //        // int - decimal
+        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "16.5", "decimal");
+        //        // decimal - int
+        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "-16.5", "decimal");
+        //        // float - decimal
+        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "-13.5", "decimal");
+        //        // decimal - float
+        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "13.5", "decimal");
+    }
+
+    @Override
+    @Test
+    public void shiftExpressionEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void rangeExpressionEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void comparisonEvaluationTest() throws BallerinaTestException {
+        // expression < expression
         // int - int
         assertExpression(context, String.format("%s < %s", intVar, intVar), "false", "boolean");
         // float - int
@@ -274,7 +391,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         //        // decimal - float
         //        assertExpression(context, String.format("%s < %s", decimalVar, decimalVar), "false", "boolean");
 
-        // GT
+        // expression > expression
         // int - int
         assertExpression(context, String.format("%s > %s", intVar, intVar), "false", "boolean");
         // float - int
@@ -295,7 +412,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         //        // decimal - float
         //        assertExpression(context, String.format("%s > %s", decimalVar, decimalVar), "false", "boolean");
 
-        // LT EQUALS
+        // expression <= expression
         // int - int
         assertExpression(context, String.format("%s <= %s", intVar, intVar), "true", "boolean");
         // float - int
@@ -316,7 +433,7 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         //        // decimal - float
         //        assertExpression(context, String.format("%s <= %s", decimalVar, decimalVar), "false", "boolean");
 
-        // GT
+        // expression >= expression
         // int - int
         assertExpression(context, String.format("%s >= %s", intVar, intVar), "true", "boolean");
         // float - int
@@ -338,29 +455,33 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         //        assertExpression(context, String.format("%s >= %s", decimalVar, decimalVar), "false", "boolean");
     }
 
+    @Override
     @Test
-    public void fieldAccessEvaluationTest() throws BallerinaTestException {
-        // objects fields
-        assertExpression(context, objectVar + ".address", "No 20, Palm grove", "string");
-        // record fields
-        assertExpression(context, recordVar + ".age", "20", "int");
-        // json fields
-        assertExpression(context, jsonVar + ".name", "apple", "string");
-        // nested field access (chain access)
-        assertExpression(context, recordVar + ".grades.maths", "80", "int");
-        // optional field access
-        assertExpression(context, recordVar + "?.undefined", "()", "nil");
+    public void typeTestEvaluationTest() throws BallerinaTestException {
+        // Todo
     }
 
+    @Override
     @Test
-    public void methodCallEvaluationTest() throws BallerinaTestException {
-        // object methods
-        assertExpression(context, objectVar + ".getSum(34,56)", "90", "int");
-        // Todo - add lang-lib functions related tests, after the implementation
+    public void equalityEvaluationTest() throws BallerinaTestException {
+        // Todo
     }
 
+    @Override
     @Test
-    public void conditionalEvaluationTest() throws BallerinaTestException {
+    public void binaryBitwiseEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void logicalEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test
+    public void conditionalExpressionEvaluationTest() throws BallerinaTestException {
         // expression ? expression : expression
         assertExpression(context, String.format("%s ? %s : %s", booleanVar, intVar, floatVar), "20", "int");
         // expression ?: expression
@@ -368,69 +489,31 @@ public class ExpressionEvaluationTest extends DebugAdapterBaseTestCase {
         assertExpression(context, String.format("%s ?: %s", nilVar, floatVar), "-10.0", "float");
     }
 
+    @Override
     @Test
-    public void basicLiteralEvaluationTest() throws BallerinaTestException {
-        // nil literal
-        assertExpression(context, "()", "()", "nil");
-        // boolean literal
-        assertExpression(context, "true", "true", "boolean");
-        // numeric literal (int)
-        assertExpression(context, "10", "10", "int");
-        // numeric literal (float)
-        assertExpression(context, "20.0", "20.0", "float");
-        // Todo - add following tests after the implementation
-        //  - hex int
-        //  - hex float
-        //  - string literal
-        //  - byte-array literal
+    public void checkingExpressionEvaluationTest() throws BallerinaTestException {
+        // Todo
     }
 
+    @Override
     @Test
-    public void MemberAccessEvaluationTest() throws BallerinaTestException {
-        // strings
-        assertExpression(context, stringVar + "[0]", "f", "string");
-        // lists
-        assertExpression(context, arrayVar + "[0]", "1", "int");
-        // maps
-        // assertExpression(context, mapVar + "[\"country\"]", "Sri Lanka", "string");
-        // assertExpression(context, mapVar + "[\"undefined\"]", "()", "nil");
-        // json
-        // assertExpression(context, jsonVar + "[\"color\"]", "red", "string");
-        // assertExpression(context, jsonVar + "[\"undefined\"]", "()", "nil");
-        // Todo - add following tests after the implementation
-        //  - xml member access
+    public void trapExpressionEvaluationTest() throws BallerinaTestException {
+        // Todo
     }
 
+    @Override
     @Test
-    public void expressionEvaluationNegativeTest() throws BallerinaTestException {
-        // empty expressions
-        assertEvaluationError(context, "  ", EvaluationExceptionKind.EMPTY.getString());
-        // unsupported expressions
-        assertEvaluationError(context, "~x", String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION
-                .getString(), "~x - UNARY_EXPRESSION"));
-        // syntactically incorrect expressions (additional semi-colon)
-        assertEvaluationError(context, "x + 5;;", String.format(EvaluationExceptionKind.SYNTAX_ERROR
-                .getString(), "invalid token ';'"));
-        // semantically incorrect expressions (addition between int + string)
-        assertEvaluationError(context, String.format("%s + %s", intVar, stringVar),
-                String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
-                        "'+' operation is not supported for types: 'int' and 'string'"));
-        // undefined variables
-        assertEvaluationError(context, "x", String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(), "x"));
-        // undefined field access
-        assertEvaluationError(context, jsonVar + ".undefined",
-                String.format(EvaluationExceptionKind.FIELD_NOT_FOUND.getString(), "undefined", jsonVar));
-        // undefined object methods
-        assertEvaluationError(context, objectVar + ".undefined()",
-                String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(), "undefined"));
-        // Todo - Enable
-        // assignment statements
-        // assertEvaluationError(context, "int x = 5;", "");
-
-        // Todo - Add negative tests for function invocations related errors. (invalid argument validation, etc.).
+    public void queryExpressionEvaluationTest() throws BallerinaTestException {
+        // Todo
     }
 
-    @AfterClass(enabled = false)
+    @Override
+    @Test
+    public void xmlNavigationEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @AfterClass
     private void cleanup() {
         terminateDebugSession();
         this.context = null;
