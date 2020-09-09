@@ -393,6 +393,7 @@ public class OpenApiConverterUtils {
 
     /**
      * This util for generating files when not available with specific service name.
+
      * @param servicePath               resource path
      * @param outPath                   target path
      * @throws IOException              exception for throwing when generating file failing
