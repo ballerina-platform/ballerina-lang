@@ -3146,7 +3146,7 @@ public class FormattingTreeModifier extends TreeModifier {
         TypedBindingPatternNode typedBindingPattern = this.modifyNode(joinClauseNode.typedBindingPattern());
         Token inKeyword = getToken(joinClauseNode.inKeyword());
         ExpressionNode expression = this.modifyNode(joinClauseNode.expression());
-        OnClauseNode onCondition = this.modifyNode(joinClauseNode.onCondition());
+        OnClauseNode joinOnCondition = this.modifyNode(joinClauseNode.joinOnCondition());
         if (outerKeyword != null) {
             joinClauseNode = joinClauseNode.modify()
                     .withOuterKeyword(formatToken(outerKeyword, 1, 1, 0, 0)).apply();
@@ -3156,7 +3156,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withTypedBindingPattern(typedBindingPattern)
                 .withInKeyword(formatToken(inKeyword, 1, 1, 0, 0))
                 .withExpression(expression)
-                .withOnCondition(onCondition)
+                .withJoinOnCondition(joinOnCondition)
                 .apply();
     }
 
