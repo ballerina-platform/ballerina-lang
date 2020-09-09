@@ -4,12 +4,7 @@ NAME
 
 
 SYNOPSIS
-       ballerina openapi gen-contract [<module-name>:]<service-name>
-                                      [-i <ballerina-file> | --ballerina-file <ballerina-file>]
-                                      [-o <openapi-contract> | --contract-location <openapi-contract>]
-                                      [-s | --skip-bind]
-
-       ballerina openapi [(-i|--input) <openapi-contract> ]
+       ballerina openapi [(-i|--input) <openapi-contract> | <ballerina service> ]
                          [(-o| --output) <output>]
 
 
@@ -24,13 +19,14 @@ DESCRIPTION
        set of functionality.
 
 OPTIONS
-        (-i| --input) <openapi-contract>
-            Generate a Ballerina service and client stub files for given openapi contract.
-            This is mandatory input. This generated service can be used as a code template
-            to start the service implementation. Generated sources contain a service
-            definition, schema definition and  a copy of the OpenAPI contract
-            which is used for the template generation. Generated client stub is used to start the
-            client application implementation to call the service defined in the OpenAPI file.
+        (-i| --input) <openapi-contract> | <ballerina service file>
+            This is mandatory input. Openapi contract as a given input will generate a Ballerina service and client
+            stub files for given openapi contract. This generated service can be used as a code template
+            to start the service implementation. Generated sources contain a service definition, schema definition and
+            a copy of the OpenAPI contract which is used for the template generation. Generated client stub is used to
+            start the client application implementation to call the service defined in the OpenAPI file.
+            Ballerina service file as a given input will generate the relevant openApi specification for the service
+            file.
 
         (-o| --output) <target location>
             Location of the generated Ballerina source code. If this path is not specified,
@@ -43,8 +39,22 @@ OPTIONS
         (-m| --module) <module name>
             This use when ballerina file convert to openapi contract
 
-        (-s| --serviceName) <service name>
-            This use when ballerina file convert to openapi contract
+        (--service-name) <service name>
+            This use for allocating specific user-given name to generated service and client stub according to openapi
+            contract. This option uses with the command of openApi to ballerina file generation.
+
+
+        (-s| --service ) <current service name>
+            This service name is used to identify the service that need to documented as openApi specification. This
+            option uses with the command of ballerina to openApi specification generation.
+
+        (--tags) <tag names>
+            This tags use to filter the operations tag need to generate services. This option uses with command
+            of openApi to ballerina file generation.
+
+        (--operations) <operation names>
+            This operations use to filter the operations wise need to generate services. This option uses with command
+            of openApi to ballerina file generation.
 
 SUB COMMANDS
        gen-contract
@@ -77,3 +87,9 @@ EXAMPLES
 
        Generate both Ballerina client and service file.
           $ballerina openapi --input petstore.yaml -o ./example
+
+       Generate services for given tags
+          $ ballerina openapi -i hello.yaml --mode service --tags pets
+
+       Generate services for given operations
+                 $ ballerina openapi -i hello.yaml --mode service --operations listPets
