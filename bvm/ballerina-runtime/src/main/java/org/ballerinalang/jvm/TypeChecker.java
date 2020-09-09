@@ -1320,7 +1320,7 @@ public class TypeChecker {
             case TypeTags.OBJECT_TYPE_TAG:
                 BObjectType objectType = (BObjectType) type;
 
-                if (!Flags.isFlagOn(objectType.flags, Flags.ABSTRACT) &&
+                if (Flags.isFlagOn(objectType.flags, Flags.CLASS) &&
                         !Flags.isFlagOn(objectType.flags, Flags.READONLY)) {
                     return false;
                 }

@@ -6952,8 +6952,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangRecordKey key = keyValue.key;
                 BLangExpression expression = keyValue.valueExpr;
                 BLangExpression keyExpr = key.expr;
-
                 if (key.computedKey) {
+                    checkExpr(keyExpr, env, symTable.stringType);
                     BType exprType = checkExpr(expression, env, expType);
                     if (isUniqueType(restFieldTypes, exprType)) {
                         restFieldTypes.add(exprType);

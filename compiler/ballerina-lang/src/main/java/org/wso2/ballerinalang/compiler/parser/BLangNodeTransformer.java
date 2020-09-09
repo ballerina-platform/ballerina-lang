@@ -992,7 +992,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         BLangIdentifier pkgAlias = createIdentifier(pos, "");
-        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, identifier);
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, annonClassDef.name);
 
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
