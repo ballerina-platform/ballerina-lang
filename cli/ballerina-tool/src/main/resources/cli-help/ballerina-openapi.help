@@ -85,7 +85,7 @@ EXAMPLES
        Export an OpenAPI definition for hello_service.bal for the hello service.
           $ ballerina openapi -i hello_service.bal --serviceName hello -o ./
 
-       Generate both Ballerina client and service file.
+       Generate both the Ballerina client and service file.
           $ballerina openapi --input petstore.yaml -o ./example
 
        Generate services for given tags
