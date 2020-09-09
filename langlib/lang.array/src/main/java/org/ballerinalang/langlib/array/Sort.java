@@ -223,7 +223,7 @@ public class Sort {
             return c;
         }
         throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                "expected an ordered type, but found type: '" + type.toString() + "'");
+                "expected an ordered type, but found '" + type.toString() + "'");
     }
 
     private static int codePointCompare(String str1, String str2) {

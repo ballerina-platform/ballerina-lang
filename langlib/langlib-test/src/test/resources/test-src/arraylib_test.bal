@@ -780,6 +780,20 @@ function testSort6() {
     assertValueEquality(sortedArr10[4].toString(), "James");
     assertValueEquality(sortedArr10[5].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
     assertValueEquality(sortedArr10, arr7);
+
+    int[] sortedArr11 = array:sort(arr5);
+    assertValueEquality(sortedArr11.toString(), "0 1 2 3 12 23 55 100");
+    assertValueEquality(sortedArr11, arr5);
+
+    int[2]|int[] sortedArr12 = array:sort(arr4, array:DESCENDING, function(int i) returns int {
+        return i;
+    });
+
+    assertValueEquality(sortedArr12.toString(), "21 9 7 3 1 0");
+    assertValueEquality(sortedArr12, arr4);
+
+    string?[] sortedArr13 = array:sort(arr2, array:DESCENDING);
+    assertValueEquality(sortedArr13.toString(), "from World! Hello Ballerina ");
 }
 
 function testSort7() {

@@ -154,4 +154,12 @@ function testArrSortNegativeScenarios() {
     int[] sortedArr9 = arr.sort(array:ASCENDING, function(int x) returns int {
             return x;
     }, "descending");
+
+    (string|int)[] sortedArr10 = array:sort(arr2);
+
+    (string|int)[] sortedArr11 = array:sort(arr2, array:DESCENDING);
+
+    (string|int)[] sortedArr12 = array:sort(arr2, array:DESCENDING, ());
+
+    (map<string>)?[] sortedArr13 = array:sort(arr3);
 }

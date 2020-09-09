@@ -2761,12 +2761,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         checkIllegalStorageSizeChangeMethodCall(iExpr, varRefType);
-
-        // check argument types in arr:sort function
-        String sortFuncName = "sort";
-        if (sortFuncName.equals(iExpr.name.value)) {
-            checkArrayLibSortFuncArgs(iExpr);
-        }
     }
 
     private boolean checkInvalidImmutableValueUpdate(BLangInvocation iExpr, BType varRefType,
@@ -5383,6 +5377,13 @@ public class TypeChecker extends BLangNodeVisitor {
             retType = typeBuilder.build(retType, iExpr);
         }
 
+        // check argument types in arr:sort function
+        boolean langLibPackageID = PackageID.isLangLibPackageID(iExpr.symbol.pkgID);
+        String sortFuncName = "sort";
+        if (langLibPackageID && sortFuncName.equals(iExpr.name.value)) {
+            checkArrayLibSortFuncArgs(iExpr);
+        }
+
         if (iExpr instanceof ActionNode && ((BLangInvocation.BLangActionInvocation) iExpr).async) {
             return this.generateFutureType(invokableSymbol, retType);
         } else {
@@ -5391,8 +5392,9 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkArrayLibSortFuncArgs(BLangInvocation iExpr) {
-        if (iExpr.argExprs.size() <= 2 && !types.isOrderedType(iExpr.expr.type)) {
-            dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
+        if (iExpr.argExprs.size() <= 2 && !types.isOrderedType(iExpr.argExprs.get(0).type)) {
+            dlog.error(iExpr.argExprs.get(0).pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE,
+                    iExpr.argExprs.get(0).type);
         }
 
         if (iExpr.argExprs.size() != 3) {
@@ -5407,8 +5409,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (keyFunctionType.tag == TypeTags.NIL) {
-            if (!types.isOrderedType(iExpr.expr.type)) {
-                dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
+            if (!types.isOrderedType(iExpr.argExprs.get(0).type)) {
+                dlog.error(iExpr.argExprs.get(0).pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE,
+                        iExpr.argExprs.get(0).type);
             }
             return;
         }
@@ -5416,7 +5419,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
         BType returnType = keyLambdaFunction.function.type.getReturnType();
         if (!types.isOrderedType(returnType)) {
-            dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
+            dlog.error(keyLambdaFunction.function.pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
     }
 
