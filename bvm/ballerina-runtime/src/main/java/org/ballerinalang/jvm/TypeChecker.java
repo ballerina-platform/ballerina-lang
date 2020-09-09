@@ -1048,12 +1048,19 @@ public class TypeChecker {
 
         List<BType> sourceTypes = new ArrayList<>(((BTupleType) sourceType).getTupleTypes());
         BType sourceRestType = ((BTupleType) sourceType).getRestType();
+
+        List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
+        BType targetRestType = targetType.getRestType();
+
+        if ((targetTypes.size() != 0 && (sourceTypes.size() == 0 || sourceTypes.size() != 0))
+                && (sourceRestType != null && targetRestType == null)) {
+            return false;
+        }
+
         if (sourceRestType != null) {
             sourceTypes.add(sourceRestType);
         }
 
-        List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
-        BType targetRestType = targetType.getRestType();
         if (targetRestType != null) {
             targetTypes.add(targetRestType);
         }
