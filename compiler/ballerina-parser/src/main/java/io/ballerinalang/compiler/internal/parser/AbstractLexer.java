@@ -36,7 +36,8 @@ import java.util.List;
  */
 public abstract class AbstractLexer {
 
-    protected List<STNode> leadingTriviaList = new ArrayList<>(10);
+    protected static final int INITIAL_TRIVIA_CAPACITY = 10;
+    protected List<STNode> leadingTriviaList = new ArrayList<>(INITIAL_TRIVIA_CAPACITY);
     private Collection<STNodeDiagnostic> diagnostics = new ArrayList<>();
     protected CharReader reader;
     protected ParserMode mode;
@@ -121,7 +122,7 @@ public abstract class AbstractLexer {
 
     protected STNode getLeadingTrivia() {
         STNode trivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        this.leadingTriviaList = new ArrayList<>(0);
+        this.leadingTriviaList = new ArrayList<>(INITIAL_TRIVIA_CAPACITY);
         return trivia;
     }
 }

@@ -50,7 +50,7 @@ public class InvalidValidatorUtilTests {
     private BVarSymbol extractBVarSymbol;
     private List<ValidationError> validationErrors = new ArrayList<>();
 
-    @Test(description = "Test missing field in Json schema")
+    @Test(enabled = false, description = "Test missing field in Json schema")
     public void testMissingFieldInJsonSchema() throws UnsupportedEncodingException, OpenApiValidatorException {
         Path contractPath = RES_DIR.resolve("invalidTests/missingFieldInJsonSchema.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -63,7 +63,7 @@ public class InvalidValidatorUtilTests {
         Assert.assertEquals(validationErrors.get(0).getFieldName(), "phone2");
     }
 
-    @Test(description = "Test missing field in ballerinaType")
+    @Test(enabled = false, description = "Test missing field in ballerinaType")
     public void testMissingFieldInBallerinaType() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/missingFieldInBallerinaType.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -76,7 +76,7 @@ public class InvalidValidatorUtilTests {
         Assert.assertEquals(validationErrors.get(1).getFieldName(), "middleName");
     }
 
-    @Test(description = "Test type mismatch")
+    @Test(enabled = false, description = "Test type mismatch")
     public void testTypeMismatch() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/typeMisMatch.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -91,8 +91,8 @@ public class InvalidValidatorUtilTests {
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeBallerinaType(), Constants.Type.STRING);
     }
 
-    @Test(description = "Test type mismatch with array. Same field name has ballerina type as array and json type as " +
-            "string")
+    @Test(enabled = false, description = "Test type mismatch with array. " +
+            "Same field name has ballerina type as array and json type as string")
     public void testTypeMismatchArray() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/typeMisMatchArray.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -107,8 +107,8 @@ public class InvalidValidatorUtilTests {
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeBallerinaType(), Constants.Type.ARRAY);
     }
 
-    @Test(description = "Test type mismatch with array. Same field name has ballerina type as string array and json " +
-            "type as integer array")
+    @Test(enabled = false, description = "Test type mismatch with array. Same field name has " +
+            "ballerina type as string array and json type as integer array")
     public void testTypeMismatchArrayType() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/typeMisMatchArrayType.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -123,7 +123,7 @@ public class InvalidValidatorUtilTests {
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeBallerinaType(), Constants.Type.STRING);
     }
 
-    @Test(description = "test Nested array type")
+    @Test(enabled = false, description = "test Nested array type")
     public void testTypeMisMatchNestedArray() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/typeMisMatchNestedArrayType.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -136,7 +136,7 @@ public class InvalidValidatorUtilTests {
         Assert.assertEquals((validationErrors).get(0).getFieldName(), "phone");
     }
 
-    @Test(description = "Test record field with array type of another record")
+    @Test(enabled = false, description = "Test record field with array type of another record")
     public void testRecordArray() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/recordTypeArray.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -151,7 +151,7 @@ public class InvalidValidatorUtilTests {
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeBallerinaType(), Constants.Type.STRING);
     }
 
-    @Test(description = "Test for nested record")
+    @Test(enabled = false, description = "Test for nested record")
     public void testNestedRecord() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/nestedRecord.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -165,7 +165,7 @@ public class InvalidValidatorUtilTests {
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeBallerinaType(), Constants.Type.STRING);
     }
 
-    @Test(description = "Test for nested 4 record")
+    @Test(enabled = false, description = "Test for nested 4 record")
     public void testNested4Record() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/nested4Record.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -179,7 +179,7 @@ public class InvalidValidatorUtilTests {
         Assert.assertEquals(((TypeMismatch) (validationErrors).get(0)).getTypeBallerinaType(), Constants.Type.INT);
     }
 
-    @Test(description = "Test oneOf type with primitive data type")
+    @Test(enabled = false, description = "Test oneOf type with primitive data type")
     public void testOneOfTypewithPrimitiveData() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/primitive/oneOfPrimitive.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -194,7 +194,7 @@ public class InvalidValidatorUtilTests {
         Assert.assertEquals(((TypeMismatch) validationErrors.get(0)).getTypeBallerinaType(), Constants.Type.DECIMAL);
     }
 
-    @Test(description = "Test oneOf with record type Type mismatching")
+    @Test(enabled = false, description = "Test oneOf with record type Type mismatching")
     public void testOneOfType() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/oneOf/oneOf.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -210,7 +210,7 @@ public class InvalidValidatorUtilTests {
                 get(0).getFieldName(), "id");
     }
 
-    @Test(description = "Test oneOf with record type Type mismatching")
+    @Test(enabled = false, description = "Test oneOf with record type Type mismatching")
     public void testOneOfTypeMistMatch() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/oneOf/oneOfTypeMismatch.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -230,7 +230,7 @@ public class InvalidValidatorUtilTests {
                 "id");
     }
 
-    @Test(description = "Test for missing fields in json schema when oneOf type record scenarios ")
+    @Test(enabled = false, description = "Test for missing fields in json schema when oneOf type record scenarios ")
     public void testOneOfMisJson() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/oneOf/oneOfMisFieldsJson.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -247,7 +247,7 @@ public class InvalidValidatorUtilTests {
                 "place");
     }
 
-    @Test(description = "Test for missing fields in ballerina when oneOf type has")
+    @Test(enabled = false, description = "Test for missing fields in ballerina when oneOf type has")
     public void testOneOfMisBal() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("invalidTests/oneOf/oneOfBalRecord.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());

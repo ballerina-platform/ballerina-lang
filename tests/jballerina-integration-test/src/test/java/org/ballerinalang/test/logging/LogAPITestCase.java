@@ -64,7 +64,7 @@ public class LogAPITestCase extends BaseTest {
 
     private static final PrintStream console = System.out;
 
-    @Test(description = "Tests basic log functionality")
+    @Test(enabled = false, description = "Tests basic log functionality")
     public void testBasicLogFunctionality() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{"mainmod"}, new HashMap<>(),
@@ -78,7 +78,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[12], "INFO", "[logorg/mainmod]", "Logging from inside `mainmod` module");
     }
 
-    @Test(description = "Tests log functionality when all log are turned off")
+    @Test(enabled = false, description = "Tests log functionality when all log are turned off")
     public void testLogsOff() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logLevelTestFileName, "--" + logLevelProperty + "=OFF"};
@@ -88,7 +88,7 @@ public class LogAPITestCase extends BaseTest {
         assertEquals(logLines.length, 3);
     }
 
-    @Test(description = "Tests error level log functionality")
+    @Test(enabled = false, description = "Tests error level log functionality")
     public void testErrorLevel() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] {logLevelTestFileName, "--" + logLevelProperty + "=ERROR" };
@@ -104,7 +104,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[5], "ERROR", "[]", errLogWithErr);
     }
 
-    @Test(description = "Tests warn level log functionality")
+    @Test(enabled = false, description = "Tests warn level log functionality")
     public void testWarnLevel() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] {logLevelTestFileName, "--" + logLevelProperty + "=WARN", };
@@ -123,7 +123,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[6], "WARN", "[]", warnLog);
     }
 
-    @Test(description = "Tests info level log functionality")
+    @Test(enabled = false, description = "Tests info level log functionality")
     public void testInfoLevel() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logLevelTestFileName, "--" + logLevelProperty + "=INFO"};
@@ -145,7 +145,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[7], "INFO", "[]", infoLog);
     }
 
-    @Test(description = "Tests debug level log functionality")
+    @Test(enabled = false, description = "Tests debug level log functionality")
     public void testDebugLevel() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] {logLevelTestFileName, "--" + logLevelProperty + "=DEBUG" };
@@ -170,7 +170,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[8], "DEBUG", "[]", debugLog);
     }
 
-    @Test(description = "Tests trace level log functionality")
+    @Test(enabled = false, description = "Tests trace level log functionality")
     public void testTraceLevel() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] {logLevelTestFileName, "--" + logLevelProperty + "=TRACE" };
@@ -198,7 +198,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[9], "TRACE", "[]", traceLog);
     }
 
-    @Test(description = "Tests log functionality when all log levels are turned on")
+    @Test(enabled = false, description = "Tests log functionality when all log levels are turned on")
     public void testAllOn() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] {logLevelTestFileName, "--" + logLevelProperty + "=ALL" };
@@ -226,7 +226,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[9], "TRACE", "[]", traceLog);
     }
 
-    @Test(description = "Tests log functionality when log level is set tp package")
+    @Test(enabled = false, description = "Tests log functionality when log level is set tp package")
     public void testSettingLogLevelToPackage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] { "mainmod", "--logorg/foo.loglevel=DEBUG", "--logorg/baz.loglevel=ERROR",
@@ -248,7 +248,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[12], "ERROR", "[logorg/baz]", "Logging at ERROR level inside `baz`");
     }
 
-    @Test(description = "Tests printError functionality")
+    @Test(enabled = false, description = "Tests printError functionality")
     public void testErrorMessage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logMessageErrorTestFileName, "--" + logLevelProperty + "=ERROR"};
@@ -277,7 +277,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[9], "ERROR", "[]", errorWithCauseOutput);
     }
 
-    @Test(description = "Tests printWarn functionality")
+    @Test(enabled = false, description = "Tests printWarn functionality")
     public void testWarnMessage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logMessageWarnTestFileName, "--" + logLevelProperty + "=WARN"};
@@ -303,7 +303,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[8], "WARN", "[]", functionOutput);
     }
 
-    @Test(description = "Tests printInfo functionality")
+    @Test(enabled = false, description = "Tests printInfo functionality")
     public void testInfoMessage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logMessageInfoTestFileName, "--" + logLevelProperty + "=INFO"};
@@ -329,7 +329,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[8], "INFO", "[]", functionOutput);
     }
 
-    @Test(description = "Tests printDebug functionality")
+    @Test(enabled = false, description = "Tests printDebug functionality")
     public void testDebugMessage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logMessageDebugTestFileName, "--" + logLevelProperty + "=DEBUG"};
@@ -355,7 +355,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[8], "DEBUG", "[]", functionOutput);
     }
 
-    @Test(description = "Tests printTrace functionality")
+    @Test(enabled = false, description = "Tests printTrace functionality")
     public void testTraceMessage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logMessageTraceTestFileName, "--" + logLevelProperty + "=TRACE"};
@@ -381,7 +381,7 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[8], "TRACE", "[]", functionOutput);
     }
 
-    @Test(description = "Tests setModuleLogLevel functionality")
+    @Test(enabled = false, description = "Tests setModuleLogLevel functionality")
     public void testSetModuleLogLevel() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] { "hello" };
@@ -411,7 +411,8 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[15], "ERROR", "[logorg/hello]", "Logging error log from inside `hello` module");
     }
 
-    @Test(description = "Tests setModuleLogLevel functionality when the user has set module log levels through console")
+    @Test(enabled = false, description = "Tests setModuleLogLevel functionality when " +
+            "the user has set module log levels through console")
     public void testSetModuleLogLevelWithConsoleArgs() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] { "hello" , "--logorg/alpha.loglevel=DEBUG", "--logorg/beta.loglevel=OFF"};
@@ -441,7 +442,8 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[15], "ERROR", "[logorg/hello]", "Logging error log from inside `hello` module");
     }
 
-    @Test(description = "Tests setModuleLogLevel functionality set in the module which is being called")
+    @Test(enabled = false, description = "Tests setModuleLogLevel functionality set in the " +
+            "module which is being called")
     public void testSetModuleLogLevelFromModule() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] { "omega" };
@@ -462,8 +464,8 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[12], "DEBUG", "[logorg/delta]", "Logging debug log from inside `delta` module");
     }
 
-    @Test(description = "Tests setModuleLogLevel functionality set in the main module and overridden at the " +
-            "sub-module which is being called")
+    @Test(enabled = false, description = "Tests setModuleLogLevel functionality set in the main " +
+            "module and overridden at the sub-module which is being called")
     public void testSetModuleLogLevelFromModuleOverridden() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[] { "omega2" };

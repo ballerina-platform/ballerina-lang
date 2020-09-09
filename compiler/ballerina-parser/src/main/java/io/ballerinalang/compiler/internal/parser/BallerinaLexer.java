@@ -329,7 +329,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Trailing trivia
      */
     private STNode processTrailingTrivia() {
-        List<STNode> triviaList = new ArrayList<>(10);
+        List<STNode> triviaList = new ArrayList<>(INITIAL_TRIVIA_CAPACITY);
         processSyntaxTrivia(triviaList, false);
         return STNodeFactory.createNodeList(triviaList);
     }
@@ -1239,7 +1239,8 @@ public class BallerinaLexer extends AbstractLexer {
                             }
                             continue;
                         default:
-                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE);
+                            String escapeSequence = String.valueOf((char) this.reader.peek(2));
+                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
                             this.reader.advance();
                             continue;
                     }
@@ -1501,17 +1502,9 @@ public class BallerinaLexer extends AbstractLexer {
                     }
                     continue;
                 default:
-                    // ASCII letters are not allowed
-                    if ('A' <= nextChar && nextChar <= 'Z') {
-                        break;
-                    }
-                    if ('a' <= nextChar && nextChar <= 'z') {
-                        break;
-                    }
-
-                    // Unicode pattern white space characters are not allowed
-                    if (isUnicodePatternWhiteSpaceChar(nextChar)) {
-                        break;
+                    if (!isValidQuotedIdentifierEscapeChar(nextChar)) {
+                        String escapeSequence = String.valueOf((char) nextChar);
+                        reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
                     }
 
                     reader.advance(2);
@@ -1521,6 +1514,20 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return getIdentifierToken();
+    }
+
+    private boolean isValidQuotedIdentifierEscapeChar(int nextChar) {
+        // ASCII letters are not allowed
+        if ('A' <= nextChar && nextChar <= 'Z') {
+            return false;
+        }
+
+        if ('a' <= nextChar && nextChar <= 'z') {
+            return false;
+        }
+
+        // Unicode pattern white space characters are not allowed
+        return !isUnicodePatternWhiteSpaceChar(nextChar);
     }
 
     private STToken processTokenStartWithGt() {

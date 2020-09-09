@@ -242,8 +242,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_EXPRESSION_IN_START_ACTION("BCE207", "error.invalid.expression.in.start.action"),
     // Cannot have the  same qualifier twice
     ERROR_SAME_OBJECT_TYPE_QUALIFIER("BCE208", "error.same.object.type.qualifier"),
-    ERROR_DUPLICATE_OBJECT_METHOD_QUALIFIER("BCE209", "error.duplicate.object.method.qualifier"),
-    ERROR_QUALIFIER_NOT_ALLOWED("BCE211", "error.qualifier.not.allowed"),
+    ERROR_DUPLICATE_QUALIFIER("BCE209", "error.duplicate.qualifier"),
+    ERROR_QUALIFIER_NOT_ALLOWED("BCE210", "error.qualifier.not.allowed"),
     // Mapping constructor expression cannot be used as a wait expression
     ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR("BCE212",
             "error.mapping.constructor.expr.as.a.wait.expr"),
@@ -279,6 +279,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.required.parameter.after.the.defaultable.parameter"),
     ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG("BCE302", "error.named.arg.followed.by.positional.arg"),
     ERROR_ARG_FOLLOWED_BY_REST_ARG("BCE303", "error.arg.followed.by.rest.arg"),
+    ERROR_BINDING_PATTERN_NOT_ALLOWED("BCE304", "error.binding.pattern.not.allowed"),
 
     ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL("BCE401",
             "error.invalid.base16.content.in.byte.array.literal"),

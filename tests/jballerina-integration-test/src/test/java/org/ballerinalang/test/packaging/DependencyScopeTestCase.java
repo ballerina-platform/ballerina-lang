@@ -58,7 +58,7 @@ public class DependencyScopeTestCase extends BaseTest {
 
     private String jarEntry = "platform-libs/utils.jar";
 
-    @BeforeClass()
+    @BeforeClass(enabled = false)
     public void setUp() throws IOException, BallerinaTestException {
         this.tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-pathdep-home-");
         this.tempTestResources = Files.createTempDirectory("bal-test-integration-packaging-pathdep-project-");
@@ -79,7 +79,7 @@ public class DependencyScopeTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test 'provided' scope for platform dependency jars")
+    @Test(enabled = false, description = "Test 'provided' scope for platform dependency jars")
     public void providedScopeDependencyCase() throws BallerinaTestException, IOException {
         String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -118,7 +118,7 @@ public class DependencyScopeTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test 'testOnly' scope for platform dependency jars")
+    @Test(enabled = false, description = "Test 'testOnly' scope for platform dependency jars")
     public void testOnlyScopeDependencyCase() throws BallerinaTestException, IOException {
         Path baloPath = projectResources.resolve("TestProject2" + File.separator + "target" + File.separator +
                 "balo");
@@ -157,7 +157,8 @@ public class DependencyScopeTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Validate if all dependency jars of the balo dependency are added to the project toml")
+    @Test(enabled = false, description = "Validate if all dependency jars of the balo dependency " +
+            "are added to the project toml")
     public void testValidatingDependenciesFromBaloToml() throws BallerinaTestException {
         copy(tempTestResources.resolve("validate-dependency").resolve("TestProject1").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject1").resolve(MANIFEST_FILE_NAME));
@@ -227,7 +228,7 @@ public class DependencyScopeTestCase extends BaseTest {
         }
     }
 
-    @AfterClass
+    @AfterClass(enabled = false)
     private void cleanup() throws Exception {
         deleteFiles(this.tempHomeDirectory);
         deleteFiles(this.tempTestResources);
