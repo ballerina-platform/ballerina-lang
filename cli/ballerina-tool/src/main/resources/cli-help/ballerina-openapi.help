@@ -21,7 +21,7 @@ DESCRIPTION
 OPTIONS
         (-i| --input) <openapi-contract> | <ballerina service file>
             This is a mandatory input. The given OpenAPI contract input will generate a Ballerina service and the client
-            stub files for given openapi contract. This generated service can be used as a code template
+            stub files for the given OpenAPI contract. This generated service can be used as a code template
             to start the service implementation. Generated sources contain a service definition, schema definition and
             a copy of the OpenAPI contract which is used for the template generation. Generated client stub is used to
             start the client application implementation to call the service defined in the OpenAPI file.
