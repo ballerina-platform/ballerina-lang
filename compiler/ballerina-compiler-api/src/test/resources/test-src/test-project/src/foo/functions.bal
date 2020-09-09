@@ -14,13 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/foo;
+public function add(int x, int y) returns int => x + y;
 
-string aString = "foo";
-int anInt = 10;
-
-function testAnonTypes() {
-    int sum = foo:add(10, 20);
+function concat(string s1, string s2) returns string {
+    return s1 + s2;
 }
-
-const HELLO = "Hello";

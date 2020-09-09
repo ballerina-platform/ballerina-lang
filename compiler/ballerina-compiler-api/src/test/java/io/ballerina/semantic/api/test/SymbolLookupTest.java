@@ -23,8 +23,11 @@ import org.ballerina.compiler.api.symbols.Symbol;
 import org.ballerina.compiler.impl.BallerinaModuleID;
 import org.ballerina.compiler.impl.BallerinaSemanticModel;
 import org.ballerina.compiler.impl.symbols.BallerinaModule;
+import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -59,6 +62,12 @@ import static org.testng.Assert.assertTrue;
 public class SymbolLookupTest {
 
     private final Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
+
+    @BeforeClass
+    public void setup() {
+        BaloCreator.cleanCacheDirectories();
+        BaloCreator.createAndSetupBalo("test-src/test-project", "testorg", "foo");
+    }
 
     @Test(dataProvider = "PositionProvider1")
     public void testVarSymbolLookup(int line, int column, int expSymbols, List<String> expSymbolNames) {
@@ -164,33 +173,33 @@ public class SymbolLookupTest {
         CompilerContext context = new CompilerContext();
         CompileResult result = compile("test-src/symbol_lookup_with_imports_test.bal", context);
         BLangPackage pkg = (BLangPackage) result.getAST();
-        BPackageSymbol ioPkgSymbol = pkg.imports.get(0).symbol;
+        BPackageSymbol fooPkgSymbol = pkg.imports.get(0).symbol;
         BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
         List<String> annotationModuleSymbols = asList("deprecated", "untainted", "tainted", "icon", "strand",
                                                       "StrandData", "typeParam", "Thread", "builtinSubtype");
         List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes");
-        List<String> moduleSymbols = asList("xml", "io", "object", "error");
+        List<String> moduleSymbols = asList("xml", "foo", "object", "error");
         List<String> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
-        Map<String, Symbol> symbolsInScope = model.visibleSymbols("symbol_lookup_with_imports_test.bal",
-                                                                  LinePosition.from(19, 1))
-                .stream().collect(Collectors.toMap(Symbol::name, s -> s));
+
+        Map<String, Symbol> symbolsInScope =
+                model.visibleSymbols("symbol_lookup_with_imports_test.bal", LinePosition.from(19, 1))
+                        .stream().collect(Collectors.toMap(Symbol::name, s -> s));
         assertList(symbolsInScope, expSymbolNames);
 
-        BallerinaModule ioModule = (BallerinaModule) symbolsInScope.get("io");
-        List<String> ioFunctions = getSymbolNames(ioPkgSymbol, SymTag.FUNCTION);
-        assertList(ioModule.functions(), ioFunctions);
+        BallerinaModule fooModule = (BallerinaModule) symbolsInScope.get("foo");
+        List<String> fooFunctions = getSymbolNames(fooPkgSymbol, SymTag.FUNCTION);
+        assertList(fooModule.functions(), fooFunctions);
 
-        List<String> ioConstants = getSymbolNames(ioPkgSymbol, SymTag.CONSTANT);
-        assertList(ioModule.constants(), ioConstants);
+        List<String> fooConstants = getSymbolNames(fooPkgSymbol, SymTag.CONSTANT);
+        assertList(fooModule.constants(), fooConstants);
 
-        List<String> ioTypeDefs = getSymbolNames(getSymbolNames(ioPkgSymbol, SymTag.TYPE_DEF),
-                                                 "ConnectionTimedOutError", "GenericError", "AccessDeniedError",
-                                                 "FileNotFoundError", "EofError", "ByteOrder");
-        assertList(ioModule.typeDefinitions(), ioTypeDefs);
+        List<String> fooTypeDefs = getSymbolNames(getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF), "FileNotFoundError",
+                                                  "EofError", "Digit");
+        assertList(fooModule.typeDefinitions(), fooTypeDefs);
 
-        List<String> allSymbols = getSymbolNames(ioPkgSymbol, 0);
-        assertList(ioModule.allSymbols(), allSymbols);
+        List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
+        assertList(fooModule.allSymbols(), allSymbols);
     }
 
     @Test(dataProvider = "PositionProvider4")
@@ -218,6 +227,11 @@ public class SymbolLookupTest {
                 {23, 51, getSymbolNames(moduleLevelSymbols, "b", "strTemp")},
                 {25, 54, getSymbolNames(moduleLevelSymbols, "b", "strTemp", "rawTemp")},
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BaloCreator.clearPackageFromRepository("test-src/test_project", "testorg", "foo");
     }
 
     private void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {

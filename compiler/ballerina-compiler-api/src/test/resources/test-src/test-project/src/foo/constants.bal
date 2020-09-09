@@ -14,13 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/foo;
+public const PI = 3.14;
 
-string aString = "foo";
-int anInt = 10;
+public const TRUE = "true";
+public const string FALSE = "false";
 
-function testAnonTypes() {
-    int sum = foo:add(10, 20);
-}
-
-const HELLO = "Hello";
+const STATUS = "status";
