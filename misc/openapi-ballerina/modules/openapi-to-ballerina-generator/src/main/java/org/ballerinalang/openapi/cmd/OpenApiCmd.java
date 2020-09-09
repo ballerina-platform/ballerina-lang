@@ -151,7 +151,7 @@ public class OpenApiCmd implements BLauncherCmd {
         Path resourcePath = getResourcePath(balFile, this.targetOutputPath.toString());
         //ballerina openapi -i service.bal --serviceName serviceName --module exampleModul -o ./
         // Check service name it is mandatory
-        if ((module != null) && (service != null)) {
+        if (module != null && service != null) {
             if (!checkModuleExist(module)) {
                 throw LauncherUtils.createLauncherException(OpenApiMesseges.MESSAGE_FOR_INVALID_MODULE);
             }

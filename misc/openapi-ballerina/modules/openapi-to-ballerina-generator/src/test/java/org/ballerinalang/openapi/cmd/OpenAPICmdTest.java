@@ -121,10 +121,6 @@ public class OpenAPICmdTest extends OpenAPICommandTest {
                 && Files.exists(resourcePath.resolve("petstoreService.bal"))
                 && Files.exists(resourcePath.resolve("schema.bal"))) {
 
-//            Stream<String> serviceLines = Files.lines(resourcePath.resolve("petstoreService.bal"));
-//            String generatedService = serviceLines.collect(Collectors.joining("\n"));
-//            serviceLines.close();
-
             Stream<String> schemaLines = Files.lines(resourcePath.resolve("schema.bal"));
             String generatedSchema = schemaLines.collect(Collectors.joining("\n"));
             schemaLines.close();

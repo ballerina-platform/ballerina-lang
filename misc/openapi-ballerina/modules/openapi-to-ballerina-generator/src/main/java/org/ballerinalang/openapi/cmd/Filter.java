@@ -34,10 +34,6 @@ public class Filter {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
     public List<String> getOperations() {
         return operations;
     }
