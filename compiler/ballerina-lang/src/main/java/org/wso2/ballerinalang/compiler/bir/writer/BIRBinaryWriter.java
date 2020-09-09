@@ -299,7 +299,7 @@ public class BIRBinaryWriter {
         }
 
         // Write the instruction vs scope table
-        writeScopes(buf, scopebuf);
+        writeScopes(buf, scopebuf, funcInsWriter.getScopeCount());
 
         // Write length of the function body so that it can be skipped easily.
         int length = birbuf.nioBuffer().limit();
@@ -307,9 +307,11 @@ public class BIRBinaryWriter {
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
-    private void writeScopes(ByteBuf buf, ByteBuf scopebuf) {
+    private void writeScopes(ByteBuf buf, ByteBuf scopebuf, int scopeCount) {
         int length = scopebuf.nioBuffer().limit();
-        buf.writeLong(length);
+        // 4 is the size of int which is the number of scopes that we are going to add to the beginning of the buffer
+        buf.writeLong(length + 4);
+        buf.writeInt(scopeCount);
         buf.writeBytes(scopebuf.nioBuffer().array(), 0, length);
     }
 

@@ -64,6 +64,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     private BIRBinaryWriter binaryWriter;
     private int instructionOffset;
     private BirScope previousScope;
+    private int scopeCount;
 
     BIRInstructionWriter(ByteBuf buf, ByteBuf scopeBuf, ConstantPool cp, BIRBinaryWriter birBinaryWriter) {
         this.buf = buf;
@@ -72,6 +73,11 @@ public class BIRInstructionWriter extends BIRVisitor {
         this.cp = cp;
         this.instructionOffset = 0;
         this.previousScope = null;
+        this.scopeCount = 0;
+    }
+
+    public int getScopeCount() {
+        return scopeCount;
     }
 
     void writeBBs(List<BIRBasicBlock> bbList) {
@@ -92,6 +98,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     private void writeScope(BirScope currentScope) {
+        this.scopeCount++; // Increment the scope count so we can read the scopes iteratively
         scopeBuf.writeInt(currentScope.id);
         scopeBuf.writeInt(this.instructionOffset);
 
