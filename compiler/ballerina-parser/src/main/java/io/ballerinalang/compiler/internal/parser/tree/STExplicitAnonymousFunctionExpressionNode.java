@@ -31,17 +31,20 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFunctionExpressionNode {
+    public final STNode qualifierList;
     public final STNode annotations;
     public final STNode functionKeyword;
     public final STNode functionSignature;
     public final STNode functionBody;
 
     STExplicitAnonymousFunctionExpressionNode(
+            STNode qualifierList,
             STNode annotations,
             STNode functionKeyword,
             STNode functionSignature,
             STNode functionBody) {
         this(
+                qualifierList,
                 annotations,
                 functionKeyword,
                 functionSignature,
@@ -50,18 +53,21 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
     }
 
     STExplicitAnonymousFunctionExpressionNode(
+            STNode qualifierList,
             STNode annotations,
             STNode functionKeyword,
             STNode functionSignature,
             STNode functionBody,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION, diagnostics);
+        this.qualifierList = qualifierList;
         this.annotations = annotations;
         this.functionKeyword = functionKeyword;
         this.functionSignature = functionSignature;
         this.functionBody = functionBody;
 
         addChildren(
+                qualifierList,
                 annotations,
                 functionKeyword,
                 functionSignature,
@@ -70,6 +76,7 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STExplicitAnonymousFunctionExpressionNode(
+                this.qualifierList,
                 this.annotations,
                 this.functionKeyword,
                 this.functionSignature,
@@ -78,11 +85,13 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
     }
 
     public STExplicitAnonymousFunctionExpressionNode modify(
+            STNode qualifierList,
             STNode annotations,
             STNode functionKeyword,
             STNode functionSignature,
             STNode functionBody) {
         if (checkForReferenceEquality(
+                qualifierList,
                 annotations,
                 functionKeyword,
                 functionSignature,
@@ -91,6 +100,7 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
         }
 
         return new STExplicitAnonymousFunctionExpressionNode(
+                qualifierList,
                 annotations,
                 functionKeyword,
                 functionSignature,

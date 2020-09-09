@@ -1777,12 +1777,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static FunctionTypeDescriptorNode createFunctionTypeDescriptorNode(
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             FunctionSignatureNode functionSignature) {
+        Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
         Objects.requireNonNull(functionSignature, "functionSignature must not be null");
 
         STNode stFunctionTypeDescriptorNode = STNodeFactory.createFunctionTypeDescriptorNode(
+                qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
                 functionSignature.internalNode());
         return stFunctionTypeDescriptorNode.createUnlinkedFacade();
@@ -1806,16 +1809,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ExplicitAnonymousFunctionExpressionNode createExplicitAnonymousFunctionExpressionNode(
+            NodeList<Token> qualifierList,
             NodeList<AnnotationNode> annotations,
             Token functionKeyword,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
+        Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
         Objects.requireNonNull(functionSignature, "functionSignature must not be null");
         Objects.requireNonNull(functionBody, "functionBody must not be null");
 
         STNode stExplicitAnonymousFunctionExpressionNode = STNodeFactory.createExplicitAnonymousFunctionExpressionNode(
+                qualifierList.underlyingListNode().internalNode(),
                 annotations.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
                 functionSignature.internalNode(),
@@ -2034,14 +2040,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ImplicitAnonymousFunctionExpressionNode createImplicitAnonymousFunctionExpressionNode(
+            NodeList<Token> qualifierList,
             Node params,
             Token rightDoubleArrow,
             ExpressionNode expression) {
+        Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(params, "params must not be null");
         Objects.requireNonNull(rightDoubleArrow, "rightDoubleArrow must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stImplicitAnonymousFunctionExpressionNode = STNodeFactory.createImplicitAnonymousFunctionExpressionNode(
+                qualifierList.underlyingListNode().internalNode(),
                 params.internalNode(),
                 rightDoubleArrow.internalNode(),
                 expression.internalNode());

@@ -1346,10 +1346,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createFunctionTypeDescriptorNode(
+            STNode qualifierList,
             STNode functionKeyword,
             STNode functionSignature) {
 
         return new STFunctionTypeDescriptorNode(
+                qualifierList,
                 functionKeyword,
                 functionSignature);
     }
@@ -1368,12 +1370,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createExplicitAnonymousFunctionExpressionNode(
+            STNode qualifierList,
             STNode annotations,
             STNode functionKeyword,
             STNode functionSignature,
             STNode functionBody) {
 
         return new STExplicitAnonymousFunctionExpressionNode(
+                qualifierList,
                 annotations,
                 functionKeyword,
                 functionSignature,
@@ -1540,11 +1544,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createImplicitAnonymousFunctionExpressionNode(
+            STNode qualifierList,
             STNode params,
             STNode rightDoubleArrow,
             STNode expression) {
 
         return new STImplicitAnonymousFunctionExpressionNode(
+                qualifierList,
                 params,
                 rightDoubleArrow,
                 expression);

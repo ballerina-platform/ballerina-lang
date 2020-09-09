@@ -32,16 +32,20 @@ public class ImplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
         super(internalNode, position, parent);
     }
 
-    public Node params() {
-        return childInBucket(0);
+    public NodeList<Token> qualifierList() {
+        return new NodeList<>(childInBucket(0));
     }
 
-    public Token rightDoubleArrow() {
+    public Node params() {
         return childInBucket(1);
     }
 
-    public ExpressionNode expression() {
+    public Token rightDoubleArrow() {
         return childInBucket(2);
+    }
+
+    public ExpressionNode expression() {
+        return childInBucket(3);
     }
 
     @Override
@@ -57,16 +61,19 @@ public class ImplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
     @Override
     protected String[] childNames() {
         return new String[]{
+                "qualifierList",
                 "params",
                 "rightDoubleArrow",
                 "expression"};
     }
 
     public ImplicitAnonymousFunctionExpressionNode modify(
+            NodeList<Token> qualifierList,
             Node params,
             Token rightDoubleArrow,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
+                qualifierList.underlyingListNode(),
                 params,
                 rightDoubleArrow,
                 expression)) {
@@ -74,6 +81,7 @@ public class ImplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
         }
 
         return NodeFactory.createImplicitAnonymousFunctionExpressionNode(
+                qualifierList,
                 params,
                 rightDoubleArrow,
                 expression);
@@ -90,15 +98,24 @@ public class ImplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
      */
     public static class ImplicitAnonymousFunctionExpressionNodeModifier {
         private final ImplicitAnonymousFunctionExpressionNode oldNode;
+        private NodeList<Token> qualifierList;
         private Node params;
         private Token rightDoubleArrow;
         private ExpressionNode expression;
 
         public ImplicitAnonymousFunctionExpressionNodeModifier(ImplicitAnonymousFunctionExpressionNode oldNode) {
             this.oldNode = oldNode;
+            this.qualifierList = oldNode.qualifierList();
             this.params = oldNode.params();
             this.rightDoubleArrow = oldNode.rightDoubleArrow();
             this.expression = oldNode.expression();
+        }
+
+        public ImplicitAnonymousFunctionExpressionNodeModifier withQualifierList(
+                NodeList<Token> qualifierList) {
+            Objects.requireNonNull(qualifierList, "qualifierList must not be null");
+            this.qualifierList = qualifierList;
+            return this;
         }
 
         public ImplicitAnonymousFunctionExpressionNodeModifier withParams(
@@ -124,6 +141,7 @@ public class ImplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
 
         public ImplicitAnonymousFunctionExpressionNode apply() {
             return oldNode.modify(
+                    qualifierList,
                     params,
                     rightDoubleArrow,
                     expression);

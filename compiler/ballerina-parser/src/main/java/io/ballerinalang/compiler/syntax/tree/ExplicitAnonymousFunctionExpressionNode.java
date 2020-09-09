@@ -32,20 +32,24 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
         super(internalNode, position, parent);
     }
 
-    public NodeList<AnnotationNode> annotations() {
+    public NodeList<Token> qualifierList() {
         return new NodeList<>(childInBucket(0));
     }
 
-    public Token functionKeyword() {
-        return childInBucket(1);
+    public NodeList<AnnotationNode> annotations() {
+        return new NodeList<>(childInBucket(1));
     }
 
-    public FunctionSignatureNode functionSignature() {
+    public Token functionKeyword() {
         return childInBucket(2);
     }
 
-    public FunctionBodyNode functionBody() {
+    public FunctionSignatureNode functionSignature() {
         return childInBucket(3);
+    }
+
+    public FunctionBodyNode functionBody() {
+        return childInBucket(4);
     }
 
     @Override
@@ -61,6 +65,7 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
     @Override
     protected String[] childNames() {
         return new String[]{
+                "qualifierList",
                 "annotations",
                 "functionKeyword",
                 "functionSignature",
@@ -68,11 +73,13 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
     }
 
     public ExplicitAnonymousFunctionExpressionNode modify(
+            NodeList<Token> qualifierList,
             NodeList<AnnotationNode> annotations,
             Token functionKeyword,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
         if (checkForReferenceEquality(
+                qualifierList.underlyingListNode(),
                 annotations.underlyingListNode(),
                 functionKeyword,
                 functionSignature,
@@ -81,6 +88,7 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
         }
 
         return NodeFactory.createExplicitAnonymousFunctionExpressionNode(
+                qualifierList,
                 annotations,
                 functionKeyword,
                 functionSignature,
@@ -98,6 +106,7 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
      */
     public static class ExplicitAnonymousFunctionExpressionNodeModifier {
         private final ExplicitAnonymousFunctionExpressionNode oldNode;
+        private NodeList<Token> qualifierList;
         private NodeList<AnnotationNode> annotations;
         private Token functionKeyword;
         private FunctionSignatureNode functionSignature;
@@ -105,10 +114,18 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
 
         public ExplicitAnonymousFunctionExpressionNodeModifier(ExplicitAnonymousFunctionExpressionNode oldNode) {
             this.oldNode = oldNode;
+            this.qualifierList = oldNode.qualifierList();
             this.annotations = oldNode.annotations();
             this.functionKeyword = oldNode.functionKeyword();
             this.functionSignature = oldNode.functionSignature();
             this.functionBody = oldNode.functionBody();
+        }
+
+        public ExplicitAnonymousFunctionExpressionNodeModifier withQualifierList(
+                NodeList<Token> qualifierList) {
+            Objects.requireNonNull(qualifierList, "qualifierList must not be null");
+            this.qualifierList = qualifierList;
+            return this;
         }
 
         public ExplicitAnonymousFunctionExpressionNodeModifier withAnnotations(
@@ -141,6 +158,7 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
 
         public ExplicitAnonymousFunctionExpressionNode apply() {
             return oldNode.modify(
+                    qualifierList,
                     annotations,
                     functionKeyword,
                     functionSignature,
