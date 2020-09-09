@@ -83,7 +83,7 @@ build {
     dependsOn genBirSpec
 }
 
-compileTestJava {
+compileJava {
     dependsOn 'kaitai'
 }
 
