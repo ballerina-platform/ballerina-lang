@@ -71,8 +71,15 @@ public function assertEquals(anydata|error actual, anydata|error expected, strin
     boolean isEqual = (actual == expected);
     if (!isEqual) {
         string expectedStr = sprintf("%s", expected);
+        string expectedType = getBallerinaType(expected);
         string actualStr = sprintf("%s", actual);
-        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        string actualType = getBallerinaType(actual);
+        string errorMsg = "";
+        if (expectedType != actualType) {
+            errorMsg = string `${msg}: expected '<${expectedType}>${expectedStr}' but found '<${actualType}>${actualStr}'`;
+        } else {
+            errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        }
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -101,8 +108,15 @@ public function assertExactEquals(any|error actual, any|error expected, string m
     boolean isEqual = (actual === expected);
     if (!isEqual) {
         string expectedStr = sprintf("%s", expected);
+        string expectedType = getBallerinaType(expected);
         string actualStr = sprintf("%s", actual);
-        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        string actualType = getBallerinaType(actual);
+        string errorMsg = "";
+        if (expectedType != actualType) {
+            errorMsg = string `${msg}: expected '<${expectedType}>${expectedStr}' but found '<${actualType}>${actualStr}'`;
+        } else {
+            errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        }
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -132,4 +146,9 @@ public function assertFail(string msg = "Test Failed!") {
 function sprintf(string format, (any|error)... args) returns string = @java:Method {
     name : "sprintf",
     class : "org.ballerinalang.testerina.natives.io.Sprintf"
+} external;
+
+function getBallerinaType((any|error) value) returns string = @java:Method {
+    name : "getBallerinaType",
+    class : "org.ballerinalang.testerina.natives.io.BallerinaTypeCheck"
 } external;
