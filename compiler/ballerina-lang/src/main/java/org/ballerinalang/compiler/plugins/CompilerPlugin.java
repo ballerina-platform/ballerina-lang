@@ -96,7 +96,8 @@ public interface CompilerPlugin {
      * @param classDefinition  the class def node being annotated
      * @param annotations a list of annotations attached to the object node
      */
-    void process(ClassDefinition classDefinition, List<AnnotationAttachmentNode> annotations);
+    default void process(ClassDefinition classDefinition, List<AnnotationAttachmentNode> annotations) {
+    }
 
     /**
      * Processes a list of annotations attached to a function node.
