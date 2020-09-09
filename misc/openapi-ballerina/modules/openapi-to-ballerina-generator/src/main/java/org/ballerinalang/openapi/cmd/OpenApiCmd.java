@@ -117,7 +117,7 @@ public class OpenApiCmd implements BLauncherCmd {
             // else if given ballerina service file it generates openapi contract file
             // else it generates error message to enter correct input file
             String fileName = argList.get(0);
-            if(fileName.endsWith(".yaml")) {
+            if (fileName.endsWith(".yaml")) {
                 List<String> tag = new ArrayList<>();
                 List<String> operation = new ArrayList<>();
                 if (tags != null) {
@@ -162,16 +162,16 @@ public class OpenApiCmd implements BLauncherCmd {
                 throw LauncherUtils.createLauncherException("Error occurred when exporting openapi file. " +
                         "\n" + e.getMessage());
             }
-        } else if (serviceName != null){
+        } else if (serviceName != null) {
             try {
                 OpenApiConverterUtils.generateOAS3Definitions(resourcePath, targetOutputPath, serviceName);
-            } catch (IOException | OpenApiConverterException e){
+            } catch (IOException | OpenApiConverterException e) {
                 throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
             }
         } else {
             try {
                 OpenApiConverterUtils.generateOAS3DefinitionsAllService(resourcePath, targetOutputPath);
-            } catch (IOException | OpenApiConverterException | CompilationFailedException e){
+            } catch (IOException | OpenApiConverterException | CompilationFailedException e) {
                 throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
             }
         }
@@ -291,8 +291,8 @@ public class OpenApiCmd implements BLauncherCmd {
         try {
             assert resourcePath != null;
             Path relativeResourcePath =
-                    Paths.get(new File(executionPath.toString()).toURI().relativize(new File(resourcePath.toString()).toURI())
-                    .getPath());
+                    Paths.get(new File(executionPath.toString()).toURI().relativize(
+                            new File(resourcePath.toString()).toURI()).getPath());
             generator.generateBothFiles(
                     GeneratorConstants.GenType.GEN_BOTH, relativeResourcePath.toString(),
                     resourcePath.toString(), fileName, targetOutputPath.toString(), filter);

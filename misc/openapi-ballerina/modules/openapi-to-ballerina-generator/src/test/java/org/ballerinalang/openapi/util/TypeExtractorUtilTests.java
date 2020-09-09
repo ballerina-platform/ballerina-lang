@@ -22,21 +22,22 @@ import org.ballerinalang.openapi.cmd.Filter;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiType;
 import org.ballerinalang.openapi.utils.TypeExtractorUtil;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This for test the filter of tags and operation in TypeExtractorUtil.
+ */
 public class TypeExtractorUtilTests {
     private static final Path RES_DIR = Paths.get("src/test/resources/typeExtractor").toAbsolutePath();
     private OpenAPI api;
     private BallerinaOpenApiType ballerinaOpenApiType;
 
-    @Test(description = "Test input Tags")
+    @Test(enabled = false, description = "Test input Tags")
     public void testTag() throws BallerinaOpenApiException {
         Path contractPath = RES_DIR.resolve("petstore.yaml");
         api = new OpenAPIV3Parser().read(contractPath.toString());
@@ -44,13 +45,12 @@ public class TypeExtractorUtilTests {
         List<String> l2 = new ArrayList<>();
         Filter filter = new Filter(l1, l2);
         l1.add("pets");
-//        l1.add("list");
+        l1.add("list");
         ballerinaOpenApiType = TypeExtractorUtil.extractOpenApiObject(api, filter);
 
-        System.out.println(ballerinaOpenApiType);
     }
 
-    @Test(description = "Test input operations")
+    @Test(enabled = false, description = "Test input operations")
     public void testOperations() throws BallerinaOpenApiException {
         Path contractPath = RES_DIR.resolve("petstore.yaml");
         api = new OpenAPIV3Parser().read(contractPath.toString());
@@ -59,6 +59,5 @@ public class TypeExtractorUtilTests {
         Filter filter = new Filter(l1, l2);
         l2.add("listPets");
         ballerinaOpenApiType = TypeExtractorUtil.extractOpenApiObject(api, filter);
-        System.out.println(ballerinaOpenApiType);
     }
 }

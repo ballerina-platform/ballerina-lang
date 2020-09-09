@@ -46,7 +46,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -307,7 +306,7 @@ public class CodeGenerator {
                         if (file.getName().equals(gFile.getFileName())) {
                             String userInput = System.console().readLine("There is already a/an " + file.getName() +
                                     " in the location. Do you want to override the file [Y/N]? ");
-                            if (!Objects.equals(userInput.toLowerCase(), "y")) {
+                            if (!Objects.equals(userInput.toLowerCase(Locale.ENGLISH), "y")) {
                                 int duplicateCount = 0;
                                 setGeneratedFileName(listFiles, gFile, duplicateCount);
                             }
@@ -403,7 +402,8 @@ public class CodeGenerator {
         }
 
         List<GenSrcFile> sourceFiles = new ArrayList<>();
-        String concatTitle = api.getBalServiceName().toLowerCase(Locale.ENGLISH).replaceAll("([\\[\\]\\\\?!<>@#&~`*\\-=^+();:\\_{}\\s|.$])", "\\\\$1");
+        String concatTitle = api.getBalServiceName().toLowerCase(Locale.ENGLISH).replaceAll(
+                "([\\[\\]\\\\?!<>@#&~`*\\-=^+();:\\_{}\\s|.$])", "\\\\$1");
         String srcFile = concatTitle + "-service.bal";
 
         String mainContent = getContent(api, GeneratorConstants.DEFAULT_TEMPLATE_DIR + "/service",

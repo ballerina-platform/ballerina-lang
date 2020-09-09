@@ -50,7 +50,6 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -94,6 +93,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -422,7 +422,7 @@ public class OpenApiConverterUtils {
     }
 
     /**
-     * This method use for checking the duplicate files
+     * This method use for checking the duplicate files.
      * @param outPath       output path for file generated
      * @param openApiName   given file name
      * @return              file name with duplicate number tag
@@ -436,7 +436,7 @@ public class OpenApiConverterUtils {
                     if (file.getName().equals(openApiName)) {
                         String userInput = System.console().readLine("There is already a/an " + file.getName() +
                                 " in the location. Do you want to override the file [Y/N]? ");
-                        if (!Objects.equals(userInput.toLowerCase(), "y")) {
+                        if (!Objects.equals(userInput.toLowerCase(Locale.ENGLISH), "y")) {
                             int duplicateCount = 0;
                             openApiName = setGeneratedFileName(listFiles, openApiName, duplicateCount);
                         }

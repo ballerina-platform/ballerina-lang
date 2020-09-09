@@ -65,7 +65,8 @@ public class TypeExtractorUtil {
      * @return - Ballerina compatible type object
      * @throws BallerinaOpenApiException - throws exception if extraction fails.
      */
-    public static BallerinaOpenApiType extractOpenApiObject(OpenAPI apiDef, Filter filter) throws BallerinaOpenApiException {
+    public static BallerinaOpenApiType extractOpenApiObject(OpenAPI apiDef, Filter filter)
+            throws BallerinaOpenApiException {
         BallerinaOpenApiType typeDef = new BallerinaOpenApiType();
         if (!filter.getTags().isEmpty()) {
             List<Tag> tags = new ArrayList<>();
@@ -101,7 +102,8 @@ public class TypeExtractorUtil {
      * @return - List of Ballerina compatible path type
      * @throws BallerinaOpenApiException - throws exception if extraction fails.
      */
-    private static List<BallerinaOpenApiPath> extractOpenApiPaths(Paths defPaths, Filter filter) throws BallerinaOpenApiException {
+    private static List<BallerinaOpenApiPath> extractOpenApiPaths(Paths defPaths, Filter filter)
+            throws BallerinaOpenApiException {
         List<BallerinaOpenApiPath> paths = new ArrayList<>();
         final Iterator<Map.Entry<String, PathItem>> pathIterator = defPaths.entrySet().iterator();
 
@@ -432,7 +434,7 @@ public class TypeExtractorUtil {
             } else {
                 identifier = identifier.replaceAll("([\\[\\]\\\\?!<>@#&~`*\\-=^+();:\\_{}\\s|.$])", "\\\\$1");
                 if (identifier.endsWith("?")) {
-                    if (identifier.charAt(identifier.length()-2) == '\\') {
+                    if (identifier.charAt(identifier.length() - 2) == '\\') {
                         StringBuilder stringBuilder = new StringBuilder(identifier);
                         stringBuilder.deleteCharAt(identifier.length() - 2);
                         identifier = stringBuilder.toString();
