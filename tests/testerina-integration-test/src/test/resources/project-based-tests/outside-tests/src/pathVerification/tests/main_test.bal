@@ -14,20 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/test;
+
+string testString = "";
 
 # Before Suite Function
 
 @test:BeforeSuite
 function beforeSuiteFunc() {
-    io:println("I'm the before suite function!");
+    testString += "beforeSuiteFunc";
 }
 
 # Before test function
 
 function beforeFunc() {
-    io:println("I'm the before function!");
+    testString += "beforeFunc";
 }
 
 # Test function
@@ -37,19 +38,26 @@ function beforeFunc() {
     after: "afterFunc"
 }
 function testFunction() {
-    io:println("I'm in test function!");
-    test:assertTrue(true, msg = "Failed!");
+    testString += "test";
 }
 
 # After test function
 
 function afterFunc() {
-    io:println("I'm the after function!");
+    testString += "afterFunc";
 }
 
 # After Suite Function
 
 @test:AfterSuite {}
 function afterSuiteFunc() {
-    io:println("I'm the after suite function!");
+    testString += "afterSuiteFunc";
+}
+
+# Second Test function
+@test:Config {
+    dependsOn : ["testFunction"]
+}
+function testFunction2() {
+    test:assertEquals(testString, "beforeSuiteFuncbeforeFunctestafterFunc");
 }
