@@ -4352,7 +4352,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangOrderByClause orderByClause) {
         for (OrderKeyNode orderKeyNode : orderByClause.getOrderKeyList()) {
             BType exprType = checkExpr((BLangExpression) orderKeyNode.getOrderKey(), queryEnvs.peek());
-            if (!types.isBasicType(exprType)) {
+            if (!types.isOrderedType(exprType)) {
                 dlog.error(((BLangOrderKey) orderKeyNode).expression.pos, DiagnosticCode.ORDER_BY_NOT_SUPPORTED);
             }
         }
@@ -5377,10 +5377,49 @@ public class TypeChecker extends BLangNodeVisitor {
             retType = typeBuilder.build(retType, iExpr);
         }
 
+        // check argument types in arr:sort function
+        boolean langLibPackageID = PackageID.isLangLibPackageID(iExpr.symbol.pkgID);
+        String sortFuncName = "sort";
+        if (langLibPackageID && sortFuncName.equals(iExpr.name.value)) {
+            checkArrayLibSortFuncArgs(iExpr);
+        }
+
         if (iExpr instanceof ActionNode && ((BLangInvocation.BLangActionInvocation) iExpr).async) {
             return this.generateFutureType(invokableSymbol, retType);
         } else {
             return retType;
+        }
+    }
+
+    private void checkArrayLibSortFuncArgs(BLangInvocation iExpr) {
+        if (iExpr.argExprs.size() <= 2 && !types.isOrderedType(iExpr.argExprs.get(0).type)) {
+            dlog.error(iExpr.argExprs.get(0).pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE,
+                    iExpr.argExprs.get(0).type);
+        }
+
+        if (iExpr.argExprs.size() != 3) {
+            return;
+        }
+
+        BLangExpression keyFunction = iExpr.argExprs.get(2);
+        BType keyFunctionType = keyFunction.type;
+
+        if (keyFunctionType.tag == TypeTags.SEMANTIC_ERROR) {
+            return;
+        }
+
+        if (keyFunctionType.tag == TypeTags.NIL) {
+            if (!types.isOrderedType(iExpr.argExprs.get(0).type)) {
+                dlog.error(iExpr.argExprs.get(0).pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE,
+                        iExpr.argExprs.get(0).type);
+            }
+            return;
+        }
+
+        BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
+        BType returnType = keyLambdaFunction.function.type.getReturnType();
+        if (!types.isOrderedType(returnType)) {
+            dlog.error(keyLambdaFunction.function.pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
     }
 
