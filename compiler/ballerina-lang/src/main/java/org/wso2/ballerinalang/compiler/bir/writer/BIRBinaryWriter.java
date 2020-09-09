@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -236,6 +237,8 @@ public class BIRBinaryWriter {
 
         typeWriter.writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
 
+        writeFunctionsGlobalVarDependency(buf, birFunction);
+
         ByteBuf birbuf = Unpooled.buffer();
         BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, cp, this);
 
@@ -300,6 +303,20 @@ public class BIRBinaryWriter {
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeFunctionsGlobalVarDependency(ByteBuf buf, BIRNode.BIRFunction birFunction) {
+        List<Integer> globalVarBuf = new LinkedList<>();
+
+        for (BIRNode.BIRVariableDcl var : birFunction.dependentGlobalVars) {
+            if (var == null) {
+                continue;
+            }
+            globalVarBuf.add(addStringCPEntry(var.name.value));
+        }
+
+        buf.writeLong(globalVarBuf.size());
+        globalVarBuf.forEach(buf::writeInt);
     }
 
     private void writeTaintTable(ByteBuf buf, TaintTable taintTable) {

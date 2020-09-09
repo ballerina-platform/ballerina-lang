@@ -581,6 +581,8 @@ public class BIRGen extends BLangNodeVisitor {
         birFunc.basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names));
         // Rearrange error entries.
         birFunc.errorTable.sort(Comparator.comparingInt(o -> Integer.parseInt(o.trapBB.id.value.replace("bb", ""))));
+        birFunc.dependentGlobalVars = astFunc.symbol.dependentGlobalVars.stream()
+                .map(varSymbol -> this.globalVarMap.get(varSymbol)).collect(Collectors.toSet());
         this.env.clear();
     }
 
@@ -2160,7 +2162,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void populateBirLockWithGlobalVars(BLangLockStmt lockStmt) {
         for (BVarSymbol globalVar : lockStmt.lockVariables) {
-            BIRGlobalVariableDcl birGlobalVar = globalVarMap.get(globalVar);
+            BIRGlobalVariableDcl birGlobalVar = this.globalVarMap.get(globalVar);
 
             // If null query the dummy map for dummy variables.
             if (birGlobalVar == null) {

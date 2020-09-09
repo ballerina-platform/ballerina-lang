@@ -141,6 +141,8 @@ public class BIRPackageSymbolEnter {
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
+    private Map<String, BVarSymbol> globalVarMap = new HashMap<>();
+
     public static BIRPackageSymbolEnter getInstance(CompilerContext context) {
         BIRPackageSymbolEnter packageReader = context.get(COMPILED_PACKAGE_SYMBOL_ENTER_KEY);
         if (packageReader == null) {
@@ -404,9 +406,21 @@ public class BIRPackageSymbolEnter {
 
         defineMarkDownDocAttachment(invokableSymbol, readDocBytes(dataInStream));
 
+        defineGlobalVarDependencies(invokableSymbol, dataInStream);
+
         dataInStream.skip(dataInStream.readLong()); // read and skip method body
 
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
+    }
+
+    private void defineGlobalVarDependencies(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
+            throws IOException {
+
+        long length = dataInStream.readLong();
+        for (int i = 0; i < length; i++) {
+            String globalVarName = getStringCPEntryValue(dataInStream.readInt());
+            invokableSymbol.dependentGlobalVars.add(this.globalVarMap.get(globalVarName));
+        }
     }
 
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
@@ -676,6 +690,8 @@ public class BIRPackageSymbolEnter {
                 varSymbol.tag = SymTag.ENDPOINT;
             }
         }
+
+        this.globalVarMap.put(varName, varSymbol);
 
         defineMarkDownDocAttachment(varSymbol, docBytes);
 
