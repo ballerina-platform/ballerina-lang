@@ -1967,12 +1967,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             ExpressionNode expression,
-            OnClauseNode onCondition) {
+            OnClauseNode joinOnCondition) {
         Objects.requireNonNull(joinKeyword, "joinKeyword must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(inKeyword, "inKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
-        Objects.requireNonNull(onCondition, "onCondition must not be null");
+        Objects.requireNonNull(joinOnCondition, "joinOnCondition must not be null");
 
         STNode stJoinClauseNode = STNodeFactory.createJoinClauseNode(
                 getOptionalSTNode(outerKeyword),
@@ -1980,7 +1980,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 typedBindingPattern.internalNode(),
                 inKeyword.internalNode(),
                 expression.internalNode(),
-                onCondition.internalNode());
+                joinOnCondition.internalNode());
         return stJoinClauseNode.createUnlinkedFacade();
     }
 
