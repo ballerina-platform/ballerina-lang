@@ -19,24 +19,27 @@ package org.wso2.ballerinalang.compiler.diagnostic;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
-import io.ballerina.tools.diagnostics.DiagnosticRelatedInformation;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.elements.PackageID;
 
+/**
+ * Represent a diagnostic in the ballerina compiler front-end. A diagnostic can be a semantic
+ * error, a warning or a info.
+ * 
+ * @since 2.0.0
+ */
 public class BallerinaDiagnostic extends Diagnostic {
 
+    private PackageID pkgID;
     private Location location;
     private String msg;
     private DiagnosticInfo diagnosticInfo;
-    private DiagnosticRelatedInformation diagnosticRelatedInformation;
 
-    public BallerinaDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo) {
+    public BallerinaDiagnostic(PackageID pkgID, Location location, String msg, DiagnosticInfo diagnosticInfo) {
+        this.pkgID = pkgID;
         this.location = location;
         this.msg = msg;
         this.diagnosticInfo = diagnosticInfo;
-        this.diagnosticRelatedInformation = null;
-    }
-
-    public BallerinaDiagnostic() {
     }
 
     @Override
@@ -54,8 +57,8 @@ public class BallerinaDiagnostic extends Diagnostic {
         return msg;
     }
 
-    public String getCode() {
-        return diagnosticInfo.code();
+    public PackageID packageID() {
+        return this.pkgID;
     }
 
     public String toString() {
