@@ -96,6 +96,10 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "INFER_PARAM_LIST",
                       "hasDiagnostics": true,
                       "children": [
@@ -219,6 +223,10 @@
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "INFER_PARAM_LIST",
                       "hasDiagnostics": true,
@@ -362,6 +370,10 @@
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "INFER_PARAM_LIST",
                       "hasDiagnostics": true,
@@ -530,6 +542,10 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "INFER_PARAM_LIST",
                       "children": [
                         {
@@ -646,6 +662,10 @@
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "INFER_PARAM_LIST",
                       "hasDiagnostics": true,

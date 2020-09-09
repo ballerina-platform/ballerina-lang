@@ -96,6 +96,10 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
@@ -202,6 +206,10 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "hasDiagnostics": true,
                       "children": [
@@ -284,6 +292,10 @@
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "hasDiagnostics": true,
