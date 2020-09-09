@@ -2862,7 +2862,6 @@ public class BallerinaParser extends AbstractParser {
             case RETRY_KEYWORD:
             case ROLLBACK_KEYWORD:
             case MATCH_KEYWORD:
-            case ON_KEYWORD:
             case FAIL_KEYWORD:
 
                 // action-statements
@@ -4956,7 +4955,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse do statement.
-     * <code>do-stmt := do block-stmt</code>
+     * <code>do-stmt := do block-stmt [on-fail-clause]</code>
      *
      * @return Do statement
      */
@@ -4976,7 +4975,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse while statement.
-     * <code>while-stmt := while expression block-stmt</code>
+     * <code>while-stmt := while expression block-stmt [on-fail-clause]</code>
      *
      * @return While statement
      */
@@ -5115,7 +5114,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse fail statement.
-     * <code>fail-stmt := return [ action-or-expr ] ;</code>
+     * <code>fail-stmt := fail expr ;</code>
      *
      * @return Fail statement
      */
@@ -7369,7 +7368,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse lock statement.
-     * <code>lock-stmt := lock block-stmt ;</code>
+     * <code>lock-stmt := lock block-stmt [on-fail-clause];</code>
      *
      * @return Lock statement
      */
@@ -7711,7 +7710,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse foreach statement.
-     * <code>foreach-stmt := foreach typed-binding-pattern in action-or-expr block-stmt</code>
+     * <code>foreach-stmt := foreach typed-binding-pattern in action-or-expr block-stmt [on-fail-clause]</code>
      *
      * @return foreach statement
      */
@@ -10597,7 +10596,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse transaction statement.
      * <p>
-     * <code>transaction-stmt := "transaction" block-stmt ;</code>
+     * <code>transaction-stmt := "transaction" block-stmt [on-fail-clause];</code>
      *
      * @return Transaction statement node
      */
@@ -10730,16 +10729,15 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse on fail clause.
+     * <code>on-fail-clause := on fail typed-binding-pattern block-stmt</code>
+     *
+     * @return While statement
+     */
     private STNode parseOnFailClause() {
         STNode onKeyword = parseOnKeyword();
-        STNode failKeyword;
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.FAIL_KEYWORD) {
-            failKeyword = parseFailKeyword();
-        } else {
-            // No other cases for now
-            failKeyword = STNodeFactory.createEmptyNode();
-        }
+        STNode failKeyword = parseFailKeyword();
         STNode typeDescriptorNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
                 true, false);
         STNode identifierNode = parseIdentifier(ParserRuleContext.VARIABLE_REF);
@@ -11375,7 +11373,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse match statement.
      * <p>
-     * <code>match-stmt := match action-or-expr { match-clause+ }</code>
+     * <code>match-stmt := match action-or-expr { match-clause+ } [on-fail-clause]</code>
      *
      * @return Match statement
      */
