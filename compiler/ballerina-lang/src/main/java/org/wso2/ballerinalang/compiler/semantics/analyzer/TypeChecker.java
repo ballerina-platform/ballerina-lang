@@ -5401,17 +5401,16 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BLangExpression keyFunction = iExpr.argExprs.get(2);
         BType keyFunctionType = keyFunction.type;
-        if (keyFunctionType != null) {
-            if (keyFunctionType.tag == TypeTags.SEMANTIC_ERROR) {
-                return;
-            }
 
-            if (keyFunctionType.tag == TypeTags.NIL) {
-                if (!types.isOrderedType(iExpr.expr.type)) {
-                    dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
-                }
-                return;
+        if (keyFunctionType.tag == TypeTags.SEMANTIC_ERROR) {
+            return;
+        }
+
+        if (keyFunctionType.tag == TypeTags.NIL) {
+            if (!types.isOrderedType(iExpr.expr.type)) {
+                dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_SORT_ARRAY_MEMBER_TYPE, iExpr.expr.type);
             }
+            return;
         }
 
         BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;

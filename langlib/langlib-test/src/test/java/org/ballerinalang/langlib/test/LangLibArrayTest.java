@@ -448,19 +448,19 @@ public class LangLibArrayTest {
                         "((boolean|int|float|decimal|string|(boolean|int|float|decimal|string)?[])?)?', " +
                         "found 'string'", 132, 8);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array to sort: type '(string|int)[]' is not an ordered type",
+                "invalid member type of the array/tuple to sort: type '(string|int)[]' is not an ordered type",
                 136, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array to sort: type '(string|int)[]' is not an ordered type",
+                "invalid member type of the array/tuple to sort: type '(string|int)[]' is not an ordered type",
                 138, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array to sort: type '(string|int)[]' is not an ordered type",
+                "invalid member type of the array/tuple to sort: type '(string|int)[]' is not an ordered type",
                 140, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid array sort key function return type: type '(string|int)' is not an ordered type",
+                "invalid sort key function return type: '(string|int)' is not an ordered type",
                 142, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array to sort: type 'map<string>?[]' is not an ordered type",
+                "invalid member type of the array/tuple to sort: type 'map<string>?[]' is not an ordered type",
                 148, 35);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "incompatible types: expected 'function ((any|error)) returns ((boolean|int|float|decimal|string|" +

@@ -36,6 +36,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.PrimitiveIterator;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_TYPE_TO_SORT;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
@@ -219,8 +222,8 @@ public class Sort {
             }
             return c;
         }
-        throw BallerinaErrors.createError("Invalid type to sort", "Expected an ordered type, but found type: "
-                + type.toString());
+        throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
+                "expected an ordered type, but found type: '" + type.toString() + "'");
     }
 
     private static int codePointCompare(String str1, String str2) {
