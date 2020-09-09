@@ -85,7 +85,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
     /**
      * Represents Ballerina Annotation Symbol Builder.
      *
-     * @since 1.3.0
+     * @since 2.0.0
      */
     public static class AnnotationSymbolBuilder extends SymbolBuilder<AnnotationSymbolBuilder> {
 

@@ -118,6 +118,7 @@ public class ItemResolverConstants {
     public static final String WAIT_KEYWORD = "wait";
     public static final String START_KEYWORD = "start";
     public static final String AS_KEYWORD = "as";
+    public static final String VERSION_KEYWORD = "version";
     public static final String FROM_KEYWORD = "from";
     public static final String FLUSH_KEYWORD = "flush";
     public static final String LISTENER_KEYWORD = "listener";

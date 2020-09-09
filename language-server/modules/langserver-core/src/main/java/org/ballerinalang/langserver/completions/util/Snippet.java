@@ -156,6 +156,8 @@ public enum Snippet {
 
     KW_AS(SnippetGenerator.getAsKeywordSnippet()),
 
+    KW_VERSION(SnippetGenerator.getVersionKeywordSnippet()),
+
     KW_FROM(SnippetGenerator.getFromKeywordSnippet()),
 
     KW_FLUSH(SnippetGenerator.getFlushKeywordSnippet()),

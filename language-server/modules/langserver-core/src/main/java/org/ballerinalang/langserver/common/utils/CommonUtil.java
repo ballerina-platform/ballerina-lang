@@ -59,11 +59,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -91,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -496,7 +499,7 @@ public class CommonUtil {
         completionItem.setKind(CompletionItemKind.Property);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
-        return new StaticCompletionItem(context, completionItem);
+        return new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER);
     }
 
     /**
@@ -513,7 +516,7 @@ public class CommonUtil {
         errorTypeCItem.setInsertTextFormat(InsertTextFormat.Snippet);
         errorTypeCItem.setKind(CompletionItemKind.Event);
 
-        return new StaticCompletionItem(context, errorTypeCItem);
+        return new StaticCompletionItem(context, errorTypeCItem, StaticCompletionItem.Kind.TYPE);
     }
 
     /**
@@ -556,6 +559,33 @@ public class CommonUtil {
         String nameValue = bSymbol.name.getValue();
         String[] split = nameValue.split("\\.");
         return split[split.length - 1];
+    }
+
+    /**
+     * Predicate to check whether a scope entry is a BType or not.
+     *
+     * @return {@link Predicate} for BType check
+     */
+    public static Predicate<Scope.ScopeEntry> isBType() {
+        return entry -> entry.symbol instanceof BTypeSymbol
+                || (entry.symbol instanceof BConstructorSymbol
+                && Names.ERROR.equals(entry.symbol.name));
+    }
+
+    /**
+     * Filter a type in the module by the name.
+     *
+     * @param context  language server operation context
+     * @param alias    module alias
+     * @param typeName type name to be filtered against
+     * @return {@link Optional} type found
+     */
+    public static Optional<Scope.ScopeEntry> getTypeFromModule(LSContext context, String alias, String typeName) {
+        Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, alias);
+        return module.flatMap(scopeEntry -> scopeEntry.symbol.scope.entries.values().stream()
+                .filter(isBType()
+                        .and(entry -> getBTypeName(entry.symbol.type, context, false).equals(alias + ":" + typeName)))
+                .findAny());
     }
 
     /**
@@ -853,18 +883,6 @@ public class CommonUtil {
         return importPackage.pkgNameComps.stream()
                 .map(id -> id.value)
                 .collect(Collectors.joining("."));
-    }
-
-    /**
-     * Convert the Snippet to a plain text snippet by removing the place holders.
-     *
-     * @param snippet Snippet string to alter
-     * @return {@link String}   Converted Snippet
-     */
-    public static String getPlainTextSnippet(String snippet) {
-        return snippet
-                .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$1")
-                .replaceAll("(\\$\\{\\d+\\})", "");
     }
 
     public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
