@@ -720,7 +720,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test
     public void testAddCookies() {
         String headerName = "Cookie";
-        String headerValue = "SID2=2638747623468bce72; SID1=31d4d96e407aad42; SID3=782638747668bce72";
+        String headerValue = "SID1=31d4d96e407aad42; SID3=782638747668bce72; SID2=2638747623468bce72";
         ObjectValue inRequest = createRequestObject();
         ObjectValue entity = createEntityObject();
         inRequest.set(REQUEST_ENTITY_FIELD, entity);
