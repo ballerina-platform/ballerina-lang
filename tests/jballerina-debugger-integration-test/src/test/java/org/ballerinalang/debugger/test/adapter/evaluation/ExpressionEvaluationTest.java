@@ -85,58 +85,58 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void variableReferenceEvaluationTest() throws BallerinaTestException {
         // var variable test
-        assertExpression(context, nilVar, "()", "nil");
+        assertExpression(context, NIL_VAR, "()", "nil");
         // boolean variable test
-        assertExpression(context, booleanVar, "true", "boolean");
+        assertExpression(context, BOOLEAN_VAR, "true", "boolean");
         // int variable test
-        assertExpression(context, intVar, "20", "int");
+        assertExpression(context, INT_VAR, "20", "int");
         // float variable test
-        assertExpression(context, floatVar, "-10.0", "float");
+        assertExpression(context, FLOAT_VAR, "-10.0", "float");
         // decimal variable test
-        assertExpression(context, decimalVar, "3.5", "decimal");
+        assertExpression(context, DECIMAL_VAR, "3.5", "decimal");
         // string variable test
-        assertExpression(context, stringVar, "foo", "string");
+        assertExpression(context, STRING_VAR, "foo", "string");
         // xml variable test
-        assertExpression(context, xmlVar, "<person " +
+        assertExpression(context, XML_VAR, "<person " +
                 "gender=\"male\"><firstname>Praveen</firstname><lastname>Nada</lastname></person>", "xml");
         // array variable test
-        assertExpression(context, arrayVar, "any[4]", "array");
+        assertExpression(context, ARRAY_VAR, "any[4]", "array");
         // tuple variable test
-        assertExpression(context, tupleVar, "tuple[int,string]", "tuple");
+        assertExpression(context, TUPLE_VAR, "tuple[int,string]", "tuple");
         // map variable test
-        assertExpression(context, mapVar, "map", "map");
+        assertExpression(context, MAP_VAR, "map", "map");
         // record variable test (Student record)
-        assertExpression(context, recordVar, "Student", "record");
+        assertExpression(context, RECORD_VAR, "Student", "record");
         // anonymous record variable test
-        assertExpression(context, anonRecordVar, "anonymous", "record");
+        assertExpression(context, ANON_RECORD_VAR, "anonymous", "record");
         // error variable test
-        assertExpression(context, errorVar, "SimpleErrorType", "error");
+        assertExpression(context, ERROR_VAR, "SimpleErrorType", "error");
         // anonymous function variable test
-        assertExpression(context, anonFunctionVar, "function (string,string) returns (string)", "function");
+        assertExpression(context, ANON_FUNCTION_VAR, "function (string,string) returns (string)", "function");
         // future variable test
-        assertExpression(context, futureVar, "future", "future");
+        assertExpression(context, FUTURE_VAR, "future", "future");
         // object variable test (Person object)
-        assertExpression(context, objectVar, "Person", "object");
+        assertExpression(context, OBJECT_VAR, "Person", "object");
         // type descriptor variable test
-        assertExpression(context, typeDescVar, "int", "typedesc");
+        assertExpression(context, TYPEDESC_VAR, "int", "typedesc");
         // union variable test
-        assertExpression(context, unionVar, "foo", "string");
+        assertExpression(context, UNION_VAR, "foo", "string");
         // optional variable test
-        assertExpression(context, optionalVar, "foo", "string");
+        assertExpression(context, OPTIONAL_VAR, "foo", "string");
         // any variable test
-        assertExpression(context, anyVar, "15.0", "float");
+        assertExpression(context, ANY_VAR, "15.0", "float");
         // anydata variable test
-        assertExpression(context, anydataVar, "619", "int");
+        assertExpression(context, ANYDATA_VAR, "619", "int");
         // byte variable test
-        assertExpression(context, byteVar, "128", "int");
+        assertExpression(context, BYTE_VAR, "128", "int");
         // table variable test
-        assertExpression(context, tableVar, "table<Employee>", "table");
+        assertExpression(context, TABLE_VAR, "table<Employee>", "table");
         // stream variable test
-        assertExpression(context, streamVar, "stream<int>", "stream");
+        assertExpression(context, STREAM_VAR, "stream<int>", "stream");
         // never variable test
-        assertExpression(context, neverVar, "", "xml");
+        assertExpression(context, NEVER_VAR, "", "xml");
         // json variable test
-        assertExpression(context, jsonVar, "object", "json");
+        assertExpression(context, JSON_VAR, "object", "json");
         // Todo - Enable after fixing
         // anonymous object variable test (AnonPerson object)
         // assertVariable(context, anonObjectVar, "AnonPerson", "object");
@@ -148,15 +148,15 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void fieldAccessEvaluationTest() throws BallerinaTestException {
         // objects fields
-        assertExpression(context, objectVar + ".address", "No 20, Palm grove", "string");
+        assertExpression(context, OBJECT_VAR + ".address", "No 20, Palm grove", "string");
         // record fields
-        assertExpression(context, recordVar + ".age", "20", "int");
+        assertExpression(context, RECORD_VAR + ".age", "20", "int");
         // json fields
-        assertExpression(context, jsonVar + ".name", "apple", "string");
+        assertExpression(context, JSON_VAR + ".name", "apple", "string");
         // nested field access (chain access)
-        assertExpression(context, recordVar + ".grades.maths", "80", "int");
+        assertExpression(context, RECORD_VAR + ".grades.maths", "80", "int");
         // optional field access
-        assertExpression(context, recordVar + "?.undefined", "()", "nil");
+        assertExpression(context, RECORD_VAR + "?.undefined", "()", "nil");
     }
 
     @Override
@@ -175,9 +175,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void memberAccessEvaluationTest() throws BallerinaTestException {
         // strings
-        assertExpression(context, stringVar + "[0]", "f", "string");
+        assertExpression(context, STRING_VAR + "[0]", "f", "string");
         // lists
-        assertExpression(context, arrayVar + "[0]", "1", "int");
+        assertExpression(context, ARRAY_VAR + "[0]", "1", "int");
         // maps
         // assertExpression(context, mapVar + "[\"country\"]", "Sri Lanka", "string");
         // assertExpression(context, mapVar + "[\"undefined\"]", "()", "nil");
@@ -198,7 +198,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void methodCallEvaluationTest() throws BallerinaTestException {
         // object methods
-        assertExpression(context, objectVar + ".getSum(34,56)", "90", "int");
+        assertExpression(context, OBJECT_VAR + ".getSum(34,56)", "90", "int");
         // Todo - add lang-lib functions related tests, after the implementation
     }
 
@@ -243,13 +243,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     public void multiplicativeExpressionEvaluationTest() throws BallerinaTestException {
         ///////////////////////////////-----------multiplication----------------////////////////////////////////////////
         // int * int
-        assertExpression(context, String.format("%s * %s", intVar, intVar), "400", "int");
+        assertExpression(context, String.format("%s * %s", INT_VAR, INT_VAR), "400", "int");
         // float * int
-        assertExpression(context, String.format("%s * %s", floatVar, intVar), "-200.0", "float");
+        assertExpression(context, String.format("%s * %s", FLOAT_VAR, INT_VAR), "-200.0", "float");
         // int * float
-        assertExpression(context, String.format("%s * %s", intVar, floatVar), "-200.0", "float");
+        assertExpression(context, String.format("%s * %s", INT_VAR, FLOAT_VAR), "-200.0", "float");
         // float * float
-        assertExpression(context, String.format("%s * %s", floatVar, floatVar), "100.0", "float");
+        assertExpression(context, String.format("%s * %s", FLOAT_VAR, FLOAT_VAR), "100.0", "float");
         // Todo - Enable after adding support
         //        // decimal * decimal
         //        assertExpression(context, String.format("%s * %s", decimalVar, decimalVar), "10.0", "decimal");
@@ -264,13 +264,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         ///////////////////////////////-------------division--------------------////////////////////////////////////////
         // int / int
-        assertExpression(context, String.format("%s / %s", intVar, intVar), "1", "int");
+        assertExpression(context, String.format("%s / %s", INT_VAR, INT_VAR), "1", "int");
         // float / int
-        assertExpression(context, String.format("%s / %s", floatVar, intVar), "-0.5", "float");
+        assertExpression(context, String.format("%s / %s", FLOAT_VAR, INT_VAR), "-0.5", "float");
         // int / float
-        assertExpression(context, String.format("%s / %s", intVar, floatVar), "-2.0", "float");
+        assertExpression(context, String.format("%s / %s", INT_VAR, FLOAT_VAR), "-2.0", "float");
         // float / float
-        assertExpression(context, String.format("%s / %s", floatVar, floatVar), "1.0", "float");
+        assertExpression(context, String.format("%s / %s", FLOAT_VAR, FLOAT_VAR), "1.0", "float");
         // Todo - Enable after adding support
         //        // decimal / decimal
         //        assertExpression(context, String.format("%s / %s", decimalVar, decimalVar), "10.0", "decimal");
@@ -285,13 +285,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         /////////////////////////////////-----------modulus----------------/////////////////////////////////////////////
         // int % int
-        assertExpression(context, String.format("%s %% %s", intVar, intVar), "0", "int");
+        assertExpression(context, String.format("%s %% %s", INT_VAR, INT_VAR), "0", "int");
         // float % int
-        assertExpression(context, String.format("%s %% %s", floatVar, intVar), "-10.0", "float");
+        assertExpression(context, String.format("%s %% %s", FLOAT_VAR, INT_VAR), "-10.0", "float");
         // int % float
-        assertExpression(context, String.format("%s %% %s", intVar, floatVar), "0.0", "float");
+        assertExpression(context, String.format("%s %% %s", INT_VAR, FLOAT_VAR), "0.0", "float");
         // float % float
-        assertExpression(context, String.format("%s %% %s", floatVar, floatVar), "-0.0", "float");
+        assertExpression(context, String.format("%s %% %s", FLOAT_VAR, FLOAT_VAR), "-0.0", "float");
         // Todo - Enable after adding support
         //        // decimal % decimal
         //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "10.0", "decimal");
@@ -310,15 +310,15 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     public void additiveExpressionEvaluationTest() throws BallerinaTestException {
         //////////////////////////////-------------addition------------------///////////////////////////////////////////
         // int + int
-        assertExpression(context, String.format("%s + %s", intVar, intVar), "40", "int");
+        assertExpression(context, String.format("%s + %s", INT_VAR, INT_VAR), "40", "int");
         // float + int
-        assertExpression(context, String.format("%s + %s", floatVar, intVar), "10.0", "float");
+        assertExpression(context, String.format("%s + %s", FLOAT_VAR, INT_VAR), "10.0", "float");
         // int + float
-        assertExpression(context, String.format("%s + %s", intVar, floatVar), "10.0", "float");
+        assertExpression(context, String.format("%s + %s", INT_VAR, FLOAT_VAR), "10.0", "float");
         // float + float
-        assertExpression(context, String.format("%s + %s", floatVar, floatVar), "-20.0", "float");
+        assertExpression(context, String.format("%s + %s", FLOAT_VAR, FLOAT_VAR), "-20.0", "float");
         // string + string
-        assertExpression(context, String.format("%s + %s", stringVar, stringVar), "foofoo", "string");
+        assertExpression(context, String.format("%s + %s", STRING_VAR, STRING_VAR), "foofoo", "string");
         // Todo - Enable after adding support
         //        // decimal + decimal
         //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "7.0", "decimal");
@@ -335,13 +335,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         //////////////////////////////-------------subtraction------------------////////////////////////////////////////
         // int - int
-        assertExpression(context, String.format("%s - %s", intVar, intVar), "0", "int");
+        assertExpression(context, String.format("%s - %s", INT_VAR, INT_VAR), "0", "int");
         // float - int
-        assertExpression(context, String.format("%s - %s", floatVar, intVar), "-30.0", "float");
+        assertExpression(context, String.format("%s - %s", FLOAT_VAR, INT_VAR), "-30.0", "float");
         // int - float
-        assertExpression(context, String.format("%s - %s", intVar, floatVar), "30.0", "float");
+        assertExpression(context, String.format("%s - %s", INT_VAR, FLOAT_VAR), "30.0", "float");
         // float - float
-        assertExpression(context, String.format("%s - %s", floatVar, floatVar), "0.0", "float");
+        assertExpression(context, String.format("%s - %s", FLOAT_VAR, FLOAT_VAR), "0.0", "float");
         // Todo - Enable after adding support
         //        // decimal - decimal
         //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "0.0", "decimal");
@@ -372,13 +372,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     public void comparisonEvaluationTest() throws BallerinaTestException {
         // expression < expression
         // int - int
-        assertExpression(context, String.format("%s < %s", intVar, intVar), "false", "boolean");
+        assertExpression(context, String.format("%s < %s", INT_VAR, INT_VAR), "false", "boolean");
         // float - int
-        assertExpression(context, String.format("%s < %s", floatVar, intVar), "true", "boolean");
+        assertExpression(context, String.format("%s < %s", FLOAT_VAR, INT_VAR), "true", "boolean");
         // int - float
-        assertExpression(context, String.format("%s < %s", intVar, floatVar), "false", "boolean");
+        assertExpression(context, String.format("%s < %s", INT_VAR, FLOAT_VAR), "false", "boolean");
         // float - float
-        assertExpression(context, String.format("%s < %s", floatVar, floatVar), "false", "boolean");
+        assertExpression(context, String.format("%s < %s", FLOAT_VAR, FLOAT_VAR), "false", "boolean");
         // Todo - Enable after adding support
         //        // decimal - decimal
         //        assertExpression(context, String.format("%s < %s", decimalVar, decimalVar), "false", "boolean");
@@ -393,13 +393,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // expression > expression
         // int - int
-        assertExpression(context, String.format("%s > %s", intVar, intVar), "false", "boolean");
+        assertExpression(context, String.format("%s > %s", INT_VAR, INT_VAR), "false", "boolean");
         // float - int
-        assertExpression(context, String.format("%s > %s", floatVar, intVar), "false", "boolean");
+        assertExpression(context, String.format("%s > %s", FLOAT_VAR, INT_VAR), "false", "boolean");
         // int - float
-        assertExpression(context, String.format("%s > %s", intVar, floatVar), "true", "boolean");
+        assertExpression(context, String.format("%s > %s", INT_VAR, FLOAT_VAR), "true", "boolean");
         // float - float
-        assertExpression(context, String.format("%s > %s", floatVar, floatVar), "false", "boolean");
+        assertExpression(context, String.format("%s > %s", FLOAT_VAR, FLOAT_VAR), "false", "boolean");
         // Todo - Enable after adding support
         //        // decimal - decimal
         //        assertExpression(context, String.format("%s > %s", decimalVar, decimalVar), "false", "boolean");
@@ -414,13 +414,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // expression <= expression
         // int - int
-        assertExpression(context, String.format("%s <= %s", intVar, intVar), "true", "boolean");
+        assertExpression(context, String.format("%s <= %s", INT_VAR, INT_VAR), "true", "boolean");
         // float - int
-        assertExpression(context, String.format("%s <= %s", floatVar, intVar), "true", "boolean");
+        assertExpression(context, String.format("%s <= %s", FLOAT_VAR, INT_VAR), "true", "boolean");
         // int - float
-        assertExpression(context, String.format("%s <= %s", intVar, floatVar), "false", "boolean");
+        assertExpression(context, String.format("%s <= %s", INT_VAR, FLOAT_VAR), "false", "boolean");
         // float - float
-        assertExpression(context, String.format("%s <= %s", floatVar, floatVar), "true", "boolean");
+        assertExpression(context, String.format("%s <= %s", FLOAT_VAR, FLOAT_VAR), "true", "boolean");
         // Todo - Enable after adding support
         //        // decimal - decimal
         //        assertExpression(context, String.format("%s <= %s", decimalVar, decimalVar), "false", "boolean");
@@ -435,13 +435,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // expression >= expression
         // int - int
-        assertExpression(context, String.format("%s >= %s", intVar, intVar), "true", "boolean");
+        assertExpression(context, String.format("%s >= %s", INT_VAR, INT_VAR), "true", "boolean");
         // float - int
-        assertExpression(context, String.format("%s >= %s", floatVar, intVar), "false", "boolean");
+        assertExpression(context, String.format("%s >= %s", FLOAT_VAR, INT_VAR), "false", "boolean");
         // int - float
-        assertExpression(context, String.format("%s >= %s", intVar, floatVar), "true", "boolean");
+        assertExpression(context, String.format("%s >= %s", INT_VAR, FLOAT_VAR), "true", "boolean");
         // float - float
-        assertExpression(context, String.format("%s >= %s", floatVar, floatVar), "true", "boolean");
+        assertExpression(context, String.format("%s >= %s", FLOAT_VAR, FLOAT_VAR), "true", "boolean");
         // Todo - Enable after adding support
         //        // decimal - decimal
         //        assertExpression(context, String.format("%s >= %s", decimalVar, decimalVar), "false", "boolean");
@@ -483,10 +483,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void conditionalExpressionEvaluationTest() throws BallerinaTestException {
         // expression ? expression : expression
-        assertExpression(context, String.format("%s ? %s : %s", booleanVar, intVar, floatVar), "20", "int");
+        assertExpression(context, String.format("%s ? %s : %s", BOOLEAN_VAR, INT_VAR, FLOAT_VAR), "20", "int");
         // expression ?: expression
-        assertExpression(context, String.format("%s ?: %s", intVar, floatVar), "20", "int");
-        assertExpression(context, String.format("%s ?: %s", nilVar, floatVar), "-10.0", "float");
+        assertExpression(context, String.format("%s ?: %s", INT_VAR, FLOAT_VAR), "20", "int");
+        assertExpression(context, String.format("%s ?: %s", NIL_VAR, FLOAT_VAR), "-10.0", "float");
     }
 
     @Override

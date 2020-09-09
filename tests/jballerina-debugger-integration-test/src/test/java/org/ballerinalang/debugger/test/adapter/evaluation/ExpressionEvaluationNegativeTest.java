@@ -242,11 +242,11 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         assertEvaluationError(context, "x + 5;;", String.format(EvaluationExceptionKind.SYNTAX_ERROR
                 .getString(), "invalid token ';'"));
         // semantically incorrect expressions (addition between int + string)
-        assertEvaluationError(context, String.format("%s + %s", intVar, stringVar),
+        assertEvaluationError(context, String.format("%s + %s", INT_VAR, STRING_VAR),
                 String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
                         "'+' operation is not supported for types: 'int' and 'string'"));
         // undefined object methods
-        assertEvaluationError(context, objectVar + ".undefined()",
+        assertEvaluationError(context, OBJECT_VAR + ".undefined()",
                 String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(), "undefined"));
         // Todo - Enable
         // assignment statements
