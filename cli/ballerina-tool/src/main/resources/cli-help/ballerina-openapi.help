@@ -54,7 +54,7 @@ OPTIONS
 
         (--operations) <operation names>
             These operations are used to filter the operations that are needed to generate services. This option is used with the command
-            of openApi to ballerina file generation.
+            of the OpenAPI to Ballerina file generation.
 
 SUB COMMANDS
        gen-contract
