@@ -1042,15 +1042,52 @@ public class TypeChecker {
     }
 
     private static boolean checkIsTupleType(BType sourceType, BTupleType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.TUPLE_TAG) {
+
+        if (sourceType.getTag() == TypeTags.UNION_TAG) {
+            for (BType memberType : ((BUnionType) sourceType).getMemberTypes()) {
+                if (!checkIsTupleType(memberType, targetType, unresolvedTypes)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (sourceType.getTag() != TypeTags.ARRAY_TAG && sourceType.getTag() != TypeTags.TUPLE_TAG) {
             return false;
         }
 
-        List<BType> sourceTypes = new ArrayList<>(((BTupleType) sourceType).getTupleTypes());
-        BType sourceRestType = ((BTupleType) sourceType).getRestType();
-
         List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
         BType targetRestType = targetType.getRestType();
+
+        BTupleType sourceTupleType;
+        if (sourceType.getTag() == TypeTags.TUPLE_TAG) {
+            sourceTupleType = (BTupleType) sourceType;
+        } else {
+            BArrayType sourceArrayType = (BArrayType) sourceType;
+
+            switch (sourceArrayType.getState()) {
+                case UNSEALED:
+                    if (targetRestType == null) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                case CLOSED_SEALED:
+                    if (targetRestType == null && sourceArrayType.getSize() != targetTypes.size()) {
+                        return false;
+                    }
+                    break;
+            }
+
+            List<BType> fieldTypes = new ArrayList<>();
+            for (int i = 0; i < sourceArrayType.getSize(); i++) {
+                fieldTypes.add(sourceArrayType.getElementType());
+            }
+            sourceTupleType = new BTupleType(fieldTypes);
+        }
+
+        List<BType> sourceTypes = new ArrayList<>(sourceTupleType.getTupleTypes());
+        BType sourceRestType = sourceTupleType.getRestType();
 
         if ((targetTypes.size() != 0 && (sourceTypes.size() == 0 || sourceTypes.size() != 0))
                 && (sourceRestType != null && targetRestType == null)) {
