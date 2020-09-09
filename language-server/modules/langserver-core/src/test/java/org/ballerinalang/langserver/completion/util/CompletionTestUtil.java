@@ -42,7 +42,9 @@ public class CompletionTestUtil {
         return ("{" +
                 completionItem.getInsertText() + "," +
                 completionItem.getDetail() + "," +
-                completionItem.getLabel() + "," + additionalTextEdits  +
+                completionItem.getLabel() + "," +
+                completionItem.getSortText() + "," +
+                additionalTextEdits  +
                 "}").replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
 

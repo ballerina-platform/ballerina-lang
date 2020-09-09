@@ -15,12 +15,32 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.types;
+
+package org.ballerinalang.test.query;
+
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
- * Represents the builtin type descriptor.
+ * This contains methods to test query actions with objects.
  *
- * @since 2.0.0
+ * @since Swan Lake
  */
-public interface BuiltinTypeDescriptor extends BallerinaTypeDescriptor {
+public class ObjectQueryTest {
+
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/query/query-expr-with-object.bal");
+    }
+
+    @Test
+    public void testSimpleQueryAction() {
+        BRunUtil.invoke(result, "testObjectBasedQueryExpr");
+    }
+
 }

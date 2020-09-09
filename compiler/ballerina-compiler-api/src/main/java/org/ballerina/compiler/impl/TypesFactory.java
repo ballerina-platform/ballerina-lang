@@ -19,8 +19,8 @@ package org.ballerina.compiler.impl;
 
 import org.ballerina.compiler.api.ModuleID;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import org.ballerina.compiler.api.types.TypeDescKind;
 import org.ballerina.compiler.impl.types.BallerinaArrayTypeDescriptor;
-import org.ballerina.compiler.impl.types.BallerinaBuiltinTypeDescriptor;
 import org.ballerina.compiler.impl.types.BallerinaErrorTypeDescriptor;
 import org.ballerina.compiler.impl.types.BallerinaFunctionTypeDescriptor;
 import org.ballerina.compiler.impl.types.BallerinaFutureTypeDescriptor;
@@ -28,11 +28,13 @@ import org.ballerina.compiler.impl.types.BallerinaMapTypeDescriptor;
 import org.ballerina.compiler.impl.types.BallerinaNilTypeDescriptor;
 import org.ballerina.compiler.impl.types.BallerinaObjectTypeDescriptor;
 import org.ballerina.compiler.impl.types.BallerinaRecordTypeDescriptor;
+import org.ballerina.compiler.impl.types.BallerinaSimpleTypeDescriptor;
 import org.ballerina.compiler.impl.types.BallerinaStreamTypeDescriptor;
 import org.ballerina.compiler.impl.types.BallerinaTupleTypeDescriptor;
 import org.ballerina.compiler.impl.types.BallerinaTypeDescTypeDescriptor;
 import org.ballerina.compiler.impl.types.BallerinaTypeReferenceTypeDescriptor;
 import org.ballerina.compiler.impl.types.BallerinaUnionTypeDescriptor;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -52,7 +54,7 @@ import org.wso2.ballerinalang.util.Flags;
 /**
  * Represents a set of factory methods to generate the {@link BallerinaTypeDescriptor}s.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TypesFactory {
 
@@ -63,8 +65,8 @@ public class TypesFactory {
     /**
      * Get the type descriptor for the given type.
      *
-     * @param bType BType tp get the type descriptor
-     * @param rawTypeOnly Whether convert the type descriptor to type reference or keep the raw type
+     * @param bType {@link BType} of the type descriptor
+     * @param rawTypeOnly Whether to convert the type descriptor to type reference or keep the raw type
      * @return {@link BallerinaTypeDescriptor} generated
      */
     public static BallerinaTypeDescriptor getTypeDescriptor(BType bType, boolean rawTypeOnly) {
@@ -72,59 +74,125 @@ public class TypesFactory {
         if (bType == null) {
             return null;
         }
+
         ModuleID moduleID = bType.tsymbol == null ? null : new BallerinaModuleID(bType.tsymbol.pkgID);
+
+        // TODO: Revisit this: Why need a type-reference type?
+        if (isTypeReference(bType, rawTypeOnly)) {
+            return new BallerinaTypeReferenceTypeDescriptor(moduleID, bType, bType.tsymbol.getName().getValue());
+        }
+
         switch (bType.getKind()) {
             case OBJECT:
-                typeDescriptorImpl = new BallerinaObjectTypeDescriptor(moduleID, (BObjectType) bType);
-                break;
+                return new BallerinaObjectTypeDescriptor(moduleID, (BObjectType) bType);
             case RECORD:
-                typeDescriptorImpl = new BallerinaRecordTypeDescriptor(moduleID, (BRecordType) bType);
-                break;
+                return new BallerinaRecordTypeDescriptor(moduleID, (BRecordType) bType);
             case ERROR:
-                typeDescriptorImpl = new BallerinaErrorTypeDescriptor(moduleID, (BErrorType) bType);
-                break;
+                return new BallerinaErrorTypeDescriptor(moduleID, (BErrorType) bType);
             case UNION:
-                typeDescriptorImpl = new BallerinaUnionTypeDescriptor(moduleID, (BUnionType) bType);
-                break;
+                return new BallerinaUnionTypeDescriptor(moduleID, (BUnionType) bType);
             case FUTURE:
-                typeDescriptorImpl = new BallerinaFutureTypeDescriptor(moduleID, (BFutureType) bType);
-                break;
+                return new BallerinaFutureTypeDescriptor(moduleID, (BFutureType) bType);
             case MAP:
-                typeDescriptorImpl = new BallerinaMapTypeDescriptor(moduleID, (BMapType) bType);
-                break;
+                return new BallerinaMapTypeDescriptor(moduleID, (BMapType) bType);
             case STREAM:
-                typeDescriptorImpl = new BallerinaStreamTypeDescriptor(moduleID, (BStreamType) bType);
-                break;
+                return new BallerinaStreamTypeDescriptor(moduleID, (BStreamType) bType);
             case ARRAY:
-                typeDescriptorImpl = new BallerinaArrayTypeDescriptor(moduleID, (BArrayType) bType);
-                break;
+                return new BallerinaArrayTypeDescriptor(moduleID, (BArrayType) bType);
             case TUPLE:
-                typeDescriptorImpl = new BallerinaTupleTypeDescriptor(moduleID, (BTupleType) bType);
-                break;
+                return new BallerinaTupleTypeDescriptor(moduleID, (BTupleType) bType);
             case TYPEDESC:
-                typeDescriptorImpl = new BallerinaTypeDescTypeDescriptor(moduleID, (BTypedescType) bType);
-                break;
+                return new BallerinaTypeDescTypeDescriptor(moduleID, (BTypedescType) bType);
             case NIL:
                 return new BallerinaNilTypeDescriptor(moduleID, (BNilType) bType);
             case OTHER:
                 if (bType instanceof BInvokableType) {
-                    typeDescriptorImpl =
-                            new BallerinaFunctionTypeDescriptor(moduleID, (BInvokableTypeSymbol) bType.tsymbol);
-                } else {
-                    String name = bType.getKind().typeName();
-                    typeDescriptorImpl = new BallerinaBuiltinTypeDescriptor(moduleID, name, bType);
+                    return new BallerinaFunctionTypeDescriptor(moduleID, (BInvokableTypeSymbol) bType.tsymbol);
                 }
-                break;
+                // fall through
             default:
-                String name = bType.getKind().typeName();
-                return new BallerinaBuiltinTypeDescriptor(moduleID, name, bType);
+                return new BallerinaSimpleTypeDescriptor(moduleID, bType);
+        }
+    }
+
+    private static boolean isTypeReference(BType bType, boolean rawTypeOnly) {
+        if (rawTypeOnly || bType.tsymbol == null) {
+            return false;
         }
 
-        if (!rawTypeOnly && bType.tsymbol != null && ((bType.tsymbol.flags & Flags.ANONYMOUS) != Flags.ANONYMOUS) &&
-                !bType.tsymbol.getName().getValue().isEmpty()) {
-            typeDescriptorImpl =
-                    new BallerinaTypeReferenceTypeDescriptor(moduleID, bType, bType.tsymbol.getName().getValue());
+        if ((bType.tsymbol.flags & Flags.ANONYMOUS) == Flags.ANONYMOUS) {
+            return false;
         }
-        return typeDescriptorImpl;
+
+        return !bType.tsymbol.getName().getValue().isEmpty();
+    }
+
+    public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {
+        switch (bTypeKind) {
+            case ANY:
+                return TypeDescKind.ANY;
+            case ANYDATA:
+                return TypeDescKind.ANYDATA;
+            case ARRAY:
+                return TypeDescKind.ARRAY;
+            case BOOLEAN:
+                return TypeDescKind.BOOLEAN;
+            case BYTE:
+                return TypeDescKind.BYTE;
+            case DECIMAL:
+                return TypeDescKind.DECIMAL;
+            case FLOAT:
+                return TypeDescKind.FLOAT;
+            case HANDLE:
+                return TypeDescKind.HANDLE;
+            case INT:
+                return TypeDescKind.INT;
+            case NEVER:
+                return TypeDescKind.NEVER;
+            case NIL:
+                return TypeDescKind.NIL;
+            case STRING:
+                return TypeDescKind.STRING;
+            case JSON:
+                return TypeDescKind.JSON;
+            case XML:
+                return TypeDescKind.XML;
+            case FUNCTION:
+                return TypeDescKind.FUNCTION;
+            case FUTURE:
+                return TypeDescKind.FUTURE;
+            case MAP:
+                return TypeDescKind.MAP;
+            case OBJECT:
+                return TypeDescKind.OBJECT;
+            case STREAM:
+                return TypeDescKind.STREAM;
+            case TUPLE:
+                return TypeDescKind.TUPLE;
+            case TYPEDESC:
+                return TypeDescKind.TYPEDESC;
+            case UNION:
+                return TypeDescKind.UNION;
+            case INTERSECTION:
+                return TypeDescKind.INTERSECTION;
+            case ERROR:
+                return TypeDescKind.ERROR;
+            case ANNOTATION:
+            case BLOB:
+            case CHANNEL:
+            case CONNECTOR:
+            case ENDPOINT:
+            case FINITE:
+            case NONE:
+            case OTHER:
+            case PACKAGE:
+            case READONLY:
+            case SERVICE:
+            case TABLE:
+            case TYPEPARAM:
+            case VOID:
+            default:
+                return null;
+        }
     }
 }

@@ -20,7 +20,7 @@ package org.ballerina.compiler.api.types;
 /**
  * Represents the nil type descriptor.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public interface NilTypeDescriptor extends BallerinaTypeDescriptor {
 }

@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 /**
  * Represents the nil type descriptor.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaNilTypeDescriptor extends AbstractTypeDescriptor implements NilTypeDescriptor {
 

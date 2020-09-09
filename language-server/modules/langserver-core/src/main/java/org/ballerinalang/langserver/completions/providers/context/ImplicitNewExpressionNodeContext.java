@@ -55,12 +55,6 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx) {
-
-        return new ArrayList<>();
-    }
-
-    @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ImplicitNewExpressionNode node) {
         /*
         Supports the following
