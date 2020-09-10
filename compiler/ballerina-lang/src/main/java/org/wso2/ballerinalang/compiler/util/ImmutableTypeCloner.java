@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -332,13 +333,13 @@ public class ImmutableTypeCloner {
                 BAnydataType immutableAnydataType;
                 if (immutableAnydataTSymbol != null) {
                     immutableAnydataType =
-                            new BAnydataType(origAnydataType.tag, immutableAnydataTSymbol,
+                            new BAnydataType(immutableAnydataTSymbol,
                                              immutableAnydataTSymbol.name, origAnydataType.flags | Flags.READONLY,
                                              origAnydataType.isNullable());
                     immutableAnydataTSymbol.type = immutableAnydataType;
                 } else {
                     immutableAnydataType =
-                            new BAnydataType(origAnydataType.tag, immutableAnydataTSymbol,
+                            new BAnydataType(immutableAnydataTSymbol,
                                              getImmutableTypeName(names, TypeKind.ANYDATA.typeName()),
                                              origAnydataType.flags | Flags.READONLY, origAnydataType.isNullable());
                 }
@@ -347,23 +348,23 @@ public class ImmutableTypeCloner {
                         createImmutableIntersectionType(pkgId, owner, origAnydataType, immutableAnydataType, symTable);
                 origAnydataType.immutableType = immutableAnydataIntersectionType;
                 return immutableAnydataIntersectionType;
-//            case TypeTags.JSON:
-//                BJSONType origJsonType = (BJSONType) type;
-//
-//                BTypeSymbol immutableJsonTSymbol = getReadonlyTSymbol(names, origJsonType.tsymbol, env, pkgId, owner);
-//                BJSONType immutableJsonType = new BJSONType(origJsonType.tag, immutableJsonTSymbol,
-//                                                            origJsonType.isNullable(),
-//                                                            origJsonType.flags | Flags.READONLY);
-//                if (immutableJsonTSymbol != null) {
-//                    immutableJsonTSymbol.type = immutableJsonType;
-//                }
-//
-//                BIntersectionType immutableJsonIntersectionType = createImmutableIntersectionType(pkgId, owner,
-//                                                                                                  origJsonType,
-//                                                                                                  immutableJsonType,
-//                                                                                                  symTable);
-//                origJsonType.setImmutableType(immutableJsonIntersectionType);
-//                return immutableJsonIntersectionType;
+            case TypeTags.JSON:
+                BJSONType origJsonType = (BJSONType) type;
+
+                BTypeSymbol immutableJsonTSymbol = getReadonlyTSymbol(names, origJsonType.tsymbol, env, pkgId, owner);
+                BJSONType immutableJsonType = new BJSONType(immutableJsonTSymbol,
+                                                            origJsonType.isNullable(),
+                                                            origJsonType.flags | Flags.READONLY);
+                if (immutableJsonTSymbol != null) {
+                    immutableJsonTSymbol.type = immutableJsonType;
+                }
+
+                BIntersectionType immutableJsonIntersectionType = createImmutableIntersectionType(pkgId, owner,
+                                                                                                  origJsonType,
+                                                                                                  immutableJsonType,
+                                                                                                  symTable);
+                origJsonType.immutableType = immutableJsonIntersectionType;
+                return immutableJsonIntersectionType;
             case TypeTags.INTERSECTION:
                 return (BIntersectionType) type;
             default:

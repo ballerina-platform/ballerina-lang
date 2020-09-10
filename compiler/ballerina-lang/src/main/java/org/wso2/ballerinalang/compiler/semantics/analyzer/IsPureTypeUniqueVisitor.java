@@ -34,6 +34,12 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashSet;
 
+/**
+ * IsPureTypeUniqueVisitor to check if a type is pure data.
+ *
+ * This is introduced to handle cyclic unions.
+ * @since slp4
+ */
 public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     private HashSet<BType> visited;
@@ -89,7 +95,9 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BArrayType type) {
-        if (isVisited(type)) return isPureType;
+        if (isVisited(type)) {
+            return isPureType;
+        }
         visited.add(type);
         return visit(type.eType);
     }
@@ -132,7 +140,9 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BMapType type) {
-        if (isVisited(type)) return isPureType;
+        if (isVisited(type)) {
+            return isPureType;
+        }
         visited.add(type);
         return visit(type.constraint);
     }
@@ -192,7 +202,9 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         if (type.isPureType != null) {
             return type.isPureType;
         }
-        if (isVisited(type)) return isPureType;
+        if (isVisited(type)) {
+            return isPureType;
+        }
         visited.add(type);
         for (BType member : type.getMemberTypes()) {
             if (!visit(member)) {
@@ -264,34 +276,4 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     public Boolean visit(BHandleType type) {
         return isPureType(type);
     }
-
-//    public void debugPrint() {
-//        List<BType> types = new ArrayList<>(visited.size());
-//        types.addAll(visited);
-//        System.out.println("Printing visited list of IsPureTypeUniqueVisitor - START");
-//        for (BType type : types) {
-//            System.out.println("\ttype : " + type);
-//        }
-//        System.out.println("Printing visited list of IsPureTypeUniqueVisitor - END");
-//    }
-
-//    private void printDebugLine(String typeName, BType type) {
-//        String message = null;
-//        if (type != null) {
-//            message = String.format(debugLine, "IsPureTypeUniqueVisitor", getMethodName(),
-//                    typeName, getLineNumber(), type);
-//        } else {
-//            message = String.format(debugLine, "IsPureTypeUniqueVisitor", getMethodName(),
-//                    typeName, getLineNumber(), "");
-//        }
-//        System.out.println(message);
-//    }
-//
-//    public static int getLineNumber() {
-//        return Thread.currentThread().getStackTrace()[3].getLineNumber();
-//    }
-//
-//    public static String getMethodName() {
-//        return Thread.currentThread().getStackTrace()[3].getMethodName();
-//    }
 }

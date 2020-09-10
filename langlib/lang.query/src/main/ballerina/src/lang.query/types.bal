@@ -21,6 +21,7 @@ import ballerina/lang.'string as lang_string;
 import ballerina/lang.'xml as lang_xml;
 import ballerina/lang.'stream as lang_stream;
 import ballerina/lang.'table as lang_table;
+import ballerina/lang.'value as lang_value;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -34,7 +35,7 @@ type Type any|error;
 @typeParam
 type ErrorType error?;
 
-anydata[][] orderFieldValsArr = [];
+lang_value:Cloneable[][] orderFieldValsArr = [];
 boolean[] orderDirectionsArr = [];
 
 type _Iterator object {
@@ -627,7 +628,7 @@ class _LimitFunction {
 }
 
 class StreamOrderBy {
-    anydata[][] sortFields = [];
+    lang_value:Cloneable[][] sortFields = [];
     boolean[] sortTypes = [];
 
     function init() {
@@ -636,12 +637,12 @@ class StreamOrderBy {
     }
 
     function topDownMergeSort() returns @tainted Type[] {
-        anydata[][] sortFieldsClone = <anydata[][]>self.sortFields.clone();
+        lang_value:Cloneable[][] sortFieldsClone = self.sortFields.clone();
         self.topDownSplitMerge(sortFieldsClone, 0, self.sortFields.length(), self.sortFields);
         return self.sortFields;
     }
 
-    function topDownSplitMerge(@tainted anydata[][] sortArrClone, int iBegin, int iEnd, @tainted anydata[][] sortArr) {
+    function topDownSplitMerge(@tainted lang_value:Cloneable[][] sortArrClone, int iBegin, int iEnd, @tainted lang_value:Cloneable[][] sortArr) {
         if (iEnd - iBegin < 2) {
             return;
         }
@@ -651,8 +652,8 @@ class StreamOrderBy {
         self.topDownMerge(sortArrClone, iBegin, iMiddle, iEnd, sortArr);
     }
 
-    function topDownMerge(@tainted anydata[][] sortArrClone, int iBegin, int iMiddle, int iEnd,
-    @tainted anydata[][] sortArr) {
+    function topDownMerge(@tainted lang_value:Cloneable[][] sortArrClone, int iBegin, int iMiddle, int iEnd,
+    @tainted lang_value:Cloneable[][] sortArr) {
         int i = iBegin;
         int j = iMiddle;
         int k = iBegin;
@@ -669,7 +670,7 @@ class StreamOrderBy {
         }
     }
 
-    function sortFunc(anydata[] x, anydata[] y, int i) returns @tainted int {
+    function sortFunc(lang_value:Cloneable[] x, lang_value:Cloneable[] y, int i) returns @tainted int {
         // () should always come last irrespective of the order direction.
         if (x[i] is ()) {
             if (y[i] is ()) {
@@ -782,7 +783,7 @@ class StreamOrderBy {
         }
     }
 
-    function callNextSortFunc(anydata[] x, anydata[] y, int c, int i) returns @tainted int {
+    function callNextSortFunc(lang_value:Cloneable[] x, lang_value:Cloneable[] y, int c, int i) returns @tainted int {
         int result = c;
         if (result == 0 && (self.sortTypes.length() > i) && (i < self.sortFields.length()-1)) {
             result = self.sortFunc(x, y, i);

@@ -107,7 +107,7 @@ public class MockObject {
 public class MemberFunctionStub {
     object {} mockObject;
     string functionName = "";
-    anydata|error args = [];
+    anydata[] args = [];
     any|error returnValue = ();
     any|error returnValueSeq = [];
 
@@ -122,7 +122,7 @@ public class MemberFunctionStub {
     #
     # + args - arguments list
     # + return - object that allows stubbing calls to provided member function
-    public function withArguments(anydata|error... args) returns MemberFunctionStub {
+    public function withArguments(anydata... args) returns MemberFunctionStub {
         self.args = args;
         Error? result = validateArgumentsExt(self);
         if (result is Error) {
@@ -154,7 +154,7 @@ public class MemberFunctionStub {
              error err = error("function to mock is not specified.");
              panic err;
         }
-        if (self.args != []) {
+        if (self.args.length() != 0) {
             error err = error("'withArguments' function cannot be specified with a return sequence");
             panic err;
         }

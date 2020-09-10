@@ -207,31 +207,6 @@ public class Types {
         return type.tag == TypeTags.JSON;
     }
 
-    private boolean isJSONType(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            BUnionType bUnionType = (BUnionType) type;
-            return isJSONUnionType(bUnionType);
-        }
-        return type.tag == TypeTags.JSON;
-    }
-
-//    private boolean isAnydataType(BType type) {
-//        // TODO: use TypeKind.JSON.typeName()
-//        if (type.tag == TypeTags.UNION) {
-//            BUnionType bUnionType = (BUnionType) type;
-//            return isAnydataUnionType(bUnionType);
-//        }
-//        return type.tag == TypeTags.ANYDATA;
-//    }
-//
-//    public boolean isAnydataUnionType(BUnionType type) {
-//        // TODO: use TypeKind.ANYDATA.typeName()
-//        if (type.name != null && (type.name.getValue().equals(Names.ANYDATA.getValue()))) {
-//            return true;
-//        }
-//        return isSameType(type, symTable.anydataType);
-//    }
-
     public boolean isJSONUnionType(BUnionType type) {
         if (type.name != null && (type.name.getValue().equals(Names.JSON.getValue()))) {
             return true;
@@ -717,6 +692,23 @@ public class Types {
             if (isAnydata(source)) {
                 return true;
             }
+
+            if (sourceTag == TypeTags.UNION) {
+                return isAssignableToUnionType(source, target, unresolvedTypes);
+            }
+
+//            if (sourceTag == TypeTags.ARRAY) {
+//                return isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
+//            }
+//
+            if (sourceTag == TypeTags.MAP) {
+                return isAssignable(((BMapType) source).constraint, target, unresolvedTypes);
+            }
+//
+//            if (sourceTag == TypeTags.TABLE) {
+//                return isAssignableTableType((BTableType) source, (BTableType) target, unresolvedTypes);
+//            }
+
             return false;
         }
 
@@ -765,8 +757,8 @@ public class Types {
             return true;
         }
 
-        if (isJSONType(target)) {
-            if (isJSONType(source)) {
+        if (targetTag == TypeTags.JSON) {
+            if (sourceTag == TypeTags.JSON) {
                 return true;
             }
 
@@ -781,6 +773,10 @@ public class Types {
             if (sourceTag == TypeTags.RECORD) {
                 return isAssignableRecordType((BRecordType) source, target, unresolvedTypes);
             }
+
+//            if (sourceTag == TypeTags.UNION) {
+//                return isAssignableToUnionType(source, target, unresolvedTypes);
+//            }
         }
 
         if (targetTag == TypeTags.FUTURE && sourceTag == TypeTags.FUTURE) {
@@ -3270,7 +3266,7 @@ public class Types {
             case TypeTags.ANY:
                 return new BAnyType(type.tag, type.tsymbol, false);
             case TypeTags.ANYDATA:
-                return new BAnydataType(type.tag, type.tsymbol, false);
+                return new BAnydataType((BAnydataType) type, false);
             case TypeTags.READONLY:
                 return new BReadonlyType(type.tag, type.tsymbol, false);
         }

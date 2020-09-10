@@ -260,7 +260,7 @@ public class TypeParamAnalyzer {
             case TypeTags.ANY:
                 return new BAnyType(type.tag, null, name, flag);
             case TypeTags.ANYDATA:
-                return new BAnydataType(type.tag, null, name, flag);
+                return new BAnydataType(null, name, flag);
             case TypeTags.READONLY: // TODO: 4/5/20 validate for cloneXxx
                 return new BReadonlyType(type.tag, null, name, flag);
         }

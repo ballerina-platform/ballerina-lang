@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 

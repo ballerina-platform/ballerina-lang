@@ -18,13 +18,20 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OrderedNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -37,45 +44,85 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -84,22 +131,50 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.StringJoiner;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.model.elements.PackageID.ARRAY;
+import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
+import static org.ballerinalang.model.elements.PackageID.DECIMAL;
+import static org.ballerinalang.model.elements.PackageID.ERROR;
+import static org.ballerinalang.model.elements.PackageID.FLOAT;
+import static org.ballerinalang.model.elements.PackageID.FUTURE;
+import static org.ballerinalang.model.elements.PackageID.INT;
+import static org.ballerinalang.model.elements.PackageID.MAP;
+import static org.ballerinalang.model.elements.PackageID.OBJECT;
+import static org.ballerinalang.model.elements.PackageID.QUERY;
+import static org.ballerinalang.model.elements.PackageID.STREAM;
+import static org.ballerinalang.model.elements.PackageID.STRING;
+import static org.ballerinalang.model.elements.PackageID.TABLE;
+import static org.ballerinalang.model.elements.PackageID.TRANSACTION;
+import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
+import static org.ballerinalang.model.elements.PackageID.VALUE;
+import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.ballerinalang.model.tree.NodeKind.IMPORT;
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
@@ -825,13 +900,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                         || unresolvedType.getKind() == NodeKind.CONSTANT) {
                     TypeDefinition def = (TypeDefinition) unresolvedType;
                     // We need to keep track of all visited types to print cyclic dependency.
-                    Stack<String> references = new Stack<>();
-                    references.push(unresolvedType.getName().getValue());
-                    checkErrors(unresolvedType, (BLangType) unresolvedType.getTypeNode(), references);
+                    references.push(def.getName().getValue());
+                    checkErrors(unresolvedType, (BLangNode) def.getTypeNode(), references, false);
                 } else if (unresolvedType.getKind() == NodeKind.CLASS_DEFN) {
                     BLangClassDefinition classDefinition = (BLangClassDefinition) unresolvedType;
                     references.push(classDefinition.getName().getValue());
-                    checkErrors(unresolvedType, classDefinition, references);
+                    checkErrors(unresolvedType, classDefinition, references, true);
                 }
             }
 
@@ -841,42 +915,45 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineTypeNodes(unresolvedTypes, env);
     }
 
-    private void checkErrors(BLangNode unresolvedType, BLangNode currentTypeOrClassNode, Stack<String> visitedNodes) {
+    private void checkErrors(BLangNode unresolvedType, BLangNode currentTypeOrClassNode, Stack<String> visitedNodes,
+                             boolean fromStructuredType) {
         // Check errors in the type definition.
         List<BLangType> memberTypeNodes;
         switch (currentTypeOrClassNode.getKind()) {
             case ARRAY_TYPE:
-                checkErrors(unresolvedType, ((BLangArrayType) currentTypeOrClassNode).elemtype, visitedNodes);
+                checkErrors(unresolvedType, ((BLangArrayType) currentTypeOrClassNode).elemtype, visitedNodes, true);
                 break;
             case UNION_TYPE_NODE:
                 // If the current type node is a union type node, we need to check all member nodes.
                 memberTypeNodes = ((BLangUnionTypeNode) currentTypeOrClassNode).memberTypeNodes;
                 // Recursively check all members.
                 for (BLangType memberTypeNode : memberTypeNodes) {
-                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, fromStructuredType, env);
+                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, fromStructuredType);
                 }
                 break;
             case INTERSECTION_TYPE_NODE:
                 memberTypeNodes = ((BLangIntersectionTypeNode) currentTypeOrClassNode).constituentTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
-                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, fromStructuredType, env);
+                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, fromStructuredType);
                 }
                 break;
             case TUPLE_TYPE_NODE:
                 memberTypeNodes = ((BLangTupleTypeNode) currentTypeOrClassNode).memberTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
-                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, true, env);
+                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, true);
                 }
                 break;
             case CONSTRAINED_TYPE:
-                checkErrors(unresolvedType, ((BLangConstrainedType) currentTypeOrClassNode).constraint, visitedNodes);
+                checkErrors(unresolvedType, ((BLangConstrainedType) currentTypeOrClassNode).constraint, visitedNodes,
+                        true);
                 break;
             case TABLE_TYPE:
-                checkErrors(unresolvedType, ((BLangTableTypeNode) currentTypeOrClassNode).constraint, visitedNodes);
+                checkErrors(unresolvedType, ((BLangTableTypeNode) currentTypeOrClassNode).constraint, visitedNodes,
+                        true);
                 break;
             case USER_DEFINED_TYPE:
                 checkErrorsOfUserDefinedType(unresolvedType, (BLangUserDefinedType) currentTypeOrClassNode,
-                        visitedNodes);
+                        visitedNodes, fromStructuredType);
                 break;
             case BUILT_IN_REF_TYPE:
                 // Eg - `xml`. This is not needed to be checked because no types are available in the `xml`.
@@ -888,17 +965,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case RECORD_TYPE:
                 for (TypeNode typeNode : ((BLangRecordTypeNode) currentTypeOrClassNode).getTypeReferences()) {
-                    checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes);
+                    checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes, true);
                 }
                 break;
             case OBJECT_TYPE:
                 for (TypeNode typeNode : ((BLangObjectTypeNode) currentTypeOrClassNode).getTypeReferences()) {
-                    checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes);
+                    checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes, true);
                 }
                 break;
             case CLASS_DEFN:
                 for (TypeNode typeNode : ((BLangClassDefinition) currentTypeOrClassNode).typeRefs) {
-                    checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes);
+                    checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes, true);
                 }
                 break;
             default:
@@ -907,7 +984,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void checkErrorsOfUserDefinedType(BLangNode unresolvedType, BLangUserDefinedType currentTypeOrClassNode,
-                                              Stack<String> visitedNodes) {
+                                              Stack<String> visitedNodes, boolean fromStructuredType) {
         String currentTypeNodeName = currentTypeOrClassNode.typeName.value;
         // Skip all types defined as anonymous types.
         if (currentTypeNodeName.startsWith("$")) {
@@ -974,18 +1051,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             } else {
                 for (BLangNode typeDefinition : typeDefinitions) {
                     if (typeDefinition.getKind() == NodeKind.TYPE_DEFINITION) {
-                        BLangTypeDefinition typeDef = (BLangTypeDefinition) typeDefinition;
-                        String typeName = typeDef.getName().getValue();
+                        BLangTypeDefinition langTypeDefinition = (BLangTypeDefinition) typeDefinition;
+                        String typeName = langTypeDefinition.getName().getValue();
                         // Add the node name to the list.
                         visitedNodes.push(typeName);
                         // Recursively check for errors.
-                        checkErrors(unresolvedType, (BLangType) typeDef.getTypeNode(), visitedNodes);
+                        checkErrors(unresolvedType, langTypeDefinition.getTypeNode(), visitedNodes, fromStructuredType);
                         // We need to remove the added type node here since we have finished checking errors.
                         visitedNodes.pop();
                     } else {
                         BLangClassDefinition classDefinition = (BLangClassDefinition) typeDefinition;
                         visitedNodes.push(classDefinition.getName().getValue());
-                        checkErrors(unresolvedType, classDefinition, visitedNodes);
+                        checkErrors(unresolvedType, classDefinition, visitedNodes, fromStructuredType);
                         visitedNodes.pop();
                     }
                 }
@@ -1146,7 +1223,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BType getCyclicDefinedType(BLangTypeDefinition typeDef) {
         BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>());
         BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
-                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, unionType, env.scope.owner, symTable.builtinPos);
+                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
+                symTable.builtinPos, SOURCE);
         typeDef.symbol = typeDefSymbol;
         if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
             handleLangLibTypes(typeDef);

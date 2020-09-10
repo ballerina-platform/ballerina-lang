@@ -55,8 +55,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
  */
 public interface UniqueTypeVisitor<R> {
 
-//    static String debugLine = "%s:%s:%s:%s - %s";
-
     default R visit(UniqueTypeVisitor<R> visitor) {
         return visitor.visit(this);
     }

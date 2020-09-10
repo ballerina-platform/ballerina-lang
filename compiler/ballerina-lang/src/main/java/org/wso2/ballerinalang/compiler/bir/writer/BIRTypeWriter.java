@@ -198,7 +198,6 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BJSONType bjsonType) {
         // Nothing to do
-//        visit(bjsonType);
     }
 
     @Override

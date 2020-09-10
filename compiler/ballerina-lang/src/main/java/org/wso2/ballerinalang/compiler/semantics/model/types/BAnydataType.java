@@ -22,12 +22,10 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.LinkedHashSet;
-import java.util.StringJoiner;
 
 /**
  * {@code BAnydataType} represents the data types in Ballerina.
@@ -36,32 +34,26 @@ import java.util.StringJoiner;
  */
 public class BAnydataType extends BUnionType implements SelectivelyImmutableReferenceType {
 
-    public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flag) {
-        super(tsymbol, new LinkedHashSet<>(), true, false);
-        this.tag = tag;
-        this.name = name;
-        this.flags = flag;
-        this.tag = TypeTags.UNION;
+    public BAnydataType(BTypeSymbol tsymbol, Name name, int flags) {
+        this(tsymbol, name, flags, true);
     }
 
-    public BAnydataType(int tag, BTypeSymbol tsymbol) {
-        super(tsymbol, new LinkedHashSet<>(), true, false);
-        this.tag = tag;
-//        this.tag = TypeTags.UNION;
-    }
-
-    public BAnydataType(int tag, BTypeSymbol tsymbol, boolean nullable) {
+    public BAnydataType(BTypeSymbol tsymbol, boolean nullable) {
         super(tsymbol, new LinkedHashSet<>(), nullable, false);
-        this.tag = tag;
-//        this.tag = TypeTags.UNION;
+        this.tag = TypeTags.ANYDATA;
+        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
+            System.out.println("#### KRV 56");
+        }
     }
 
-    public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
+    public BAnydataType(BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
         super(tsymbol, new LinkedHashSet<>(), nullable, false);
-        this.tag = tag;
+        this.tag = TypeTags.ANYDATA;
         this.name = name;
         this.flags = flags;
-//        this.tag = TypeTags.UNION;
+        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
+            System.out.println("#### KRV 66");
+        }
     }
 
     public BAnydataType(BUnionType type) {
@@ -69,6 +61,17 @@ public class BAnydataType extends BUnionType implements SelectivelyImmutableRefe
                 Flags.READONLY));
         this.immutableType = type.immutableType;
         this.tag = TypeTags.ANYDATA;
+        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
+            System.out.println("#### KRV 74");
+        }
+    }
+
+    public BAnydataType(BAnydataType type, boolean nullable) {
+        super(type.tsymbol, type.getMemberTypes(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
+        this.tag = TypeTags.ANYDATA;
+        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
+            System.out.println("#### KRV 77");
+        }
     }
 
     @Override

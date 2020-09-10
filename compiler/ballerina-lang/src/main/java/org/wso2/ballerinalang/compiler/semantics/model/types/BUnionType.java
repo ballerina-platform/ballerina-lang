@@ -26,10 +26,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -47,7 +45,7 @@ public class BUnionType extends BType implements UnionType {
 
     private boolean nullable;
 
-    private LinkedHashSet<BType> memberTypes;
+    protected LinkedHashSet<BType> memberTypes;
     public Boolean isAnyData = null;
     public Boolean isPureType = null;
 
@@ -68,7 +66,7 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public Set<BType> getMemberTypes() {
-        return Collections.unmodifiableSet(this.memberTypes);
+        return this.memberTypes;
     }
 
     @Override
@@ -93,13 +91,15 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
-        // This logic is added to prevent duplicate recursive calls to toString
+
         if (this.resolvingToString) {
             return "...";
         }
         this.resolvingToString = true;
 
         StringJoiner joiner = new StringJoiner(getKind().typeName());
+
+        // This logic is added to prevent duplicate recursive calls to toString
         long numberOfNotNilTypes = 0L;
         for (BType bType : this.memberTypes) {
             if (bType.tag != TypeTags.NIL) {
@@ -107,10 +107,16 @@ public class BUnionType extends BType implements UnionType {
                 numberOfNotNilTypes++;
             }
         }
-        String typeStr = numberOfNotNilTypes > 1
-                ? "(" + joiner.toString() + ")" : joiner.toString();
-        this.resolvingToString = false;
 
+        String typeStr;
+        // improve readability of cyclic union types
+        if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
+            typeStr = this.tsymbol.getName().getValue();
+        } else {
+            typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
+        }
+
+        this.resolvingToString = false;
         boolean hasNilType = this.memberTypes.size() > numberOfNotNilTypes;
         return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
     }

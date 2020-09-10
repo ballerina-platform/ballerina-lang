@@ -1765,7 +1765,7 @@ public class Desugar extends BLangNodeVisitor {
                 tempDetailVarSymbol, null);
         if (detailEntryVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             BLangIndexBasedAccess bLangIndexBasedAccess = (BLangIndexBasedAccess) detailEntryVar;
-            bLangIndexBasedAccess.originalType = symTable.pureType;
+            bLangIndexBasedAccess.originalType = symTable.cloneableType;
         }
         return detailEntryVar;
     }
@@ -2460,7 +2460,7 @@ public class Desugar extends BLangNodeVisitor {
                     detailTempVarDef.var.symbol, null);
             if (detailEntryVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
                 BLangIndexBasedAccess bLangIndexBasedAccess = (BLangIndexBasedAccess) detailEntryVar;
-                bLangIndexBasedAccess.originalType = symTable.pureType;
+                bLangIndexBasedAccess.originalType = symTable.cloneableType;
             }
 
             BLangAssignment detailAssignment = ASTBuilderUtil.createAssignmentStmt(ref.pos, parentBlockStmt);

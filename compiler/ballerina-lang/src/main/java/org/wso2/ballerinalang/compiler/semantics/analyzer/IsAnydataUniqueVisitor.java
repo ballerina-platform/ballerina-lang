@@ -36,6 +36,12 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashSet;
 
+/**
+ * IsAnydataUniqueVisitor to check if a type is anydata.
+ *
+ * This is introduced to handle cyclic unions.
+ * @since slp4
+ */
 public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     private HashSet<BType> visited;
@@ -87,7 +93,9 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BArrayType type) {
-        if (isVisited(type)) return isAnydata;
+        if (isVisited(type)) {
+            return isAnydata;
+        }
         visited.add(type);
 
         IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
@@ -127,7 +135,9 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BMapType type) {
-        if (isVisited(type)) return isAnydata;
+        if (isVisited(type)) {
+            return isAnydata;
+        }
         visited.add(type);
 
         return visit(type.constraint);
@@ -191,7 +201,6 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             }
         }
         type.isAnyData = (type.restType == null) || isPureTypeUniqueVisitor.visit(type.restType);
-        System.out.println("\t\t\ttype.isAnyData : " + type.isAnyData);
         return isAnydata;
     }
 
@@ -235,7 +244,9 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         if (type.isAnyData != null) {
             return type.isAnyData;
         }
-        if (isVisited(type)) return isAnydata;
+        if (isVisited(type)) {
+            return isAnydata;
+        }
         visited.add(type);
         for (BType member : type.getMemberTypes()) {
             if (!visit(member)) {
@@ -252,7 +263,9 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         if (type.isAnyData != null) {
             return type.isAnyData;
         }
-        if (isVisited(type)) return isAnydata;
+        if (isVisited(type)) {
+            return isAnydata;
+        }
         visited.add(type);
         IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
         for (BField field : type.fields.values()) {
@@ -292,43 +305,11 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BFutureType type) {
-
         return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BHandleType type) {
-
         return isAnydata(type);
     }
-//
-//    public void debugPrint() {
-//
-//        List<BType> types = new ArrayList<>(visited.size());
-//        types.addAll(visited);
-//        System.out.println("Printing visited list of IsAnydataUniqueVisitor - START");
-//        for (BType type : types) {
-//            System.out.println("\ttype : " + type);
-//        }
-//        System.out.println("Printing visited list of IsAnydataUniqueVisitor - END");
-//    }
-
-//    private void printDebugLine(String typeName, BType type) {
-//        String message = null;
-//        if (type != null) {
-//            message = String.format(debugLine, "IsAnydataUniqueVisitor", getMethodName(),
-//                    typeName, getLineNumber(), type);
-//        } else {
-//            message = String.format(debugLine, "IsAnydataUniqueVisitor", getMethodName(),
-//                    typeName, getLineNumber(), "");
-//        }
-//        System.out.println(message);
-//    }
-//    public static int getLineNumber() {
-//        return Thread.currentThread().getStackTrace()[3].getLineNumber();
-//    }
-//
-//    public static String getMethodName() {
-//        return Thread.currentThread().getStackTrace()[3].getMethodName();
-//    }
 }

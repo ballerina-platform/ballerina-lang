@@ -17,8 +17,10 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -30,8 +32,8 @@ import java.util.LinkedHashSet;
  */
 public class BJSONType extends BUnionType implements SelectivelyImmutableReferenceType {
 
-    public BJSONType(BJSONType bjsonType, boolean nullable) {
-        super(bjsonType.tsymbol, bjsonType.getMemberTypes(), nullable, false);
+    public BJSONType(BJSONType type, boolean nullable) {
+        super(type.tsymbol, type.getMemberTypes(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
         this.tag = TypeTags.JSON;
     }
 
@@ -40,6 +42,15 @@ public class BJSONType extends BUnionType implements SelectivelyImmutableReferen
                 Flags.READONLY));
         this.immutableType = type.immutableType;
         this.tag = TypeTags.JSON;
+    }
+
+    public BJSONType(BTypeSymbol typeSymbol, boolean nullable, int flags) {
+        super(typeSymbol, new LinkedHashSet<>(), nullable, Symbols.isFlagOn(flags, Flags.READONLY));
+        this.tag = TypeTags.JSON;
+        this.flags = flags;
+        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
+            System.out.println("#### KRV JSON 53");
+        }
     }
 
     @Override

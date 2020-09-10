@@ -153,7 +153,6 @@ public class CompilerDriver {
             symResolver.reloadErrorAndDependentTypes();
             symResolver.defineOperators();
             symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
-            System.out.println("##### KRV 153");
             symResolver.reloadIntRangeType();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
@@ -197,7 +196,6 @@ public class CompilerDriver {
         symResolver.defineOperators();
 
         if (langLib.equals(INTERNAL)) {
-            System.out.println("##### KRV 197");
             symbolTable.langInternalModuleSymbol = getLangModuleFromSource(INTERNAL);
             return; // Nothing else to load.
         }
@@ -212,10 +210,6 @@ public class CompilerDriver {
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
-            symResolver.loadAnydataAndDependentTypes();
-            symResolver.loadCloneableType();
-            symResolver.reloadErrorAndDependentTypes();
-            symResolver.defineOperators();
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
@@ -227,16 +221,12 @@ public class CompilerDriver {
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
-            symResolver.loadAnydataAndDependentTypes();
-            symResolver.loadCloneableType();
-            symResolver.reloadErrorAndDependentTypes();
-            symResolver.defineOperators();
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
         }
 
         if (langLib.equals(ERROR)) {
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
-//            symResolver.loadCloneableType();
+            symResolver.loadCloneableType();
         }
         symResolver.reloadIntRangeType();
 
