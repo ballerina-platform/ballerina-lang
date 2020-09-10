@@ -54,7 +54,7 @@ public class TableWithRecordKeySpecifierTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
                     "find key 'fname=Sanjiva lname=Clark'.*")
     public void testMemberAccessWithInvalidSingleKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidSingleKey");
@@ -62,7 +62,7 @@ public class TableWithRecordKeySpecifierTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
                     "find key '18 fname=Sanjiva lname=Clark'.*")
     public void testMemberAccessWithInvalidMultiKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
