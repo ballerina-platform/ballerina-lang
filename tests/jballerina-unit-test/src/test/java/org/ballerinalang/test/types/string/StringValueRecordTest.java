@@ -45,12 +45,12 @@ public class StringValueRecordTest {
 
     @Test
     public void testRecordGetKeys() {
-        testAndAssert("testRecordGetKeys", 21);
+        testAndAssert("testRecordGetKeys", 34);
     }
 
     @Test
     public void testMapToKeys() {
-        testAndAssert("testMapToKeys", 28);
+        testAndAssert("testMapToKeys", 41);
     }
 
     @Test
