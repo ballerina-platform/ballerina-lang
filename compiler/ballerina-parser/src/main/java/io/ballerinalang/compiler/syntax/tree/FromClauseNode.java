@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class FromClauseNode extends ClauseNode {
+public class FromClauseNode extends IntermediateClauseNode {
 
     public FromClauseNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

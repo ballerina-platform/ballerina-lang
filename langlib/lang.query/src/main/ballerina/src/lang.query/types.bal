@@ -457,9 +457,7 @@ class _FilterFunction {
     *_StreamFunction;
 
     # Desugared function to do;
-    # i.e
-    #   1. on dn equals dept.deptName
-    #   2. where person.age >= 70
+    # where person.age >= 70
     # emit the next frame which satisfies the condition
     function (_Frame _frame) returns boolean filterFunc;
 
@@ -593,29 +591,34 @@ class _LimitFunction {
     *_StreamFunction;
 
     # Desugared function to limit the number of results
-
-    public int lmt;
+    function (_Frame _frame) returns int limitFunc;
     public int count = 0;
 
-    function init(int lmt) {
-        self.lmt = lmt;
+    function init(function (_Frame _frame) returns int limitFunc) {
+        self.limitFunc = limitFunc;
         self.prevFunc = ();
-        if (lmt < 0) {
-            panic error("Unable to assign limit", message = "limit cannot be < 0.");
-        }
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        if (self.count < self.lmt) {
-            _Frame|error? pFrame = pf.process();
-            self.count += 1;
-            return pFrame;
+        function (_Frame _frame) returns int limitFunc = self.limitFunc;
+        _Frame|error? pFrame = pf.process();
+        if (pFrame is _Frame) {
+            int lmt = limitFunc(pFrame);
+            if (lmt < 1) {
+                panic error("Invalid limit", message = "limit cannot be < 1.");
+            }
+            if (self.count < lmt) {
+                self.count += 1;
+                return pFrame;
+            }
+            return ();
         }
-        return ();
+        return pFrame;
     }
 
     public function reset() {
+        self.count = 0;
         _StreamFunction? pf = self.prevFunc;
         if (pf is _StreamFunction) {
             pf.reset();

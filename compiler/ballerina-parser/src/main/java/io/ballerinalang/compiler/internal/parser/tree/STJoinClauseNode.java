@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STJoinClauseNode extends STClauseNode {
+public class STJoinClauseNode extends STIntermediateClauseNode {
     public final STNode outerKeyword;
     public final STNode joinKeyword;
     public final STNode typedBindingPattern;
