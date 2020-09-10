@@ -93,29 +93,25 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
-//        if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
-//            return this.tsymbol.name.value;
-//        }
         // This logic is added to prevent duplicate recursive calls to toString
         if (this.resolvingToString) {
             return "...";
         }
         this.resolvingToString = true;
 
-        boolean hasNilType = false;
         StringJoiner joiner = new StringJoiner(getKind().typeName());
-        long count = 0L;
+        long numberOfNotNilTypes = 0L;
         for (BType bType : this.memberTypes) {
             if (bType.tag != TypeTags.NIL) {
                 joiner.add(bType.toString());
-                count++;
-            } else if (!hasNilType) {
-                hasNilType = true;
+                numberOfNotNilTypes++;
             }
         }
-        String typeStr = count > 1
+        String typeStr = numberOfNotNilTypes > 1
                 ? "(" + joiner.toString() + ")" : joiner.toString();
         this.resolvingToString = false;
+
+        boolean hasNilType = this.memberTypes.size() > numberOfNotNilTypes;
         return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
     }
 

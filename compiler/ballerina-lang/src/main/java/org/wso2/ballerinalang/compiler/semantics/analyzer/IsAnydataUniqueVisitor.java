@@ -46,6 +46,11 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         isAnydata = true;
     }
 
+    public IsAnydataUniqueVisitor(HashSet<BType> visited) {
+        this.visited = visited;
+        isAnydata = true;
+    }
+
     private boolean isAnydata(BType type) {
         switch (type.tag) {
             case TypeTags.INT:

@@ -59,6 +59,7 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.BOOLEAN:
             case TypeTags.JSON:
             case TypeTags.XML:
+            case TypeTags.TABLE:
             case TypeTags.NIL:
             case TypeTags.ANYDATA:
                 return true;
@@ -115,7 +116,8 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BFiniteType type) {
-        return isPureType(type);
+        IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor(visited);
+        return isAnydataUniqueVisitor.visit(type);
     }
 
     @Override

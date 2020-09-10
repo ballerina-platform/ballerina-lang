@@ -713,7 +713,7 @@ public class Types {
             return true;
         }
 
-        if (isAnydata(target) && !containsErrorType(source)) {
+        if (targetTag == TypeTags.ANYDATA && !containsErrorType(source)) {
             if (isAnydata(source)) {
                 return true;
             }
