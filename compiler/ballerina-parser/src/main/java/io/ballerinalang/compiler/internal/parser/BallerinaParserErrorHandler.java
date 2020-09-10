@@ -397,7 +397,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] INTERMEDIATE_CLAUSE_START =
             { ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE, ParserRuleContext.LET_CLAUSE,
-            ParserRuleContext.JOIN_CLAUSE, ParserRuleContext.ORDER_BY_CLAUSE };
+            ParserRuleContext.JOIN_CLAUSE, ParserRuleContext.ORDER_BY_CLAUSE, ParserRuleContext.LIMIT_CLAUSE };
 
     private static final ParserRuleContext[] BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
@@ -2106,21 +2106,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case CONFLICT_KEYWORD:
                     nextContext = ParserRuleContext.ON_CONFLICT_CLAUSE;
                     break;
-                case LIMIT_KEYWORD:
-                    nextContext = ParserRuleContext.LIMIT_CLAUSE;
-                    break;
                 default:
                     nextContext = ParserRuleContext.QUERY_EXPRESSION_END;
             }
-        } else if (parentCtx == ParserRuleContext.ON_CONFLICT_CLAUSE) {
-            STToken nextToken = this.tokenReader.peek(lookahead);
-            if (nextToken.kind == SyntaxKind.LIMIT_KEYWORD) {
-                nextContext = ParserRuleContext.LIMIT_CLAUSE;
-            } else {
-                nextContext = ParserRuleContext.QUERY_EXPRESSION_END;
-            }
         } else if (parentCtx == ParserRuleContext.JOIN_CLAUSE) {
             nextContext = ParserRuleContext.ON_CLAUSE;
+        } else if (parentCtx == ParserRuleContext.ON_CLAUSE) {
+            nextContext = ParserRuleContext.EQUALS_KEYWORD;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -2559,15 +2551,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ON_CONFLICT_CLAUSE:
                 return ParserRuleContext.ON_KEYWORD;
             case LIMIT_CLAUSE:
-                // We assume limit-clause is only used in query-action-or-expr
-                endContext(); // end select-clause, on-conflict-clause or do-clause
-                endContext(); // end query-expr
                 return ParserRuleContext.LIMIT_KEYWORD;
             case JOIN_CLAUSE:
                 return ParserRuleContext.JOIN_CLAUSE_START;
             case ON_CLAUSE:
                 // We assume on-clause is only used in join-clause
-                endContext(); // end join-clause
                 return ParserRuleContext.ON_KEYWORD;
             case QUERY_EXPRESSION:
                 return ParserRuleContext.FROM_CLAUSE;
@@ -2745,7 +2733,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.ANNOT_ATTACH_POINTS_LIST;
                 } else if (parentCtx == ParserRuleContext.ON_CONFLICT_CLAUSE) {
                     return ParserRuleContext.CONFLICT_KEYWORD;
-                } else if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
+                } else if (parentCtx == ParserRuleContext.ON_CLAUSE) {
                     return ParserRuleContext.EXPRESSION;
                 }
                 return ParserRuleContext.LISTENERS_LIST;
@@ -2959,9 +2947,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.VARIABLE_NAME;
                 }
                 return ParserRuleContext.BINDING_PATTERN;
-            case CONFLICT_KEYWORD:
-            case LIMIT_KEYWORD:
             case EQUALS_KEYWORD:
+                assert getParentContext() == ParserRuleContext.ON_CLAUSE;
+                endContext(); // end on-clause
+                return ParserRuleContext.EXPRESSION;
+            case CONFLICT_KEYWORD:
+                endContext(); // end on-conflict-clause
+                return ParserRuleContext.EXPRESSION;
+            case LIMIT_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case OUTER_KEYWORD:
                 return ParserRuleContext.JOIN_KEYWORD;
@@ -3089,6 +3082,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR:
             case QUERY_EXPRESSION:
             case ON_CONFLICT_CLAUSE:
+            case ON_CLAUSE:
                 switchContext(currentCtx);
                 break;
             default:
@@ -4229,7 +4223,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ELLIPSIS_TOKEN:
             case DOUBLE_DOT_LT_TOKEN:
             case ELVIS_TOKEN:
-            case EQUALS_KEYWORD:
                 return true;
 
             // Treat these also as binary operators.

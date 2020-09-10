@@ -83,8 +83,8 @@ function testQueryExprWithLimitForXML() returns xml {
                   </bookStore>`;
 
     xml authors = from var book in bookStore/<book>/<author>
-                  select <xml> book
-                  limit 2;
+                  limit 2
+                  select <xml> book;
 
     return  authors;
 }
@@ -233,8 +233,8 @@ function testQueryExprWithLimitForXMLOrNilResult() returns xml? {
                   </bookStore>`;
 
     xml? authors = from var book in bookStore/<book>/<author>
-                  select <xml> book
-                  limit 2;
+                  limit 2
+                  select <xml> book;
 
     return  authors;
 }

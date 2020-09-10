@@ -35,20 +35,17 @@ public class STQueryExpressionNode extends STExpressionNode {
     public final STNode queryPipeline;
     public final STNode selectClause;
     public final STNode onConflictClause;
-    public final STNode limitClause;
 
     STQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
             STNode selectClause,
-            STNode onConflictClause,
-            STNode limitClause) {
+            STNode onConflictClause) {
         this(
                 queryConstructType,
                 queryPipeline,
                 selectClause,
                 onConflictClause,
-                limitClause,
                 Collections.emptyList());
     }
 
@@ -57,21 +54,18 @@ public class STQueryExpressionNode extends STExpressionNode {
             STNode queryPipeline,
             STNode selectClause,
             STNode onConflictClause,
-            STNode limitClause,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.QUERY_EXPRESSION, diagnostics);
         this.queryConstructType = queryConstructType;
         this.queryPipeline = queryPipeline;
         this.selectClause = selectClause;
         this.onConflictClause = onConflictClause;
-        this.limitClause = limitClause;
 
         addChildren(
                 queryConstructType,
                 queryPipeline,
                 selectClause,
-                onConflictClause,
-                limitClause);
+                onConflictClause);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -80,7 +74,6 @@ public class STQueryExpressionNode extends STExpressionNode {
                 this.queryPipeline,
                 this.selectClause,
                 this.onConflictClause,
-                this.limitClause,
                 diagnostics);
     }
 
@@ -88,14 +81,12 @@ public class STQueryExpressionNode extends STExpressionNode {
             STNode queryConstructType,
             STNode queryPipeline,
             STNode selectClause,
-            STNode onConflictClause,
-            STNode limitClause) {
+            STNode onConflictClause) {
         if (checkForReferenceEquality(
                 queryConstructType,
                 queryPipeline,
                 selectClause,
-                onConflictClause,
-                limitClause)) {
+                onConflictClause)) {
             return this;
         }
 
@@ -104,7 +95,6 @@ public class STQueryExpressionNode extends STExpressionNode {
                 queryPipeline,
                 selectClause,
                 onConflictClause,
-                limitClause,
                 diagnostics);
     }
 

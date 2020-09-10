@@ -1586,6 +1586,60 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STJoinClauseNode transform(
+            STJoinClauseNode joinClauseNode) {
+        STNode outerKeyword = modifyNode(joinClauseNode.outerKeyword);
+        STNode joinKeyword = modifyNode(joinClauseNode.joinKeyword);
+        STNode typedBindingPattern = modifyNode(joinClauseNode.typedBindingPattern);
+        STNode inKeyword = modifyNode(joinClauseNode.inKeyword);
+        STNode expression = modifyNode(joinClauseNode.expression);
+        STNode joinOnCondition = modifyNode(joinClauseNode.joinOnCondition);
+        return joinClauseNode.modify(
+                outerKeyword,
+                joinKeyword,
+                typedBindingPattern,
+                inKeyword,
+                expression,
+                joinOnCondition);
+    }
+
+    @Override
+    public STOnClauseNode transform(
+            STOnClauseNode onClauseNode) {
+        STNode onKeyword = modifyNode(onClauseNode.onKeyword);
+        STNode lhsExpression = modifyNode(onClauseNode.lhsExpression);
+        STNode equalsKeyword = modifyNode(onClauseNode.equalsKeyword);
+        STNode rhsExpression = modifyNode(onClauseNode.rhsExpression);
+        return onClauseNode.modify(
+                onKeyword,
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression);
+    }
+
+    @Override
+    public STLimitClauseNode transform(
+            STLimitClauseNode limitClauseNode) {
+        STNode limitKeyword = modifyNode(limitClauseNode.limitKeyword);
+        STNode expression = modifyNode(limitClauseNode.expression);
+        return limitClauseNode.modify(
+                limitKeyword,
+                expression);
+    }
+
+    @Override
+    public STOnConflictClauseNode transform(
+            STOnConflictClauseNode onConflictClauseNode) {
+        STNode onKeyword = modifyNode(onConflictClauseNode.onKeyword);
+        STNode conflictKeyword = modifyNode(onConflictClauseNode.conflictKeyword);
+        STNode expression = modifyNode(onConflictClauseNode.expression);
+        return onConflictClauseNode.modify(
+                onKeyword,
+                conflictKeyword,
+                expression);
+    }
+
+    @Override
     public STQueryPipelineNode transform(
             STQueryPipelineNode queryPipelineNode) {
         STNode fromClause = modifyNode(queryPipelineNode.fromClause);
@@ -1612,13 +1666,23 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode queryPipeline = modifyNode(queryExpressionNode.queryPipeline);
         STNode selectClause = modifyNode(queryExpressionNode.selectClause);
         STNode onConflictClause = modifyNode(queryExpressionNode.onConflictClause);
-        STNode limitClause = modifyNode(queryExpressionNode.limitClause);
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
                 selectClause,
-                onConflictClause,
-                limitClause);
+                onConflictClause);
+    }
+
+    @Override
+    public STQueryActionNode transform(
+            STQueryActionNode queryActionNode) {
+        STNode queryPipeline = modifyNode(queryActionNode.queryPipeline);
+        STNode doKeyword = modifyNode(queryActionNode.doKeyword);
+        STNode blockStatement = modifyNode(queryActionNode.blockStatement);
+        return queryActionNode.modify(
+                queryPipeline,
+                doKeyword,
+                blockStatement);
     }
 
     @Override
@@ -1942,20 +2006,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STQueryActionNode transform(
-            STQueryActionNode queryActionNode) {
-        STNode queryPipeline = modifyNode(queryActionNode.queryPipeline);
-        STNode doKeyword = modifyNode(queryActionNode.doKeyword);
-        STNode blockStatement = modifyNode(queryActionNode.blockStatement);
-        STNode limitClause = modifyNode(queryActionNode.limitClause);
-        return queryActionNode.modify(
-                queryPipeline,
-                doKeyword,
-                blockStatement,
-                limitClause);
-    }
-
-    @Override
     public STOptionalFieldAccessExpressionNode transform(
             STOptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
         STNode expression = modifyNode(optionalFieldAccessExpressionNode.expression);
@@ -2209,60 +2259,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return distinctTypeDescriptorNode.modify(
                 distinctKeyword,
                 typeDescriptor);
-    }
-
-    @Override
-    public STOnConflictClauseNode transform(
-            STOnConflictClauseNode onConflictClauseNode) {
-        STNode onKeyword = modifyNode(onConflictClauseNode.onKeyword);
-        STNode conflictKeyword = modifyNode(onConflictClauseNode.conflictKeyword);
-        STNode expression = modifyNode(onConflictClauseNode.expression);
-        return onConflictClauseNode.modify(
-                onKeyword,
-                conflictKeyword,
-                expression);
-    }
-
-    @Override
-    public STLimitClauseNode transform(
-            STLimitClauseNode limitClauseNode) {
-        STNode limitKeyword = modifyNode(limitClauseNode.limitKeyword);
-        STNode expression = modifyNode(limitClauseNode.expression);
-        return limitClauseNode.modify(
-                limitKeyword,
-                expression);
-    }
-
-    @Override
-    public STJoinClauseNode transform(
-            STJoinClauseNode joinClauseNode) {
-        STNode outerKeyword = modifyNode(joinClauseNode.outerKeyword);
-        STNode joinKeyword = modifyNode(joinClauseNode.joinKeyword);
-        STNode typedBindingPattern = modifyNode(joinClauseNode.typedBindingPattern);
-        STNode inKeyword = modifyNode(joinClauseNode.inKeyword);
-        STNode expression = modifyNode(joinClauseNode.expression);
-        STNode onCondition = modifyNode(joinClauseNode.onCondition);
-        return joinClauseNode.modify(
-                outerKeyword,
-                joinKeyword,
-                typedBindingPattern,
-                inKeyword,
-                expression,
-                onCondition);
-    }
-
-    @Override
-    public STOnClauseNode transform(
-            STOnClauseNode onClauseNode) {
-        STNode onKeyword = modifyNode(onClauseNode.onKeyword);
-        STNode lhsExpression = modifyNode(onClauseNode.lhsExpression);
-        STNode equalsKeyword = modifyNode(onClauseNode.equalsKeyword);
-        STNode rhsExpression = modifyNode(onClauseNode.rhsExpression);
-        return onClauseNode.modify(
-                onKeyword,
-                lhsExpression,
-                equalsKeyword,
-                rhsExpression);
     }
 
     @Override

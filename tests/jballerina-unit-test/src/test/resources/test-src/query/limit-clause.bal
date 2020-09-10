@@ -50,12 +50,12 @@ function testLimitClauseWithQueryExpr() returns Person[] {
             from var person in personList
             let int newAge = 34
             where person.age == 33
+            limit 2
             select {
                    firstName: person.firstName,
                    lastName: person.lastName,
                    age: newAge
-            }
-            limit 2;
+            };
 
     return outputPersonList;
 }
@@ -70,12 +70,12 @@ function testLimitClauseWithQueryExpr2() returns Person[] {
 
     Person[] outputPersonList =
             from var person in personList
+            limit 4
             select {
                    firstName: person.firstName,
                    lastName: person.lastName,
                    age: person.age
-            }
-            limit 4;
+            };
 
     return outputPersonList;
 }
@@ -90,12 +90,12 @@ function testLimitClauseWithQueryExpr3() returns Person[] {
 
     Person[] outputPersonList =
             from var person in personList
+            limit 3
             select {
                    firstName: person.firstName,
                    lastName: person.lastName,
                    age: person.age
-            }
-            limit 3;
+            };
 
     return outputPersonList;
 }
@@ -118,14 +118,14 @@ function testLimitClauseReturnStream() returns boolean {
             from var emp in employeeList
             let string empStatus = "Permanent"
             where emp.firstName == "Alex"
+            limit 1
             select {
                 firstName: emp.firstName,
                 lastName: emp.lastName,
                 age: person.age,
                 dept: emp.dept,
                 status: empStatus
-            }
-            limit 1;
+            };
 
     record {| EmpProfile value; |}? empProfile = getEmpProfileValue(outputEmpProfileStream.next());
     testPassed = testPassed && empProfile?.value?.firstName == "Alex" && empProfile?.value?.lastName == "George" &&
@@ -144,10 +144,10 @@ function testLimitClauseWithQueryAction() returns int {
     int count = 0;
 
     var x =  from var value in intList
+            limit 3
             do {
                 count += value;
-            }
-            limit 3;
+            };
 
     return count;
 }
@@ -163,13 +163,13 @@ function testLimitClauseWithQueryAction2() returns FullName[] {
 
     var x =  from var person in personList
             let int twiceAge  = (person.age * 2)
+            limit 1
             do {
                 if(twiceAge < 50) {
                     FullName fullName = {firstName: person.firstName, lastName: person.lastName};
                     nameList[nameList.length()] = fullName;
                 }
-            }
-            limit 1;
+            };
 
     return nameList;
 }
@@ -183,11 +183,11 @@ function testLimitClauseWithQueryAction3() returns FullName[] {
     FullName[] nameList = [];
 
     var x =  from var person in personList
+            limit 3
             do {
                 FullName fullName = {firstName: person.firstName, lastName: person.lastName};
                 nameList[nameList.length()] = fullName;
-            }
-            limit 3;
+            };
 
     return nameList;
 }
@@ -201,11 +201,45 @@ function testLimitClauseWithQueryAction4() returns FullName[] {
     FullName[] nameList = [];
 
     var x =  from var person in personList
+            limit 2
             do {
                 FullName fullName = {firstName: person.firstName, lastName: person.lastName};
                 nameList[nameList.length()] = fullName;
-            }
-            limit 2;
+            };
 
     return nameList;
+}
+
+function testLetExpressionWithLimitClause() returns boolean {
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 33};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 35};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+    Person p4 = {firstName: "Max", lastName: "Gomaz", age: 33};
+
+    Person[] personList = [p1, p2, p3, p4];
+
+    Person[] outputPersonList =
+            from var person in personList
+            let int newAge = 34
+            let int limitValue = 2
+            where person.age == 33
+            limit limitValue
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   age: newAge
+            };
+            
+    boolean testPassed = true;
+    Person p;
+    any res = outputPersonList;
+    testPassed = testPassed && res is Person[];
+    testPassed = testPassed && res is (any|error)[];
+    testPassed = testPassed && outputPersonList.length() == 2;
+    p = outputPersonList[0];
+    testPassed = testPassed && p.firstName == "Alex" && p.lastName == "George" && p.age == 34;
+    p = outputPersonList[1];
+    testPassed = testPassed && p.firstName == "John" && p.lastName == "David" && p.age == 34;
+    return testPassed;
 }

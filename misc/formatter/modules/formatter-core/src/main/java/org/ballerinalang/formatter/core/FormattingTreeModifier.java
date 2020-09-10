@@ -35,7 +35,6 @@ import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ClauseNode;
 import io.ballerinalang.compiler.syntax.tree.CommitActionNode;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
@@ -86,6 +85,7 @@ import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
 import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.JoinClauseNode;
@@ -1186,12 +1186,23 @@ public class FormattingTreeModifier extends TreeModifier {
         Token asKeyword = getToken(xMLNamespaceDeclarationNode.asKeyword().orElse(null));
         IdentifierToken namespacePrefix = this.modifyNode(xMLNamespaceDeclarationNode.namespacePrefix().orElse(null));
         Token semicolonToken = getToken(xMLNamespaceDeclarationNode.semicolonToken());
+        int startColumn = getStartColumn(xMLNamespaceDeclarationNode, xMLNamespaceDeclarationNode.kind(), true);
+
+        if (asKeyword != null) {
+            xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
+                    .withAsKeyword(formatToken(asKeyword, 1, 1, 0, 0))
+                    .apply();
+        }
+        if (namespacePrefix != null) {
+            xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
+                    .withNamespacePrefix(namespacePrefix)
+                    .apply();
+        }
+
         return xMLNamespaceDeclarationNode.modify()
-                .withNamespacePrefix(namespacePrefix)
                 .withNamespaceuri(namespaceuri)
-                .withXmlnsKeyword(formatToken(xmlnsKeyword, 0, 0, 0, 0))
-                .withAsKeyword(formatToken(asKeyword, 0, 0, 0, 0))
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withXmlnsKeyword(formatToken(xmlnsKeyword, startColumn, 1, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
@@ -1269,8 +1280,14 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public XMLSimpleNameNode transform(XMLSimpleNameNode xMLSimpleNameNode) {
         Token name = getToken(xMLSimpleNameNode.name());
+        if (xMLSimpleNameNode.parent().kind() == SyntaxKind.XML_PI &&
+                ((XMLProcessingInstruction) xMLSimpleNameNode.parent()).data() != null) {
+            return xMLSimpleNameNode.modify()
+                    .withName(formatToken(name, 0, 1, 0, 0))
+                    .apply();
+        }
         return xMLSimpleNameNode.modify()
-                .withName(name)
+                .withName(formatToken(name, 0, 0, 0, 0))
                 .apply();
     }
 
@@ -2503,7 +2520,8 @@ public class FormattingTreeModifier extends TreeModifier {
             return queryPipelineNode;
         }
         FromClauseNode fromClause = this.modifyNode(queryPipelineNode.fromClause());
-        NodeList<ClauseNode> intermediateClauses = this.modifyNodeList(queryPipelineNode.intermediateClauses());
+        NodeList<IntermediateClauseNode> intermediateClauses =
+                this.modifyNodeList(queryPipelineNode.intermediateClauses());
         return queryPipelineNode.modify()
                 .withFromClause(fromClause)
                 .withIntermediateClauses(intermediateClauses)
@@ -2533,7 +2551,6 @@ public class FormattingTreeModifier extends TreeModifier {
         QueryPipelineNode queryPipeline = this.modifyNode(queryExpressionNode.queryPipeline());
         SelectClauseNode selectClause = this.modifyNode(queryExpressionNode.selectClause());
         OnConflictClauseNode onConflictClause = this.modifyNode(queryExpressionNode.onConflictClause().orElse(null));
-        LimitClauseNode limitClause = this.modifyNode(queryExpressionNode.limitClause().orElse(null));
         if (queryConstructType != null) {
             queryExpressionNode = queryExpressionNode.modify()
                     .withQueryConstructType(queryConstructType).apply();
@@ -2541,10 +2558,6 @@ public class FormattingTreeModifier extends TreeModifier {
         if (onConflictClause != null) {
             queryExpressionNode = queryExpressionNode.modify()
                     .withOnConflictClause(onConflictClause).apply();
-        }
-        if (limitClause != null) {
-            queryExpressionNode = queryExpressionNode.modify()
-                    .withLimitClause(limitClause).apply();
         }
         return queryExpressionNode.modify()
                 .withQueryPipeline(queryPipeline)
@@ -2847,11 +2860,6 @@ public class FormattingTreeModifier extends TreeModifier {
         QueryPipelineNode queryPipeline = this.modifyNode(queryActionNode.queryPipeline());
         Token doKeyword = getToken(queryActionNode.doKeyword());
         BlockStatementNode blockStatement = this.modifyNode(queryActionNode.blockStatement());
-        LimitClauseNode limitClause = this.modifyNode(queryActionNode.limitClause().orElse(null));
-        if (limitClause != null) {
-            queryActionNode = queryActionNode.modify()
-                    .withLimitClause(limitClause).apply();
-        }
         return queryActionNode.modify()
                 .withQueryPipeline(queryPipeline)
                 .withDoKeyword(formatToken(doKeyword, 1, 1, 0, 0))
@@ -3146,7 +3154,7 @@ public class FormattingTreeModifier extends TreeModifier {
         TypedBindingPatternNode typedBindingPattern = this.modifyNode(joinClauseNode.typedBindingPattern());
         Token inKeyword = getToken(joinClauseNode.inKeyword());
         ExpressionNode expression = this.modifyNode(joinClauseNode.expression());
-        OnClauseNode onCondition = this.modifyNode(joinClauseNode.onCondition());
+        OnClauseNode joinOnCondition = this.modifyNode(joinClauseNode.joinOnCondition());
         if (outerKeyword != null) {
             joinClauseNode = joinClauseNode.modify()
                     .withOuterKeyword(formatToken(outerKeyword, 1, 1, 0, 0)).apply();
@@ -3156,7 +3164,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withTypedBindingPattern(typedBindingPattern)
                 .withInKeyword(formatToken(inKeyword, 1, 1, 0, 0))
                 .withExpression(expression)
-                .withOnCondition(onCondition)
+                .withJoinOnCondition(joinOnCondition)
                 .apply();
     }
 
@@ -3386,7 +3394,7 @@ public class FormattingTreeModifier extends TreeModifier {
     private String getWhiteSpaces(int column, int newLines) {
         StringBuilder whiteSpaces = new StringBuilder();
         for (int i = 0; i <= (newLines - 1); i++) {
-            whiteSpaces.append("\n");
+            whiteSpaces.append(System.getProperty("line.separator"));
         }
         for (int i = 0; i <= (column - 1); i++) {
             whiteSpaces.append(" ");
