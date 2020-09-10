@@ -939,7 +939,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
-        
+        this.acceptNode(bLangStatementExpression.stmt, this.symbolEnv);
     }
 
     @Override
@@ -1048,10 +1048,10 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     }
 
     private boolean withinBlock(Diagnostic.DiagnosticPosition symbolPosition) {
-        int zeroBasedStartLine = symbolPosition.getStartLine() - 1;
-        int zeroBasedEndLine = symbolPosition.getEndLine() - 1;
-        int zeroBasedStartCol = symbolPosition.getStartColumn() - 1;
-        int zeroBasedEndCol = symbolPosition.getEndColumn() - 1;
+        int zeroBasedStartLine = symbolPosition.getStartLine();
+        int zeroBasedEndLine = symbolPosition.getEndLine();
+        int zeroBasedStartCol = symbolPosition.getStartColumn();
+        int zeroBasedEndCol = symbolPosition.getEndColumn();
         int line = this.linePosition.line();
         int col = this.linePosition.offset();
 

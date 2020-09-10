@@ -516,7 +516,6 @@ public class BTestRunner {
                     String errorMsg;
                     for (String afterGroupFunc : suite.getGroups().get(groupName).getAfterGroupsFunctions()) {
                         try {
-
                             invokeTestFunction(suite, afterGroupFunc, classLoader, scheduler);
                         } catch (Throwable e) {
                             shouldSkip.set(true);
