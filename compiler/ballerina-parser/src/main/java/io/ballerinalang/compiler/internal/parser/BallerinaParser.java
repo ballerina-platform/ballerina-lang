@@ -4695,7 +4695,8 @@ public class BallerinaParser extends AbstractParser {
                     addInvalidNodeToNextToken(qualifier, diagnosticCode, ((STToken) qualifier).text());
                 } else {
                     // If the qualifier list is not empty add invalid node to the last node in the list.
-                    updateLastNodeInListWithInvalidNode(qualifierList, qualifier, diagnosticCode);
+                    updateLastNodeInListWithInvalidNode(qualifierList, qualifier, diagnosticCode,
+                            ((STToken) qualifier).text());
                 }
             } else {
                 qualifierList.add(qualifier);

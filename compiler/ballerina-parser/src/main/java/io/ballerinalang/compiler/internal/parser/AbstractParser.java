@@ -192,6 +192,17 @@ public abstract class AbstractParser {
         nodeList.add(newNode);
     }
 
+    protected void updateLastNodeInListWithInvalidNode(List<STNode> nodeList,
+                                                       STNode invalidParam,
+                                                       DiagnosticCode diagnosticCode,
+                                                       Object... args) {
+        int lastIndex = nodeList.size() - 1;
+        STNode prevNode = nodeList.remove(lastIndex);
+        STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam, diagnosticCode,
+                args);
+        nodeList.add(newNode);
+    }
+
     /**
      * Adds the invalid node as minutiae to the next consumed token.
      * <p>
