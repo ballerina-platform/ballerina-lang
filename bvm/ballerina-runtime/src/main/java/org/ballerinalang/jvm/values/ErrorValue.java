@@ -24,8 +24,10 @@ import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValue;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -75,17 +77,25 @@ public class ErrorValue extends BError implements RefValue {
     @Override
     public String stringValue() {
         if (isEmptyDetail()) {
-            return "error " + message.getValue();
+            return "error " + getModuleName() + " (" + message.getValue() + ")";
         }
-        return "error " + message.getValue() + " " + getCauseToString() +
-                org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(details);
+
+        return "error " + getModuleName() + " (" + message.getValue() + getCauseToString() + getDetailToString() + ")";
     }
 
     private String getCauseToString() {
         if (cause != null) {
-            return org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(cause) + " ";
+            return ", " + cause.informalStringValue();
         }
         return "";
+    }
+
+    private String getDetailToString() {
+        return ", " + ((BValue) details).informalStringValue();
+    }
+
+    private String getModuleName() {
+        return BallerinaErrorReasons.getModulePrefixedReason(this.type.getPackage().name, this.type.getName());
     }
 
     @Override
