@@ -1186,6 +1186,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token asKeyword = getToken(xMLNamespaceDeclarationNode.asKeyword().orElse(null));
         IdentifierToken namespacePrefix = this.modifyNode(xMLNamespaceDeclarationNode.namespacePrefix().orElse(null));
         Token semicolonToken = getToken(xMLNamespaceDeclarationNode.semicolonToken());
+        int startColumn = getStartColumn(xMLNamespaceDeclarationNode, xMLNamespaceDeclarationNode.kind(), true);
 
         if (asKeyword != null) {
             xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
@@ -1200,7 +1201,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return xMLNamespaceDeclarationNode.modify()
                 .withNamespaceuri(namespaceuri)
-                .withXmlnsKeyword(formatToken(xmlnsKeyword, 3, 1, 0, 0))
+                .withXmlnsKeyword(formatToken(xmlnsKeyword, startColumn, 1, 0, 0))
                 .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
@@ -3402,7 +3403,7 @@ public class FormattingTreeModifier extends TreeModifier {
     private String getWhiteSpaces(int column, int newLines) {
         StringBuilder whiteSpaces = new StringBuilder();
         for (int i = 0; i <= (newLines - 1); i++) {
-            whiteSpaces.append("\n");
+            whiteSpaces.append(System.getProperty("line.separator"));
         }
         for (int i = 0; i <= (column - 1); i++) {
             whiteSpaces.append(" ");
