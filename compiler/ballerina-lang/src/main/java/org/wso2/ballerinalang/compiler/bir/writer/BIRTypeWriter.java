@@ -183,7 +183,7 @@ public class BIRTypeWriter implements TypeVisitor {
         boolean restTypeExist = bInvokableType.restType != null;
         buff.writeBoolean(restTypeExist);
         if (restTypeExist) {
-           writeTypeCpIndex(bInvokableType.restType);
+            writeTypeCpIndex(bInvokableType.restType);
         }
         writeTypeCpIndex(bInvokableType.retType);
     }
@@ -473,6 +473,7 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     private void writeValue(Object value, BType typeOfValue) {
+        ByteBuf byteBuf = Unpooled.buffer();
         switch (typeOfValue.tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
@@ -481,30 +482,34 @@ public class BIRTypeWriter implements TypeVisitor {
             case TypeTags.UNSIGNED32_INT:
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED8_INT:
-                buff.writeInt(addIntCPEntry((Long) value));
+                byteBuf.writeInt(addIntCPEntry((Long) value));
                 break;
             case TypeTags.BYTE:
                 int byteValue = ((Number) value).intValue();
-                buff.writeInt(addByteCPEntry(byteValue));
+                byteBuf.writeInt(addByteCPEntry(byteValue));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
                 double doubleVal =
                         value instanceof String ? Double.parseDouble((String) value) : ((Number) value).doubleValue();
-                buff.writeInt(addFloatCPEntry(doubleVal));
+                byteBuf.writeInt(addFloatCPEntry(doubleVal));
                 break;
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
-                buff.writeInt(addStringCPEntry(String.valueOf(value)));
+                byteBuf.writeInt(addStringCPEntry(String.valueOf(value)));
                 break;
             case TypeTags.BOOLEAN:
-                buff.writeByte((Boolean) value ? 1 : 0);
+                byteBuf.writeBoolean((Boolean) value);
                 break;
             case TypeTags.NIL:
                 break;
             default:
                 throw new UnsupportedOperationException("finite type value is not supported for type: " + typeOfValue);
         }
+
+        int length = byteBuf.nioBuffer().limit();
+        buff.writeInt(length);
+        buff.writeBytes(byteBuf.nioBuffer().array(), 0, length);
     }
 }
