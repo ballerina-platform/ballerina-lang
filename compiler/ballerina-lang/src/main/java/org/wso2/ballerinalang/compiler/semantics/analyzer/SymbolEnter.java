@@ -2283,6 +2283,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(invokableNode.name.pos, funcSymbol);
         invokableEnv.scope = funcSymbol.scope;
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
+
+        if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.ISOLATED)) {
+            funcSymbol.type.flags |= Flags.ISOLATED;
+        }
     }
 
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
@@ -2335,10 +2339,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         invokableSymbol.type = new BInvokableType(paramTypes, restType, invokableNode.returnTypeNode.type, null);
         invokableSymbol.type.tsymbol = functionTypeSymbol;
-
-        if (Symbols.isFlagOn(functionTypeSymbol.flags, Flags.ISOLATED)) {
-            invokableSymbol.type.flags |= Flags.ISOLATED;
-        }
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {

@@ -164,14 +164,14 @@ isolated function testInvalidNonIsolatedAccessAsArgs() {
 isolated function diffParamKinds(int a, string b = "hello", boolean|int... c) {
 }
 
-//var testInvalidIsolatedModuleAnonFunc = isolated function () {
-//    int y = nonIsolated() + d[0];
-//    string s = c + "world";
-//};
-//
-//function testInvalidIsolatedAnonFunc() {
-//    var testInvalidIsolatedModuleAnonFunc = isolated function () {
-//        int y = nonIsolated() + d[0];
-//        string s = c + "world";
-//    };
-//}
+var testInvalidIsolatedModuleAnonFunc = isolated function () {
+    int y = nonIsolated() + d[0];
+    string s = c + "world";
+};
+
+function testInvalidIsolatedAnonFunc() {
+    var testInvalidIsolatedModuleAnonFunc = isolated function () {
+        int y = nonIsolated() + d[0];
+        string s = c + "world";
+    };
+}

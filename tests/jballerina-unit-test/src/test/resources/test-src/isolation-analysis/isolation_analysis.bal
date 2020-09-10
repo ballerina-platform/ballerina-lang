@@ -142,42 +142,42 @@ function testNonIsolatedMethodAsIsolatedMethodRuntimeNegative() {
     assertEquality(false, <any> obj is Qux);
 }
 
-//var fn1 = isolated function (int j, map<int> m) returns int {
-//    record {
-//        int i;
-//    } rec = {
-//        i: 1,
-//        "str": "val"
-//    };
-//
-//    return rec.i + j + <int> m["first"] + i;
-//};
-//
-//function (int, map<int>) returns int fn2 = function (int j, map<int> m) returns int {
-//    record {
-//        int i;
-//    } rec = {
-//        i: 1,
-//        "str": "val"
-//    };
-//
-//    return rec.i + j + <int> m["first"] + i;
-//};
-//
-//function testIsolatedFunctionAsIsolatedFunctionRuntime() {
-//    assertEquality(true, <any> fn1 is isolated function (int, map<int>) returns int);
-//}
-//
-//function testIsolatedFunctionAsIsolatedFunctionRuntimeNegative() {
-//    assertEquality(false, <any> fn2 is isolated function (int, map<int>) returns int);
-//
-//    var res = trap <isolated function (int, map<int>) returns int> fn2;
-//    assertEquality(true, res is error);
-//
-//    error err = <error> res;
-//    assertEquality("incompatible types: 'function (int,map) returns (int)' cannot be cast to " +
-//                        "'isolated function (int, map<int>) returns int'", err.detail()["message"]);
-//}
+var fn1 = isolated function (int j, map<int> m) returns int {
+    record {
+        int i;
+    } rec = {
+        i: 1,
+        "str": "val"
+    };
+
+    return rec.i + j + <int> m["first"] + i;
+};
+
+function (int, map<int>) returns int fn2 = function (int j, map<int> m) returns int {
+    record {
+        int i;
+    } rec = {
+        i: 1,
+        "str": "val"
+    };
+
+    return rec.i + j + <int> m["first"] + i;
+};
+
+function testIsolatedFunctionAsIsolatedFunctionRuntime() {
+    assertEquality(true, <any> fn1 is isolated function (int, map<int>) returns int);
+}
+
+function testIsolatedFunctionAsIsolatedFunctionRuntimeNegative() {
+    assertEquality(false, <any> fn2 is isolated function (int, map<int>) returns int);
+
+    var res = trap <isolated function (int, map<int>) returns int> fn2;
+    assertEquality(true, res is error);
+
+    error err = <error> res;
+    assertEquality("incompatible types: 'function (int,map) returns (int)' cannot be cast to " +
+                        "'isolated function (int,map) returns (int)'", err.detail()["message"]);
+}
 
 const FLOAT = 1.23;
 
