@@ -92,6 +92,11 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
+    public String informalStringValue() {
+        return stringValue();
+    }
+
+    @Override
     public boolean getBooleanValue(BString fieldName) {
         return (boolean) get(fieldName);
     }

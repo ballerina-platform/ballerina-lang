@@ -410,7 +410,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(",");
+        StringJoiner sj = new StringJoiner(", ");
         for (Map.Entry<K, V> kvEntry : this.entrySet()) {
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
@@ -422,10 +422,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                     case TypeTags.STRING_TAG:
                     case TypeTags.XML_TAG:
                     case TypeTags.XML_ELEMENT_TAG:
-                        sj.add("\"" + key + "\":" + StringUtils.getStringValue(value));
+                        sj.add("\"" + key + "\":" + ((BValue) value).informalStringValue());
                         break;
                     default:
-                        sj.add(key + ":" + StringUtils.getStringValue(value));
+                        sj.add("\"" + key + "\":" + StringUtils.getStringValue(value));
                         break;
                 }
             }
