@@ -1138,7 +1138,6 @@ public class TypeChecker {
                     !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
                         .orElse(""), Optional.ofNullable(rhsField.type.getPackage()).map(BPackage::getName)
                         .orElse(""), lhsField.flags, rhsField.flags) ||
-                    hasIncompatibleReadOnlyFlags(lhsField, rhsField) ||
                     !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }

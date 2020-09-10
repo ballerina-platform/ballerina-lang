@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -1742,16 +1743,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                         return;
                     }
 
-                    BLangIdentifier field = ((BLangFieldBasedAccess) varRef).field;
-                    String fieldName = field.value;
+                    String fieldName = ((BLangFieldBasedAccess) varRef).field.value;
                     checkFinalEntityUpdate(varRef.pos, fieldName, objectType.fields.get(fieldName).symbol);
                     return;
                 }
 
-                if (types.isSubTypeOfBaseType(type, TypeTags.OBJECT)) {
-                    BLangIdentifier field = ((BLangFieldBasedAccess) varRef).field;
-                    String fieldName = field.value;
-                    checkFinalEntityUpdate(varRef.pos, fieldName, ((BObjectType) type).fields.get(fieldName).symbol);
+                if (accessExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                    checkFinalObjectFieldUpdate((BLangFieldBasedAccess) accessExpr);
                 }
 
                 analyzeNode(expr, env);
@@ -1775,6 +1773,37 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         this.uninitializedVars.remove(((BLangVariableReference) varRef).symbol);
+    }
+
+    private void checkFinalObjectFieldUpdate(BLangFieldBasedAccess fieldAccess) {
+        BLangExpression expr = fieldAccess.expr;
+
+        BType exprType = expr.type;
+
+        if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
+                isFinalFieldInAllObjects(exprType, fieldAccess.field.value)) {
+            dlog.error(fieldAccess.pos, DiagnosticCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD, fieldAccess.field.value);
+            return;
+        }
+
+        if (expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return;
+        }
+
+        checkFinalObjectFieldUpdate((BLangFieldBasedAccess) expr);
+    }
+
+    private boolean isFinalFieldInAllObjects(BType type, String fieldName) {
+        if (type.tag == TypeTags.OBJECT) {
+            return Symbols.isFlagOn(((BObjectType) type).fields.get(fieldName).symbol.flags, Flags.FINAL);
+        }
+
+        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            if (!isFinalFieldInAllObjects(memberType, fieldName)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void checkFinalEntityUpdate(DiagnosticPos pos, Object field, BSymbol symbol) {
