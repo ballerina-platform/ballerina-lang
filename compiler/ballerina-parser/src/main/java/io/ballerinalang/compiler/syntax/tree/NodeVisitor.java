@@ -519,6 +519,22 @@ public abstract class NodeVisitor {
         visitSyntaxNode(letClauseNode);
     }
 
+    public void visit(JoinClauseNode joinClauseNode) {
+        visitSyntaxNode(joinClauseNode);
+    }
+
+    public void visit(OnClauseNode onClauseNode) {
+        visitSyntaxNode(onClauseNode);
+    }
+
+    public void visit(LimitClauseNode limitClauseNode) {
+        visitSyntaxNode(limitClauseNode);
+    }
+
+    public void visit(OnConflictClauseNode onConflictClauseNode) {
+        visitSyntaxNode(onConflictClauseNode);
+    }
+
     public void visit(QueryPipelineNode queryPipelineNode) {
         visitSyntaxNode(queryPipelineNode);
     }
@@ -529,6 +545,10 @@ public abstract class NodeVisitor {
 
     public void visit(QueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
+    }
+
+    public void visit(QueryActionNode queryActionNode) {
+        visitSyntaxNode(queryActionNode);
     }
 
     public void visit(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
@@ -643,10 +663,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(annotAccessExpressionNode);
     }
 
-    public void visit(QueryActionNode queryActionNode) {
-        visitSyntaxNode(queryActionNode);
-    }
-
     public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
         visitSyntaxNode(optionalFieldAccessExpressionNode);
     }
@@ -729,22 +745,6 @@ public abstract class NodeVisitor {
 
     public void visit(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         visitSyntaxNode(distinctTypeDescriptorNode);
-    }
-
-    public void visit(OnConflictClauseNode onConflictClauseNode) {
-        visitSyntaxNode(onConflictClauseNode);
-    }
-
-    public void visit(LimitClauseNode limitClauseNode) {
-        visitSyntaxNode(limitClauseNode);
-    }
-
-    public void visit(JoinClauseNode joinClauseNode) {
-        visitSyntaxNode(joinClauseNode);
-    }
-
-    public void visit(OnClauseNode onClauseNode) {
-        visitSyntaxNode(onClauseNode);
     }
 
     public void visit(ListMatchPatternNode listMatchPatternNode) {

@@ -520,6 +520,22 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(letClauseNode);
     }
 
+    public T transform(JoinClauseNode joinClauseNode) {
+        return transformSyntaxNode(joinClauseNode);
+    }
+
+    public T transform(OnClauseNode onClauseNode) {
+        return transformSyntaxNode(onClauseNode);
+    }
+
+    public T transform(LimitClauseNode limitClauseNode) {
+        return transformSyntaxNode(limitClauseNode);
+    }
+
+    public T transform(OnConflictClauseNode onConflictClauseNode) {
+        return transformSyntaxNode(onConflictClauseNode);
+    }
+
     public T transform(QueryPipelineNode queryPipelineNode) {
         return transformSyntaxNode(queryPipelineNode);
     }
@@ -530,6 +546,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(QueryExpressionNode queryExpressionNode) {
         return transformSyntaxNode(queryExpressionNode);
+    }
+
+    public T transform(QueryActionNode queryActionNode) {
+        return transformSyntaxNode(queryActionNode);
     }
 
     public T transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
@@ -644,10 +664,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(annotAccessExpressionNode);
     }
 
-    public T transform(QueryActionNode queryActionNode) {
-        return transformSyntaxNode(queryActionNode);
-    }
-
     public T transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
         return transformSyntaxNode(optionalFieldAccessExpressionNode);
     }
@@ -730,22 +746,6 @@ public abstract class NodeTransformer<T> {
 
     public T transform(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         return transformSyntaxNode(distinctTypeDescriptorNode);
-    }
-
-    public T transform(OnConflictClauseNode onConflictClauseNode) {
-        return transformSyntaxNode(onConflictClauseNode);
-    }
-
-    public T transform(LimitClauseNode limitClauseNode) {
-        return transformSyntaxNode(limitClauseNode);
-    }
-
-    public T transform(JoinClauseNode joinClauseNode) {
-        return transformSyntaxNode(joinClauseNode);
-    }
-
-    public T transform(OnClauseNode onClauseNode) {
-        return transformSyntaxNode(onClauseNode);
     }
 
     public T transform(ListMatchPatternNode listMatchPatternNode) {

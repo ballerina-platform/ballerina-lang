@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STLimitClauseNode extends STClauseNode {
+public class STLimitClauseNode extends STIntermediateClauseNode {
     public final STNode limitKeyword;
     public final STNode expression;
 

@@ -1490,6 +1490,56 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 letVarDeclarations);
     }
 
+    public static STNode createJoinClauseNode(
+            STNode outerKeyword,
+            STNode joinKeyword,
+            STNode typedBindingPattern,
+            STNode inKeyword,
+            STNode expression,
+            STNode joinOnCondition) {
+
+        return new STJoinClauseNode(
+                outerKeyword,
+                joinKeyword,
+                typedBindingPattern,
+                inKeyword,
+                expression,
+                joinOnCondition);
+    }
+
+    public static STNode createOnClauseNode(
+            STNode onKeyword,
+            STNode lhsExpression,
+            STNode equalsKeyword,
+            STNode rhsExpression) {
+
+        return new STOnClauseNode(
+                onKeyword,
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression);
+    }
+
+    public static STNode createLimitClauseNode(
+            STNode limitKeyword,
+            STNode expression) {
+
+        return new STLimitClauseNode(
+                limitKeyword,
+                expression);
+    }
+
+    public static STNode createOnConflictClauseNode(
+            STNode onKeyword,
+            STNode conflictKeyword,
+            STNode expression) {
+
+        return new STOnConflictClauseNode(
+                onKeyword,
+                conflictKeyword,
+                expression);
+    }
+
     public static STNode createQueryPipelineNode(
             STNode fromClause,
             STNode intermediateClauses) {
@@ -1512,15 +1562,24 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode queryConstructType,
             STNode queryPipeline,
             STNode selectClause,
-            STNode onConflictClause,
-            STNode limitClause) {
+            STNode onConflictClause) {
 
         return new STQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
                 selectClause,
-                onConflictClause,
-                limitClause);
+                onConflictClause);
+    }
+
+    public static STNode createQueryActionNode(
+            STNode queryPipeline,
+            STNode doKeyword,
+            STNode blockStatement) {
+
+        return new STQueryActionNode(
+                queryPipeline,
+                doKeyword,
+                blockStatement);
     }
 
     public static STNode createIntersectionTypeDescriptorNode(
@@ -1815,19 +1874,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 annotTagReference);
     }
 
-    public static STNode createQueryActionNode(
-            STNode queryPipeline,
-            STNode doKeyword,
-            STNode blockStatement,
-            STNode limitClause) {
-
-        return new STQueryActionNode(
-                queryPipeline,
-                doKeyword,
-                blockStatement,
-                limitClause);
-    }
-
     public static STNode createOptionalFieldAccessExpressionNode(
             STNode expression,
             STNode optionalChainingToken,
@@ -2067,56 +2113,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STDistinctTypeDescriptorNode(
                 distinctKeyword,
                 typeDescriptor);
-    }
-
-    public static STNode createOnConflictClauseNode(
-            STNode onKeyword,
-            STNode conflictKeyword,
-            STNode expression) {
-
-        return new STOnConflictClauseNode(
-                onKeyword,
-                conflictKeyword,
-                expression);
-    }
-
-    public static STNode createLimitClauseNode(
-            STNode limitKeyword,
-            STNode expression) {
-
-        return new STLimitClauseNode(
-                limitKeyword,
-                expression);
-    }
-
-    public static STNode createJoinClauseNode(
-            STNode outerKeyword,
-            STNode joinKeyword,
-            STNode typedBindingPattern,
-            STNode inKeyword,
-            STNode expression,
-            STNode joinOnCondition) {
-
-        return new STJoinClauseNode(
-                outerKeyword,
-                joinKeyword,
-                typedBindingPattern,
-                inKeyword,
-                expression,
-                joinOnCondition);
-    }
-
-    public static STNode createOnClauseNode(
-            STNode onKeyword,
-            STNode lhsExpression,
-            STNode equalsKeyword,
-            STNode rhsExpression) {
-
-        return new STOnClauseNode(
-                onKeyword,
-                lhsExpression,
-                equalsKeyword,
-                rhsExpression);
     }
 
     public static STNode createListMatchPatternNode(
