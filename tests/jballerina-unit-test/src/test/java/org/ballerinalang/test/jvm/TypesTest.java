@@ -224,6 +224,11 @@ public class TypesTest {
     }
 
     @Test
+    public void testClosedArrayType() {
+        BRunUtil.invoke(compileResult, "testClosedArrayType");
+    }
+
+    @Test
     public void testEmptyArrayType() {
         BRunUtil.invoke(compileResult, "testEmptyArrayType");
     }

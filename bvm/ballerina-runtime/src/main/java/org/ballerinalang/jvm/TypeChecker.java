@@ -1005,18 +1005,25 @@ public class TypeChecker {
             if (tupleTypes.isEmpty()) {
                 return targetType.getState() == ArrayState.UNSEALED || targetType.getSize() == 0;
             }
+
+            if (sourceTupleType.getRestType() != null && targetType.getState() == ArrayState.UNSEALED) {
+                return targetType.getElementType().getTag() == sourceTupleType.getRestType().getTag();
+            }
+
             sourceArrayType =
                     new BArrayType(new BUnionType(new ArrayList<>(tupleTypes), sourceTupleType.getTypeFlags()));
         }
+
+        BType targetElementType = targetType.getElementType();
+        int targetElementTypeTag = targetElementType.getTag();
+        BType sourceElementType = sourceArrayType.getElementType();
 
         switch (sourceArrayType.getState()) {
             case UNSEALED:
                 if (targetType.getState() != ArrayState.UNSEALED) {
                     return false;
-                } else if (targetType.getState() == ArrayState.UNSEALED) {
-                    return true;
                 }
-            break;
+                break;
             case CLOSED_SEALED:
                 if (targetType.getState() == ArrayState.CLOSED_SEALED &&
                         sourceArrayType.getSize() != targetType.getSize()) {
@@ -1024,12 +1031,6 @@ public class TypeChecker {
                 }
                 break;
         }
-
-        //If element type is a value type, then check same type
-        BType targetElementType = targetType.getElementType();
-        int targetElementTypeTag = targetElementType.getTag();
-
-        BType sourceElementType = sourceArrayType.getElementType();
 
         if (targetElementTypeTag <= TypeTags.BOOLEAN_TAG) {
             if (targetElementTypeTag == TypeTags.INT_TAG && sourceElementType.getTag() == TypeTags.BYTE_TAG) {
@@ -1070,11 +1071,20 @@ public class TypeChecker {
                     if (targetRestType == null) {
                         return false;
                     } else {
-                        return true;
+                        return sourceArrayType.getElementType().getTag() == targetRestType.getTag();
                     }
                 case CLOSED_SEALED:
                     if (targetRestType == null && sourceArrayType.getSize() != targetTypes.size()) {
                         return false;
+                    } else if (targetRestType != null && sourceArrayType.getSize() == targetTypes.size()) {
+                        boolean isSameType = true;
+
+                        for (int i = 0; i < sourceArrayType.getSize(); i++) {
+                            if (sourceArrayType.getElementType().getTag() != targetTypes.get(i).getTag()) {
+                                isSameType = false;
+                            }
+                        }
+                        return isSameType;
                     }
                     break;
             }
