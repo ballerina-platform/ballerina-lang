@@ -102,8 +102,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -193,7 +191,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
@@ -2935,8 +2932,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression matchExpr = matchStatement.expr;
         BLangSimpleVariable matchExprVar = ASTBuilderUtil.createVariable(matchExpr.pos,
                 matchExprVarName, matchExpr.type, matchExpr, new BVarSymbol(0,
-                        names.fromString(matchExprVarName),
-                        this.env.scope.owner.pkgID, matchExpr.type, this.env.scope.owner));
+                        names.fromString(matchExprVarName), this.env.scope.owner.pkgID, matchExpr.type,
+                        this.env.scope.owner, matchExpr.pos, VIRTUAL));
 
         BLangSimpleVariableDef matchExprVarDef = ASTBuilderUtil.createVariableDef(matchBlockStmt.pos, matchExprVar);
         matchBlockStmt.stmts.add(matchExprVarDef);

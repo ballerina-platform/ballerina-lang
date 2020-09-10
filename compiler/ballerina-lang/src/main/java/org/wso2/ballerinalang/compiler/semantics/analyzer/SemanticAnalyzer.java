@@ -2362,7 +2362,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCaptureBindingPattern captureBindingPattern) {
         captureBindingPattern.symbol = new BVarSymbol(0, new Name(captureBindingPattern.getIdentifier().getValue()),
-                env.enclPkg.packageID, symTable.anyType, env.scope.owner);
+                env.enclPkg.packageID, symTable.anyType, env.scope.owner, captureBindingPattern.pos, SOURCE);
         symbolEnter.defineSymbol(captureBindingPattern.pos, captureBindingPattern.symbol, env);
     }
 
