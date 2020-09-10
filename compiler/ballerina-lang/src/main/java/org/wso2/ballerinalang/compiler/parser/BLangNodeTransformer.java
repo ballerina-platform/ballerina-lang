@@ -865,7 +865,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
                     if (objectTypeNode.initFunction == null) {
                         bLangFunction.objInitFunction = true;
-                        // TODO: verify removing NULL check for objectTypeNode.initFunction has no side-effects
                         objectTypeNode.initFunction = bLangFunction;
                     } else {
                         objectTypeNode.addFunction(bLangFunction);

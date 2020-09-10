@@ -363,8 +363,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
         rewrite(objectTypeNode.functions);
         rewrite(objectTypeNode.fields);
-        objectTypeNode.initFunction = rewrite(objectTypeNode.initFunction);
-        objectTypeNode.receiver = rewrite(objectTypeNode.receiver);
         result = objectTypeNode;
     }
 

@@ -224,7 +224,6 @@ public class EnvironmentResolver extends BLangNodeVisitor {
             SymbolEnv env = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, this.symbolEnv);
             this.scope = env;
             objectTypeNode.getFunctions().forEach(function -> this.acceptNode(function, env));
-            this.acceptNode((BLangNode) objectTypeNode.getInitFunction(), env);
         }
     }
 

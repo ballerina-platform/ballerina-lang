@@ -1418,48 +1418,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
-        this.currDependentSymbol.push(objectTypeNode.symbol);
-
-        objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
-        objectTypeNode.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
-
-        // Visit the constructor with the same scope as the object
-        if (objectTypeNode.initFunction != null) {
-            if (objectTypeNode.initFunction.body == null) {
-                // if the init() function is defined as an outside function definition
-                Optional<BLangFunction> outerFuncDef =
-                        objectEnv.enclPkg.functions.stream()
-                                .filter(f -> f.symbol.name.equals((objectTypeNode.initFunction).symbol.name))
-                                .findFirst();
-                outerFuncDef.ifPresent(bLangFunction -> objectTypeNode.initFunction = bLangFunction);
-            }
-
-            if (objectTypeNode.initFunction.body != null) {
-                if (objectTypeNode.initFunction.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
-                    for (BLangStatement statement :
-                            ((BLangBlockFunctionBody) objectTypeNode.initFunction.body).stmts) {
-                        analyzeNode(statement, objectEnv);
-                    }
-                } else if (objectTypeNode.initFunction.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
-                    analyzeNode(((BLangExprFunctionBody) objectTypeNode.initFunction.body).expr, objectEnv);
-                }
-            }
-        }
-
-        if (Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.CLASS)) {
-            Stream.concat(objectTypeNode.fields.stream(), objectTypeNode.referencedFields.stream())
-                .filter(field -> !Symbols.isPrivate(field.symbol))
-                .forEach(field -> {
-                    if (this.uninitializedVars.containsKey(field.symbol)) {
-                        this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
-                    }
-                });
-        }
-
-        objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
-        objectTypeNode.getTypeReferences().forEach(type -> analyzeNode((BLangType) type, env));
-        this.currDependentSymbol.pop();
     }
 
     @Override
