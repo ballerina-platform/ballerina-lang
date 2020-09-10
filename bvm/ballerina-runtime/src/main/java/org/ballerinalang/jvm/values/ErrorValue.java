@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
@@ -79,23 +80,24 @@ public class ErrorValue extends BError implements RefValue {
         if (isEmptyDetail()) {
             return "error " + getModuleName() + " (" + message.getValue() + ")";
         }
-
-        return "error " + getModuleName() + " (" + message.getValue() + getCauseToString() + getDetailToString() + ")";
+        return "error " + getModuleName() + " (" + message.getValue() + getCauseToString() + getDetailsToString() + ")";
     }
 
     private String getCauseToString() {
         if (cause != null) {
-            return ", " + cause.informalStringValue();
+            return ", " + ((BValue) cause).informalStringValue();
         }
         return "";
     }
 
-    private String getDetailToString() {
+    private String getDetailsToString() {
         return ", " + ((BValue) details).informalStringValue();
     }
 
     private String getModuleName() {
-        return BallerinaErrorReasons.getModulePrefixedReason(this.type.getPackage().name, this.type.getName());
+        return (type.getPackage().org != null && type.getPackage().org.equals("$anon")) ||
+                type.getPackage().name == null ? type.getName() :
+                BallerinaErrorReasons.getModulePrefixedReason(type.getPackage().name, type.getName());
     }
 
     @Override
