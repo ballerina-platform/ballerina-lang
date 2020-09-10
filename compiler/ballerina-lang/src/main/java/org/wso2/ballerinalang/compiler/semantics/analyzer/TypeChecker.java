@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -200,6 +201,8 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_NUM_INSERTIONS;
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_NUM_STRINGS;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -1031,7 +1034,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BRecordType createTableConstraintRecordType(Set<BField> allFieldSet, DiagnosticPos pos) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
-        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, pos);
+        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, pos, VIRTUAL);
 
         for (BField field : allFieldSet) {
             recordSymbol.scope.define(field.name, field.symbol);
@@ -1630,7 +1633,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         PackageID pkgID = env.enclPkg.symbol.pkgID;
-        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, recordLiteral.pos);
+        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, recordLiteral.pos, VIRTUAL);
 
         LinkedHashMap<String, BField> newFields = new LinkedHashMap<>();
 
@@ -1652,7 +1655,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 add(Flag.REQUIRED);
                 add(Flag.READONLY);
             }}), fieldName, pkgID, readOnlyFieldType, recordSymbol,
-                                                    ((BLangNode) field).pos);
+                                                    ((BLangNode) field).pos, VIRTUAL);
             newFields.put(key, new BField(fieldName, null, fieldSymbol));
             recordSymbol.scope.define(fieldName, fieldSymbol);
         }
@@ -1682,7 +1685,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BVarSymbol fieldSymbol = new BVarSymbol(origFieldFlags, field.name, pkgID,
-                                                        origFieldSymbol.type, recordSymbol, field.pos);
+                                                        origFieldSymbol.type, recordSymbol, field.pos, VIRTUAL);
                 newFields.put(fieldName, new BField(field.name, null, fieldSymbol));
                 recordSymbol.scope.define(field.name, fieldSymbol);
             }
@@ -2091,7 +2094,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
             }
             varRefExpr.symbol = new BVarSymbol(0, varName, env.enclPkg.symbol.pkgID, varRefExpr.type, env.scope.owner,
-                                               varRefExpr.pos);
+                                               varRefExpr.pos, VIRTUAL);
             resultType = varRefExpr.type;
             return;
         }
@@ -2167,7 +2170,7 @@ public class TypeChecker extends BLangNodeVisitor {
         String recordName = this.anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.symbol.pkgID);
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(recordName),
                                                                     env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                    varRefExpr.pos);
+                                                                    varRefExpr.pos, SOURCE);
         symbolEnter.defineSymbol(varRefExpr.pos, recordSymbol, env);
 
         boolean unresolvedReference = false;
@@ -2183,7 +2186,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BField field = new BField(names.fromIdNode(recordRefField.variableName), varRefExpr.pos,
                                       new BVarSymbol(0, names.fromIdNode(recordRefField.variableName),
                                                      env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol,
-                                                     varRefExpr.pos));
+                                                     varRefExpr.pos, SOURCE));
             fields.put(field.name.value, field);
         }
 
@@ -2202,7 +2205,8 @@ public class TypeChecker extends BLangNodeVisitor {
         bRecordType.fields = fields;
         recordSymbol.type = bRecordType;
         varRefExpr.symbol = new BVarSymbol(0, recordSymbol.name,
-                                           env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner, varRefExpr.pos);
+                                           env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner, varRefExpr.pos,
+                                           SOURCE);
 
         if (restParam == null) {
             bRecordType.sealed = true;
@@ -3018,12 +3022,12 @@ public class TypeChecker extends BLangNodeVisitor {
         Name fieldName = Names.VALUE;
         BField field = new BField(fieldName, pos, new BVarSymbol(Flags.PUBLIC,
                                                                  fieldName, env.enclPkg.packageID,
-                                                                 streamType.constraint, env.scope.owner, pos));
+                                                                 streamType.constraint, env.scope.owner, pos, VIRTUAL));
         field.type = streamType.constraint;
         recordType.fields.put(field.name.value, field);
 
         recordType.tsymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.packageID,
-                                                        recordType, env.scope.owner, pos);
+                                                        recordType, env.scope.owner, pos, VIRTUAL);
         recordType.tsymbol.scope = new Scope(env.scope.owner);
         recordType.tsymbol.scope.define(fieldName, field.symbol);
 
@@ -3036,7 +3040,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BUnionType unionType = BUnionType.create(null, retTypeMembers);
         unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0, Names.EMPTY,
-                env.enclPkg.symbol.pkgID, unionType, env.scope.owner, pos);
+                env.enclPkg.symbol.pkgID, unionType, env.scope.owner, pos, VIRTUAL);
 
         return unionType;
     }
@@ -3065,7 +3069,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BUnionType unionType = BUnionType.create(null, retTypeMembers);
             unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0,
                                                          Names.EMPTY, env.enclPkg.symbol.pkgID, unionType,
-                                                         env.scope.owner, symTable.builtinPos);
+                                                         env.scope.owner, symTable.builtinPos, VIRTUAL);
             return unionType;
         } else if (initRetType.tag == TypeTags.NIL) {
             return objType;
@@ -3277,13 +3281,14 @@ public class TypeChecker extends BLangNodeVisitor {
             BType fieldType = symbol.type.tag == TypeTags.FUTURE ? ((BFutureType) symbol.type).constraint : symbol.type;
             BField field = new BField(names.fromIdNode(keyVal.key), null,
                                       new BVarSymbol(0, names.fromIdNode(keyVal.key), env.enclPkg.packageID,
-                                                     fieldType, null, keyVal.pos));
+                                                     fieldType, null, keyVal.pos, VIRTUAL));
             retType.fields.put(field.name.value, field);
         }
 
         retType.restFieldType = symTable.noType;
         retType.sealed = true;
-        retType.tsymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.packageID, retType, null, pos);
+        retType.tsymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.packageID, retType, null, pos,
+                                                     VIRTUAL);
         return retType;
     }
 
@@ -3850,7 +3855,8 @@ public class TypeChecker extends BLangNodeVisitor {
             pkgSymbol.isUsed = true;
             String nsURI = constVal.substring(s + 1, e);
             String local = constVal.substring(e);
-            return new BXMLNSSymbol(names.fromString(local), nsURI, constantSymbol.pkgID, constantSymbol.owner, pos);
+            return new BXMLNSSymbol(names.fromString(local), nsURI, constantSymbol.pkgID, constantSymbol.owner, pos,
+                                    SOURCE);
         }
 
         // Resolved const string is not in valid format.
@@ -4998,9 +5004,10 @@ public class TypeChecker extends BLangNodeVisitor {
             // error in provided error details
             return null;
         }
+
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(
                 SymTag.RECORD, targetErrorDetailsType.tsymbol.flags, Names.EMPTY, targetErrorDetailsType.tsymbol.pkgID,
-                symTable.recordType, null, targetErrorDetailsType.tsymbol.pos);
+                symTable.recordType, null, targetErrorDetailsType.tsymbol.pos, VIRTUAL);
         BRecordType recordType = new BRecordType(recordTypeSymbol);
         recordType.sealed = targetErrorDetailsType.sealed;
         recordType.restFieldType = targetErrorDetailsType.restFieldType;
@@ -5008,7 +5015,8 @@ public class TypeChecker extends BLangNodeVisitor {
         Set<Name> availableErrorDetailFields = new HashSet<>();
         for (BLangNamedArgsExpression arg : namedArgs) {
             Name fieldName = names.fromIdNode(arg.name);
-            BField field = new BField(fieldName, arg.pos, new BVarSymbol(0, fieldName, null, arg.type, null, arg.pos));
+            BField field = new BField(fieldName, arg.pos,
+                                      new BVarSymbol(0, fieldName, null, arg.type, null, arg.pos, VIRTUAL));
             recordType.fields.put(field.name.value, field);
             availableErrorDetailFields.add(fieldName);
         }
@@ -5018,7 +5026,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (notRequired && !availableErrorDetailFields.contains(field.name)) {
                 BField defaultableField = new BField(field.name, iExpr.pos,
                                                      new BVarSymbol(field.symbol.flags, field.name, null, field.type,
-                                                                    null, iExpr.pos));
+                                                                    null, iExpr.pos, VIRTUAL));
                 recordType.fields.put(defaultableField.name.value, defaultableField);
             }
         }
@@ -6978,7 +6986,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType defineInferredRecordType(BLangRecordLiteral recordLiteral, BType expType) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
-        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, recordLiteral.pos);
+        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, recordLiteral.pos, VIRTUAL);
 
         Map<String, FieldInfo> nonRestFieldTypes = new LinkedHashMap<>();
         List<BType> restFieldTypes = new ArrayList<>();
@@ -7068,7 +7076,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, pkgID, type, recordSymbol,
-                                                    symTable.builtinPos);
+                                                    symTable.builtinPos, VIRTUAL);
             fields.put(fieldName.value, new BField(fieldName, null, fieldSymbol));
             recordSymbol.scope.define(fieldName, fieldSymbol);
         }
@@ -7105,15 +7113,15 @@ public class TypeChecker extends BLangNodeVisitor {
         return recordType;
     }
 
-    private BRecordTypeSymbol createRecordTypeSymbol(PackageID pkgID, DiagnosticPos pos) {
+    private BRecordTypeSymbol createRecordTypeSymbol(PackageID pkgID, DiagnosticPos pos, SymbolOrigin origin) {
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(0, names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID)),
-                                           pkgID, null, env.scope.owner, pos);
+                                           pkgID, null, env.scope.owner, pos, origin);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
                 Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false,
-                symTable.builtinPos);
+                symTable.builtinPos, VIRTUAL);
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
                                                              bInvokableType, pos);
