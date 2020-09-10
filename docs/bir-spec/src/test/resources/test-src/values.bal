@@ -305,7 +305,7 @@ public type AnotherDetail record {
 public const REASON_1 = "Reason1";
 public type FirstError distinct error<AnotherDetail>;
 
-public type Student object {
+public class Student {
 
     string name;
     string school;
@@ -318,9 +318,9 @@ public type Student object {
     public function getDetails() returns string {
         return self.name + " from " + self.school;
     }
-};
+}
 
-public type Teacher object {
+public class Teacher {
 
     string name;
     string school;
@@ -337,7 +337,7 @@ public type Teacher object {
     public function toString() returns string {
         return self.getDetails();
     }
-};
+}
 
 function testToString() returns string[] {
     int varInt = 6;
@@ -994,15 +994,14 @@ public function functionWithRangeExpressions() {
     foreach int i in 25 ..< 28 {
         // do nothing
     }
-
-    abstract object {
+     object {
         public function __iterator() returns
-            abstract object {
+            object {
                 public function next() returns record {|int value;|}?;
             };
     } iterableObj = 25 ..< 28;
 
-    abstract object {
+    object {
             public function next() returns (record {|int value;|}?);
     } iterator = iterableObj.__iterator();
 

@@ -21,7 +21,7 @@
 #
 # + fieldOne - This is the description of the `DummyObject`'s `fieldOne` field.
 # + fieldTwo - This is the description of the `DummyObject`'s `fieldTwo` field.
-public type DummyObject abstract object {
+public type DummyObject object {
 
     public string fieldOne;
     public string fieldTwo;
@@ -73,7 +73,7 @@ public type Address record {|
 |};
 
 @deprecated
-public type Person object {
+public class Person {
     public string firstName = "John";
     public string lastName = "Doe";
 
