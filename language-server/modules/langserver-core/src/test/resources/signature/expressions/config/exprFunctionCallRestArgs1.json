@@ -1,0 +1,43 @@
+{
+    "position": {
+        "line": 106,
+        "character": 20
+    },
+    "source": "expressions/expressions.bal",
+	"expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "fooR(float a, int... b)",
+                    "parameters": [
+                        {
+                            "label": {
+                                "left": "float a"
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`float`a**: "
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "left": "int... b"
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int...`b**: "
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 1
+        },
+        "jsonrpc": "2.0"
+    }
+}
