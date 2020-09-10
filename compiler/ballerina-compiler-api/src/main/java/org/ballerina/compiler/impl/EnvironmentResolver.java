@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -216,6 +217,18 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         typeDefinition.getAnnotationAttachments().forEach(annotations -> this.acceptNode(annotations, this.symbolEnv));
         this.acceptNode(typeDefinition.typeNode, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        if (this.withinBlock(classDefinition.getPosition())) {
+            SymbolEnv env = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, this.symbolEnv);
+            this.scope = env;
+            classDefinition.getFunctions().forEach(function -> this.acceptNode(function, env));
+            if (classDefinition.initFunction != null) {
+                this.acceptNode(classDefinition.initFunction, env);
+            }
+        }
     }
 
     @Override
