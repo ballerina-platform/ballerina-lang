@@ -20,7 +20,6 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -45,10 +44,6 @@ public class QueryActionNode extends ActionNode {
         return childInBucket(2);
     }
 
-    public Optional<LimitClauseNode> limitClause() {
-        return optionalChildInBucket(3);
-    }
-
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -64,28 +59,24 @@ public class QueryActionNode extends ActionNode {
         return new String[]{
                 "queryPipeline",
                 "doKeyword",
-                "blockStatement",
-                "limitClause"};
+                "blockStatement"};
     }
 
     public QueryActionNode modify(
             QueryPipelineNode queryPipeline,
             Token doKeyword,
-            BlockStatementNode blockStatement,
-            LimitClauseNode limitClause) {
+            BlockStatementNode blockStatement) {
         if (checkForReferenceEquality(
                 queryPipeline,
                 doKeyword,
-                blockStatement,
-                limitClause)) {
+                blockStatement)) {
             return this;
         }
 
         return NodeFactory.createQueryActionNode(
                 queryPipeline,
                 doKeyword,
-                blockStatement,
-                limitClause);
+                blockStatement);
     }
 
     public QueryActionNodeModifier modify() {
@@ -102,14 +93,12 @@ public class QueryActionNode extends ActionNode {
         private QueryPipelineNode queryPipeline;
         private Token doKeyword;
         private BlockStatementNode blockStatement;
-        private LimitClauseNode limitClause;
 
         public QueryActionNodeModifier(QueryActionNode oldNode) {
             this.oldNode = oldNode;
             this.queryPipeline = oldNode.queryPipeline();
             this.doKeyword = oldNode.doKeyword();
             this.blockStatement = oldNode.blockStatement();
-            this.limitClause = oldNode.limitClause().orElse(null);
         }
 
         public QueryActionNodeModifier withQueryPipeline(
@@ -133,19 +122,11 @@ public class QueryActionNode extends ActionNode {
             return this;
         }
 
-        public QueryActionNodeModifier withLimitClause(
-                LimitClauseNode limitClause) {
-            Objects.requireNonNull(limitClause, "limitClause must not be null");
-            this.limitClause = limitClause;
-            return this;
-        }
-
         public QueryActionNode apply() {
             return oldNode.modify(
                     queryPipeline,
                     doKeyword,
-                    blockStatement,
-                    limitClause);
+                    blockStatement);
         }
     }
 }

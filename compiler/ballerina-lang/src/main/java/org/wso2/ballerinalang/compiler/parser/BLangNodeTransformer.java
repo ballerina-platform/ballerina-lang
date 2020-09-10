@@ -1488,12 +1488,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         doClause.pos = doClause.body.pos;
         bLQueryAction.queryClauseList.add(queryActionNode.queryPipeline().fromClause().apply(this));
         bLQueryAction.queryClauseList.addAll(applyAll(queryActionNode.queryPipeline().intermediateClauses()));
-
-        Optional<LimitClauseNode> limit = queryActionNode.limitClause();
-        if (limit.isPresent()) {
-            bLQueryAction.queryClauseList.add(limit.get().apply(this));
-        }
-
         bLQueryAction.queryClauseList.add(doClause);
         bLQueryAction.doClause = doClause;
         bLQueryAction.pos = getPosition(queryActionNode);
@@ -3228,14 +3222,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         queryExpr.queryClauseList.add(selectClause);
 
         Optional<OnConflictClauseNode> onConflict = queryExprNode.onConflictClause();
-        if (onConflict.isPresent()) {
-            queryExpr.queryClauseList.add(onConflict.get().apply(this));
-        }
-
-        Optional<LimitClauseNode> limit = queryExprNode.limitClause();
-        if (limit.isPresent()) {
-            queryExpr.queryClauseList.add(limit.get().apply(this));
-        }
+        onConflict.ifPresent(onConflictClauseNode -> queryExpr.queryClauseList.add(onConflictClauseNode.apply(this)));
 
         boolean isTable = false;
         boolean isStream = false;

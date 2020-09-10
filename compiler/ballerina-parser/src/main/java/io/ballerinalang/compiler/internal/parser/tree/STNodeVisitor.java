@@ -509,6 +509,22 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(letClauseNode);
     }
 
+    public void visit(STJoinClauseNode joinClauseNode) {
+        visitSyntaxNode(joinClauseNode);
+    }
+
+    public void visit(STOnClauseNode onClauseNode) {
+        visitSyntaxNode(onClauseNode);
+    }
+
+    public void visit(STLimitClauseNode limitClauseNode) {
+        visitSyntaxNode(limitClauseNode);
+    }
+
+    public void visit(STOnConflictClauseNode onConflictClauseNode) {
+        visitSyntaxNode(onConflictClauseNode);
+    }
+
     public void visit(STQueryPipelineNode queryPipelineNode) {
         visitSyntaxNode(queryPipelineNode);
     }
@@ -519,6 +535,10 @@ public abstract class STNodeVisitor {
 
     public void visit(STQueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
+    }
+
+    public void visit(STQueryActionNode queryActionNode) {
+        visitSyntaxNode(queryActionNode);
     }
 
     public void visit(STIntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
@@ -633,10 +653,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(annotAccessExpressionNode);
     }
 
-    public void visit(STQueryActionNode queryActionNode) {
-        visitSyntaxNode(queryActionNode);
-    }
-
     public void visit(STOptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
         visitSyntaxNode(optionalFieldAccessExpressionNode);
     }
@@ -719,22 +735,6 @@ public abstract class STNodeVisitor {
 
     public void visit(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         visitSyntaxNode(distinctTypeDescriptorNode);
-    }
-
-    public void visit(STOnConflictClauseNode onConflictClauseNode) {
-        visitSyntaxNode(onConflictClauseNode);
-    }
-
-    public void visit(STLimitClauseNode limitClauseNode) {
-        visitSyntaxNode(limitClauseNode);
-    }
-
-    public void visit(STJoinClauseNode joinClauseNode) {
-        visitSyntaxNode(joinClauseNode);
-    }
-
-    public void visit(STOnClauseNode onClauseNode) {
-        visitSyntaxNode(onClauseNode);
     }
 
     public void visit(STListMatchPatternNode listMatchPatternNode) {
