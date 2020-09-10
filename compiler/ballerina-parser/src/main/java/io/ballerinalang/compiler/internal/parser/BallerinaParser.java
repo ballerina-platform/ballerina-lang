@@ -815,7 +815,7 @@ public class BallerinaParser extends AbstractParser {
     private void reportInvalidQualifier(STNode qualifier) {
         if (qualifier != null && qualifier.kind != SyntaxKind.NONE) {
             addInvalidNodeToNextToken(qualifier, DiagnosticErrorCode.ERROR_INVALID_QUALIFIER,
-                    qualifier.toString().trim());
+                    ((STToken) qualifier).text());
         }
     }
 
@@ -997,7 +997,7 @@ public class BallerinaParser extends AbstractParser {
                 visibilityQualifier = qualifier;
             } else {
                 typeDesc = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDesc, qualifier,
-                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
             }
         }
 
@@ -4692,10 +4692,11 @@ public class BallerinaParser extends AbstractParser {
             if (diagnosticCode != null) {
                 // If the qualifier list is empty add invalid node as minutiae to the next token.
                 if (qualifierList.size() == 0) {
-                    addInvalidNodeToNextToken(qualifier, diagnosticCode, qualifier.toString().trim());
+                    addInvalidNodeToNextToken(qualifier, diagnosticCode, ((STToken) qualifier).text());
                 } else {
                     // If the qualifier list is not empty add invalid node to the last node in the list.
-                    updateLastNodeInListWithInvalidNode(qualifierList, qualifier, diagnosticCode);
+                    updateLastNodeInListWithInvalidNode(qualifierList, qualifier, diagnosticCode,
+                            ((STToken) qualifier).text());
                 }
             } else {
                 qualifierList.add(qualifier);
