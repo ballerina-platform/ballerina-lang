@@ -27,6 +27,9 @@ import syntax.tree.SyntaxKind;
 import java.util.ArrayList;
 import java.util.List;
 
+import static syntax.tree.SyntaxKind.DOUBLE_OPEN_BRACKET_TOKEN;
+import static syntax.tree.SyntaxKind.EOF_TOKEN;
+import static syntax.tree.SyntaxKind.OPEN_BRACKET_TOKEN;
 import static syntax.tree.SyntaxKind.UNQUOTED_KEY_TOKEN;
 
 /**
@@ -41,25 +44,12 @@ public class TomlParser extends AbstractParser {
     }
 
     /**
-     * Start parsing the given input.
+     * Parse a given input and returns the AST. Starts parsing from the top of a compilation unit.
      *
      * @return Parsed node
      */
     @Override
     public STNode parse() {
-        return parseCompUnit();
-    }
-
-    /*
-     * Private methods.
-     */
-
-    /**
-     * Parse a given input and returns the AST. Starts parsing from the top of a compilation unit.
-     *
-     * @return Parsed node
-     */
-    private STNode parseCompUnit() {
         startContext(ParserRuleContext.TOP_LEVEL_NODE);
         List<STNode> topLevelNodes = new ArrayList<>();
         STToken token = peek();
@@ -126,7 +116,7 @@ public class TomlParser extends AbstractParser {
     private List<STNode> parseKeyValues() {
         List<STNode> fields = new ArrayList<>();
         STToken nextNode = peek();
-        while (nextNode.kind.equals(UNQUOTED_KEY_TOKEN)){ //TODO revisit child key value bug
+        while (!(nextNode.kind == OPEN_BRACKET_TOKEN || nextNode.kind == DOUBLE_OPEN_BRACKET_TOKEN || nextNode.kind == EOF_TOKEN)){
             STNode stNode = parseKeyValue();
             fields.add(stNode);
             nextNode = peek();

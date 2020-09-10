@@ -1,1 +1,15 @@
-key]]
+rootKey = 22
+rootKey1 = "rootValue1"
+
+[table.hi.lol]
+"ew" = "yay"
+
+[table]
+key  = "sdsad"
+key1 = "eeww"
+[table.hi]
+ew = "yay"
+
+
+[main]
+lel ="uad"

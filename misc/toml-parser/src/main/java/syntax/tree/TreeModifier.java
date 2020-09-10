@@ -52,8 +52,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(tableNode.identifier());
         Token closeBracket =
                 modifyToken(tableNode.closeBracket());
-        SeparatedNodeList<Node> fields =
-                modifySeparatedNodeList(tableNode.fields());
+        NodeList<Node> fields =
+                modifyNodeList(tableNode.fields());
         return tableNode.modify(
                 openBracket,
                 identifier,
@@ -79,12 +79,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public KeyValue transform(
             KeyValue keyValue) {
-        IdentifierToken identifier =
-                modifyNode(keyValue.identifier());
+        Token identifier =
+                modifyToken(keyValue.identifier());
         Token assign =
                 modifyToken(keyValue.assign());
-        Node value =
-                modifyNode(keyValue.value());
+        Token value =
+                modifyToken(keyValue.value());
         return keyValue.modify(
                 identifier,
                 assign,
@@ -113,7 +113,42 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     protected <T extends Node> SeparatedNodeList<T> modifySeparatedNodeList(SeparatedNodeList<T> nodeList) {
-        return modifyGenericNodeList(nodeList, SeparatedNodeList::new);
+        Function<NonTerminalNode, SeparatedNodeList> nodeListCreator = SeparatedNodeList::new;
+        if (nodeList.isEmpty()) {
+            return nodeList;
+        }
+
+        boolean nodeModified = false;
+        STNode[] newSTNodes = new STNode[nodeList.internalListNode.size()];
+
+        for (int index = 0; index < nodeList.size(); index++) {
+            T oldNode = nodeList.get(index);
+            T newNode = modifyNode(oldNode);
+            if (oldNode != newNode) {
+                nodeModified = true;
+            }
+
+            newSTNodes[2 * index] = newNode.internalNode();
+            if (index == nodeList.size() - 1) {
+                break;
+            }
+
+            Token oldSeperator = nodeList.getSeparator(index);
+            Token newSeperator = modifyToken(oldSeperator);
+
+            if (oldSeperator != newSeperator) {
+                nodeModified = true;
+            }
+
+            newSTNodes[(2 * index) + 1] = newSeperator.internalNode();
+        }
+
+        if (!nodeModified) {
+            return nodeList;
+        }
+
+        STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
+        return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
     }
 
     private <T extends Node, N extends NodeList<T>> N modifyGenericNodeList(

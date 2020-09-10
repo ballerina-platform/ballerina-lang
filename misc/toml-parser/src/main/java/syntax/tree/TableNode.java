@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class TableNode extends NonTerminalNode {
+public class TableNode extends ModuleMemberDeclarationNode {
 
     public TableNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
@@ -44,8 +44,8 @@ public class TableNode extends NonTerminalNode {
         return childInBucket(2);
     }
 
-    public SeparatedNodeList<Node> fields() {
-        return new SeparatedNodeList<>(childInBucket(3));
+    public NodeList<Node> fields() {
+        return new NodeList<>(childInBucket(3));
     }
 
     @Override
@@ -71,7 +71,7 @@ public class TableNode extends NonTerminalNode {
             Token openBracket,
             IdentifierToken identifier,
             Token closeBracket,
-            SeparatedNodeList<Node> fields) {
+            NodeList<Node> fields) {
         if (checkForReferenceEquality(
                 openBracket,
                 identifier,
@@ -101,7 +101,7 @@ public class TableNode extends NonTerminalNode {
         private Token openBracket;
         private IdentifierToken identifier;
         private Token closeBracket;
-        private SeparatedNodeList<Node> fields;
+        private NodeList<Node> fields;
 
         public TableNodeModifier(TableNode oldNode) {
             this.oldNode = oldNode;
@@ -133,7 +133,7 @@ public class TableNode extends NonTerminalNode {
         }
 
         public TableNodeModifier withFields(
-                SeparatedNodeList<Node> fields) {
+                NodeList<Node> fields) {
             Objects.requireNonNull(fields, "fields must not be null");
             this.fields = fields;
             return this;

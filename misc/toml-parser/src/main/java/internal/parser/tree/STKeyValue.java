@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STKeyValue extends STNode {
+public class STKeyValue extends STModuleMemberDeclarationNode {
     public final STNode identifier;
     public final STNode assign;
     public final STNode value;
