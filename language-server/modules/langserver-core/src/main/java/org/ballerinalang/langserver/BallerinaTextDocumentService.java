@@ -264,7 +264,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         sKind != SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
                         sKind != SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
                     sNode = sNode.parent();
-                    sKind = sNode.kind();
+                    sKind = (sNode != null) ? sNode.kind() : null;
+                }
+
+                if (sNode == null) {
+                    throw new Exception("Couldn't find the invocation symbol!");
                 }
 
                 // Find parameter index

@@ -53,6 +53,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * Class to generate Mock Functions.
  *
@@ -268,7 +270,8 @@ public class MockDesugar {
                 bLangPackage.packageID,
                 generateSymbolInvokableType(),
                 bLangPackage.symbol,
-                symTable.builtinPos
+                symTable.builtinPos,
+                VIRTUAL
         );
 
         return symbol;

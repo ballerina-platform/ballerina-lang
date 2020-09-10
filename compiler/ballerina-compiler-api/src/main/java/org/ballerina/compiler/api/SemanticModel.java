@@ -35,10 +35,11 @@ public interface SemanticModel {
     /**
      * Lookup the visible symbols at the given location.
      *
+     * @param fileName  path for the file in which we need to look up symbols, relative to the source root path
      * @param position text position in the source
      * @return {@link List} of visible symbols in the given location
      */
-    List<Symbol> visibleSymbols(LinePosition position);
+    List<Symbol> visibleSymbols(String fileName, LinePosition position);
 
     /**
      * Lookup the symbol at the given location.
