@@ -72,14 +72,11 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     public void sort(LSContext context, ModulePartNode node, List<LSCompletionItem> items, Object... metaData) {
         for (LSCompletionItem item : items) {
             CompletionItem cItem = item.getCompletionItem();
-            if (item instanceof SnippetCompletionItem
-                    && (((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.SNIPPET
-                    || ((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.STATEMENT)) {
+            if (this.isSnippetBlock(item)) {
                 cItem.setSortText(genSortText(1));
                 continue;
             }
-            if (item instanceof SnippetCompletionItem
-                    && ((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.KEYWORD) {
+            if (this.isKeyword(item)) {
                 cItem.setSortText(genSortText(2));
                 continue;
             }
@@ -93,5 +90,16 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             }
             cItem.setSortText(genSortText(5));
         }
+    }
+    
+    private boolean isSnippetBlock(LSCompletionItem completionItem) {
+        return completionItem instanceof SnippetCompletionItem
+                && (((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.SNIPPET
+                || ((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.STATEMENT);
+    }
+    
+    private boolean isKeyword(LSCompletionItem completionItem) {
+        return completionItem instanceof SnippetCompletionItem
+                && ((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.KEYWORD;
     }
 }

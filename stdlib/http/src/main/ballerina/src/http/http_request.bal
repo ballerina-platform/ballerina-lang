@@ -19,6 +19,7 @@ import ballerina/mime;
 import ballerina/stringutils;
 import ballerina/java;
 import ballerina/time;
+import ballerina/lang.array;
 
 # Represents an HTTP request.
 #
@@ -534,7 +535,14 @@ public type Request object {
     # + cookiesToAdd - Represents the cookies to be added
     public function addCookies(Cookie[] cookiesToAdd) {
         string cookieheader = "";
-        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+        Cookie[] sortedCookies = cookiesToAdd.sort(array:ASCENDING, function(Cookie c) returns int {
+            var cookiePath = c.path;
+            int l = 0;
+            if (cookiePath is string) {
+                l = cookiePath.length();
+            }
+            return l;
+        });
         foreach var cookie in sortedCookies {
             var cookieName = cookie.name;
             var cookieValue = cookie.value;

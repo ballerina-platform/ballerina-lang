@@ -2241,14 +2241,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode typedBindingPattern = modifyNode(joinClauseNode.typedBindingPattern);
         STNode inKeyword = modifyNode(joinClauseNode.inKeyword);
         STNode expression = modifyNode(joinClauseNode.expression);
-        STNode onCondition = modifyNode(joinClauseNode.onCondition);
+        STNode joinOnCondition = modifyNode(joinClauseNode.joinOnCondition);
         return joinClauseNode.modify(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
                 expression,
-                onCondition);
+                joinOnCondition);
     }
 
     @Override
