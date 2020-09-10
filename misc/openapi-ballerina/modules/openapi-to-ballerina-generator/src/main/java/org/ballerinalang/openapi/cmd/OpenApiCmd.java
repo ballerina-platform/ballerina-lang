@@ -270,9 +270,8 @@ public class OpenApiCmd implements BLauncherCmd {
 
         try {
             assert resourcePath != null;
-            Path relativeResourcePath = Paths.get(executionPath.toString(), serviceName);
             generator.generateService(executionPath.toString(), resourcePath.toString(),
-                    relativeResourcePath.toString(), serviceName, targetOutputPath.toString(), filter);
+                    resourcePath.toString(), serviceName, targetOutputPath.toString(), filter);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
                     "contract at " + argList.get(0) + ". " + e.getMessage() + ".");
