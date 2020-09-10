@@ -78,20 +78,20 @@ public class ErrorValue extends BError implements RefValue {
     @Override
     public String stringValue() {
         if (isEmptyDetail()) {
-            return "error " + getModuleName() + " (" + message.getValue() + ")";
+            return "error " + getModuleName() + " (message=" + message.getValue() + ")";
         }
-        return "error " + getModuleName() + " (" + message.getValue() + getCauseToString() + getDetailsToString() + ")";
+        return "error " + getModuleName() + " (message=" + message.getValue() + getCauseToString() + getDetailsToString() + ")";
     }
 
     private String getCauseToString() {
         if (cause != null) {
-            return ", " + ((BValue) cause).informalStringValue();
+            return ", cause=" + ((BValue) cause).informalStringValue();
         }
         return "";
     }
 
     private String getDetailsToString() {
-        return ", " + ((BValue) details).informalStringValue();
+        return ", detail=" + ((BValue) details).informalStringValue();
     }
 
     private String getModuleName() {
