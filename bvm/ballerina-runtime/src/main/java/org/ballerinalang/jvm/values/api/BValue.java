@@ -28,10 +28,11 @@ import org.ballerinalang.jvm.types.BType;
  */
 public interface BValue {
 
+    @Deprecated
     String stringValue();
 
     default String informalStringValue() {
-        return stringValue();
+        return toString();
     }
 
     BType getType();
