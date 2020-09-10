@@ -117,7 +117,7 @@ public class OpenApiCmd implements BLauncherCmd {
             // else if given ballerina service file it generates openapi contract file
             // else it generates error message to enter correct input file
             String fileName = argList.get(0);
-            if (fileName.endsWith(".yaml")) {
+            if (fileName.endsWith(".yaml") || fileName.endsWith(".json")) {
                 List<String> tag = new ArrayList<>();
                 List<String> operation = new ArrayList<>();
                 if (tags != null) {
