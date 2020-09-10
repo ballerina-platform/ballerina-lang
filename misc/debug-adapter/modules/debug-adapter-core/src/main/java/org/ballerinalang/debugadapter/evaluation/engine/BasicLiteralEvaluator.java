@@ -17,6 +17,8 @@
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
@@ -31,10 +33,16 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
  */
 public class BasicLiteralEvaluator extends Evaluator {
 
-    private final BasicLiteralNode syntaxNode;
+    private final Node syntaxNode;
     private final String literalString;
 
     public BasicLiteralEvaluator(SuspendedContext context, BasicLiteralNode node) {
+        super(context);
+        this.syntaxNode = node;
+        this.literalString = node.toSourceCode().trim();
+    }
+
+    public BasicLiteralEvaluator(SuspendedContext context, NilLiteralNode node) {
         super(context);
         this.syntaxNode = node;
         this.literalString = node.toSourceCode().trim();
@@ -44,20 +52,21 @@ public class BasicLiteralEvaluator extends Evaluator {
     public BExpressionValue evaluate() throws EvaluationException {
         SyntaxKind basicLiteralKind = syntaxNode.kind();
         switch (basicLiteralKind) {
+            case NIL_LITERAL:
+                return new BExpressionValue(context, null);
             case NUMERIC_LITERAL:
-                SyntaxKind literalTokenKind = syntaxNode.literalToken().kind();
-                if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
-                        literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+                SyntaxKind literalTokenKind = ((BasicLiteralNode) syntaxNode).literalToken().kind();
+                if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
                     // int literal
+                    // Todo - Add hex int literal support
                     return EvaluationUtils.make(context, Long.parseLong(literalString));
                 } else {
                     // float literal
+                    // Todo - Add hex float literal support
                     return EvaluationUtils.make(context, Double.parseDouble(literalString));
                 }
-            // boolean literal
             case BOOLEAN_LITERAL:
                 return EvaluationUtils.make(context, Boolean.parseBoolean(literalString));
-            // string literal
             case STRING_LITERAL:
                 return EvaluationUtils.make(context, literalString);
             default:
