@@ -302,6 +302,8 @@ public enum DiagnosticCode {
     INVALID_LIST_INDEX_EXPR("invalid.list.index.expr"),
     INVALID_ARRAY_INDEX_EXPR("invalid.array.index.expr"),
     SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("sealed.array.type.can.not.infer.size"),
+    INVALID_SORT_FUNC_RETURN_TYPE("invalid.key.func.return.type"),
+    INVALID_SORT_ARRAY_MEMBER_TYPE("invalid.sort.array.member.type"),
     // TODO Maryam remove list array tuple and use first only
     INDEX_OUT_OF_RANGE("index.out.of.range"),
     LIST_INDEX_OUT_OF_RANGE("list.index.out.of.range"),

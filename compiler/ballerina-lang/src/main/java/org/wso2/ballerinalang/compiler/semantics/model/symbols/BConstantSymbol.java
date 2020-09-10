@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.ConstantSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -36,10 +37,11 @@ public class BConstantSymbol extends BVarSymbol implements ConstantSymbol {
     public BType literalType;
 
     public BConstantSymbol(int flags, Name name, PackageID pkgID, BType literalType, BType type, BSymbol owner,
-                           DiagnosticPos pos) {
-        super(flags, name, pkgID, type, owner, pos);
+                           DiagnosticPos pos, SymbolOrigin origin) {
+        super(flags, name, pkgID, type, owner, pos, origin);
         this.tag = CONSTANT;
         this.literalType = literalType;
+        this.kind = SymbolKind.CONSTANT;
     }
 
     @Override

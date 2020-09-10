@@ -152,14 +152,33 @@ public function lastIndexOf(PureType[] arr, PureType val, int startIndex = arr.l
 # + return - `arr` with its members in reverse order
 public function reverse(Type[] arr) returns Type[] = external;
 
-# Sorts an array using a comparator function.
-# The comparator function must return a value less than, equal to or greater than zero
-# according as its first argument is to be ordered before, equal to or after its second argument.
+# Direction for `sort` function.
+public enum SortDirection {
+   ASCENDING = "ascending",
+   DESCENDING = "descending"
+}
+
+# A type parameter that is a subtype of `()|boolean|int|float|decimal|string`.
+type BasicType ()|boolean|int|float|decimal|string;
+
+# Any ordered type is a subtype of this.
+type OrderedType BasicType|BasicType[];
+
+// TO DO: Add this when cyclic type reference in union type definitions is supported
+//# Any ordered type is a subtype of this.
+//public type OrderedType ()|boolean|int|float|decimal|string|OrderedType[];
+
+# Sorts an array.
+# If the member type of the array is not sorted, then the `key` function
+# must be specified.
+# Sorting works the same as with the `sort` clause of query expressions.
 #
-# + arr - the array to be sorted
-# + func - comparator function
-# + return - `arr` with its members sorted
-public function sort(Type[] arr, function(Type val1, Type val2) returns int func) returns Type[] = external;
+# + arr - the array to be sorted;
+# + direction - direction in which to sort
+# + key - function that returns a key to use to sort the members
+# + return - a new array consisting of the members of `arr` in sorted order
+public function sort(Type[] arr, SortDirection direction = ASCENDING,
+        (function(Type val) returns OrderedType)? key = ()) returns Type[] = external;
 
 // Stack-like methods (JavaScript, Perl)
 // panic on fixed-length array

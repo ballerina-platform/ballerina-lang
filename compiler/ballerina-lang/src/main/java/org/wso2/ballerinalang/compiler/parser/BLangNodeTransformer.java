@@ -1055,6 +1055,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
         BLangExprFunctionBody bLExprFunctionBody = (BLangExprFunctionBody) TreeBuilder.createExprFunctionBodyNode();
         bLExprFunctionBody.expr = createExpression(expressionFunctionBodyNode.expression());
+        bLExprFunctionBody.pos = getPosition(expressionFunctionBodyNode);
         return bLExprFunctionBody;
     }
 
@@ -1345,6 +1346,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bodyNode.stmts = blockStmt.stmts;
         bodyNode.pos = pos;
         bLFunction.body = bodyNode;
+        bLFunction.internal = true;
 
 //        attachAnnotations(function, annCount, false);
         bLFunction.pos = pos;
@@ -1382,13 +1384,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
         lambdaExpr.pos = pos;
+        lambdaExpr.internal = true;
 
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
 
         DiagnosticPos workerNamePos = getPosition(namedWorkerDeclNode.workerName());
         // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
         BLangSimpleVariable var = new SimpleVarBuilder()
-                .with(workerLambdaName)
+                .with(workerLambdaName, workerNamePos)
                 .setExpression(lambdaExpr)
                 .isDeclaredWithVar()
                 .isFinal()
@@ -1399,6 +1402,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         var.pos = pos;
         lamdaWrkr.setVariable(var);
         lamdaWrkr.isWorker = true;
+        lamdaWrkr.internal = var.internal = true;
         if (namedWorkerDeclNode.parent().kind() == SyntaxKind.FORK_STATEMENT) {
             lamdaWrkr.isInFork = true;
             lamdaWrkr.var.flagSet.add(Flag.FORKED);
@@ -1429,7 +1433,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangSimpleVariable invoc = new SimpleVarBuilder()
-                .with(workerName)
+                .with(workerName, workerNamePos)
                 .isDeclaredWithVar()
                 .isWorkerVar()
                 .setExpression(bLInvocation)
@@ -3208,6 +3212,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     public BLangConstant transformEnumMember(EnumMemberNode member, Boolean publicQualifier) {
         BLangConstant bLangConstant = (BLangConstant) TreeBuilder.createConstantNode();
+        bLangConstant.pos = getPosition(member);
         bLangConstant.flagSet.add(Flag.CONSTANT);
         if (publicQualifier) {
             bLangConstant.flagSet.add(Flag.PUBLIC);
@@ -3400,7 +3405,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         joinClause.isDeclaredWithVar = typedBindingPattern.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
         joinClause.isOuterJoin = joinClauseNode.outerKeyword().isPresent();
 
-        OnClauseNode onClauseNode = joinClauseNode.onCondition();
+        OnClauseNode onClauseNode = joinClauseNode.joinOnCondition();
         BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
         onClause.pos = getPosition(onClauseNode);
         onClause.lhsExpr = createExpression(onClauseNode.lhsExpression());

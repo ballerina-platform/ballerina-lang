@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 6,
+    "character": 30
+  },
+  "source": "expression_context/source/query_expr_ctx_source6a.bal",
+  "items": [
+    {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

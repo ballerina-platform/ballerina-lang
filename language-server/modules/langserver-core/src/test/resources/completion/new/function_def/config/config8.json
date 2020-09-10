@@ -9,7 +9,6 @@
       "label": "external",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "220",
       "insertText": "external;",
       "insertTextFormat": "Snippet"
     }
