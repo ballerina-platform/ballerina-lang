@@ -497,9 +497,6 @@ public enum SyntaxKind {
     LOCAL_DATE (4823),
     LOCAL_TIME (4824),
 
-    //Key
-    UNQUOTED_KEY(4825),
-
     INVALID(4),
     MODULE_PART(3),
     EOF_TOKEN(2),

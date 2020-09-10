@@ -16,9 +16,13 @@
  * under the License.
  */
 
+import api.TOML;
 import internal.parser.ParserFactory;
 import internal.parser.TomlParser;
 import internal.parser.tree.STNode;
+import sementic.analyser.TomlNodeTransformer;
+import syntax.tree.ModulePartNode;
+import syntax.tree.Node;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -37,7 +41,8 @@ public class TestToml {
         String path = "src/test/resources/basic-toml.toml";
 
         String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
-        testParser(content);
+        //testParser(content);
+        testAPI(path);
     }
 
     private static void testParser(String content) {
@@ -48,5 +53,21 @@ public class TestToml {
         OUT.println(node);
         OUT.println("__________________________________________________");
         OUT.println("Time: " + (System.currentTimeMillis() - sTime) / 1000.0);
+        Node externalNode = node.createUnlinkedFacade();
+        TomlNodeTransformer nodeTransformer = new TomlNodeTransformer();
+        Node transform = nodeTransformer.transform((ModulePartNode) externalNode);
+        System.out.println(transform);
     }
+
+    private static void testAPI (String path) throws IOException {
+
+        TOML toml = new TOML();
+        TOML read = toml.read(path);
+        String rootKey = read.get("rootKey");
+        System.out.println(rootKey);
+        TOML table = read.getTable("table");
+        System.out.println(table.get("key"));
+        System.out.println(read.get("table.hi.ew"));
+    }
+
 }

@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STTableNode extends STNode {
+public class STTableNode extends STModuleMemberDeclarationNode {
     public final STNode openBracket;
     public final STNode identifier;
     public final STNode closeBracket;

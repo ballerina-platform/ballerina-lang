@@ -108,6 +108,10 @@ public class NodeList<T extends Node> implements Iterable<T> {
             if (nonTerminalNode.checkForReferenceEquality(bucket, node)) {
                 return remove(bucket);
             }
+//            T target = get(bucket);
+//            if (target==node){
+//                return remove(bucket);
+//            }
         }
         return this;
     }

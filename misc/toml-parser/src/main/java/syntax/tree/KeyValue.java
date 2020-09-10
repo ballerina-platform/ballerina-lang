@@ -26,13 +26,13 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class KeyValue extends NonTerminalNode {
+public class KeyValue extends ModuleMemberDeclarationNode {
 
     public KeyValue(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public IdentifierToken identifier() {
+    public Token identifier() {
         return childInBucket(0);
     }
 
@@ -40,7 +40,7 @@ public class KeyValue extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public Node value() {
+    public Token value() {
         return childInBucket(2);
     }
 
@@ -63,9 +63,9 @@ public class KeyValue extends NonTerminalNode {
     }
 
     public KeyValue modify(
-            IdentifierToken identifier,
+            Token identifier,
             Token assign,
-            Node value) {
+            Token value) {
         if (checkForReferenceEquality(
                 identifier,
                 assign,
@@ -90,9 +90,9 @@ public class KeyValue extends NonTerminalNode {
      */
     public static class KeyValueModifier {
         private final KeyValue oldNode;
-        private IdentifierToken identifier;
+        private Token identifier;
         private Token assign;
-        private Node value;
+        private Token value;
 
         public KeyValueModifier(KeyValue oldNode) {
             this.oldNode = oldNode;
@@ -102,7 +102,7 @@ public class KeyValue extends NonTerminalNode {
         }
 
         public KeyValueModifier withIdentifier(
-                IdentifierToken identifier) {
+                Token identifier) {
             Objects.requireNonNull(identifier, "identifier must not be null");
             this.identifier = identifier;
             return this;
@@ -116,7 +116,7 @@ public class KeyValue extends NonTerminalNode {
         }
 
         public KeyValueModifier withValue(
-                Node value) {
+                Token value) {
             Objects.requireNonNull(value, "value must not be null");
             this.value = value;
             return this;
