@@ -35,7 +35,7 @@ under the License.
 <!--            <package name="org.ballerinalang.langserver.references.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.rename.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.completion.*"/>-->
-<!--            <package name="org.ballerinalang.langserver.signature.*"/>-->
+            <package name="org.ballerinalang.langserver.signature.*"/>
 <!--            <package name="org.ballerinalang.langserver.workspace.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.formatting.FormattingTest"/>-->
 <!--            <package name="org.ballerinalang.langserver.extensions.document.*"/>-->
