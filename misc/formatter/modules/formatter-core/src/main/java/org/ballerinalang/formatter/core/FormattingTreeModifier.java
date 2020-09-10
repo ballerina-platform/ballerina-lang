@@ -548,7 +548,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
-
     @Override
     public ServiceDeclarationNode transform(ServiceDeclarationNode serviceDeclarationNode) {
         if (!isInLineRange(serviceDeclarationNode, lineRange)) {
@@ -1021,10 +1020,10 @@ public class FormattingTreeModifier extends TreeModifier {
         boolean addSpaces = true;
         int leadingNewLines = 1;
         if (mappingConstructorExpressionNode.parent() != null &&
-            (mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.LOCAL_VAR_DECL) ||
-            mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.CONST_DECLARATION) ||
-            mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.SPECIFIC_FIELD) ||
-            mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.TABLE_CONSTRUCTOR))) {
+                (mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.LOCAL_VAR_DECL) ||
+                        mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.CONST_DECLARATION) ||
+                        mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.SPECIFIC_FIELD) ||
+                        mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.TABLE_CONSTRUCTOR))) {
             addSpaces = false;
         }
         int startOpenBrace = getStartColumn(mappingConstructorExpressionNode, mappingConstructorExpressionNode.kind(),
@@ -1617,7 +1616,7 @@ public class FormattingTreeModifier extends TreeModifier {
         int leadingSpaces = 1;
         if (templateExpressionNode.parent() != null &&
                 (templateExpressionNode.parent().kind().equals(SyntaxKind.LOCAL_VAR_DECL) ||
-                templateExpressionNode.parent().kind().equals(SyntaxKind.INTERPOLATION))) {
+                        templateExpressionNode.parent().kind().equals(SyntaxKind.INTERPOLATION))) {
             leadingSpaces = 0;
         }
         if (type != null) {
@@ -1732,7 +1731,7 @@ public class FormattingTreeModifier extends TreeModifier {
         boolean addSpaces = true;
         if (parameterizedTypeDescriptorNode.parent() != null &&
                 (parameterizedTypeDescriptorNode.parent().kind().equals(SyntaxKind.CONST_DECLARATION) ||
-                parameterizedTypeDescriptorNode.parent().kind().equals(SyntaxKind.TYPE_PARAMETER))) {
+                        parameterizedTypeDescriptorNode.parent().kind().equals(SyntaxKind.TYPE_PARAMETER))) {
             addSpaces = false;
         }
         int startCol = getStartColumn(parameterizedTypeDescriptorNode, parameterizedTypeDescriptorNode.kind(),
@@ -1982,7 +1981,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return forEachStatementNode.modify()
                 .withForEachKeyword(formatToken(forEachKeyword, startCol, 1, 0, 0))
                 .withTypedBindingPattern(typedBindingPattern)
-                .withInKeyword(formatToken(inKeyword, 1, 1, 0,  0))
+                .withInKeyword(formatToken(inKeyword, 1, 1, 0, 0))
                 .withActionOrExpressionNode(actionOrExpressionNode)
                 .withBlockStatement(blockStatement)
                 .apply();
@@ -2018,6 +2017,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public TypeofExpressionNode transform(TypeofExpressionNode typeofExpressionNode) {
+
         if (!isInLineRange(typeofExpressionNode, lineRange)) {
             return typeofExpressionNode;
         }
@@ -2153,7 +2153,7 @@ public class FormattingTreeModifier extends TreeModifier {
         boolean addSpaces = true;
         if (objectTypeDescriptorNode.parent() != null &&
                 (objectTypeDescriptorNode.parent().kind().equals(SyntaxKind.RETURN_TYPE_DESCRIPTOR) ||
-                objectTypeDescriptorNode.parent().kind().equals(SyntaxKind.TYPE_DEFINITION))) {
+                        objectTypeDescriptorNode.parent().kind().equals(SyntaxKind.TYPE_DEFINITION))) {
             addSpaces = false;
         }
         int startCol = getStartColumn(objectTypeDescriptorNode, objectTypeDescriptorNode.kind(), addSpaces);
@@ -2824,6 +2824,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public IntersectionTypeDescriptorNode transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+
         if (!isInLineRange(intersectionTypeDescriptorNode, lineRange)) {
             return intersectionTypeDescriptorNode;
         }
@@ -3450,7 +3451,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return onClauseNode.modify()
                 .withOnKeyword(formatToken(onKeyword, 1, 1, 0, 0))
                 .withLhsExpression(lhsExpr)
-                .withEqualsKeyword(formatToken(equalsKeyword, 1, 1, 0,  0))
+                .withEqualsKeyword(formatToken(equalsKeyword, 1, 1, 0, 0))
                 .withRhsExpression(rhsExpr)
                 .apply();
     }

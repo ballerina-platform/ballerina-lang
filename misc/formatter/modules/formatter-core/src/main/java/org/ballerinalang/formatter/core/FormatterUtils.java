@@ -129,7 +129,6 @@ class FormatterUtils {
         return getIndentation(node.parent(), indentation, formattingOptions);
     }
 
-
     private static MinutiaeList getCommentMinutiae(MinutiaeList minutiaeList, boolean isLeading) {
         MinutiaeList minutiaes = AbstractNodeFactory.createEmptyMinutiaeList();
         for (int i = 0; i < minutiaeList.size(); i++) {
@@ -149,7 +148,7 @@ class FormatterUtils {
     private static String getWhiteSpaces(int column, int newLines) {
         StringBuilder whiteSpaces = new StringBuilder();
         for (int i = 0; i <= (newLines - 1); i++) {
-            whiteSpaces.append("\n");
+            whiteSpaces.append(System.getProperty("line.separator"));
         }
         for (int i = 0; i <= (column - 1); i++) {
             whiteSpaces.append(" ");
@@ -164,7 +163,7 @@ class FormatterUtils {
      * @param node node
      * @return token with empty minutiae
      */
-    static  <T extends Token> Token getToken(T node) {
+    static <T extends Token> Token getToken(T node) {
         if (node == null) {
             return node;
         }
@@ -213,7 +212,7 @@ class FormatterUtils {
      * @return updated token
      */
     static Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int leadingNewLines,
-                              int trailingNewLines) {
+                             int trailingNewLines) {
         if (token == null) {
             return token;
         }
