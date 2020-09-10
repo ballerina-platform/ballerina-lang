@@ -417,6 +417,8 @@ types:
         type: s4
       - id: flags
         type: s4
+      - id: origin
+        type: s1
       - id: doc
         type: markdown
       - id: type_cp_index
@@ -430,6 +432,8 @@ types:
       - id: flags
         type: s4
       - id: label
+        type: s1
+      - id: origin
         type: s1
       - id: doc
         type: markdown
@@ -455,6 +459,10 @@ types:
         type: s4
       - id: flags
         type: s4
+      - id: origin
+        type: s1
+      - id: position
+        type: position
       - id: attach_points_count
         type: s4
       - id: attach_points
@@ -477,6 +485,10 @@ types:
         type: s4
       - id: flags
         type: s4
+      - id: origin
+        type: s1
+      - id: position
+        type: position
       - id: doc
         type: markdown
       - id: type_cp_index
@@ -590,6 +602,8 @@ types:
         type: s4
       - id: flags
         type: s4
+      - id: origin
+        type: s1
       - id: type_cp_index
         type: s4
       - id: annotation_attachments_content
@@ -847,15 +861,15 @@ types:
         type: s4
   position:
     seq:
-      - id: s_line
+      - id: source_file_cp_index
         type: s4
-      - id: e_line
+      - id: s_line
         type: s4
       - id: s_col
         type: s4
-      - id: e_col
+      - id: e_line
         type: s4
-      - id: source_file_cp_index
+      - id: e_col
         type: s4
   basic_blocks_info:
     seq:
