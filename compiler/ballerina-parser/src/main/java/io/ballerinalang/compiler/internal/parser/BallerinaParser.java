@@ -4785,7 +4785,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case FINAL_KEYWORD:
                 STToken nextNextToken = peek(2);
-                if (nextNextToken.kind != SyntaxKind.FUNCTION_KEYWORD && isTypeStartingToken(nextNextToken.kind)) {
+                if (isTypeStartingToken(nextNextToken.kind)) {
                     member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectTypeDesc);
                     break;
                 }
@@ -4860,7 +4860,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             case FINAL_KEYWORD:
-                if (nextNextToken.kind != SyntaxKind.FUNCTION_KEYWORD && isTypeStartingToken(nextNextToken.kind)) {
+                if (isTypeStartingToken(nextNextToken.kind)) {
                     return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc);
                 }
                 // Else fall through
