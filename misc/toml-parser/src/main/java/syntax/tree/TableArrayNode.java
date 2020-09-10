@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class TableArrayNode extends NonTerminalNode {
+public class TableArrayNode extends ModuleMemberDeclarationNode {
 
     public TableArrayNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

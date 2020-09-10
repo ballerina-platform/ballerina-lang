@@ -50,7 +50,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token openBracket,
             IdentifierToken identifier,
             Token closeBracket,
-            SeparatedNodeList<Node> fields) {
+            NodeList<Node> fields) {
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
@@ -80,9 +80,9 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static KeyValue createKeyValue(
-            IdentifierToken identifier,
+            Token identifier,
             Token assign,
-            Node value) {
+            Token value) {
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(assign, "assign must not be null");
         Objects.requireNonNull(value, "value must not be null");

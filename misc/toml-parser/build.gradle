@@ -19,7 +19,8 @@ apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 dependencies {
 //    implementation project(':ballerina-parser')
-
+    testImplementation 'org.testng:testng'
+    testImplementation 'com.google.code.gson:gson'
     testCompile 'org.testng:testng'
 }
 
