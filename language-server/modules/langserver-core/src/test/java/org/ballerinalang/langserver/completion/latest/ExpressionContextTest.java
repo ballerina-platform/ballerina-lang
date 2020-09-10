@@ -19,12 +19,12 @@ package org.ballerinalang.langserver.completion.latest;
 
 import org.testng.annotations.DataProvider;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Expression Context tests.
- * 
+ *
  * @since 2.0.0
  */
 public class ExpressionContextTest extends CompletionTestNew {
@@ -41,6 +41,10 @@ public class ExpressionContextTest extends CompletionTestNew {
 
     @Override
     public List<String> skipList() {
-        return Collections.singletonList("table_constructor_expr_ctx_config2.json");
+        return Arrays.asList("table_constructor_expr_ctx_config2.json",
+                "query_expr_ctx_config2.json",
+                "query_expr_ctx_config6a.json",
+                "query_expr_ctx_config7.json",
+                "query_expr_ctx_config5.json");
     }
 }
