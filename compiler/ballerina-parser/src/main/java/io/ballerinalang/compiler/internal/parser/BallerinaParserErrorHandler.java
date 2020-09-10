@@ -3051,6 +3051,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DO_CLAUSE:
             case MEMBER_ACCESS_KEY_EXPR:
             case CONDITIONAL_EXPRESSION:
+            case DO_BLOCK:
             case TRANSACTION_STMT:
             case RETRY_STMT:
             case ROLLBACK_STMT:
