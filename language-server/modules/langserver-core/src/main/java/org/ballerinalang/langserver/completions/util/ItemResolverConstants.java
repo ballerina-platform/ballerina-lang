@@ -33,8 +33,6 @@ public class ItemResolverConstants {
     public static final String WORKER = "worker";
     public static final String TRANSACTION = "transaction";
     public static final String RETRY_TRANSACTION = "retry transaction";
-    public static final String ABORT = "abort";
-    public static final String RETRY = "retry";
     public static final String TRAP = "trap";
     public static final String WHILE = "while";
     public static final String ERROR = "error";
@@ -50,7 +48,6 @@ public class ItemResolverConstants {
     public static final String FOREACH = "foreach";
     public static final String MATCH = "match";
     public static final String PANIC = "panic";
-    public static final String LENGTHOF = "lengthof";
     public static final String TYPEOF = "typeof";
     public static final String COMMIT = "commit";
     public static final String IS = "is";
@@ -74,6 +71,8 @@ public class ItemResolverConstants {
     public static final String XMLNS = "xmlns";
     public static final String HTTP_RESOURCE = "http resource";
     public static final String RESOURCE = "resource";
+    
+    public static final String FROM_CLAUSE = "from clause";
 
     // End of Basic Constructs
 
@@ -132,33 +131,4 @@ public class ItemResolverConstants {
     public static final String CONST_KEYWORD = "const";
     public static final String RECORD_KEYWORD = "record";
     public static final String OBJECT_KEYWORD = "object";
-
-    // Iterable operators completion item labels
-    public static final String ITR_FOREACH_LABEL = "foreach(<@lambda:function>)";
-    public static final String ITR_MAP_LABEL = "map(<@lambda:function>)";
-    public static final String ITR_FILTER_LABEL = "filter(<@lambda:function>)";
-    public static final String ITR_COUNT_LABEL = "count()";
-    public static final String ITR_SELECT_LABEL = "select(functionReference)";
-    public static final String ITR_MIN_LABEL = "min()";
-    public static final String ITR_MAX_LABEL = "max()";
-    public static final String ITR_AVERAGE_LABEL = "average()";
-    public static final String ITR_SUM_LABEL = "sum()";
-
-    // Builtin Functions completion item labels
-    public static final String BUILTIN_LENGTH_LABEL = "length()";
-    public static final String BUILTIN_IS_NAN_LABEL = "isNaN()";
-    public static final String BUILTIN_IS_FINITE_LABEL = "isFinite()";
-    public static final String BUILTIN_IS_INFINITE_LABEL = "isInfinite()";
-    public static final String BUILTIN_CLONE_LABEL = "clone()";
-    public static final String BUILTIN_FREEZE_LABEL = "freeze()";
-    public static final String BUILTIN_IS_FROZEN_LABEL = "isFrozen()";
-    public static final String BUILTIN_STAMP_LABEL = "stamp(anydata a)";
-    public static final String BUILTIN_HASKEY_LABEL = "hasKey(string s)";
-    public static final String BUILTIN_REMOVE_LABEL = "remove(string s)";
-    public static final String BUILTIN_KEYS_LABEL = "keys()";
-    public static final String BUILTIN_GET_VALUES_LABEL = "values()";
-    public static final String BUILTIN_CLEAR_LABEL = "clear()";
-    public static final String BUILTIN_CONVERT_LABEL = "convert(anydata a)";
-    public static final String BUILTIN_DETAIL_LABEL = "detail()";
-    public static final String BUILTIN_REASON_LABEL = "reason()";
 }
