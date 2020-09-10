@@ -455,7 +455,8 @@ public class BIRGen extends BLangNodeVisitor {
                 classDefinition.symbol.isLabel,
                 false,
                 classDefinition.type,
-                new ArrayList<>());
+                new ArrayList<>(),
+                classDefinition.symbol.origin.toBIROrigin());
         typeDefs.put(classDefinition.symbol, typeDef);
         this.env.enclPkg.typeDefs.add(typeDef);
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
@@ -469,7 +470,7 @@ public class BIRGen extends BLangNodeVisitor {
         for (BAttachedFunction func : ((BObjectTypeSymbol) classDefinition.symbol).referencedFunctions) {
             BInvokableSymbol funcSymbol = func.symbol;
             BIRFunction birFunc = new BIRFunction(classDefinition.pos, func.funcName, funcSymbol.flags, func.type,
-                    names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable());
+                    names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable(), funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
                 birFunc.receiver = getSelf(funcSymbol.receiverSymbol, funcSymbol.receiverSymbol.type,

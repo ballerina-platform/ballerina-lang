@@ -25,7 +25,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.SortableTypeDefNode;
+import org.ballerinalang.model.tree.OrderedNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
@@ -452,8 +452,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return new Comparator<BLangNode>() {
             @Override
             public int compare(BLangNode l, BLangNode r) {
-                if (l instanceof SortableTypeDefNode && r instanceof SortableTypeDefNode) {
-                    return ((SortableTypeDefNode) l).getPrecedence() - ((SortableTypeDefNode) r).getPrecedence();
+                if (l instanceof OrderedNode && r instanceof OrderedNode) {
+                    return ((OrderedNode) l).getPrecedence() - ((OrderedNode) r).getPrecedence();
                 }
                 return 0;
             }
@@ -493,7 +493,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             List<BAttachedFunction> functions = ((BObjectTypeSymbol) type.tsymbol).attachedFuncs;
             for (BAttachedFunction function : functions) {
                 defineReferencedFunction(classDefinition.pos, classDefinition.flagSet, objMethodsEnv,
-                        typeRef, function, includedFunctionNames, classDefinition.symbol, classDefinition.functions);
+                        typeRef, function, includedFunctionNames, classDefinition.symbol, classDefinition.functions,
+                        classDefinition.internal);
             }
         }
     }
@@ -596,7 +597,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
                 names.fromIdNode(classDefinition.name),
-                env.enclPkg.symbol.pkgID, null, env.scope.owner, classDefinition.pos);
+                env.enclPkg.symbol.pkgID, null, env.scope.owner, classDefinition.pos, SOURCE);
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
@@ -2017,7 +2018,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 for (BAttachedFunction function : functions) {
                     defineReferencedFunction(typeDef.pos, typeDef.flagSet, objMethodsEnv,
                             typeRef, function, includedFunctionNames, typeDef.symbol,
-                            ((BLangObjectTypeNode) typeDef.typeNode).functions);
+                            ((BLangObjectTypeNode) typeDef.typeNode).functions, node.internal);
                 }
             }
         }
@@ -2698,7 +2699,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineReferencedFunction(DiagnosticPos pos, Set<Flag> flagSet, SymbolEnv objEnv, BLangType typeRef,
                                           BAttachedFunction referencedFunc, Set<String> includedFunctionNames,
-                                          BTypeSymbol typeDefSymbol, List<BLangFunction> declaredFunctions) {
+                                          BTypeSymbol typeDefSymbol, List<BLangFunction> declaredFunctions,
+                                          boolean isInternal) {
         String referencedFuncName = referencedFunc.funcName.value;
         Name funcName = names.fromString(
                 Symbols.getAttachedFuncSymbolName(typeDefSymbol.name.value, referencedFuncName));
@@ -2747,8 +2749,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             defineSymbol(typeRef.pos, funcSymbol.restParam, funcEnv);
         }
         funcSymbol.receiverSymbol =
-                defineVarSymbol(pos, flagSet, typeDefSymbol.type, Names.SELF, funcEnv,
-                                typeDef.internal);
+                defineVarSymbol(pos, flagSet, typeDefSymbol.type, Names.SELF, funcEnv, isInternal);
 
         // Cache the function symbol.
         BAttachedFunction attachedFunc =

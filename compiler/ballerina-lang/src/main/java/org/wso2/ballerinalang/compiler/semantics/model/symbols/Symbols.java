@@ -82,8 +82,9 @@ public class Symbols {
                                                        PackageID pkgID,
                                                        BType type,
                                                        BSymbol owner,
-                                                       DiagnosticPos pos) {
-        BClassSymbol typeSymbol = new BClassSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner, pos);
+                                                       DiagnosticPos pos,
+                                                       SymbolOrigin origin) {
+        BClassSymbol typeSymbol = new BClassSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner, pos, origin);
         typeSymbol.kind = SymbolKind.OBJECT;
         return typeSymbol;
     }

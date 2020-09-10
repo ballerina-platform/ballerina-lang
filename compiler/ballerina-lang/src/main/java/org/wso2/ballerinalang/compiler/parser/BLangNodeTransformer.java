@@ -931,7 +931,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        classDefinition.isSynthetic = true;
+        classDefinition.internal = true;
         return classDefinition;
     }
 

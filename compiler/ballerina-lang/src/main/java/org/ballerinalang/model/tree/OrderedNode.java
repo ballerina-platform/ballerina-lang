@@ -23,7 +23,7 @@ package org.ballerinalang.model.tree;
  *
  * @since 2.0
  */
-public interface SortableTypeDefNode extends Node {
+public interface OrderedNode extends Node {
     int getPrecedence();
     void setPrecedence(int precedence);
 }
