@@ -2940,7 +2940,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangSimpleVariableDef onFailErrorVariableDef = (BLangSimpleVariableDef) onFailClause.variableDefinitionNode;
         BVarSymbol thrownErrorVarSymbol = new BVarSymbol(0, new Name("$thrownError$"),
-                env.scope.owner.pkgID, symTable.errorType, env.scope.owner, onFailClause.pos);
+                env.scope.owner.pkgID, symTable.errorType, env.scope.owner, onFailClause.pos, VIRTUAL);
         thrownErrorVarSymbol.closure = true;
         BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailClause.pos, "$thrownError$",
                 onFailErrorVariableDef.var.type, null, thrownErrorVarSymbol);
@@ -2957,7 +2957,7 @@ public class Desugar extends BLangNodeVisitor {
         //    <"Content in on fail clause goes here">
         //  };
         BVarSymbol onFailVarSymbol = new BVarSymbol(0, names.fromString("$onFailFunc$"),
-                env.scope.owner.pkgID, onFailFunc.type, onFailFunc.function.symbol, onFailClause.pos);
+                env.scope.owner.pkgID, onFailFunc.type, onFailFunc.function.symbol, onFailClause.pos, VIRTUAL);
         BLangSimpleVariable onFailLambdaVariable = ASTBuilderUtil.createVariable(onFailClause.pos, "$onFailFunc$",
                 onFailFunc.type, onFailFunc, onFailVarSymbol);
         onFailCallFuncDef = ASTBuilderUtil.createVariableDef(onFailClause.pos,
@@ -2978,7 +2978,7 @@ public class Desugar extends BLangNodeVisitor {
         onFailLambdaInvocation.requiredArgs = onFailLambdaInvocation.argExprs;
 
         BVarSymbol resultSymbol = new BVarSymbol(0, new Name("$onFailResult$"),
-                env.scope.owner.pkgID, symTable.anyOrErrorType, env.scope.owner, onFailClause.pos);
+                env.scope.owner.pkgID, symTable.anyOrErrorType, env.scope.owner, onFailClause.pos, VIRTUAL);
         BLangSimpleVariable resultVariable = ASTBuilderUtil.createVariable(onFailClause.pos, "$onFailResult$",
                 symTable.anyOrErrorType, onFailLambdaInvocation, resultSymbol);
         BLangSimpleVariableDef trxFuncVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos,
