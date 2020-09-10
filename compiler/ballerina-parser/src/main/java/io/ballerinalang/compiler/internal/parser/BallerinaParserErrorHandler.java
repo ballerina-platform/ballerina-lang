@@ -249,7 +249,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
             ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD,
             ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION,
-            ParserRuleContext.FAIL_KEYWORD };
+            ParserRuleContext.FAIL_KEYWORD , ParserRuleContext.IMPLICIT_ANON_FUNC_START };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -620,6 +620,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] FUNC_TYPE_DESC_START =
             { ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
 
+    private static final ParserRuleContext[] IMPLICIT_ANON_FUNC_START =
+            { ParserRuleContext.IMPLICIT_ANON_FUNC_SINGLE_PARAM, ParserRuleContext.IMPLICIT_ANON_FUNC_OPEN_PAREN };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -746,6 +749,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_OR_EXPR_RHS:
             case FUNC_TYPE_DESC_START:
             case ANON_FUNC_EXPRESSION_START:
+            case IMPLICIT_ANON_FUNC_START:
                 return true;
             default:
                 return false;
@@ -821,10 +825,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case XML_ATOMIC_NAME_IDENTIFIER:
                 case SIMPLE_BINDING_PATTERN:
                 case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
+                case IMPLICIT_ANON_FUNC_SINGLE_PARAM:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case OPEN_PARENTHESIS:
                 case PARENTHESISED_TYPE_DESC_START:
+                case IMPLICIT_ANON_FUNC_OPEN_PAREN:
                     hasMatch = nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN;
                     break;
                 case CLOSE_PARENTHESIS:
@@ -1366,6 +1372,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LISTENERS_LIST_END:
             case FUNC_TYPE_DESC_START:
             case ANON_FUNC_EXPRESSION_START:
+            case IMPLICIT_ANON_FUNC_START:
                 return true;
             default:
                 return false;
@@ -1567,6 +1574,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_TYPE_DESC_START:
             case ANON_FUNC_EXPRESSION_START:
                 alternativeRules = FUNC_TYPE_DESC_START;
+                break;
+            case IMPLICIT_ANON_FUNC_START:
+                alternativeRules = IMPLICIT_ANON_FUNC_START;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2649,6 +2659,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_TYPE_DESC_END:
                 endContext();
                 return ParserRuleContext.TYPEDESC_RHS;
+            case IMPLICIT_ANON_FUNC_SINGLE_PARAM:
+                return ParserRuleContext.EXPR_FUNC_BODY_START;
+            case IMPLICIT_ANON_FUNC_OPEN_PAREN:
+                return ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS;
+            case BRACED_EXPR_OR_ANON_FUNC_PARAMS:
+                return ParserRuleContext.IMPLICIT_ANON_FUNC_PARAM;
             case IMPLICIT_ANON_FUNC_PARAM:
                 return ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS;
             case EXPLICIT_ANON_FUNC_EXPR_BODY_START:
@@ -3118,6 +3134,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NAMED_ARG_MATCH_PATTERN:
             case SELECT_CLAUSE:
             case JOIN_CLAUSE:
+            case BRACED_EXPR_OR_ANON_FUNC_PARAMS:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:

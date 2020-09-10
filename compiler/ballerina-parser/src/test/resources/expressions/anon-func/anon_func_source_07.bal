@@ -1,4 +1,4 @@
 function foo() {
     a = b => c;
-    a = b => c + d;
+    a = isolated b => c + d;
 }
