@@ -19,13 +19,16 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValue;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -75,17 +78,26 @@ public class ErrorValue extends BError implements RefValue {
     @Override
     public String stringValue() {
         if (isEmptyDetail()) {
-            return "error " + message.getValue();
+            return "error " + getModuleName() + " (message=" + message.getValue() + ")";
         }
-        return "error " + message.getValue() + " " + getCauseToString() +
-                org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(details);
+        return "error " + getModuleName() + " (message=" + message.getValue() + getCauseToString() + getDetailsToString() + ")";
     }
 
     private String getCauseToString() {
         if (cause != null) {
-            return org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(cause) + " ";
+            return ", cause=" + ((BValue) cause).informalStringValue();
         }
         return "";
+    }
+
+    private String getDetailsToString() {
+        return ", detail=" + ((BValue) details).informalStringValue();
+    }
+
+    private String getModuleName() {
+        return (type.getPackage().org != null && type.getPackage().org.equals("$anon")) ||
+                type.getPackage().name == null ? type.getName() :
+                BallerinaErrorReasons.getModulePrefixedReason(type.getPackage().name, type.getName());
     }
 
     @Override
