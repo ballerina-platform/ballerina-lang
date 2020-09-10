@@ -358,8 +358,7 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*IndexOutOfRange \\{\"message\":\"array index out of range: index: 5, " +
-                  "size: 3.*")
+          expectedExceptionsMessageRegExp = ".*IndexOutOfRange \\{\"message\":\"array index out of range: index: 5, size: 3.*")
     public void testGetArrayOutofBoundElement() {
         BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
     }
@@ -481,8 +480,8 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.typedesc\\}ConversionError \\{\"message\":\"cannot " +
-                    "convert '\\(\\)' to type 'map<json>'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.typedesc\\}ConversionError " +
+                    "\\{\"message\":\"cannot convert '\\(\\)' to type 'map<json>'.*")
     public void testNullJsonToMap() {
         BRunUtil.invoke(compileResult, "testNullJsonToMap");
     }

@@ -590,6 +590,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
                             case TypeTags.STRING_TAG:
                             case TypeTags.XML_TAG:
                             case TypeTags.XML_ELEMENT_TAG:
+                            case TypeTags.XML_ATTRIBUTES_TAG:
+                            case TypeTags.XML_COMMENT_TAG:
+                            case TypeTags.XML_PI_TAG:
+                            case TypeTags.XMLNS_TAG:
+                            case TypeTags.XML_TEXT_TAG:
                                 sj.add(((BValue) (refValues[i])).informalStringValue());
                                 break;
                             default:
