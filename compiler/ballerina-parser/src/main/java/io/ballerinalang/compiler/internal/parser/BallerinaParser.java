@@ -8886,7 +8886,7 @@ public class BallerinaParser extends AbstractParser {
      * table-constructor-expr := table [key-specifier] [ [row-list] ]
      * <br/>
      * query-expr := [query-construct-type] query-pipeline select-clause
-     * [query-construct-type] query-pipeline select-clause on-conflict-clause? limit-clause?
+     * [query-construct-type] query-pipeline select-clause on-conflict-clause?
      * <br/>
      * query-construct-type := table key-specifier | stream
      * </code>
@@ -8972,7 +8972,7 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>
      * query-expr-rhs := query-pipeline select-clause
-     * query-pipeline select-clause on-conflict-clause? limit-clause?
+     * query-pipeline select-clause on-conflict-clause?
      * <br/>
      * query-pipeline := from-clause intermediate-clause*
      * </code>
@@ -9042,7 +9042,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse an intermediate clause.
      * <p>
      * <code>
-     * intermediate-clause := from-clause | where-clause | let-clause | join-clause | order-by-clause
+     * intermediate-clause := from-clause | where-clause | let-clause | join-clause | limit-clause | order-by-clause
      * </code>
      *
      * @return Parsed node
@@ -9440,8 +9440,8 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.ON_CONFLICT_CLAUSE);
         STNode onKeyword = parseOnKeyword();
         STNode conflictKeyword = parseConflictKeyword();
-        STNode expr = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         endContext();
+        STNode expr = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         return STNodeFactory.createOnConflictClauseNode(onKeyword, conflictKeyword, expr);
     }
 
@@ -10335,7 +10335,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse query action.
      * <p>
-     * <code>query-action := query-pipeline do-clause limit-clause?
+     * <code>query-action := query-pipeline do-clause
      * <br/>
      * do-clause := do block-stmt
      * </code>
