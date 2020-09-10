@@ -49,11 +49,6 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx) {
-        return new ArrayList<>();
-    }
-
-    @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ExplicitNewExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         TypeDescriptorNode typeDescriptor = node.typeDescriptor();

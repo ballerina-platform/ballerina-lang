@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/io;
 
 // This tests the functionality of before and after functions in a test
 // using string concatenation
@@ -45,6 +44,5 @@ public function afterFunc() {
     dependsOn:["testFunc"]
 }
 public function testFunc2() {
-    io:println("TestFunc2");
     test:assertEquals(testString, "beforetestafter");
 }

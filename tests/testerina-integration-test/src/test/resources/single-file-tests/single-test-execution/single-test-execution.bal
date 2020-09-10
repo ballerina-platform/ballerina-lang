@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/io;
 
 // This tests the single test execution option
 
@@ -43,7 +42,6 @@ public function afterEachFunc() {
     dependsOn:["testFunc"]
 }
 public function testFunc2() {
-    io:println("TestFunc2");
     test:assertEquals(testString, "beforeEachtestafterEachbeforeEach");
 }
 
@@ -52,7 +50,6 @@ public function testFunc2() {
     enable: false
 }
 public function testDisabledFunc() {
-    io:println("testDisabledFunc");
     testString += "disabled";
     test:assertEquals(testString, "beforeEachdisabled");
 }
@@ -62,6 +59,5 @@ public function testDisabledFunc() {
     dependsOn: ["testDisabledFunc"]
 }
 public function testDependentDisabledFunc() {
-    io:println("testDependentDisabledFunc");
     test:assertEquals(testString, "beforeEachdisabledafterEachbeforeEach");
 }

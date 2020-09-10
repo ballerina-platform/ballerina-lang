@@ -507,11 +507,11 @@ public class BIRInstructionWriter extends BIRVisitor {
                 sourceFileName = pos.src.cUnitName;
             }
         }
-        buf.writeInt(sLine);
-        buf.writeInt(eLine);
-        buf.writeInt(sCol);
-        buf.writeInt(eCol);
         buf.writeInt(addStringCPEntry(sourceFileName));
+        buf.writeInt(sLine);
+        buf.writeInt(sCol);
+        buf.writeInt(eLine);
+        buf.writeInt(eCol);
     }
 
 }
