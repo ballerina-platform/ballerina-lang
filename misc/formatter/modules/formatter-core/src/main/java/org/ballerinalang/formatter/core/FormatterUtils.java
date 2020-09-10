@@ -18,12 +18,19 @@ package org.ballerinalang.formatter.core;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
+import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory.createMinutiaeList;
 import static io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory.createWhitespaceMinutiae;
@@ -32,6 +39,8 @@ import static io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory.createWh
  * Class that contains the util functions used by the formatting tree modifier.
  */
 class FormatterUtils {
+
+    private static final String LINE_SEPARATOR = "line.separator";
 
     /**
      * Get the node position.
@@ -148,7 +157,7 @@ class FormatterUtils {
     private static String getWhiteSpaces(int column, int newLines) {
         StringBuilder whiteSpaces = new StringBuilder();
         for (int i = 0; i <= (newLines - 1); i++) {
-            whiteSpaces.append(System.getProperty("line.separator"));
+            whiteSpaces.append(System.getProperty(LINE_SEPARATOR));
         }
         for (int i = 0; i <= (column - 1); i++) {
             whiteSpaces.append(" ");
@@ -225,5 +234,66 @@ class FormatterUtils {
     private static MinutiaeList modifyMinutiaeList(int spaces, int newLines) {
         Minutiae minutiae = createWhitespaceMinutiae(getWhiteSpaces(spaces, newLines));
         return createMinutiaeList(minutiae);
+    }
+
+    private static int getChildLocation(NonTerminalNode parent, Node child) {
+        if (parent != null && child != null) {
+            for (int i = 0; i < parent.children().size(); i++) {
+                if (parent.children().get(i).equals(child)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private static int regexCount(String context, String pattern) {
+        Matcher matcher = Pattern.compile(String.valueOf(pattern)).matcher(context);
+        int response = 0;
+        while (matcher.find()) {
+            response++;
+        }
+        return response;
+    }
+
+    private static Token getStartingToken(Node node) {
+        if (node instanceof Token) {
+            return (Token) node;
+        }
+        ChildNodeList childNodeList = ((NonTerminalNode) node).children();
+        return getStartingToken(childNodeList.get(0));
+    }
+
+    private static Token getEndingToken(Node node) {
+        if (node instanceof Token) {
+            return (Token) node;
+        }
+        ChildNodeList childNodeList = ((NonTerminalNode) node).children();
+        return getStartingToken(childNodeList.get(childNodeList.size() - 1));
+    }
+
+    static boolean preserveNewLine(NonTerminalNode node) {
+        ArrayList<SyntaxKind> endTokens = new ArrayList<>(
+                Arrays.asList(
+                        SyntaxKind.CLOSE_BRACE_TOKEN,
+                        SyntaxKind.CLOSE_BRACE_PIPE_TOKEN,
+                        SyntaxKind.CLOSE_BRACKET_TOKEN,
+                        SyntaxKind.CLOSE_PAREN_TOKEN));
+        boolean preserve = false;
+        MinutiaeList nodeEnd = getEndingToken(node).trailingMinutiae();
+        if (nodeEnd.toString().contains(System.getProperty(LINE_SEPARATOR))) {
+            int childIndex = getChildLocation(node.parent(), node);
+            if (childIndex != -1) {
+                Node nextNode = node.parent().children().get(childIndex + 1);
+                if (nextNode != null && !endTokens.contains(nextNode.kind())) {
+                    MinutiaeList siblingStart = getStartingToken(nextNode).leadingMinutiae();
+                    int newLines = regexCount(nodeEnd.toString(), System.getProperty(LINE_SEPARATOR));
+                    if (siblingStart.toString().contains(System.getProperty(LINE_SEPARATOR)) || newLines > 1) {
+                        preserve = true;
+                    }
+                }
+            }
+        }
+        return preserve;
     }
 }

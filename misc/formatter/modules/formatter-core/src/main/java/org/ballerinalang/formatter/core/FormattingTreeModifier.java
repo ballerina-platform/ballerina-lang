@@ -232,6 +232,7 @@ import static org.ballerinalang.formatter.core.FormatterUtils.getParent;
 import static org.ballerinalang.formatter.core.FormatterUtils.getPosition;
 import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
+import static org.ballerinalang.formatter.core.FormatterUtils.preserveNewLine;
 
 /**
  * Modifies the given tree to format the nodes.
@@ -631,6 +632,10 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<AnnotationNode> annotationNodes = this.modifyNodeList(variableDeclarationNode.annotations());
         TypedBindingPatternNode typedBindingPatternNode = this.modifyNode(
                 variableDeclarationNode.typedBindingPattern());
+        int trailingNewLines = 1;
+        if (preserveNewLine(variableDeclarationNode)) {
+            trailingNewLines = 2;
+        }
         if (equalToken != null) {
             variableDeclarationNode = variableDeclarationNode.modify()
                     .withEqualsToken(formatToken(equalToken, 1, 1, 0, 0)).apply();
@@ -645,7 +650,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         return variableDeclarationNode.modify()
                 .withAnnotations(annotationNodes)
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, trailingNewLines))
                 .withTypedBindingPattern(typedBindingPatternNode)
                 .apply();
     }
@@ -997,12 +1002,15 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         int leadingSpaces = 1;
         int trailingOpeningLines = 1;
-        if (blockStatementNode.parent() != null && blockStatementNode.parent().kind()
-                .equals(SyntaxKind.FUNCTION_BODY_BLOCK)) {
+        if (blockStatementNode.parent() != null && (blockStatementNode.parent().kind()
+                .equals(SyntaxKind.FUNCTION_BODY_BLOCK) || blockStatementNode.parent().kind()
+                .equals(SyntaxKind.IF_ELSE_STATEMENT))) {
             if (blockStatementNode.children().size() <= 2) {
                 trailingOpeningLines = 2;
             }
-            leadingSpaces = startColumn;
+            if (blockStatementNode.parent().kind().equals(SyntaxKind.FUNCTION_BODY_BLOCK)) {
+                leadingSpaces = startColumn;
+            }
         }
         return blockStatementNode.modify()
                 .withOpenBraceToken(formatToken(openBraceToken, leadingSpaces, 0, 0, trailingOpeningLines))
