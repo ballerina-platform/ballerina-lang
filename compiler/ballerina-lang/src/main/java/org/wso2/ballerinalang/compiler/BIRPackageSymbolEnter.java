@@ -804,13 +804,16 @@ public class BIRPackageSymbolEnter {
         invokableSymbol.taintTable = new HashMap<>();
 
         dataInStream.readInt(); // read and ignore table size
+
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             int paramIndex = dataInStream.readShort();
+
+            dataInStream.readInt(); // read and ignore taint records size
+
             TaintRecord.TaintedStatus returnTaintedStatus =
                     convertByteToTaintedStatus(dataInStream.readByte());
             List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>();
 
-            dataInStream.readInt(); // read and ignore taint record size
             for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
                 parameterTaintedStatusList.add(convertByteToTaintedStatus(dataInStream.readByte()));
             }
