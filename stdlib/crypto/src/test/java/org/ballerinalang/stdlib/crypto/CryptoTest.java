@@ -326,7 +326,7 @@ public class CryptoTest {
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
-        .contains("Uninitialized private key:"));
+                                  .contains("Uninitialized private key:"));
     }
 
     @Test(description = "Test RSA-MD5 signing with an invalid private key")
