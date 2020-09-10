@@ -39,6 +39,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.isFlagOn;
+
 /**
  * Represents a ballerina module.
  *
@@ -71,9 +74,10 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
         List<FunctionSymbol> functions = new ArrayList<>();
         for (Map.Entry<Name, ScopeEntry> entry : this.packageSymbol.scope.entries.entrySet()) {
             ScopeEntry scopeEntry = entry.getValue();
-            if (scopeEntry.symbol instanceof BInvokableSymbol &&
-                    (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC &&
-                    scopeEntry.symbol.kind != org.ballerinalang.model.symbols.SymbolKind.ERROR_CONSTRUCTOR) {
+            if (scopeEntry.symbol != null
+                    && scopeEntry.symbol.kind == org.ballerinalang.model.symbols.SymbolKind.FUNCTION
+                    && isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC)
+                    && scopeEntry.symbol.origin == COMPILED_SOURCE) {
                 String funcName = scopeEntry.symbol.getName().getValue();
                 functions.add(SymbolFactory.createFunctionSymbol((BInvokableSymbol) scopeEntry.symbol, funcName));
             }
@@ -90,14 +94,14 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
      */
     @Override
     public List<TypeSymbol> typeDefinitions() {
-        if (this.typeDefs == null) {
+        if (this.typeDefs != null) {
             return this.typeDefs;
         }
 
         List<TypeSymbol> typeDefs = new ArrayList<>();
         for (Map.Entry<Name, ScopeEntry> entry : this.packageSymbol.scope.entries.entrySet()) {
             ScopeEntry scopeEntry = entry.getValue();
-            if ((scopeEntry.symbol.flags & Flags.PUBLIC) != Flags.PUBLIC) {
+            if (!isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC) || scopeEntry.symbol.origin != COMPILED_SOURCE) {
                 continue;
             }
 
@@ -121,7 +125,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
      */
     @Override
     public List<ConstantSymbol> constants() {
-        if (this.constants == null) {
+        if (this.constants != null) {
             return this.constants;
         }
 

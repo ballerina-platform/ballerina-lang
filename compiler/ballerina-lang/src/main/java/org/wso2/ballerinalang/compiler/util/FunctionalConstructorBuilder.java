@@ -33,6 +33,8 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
+
 /**
  * Build functional constructor symbol.
  *
@@ -62,7 +64,7 @@ public class FunctionalConstructorBuilder {
     }
 
     private FunctionalConstructorBuilder addParam(String name, BType type, boolean isDefaultable) {
-        BVarSymbol paramSymbol = new BVarSymbol(0, new Name(name), langlibPkg.pkgID, type, null, pos);
+        BVarSymbol paramSymbol = new BVarSymbol(0, new Name(name), langlibPkg.pkgID, type, null, pos, BUILTIN);
         paramSymbol.defaultableParam = isDefaultable;
         params.add(paramSymbol);
         return this;
@@ -84,12 +86,12 @@ public class FunctionalConstructorBuilder {
 
         BInvokableTypeSymbol invokableTSymbol = new BInvokableTypeSymbol(SymTag.CONSTRUCTOR, Flags.PUBLIC,
                                                                          langlibPkg.pkgID, constructedType,
-                                                                         langlibPkg, pos);
+                                                                         langlibPkg, pos, BUILTIN);
         invokableTSymbol.params = params;
         invokableTSymbol.returnType = constructedType;
         BInvokableType invokableType = new BInvokableType(paramTypes, constructedType, invokableTSymbol);
-        BConstructorSymbol symbol = new BConstructorSymbol(Flags.PUBLIC, new Name(name),
-                langlibPkg.pkgID, invokableType, langlibPkg, pos);
+        BConstructorSymbol symbol = new BConstructorSymbol(Flags.PUBLIC, new Name(name), langlibPkg.pkgID,
+                                                           invokableType, langlibPkg, pos, BUILTIN);
         symbol.params = params;
         symbol.kind = SymbolKind.FUNCTIONAL_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);

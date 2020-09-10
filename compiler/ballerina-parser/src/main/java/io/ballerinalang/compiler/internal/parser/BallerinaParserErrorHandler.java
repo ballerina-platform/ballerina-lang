@@ -407,7 +407,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] INTERMEDIATE_CLAUSE_START =
             { ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE, ParserRuleContext.LET_CLAUSE,
-            ParserRuleContext.JOIN_CLAUSE, ParserRuleContext.ORDER_BY_CLAUSE };
+            ParserRuleContext.JOIN_CLAUSE, ParserRuleContext.ORDER_BY_CLAUSE, ParserRuleContext.LIMIT_CLAUSE };
 
     private static final ParserRuleContext[] BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
@@ -2151,18 +2151,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case CONFLICT_KEYWORD:
                     nextContext = ParserRuleContext.ON_CONFLICT_CLAUSE;
                     break;
-                case LIMIT_KEYWORD:
-                    nextContext = ParserRuleContext.LIMIT_CLAUSE;
-                    break;
                 default:
                     nextContext = ParserRuleContext.QUERY_EXPRESSION_END;
-            }
-        } else if (parentCtx == ParserRuleContext.ON_CONFLICT_CLAUSE) {
-            STToken nextToken = this.tokenReader.peek(lookahead);
-            if (nextToken.kind == SyntaxKind.LIMIT_KEYWORD) {
-                nextContext = ParserRuleContext.LIMIT_CLAUSE;
-            } else {
-                nextContext = ParserRuleContext.QUERY_EXPRESSION_END;
             }
         } else if (parentCtx == ParserRuleContext.JOIN_CLAUSE) {
             nextContext = ParserRuleContext.ON_CLAUSE;
@@ -2608,9 +2598,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ON_CONFLICT_CLAUSE:
                 return ParserRuleContext.ON_KEYWORD;
             case LIMIT_CLAUSE:
-                // We assume limit-clause is only used in query-action-or-expr
-                endContext(); // end select-clause, on-conflict-clause or do-clause
-                endContext(); // end query-expr
                 return ParserRuleContext.LIMIT_KEYWORD;
             case JOIN_CLAUSE:
                 return ParserRuleContext.JOIN_CLAUSE_START;
@@ -3035,6 +3022,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end on-clause
                 return ParserRuleContext.EXPRESSION;
             case CONFLICT_KEYWORD:
+                endContext(); // end on-conflict-clause
+                return ParserRuleContext.EXPRESSION;
             case LIMIT_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case OUTER_KEYWORD:

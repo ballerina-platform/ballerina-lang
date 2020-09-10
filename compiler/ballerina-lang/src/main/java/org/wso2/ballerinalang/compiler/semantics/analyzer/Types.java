@@ -93,6 +93,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED16_MAX_VALUE;
@@ -1607,7 +1608,8 @@ public class Types {
 
         if (unionType.getMemberTypes().size() > 1) {
             unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                    Names.EMPTY, recordType.tsymbol.pkgID, null, recordType.tsymbol.owner, symTable.builtinPos);
+                                                         Names.EMPTY, recordType.tsymbol.pkgID, null,
+                                                         recordType.tsymbol.owner, symTable.builtinPos, VIRTUAL);
             return unionType;
         }
 
@@ -2586,7 +2588,8 @@ public class Types {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
                                                                 names.fromString("$anonType$" + finiteTypeCount++),
                                                                 finiteType.tsymbol.pkgID, null,
-                                                                finiteType.tsymbol.owner, finiteType.tsymbol.pos);
+                                                                finiteType.tsymbol.owner, finiteType.tsymbol.pos,
+                                                                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3062,7 +3065,8 @@ public class Types {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
                                                                 names.fromString("$anonType$" + finiteTypeCount++),
                                                                 originalType.tsymbol.pkgID, null,
-                                                                originalType.tsymbol.owner, originalType.tsymbol.pos);
+                                                                originalType.tsymbol.owner, originalType.tsymbol.pos,
+                                                                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
