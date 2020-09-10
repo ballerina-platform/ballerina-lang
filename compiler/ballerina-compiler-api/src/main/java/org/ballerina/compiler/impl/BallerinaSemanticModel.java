@@ -102,10 +102,7 @@ public class BallerinaSemanticModel implements SemanticModel {
      */
     @Override
     public Optional<Symbol> symbol(String srcFile, LinePosition position) {
-        SymbolTable symbolTable = SymbolTable.getInstance(this.compilerContext);
-        SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(this.bLangPackage.symbol);
-        SymbolsLookupVisitor lookupVisitor = new SymbolsLookupVisitor(position, symbolEnv);
-        SymbolEnv enclosingEnv = lookupVisitor.lookUp(getCompilationUnit(srcFile));
+        SymbolEnv enclosingEnv = this.envResolver.lookUp(getCompilationUnit(srcFile), position);
 
         for (Map.Entry<Name, Scope.ScopeEntry> entry : enclosingEnv.scope.entries.entrySet()) {
             Name name = entry.getKey();
