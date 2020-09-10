@@ -307,6 +307,7 @@ public class CryptoTest {
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
                                   .contains("Uninitialized private key:"));
+    }
 
     @Test(description = "Test RSA-SHA384 signing with an invalid private key")
     public void testSignRsaSha384WithInvalidKey() {
