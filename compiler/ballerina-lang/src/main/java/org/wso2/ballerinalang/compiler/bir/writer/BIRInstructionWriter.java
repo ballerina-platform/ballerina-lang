@@ -464,15 +464,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         writeType(newTypeDesc.type);
     }
 
-    // Positions
-    void writePosition(DiagnosticPos pos) {
-        writePosition(pos, buf);
-    }
-
-    void writePosition(ByteBuf buf, DiagnosticPos pos) {
-        writePosition(pos, buf);
-    }
-
     int addPkgCPEntry(PackageID packageID) {
         int orgCPIndex = addStringCPEntry(packageID.orgName.value);
         int nameCPIndex = addStringCPEntry(packageID.name.value);
@@ -481,6 +472,10 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     // private methods
+
+    private void writePosition(DiagnosticPos pos) {
+        binaryWriter.writePosition(pos, buf);
+    }
 
     private void addCpAndWriteString(String string) {
         buf.writeInt(addStringCPEntry(string));
@@ -493,27 +488,4 @@ public class BIRInstructionWriter extends BIRVisitor {
     private void writeType(BType type) {
         buf.writeInt(cp.addShapeCPEntry(type));
     }
-
-    private void writePosition(DiagnosticPos pos, ByteBuf buf) {
-        int sLine = Integer.MIN_VALUE;
-        int eLine = Integer.MIN_VALUE;
-        int sCol = Integer.MIN_VALUE;
-        int eCol = Integer.MIN_VALUE;
-        String sourceFileName = "";
-        if (pos != null) {
-            sLine = pos.sLine;
-            eLine = pos.eLine;
-            sCol = pos.sCol;
-            eCol = pos.eCol;
-            if (pos.src != null) {
-                sourceFileName = pos.src.cUnitName;
-            }
-        }
-        buf.writeInt(addStringCPEntry(sourceFileName));
-        buf.writeInt(sLine);
-        buf.writeInt(sCol);
-        buf.writeInt(eLine);
-        buf.writeInt(eCol);
-    }
-
 }

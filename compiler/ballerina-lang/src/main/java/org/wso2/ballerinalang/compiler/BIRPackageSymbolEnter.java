@@ -843,11 +843,11 @@ public class BIRPackageSymbolEnter {
     }
 
     private DiagnosticPos readPosition(DataInputStream dataInStream) throws IOException {
-        String cUnitName = getStringCPEntryValue(dataInStream);
         int sLine = dataInStream.readInt();
-        int sCol = dataInStream.readInt();
         int eLine = dataInStream.readInt();
+        int sCol = dataInStream.readInt();
         int eCol = dataInStream.readInt();
+        String cUnitName = getStringCPEntryValue(dataInStream);
         BDiagnosticSource diagSrc = new BDiagnosticSource(this.env.pkgSymbol.pkgID, cUnitName);
         return new DiagnosticPos(diagSrc, sLine, eLine, sCol, eCol);
     }

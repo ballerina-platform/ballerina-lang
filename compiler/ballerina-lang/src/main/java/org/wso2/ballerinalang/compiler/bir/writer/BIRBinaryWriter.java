@@ -172,7 +172,7 @@ public class BIRBinaryWriter {
 
     private void writeType(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
                            BIRTypeDefinition typeDef) {
-        insWriter.writePosition(typeDef.pos);
+        writePosition(typeDef.pos, buf);
         // Type name CP Index
         buf.writeInt(addStringCPEntry(typeDef.name.value));
         // Flags
@@ -195,7 +195,7 @@ public class BIRBinaryWriter {
                                BIRNode.BIRFunction birFunction) {
 
         // Write Position
-        insWriter.writePosition(birFunction.pos);
+        writePosition(birFunction.pos, buf);
         // Function name CP Index
         buf.writeInt(addStringCPEntry(birFunction.name.value));
         // Function worker name CP Index
@@ -333,7 +333,7 @@ public class BIRBinaryWriter {
 
         buf.writeInt(birAnnotation.flags);
         buf.writeByte(birAnnotation.origin.value());
-        writePosition(buf, birAnnotation.pos);
+        writePosition(birAnnotation.pos, buf);
 
         buf.writeInt(birAnnotation.attachPoints.size());
         for (AttachPoint attachPoint : birAnnotation.attachPoints) {
@@ -356,7 +356,7 @@ public class BIRBinaryWriter {
         buf.writeInt(addStringCPEntry(birConstant.name.value));
         buf.writeInt(birConstant.flags);
         buf.writeByte(birConstant.origin.value());
-        writePosition(buf, birConstant.pos);
+        writePosition(birConstant.pos, buf);
 
         typeWriter.writeMarkdownDocAttachment(buf, birConstant.markdownDocAttachment);
 
@@ -456,7 +456,7 @@ public class BIRBinaryWriter {
         // Write module information of the annotation attachment
         annotBuf.writeInt(insWriter.addPkgCPEntry(annotAttachment.packageID));
         // Write position
-        insWriter.writePosition(annotBuf, annotAttachment.pos);
+        writePosition(annotAttachment.pos, annotBuf);
         annotBuf.writeInt(addStringCPEntry(annotAttachment.annotTagRef.value));
         writeAnnotAttachValues(annotBuf, annotAttachment.annotValues);
     }
@@ -492,11 +492,25 @@ public class BIRBinaryWriter {
         }
     }
 
-    private void writePosition(ByteBuf buf, DiagnosticPos pos) {
-        buf.writeInt(addStringCPEntry(pos.src.getCompilationUnitName()));
-        buf.writeInt(pos.sLine);
-        buf.writeInt(pos.sCol);
-        buf.writeInt(pos.eLine);
-        buf.writeInt(pos.eCol);
+    void writePosition(DiagnosticPos pos, ByteBuf buf) {
+        int sLine = Integer.MIN_VALUE;
+        int eLine = Integer.MIN_VALUE;
+        int sCol = Integer.MIN_VALUE;
+        int eCol = Integer.MIN_VALUE;
+        String sourceFileName = "";
+        if (pos != null) {
+            sLine = pos.sLine;
+            eLine = pos.eLine;
+            sCol = pos.sCol;
+            eCol = pos.eCol;
+            if (pos.src != null) {
+                sourceFileName = pos.src.cUnitName;
+            }
+        }
+        buf.writeInt(sLine);
+        buf.writeInt(eLine);
+        buf.writeInt(sCol);
+        buf.writeInt(eCol);
+        buf.writeInt(addStringCPEntry(sourceFileName));
     }
 }
