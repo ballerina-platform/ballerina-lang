@@ -76,7 +76,7 @@ public function assertEquals(anydata|error actual, anydata|error expected, strin
         string actualType = getBallerinaType(actual);
         string errorMsg = "";
         if (expectedType != actualType) {
-            errorMsg = string `${msg}: expected '<${expectedType}>${expectedStr}' but found '<${actualType}>${actualStr}'`;
+            errorMsg = string `${msg}: expected '<${expectedType}> ${expectedStr}' but found '<${actualType}> ${actualStr}'`;
         } else {
             errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
         }
@@ -113,7 +113,7 @@ public function assertExactEquals(any|error actual, any|error expected, string m
         string actualType = getBallerinaType(actual);
         string errorMsg = "";
         if (expectedType != actualType) {
-            errorMsg = string `${msg}: expected '<${expectedType}>${expectedStr}' but found '<${actualType}>${actualStr}'`;
+            errorMsg = string `${msg}: expected '<${expectedType}> ${expectedStr}' but found '<${actualType}> ${actualStr}'`;
         } else {
             errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
         }
