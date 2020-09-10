@@ -136,7 +136,7 @@ public class BIRPackageSymbolEnter {
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
 
-    private static final int SERVICE_TYPE_TAG = 51;
+    private static final int SERVICE_TYPE_TAG = 52;
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
@@ -179,8 +179,8 @@ public class BIRPackageSymbolEnter {
     }
 
     private BPackageSymbol definePackage(PackageID packageId,
-                                        RepoHierarchy packageRepositoryHierarchy,
-                                        InputStream programFileInStream) {
+                                         RepoHierarchy packageRepositoryHierarchy,
+                                         InputStream programFileInStream) {
         // TODO packageID --> package to be loaded. this is required for error reporting..
         try (DataInputStream dataInStream = new DataInputStream(programFileInStream)) {
             BIRPackageSymbolEnv prevEnv = this.env;
@@ -256,6 +256,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void readTypeDefBodies(DataInputStream dataInStream) throws IOException {
+        dataInStream.readInt(); // ignore the size
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
             this.currentStructure = structureTypeSymbol;
             defineSymbols(dataInStream, rethrow(this::defineFunction));
@@ -303,7 +304,7 @@ public class BIRPackageSymbolEnter {
                 return new CPEntry.StringCPEntry(strValue);
             case CP_ENTRY_PACKAGE:
                 return new CPEntry.PackageCPEntry(dataInStream.readInt(),
-                                                  dataInStream.readInt(), dataInStream.readInt());
+                        dataInStream.readInt(), dataInStream.readInt());
             case CP_ENTRY_SHAPE:
                 env.unparsedBTypeCPs.put(i, readByteArray(dataInStream));
                 return null;
@@ -543,7 +544,7 @@ public class BIRPackageSymbolEnter {
 
     private BInvokableType createClonedInvokableTypeWithTsymbol(BInvokableType bInvokableType) {
         BInvokableType clonedType = new BInvokableType(bInvokableType.paramTypes, bInvokableType.restType,
-                                                       bInvokableType.retType, null);
+                bInvokableType.retType, null);
         clonedType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                bInvokableType.flags, env.pkgSymbol.pkgID, null,
                                                                env.pkgSymbol.owner, symTable.builtinPos,
@@ -569,7 +570,7 @@ public class BIRPackageSymbolEnter {
 
         for (int i = 0; i < attachPointCount; i++) {
             attachPoints.add(AttachPoint.getAttachmentPoint(getStringCPEntryValue(dataInStream),
-                                                            dataInStream.readBoolean()));
+                    dataInStream.readBoolean()));
         }
 
         BType annotationType = readBType(dataInStream);
@@ -629,7 +630,7 @@ public class BIRPackageSymbolEnter {
             case TypeTags.DECIMAL:
                 return new BLangConstantValue(getStringCPEntryValue(dataInStream), symTable.decimalType);
             case TypeTags.BOOLEAN:
-                return new BLangConstantValue(dataInStream.readByte() == 1, symTable.booleanType);
+                return new BLangConstantValue(dataInStream.readBoolean(), symTable.booleanType);
             case TypeTags.NIL:
                 return new BLangConstantValue(null, symTable.nilType);
             case TypeTags.MAP:
@@ -816,11 +817,18 @@ public class BIRPackageSymbolEnter {
 
         // Extract and set taint table to the symbol
         invokableSymbol.taintTable = new HashMap<>();
+
+        dataInStream.readInt(); // read and ignore table size
+
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             int paramIndex = dataInStream.readShort();
+
+            dataInStream.readInt(); // read and ignore taint records size
+
             TaintRecord.TaintedStatus returnTaintedStatus =
                     convertByteToTaintedStatus(dataInStream.readByte());
             List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>();
+
             for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
                 parameterTaintedStatusList.add(convertByteToTaintedStatus(dataInStream.readByte()));
             }
@@ -958,8 +966,8 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.ANYDATA:
                     BType anydataNominalType = typeParamAnalyzer.getNominalType(symTable.anydataType, name, flags);
                     return isImmutable(flags) ? getEffectiveImmutableType(anydataNominalType,
-                                                                          symTable.anydataType.tsymbol.pkgID,
-                                                                          symTable.anydataType.tsymbol.owner) :
+                            symTable.anydataType.tsymbol.pkgID,
+                            symTable.anydataType.tsymbol.owner) :
                             anydataNominalType;
                 case TypeTags.RECORD:
                     int pkgCpIndex = inputStream.readInt();
@@ -1106,8 +1114,8 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.ANY:
                     BType anyNominalType = typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);
                     return isImmutable(flags) ? getEffectiveImmutableType(anyNominalType,
-                                                                          symTable.anyType.tsymbol.pkgID,
-                                                                          symTable.anyType.tsymbol.owner) :
+                            symTable.anyType.tsymbol.pkgID,
+                            symTable.anyType.tsymbol.owner) :
                             anyNominalType;
                 case TypeTags.HANDLE:
                     return symTable.handleType;
@@ -1125,7 +1133,7 @@ public class BIRPackageSymbolEnter {
                                                                            env.pkgSymbol.owner, symTable.builtinPos,
                                                                            COMPILED_SOURCE);
                     BArrayType bArrayType = new BArrayType(null, arrayTypeSymbol, size, BArrayState.valueOf(state),
-                                                           flags);
+                            flags);
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
                 case TypeTags.UNION:
@@ -1341,8 +1349,8 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.XML_PI:
                     return isImmutable(flags) ? getEffectiveImmutableType(symTable.xmlPIType) : symTable.xmlPIType;
                 case TypeTags.XML_COMMENT:
-                return isImmutable(flags) ? getEffectiveImmutableType(symTable.xmlCommentType) :
-                        symTable.xmlCommentType;
+                    return isImmutable(flags) ? getEffectiveImmutableType(symTable.xmlCommentType) :
+                            symTable.xmlCommentType;
                 case TypeTags.XML_TEXT:
                     return symTable.xmlTextType;
             }
@@ -1402,6 +1410,9 @@ public class BIRPackageSymbolEnter {
     private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType, BIRTypeReader typeReader)
             throws IOException {
         BType valueType = typeReader.readTypeFromCp();
+
+        dataInStream.readInt(); // read and ignore value length
+
         BLangLiteral litExpr = createLiteralBasedOnType(valueType);
         switch (valueType.tag) {
             case TypeTags.INT:
@@ -1424,7 +1435,7 @@ public class BIRPackageSymbolEnter {
                 litExpr.value = getStringCPEntryValue(dataInStream);
                 break;
             case TypeTags.BOOLEAN:
-                litExpr.value = dataInStream.readByte() == 1;
+                litExpr.value = dataInStream.readBoolean();
                 break;
             case TypeTags.NIL:
                 break;
@@ -1449,12 +1460,12 @@ public class BIRPackageSymbolEnter {
 
     private BType getEffectiveImmutableType(BType type) {
         return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
-                                                             type.tsymbol.pkgID, type.tsymbol.owner,
-                                                             symTable, null, names);
+                type.tsymbol.pkgID, type.tsymbol.owner,
+                symTable, null, names);
     }
 
     private BType getEffectiveImmutableType(BType type, PackageID pkgID, BSymbol owner) {
         return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
-                                                             pkgID, owner, symTable, null, names);
+                pkgID, owner, symTable, null, names);
     }
 }
