@@ -452,20 +452,10 @@ public class Desugar extends BLangNodeVisitor {
      * nodes, one should always take care to call this method **after** desugaring the init() method (if there is
      * supposed to be one).
      *
-     * @param objectTypeNode The object type node for which the initializer is created
+     * @param classDefinition The class definition node for which the initializer is created
      * @param env            The env for the type node
      * @return The generated initializer method
      */
-    private BLangFunction createGeneratedInitializerFunction(BLangObjectTypeNode objectTypeNode, SymbolEnv env) {
-        BLangFunction generatedInitFunc = createInitFunctionForObjectType(objectTypeNode, env);
-        if (objectTypeNode.initFunction == null) {
-            return generatedInitFunc;
-        }
-
-        return wireUpGeneratedInitFunction(generatedInitFunc,
-                (BObjectTypeSymbol) objectTypeNode.symbol, objectTypeNode.initFunction);
-    }
-
     private BLangFunction createGeneratedInitializerFunction(BLangClassDefinition classDefinition, SymbolEnv env) {
         BLangFunction generatedInitFunc = createInitFunctionForClassDefn(classDefinition, env);
         if (classDefinition.initFunction == null) {
@@ -6903,19 +6893,6 @@ public class Desugar extends BLangNodeVisitor {
             default:
                 return false;
         }
-    }
-
-    private BLangFunction createInitFunctionForObjectType(BLangObjectTypeNode structureTypeNode, SymbolEnv env) {
-        BLangFunction initFunction =
-                TypeDefBuilderHelper.createInitFunctionForStructureType(structureTypeNode.pos, structureTypeNode.symbol,
-                        env, names, Names.GENERATED_INIT_SUFFIX, symTable, structureTypeNode.type);
-        BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) structureTypeNode.type.tsymbol);
-        typeSymbol.generatedInitializerFunc = new BAttachedFunction(Names.GENERATED_INIT_SUFFIX, initFunction.symbol,
-                                                                    (BInvokableType) initFunction.type,
-                                                                    symTable.builtinPos);
-        structureTypeNode.generatedInitFunction = initFunction;
-        initFunction.returnTypeNode.type = symTable.nilType;
-        return rewrite(initFunction, env);
     }
 
     private BLangFunction createInitFunctionForClassDefn(BLangClassDefinition classDefinition, SymbolEnv env) {

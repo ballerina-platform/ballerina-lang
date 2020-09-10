@@ -1550,7 +1550,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.functions = cloneList(source.functions);
         clone.initFunction = clone(source.initFunction);
-        clone.receiver = clone(source.receiver);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         cloneBLangStructureTypeNode(source, clone);
         cloneBLangType(source, clone);
