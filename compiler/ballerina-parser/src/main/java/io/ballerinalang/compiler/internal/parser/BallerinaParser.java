@@ -2818,52 +2818,8 @@ public class BallerinaParser extends AbstractParser {
             case AT_TOKEN:
                 annots = parseOptionalAnnotations();
                 break;
-            case FINAL_KEYWORD:
-
-                // Statements starts other than var-decl
-            case IF_KEYWORD:
-            case WHILE_KEYWORD:
-            case DO_KEYWORD:
-            case PANIC_KEYWORD:
-            case CONTINUE_KEYWORD:
-            case BREAK_KEYWORD:
-            case RETURN_KEYWORD:
-            case TYPE_KEYWORD:
-            case LOCK_KEYWORD:
-            case OPEN_BRACE_TOKEN:
-            case FORK_KEYWORD:
-            case FOREACH_KEYWORD:
-            case XMLNS_KEYWORD:
-            case TRANSACTION_KEYWORD:
-            case RETRY_KEYWORD:
-            case ROLLBACK_KEYWORD:
-            case MATCH_KEYWORD:
-            case ON_KEYWORD:
-            case FAIL_KEYWORD:
-
-                // action-statements
-            case CHECK_KEYWORD:
-            case CHECKPANIC_KEYWORD:
-            case TRAP_KEYWORD:
-            case START_KEYWORD:
-            case FLUSH_KEYWORD:
-            case LEFT_ARROW_TOKEN:
-            case WAIT_KEYWORD:
-            case COMMIT_KEYWORD:
-
-                // Even-though worker is not a statement, we parse it as statements.
-                // then validates it based on the context. This is done to provide
-                // better error messages
-            case WORKER_KEYWORD:
-                break;
             default:
-                // Var-decl-stmt start
-                if (isTypeStartingToken(nextToken.kind)) {
-                    break;
-                }
-
-                // Expression-stmt start
-                if (isValidExpressionStart(nextToken.kind, 1)) {
+                if (isStatementStartingToken(nextToken.kind)) {
                     break;
                 }
 
@@ -4932,7 +4888,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse do statement.
-     * <code>do-stmt := do block-stmt</code>
+     * <code>do-stmt := do block-stmt [on-fail-clause]</code>
      *
      * @return Do statement
      */
@@ -4941,18 +4897,13 @@ public class BallerinaParser extends AbstractParser {
         STNode doKeyword = parseDoKeyword();
         STNode doBody = parseBlockNode();
         endContext();
-        STNode onFailClause;
-        if (peek().kind == SyntaxKind.ON_KEYWORD) {
-            onFailClause = parseOnFailClause();
-        } else {
-            onFailClause = STNodeFactory.createEmptyNode();
-        }
+        STNode onFailClause = parseOptionalOnFailClause();
         return STNodeFactory.createDoStatementNode(doKeyword, doBody, onFailClause);
     }
 
     /**
      * Parse while statement.
-     * <code>while-stmt := while expression block-stmt</code>
+     * <code>while-stmt := while expression block-stmt [on-fail-clause]</code>
      *
      * @return While statement
      */
@@ -4962,12 +4913,7 @@ public class BallerinaParser extends AbstractParser {
         STNode condition = parseExpression();
         STNode whileBody = parseBlockNode();
         endContext();
-        STNode onFailClause;
-        if (peek().kind == SyntaxKind.ON_KEYWORD) {
-            onFailClause = parseOnFailClause();
-        } else {
-            onFailClause = STNodeFactory.createEmptyNode();
-        }
+        STNode onFailClause = parseOptionalOnFailClause();
         return STNodeFactory.createWhileStatementNode(whileKeyword, condition, whileBody, onFailClause);
     }
 
@@ -5092,7 +5038,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse fail statement.
-     * <code>fail-stmt := return [ action-or-expr ] ;</code>
+     * <code>fail-stmt := fail expression ;</code>
      *
      * @return Fail statement
      */
@@ -5115,13 +5061,12 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseFailKeyword() {
-
         STToken token = peek();
         if (token.kind == SyntaxKind.FAIL_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.FAIL_KEYWORD);
-            return sol.recoveredNode;
+            recover(token, ParserRuleContext.FAIL_KEYWORD);
+            return parseFailKeyword();
         }
     }
 
@@ -7347,7 +7292,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse lock statement.
-     * <code>lock-stmt := lock block-stmt ;</code>
+     * <code>lock-stmt := lock block-stmt [on-fail-clause]</code>
      *
      * @return Lock statement
      */
@@ -7356,12 +7301,7 @@ public class BallerinaParser extends AbstractParser {
         STNode lockKeyword = parseLockKeyword();
         STNode blockStatement = parseBlockNode();
         endContext();
-        STNode onFailClause;
-        if (peek().kind == SyntaxKind.ON_KEYWORD) {
-            onFailClause = parseOnFailClause();
-        } else {
-            onFailClause = STNodeFactory.createEmptyNode();
-        }
+        STNode onFailClause = parseOptionalOnFailClause();
         return STNodeFactory.createLockStatementNode(lockKeyword, blockStatement, onFailClause);
     }
 
@@ -7689,7 +7629,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse foreach statement.
-     * <code>foreach-stmt := foreach typed-binding-pattern in action-or-expr block-stmt</code>
+     * <code>foreach-stmt := foreach typed-binding-pattern in action-or-expr block-stmt [on-fail-clause]</code>
      *
      * @return foreach statement
      */
@@ -7701,12 +7641,7 @@ public class BallerinaParser extends AbstractParser {
         STNode actionOrExpr = parseActionOrExpression();
         STNode blockStatement = parseBlockNode();
         endContext();
-        STNode onFailClause;
-        if (peek().kind == SyntaxKind.ON_KEYWORD) {
-            onFailClause = parseOnFailClause();
-        } else {
-            onFailClause = STNodeFactory.createEmptyNode();
-        }
+        STNode onFailClause = parseOptionalOnFailClause();
         return STNodeFactory.createForEachStatementNode(forEachKeyword, typedBindingPattern, inKeyword, actionOrExpr,
                 blockStatement, onFailClause);
     }
@@ -10577,7 +10512,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse transaction statement.
      * <p>
-     * <code>transaction-stmt := "transaction" block-stmt ;</code>
+     * <code>transaction-stmt := `transaction` block-stmt [on-fail-clause]</code>
      *
      * @return Transaction statement node
      */
@@ -10586,12 +10521,7 @@ public class BallerinaParser extends AbstractParser {
         STNode transactionKeyword = parseTransactionKeyword();
         STNode blockStmt = parseBlockNode();
         endContext();
-        STNode onFailClause;
-        if (peek().kind == SyntaxKind.ON_KEYWORD) {
-            onFailClause = parseOnFailClause();
-        } else {
-            onFailClause = STNodeFactory.createEmptyNode();
-        }
+        STNode onFailClause = parseOptionalOnFailClause();
         return STNodeFactory.createTransactionStatementNode(transactionKeyword, blockStmt, onFailClause);
     }
 
@@ -10641,9 +10571,9 @@ public class BallerinaParser extends AbstractParser {
      * Parse retry statement.
      * <p>
      * <code>
-     * retry-stmt := "retry" retry-spec block-stmt
+     * retry-stmt := `retry` retry-spec block-stmt [on-fail-clause]
      * <br/>
-     * retry-spec :=  [type-parameter] [ "(" arg-list ")" ]
+     * retry-spec :=  [type-parameter] [ `(` arg-list `)` ]
      * </code>
      *
      * @return Retry statement node
@@ -10651,8 +10581,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseRetryStatement() {
         startContext(ParserRuleContext.RETRY_STMT);
         STNode retryKeyword = parseRetryKeyword();
+        // Context is closed inside the the method.
         STNode retryStmt = parseRetryKeywordRhs(retryKeyword);
-        endContext();
         return retryStmt;
     }
 
@@ -10689,12 +10619,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode blockStmt = parseRetryBody();
-        STNode onFailClause;
-        if (peek().kind == SyntaxKind.ON_KEYWORD) {
-            onFailClause = parseOnFailClause();
-        } else {
-            onFailClause = STNodeFactory.createEmptyNode();
-        }
+        endContext(); // end retry-stmt
+        STNode onFailClause = parseOptionalOnFailClause();
         return STNodeFactory.createRetryStatementNode(retryKeyword, typeParam, args, blockStmt, onFailClause);
     }
 
@@ -10710,21 +10636,109 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseOnFailClause() {
-        STNode onKeyword = parseOnKeyword();
-        STNode failKeyword;
+    /**
+     * Parse optional on fail clause.
+     *
+     * @return Parsed node
+     */
+    private STNode parseOptionalOnFailClause() {
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.FAIL_KEYWORD) {
-            failKeyword = parseFailKeyword();
-        } else {
-            // No other cases for now
-            failKeyword = STNodeFactory.createEmptyNode();
+        if (nextToken.kind == SyntaxKind.ON_KEYWORD) {
+            return parseOnFailClause();
         }
-        STNode typeDescriptorNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_DEF);
-        STNode identifierNode = parseIdentifier(ParserRuleContext.VARIABLE_REF);
-        STNode blockStatement = parseBlockNode();
 
-        return STNodeFactory.createOnFailClauseNode(onKeyword, failKeyword, typeDescriptorNode, identifierNode,
+        if (isEndOfRegularCompoundStmt(nextToken.kind)) {
+            return STNodeFactory.createEmptyNode();
+        }
+
+        recover(nextToken, ParserRuleContext.REGULAR_COMPOUND_STMT_RHS);
+        return parseOptionalOnFailClause();
+    }
+
+    private boolean isEndOfRegularCompoundStmt(SyntaxKind nodeKind) {
+        switch (nodeKind) {
+            case CLOSE_BRACE_TOKEN:
+            case SEMICOLON_TOKEN:
+            case AT_TOKEN:
+            case EOF_TOKEN:
+                return true;
+            default:
+                return isStatementStartingToken(nodeKind);
+        }
+    }
+
+    private boolean isStatementStartingToken(SyntaxKind nodeKind) {
+        switch (nodeKind) {
+            case FINAL_KEYWORD:
+
+                // Statements starts other than var-decl
+            case IF_KEYWORD:
+            case WHILE_KEYWORD:
+            case DO_KEYWORD:
+            case PANIC_KEYWORD:
+            case CONTINUE_KEYWORD:
+            case BREAK_KEYWORD:
+            case RETURN_KEYWORD:
+            case TYPE_KEYWORD:
+            case LOCK_KEYWORD:
+            case OPEN_BRACE_TOKEN:
+            case FORK_KEYWORD:
+            case FOREACH_KEYWORD:
+            case XMLNS_KEYWORD:
+            case TRANSACTION_KEYWORD:
+            case RETRY_KEYWORD:
+            case ROLLBACK_KEYWORD:
+            case MATCH_KEYWORD:
+            case FAIL_KEYWORD:
+
+                // action-statements
+            case CHECK_KEYWORD:
+            case CHECKPANIC_KEYWORD:
+            case TRAP_KEYWORD:
+            case START_KEYWORD:
+            case FLUSH_KEYWORD:
+            case LEFT_ARROW_TOKEN:
+            case WAIT_KEYWORD:
+            case COMMIT_KEYWORD:
+
+            // Even-though worker is not a statement, we parse it as statements.
+            // then validates it based on the context. This is done to provide
+            // better error messages
+            case WORKER_KEYWORD:
+                return true;
+            default:
+                // Var-decl-stmt start
+                if (isTypeStartingToken(nodeKind)) {
+                    return true;
+                }
+
+                // Expression-stmt start
+                if (isValidExpressionStart(nodeKind, 1)) {
+                    return true;
+                }
+
+                return false;
+        }
+    }
+
+    /**
+     * Parse on fail clause.
+     * <p>
+     * <code>
+     * on-fail-clause := on fail typed-binding-pattern statement-block
+     * </code>
+     *
+     * @return On fail clause node
+     */
+    private STNode parseOnFailClause() {
+        startContext(ParserRuleContext.ON_FAIL_CLAUSE);
+        STNode onKeyword = parseOnKeyword();
+        STNode failKeyword = parseFailKeyword();
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ON_FAIL_CLAUSE);
+        STNode identifier = parseIdentifier(ParserRuleContext.VARIABLE_REF);
+        STNode blockStatement = parseBlockNode();
+        endContext();
+        return STNodeFactory.createOnFailClauseNode(onKeyword, failKeyword, typeDescriptor, identifier,
                 blockStatement);
     }
 
@@ -11354,7 +11368,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse match statement.
      * <p>
-     * <code>match-stmt := match action-or-expr { match-clause+ }</code>
+     * <code>match-stmt := match action-or-expr { match-clause+ } [on-fail-clause]</code>
      *
      * @return Match statement
      */
@@ -11368,12 +11382,7 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBrace = parseCloseBrace();
         endContext();
         endContext();
-        STNode onFailClause;
-        if (peek().kind == SyntaxKind.ON_KEYWORD) {
-            onFailClause = parseOnFailClause();
-        } else {
-            onFailClause = STNodeFactory.createEmptyNode();
-        }
+        STNode onFailClause = parseOptionalOnFailClause();
         return STNodeFactory.createMatchStatementNode(matchKeyword, actionOrExpr, openBrace, matchClauses, closeBrace,
                 onFailClause);
     }

@@ -265,6 +265,8 @@ public enum ParserRuleContext {
     ON_CLAUSE("on-clause"),
     INTERMEDIATE_CLAUSE("intermediate-clause"),
     INTERMEDIATE_CLAUSE_START("intermediate-clause-start"),
+    ON_FAIL_CLAUSE("on_fail_clause"),
+    ON_FA("on_fail_clause"),
 
     // Statements
     STATEMENT("statement"),
@@ -288,7 +290,7 @@ public enum ParserRuleContext {
     PANIC_STMT("panic-statement"),
     RETURN_STMT("return-stmt"),
     RETURN_STMT_RHS("return-stmt-rhs"),
-    COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
+    REGULAR_COMPOUND_STMT_RHS("regular-compound-statement-rhs"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
     BINDING_PATTERN_OR_EXPR_RHS("binding-pattern-or-expr-rhs"),
     TYPE_DESC_OR_EXPR_RHS("type-desc-or-expr-rhs"),
@@ -535,6 +537,7 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_PARENTHESIS("type-desc-in-parenthesis"),
     TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
+    TYPE_DESC_IN_ON_FAIL_CLAUSE("type-desc-in-on-fail-clause"),
 
     // XML
     XML_CONTENT("xml-content"),
