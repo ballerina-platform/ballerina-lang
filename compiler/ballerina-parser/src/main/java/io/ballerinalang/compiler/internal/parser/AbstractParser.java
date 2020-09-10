@@ -186,8 +186,10 @@ public abstract class AbstractParser {
                                                        Object... args) {
         int lastIndex = nodeList.size() - 1;
         STNode prevNode = nodeList.remove(lastIndex);
-        STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam, diagnosticCode,
-                args);
+        STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam);
+        if (diagnosticCode != null) {
+            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
+        }
         nodeList.add(newNode);
     }
 
