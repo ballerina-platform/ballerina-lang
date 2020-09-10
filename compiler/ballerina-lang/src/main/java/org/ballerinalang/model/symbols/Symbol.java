@@ -46,4 +46,6 @@ public interface Symbol {
     List<? extends Symbol> getEnclosedSymbols();
 
     DiagnosticPosition getPosition();
+
+    SymbolOrigin getOrigin();
 }
