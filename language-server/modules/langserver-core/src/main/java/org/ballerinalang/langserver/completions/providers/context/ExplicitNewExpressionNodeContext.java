@@ -67,7 +67,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
             for (BObjectTypeSymbol objectTypeSymbol : filteredList) {
                 completionItems.add(this.getExplicitNewCompletionItem(objectTypeSymbol, context));
             }
-            completionItems.addAll(this.getPackagesCompletionItems(context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
         } else if (this.onQualifiedNameIdentifier(context, typeDescriptor)) {
             QualifiedNameReferenceNode referenceNode = (QualifiedNameReferenceNode) typeDescriptor;
             String moduleName = QNameReferenceUtil.getAlias(referenceNode);

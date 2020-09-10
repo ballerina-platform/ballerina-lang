@@ -282,6 +282,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Select Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getSelectKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.SELECT_KEYWORD, "select ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get {@code equals} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getEqualsKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.EQUALS_KEYWORD, "equals ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
      * Get Flush Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

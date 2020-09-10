@@ -23,10 +23,13 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
+import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,19 +48,42 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, QueryExpressionNode node)
             throws LSCompletionException {
-        
+
         if (this.onQueryPipeLine(context, node)) {
-            return CompletionUtil.route(context, node.queryPipeline());
+            /*
+             * we suggest intermediate clause snippets, the keywords and the select keyword as well. This is to support
+             * multiple intermediate clauses and the select clause.
+             * query-expr := [query-construct-type] query-pipeline select-clause [on-conflict-clause]
+             */
+            List<LSCompletionItem> completionItems = new ArrayList<>(Arrays.asList(
+                    new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
+                    new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()),
+                    new SnippetCompletionItem(context, Snippet.KW_WHERE.get()),
+                    new SnippetCompletionItem(context, Snippet.KW_LET.get()),
+                    new SnippetCompletionItem(context, Snippet.CLAUSE_LET.get()),
+                    new SnippetCompletionItem(context, Snippet.KW_JOIN.get()),
+                    new SnippetCompletionItem(context, Snippet.CLAUSE_JOIN.get()),
+                    new SnippetCompletionItem(context, Snippet.KW_ORDERBY.get()),
+                    new SnippetCompletionItem(context, Snippet.KW_LIMIT.get())));
+            if (!node.queryPipeline().fromClause().isMissing()) {
+                /*
+                 * It is mandatory to have at least one pipeline clause.
+                 * Only if that is true we suggest the select clause
+                 */
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SELECT.get()));
+            }
+            
+            return completionItems;
         }
-        
+
         return new ArrayList<>();
     }
-    
+
     private boolean onQueryPipeLine(LSContext context, QueryExpressionNode node) {
         int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
         QueryPipelineNode queryPipeline = node.queryPipeline();
         Optional<OnConflictClauseNode> onConflictClause = node.onConflictClause();
-        
+
         return !queryPipeline.isMissing() && queryPipeline.textRange().endOffset() < cursor
                 && (!onConflictClause.isPresent() || onConflictClause.get().textRange().startOffset() > cursor);
     }

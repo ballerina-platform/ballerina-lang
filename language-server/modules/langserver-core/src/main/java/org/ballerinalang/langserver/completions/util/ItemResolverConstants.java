@@ -125,6 +125,8 @@ public class ItemResolverConstants {
     public static final String JOIN_KEYWORD = "join";
     public static final String ORDERBY_KEYWORD = "order by";
     public static final String LIMIT_KEYWORD = "limit";
+    public static final String SELECT_KEYWORD = "select";
+    public static final String EQUALS_KEYWORD = "equals";
     public static final String FLUSH_KEYWORD = "flush";
     public static final String LISTENER_KEYWORD = "listener";
     public static final String RETURNS_KEYWORD = "returns";

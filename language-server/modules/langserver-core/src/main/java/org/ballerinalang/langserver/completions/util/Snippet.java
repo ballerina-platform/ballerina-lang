@@ -168,6 +168,10 @@ public enum Snippet {
 
     KW_LIMIT(SnippetGenerator.getLimitKeywordSnippet()),
 
+    KW_SELECT(SnippetGenerator.getSelectKeywordSnippet()),
+
+    KW_EQUALS(SnippetGenerator.getEqualsKeywordSnippet()),
+
     KW_FLUSH(SnippetGenerator.getFlushKeywordSnippet()),
 
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),

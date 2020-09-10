@@ -15,12 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ClauseNode;
-import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.QueryPipelineNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -44,7 +41,6 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, QueryPipelineNode node) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (node.fromClause().isMissing() || node.fromClause().fromKeyword().isMissing()) {
             /*
             Covers the following
@@ -55,29 +51,7 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
             return Arrays.asList(new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
                     new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
         }
-        if (this.afterIntermediateClauses(context, node)) {
-            /*
-             * we suggest intermediate clause snippets and the keywords
-             */
 
-            return Arrays.asList(new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
-                    new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()),
-                    new SnippetCompletionItem(context, Snippet.KW_WHERE.get()),
-                    new SnippetCompletionItem(context, Snippet.KW_LET.get()),
-                    new SnippetCompletionItem(context, Snippet.CLAUSE_LET.get()),
-                    new SnippetCompletionItem(context, Snippet.KW_JOIN.get()),
-                    new SnippetCompletionItem(context, Snippet.CLAUSE_JOIN.get()),
-                    new SnippetCompletionItem(context, Snippet.KW_ORDERBY.get()),
-                    new SnippetCompletionItem(context, Snippet.KW_LIMIT.get()));
-        }
-
-        return completionItems;
-    }
-
-    private boolean afterIntermediateClauses(LSContext context, QueryPipelineNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
-        NodeList<ClauseNode> clauseNodes = node.intermediateClauses();
-
-        return clauseNodes.size() == 0 || cursor > clauseNodes.get(clauseNodes.size() - 1).textRange().endOffset();
+        return new ArrayList<>();
     }
 }
