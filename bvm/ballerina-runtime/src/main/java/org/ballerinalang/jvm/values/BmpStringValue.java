@@ -65,6 +65,11 @@ package org.ballerinalang.jvm.values;
      }
 
      @Override
+     public String informalStringValue() {
+         return "\"" + toString() + "\"";
+     }
+
+     @Override
      public int hashCode() {
          return value.hashCode();
      }

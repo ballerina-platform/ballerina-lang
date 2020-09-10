@@ -424,6 +424,10 @@ public final class XMLSequence extends XMLValue {
         return BLangConstants.STRING_NULL_VALUE;
     }
 
+    @Override
+    public String informalStringValue() {
+        return "`" + toString() + "`";
+    }
 
     /**
      * {@inheritDoc}

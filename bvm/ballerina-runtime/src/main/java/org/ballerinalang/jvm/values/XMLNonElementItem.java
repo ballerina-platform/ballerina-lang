@@ -190,6 +190,11 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
+    public String informalStringValue() {
+        return "`" + toString() + "`";
+    }
+
+    @Override
     public String toString() {
         return this.stringValue();
     }

@@ -94,6 +94,11 @@ public final class XMLQName implements RefValue, BXMLQName {
     }
 
     @Override
+    public String informalStringValue() {
+        return "`" + toString() + "`";
+    }
+
+    @Override
     public BType getType() {
         return BTypes.typeXMLAttributes;
     }

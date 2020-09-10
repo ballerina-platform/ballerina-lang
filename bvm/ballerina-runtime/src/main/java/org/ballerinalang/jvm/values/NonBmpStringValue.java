@@ -87,6 +87,11 @@
          return value;
      }
 
+     @Override
+     public String informalStringValue() {
+         return "\"" + toString() + "\"";
+     }
+
      public int[] getSurrogates() {
          return surrogates.clone();
      }

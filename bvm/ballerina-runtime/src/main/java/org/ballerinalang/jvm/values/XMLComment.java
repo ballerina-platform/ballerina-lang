@@ -80,6 +80,11 @@ public class XMLComment extends XMLNonElementItem {
     }
 
     @Override
+    public String informalStringValue() {
+        return "`" + toString() + "`";
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(data);
     }
