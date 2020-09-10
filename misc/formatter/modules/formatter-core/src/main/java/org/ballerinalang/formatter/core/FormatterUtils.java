@@ -78,7 +78,6 @@ class FormatterUtils {
             }
             return parent;
         } else if (parentKind == SyntaxKind.FUNCTION_DEFINITION ||
-                parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
                 parentKind == SyntaxKind.ELSE_BLOCK ||
                 parentKind == SyntaxKind.WHILE_STATEMENT ||
                 parentKind == SyntaxKind.CONST_DECLARATION ||
@@ -89,6 +88,7 @@ class FormatterUtils {
             if (parentKind == SyntaxKind.REQUIRED_PARAM ||
                     parentKind == SyntaxKind.POSITIONAL_ARG ||
                     parentKind == SyntaxKind.BINARY_EXPRESSION ||
+                    parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
                     parentKind == SyntaxKind.RETURN_STATEMENT ||
                     parentKind == SyntaxKind.REMOTE_METHOD_CALL_ACTION ||
                     parentKind.equals(SyntaxKind.FIELD_ACCESS) ||
