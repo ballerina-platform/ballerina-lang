@@ -936,15 +936,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return classDefinition;
     }
 
+    /**
+     * Object constructor expression creates a class definition for the type defined through the object constructor.
+     * Then add the class definition as a top level node. Using the class definition initialize the object defined in
+     * the object constructor. Therefore this can be considered as a desugar.
+     * example:
+     *  var objVariable = object { int n; };
+     *  // will be desugared to
+     *  class anonType0 { int n; }
+     *  var objVariable = new anonType0();
+     *
+     * @param objectConstructorExpressionNode object ctor expression node
+     * @return BLangTypeInit node which initialize the class definition
+     */
     @Override
     public BLangNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
-
         DiagnosticPos pos = getPositionWithoutMetadata(objectConstructorExpressionNode);
-
         BLangClassDefinition annonClassDef = createObjectExpressionBody(objectConstructorExpressionNode.members());
         annonClassDef.pos = pos;
-        BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression(annonClassDef);
+        BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression();
         objectCtorExpression.pos = pos;
+        objectCtorExpression.classNode = annonClassDef;
 
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(diagnosticSource.pkgID);
@@ -971,8 +983,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        BLangUserDefinedType userDefinedType = createUserDefinedType(pos,
-                identifier, annonClassDef.name);
+        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, annonClassDef.name);
 
         BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
         initNode.pos = pos;
@@ -981,7 +992,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         BLangIdentifier pkgAlias = createIdentifier(pos, "");
-        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, identifier);
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, annonClassDef.name);
 
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
@@ -3434,7 +3445,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         joinClause.isDeclaredWithVar = typedBindingPattern.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
         joinClause.isOuterJoin = joinClauseNode.outerKeyword().isPresent();
 
-        OnClauseNode onClauseNode = joinClauseNode.onCondition();
+        OnClauseNode onClauseNode = joinClauseNode.joinOnCondition();
         BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
         onClause.pos = getPosition(onClauseNode);
         onClause.lhsExpr = createExpression(onClauseNode.lhsExpression());
@@ -3857,6 +3868,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                             if (position == 0) {
                                 bLangErrorVariable.message =
                                         (BLangSimpleVariable) getBLangVariableNode(bindingPatternNode);
+                                break;
                             }
                             // Fall through.
                         case ERROR_BINDING_PATTERN:

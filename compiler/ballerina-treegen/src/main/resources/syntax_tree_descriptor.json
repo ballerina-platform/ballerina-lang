@@ -3820,7 +3820,7 @@
                     "type": "ExpressionNode"
                 },
                 {
-                    "name": "onCondition",
+                    "name": "joinOnCondition",
                     "type": "OnClauseNode"
                 }
             ]

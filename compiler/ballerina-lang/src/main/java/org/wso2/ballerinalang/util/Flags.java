@@ -38,8 +38,7 @@ public class Flags {
     public static final int RECORD = REQUIRED << 1;
     public static final int PRIVATE = RECORD << 1;
     public static final int ANONYMOUS = PRIVATE << 1;
-    public static final int ABSTRACT = ANONYMOUS << 1;
-    public static final int OPTIONAL = ABSTRACT << 1;
+    public static final int OPTIONAL = ANONYMOUS << 1;
     public static final int TESTABLE = OPTIONAL << 1;
     public static final int CONSTANT = TESTABLE << 1;
     public static final int REMOTE = CONSTANT << 1;

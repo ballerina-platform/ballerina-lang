@@ -25,6 +25,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.SortableTypeDefNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
@@ -336,12 +337,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Treat constants and type definitions in the same manner, since constants can be used as
         // types. Also, there can be references between constant and type definitions in both ways.
         // Thus visit them according to the precedence.
-        List<BLangNode> typDefs = new ArrayList<>();
-        pkgNode.constants.forEach(constant -> typDefs.add(constant));
-        pkgNode.typeDefinitions.forEach(typDef -> typDefs.add(typDef));
+        List<BLangNode> typeAndClassDefs = new ArrayList<>();
+        pkgNode.constants.forEach(constant -> typeAndClassDefs.add(constant));
+        pkgNode.typeDefinitions.forEach(typDef -> typeAndClassDefs.add(typDef));
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
-        classDefinitions.forEach(classDefn -> typDefs.add(classDefn));
-        defineTypeNodes(typDefs, pkgEnv);
+        classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
+        defineTypeNodes(typeAndClassDefs, pkgEnv);
 
         for (BLangSimpleVariable variable : pkgNode.globalVars) {
             if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA && variable.isDeclaredWithVar) {
@@ -354,26 +355,26 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgEnv.logErrors = true;
 
         // Sort type definitions with precedence, before defining their members.
-        pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
-        typDefs.sort(getTypePrecedenceComparator());
+        pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
+        typeAndClassDefs.sort(getTypePrecedenceComparator());
 
         // Define error details
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def fields (if any)
-        defineFields(typDefs, pkgEnv);
+        defineFields(typeAndClassDefs, pkgEnv);
 
         // Define type def members (if any)
-        defineMembers(typDefs, pkgEnv);
+        defineMembers(typeAndClassDefs, pkgEnv);
 
         // Add distinct type information
-        defineDistinctClassAndObjectDefinitions(typDefs);
+        defineDistinctClassAndObjectDefinitions(typeAndClassDefs);
 
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
         // them and set the fields and members of the relevant immutable type.
         validateReadOnlyIntersectionTypeDefinitions(pkgNode.typeDefinitions);
-        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typDefs, pkgEnv);
+        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typeAndClassDefs, pkgEnv);
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
@@ -448,16 +449,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         return new Comparator<BLangNode>() {
             @Override
             public int compare(BLangNode l, BLangNode r) {
-                if (l.getKind() == NodeKind.CONSTANT || r.getKind() == NodeKind.CONSTANT) {
-                    return 0;
+                if (l instanceof SortableTypeDefNode && r instanceof SortableTypeDefNode) {
+                    return ((SortableTypeDefNode) l).getPrecedence() - ((SortableTypeDefNode) r).getPrecedence();
                 }
-                int lp = l.getKind() == NodeKind.CLASS_DEFN
-                        ? ((BLangClassDefinition) l).precedence
-                        : ((BLangTypeDefinition) l).precedence;
-                int rp = r.getKind() == NodeKind.CLASS_DEFN
-                        ? ((BLangClassDefinition) r).precedence
-                        : ((BLangTypeDefinition) r).precedence;
-                return lp - rp;
+                return 0;
             }
         };
     }
@@ -552,12 +547,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
 
-            if (classDefinition.type.tag == TypeTags.RECORD && referredType.tag != TypeTags.RECORD) {
-                dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_RECORD_TYPE_REFERENCE, typeRef);
-                invalidTypeRefs.add(typeRef);
-                return Stream.empty();
-            }
-
             // Here it is assumed that all the fields of the referenced types are resolved
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
@@ -639,7 +628,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        classDefinition.precedence = this.typePrecedence++;
+        classDefinition.setPrecedence(this.typePrecedence++);
         if (symResolver.checkForUniqueSymbol(classDefinition.pos, env, tSymbol)) {
             env.scope.define(tSymbol.name, tSymbol);
         }
@@ -1106,7 +1095,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                            env.scope.owner, typeDefinition.pos);
         }
 
-        typeDefinition.precedence = this.typePrecedence++;
+        typeDefinition.setPrecedence(this.typePrecedence++);
         BTypeSymbol typeDefSymbol;
         if (definedType.tsymbol.name != Names.EMPTY) {
             typeDefSymbol = definedType.tsymbol.createLabelSymbol();

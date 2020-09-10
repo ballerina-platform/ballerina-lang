@@ -113,7 +113,17 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
 
     @Override
     public String toString() {
-        return "class { " + this.fields + " }";
+        StringBuilder sb = new StringBuilder().append("class ").append(this.name.value).append(" { ");
+        for (BLangType typeRef : this.typeRefs) {
+            sb.append("*").append(typeRef.toString()).append(";\n");
+        }
+        for (BLangSimpleVariable field : this.fields) {
+            sb.append(field.toString()).append(";\n");
+        }
+        for (BLangFunction function : this.functions) {
+            sb.append(function.toString()).append("\n");
+        }
+        return sb.append(" }").toString();
     }
 
     @Override
@@ -144,5 +154,15 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     @Override
     public void setMarkdownDocumentationAttachment(MarkdownDocumentationNode documentationNode) {
         markdownDocumentationAttachment = (BLangMarkdownDocumentation) documentationNode;
+    }
+
+    @Override
+    public int getPrecedence() {
+        return precedence;
+    }
+
+    @Override
+    public void setPrecedence(int precedence) {
+        this.precedence = precedence;
     }
 }
