@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.ballerinalang.testerina.natives.io;
+package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BString;
 
 /**
- * External function ballerina/test#getBallerinaType.
+ * Type check function ballerina/test#getBallerinaType.
  */
 public class BallerinaTypeCheck {
     private BallerinaTypeCheck() {

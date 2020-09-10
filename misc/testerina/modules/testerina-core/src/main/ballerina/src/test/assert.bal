@@ -150,5 +150,5 @@ function sprintf(string format, (any|error)... args) returns string = @java:Meth
 
 function getBallerinaType((any|error) value) returns string = @java:Method {
     name : "getBallerinaType",
-    class : "org.ballerinalang.testerina.natives.io.BallerinaTypeCheck"
+    class : "org.ballerinalang.testerina.core.BallerinaTypeCheck"
 } external;
