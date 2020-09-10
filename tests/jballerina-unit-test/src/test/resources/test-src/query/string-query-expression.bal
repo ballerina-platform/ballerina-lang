@@ -56,8 +56,8 @@ function testQueryExprWithInnerJointForStringResult() returns string {
                 from var person in personList
                 join var teacher in teacherList
                 on person.firstName equals teacher.firstName
-                select person.firstName+" "+(teacher.teacherId).toString()+" "
-                limit 2;
+                limit 2
+                select person.firstName+" "+(teacher.teacherId).toString()+" ";
 
     return outputNameString;
 }
@@ -134,8 +134,8 @@ function testQueryExprWithLimitForStringOrNilResult() returns string? {
     string? outputNameString =
                 from var person in personList
                 where person.age >= 30
-                select person.firstName+" "
-                limit 1;
+                limit 1
+                select person.firstName+" ";
 
     return outputNameString;
 }
@@ -156,8 +156,8 @@ function testQueryExprWithInnerJointForStringOrNilResult() returns string? {
                 from var person in personList
                 join var teacher in teacherList
                 on person.firstName equals teacher.firstName
-                select person.firstName+" "+(teacher.teacherId).toString()+" "
-                limit 2;
+                limit 2
+                select person.firstName+" "+(teacher.teacherId).toString()+" ";
 
     return outputNameString;
 }
@@ -298,8 +298,8 @@ function testQueryExprWithLimitForStringResult() returns string {
     string outputNameString =
                 from var person in personList
                 where person.age >= 30
-                select person.firstName+" "
-                limit 1;
+                limit 1
+                select person.firstName+" ";
 
     return outputNameString;
 }
@@ -316,8 +316,8 @@ function testQueryExprWithLimitForStringResult() returns string {
 //                from var person in personList
 //                let int limitValue = 2
 //                where person.age >= 30
-//                select person.firstName+" "
-//                limit limitValue;
+//                limit limitValue
+//                select person.firstName+" ";
 //
 //    return outputNameString;
 //}

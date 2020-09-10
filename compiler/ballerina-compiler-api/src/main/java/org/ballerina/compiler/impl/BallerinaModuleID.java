@@ -66,4 +66,23 @@ public class BallerinaModuleID implements ModuleID {
         }
         return this.orgName() + "/" + this.moduleName() + ":" + this.version();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        BallerinaModuleID target = (BallerinaModuleID) obj;
+        return this.moduleID.equals(target.moduleID);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.moduleID.hashCode();
+    }
 }

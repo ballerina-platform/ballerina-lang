@@ -71,8 +71,8 @@ function createDoFunction(function(_Frame _frame) doFunc) returns _StreamFunctio
     return new _DoFunction(doFunc);
 }
 
-function createLimitFunction(int lmt) returns _StreamFunction {
-    return new _LimitFunction(lmt);
+function createLimitFunction(function (_Frame _frame) returns int limitFunction) returns _StreamFunction {
+    return new _LimitFunction(limitFunction);
 }
 
 function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFunction streamFunction) {
