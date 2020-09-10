@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.common.utils;
 
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -254,7 +255,7 @@ public class FilterUtils {
                 return params.isEmpty() || params.get(0).type.tag == bType.tag ||
                         (types.isAssignable(bType, params.get(0).type));
             }
-            return symbol.kind != null && symbol.kind != SymbolKind.OBJECT;
+            return symbol.kind != null && symbol.kind != SymbolKind.OBJECT && symbol.kind != SymbolKind.CONSTANT;
         }).collect(Collectors.toList());
     }
 }
