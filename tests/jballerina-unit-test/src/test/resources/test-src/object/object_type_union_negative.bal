@@ -14,33 +14,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Obj object {
+class Obj {
     int val;
     function init(int i, int j = 0) {
         self.val = 0;
     }
-};
+}
 
-type Obj2 object {
+class Obj2 {
     int val;
     function init() {
         self.val = 2;
     }
-};
+}
 
-type Obj3 object {
+class Obj3 {
     int val;
     function init(int j = 0) {
         self.val = 3;
     }
-};
+}
 
-type Obj4 object {
+class Obj4 {
     int val;
     function init(int i, int... restP) {
         self.val = 4;
     }
-};
+}
 
 Obj4 aOb = new(55, 66, 77);
 
@@ -63,22 +63,22 @@ function getLocals() returns [(Obj|Obj2|Obj3|Obj4),(Obj|Obj2|Obj3|Obj4)] {
     return [localA, localAB];
 }
 
-type Foo object {
+class Foo {
     Bar? bar = ();
 
     function test() {
         string p = "John Doe";
         self.bar = new(p); // incompatible types: expected '(PersonRec|EmployeeRec)', found 'string'
     }
-};
+}
 
-type Bar object {
+class Bar {
     PersonRec|EmployeeRec p;
 
     function init(PersonRec|EmployeeRec p) {
         self.p = p;
     }
-};
+}
 
 type PersonRec record {|
     string name;
@@ -89,26 +89,26 @@ type EmployeeRec record {
 };
 
 
-type InitObjOne object {
+class InitObjOne {
 
     public function init(int i, string f = "str") {
 
     }
-};
+}
 
-type InitObjTwo object {
+class InitObjTwo {
 
     public function init(int i, boolean f = true) {
 
     }
-};
+}
 
-type InitObjThree object {
+class InitObjThree {
 
     public function init(int i, string s, int j = 10, string... k) {
 
     }
-};
+}
 
 function testAmbiguousObjectTypes() {
     InitObjOne|InitObjTwo|float f1 = new(f = false, 2); // positional argument not allowed after named arguments

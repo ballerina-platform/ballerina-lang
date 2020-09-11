@@ -4,7 +4,7 @@ function test () returns int {
     return 1;
 }
 
-type Person abstract object {
+type Person object {
     public int age;
 
     function test(int a, string n) returns string;

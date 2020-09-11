@@ -189,17 +189,17 @@ function print(string message) {
 
 public function getSystemErrorStream() returns handle = @java:FieldGet {
     name:"err",
-    class:"java/lang/System"
+    'class:"java/lang/System"
 } external;
 
 public function printToErrorStream(handle receiver, handle message) = @java:Method {
     name:"println",
-    class:"java/io/PrintStream",
+    'class:"java/io/PrintStream",
     paramTypes:["java.lang.String"]
 } external;
 
 public function exit(int status) = @java:Method {
-    class:"java/lang/System"
+    'class:"java/lang/System"
 } external;
 
 type DiagnosticLog record {|

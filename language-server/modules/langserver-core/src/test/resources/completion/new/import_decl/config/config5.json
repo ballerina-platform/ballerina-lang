@@ -9,7 +9,7 @@
       "label": "as",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "220",
+      "sortText": "A",
       "insertText": "as ",
       "insertTextFormat": "Snippet"
     },
@@ -17,8 +17,8 @@
       "label": "version",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "220",
-      "insertText": "version ",
+      "sortText": "A",
+      "insertText": "version",
       "insertTextFormat": "Snippet"
     }
   ]

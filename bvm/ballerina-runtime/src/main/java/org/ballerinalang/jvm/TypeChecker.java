@@ -1444,7 +1444,18 @@ public class TypeChecker {
             }
         }
 
-        return true;
+        // Target type is not a distinct type, no need to match type-ids
+        BTypeIdSet targetTypeIdSet = targetType.typeIdSet;
+        if (targetTypeIdSet == null) {
+            return true;
+        }
+
+        BTypeIdSet sourceTypeIdSet = sourceObjectType.typeIdSet;
+        if (sourceTypeIdSet == null) {
+            return false;
+        }
+
+        return sourceTypeIdSet.containsAll(targetTypeIdSet);
     }
 
     private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
@@ -1594,7 +1605,7 @@ public class TypeChecker {
             case TypeTags.OBJECT_TYPE_TAG:
                 BObjectType objectType = (BObjectType) type;
 
-                if (!Flags.isFlagOn(objectType.flags, Flags.ABSTRACT) &&
+                if (Flags.isFlagOn(objectType.flags, Flags.CLASS) &&
                         !Flags.isFlagOn(objectType.flags, Flags.READONLY)) {
                     return false;
                 }

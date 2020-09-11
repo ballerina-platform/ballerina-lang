@@ -19,7 +19,7 @@
 # + iStart - start expression of range expression
 # + iEnd - second expression on range expression
 # + iCurrent - current cursor
-type IntRange object {
+class IntRange {
     private int iStart;
     private int iEnd;
     private int iCurrent;
@@ -47,10 +47,10 @@ type IntRange object {
         return ();
     }
 
-    public function __iterator() returns abstract object {public function next() returns record {|int value;|}?;} {
+    public function __iterator() returns object {public function next() returns record {|int value;|}?;} {
             return new IntRange(self.iStart, self.iEnd);
     }
-};
+}
 
 # The `createIntRange` function creates a `IntRange` object and returns it. This function is used to replace the binary
 # integer range expression in Desugar phase.
@@ -59,9 +59,9 @@ type IntRange object {
 # + e - The upper bound if the integer range inclusive
 # + return - `IntRange` object
 public function createIntRange(int s, int e) returns
-        abstract object {
+        object {
             public function __iterator() returns
-                abstract object {
+                object {
                     public function next() returns
                         record {|int value;|}?;
                 };

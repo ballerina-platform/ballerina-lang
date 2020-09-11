@@ -44,6 +44,7 @@ import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuild
 import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -101,14 +102,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * {@inheritDoc}
      */
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
-        return new ArrayList<>();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public List<Class<T>> getAttachmentPoints() {
         return this.attachmentPoints;
     }
@@ -121,17 +114,33 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return precedence;
     }
 
+    @Override
+    public boolean onPreValidation(LSContext context, T node) {
+        return true;
+    }
+
+    @Override
+    public void sort(LSContext context, T node, List<LSCompletionItem> completionItems) {
+        for (LSCompletionItem item : completionItems) {
+            CompletionItem cItem = item.getCompletionItem();
+            int rank;
+            if (item instanceof SnippetCompletionItem) {
+                rank = 1;
+            } else if (item instanceof SymbolCompletionItem) {
+                rank = 2;
+            } else {
+                rank = 3;
+            }
+            cItem.setSortText(SortingUtil.genSortText(rank));
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<CompletionProvider<T>> getContextProvider(LSContext ctx) {
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean onPreValidation(LSContext context, T node) {
-        return true;
+    public void sort(LSContext context, T node, List<LSCompletionItem> completionItems, Object... metaData) {
+        this.sort(context, node, completionItems);
     }
 
     /**
@@ -270,7 +279,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param ctx LS Operation context
      * @return {@link List}     List of packages completion items
      */
-    protected List<LSCompletionItem> getPackagesCompletionItems(LSContext ctx) {
+    protected List<LSCompletionItem> getModuleCompletionItems(LSContext ctx) {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
         BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
@@ -322,7 +331,13 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 item.setDetail(ItemResolverConstants.MODULE_TYPE);
                 item.setKind(CompletionItemKind.Module);
                 item.setAdditionalTextEdits(CommonUtil.getAutoImportTextEdits(orgName, name, ctx));
-                completionItems.add(new StaticCompletionItem(ctx, item));
+                StaticCompletionItem.Kind kind;
+                if (orgName.equals("ballerina") && name.startsWith("lang.")) {
+                    kind = StaticCompletionItem.Kind.LANG_LIB_MODULE;
+                } else {
+                    kind = StaticCompletionItem.Kind.MODULE;
+                }
+                completionItems.add(new StaticCompletionItem(ctx, item, kind));
             }
         });
 
@@ -548,7 +563,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         check and check panic expression starts with check and check panic keywords, Which has been added with actions.
         query pipeline starts with from keyword and also being added with the actions
          */
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TABLE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
         // to support start of string template expression

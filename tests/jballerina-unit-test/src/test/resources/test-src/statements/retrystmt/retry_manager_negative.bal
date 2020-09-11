@@ -1,10 +1,10 @@
 import ballerina/io;
 
-type MyRetryManager object {
+class MyRetryManager {
    public function shouldRetry(error e) returns boolean {
       return true;
    }
-};
+}
 
 function testRetryWithCustomRetryManager() {
     retry<MyRetryMgr> ("test") {

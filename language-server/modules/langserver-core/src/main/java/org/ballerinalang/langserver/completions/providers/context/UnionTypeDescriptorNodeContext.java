@@ -51,7 +51,7 @@ public class UnionTypeDescriptorNodeContext extends AbstractCompletionProvider<U
             return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, refNode), context);
         }
 
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
         completionItems.addAll(this.getTypeItems(context));
 
         return completionItems;

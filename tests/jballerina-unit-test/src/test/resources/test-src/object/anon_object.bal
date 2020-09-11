@@ -41,7 +41,7 @@ function testAnonObjectAsPkgVar() returns (string) {
     return person.fname + ":" + person.lname + ":" + person.age.toString();
 }
 
-type employee object {
+class employee {
     public string fname;
     public string lname;
     public int age;
@@ -78,7 +78,7 @@ type employee object {
                                 self.state = state;
                                 self.zipcode = zipcode;
                             }
-                        } address, 
+                        } address,
                         object {
                             public string month = "JAN";
                             public string day = "01";
@@ -90,7 +90,7 @@ type employee object {
         self.address = address;
         self.dateOfBirth = dateOfBirth;
     }
-};
+}
 
 function testAnonObjectAsObjectField() returns (string) {
 
@@ -112,7 +112,7 @@ function testAnonObjectWithFunctionAsLocalVar () returns string {
 }
 
 
-public type Person object {
+public class Person {
     public int age = 0;
     public string name = "";
     public int length = 0;
@@ -131,7 +131,7 @@ public type Person object {
     public function getKind() returns string {
         return self.kind;
     }
-};
+}
 
 function testObjectEquivalencyBetweenAnonAndNormalObject() returns [int, string, string] {
     object { 
@@ -172,7 +172,7 @@ function testAnonObjectWithRecordLiteral() returns [int, string] {
     return [value.details.age, value.getName()];
 }
 
-type Foo object {
+class Foo {
     public record {| int age; string name; anydata...; |} details;
 
     private int length = 0;
@@ -186,7 +186,7 @@ type Foo object {
     function getName () returns string {
         return self.details.name;
     }
-};
+}
 
 function testObjectWithAnonRecordLiteral() returns [int, string] {
     Foo value = new ({age:8, name:"sanjiva"}, "passed kind");

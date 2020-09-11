@@ -38,7 +38,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Represents a function type descriptor.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaFunctionTypeDescriptor extends AbstractTypeDescriptor implements FunctionTypeDescriptor {
 

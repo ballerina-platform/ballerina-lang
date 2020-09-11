@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/io;
 
 @test:Config{
     dataProvider:"dataGen"
@@ -28,7 +27,6 @@ function stringDataProviderTest (string fValue, string sValue, string result) re
     var value2 = val2 is int ? val2 : 0;
     int|error res1 = result.cloneWithType(int);
     var result1 = res1 is int ? res1 : 0;
-    io:println("Input params: ["+fValue+","+sValue+","+result+"]");
     test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
     return;
 }
@@ -48,7 +46,6 @@ function stringDataProviderTest2 (string fValue, string sValue, string result) r
     var value2 = val2 is int ? val2 : 0;
     int|error res1 = result.cloneWithType(int);
     var result1 = res1 is int ? res1 : 0;
-    io:println("Input params: ["+fValue+","+sValue+","+result+"]");
     test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
     return;
 }

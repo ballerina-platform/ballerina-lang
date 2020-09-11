@@ -25,7 +25,7 @@ import ballerina/log;
 #            `CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`
 #            header and either the `etag` or `last-modified` header are present.
 # + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
-public type HttpCache object {
+public class HttpCache {
 
     public cache:Cache cache;
     public CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
@@ -155,7 +155,7 @@ public type HttpCache object {
             log:printDebug(() => "Failed to remove the key: " + key + " from the HTTP cache.");
         }
     }
-};
+}
 
 function isCacheableStatusCode(int statusCode) returns boolean {
     return statusCode == STATUS_OK || statusCode == STATUS_NON_AUTHORITATIVE_INFORMATION ||

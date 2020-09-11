@@ -26,7 +26,7 @@ public type Identifier string;
 # + class - Element class of the array type
 # + dimensions - Dimensions of the array type
 public type ArrayType record {|
-    Class class;
+    Class 'class;
     byte dimensions;
 |};
 
@@ -36,7 +36,7 @@ public type ArrayType record {|
 # + class - The class in which the constructor exists
 # + paramTypes - An optional field, which describes the parameter types of the constructor
 public type ConstructorData record {|
-    Class class;
+    Class 'class;
     (Class | ArrayType)[] paramTypes?;
 |};
 
@@ -49,7 +49,7 @@ public type ConstructorData record {|
 # + paramTypes - An optional field, which describes the parameter types of the method
 public type MethodData record {|
     Identifier name?;
-    Class class;
+    Class 'class;
     (Class | ArrayType)[] paramTypes?;
 |};
 
@@ -60,14 +60,14 @@ public type MethodData record {|
 # + class - The class in which the field exists
 public type FieldData record {|
     Identifier name;
-    Class class;
+    Class 'class;
 |};
 
 # Describes a Java class that corresponds to a Ballerina object.
 #
 # + class - The Java class represented by the Ballerina object.
 public type ObjectData record {|
-    Class class;
+    Class 'class;
 |};
 
 # Describes a Java constructor, which provides an implementation of a Ballerina function of which the body is marked as
@@ -78,7 +78,7 @@ public type ObjectData record {|
 # implementation is provided by the default constructor of the `java.util.LinkedList` class.
 # ```ballerina
 # function newJavaLinkedList() returns handle = @java:Constructor {
-#      class: "java.util.LinkedList"
+#      'class: "java.util.LinkedList"
 # } external;
 # ```
 public const annotation ConstructorData Constructor on source external;
@@ -92,7 +92,7 @@ public const annotation ConstructorData Constructor on source external;
 # ```ballerina
 # function getUUID() returns handle = @java:Method {
 #     name: "randomUUID",
-#     class: "java.util.UUID"
+#     'class: "java.util.UUID"
 # } external;
 # ```
 # The `name` field is optional. If it is not provided, the name of the Java method is inferred
@@ -104,7 +104,7 @@ public const annotation MethodData Method on source external;
 # ```ballerina
 # function getError() returns handle = @java:FieldGet {
 #     name:"err",
-#     class:"java/lang/System"
+#     'class:"java/lang/System"
 # } external;
 # ```
 public const annotation FieldData FieldGet on source external;
@@ -114,7 +114,7 @@ public const annotation FieldData FieldGet on source external;
 # ```ballerina
 # function setContractId(handle contractId) = @java:FieldSet {
 #   name:"contractId",
-#   class:"org/lang/impl/JavaFieldAccessMutate"
+#   'class:"org/lang/impl/JavaFieldAccessMutate"
 # } external;
 # ```
 public const annotation FieldData FieldSet on source external;
@@ -122,7 +122,7 @@ public const annotation FieldData FieldSet on source external;
 # Describes the Java class representing a Ballerina binding.
 # ```ballerina
 # @java:Binding {
-#   class: "java.io.File"
+#   'class: "java.io.File"
 # }
 # ```
-public const annotation ObjectData Binding on object type;
+public const annotation ObjectData Binding on class;

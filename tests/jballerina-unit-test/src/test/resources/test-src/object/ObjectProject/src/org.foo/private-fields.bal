@@ -1,5 +1,5 @@
 
-public type userFoo object {
+public class userFoo {
     public int age = 0;
     public string name = "";
     public string address = "";
@@ -12,31 +12,31 @@ public type userFoo object {
     public function getAge () returns int {
         return self.age;
     }
-};
+}
 
-public type user object {
+public class user {
     public int age = 0;
     public string name = "";
     public string address = "";
     public string zipcode = "23468";
-};
+}
 
-public type person object {
+public class person {
     public int age = 0;
     public string name = "";
 
     string ssn = "";
     int id = 0;
-};
+}
 
-type student object {
+class student {
     public int age = 0;
     public string name = "";
 
     string ssn = "";
     int id = 0;
     int schoolId = 0;
-};
+}
 
 public function newPerson() returns (person) {
     person p = new;
@@ -54,7 +54,7 @@ public function newUser() returns (user) {
     return u;
 }
 
-public type FooObj object {
+public class FooObj {
     public int age = 0;
     public string name = "";
 
@@ -62,4 +62,4 @@ public type FooObj object {
         return self.name;
     }
 
-};
+}

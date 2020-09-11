@@ -27,11 +27,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -39,7 +41,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -111,7 +112,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.symbolEnv);
-        ((BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode).getFunctions().stream()
+        serviceNode.serviceClass.getFunctions().stream()
                 .filter(bLangFunction -> (bLangFunction.symbol.flags & Flags.RESOURCE) == Flags.RESOURCE)
                 .forEach(bLangFunction -> this.acceptNode(bLangFunction, serviceEnv));
     }
@@ -148,7 +149,15 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         this.acceptNode(transactionNode.transactionBody, this.symbolEnv);
     }
-    
+
+    @Override
+    public void visit(BLangObjectConstructorExpression bLangObjectConstructorExpression) {
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+    }
+
     private void acceptNode(BLangNode node, SymbolEnv env) {
         if (node == null) {
             return;

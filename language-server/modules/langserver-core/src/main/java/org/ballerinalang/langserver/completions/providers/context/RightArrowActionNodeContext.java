@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  * @param <T> Action node type
  * @since 2.0.0
  */
-public class RightArrowActionNodeContext<T extends Node> extends AbstractCompletionProvider<T> {
+public abstract class RightArrowActionNodeContext<T extends Node> extends AbstractCompletionProvider<T> {
 
     public RightArrowActionNodeContext(Class<T> attachmentPoint) {
         super(attachmentPoint);

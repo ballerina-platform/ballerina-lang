@@ -19,6 +19,7 @@
 package org.ballerinalang.test.documentation;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -35,7 +36,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.LinkedList;
@@ -248,7 +248,7 @@ public class MarkdownDocumentationTest {
         Assert.assertNotNull(returnParameter);
         Assert.assertEquals(returnParameter.getReturnParameterDocumentation(), "success or not");
 
-        documentationAttachment = packageNode.getTypeDefinitions().get(0).getMarkdownDocumentationAttachment();
+        documentationAttachment = packageNode.getClassDefinitions().get(0).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for File type");
 
@@ -498,8 +498,8 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(compileResult.getWarnCount(), 8);
 
         PackageNode packageNode = compileResult.getAST();
-        TypeDefinition typeDefinition = packageNode.getTypeDefinitions().get(0);
-        BLangMarkdownDocumentation documentationAttachment = typeDefinition.getMarkdownDocumentationAttachment();
+        ClassDefinition classDef = packageNode.getClassDefinitions().get(0);
+        BLangMarkdownDocumentation documentationAttachment = classDef.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Test Connector");
 
@@ -510,7 +510,7 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(parameters.get(1).getParameterName().getValue(), "path");
         Assert.assertEquals(parameters.get(1).getParameterDocumentation(), "path for endpoint");
 
-        List<BLangFunction> functions = ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions();
+        List<BLangFunction> functions = classDef.getFunctions();
         Assert.assertEquals(functions.size(), 2);
 
         documentationAttachment = functions.get(0).getMarkdownDocumentationAttachment();
@@ -534,7 +534,7 @@ public class MarkdownDocumentationTest {
         Assert.assertNotNull(returnParameter);
         Assert.assertEquals(returnParameter.getReturnParameterDocumentation(), "whether successful or not");
 
-        documentationAttachment = packageNode.getTypeDefinitions().get(1).getMarkdownDocumentationAttachment();
+        documentationAttachment = packageNode.getClassDefinitions().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
         LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
@@ -714,7 +714,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
-                packageNode.getTypeDefinitions().get(0).getMarkdownDocumentationAttachment();
+                packageNode.getClassDefinitions().get(0).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for TimeOrderWindow.\n");
 

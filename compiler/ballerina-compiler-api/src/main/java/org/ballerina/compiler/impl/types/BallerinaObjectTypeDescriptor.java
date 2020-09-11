@@ -37,7 +37,7 @@ import java.util.StringJoiner;
 /**
  * Represents an object type descriptor.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implements ObjectTypeDescriptor {
 
@@ -61,10 +61,6 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
 
         this.typeQualifiers = new ArrayList<>();
         BObjectType objectType = (BObjectType) getBType();
-
-        if ((objectType.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
-            this.typeQualifiers.add(TypeQualifier.ABSTRACT);
-        }
 
         if ((objectType.flags & Flags.CLIENT) == Flags.CLIENT) {
             this.typeQualifiers.add(TypeQualifier.CLIENT);

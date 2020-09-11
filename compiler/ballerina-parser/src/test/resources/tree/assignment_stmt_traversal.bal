@@ -16,7 +16,7 @@ public function multiply(int x, int y) {
     c = a * b;
 }
 
-type Calculator object {
+class Calculator {
     function add(int x, int y) {
          int a;
          int b;
@@ -34,4 +34,4 @@ type Calculator object {
          b = y;
          c = a + b;
     }
-};
+}

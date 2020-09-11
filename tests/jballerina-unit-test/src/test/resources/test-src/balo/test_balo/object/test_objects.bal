@@ -68,7 +68,7 @@ public function testObjectWithInterface () returns [int, string, int, string] {
     return [p.age, p.name, p.year, p.month];
 }
 
-public type DustBin object {
+public class DustBin {
     public int age = 20;
     public string name = "sample name";
     public int year = 50;
@@ -92,7 +92,7 @@ public type DustBin object {
         string val2 = value1 + self.month;
         return [count, val2];
     }
-};
+}
 
 public function testShadowingObjectField () returns [int, string] {
     foo:Car p = new foo:Car(a = 50, n = "passed in name value");
@@ -115,21 +115,21 @@ function returnDifferentObectInit() returns foo:Girl {
     return new Women(5, 7);
 }
 
-public type Women object {
+public class Women {
     public int age;
 
     public function init (int age, int addVal) {
         self.age = age + addVal;
     }
-};
+}
 
-type Vehicle object {
+class Vehicle {
     public int age = 0;
     public string name = "";
     public foo:Bus emp = new;
     public foo:Tyre foo = new;
     public foo:Wheel bar = new;
-};
+}
 
 Vehicle v = new;
 
@@ -159,10 +159,10 @@ function testRecursiveObjectWithNill() returns int {
     return (p.age);
 }
 
-public type Office object {
+public class Office {
     public int age = 90;
     public foo:Architect ep = new(88, "sanjiva");
-};
+}
 
 function testFieldWithExpr() returns [int, string] {
     Office p = new;
@@ -182,7 +182,7 @@ public function testObjectReferingTypeFromBalo_1() returns [string, float] {
 }
 
 // Test referring an object coming from a balo 
-type Manager2 object {
+class Manager2 {
     string dpt = "HR";
 
     *foo:Employee2;
@@ -200,7 +200,7 @@ type Manager2 object {
     public function getName(string greeting = "Hello") returns string {
         return greeting + " " + self.name;
     }
-};
+}
 
 public function testObjectReferingTypeFromBalo_2() returns [string, float] {
     Manager2 mgr2 = new("Jane");
@@ -208,7 +208,7 @@ public function testObjectReferingTypeFromBalo_2() returns [string, float] {
 }
 
 // Test referring a type coming from a balo
-type Employee3 abstract object {
+type Employee3 object {
     public float salary;
     *foo:Person1;
 
@@ -217,7 +217,7 @@ type Employee3 abstract object {
 
 // Test invking a method with default values, of an object
 // coming from a balo 
-type Manager3 object {
+class Manager3 {
     string dpt = "HR";
 
     *Employee3;
@@ -235,7 +235,7 @@ type Manager3 object {
     public function getName(string greeting = "Good morning") returns string {
         return greeting + " " + self.name;
     }
-};
+}
 
 public function testObjectReferingTypeFromBalo_3() returns [string, float] {
     Manager3 mgr3 = new("Jane");
@@ -254,7 +254,7 @@ public function testObjectReferingNonAbstractObjFromBalo() {
     utils:assertEquality(20, cemp1.Age());
 }
 
-public type PostPandemicEmployee object {
+public class PostPandemicEmployee {
     *foo:CorronifiedEmployee;
 
     public function init(boolean workingFromHome, float salary, float workingFromHomeAllowance, int age, string name) {
@@ -292,7 +292,7 @@ public type PostPandemicEmployee object {
     public function Age() returns int {
         return self.age;
     }
-};
+}
 
 public function testObjectReferingNonAbstractObjLoadedFromBalo() {
     PostPandemicEmployee cemp1 = new (true, 100.0, 200.3, 20, "John");

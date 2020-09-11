@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,23 @@ import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+
+import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
 
 /**
  * Completion provider for {@link ModulePartNode} context.
@@ -56,8 +62,44 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(addTopLevelItems(context));
         completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
+        this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    @Override
+    public void sort(LSContext context, ModulePartNode node, List<LSCompletionItem> items, Object... metaData) {
+        for (LSCompletionItem item : items) {
+            CompletionItem cItem = item.getCompletionItem();
+            if (this.isSnippetBlock(item)) {
+                cItem.setSortText(genSortText(1));
+                continue;
+            }
+            if (this.isKeyword(item)) {
+                cItem.setSortText(genSortText(2));
+                continue;
+            }
+            if (SortingUtil.isModuleCompletionItem(item)) {
+                cItem.setSortText(genSortText(3));
+                continue;
+            }
+            if (SortingUtil.isTypeCompletionItem(item)) {
+                cItem.setSortText(genSortText(4));
+                continue;
+            }
+            cItem.setSortText(genSortText(5));
+        }
+    }
+    
+    private boolean isSnippetBlock(LSCompletionItem completionItem) {
+        return completionItem instanceof SnippetCompletionItem
+                && (((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.SNIPPET
+                || ((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.STATEMENT);
+    }
+    
+    private boolean isKeyword(LSCompletionItem completionItem) {
+        return completionItem instanceof SnippetCompletionItem
+                && ((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.KEYWORD;
     }
 }

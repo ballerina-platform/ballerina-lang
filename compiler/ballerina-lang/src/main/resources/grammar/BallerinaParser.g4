@@ -946,7 +946,7 @@ doClause
     ;
 
 queryPipeline
-    :   fromClause (fromClause | joinClause | letClause | whereClause)*
+    :   fromClause (fromClause | joinClause | letClause | whereClause | limitClause)*
     ;
 
 queryConstructType
@@ -954,11 +954,11 @@ queryConstructType
     ;
 
 queryExpr
-    :   queryConstructType? queryPipeline orderByClause? selectClause onConflictClause? limitClause?
+    :   queryConstructType? queryPipeline orderByClause? selectClause onConflictClause?
     ;
 
 queryAction
-    :   queryPipeline doClause limitClause?
+    :   queryPipeline doClause
     ;
 
 //reusable productions

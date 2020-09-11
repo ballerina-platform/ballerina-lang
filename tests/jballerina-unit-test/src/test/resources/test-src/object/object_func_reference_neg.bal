@@ -28,7 +28,7 @@ type Status "ON"|"OFF";
 
 type ON "ON";
 
-public type Foo abstract object {
+public type Foo object {
     function test1(string aString, int anInt) returns string|error;
 
     public function test2(string aString);
@@ -46,7 +46,7 @@ public type Foo abstract object {
     function test8('int:Signed16 anInt, Bar... bars) returns 'int:Signed16;
 };
 
-public type FooImpl1 object {
+public class FooImpl1 {
     *Foo;
 
     // param name mismatch
@@ -84,4 +84,4 @@ public type FooImpl1 object {
     function test8('int:Signed16 anInt, Bar... bars) returns int {
         return 0;
     }
-};
+}

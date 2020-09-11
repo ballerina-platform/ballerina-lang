@@ -34,7 +34,7 @@ import java.util.StringJoiner;
 /**
  * Represents a record type descriptor.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implements RecordTypeDescriptor {
 
