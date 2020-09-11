@@ -94,7 +94,7 @@ function fooE(float a, boolean b) returns error? {
     return error("");
 }
 
-public type Child object {
+public class Child {
     # Returns foo
     # + a - float
     # + b - boolean
@@ -103,7 +103,7 @@ public type Child object {
     }
 };
 
-public type Stub client object {
+public client class Stub {
 
     public Child obj = new Child();
 

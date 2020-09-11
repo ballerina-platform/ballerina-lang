@@ -156,7 +156,7 @@ function multipleTrxSequence(boolean abort1, boolean abort2, boolean fail1, bool
     return a;
 }
 
-public type MyRetryManager object {
+public class MyRetryManager {
    private int count;
    public function init(int count = 2) {
        io:println("Count: ", count);
@@ -171,7 +171,7 @@ public type MyRetryManager object {
         return false;
      }
    }
-};
+}
 
 function testCustomRetryManager() returns string|error {
     string str = "start";

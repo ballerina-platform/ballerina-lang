@@ -14,7 +14,7 @@ public type Person record {
 
 public type PreparedResult "ss"|"sss"|"qqq";
 
-public type Channel object {
+public class Channel {
 
     public State? b;
 
@@ -25,7 +25,7 @@ public type Channel object {
            int i = 4;
         }
     }
-};
+}
 
 public type CombinedState "on"|"off"|int;
 

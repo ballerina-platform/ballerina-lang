@@ -279,7 +279,7 @@ public type AnotherDetail record {
 public const REASON_1 = "Reason1";
 public type FirstError distinct error<AnotherDetail>;
 
-public type Student object {
+public class Student {
 
     string name;
     string school;
@@ -292,9 +292,9 @@ public type Student object {
     public function getDetails() returns string {
         return self.name + " from " + self.school;
     }
-};
+}
 
-public type Teacher object {
+public class Teacher {
 
     string name;
     string school;
@@ -311,7 +311,7 @@ public type Teacher object {
     public function toString() returns string {
         return self.getDetails();
     }
-};
+}
 
 function testToString() returns string[] {
     int varInt = 6;
@@ -357,7 +357,8 @@ function testToStringMethodForTable() {
             { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
         ];
 
-    assertEquality("id=1 age=30 salary=300.5 name=Mary married=true\nid=2 age=20 salary=300.5 name=John married=true", employeeTable.toString());
+    assertEquality("[{\"id\":1, \"age\":30, \"salary\":300.5, \"name\":\"Mary\", \"married\":true}, "
+    + "{\"id\":2, \"age\":20, \"salary\":300.5, \"name\":\"John\", \"married\":true}]", employeeTable.toString());
 }
 
 public function xmlSequenceFragmentToString() returns string {
@@ -599,7 +600,7 @@ function testFromJsonWithTypeRecord1() {
     Student2|error p = j.fromJsonWithType(Student2);
 
     assert(p is Student2, true);
-    assert(p.toString(), "name=Name age=35");
+    assert(p.toString(), "{\"name\":\"Name\", \"age\":35}");
 }
 
 type Student3 record {
@@ -637,7 +638,7 @@ function testFromJsonWithTypeRecord2() {
     Student3|error p = j.fromJsonWithType(Student3);
 
     assert(p is Student3, true);
-    assert(p.toString(), "name=Name age=35");
+    assert(p.toString(), "{\"name\":\"Name\", \"age\":35}");
 }
 
 function testFromJsonWithTypeRecord3() {

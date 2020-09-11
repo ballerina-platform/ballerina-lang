@@ -245,7 +245,8 @@ public class InstanceMethodTest {
         } catch (Throwable e) {
             Assert.assertTrue(e.getMessage().contains("error: java.lang.RuntimeException"));
             Assert.assertTrue(e.getMessage().contains("{\"message\":\"Unchecked Exception"));
-            Assert.assertTrue(e.getMessage().contains("cause=error java.lang.Throwable message=Unchecked cause"));
+            Assert.assertTrue(e.getMessage().contains("\"cause\":error(\"java.lang.Throwable\", " +
+                    "message=\"Unchecked cause\""));
         }
     }
 

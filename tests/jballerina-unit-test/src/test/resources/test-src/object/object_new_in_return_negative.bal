@@ -1,18 +1,18 @@
-type Person object {
+class Person {
     public int age = 0;
 
     function init (int age) {
         self.age = age;
     }
-};
+}
 
-type Employee object {
+class Employee {
     public int age = 0;
 
     function init (int age, int addVal) {
         self.age = age + addVal;
     }
-};
+}
 
 function returnDifferentObectInit() returns Person {
     return new (5, 7);
@@ -27,9 +27,9 @@ function returnDifferentObectInit2() {
     var person1 = new (5);
 }
 
-type Student object {
+class Student {
     string name = "";
-};
+}
 
 function returnDifferentObectInit3() {
     Student? student = new("student-1");

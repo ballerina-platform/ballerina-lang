@@ -1,6 +1,6 @@
 import ballerina/lang.'object as lang;
 
-public type Listener object {
+public class Listener {
 
     *lang:Listener;
 
@@ -49,4 +49,4 @@ public type Listener object {
     function detach(service s) returns error? {
         return ();
     }
-};
+}

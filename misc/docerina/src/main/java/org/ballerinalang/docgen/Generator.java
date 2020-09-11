@@ -409,17 +409,6 @@ public class Generator {
         List<DefaultableVariable> fields = getFields(parent, objectType.fields,
                     parent.getMarkdownDocumentationAttachment(), module);
 
-        if (objectType.initFunction != null) {
-            BLangFunction constructor = objectType.initFunction;
-            if (constructor.flagSet.contains(Flag.PUBLIC)) {
-                Function initFunction = createDocForFunction(constructor, module);
-                // if it's the default constructor, we don't need to document
-                if (initFunction.parameters.size() > 0) {
-                    functions.add(initFunction);
-                }
-            }
-        }
-
         // Iterate through the functions
         if (objectType.getFunctions().size() > 0) {
             for (BLangFunction function : objectType.getFunctions()) {

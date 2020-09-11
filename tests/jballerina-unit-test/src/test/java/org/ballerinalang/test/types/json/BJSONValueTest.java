@@ -358,7 +358,8 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*IndexOutOfRange \\{\"message\":\"array index out of range: index: 5, size: 3.*")
+          expectedExceptionsMessageRegExp = ".*IndexOutOfRange \\{\"message\":\"array index out of range: index: 5, " +
+                  "size: 3.*")
     public void testGetArrayOutofBoundElement() {
         BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
     }

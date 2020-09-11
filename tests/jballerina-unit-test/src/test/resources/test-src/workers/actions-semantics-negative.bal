@@ -30,10 +30,10 @@ type thirdRec record {
     int f4?;
 };
 
-type Person object {
+class Person {
     public int age = 1;
     public string name = "default";
-};
+}
 
 function workerActionFirstTest() {
     worker w1 {

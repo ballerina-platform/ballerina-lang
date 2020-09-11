@@ -46,31 +46,31 @@ public type Apartment record {|
 #
 # + name - student name
 # + age - student age
-public type Student object {
+public class Student {
     public string name = "Saman";
     public int age = 15;
-};
+}
 
 # `Teacher` object in *school* located in **New York**
 # `Senior` teacher of the school
-public type Teacher object {
+public class Teacher {
     # Teacher name
     public string name = "Saman";
     # Teacher age
     public int age = 15;
-};
+}
 
 
 # Employee object
 #
 # + empNo - employee number
 # + age - employee age
-public type Employee object {
+public class Employee {
     # funny number
     public string empNo = "E100546";
     # funny age
     public int age = 15;
-};
+}
 
 # Prints `Hello World`.
 public function main() {

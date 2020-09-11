@@ -176,8 +176,8 @@ const doubleLtSym = "<<";
 const tripleGtSym = ">>>";
 
 # object which fills tokens into separate maps based on the size of the symbol
-type TokenMapper object {
-    map<int> tokenMap = {};
+class TokenMapper {
+    map<int> tokenMap = {}
 
     public function init() {
         self.fillTokenMap();

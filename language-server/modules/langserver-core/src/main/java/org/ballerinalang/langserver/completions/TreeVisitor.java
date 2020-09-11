@@ -551,13 +551,12 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        BLangObjectTypeNode serviceType = (BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode;
         List<BLangNode> serviceContent = new ArrayList<>();
-        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceType.symbol.scope, symbolEnv);
+        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode,
+                serviceNode.serviceClass.symbol.scope, symbolEnv);
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
-        List<BLangFunction> serviceFunctions = ((BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode)
-                .getFunctions();
-        List<BLangSimpleVariable> serviceFields = serviceType.getFields().stream()
+        List<BLangFunction> serviceFunctions = serviceNode.serviceClass.functions;
+        List<BLangSimpleVariable> serviceFields = serviceNode.serviceClass.fields.stream()
                 .map(simpleVar -> (BLangSimpleVariable) simpleVar)
                 .collect(Collectors.toList());
         serviceContent.addAll(serviceFunctions);
@@ -577,7 +576,7 @@ public class TreeVisitor extends LSNodeVisitor {
             return;
         }
 
-        this.blockOwnerStack.push(serviceNode.serviceTypeDefinition.typeNode);
+        //this.blockOwnerStack.push(serviceNode.serviceClass.typeNode);
 
         for (int i = 0; i < serviceContent.size(); i++) {
             this.cursorPositionResolver = ServiceScopeResolver.class;
@@ -589,7 +588,7 @@ public class TreeVisitor extends LSNodeVisitor {
             }
         }
 
-        this.blockOwnerStack.pop();
+        //this.blockOwnerStack.pop();
     }
 
     @Override

@@ -1,6 +1,6 @@
 import ballerina/io;
 
-public type Client object {
+public class Client {
 
     public function init(
             string host="localhost",
@@ -12,7 +12,7 @@ public type Client object {
         bar(user);
         return ();
     }
-};
+}
 
 public function main(string... argv) {
     callClient(argv[0]);

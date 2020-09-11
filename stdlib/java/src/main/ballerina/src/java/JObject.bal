@@ -18,7 +18,7 @@
 # objects representing Ballerina bindings for Java classes.
 #
 # + jObj - The `handle` reference to the corresponding Java object.
-public type JObject abstract object {
+public type JObject object {
 
     public handle jObj;
 };
@@ -34,5 +34,5 @@ public function jObjToString(handle jObj) returns string {
 
 function toStringInternal(handle jObj) returns handle = @Method {
     name: "toString",
-    class: "java.lang.Object"
+    'class: "java.lang.Object"
 } external;

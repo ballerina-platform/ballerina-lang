@@ -73,60 +73,7 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "age",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "BINARY_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "NUMERIC_LITERAL",
-                      "children": [
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                          "value": "10",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "ASTERISK_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "NUMERIC_LITERAL",
-                      "children": [
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                          "value": "2"
-                        }
-                      ]
-                    }
-                  ]
+                  "value": "age"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -211,31 +158,7 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "status",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                      "value": "0"
-                    }
-                  ]
+                  "value": "status"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -252,7 +175,7 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "PRIVATE_KEYWORD",
+                  "kind": "PUBLIC_KEYWORD",
                   "leadingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
