@@ -432,6 +432,10 @@ public class BCompileUtil {
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
         options.put(OFFLINE, "true");
 
+        if (newParserEnabled()) {
+            options.put(NEW_PARSER_ENABLED, Boolean.TRUE.toString());
+        }
+
         return compile(context, packageName, compilerPhase, false);
     }
 

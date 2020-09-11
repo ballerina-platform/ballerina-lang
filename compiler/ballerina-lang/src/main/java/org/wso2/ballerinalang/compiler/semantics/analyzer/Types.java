@@ -93,6 +93,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED16_MAX_VALUE;
@@ -1595,7 +1596,8 @@ public class Types {
 
         if (unionType.getMemberTypes().size() > 1) {
             unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                    Names.EMPTY, recordType.tsymbol.pkgID, null, recordType.tsymbol.owner, symTable.builtinPos);
+                                                         Names.EMPTY, recordType.tsymbol.pkgID, null,
+                                                         recordType.tsymbol.owner, symTable.builtinPos, VIRTUAL);
             return unionType;
         }
 
@@ -2574,7 +2576,8 @@ public class Types {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
                                                                 names.fromString("$anonType$" + finiteTypeCount++),
                                                                 finiteType.tsymbol.pkgID, null,
-                                                                finiteType.tsymbol.owner, finiteType.tsymbol.pos);
+                                                                finiteType.tsymbol.owner, finiteType.tsymbol.pos,
+                                                                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3050,7 +3053,8 @@ public class Types {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
                                                                 names.fromString("$anonType$" + finiteTypeCount++),
                                                                 originalType.tsymbol.pkgID, null,
-                                                                originalType.tsymbol.owner, originalType.tsymbol.pos);
+                                                                originalType.tsymbol.owner, originalType.tsymbol.pos,
+                                                                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3467,30 +3471,41 @@ public class Types {
         }
     }
 
-    /**
-     * Check whether a order-key expression type is a basic type.
-     *
-     * @param type type of the order-key expression.
-     * @return boolean whether the type is basic type or not.
-     */
-    public boolean isBasicType(BType type) {
-        switch (type.tag) {
-            case TypeTags.INT:
+    private boolean isSimpleBasicType(int tag) {
+        switch (tag) {
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
-            case TypeTags.STRING:
             case TypeTags.BOOLEAN:
             case TypeTags.NIL:
                 return true;
-            case TypeTags.UNION:
-                if (((BUnionType) type).getMemberTypes().contains(symTable.nilType)) {
-                    return true;
-                } else {
-                    return false;
-                }
             default:
-                return false;
+                return (TypeTags.isIntegerTypeTag(tag)) || (TypeTags.isStringTypeTag(tag));
+        }
+    }
+
+    /**
+     * Check whether a type is an ordered type.
+     *
+     * @param type type.
+     * @return boolean whether the type is an ordered type or not.
+     */
+    public boolean isOrderedType(BType type) {
+        switch (type.tag) {
+            case TypeTags.UNION:
+                Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+                for (BType memType : memberTypes) {
+                    if (!isOrderedType(memType)) {
+                        return false;
+                    }
+                }
+                // can not sort (string?|int)/(string|int)/(string|int)[]/(string?|int)[], can sort string?/string?[]
+                return memberTypes.size() <= 2 && memberTypes.contains(symTable.nilType);
+            case TypeTags.ARRAY:
+                BType elementType = ((BArrayType) type).eType;
+                return isOrderedType(elementType);
+            default:
+                return isSimpleBasicType(type.tag);
         }
     }
 }

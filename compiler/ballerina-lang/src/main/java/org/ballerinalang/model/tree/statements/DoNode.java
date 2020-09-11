@@ -20,11 +20,13 @@ package org.ballerinalang.model.tree.statements;
 import org.ballerinalang.model.clauses.OnFailClauseNode;
 
 /**
+ * {@code DoNode} executes its block of statements once.
+ *
  * do {.
- * body.
+ *  body.
  * }.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public interface DoNode extends StatementNode {
 

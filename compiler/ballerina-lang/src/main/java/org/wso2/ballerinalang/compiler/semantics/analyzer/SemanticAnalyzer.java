@@ -164,6 +164,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
@@ -591,7 +593,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (isIgnoredOrEmpty(varNode)) {
             // Fake symbol to prevent runtime failures down the line.
             varNode.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID, symTable.anyType, env.scope.owner,
-                                            varNode.pos);
+                                            varNode.pos, VIRTUAL);
         }
 
         BType lhsType = varNode.symbol.type;
@@ -983,7 +985,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 variable.type = symTable.semanticError;
-                symbolEnter.defineVarSymbol(variable.pos, variable.flagSet, variable.type, name, blockEnv);
+                symbolEnter.defineVarSymbol(variable.pos, variable.flagSet, variable.type, name, blockEnv,
+                                            variable.internal);
                 break;
             case TUPLE_VARIABLE:
                 ((BLangTupleVariable) variable).memberVariables.forEach(memberVariable ->
@@ -1190,7 +1193,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0,
                                                                                 names.fromString(ANONYMOUS_RECORD_NAME),
                                                                                 env.enclPkg.symbol.pkgID, null,
-                                                                                env.scope.owner, recordVar.pos);
+                                                                                env.scope.owner, recordVar.pos, SOURCE);
                     recordVarType = (BRecordType) symTable.recordType;
 
                     LinkedHashMap<String, BField> fields =
@@ -1367,7 +1370,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else if (errorType.detailType.getKind() == TypeKind.UNION) {
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                                                                     env.enclPkg.packageID, symTable.errorType,
-                                                                    env.scope.owner, errorVariable.pos);
+                                                                    env.scope.owner, errorVariable.pos, SOURCE);
             // TODO: detail type need to be a union representing all details of members of `errorType`
             errorVariable.type = new BErrorType(errorTypeSymbol, symTable.detailType);
             return validateErrorVariable(errorVariable);
@@ -1497,7 +1500,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private BTypeSymbol createTypeSymbol(int type) {
         return new BTypeSymbol(type, Flags.PUBLIC, Names.EMPTY, env.enclPkg.packageID,
-                               null, env.scope.owner, symTable.builtinPos); // TODO: Check with Dhananjaya
+                               null, env.scope.owner, symTable.builtinPos, VIRTUAL);
     }
 
     /**
@@ -1546,7 +1549,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     BUnionType.create(null, memberTypes) : memberTypes.iterator().next();
             BField field = new BField(names.fromString(fieldName), recordVar.pos,
                                       new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                                     fieldType, recordSymbol, recordVar.pos));
+                                                     fieldType, recordSymbol, recordVar.pos, SOURCE));
             fields.put(field.name.value, field);
         }
         return fields;
@@ -1562,14 +1565,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(ANONYMOUS_RECORD_NAME),
                                                                     env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                    recordVar.pos);
+                                                                    recordVar.pos, SOURCE);
         //TODO check below field position
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
             String fieldName = bLangRecordVariableKeyValue.key.value;
             BField bField = new BField(names.fromString(fieldName), recordVar.pos,
                                        new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                                                      fieldType, recordSymbol, recordVar.pos));
+                                                      fieldType, recordSymbol, recordVar.pos, SOURCE));
             fields.put(fieldName, bField);
         }
 
@@ -2373,7 +2376,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Create a new block environment for the foreach node's body.
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
         // Check foreach node's variables and set types.
-        handleDefinitionVariables(foreach.variableDefinitionNode, foreach.varType, foreach.isDeclaredWithVar, blockEnv);
+        handleForeachDefinitionVariables(foreach.variableDefinitionNode, foreach.varType, foreach.isDeclaredWithVar,
+                false, blockEnv);
         // Analyze foreach node's statements.
         analyzeStmt(foreach.body, blockEnv);
 
@@ -2391,8 +2395,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Create a new block environment for the onfail node.
         SymbolEnv onFailEnv = SymbolEnv.createOnFailEnv(onFailClause, env);
         // Check onfail node's variables and set types.
-        handleDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
-                onFailClause.isDeclaredWithVar, onFailEnv);
+        handleForeachDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
+                onFailClause.isDeclaredWithVar, true, onFailEnv);
         analyzeStmt(onFailClause.body, onFailEnv);
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         if (!types.isAssignable(onFailVarNode.type, symTable.errorType)) {
@@ -2520,11 +2524,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, env);
-        analyzeStmt(transactionNode.transactionBody, transactionEnv);
 
         if (transactionNode.onFailClause != null) {
             this.analyzeNode(transactionNode.onFailClause, env);
         }
+        analyzeStmt(transactionNode.transactionBody, transactionEnv);
     }
 
     @Override
@@ -2749,8 +2753,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handleDefinitionVariables(VariableDefinitionNode variableDefinitionNode, BType varType,
-                                           boolean isDeclaredWithVar, SymbolEnv blockEnv) {
+    private void handleForeachDefinitionVariables(VariableDefinitionNode variableDefinitionNode, BType varType,
+                                                  boolean isDeclaredWithVar, boolean isOnFailDef, SymbolEnv blockEnv) {
         BLangVariable variableNode = (BLangVariable) variableDefinitionNode.getVariable();
         // Check whether the foreach node's variables are declared with var.
         if (isDeclaredWithVar) {
@@ -2760,6 +2764,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         // If the type node is available, we get the type from it.
         BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
+        if (isOnFailDef) {
+            BType sourceType = varType;
+            varType = typeNodeType;
+            typeNodeType = sourceType;
+        }
         // Then we need to check whether the RHS type is assignable to LHS type.
         if (types.isAssignable(varType, typeNodeType)) {
             // If assignable, we set types to the variables.
@@ -3108,7 +3117,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Here the existing fall-back env will be replaced by a new env.
         // i.e: [new fall-back env] = [snapshot of old fall-back env] + [new symbol]
         env = SymbolEnv.createTypeNarrowedEnv(lhsExpr, env);
-        symbolEnter.defineTypeNarrowedSymbol(lhsExpr.pos, env, varSymbol, varSymbol.type);
+        symbolEnter.defineTypeNarrowedSymbol(lhsExpr.pos, env, varSymbol, varSymbol.type, varSymbol.origin == VIRTUAL);
         SymbolEnv prevEnv = prevEnvs.pop();
         defineOriginalSymbol(lhsExpr, varSymbol, prevEnv);
         prevEnvs.push(env);

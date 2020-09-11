@@ -302,6 +302,8 @@ public enum DiagnosticCode {
     INVALID_LIST_INDEX_EXPR("invalid.list.index.expr"),
     INVALID_ARRAY_INDEX_EXPR("invalid.array.index.expr"),
     SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("sealed.array.type.can.not.infer.size"),
+    INVALID_SORT_FUNC_RETURN_TYPE("invalid.key.func.return.type"),
+    INVALID_SORT_ARRAY_MEMBER_TYPE("invalid.sort.array.member.type"),
     // TODO Maryam remove list array tuple and use first only
     INDEX_OUT_OF_RANGE("index.out.of.range"),
     LIST_INDEX_OUT_OF_RANGE("list.index.out.of.range"),
@@ -412,6 +414,7 @@ public enum DiagnosticCode {
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.matching.error.return.in.encl.invokable"),
 
     FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("fail.expr.no.matching.error.return.in.encl.invokable"),
+    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("on.fail.no.matching.error"),
 
     START_REQUIRE_INVOCATION("start.require.invocation"),
     INVALID_EXPR_STATEMENT("invalid.expr.statement"),

@@ -32,7 +32,7 @@ import java.util.StringJoiner;
 /**
  * Represents an union type descriptor.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaUnionTypeDescriptor extends AbstractTypeDescriptor implements UnionTypeDescriptor {
 

@@ -7,3 +7,7 @@ function foo() {
     function(int a, int b = c, int... d) f5;
     function(int, int = c, int...) f6 = x;
 }
+
+function ()|() a = ();
+function ()? b = ();
+final function () c = ();

@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 /**
  * Represents an XML Namespace Symbol.
  * 
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BallerinaXMLNSSymbol extends BallerinaSymbol implements XMLNamespaceSymbol {
 
