@@ -108,8 +108,8 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test Map constrained with user defined type value retrieval negative case.",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key " +
-                  "'item-not'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot " +
+                  "find key 'item-not'.*")
     public void testConstrainedMapStructTypeNegative() {
         BRunUtil.invoke(compileResult, "testConstrainedMapStructTypeNegative");
     }
@@ -288,7 +288,8 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test map constrained with string update with invalid type negative.",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation \\{\"message\":\"invalid map" +
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
+                  "\\{\"message\":\"invalid map" +
                   " insertion: expected value of type 'string', found 'int'.*")
     public void testStringMapUpdateWithInvalidTypeNegativeCase() {
         BRunUtil.invoke(compileResult, "testStringMapUpdateWithInvalidTypeNegativeCase");
@@ -519,8 +520,8 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test basic map constrained to nullable union retrieve non existing key.",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key " +
-                  "'nonexist'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot " +
+                  "find key 'nonexist'.*")
     public void testMapConstrainedToNullableUnionNonExistingKey() {
         BRunUtil.invoke(compileResult,
                 "testMapConstrainedToNullableUnionNonExistingKey");
@@ -545,7 +546,8 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test inherent type violation with nil value.",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation \\{\"message\":\"invalid map" +
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
+                  "\\{\"message\":\"invalid map" +
                   " insertion: expected value of type 'string', found '\\(\\)'.*")
     public void testInherentTypeViolationWithNilType() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationWithNilType");

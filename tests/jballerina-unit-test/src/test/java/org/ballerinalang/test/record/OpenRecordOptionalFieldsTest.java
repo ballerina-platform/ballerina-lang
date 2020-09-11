@@ -112,8 +112,8 @@ public class OpenRecordOptionalFieldsTest {
 
     @Test(description = "Test non-defaultable optional field access",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: '\\(\\)' cannot be cast to " +
-                  "'Address3'.*")
+          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: '\\(\\)' " +
+                  "cannot be cast to 'Address3'.*")
     public void testOptionalNonDefField2() {
         BRunUtil.invoke(compileResult, "testOptionalNonDefField2");
     }
