@@ -20,11 +20,15 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class that exposes the formatting APIs.
  */
 public class Formatter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Formatter.class);
 
     /**
      * Formats the provided source string and returns back the formatted source string.
@@ -68,9 +72,7 @@ public class Formatter {
     public static String format(String source, FormattingOptions options) {
         TextDocument textDocument = TextDocuments.from(source);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, null);
-        ModulePartNode newModulePart = treeModifier.transform((ModulePartNode) syntaxTree.rootNode());
-        return syntaxTree.modifyWith(newModulePart).toSourceCode();
+        return modifyTree(syntaxTree, options, null).toSourceCode();
     }
 
     /**
@@ -83,9 +85,7 @@ public class Formatter {
      * @return The modified SyntaxTree after formatting changes
      */
     public static SyntaxTree format(SyntaxTree syntaxTree, LineRange range, FormattingOptions options) {
-        FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, range);
-        ModulePartNode modulePartNode = syntaxTree.rootNode();
-        return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
+        return modifyTree(syntaxTree, options, range);
     }
 
     /**
@@ -96,8 +96,18 @@ public class Formatter {
      * @return The modified SyntaxTree after formatting changes
      */
     public static SyntaxTree format(SyntaxTree syntaxTree, FormattingOptions options) {
-        FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, null);
+        return modifyTree(syntaxTree, options, null);
+    }
+
+    private static SyntaxTree modifyTree(SyntaxTree syntaxTree, FormattingOptions options, LineRange range) {
+        FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, range);
         ModulePartNode modulePartNode = syntaxTree.rootNode();
-        return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
+        try {
+            SyntaxTree newSyntaxTree = syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
+            return newSyntaxTree.modifyWith(treeModifier.transform((ModulePartNode) newSyntaxTree.rootNode()));
+        } catch (Exception e) {
+            LOGGER.error(String.format("Error while formatting the source: %s", e.getMessage()));
+            return syntaxTree;
+        }
     }
 }

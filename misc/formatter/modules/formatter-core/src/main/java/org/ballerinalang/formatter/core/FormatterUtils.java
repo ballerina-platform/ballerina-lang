@@ -56,8 +56,8 @@ class FormatterUtils {
         LinePosition startPos = range.startLine();
         LinePosition endPos = range.endLine();
         int startOffset = startPos.offset();
-        if (node.kind().equals(SyntaxKind.FUNCTION_DEFINITION) || node.kind().equals(SyntaxKind.TYPE_DEFINITION) ||
-                node.kind().equals(SyntaxKind.CONST_DECLARATION)) {
+        if (node.kind() == (SyntaxKind.FUNCTION_DEFINITION) || node.kind() == (SyntaxKind.TYPE_DEFINITION) ||
+                node.kind() == (SyntaxKind.CONST_DECLARATION)) {
             startOffset = (startOffset / 4) * 4;
         }
         return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
@@ -70,54 +70,56 @@ class FormatterUtils {
         if (parent == null) {
             parent = node;
         }
+        Node grandParent = parent.parent();
         SyntaxKind parentKind = parent.kind();
-        if (parentKind == SyntaxKind.MODULE_VAR_DECL) {
-            if (parent.parent() != null && parent.parent().kind() == SyntaxKind.MODULE_PART &&
-                    syntaxKind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (parentKind == (SyntaxKind.MODULE_VAR_DECL)) {
+            if (grandParent != null && grandParent.kind() == (SyntaxKind.MODULE_PART) &&
+                    syntaxKind == (SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
                 return null;
             }
             return parent;
-        } else if (parentKind == SyntaxKind.FUNCTION_DEFINITION ||
-                parentKind == SyntaxKind.ELSE_BLOCK ||
-                parentKind == SyntaxKind.WHILE_STATEMENT ||
-                parentKind == SyntaxKind.CONST_DECLARATION ||
-                parentKind == SyntaxKind.METHOD_DECLARATION ||
-                parentKind == SyntaxKind.TYPE_DEFINITION) {
+        } else if (parentKind == (SyntaxKind.FUNCTION_DEFINITION) ||
+                parentKind == (SyntaxKind.ELSE_BLOCK) ||
+                parentKind == (SyntaxKind.IF_ELSE_STATEMENT) ||
+                parentKind == (SyntaxKind.WHILE_STATEMENT) ||
+                parentKind == (SyntaxKind.CONST_DECLARATION) ||
+                parentKind == (SyntaxKind.METHOD_DECLARATION) ||
+                parentKind == (SyntaxKind.TYPE_DEFINITION)) {
             return parent;
-        } else if (syntaxKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            if (parentKind == SyntaxKind.REQUIRED_PARAM ||
-                    parentKind == SyntaxKind.POSITIONAL_ARG ||
-                    parentKind == SyntaxKind.BINARY_EXPRESSION ||
-                    parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
-                    parentKind == SyntaxKind.RETURN_STATEMENT ||
-                    parentKind == SyntaxKind.REMOTE_METHOD_CALL_ACTION ||
-                    parentKind.equals(SyntaxKind.FIELD_ACCESS) ||
-                    (parentKind == SyntaxKind.FUNCTION_CALL && parent.parent() != null &&
-                            parent.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT)) {
+        } else if (syntaxKind == (SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+            if (parentKind == (SyntaxKind.REQUIRED_PARAM) ||
+                    parentKind == (SyntaxKind.POSITIONAL_ARG) ||
+                    parentKind == (SyntaxKind.BINARY_EXPRESSION) ||
+                    parentKind == (SyntaxKind.BRACED_EXPRESSION) ||
+                    parentKind == (SyntaxKind.RETURN_STATEMENT) ||
+                    parentKind == (SyntaxKind.REMOTE_METHOD_CALL_ACTION) ||
+                    parentKind == (SyntaxKind.FIELD_ACCESS) ||
+                    (parentKind == (SyntaxKind.FUNCTION_CALL) && grandParent != null &&
+                            grandParent.kind() == (SyntaxKind.ASSIGNMENT_STATEMENT))) {
                 return null;
             }
             return getParent(parent, syntaxKind);
-        } else if (syntaxKind.equals(SyntaxKind.STRING_TYPE_DESC) &&
-                parentKind.equals(SyntaxKind.RECORD_FIELD) && parent.parent() != null &&
-                parent.parent().kind().equals(SyntaxKind.RECORD_TYPE_DESC)) {
+        } else if (syntaxKind == (SyntaxKind.STRING_TYPE_DESC) &&
+                parentKind == (SyntaxKind.RECORD_FIELD) && grandParent != null &&
+                grandParent.kind() == (SyntaxKind.RECORD_TYPE_DESC)) {
             return getParent(parent, syntaxKind);
-        } else if (parentKind == SyntaxKind.SERVICE_DECLARATION ||
-                parentKind == SyntaxKind.BINARY_EXPRESSION) {
-            if (syntaxKind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        } else if (parentKind == (SyntaxKind.SERVICE_DECLARATION) ||
+                parentKind == (SyntaxKind.BINARY_EXPRESSION)) {
+            if (syntaxKind == (SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
                 return null;
             }
             return parent;
-        } else if (parentKind == SyntaxKind.REQUIRED_PARAM) {
+        } else if (parentKind == (SyntaxKind.REQUIRED_PARAM)) {
             return null;
-        } else if (parentKind.equals(SyntaxKind.OBJECT_TYPE_DESC)) {
-            if (parent.parent() != null && parent.parent().kind().equals(SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {
+        } else if (parentKind == (SyntaxKind.OBJECT_TYPE_DESC)) {
+            if (grandParent != null && grandParent.kind() == (SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {
                 return parent.parent().parent().parent();
-            } else if (parent.parent() != null && parent.parent().kind().equals(SyntaxKind.TYPE_DEFINITION)) {
+            } else if (grandParent != null && grandParent.kind() == (SyntaxKind.TYPE_DEFINITION)) {
                 return getParent(parent, syntaxKind);
             } else {
                 return parent;
             }
-        } else if (parent.parent() != null) {
+        } else if (grandParent != null) {
             return getParent(parent, syntaxKind);
         } else {
             return null;
@@ -128,11 +130,11 @@ class FormatterUtils {
         if (node == null) {
             return indentation;
         }
-        if (node.parent() != null && (node.parent().kind().equals(SyntaxKind.BLOCK_STATEMENT) ||
-                node.parent().kind().equals(SyntaxKind.FUNCTION_BODY_BLOCK) ||
-                node.parent().kind().equals(SyntaxKind.LIST_CONSTRUCTOR) ||
-                node.parent().kind().equals(SyntaxKind.TYPE_DEFINITION) ||
-                node.parent().kind().equals(SyntaxKind.MAPPING_CONSTRUCTOR))) {
+        if (node.parent() != null && (node.parent().kind() == (SyntaxKind.BLOCK_STATEMENT) ||
+                node.parent().kind() == (SyntaxKind.FUNCTION_BODY_BLOCK) ||
+                node.parent().kind() == (SyntaxKind.LIST_CONSTRUCTOR) ||
+                node.parent().kind() == (SyntaxKind.TYPE_DEFINITION) ||
+                node.parent().kind() == (SyntaxKind.MAPPING_CONSTRUCTOR))) {
             indentation += formattingOptions.getTabSize();
         }
         return getIndentation(node.parent(), indentation, formattingOptions);
@@ -141,7 +143,7 @@ class FormatterUtils {
     private static MinutiaeList getCommentMinutiae(MinutiaeList minutiaeList, boolean isLeading) {
         MinutiaeList minutiaes = AbstractNodeFactory.createEmptyMinutiaeList();
         for (int i = 0; i < minutiaeList.size(); i++) {
-            if (minutiaeList.get(i).kind().equals(SyntaxKind.COMMENT_MINUTIAE)) {
+            if (minutiaeList.get(i).kind() == (SyntaxKind.COMMENT_MINUTIAE)) {
                 if (i > 0) {
                     minutiaes = minutiaes.add(minutiaeList.get(i - 1));
                 }
@@ -162,7 +164,6 @@ class FormatterUtils {
         for (int i = 0; i <= (column - 1); i++) {
             whiteSpaces.append(" ");
         }
-
         return whiteSpaces.toString();
     }
 
@@ -295,5 +296,115 @@ class FormatterUtils {
             }
         }
         return preserve;
+    }
+
+    private static ArrayList<NonTerminalNode> nestedIfBlock(NonTerminalNode node) {
+        NonTerminalNode parent = node.parent();
+        ArrayList<NonTerminalNode> nestedParent = new ArrayList<>();
+        if (parent == null) {
+            return new ArrayList<>(0);
+        } else {
+            while (parent != null) {
+                if (parent.kind() == (node.kind())) {
+                    nestedParent.add(parent);
+                }
+                parent = parent.parent();
+            }
+        }
+        return nestedParent.isEmpty() ? null : nestedParent;
+    }
+
+    /**
+     * return the indented start column.
+     *
+     * @param node       node
+     * @param addSpaces  add spaces or not
+     * @return start position
+     */
+    static int getStartColumn(Node node, boolean addSpaces, FormattingOptions formattingOptions) {
+        Node parent;
+        if (node.kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
+            Indentation indent = getIfElseParent((NonTerminalNode) node);
+            parent = indent.getParent();
+            addSpaces = indent.getAddSpaces();
+        } else if (node.kind() == (SyntaxKind.BLOCK_STATEMENT)) {
+            Indentation indent = getBlockParent(node);
+            parent = indent.getParent();
+            addSpaces = indent.getAddSpaces();
+        } else {
+            parent = getParent(node, node.kind());
+        }
+        if (parent != null) {
+            int indentation = 0;
+            if (addSpaces) {
+                indentation = (FormatterUtils.getIndentation(node, 0, formattingOptions));
+            }
+            return getPosition(parent).sCol + indentation;
+        }
+        return 0;
+    }
+
+    private static Indentation getIfElseParent(NonTerminalNode node) {
+        NonTerminalNode parent = node.parent();
+        if (parent == null) {
+            parent = node;
+        }
+        if (parent.kind() == (SyntaxKind.FUNCTION_DEFINITION)) {
+            return new Indentation(parent, true);
+        } else if (parent.parent() != null) {
+            return getIfElseParent(parent);
+        }
+        return new Indentation(null, false);
+    }
+
+    private static Indentation getBlockParent(Node node) {
+        Node parent = node.parent();
+        if (parent == null) {
+            parent = node;
+        }
+        ArrayList<SyntaxKind> parentWithSpaces = new ArrayList<>(
+                Arrays.asList(
+                        SyntaxKind.WHILE_STATEMENT,
+                        SyntaxKind.FUNCTION_DEFINITION));
+        ArrayList<SyntaxKind> parentWithoutSpaces = new ArrayList<>(
+                Arrays.asList(
+                        SyntaxKind.NAMED_WORKER_DECLARATION,
+                        SyntaxKind.LOCAL_VAR_DECL,
+                        SyntaxKind.FOREACH_STATEMENT));
+
+        if (parentWithSpaces.contains(parent.kind())) {
+            return new Indentation(parent, true);
+        } else if (parent.kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
+            ArrayList nestedBlock = nestedIfBlock((NonTerminalNode) parent);
+            if (nestedBlock != null && !nestedBlock.isEmpty()) {
+                NonTerminalNode nestedIfParent = (NonTerminalNode) nestedBlock.get(0);
+                return new Indentation((nestedIfParent != null) ? nestedIfParent : parent, false);
+            }
+            return new Indentation(parent, false);
+        } else if (parentWithoutSpaces.contains(parent.kind())) {
+            return new Indentation(parent, false);
+        } else if (parent.parent() != null) {
+            return getBlockParent(parent);
+        }
+        return new Indentation(null, false);
+    }
+
+
+    private static final class Indentation {
+        private final Node parent;
+        private final boolean addSpaces;
+
+        private Indentation(Node parent, boolean addSpaces) {
+            this.parent = parent;
+            this.addSpaces = addSpaces;
+        }
+
+        private Node getParent() {
+            return parent;
+        }
+
+        private boolean getAddSpaces() {
+            return addSpaces;
+        }
     }
 }

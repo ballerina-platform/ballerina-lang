@@ -233,6 +233,7 @@ import static org.ballerinalang.formatter.core.FormatterUtils.getPosition;
 import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
 import static org.ballerinalang.formatter.core.FormatterUtils.preserveNewLine;
+import static org.ballerinalang.formatter.core.NodeIndentation.blockStatementNode;
 
 /**
  * Modifies the given tree to format the nodes.
@@ -241,11 +242,11 @@ import static org.ballerinalang.formatter.core.FormatterUtils.preserveNewLine;
  */
 public class FormattingTreeModifier extends TreeModifier {
 
-    private FormattingOptions formattingOptions;
+    private FormattingOptions options;
     private LineRange lineRange;
 
-    FormattingTreeModifier(FormattingOptions formattingOptions, LineRange lineRange) {
-        this.formattingOptions = formattingOptions;
+    FormattingTreeModifier(FormattingOptions options, LineRange lineRange) {
+        this.options = options;
         this.lineRange = lineRange;
     }
 
@@ -330,7 +331,7 @@ public class FormattingTreeModifier extends TreeModifier {
             return identifier;
         }
         boolean addSpaces = false;
-        if (identifier.parent() != null && identifier.parent().kind().equals(SyntaxKind.SPECIFIC_FIELD)) {
+        if (identifier.parent() != null && identifier.parent().kind() == (SyntaxKind.SPECIFIC_FIELD)) {
             addSpaces = true;
         }
         int startColumn = getStartColumn(identifier, addSpaces);
@@ -433,17 +434,15 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(builtinSimpleNameReferenceNode, lineRange)) {
             return builtinSimpleNameReferenceNode;
         }
-        NodeFormattingMetrics nodeFormattingMetrics = new NodeFormattingMetrics(builtinSimpleNameReferenceNode);
-        boolean addSpaces = nodeFormattingMetrics.handleBuiltinSimpleNameReferenceNode();
-        int startColumn = getStartColumn(builtinSimpleNameReferenceNode, addSpaces);
+        int startColumn = NodeIndentation.builtinSimpleNameReferenceNode(builtinSimpleNameReferenceNode, options);
         int trailingSpaces = 0;
         if (builtinSimpleNameReferenceNode.parent() != null &&
-                builtinSimpleNameReferenceNode.parent().kind().equals(SyntaxKind.CONST_DECLARATION)) {
+                builtinSimpleNameReferenceNode.parent().kind() == (SyntaxKind.CONST_DECLARATION)) {
             trailingSpaces = 1;
         }
         Token name = getToken(builtinSimpleNameReferenceNode.name());
         return builtinSimpleNameReferenceNode.modify()
-                .withName(formatToken(name, addSpaces ? startColumn : 0, trailingSpaces, 0, 0))
+                .withName(formatToken(name, startColumn, trailingSpaces, 0, 0))
                 .apply();
     }
 
@@ -453,7 +452,7 @@ public class FormattingTreeModifier extends TreeModifier {
             return functionBodyBlockNode;
         }
         boolean addSpaces = false;
-        if (functionBodyBlockNode.parent().kind().equals(SyntaxKind.OBJECT_METHOD_DEFINITION)) {
+        if (functionBodyBlockNode.parent().kind() == (SyntaxKind.OBJECT_METHOD_DEFINITION)) {
             addSpaces = true;
         }
         int startColumn = getStartColumn(functionBodyBlockNode, addSpaces);
@@ -468,7 +467,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         int trailingNewLines = 2;
         if (functionBodyBlockNode.parent() != null && functionBodyBlockNode.parent().parent() != null &&
-                functionBodyBlockNode.parent().parent().kind().equals(SyntaxKind.SERVICE_BODY)) {
+                functionBodyBlockNode.parent().parent().kind() == (SyntaxKind.SERVICE_BODY)) {
             trailingNewLines = 1;
         }
         return functionBodyBlockNode.modify()
@@ -514,9 +513,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(qualifiedNameReferenceNode, lineRange)) {
             return qualifiedNameReferenceNode;
         }
-        NodeFormattingMetrics nodeFormatting = new NodeFormattingMetrics(qualifiedNameReferenceNode);
-        boolean addSpaces = nodeFormatting.handleQualifiedNameReferenceNode();
-        int startColumn = getStartColumn(qualifiedNameReferenceNode, addSpaces);
+        int startColumn = NodeIndentation.qualifiedNameReferenceNode(qualifiedNameReferenceNode, options);
         Token modulePrefix = getToken(qualifiedNameReferenceNode.modulePrefix());
         Token identifier = getToken(qualifiedNameReferenceNode.identifier());
         Token colon = getToken((Token) qualifiedNameReferenceNode.colon());
@@ -544,8 +541,13 @@ public class FormattingTreeModifier extends TreeModifier {
             return basicLiteralNode;
         }
         Token literalToken = getToken(basicLiteralNode.literalToken());
+        int leadingSpaces = 0;
+        if (basicLiteralNode.parent() != null &&
+                basicLiteralNode.parent().kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
+            leadingSpaces = 1;
+        }
         return basicLiteralNode.modify()
-                .withLiteralToken(formatToken(literalToken, 0, 0, 0, 0))
+                .withLiteralToken(formatToken(literalToken, leadingSpaces, 0, 0, 0))
                 .apply();
     }
 
@@ -789,11 +791,9 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(simpleNameReferenceNode, lineRange)) {
             return simpleNameReferenceNode;
         }
-        NodeFormattingMetrics nodeFormatting = new NodeFormattingMetrics(simpleNameReferenceNode);
-        boolean addSpaces = nodeFormatting.handleSimpleNameReferenceNode();
-        int startColumn = getStartColumn(simpleNameReferenceNode, addSpaces);
-        if (simpleNameReferenceNode.parent() != null && simpleNameReferenceNode.parent().kind()
-                .equals(SyntaxKind.IF_ELSE_STATEMENT)) {
+        int startColumn = NodeIndentation.simpleNameReferenceNode(simpleNameReferenceNode, options);
+        if (simpleNameReferenceNode.parent() != null &&
+                simpleNameReferenceNode.parent().kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
             startColumn = 1;
         }
         Token name = getToken(simpleNameReferenceNode.name());
@@ -808,13 +808,10 @@ public class FormattingTreeModifier extends TreeModifier {
             return ifElseStatementNode;
         }
         Token ifKeyword = getToken(ifElseStatementNode.ifKeyword());
+        int startColumn = NodeIndentation.ifElseStatementNode(ifElseStatementNode, options);
         ExpressionNode condition = this.modifyNode(ifElseStatementNode.condition());
         BlockStatementNode ifBody = this.modifyNode(ifElseStatementNode.ifBody());
         Node elseBody = this.modifyNode(ifElseStatementNode.elseBody().orElse(null));
-        int startColumn = 1;
-        if (ifElseStatementNode.parent().kind() != SyntaxKind.ELSE_BLOCK) {
-            startColumn = getStartColumn(ifElseStatementNode, true);
-        }
         if (elseBody != null) {
             ifElseStatementNode = ifElseStatementNode.modify()
                     .withElseBody(elseBody).apply();
@@ -876,11 +873,11 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean addSpaces = true;
         if (errorTypeDescriptorNode.parent() != null &&
-                errorTypeDescriptorNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
+                errorTypeDescriptorNode.parent().kind() == (SyntaxKind.UNION_TYPE_DESC)) {
             addSpaces = false;
         }
         if (errorTypeDescriptorNode.parent() != null && errorTypeDescriptorNode.parent().parent() != null &&
-                errorTypeDescriptorNode.parent().parent().kind().equals(SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {
+                errorTypeDescriptorNode.parent().parent().kind() == (SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {
             addSpaces = false;
         }
         int startColumn = getStartColumn(errorTypeDescriptorNode, addSpaces);
@@ -949,7 +946,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withTypeDescriptor(typeDescriptorNode).apply();
         }
         int leadingSpaces = 0;
-        if (constantDeclarationNode.children().get(1).kind().equals(SyntaxKind.PARAMETERIZED_TYPE_DESC)) {
+        if (constantDeclarationNode.children().get(1).kind() == (SyntaxKind.PARAMETERIZED_TYPE_DESC)) {
             leadingSpaces = 1;
         }
         return constantDeclarationNode.modify()
@@ -982,36 +979,31 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(blockStatementNode, lineRange)) {
             return blockStatementNode;
         }
-        boolean addSpaces = false;
-        if (blockStatementNode.parent().kind().equals(SyntaxKind.NAMED_WORKER_DECLARATION) ||
-                blockStatementNode.parent().kind().equals(SyntaxKind.QUERY_ACTION) ||
-                blockStatementNode.parent().kind().equals(SyntaxKind.FOREACH_STATEMENT) ||
-                blockStatementNode.parent().kind().equals(SyntaxKind.FUNCTION_BODY_BLOCK)) {
-            addSpaces = true;
-        }
-        int startColumn = getStartColumn(blockStatementNode, addSpaces);
+        int startColumn = blockStatementNode(blockStatementNode, options);
         Token openBraceToken = getToken(blockStatementNode.openBraceToken());
         Token closeBraceToken = getToken(blockStatementNode.closeBraceToken());
         NodeList<StatementNode> statements = this.modifyNodeList(blockStatementNode.statements());
 
         int trailingNewLines = 1;
-        if (blockStatementNode.parent() != null && blockStatementNode.parent().kind() == SyntaxKind.IF_ELSE_STATEMENT) {
+        if (blockStatementNode.parent() != null &&
+                blockStatementNode.parent().kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
             IfElseStatementNode ifElseStatementNode = (IfElseStatementNode) blockStatementNode.parent();
             if (ifElseStatementNode.elseBody().isPresent()) {
                 trailingNewLines = 0;
             }
-        } else if (blockStatementNode.parent().kind().equals(SyntaxKind.QUERY_ACTION)) {
+        } else if (blockStatementNode.parent().kind() == (SyntaxKind.QUERY_ACTION)) {
             trailingNewLines = 0;
         }
         int leadingSpaces = 1;
         int trailingOpeningLines = 1;
-        if (blockStatementNode.parent() != null && (blockStatementNode.parent().kind()
-                .equals(SyntaxKind.FUNCTION_BODY_BLOCK) || blockStatementNode.parent().kind()
-                .equals(SyntaxKind.IF_ELSE_STATEMENT))) {
+        if (blockStatementNode.parent() != null &&
+                (blockStatementNode.parent().kind() == (SyntaxKind.FUNCTION_BODY_BLOCK) ||
+                        blockStatementNode.parent().kind() == (SyntaxKind.IF_ELSE_STATEMENT) ||
+                        blockStatementNode.parent().kind() == (SyntaxKind.ELSE_BLOCK))) {
             if (blockStatementNode.children().size() <= 2) {
                 trailingOpeningLines = 2;
             }
-            if (blockStatementNode.parent().kind().equals(SyntaxKind.FUNCTION_BODY_BLOCK)) {
+            if (blockStatementNode.parent().kind() == (SyntaxKind.FUNCTION_BODY_BLOCK)) {
                 leadingSpaces = startColumn;
             }
         }
@@ -1031,10 +1023,10 @@ public class FormattingTreeModifier extends TreeModifier {
         boolean addSpaces = true;
         int leadingNewLines = 1;
         if (mappingConstructorExpressionNode.parent() != null &&
-                (mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.LOCAL_VAR_DECL) ||
-                        mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.CONST_DECLARATION) ||
-                        mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.SPECIFIC_FIELD) ||
-                        mappingConstructorExpressionNode.parent().kind().equals(SyntaxKind.TABLE_CONSTRUCTOR))) {
+                (mappingConstructorExpressionNode.parent().kind() == (SyntaxKind.LOCAL_VAR_DECL) ||
+                        mappingConstructorExpressionNode.parent().kind() == (SyntaxKind.CONST_DECLARATION) ||
+                        mappingConstructorExpressionNode.parent().kind() == (SyntaxKind.SPECIFIC_FIELD) ||
+                        mappingConstructorExpressionNode.parent().kind() == (SyntaxKind.TABLE_CONSTRUCTOR))) {
             addSpaces = false;
         }
         int startOpenBrace = getStartColumn(mappingConstructorExpressionNode, addSpaces);
@@ -1194,7 +1186,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean addSpaces = false;
         if (checkExpressionNode.parent() != null &&
-                checkExpressionNode.parent().kind().equals(SyntaxKind.ACTION_STATEMENT)) {
+                checkExpressionNode.parent().kind() == (SyntaxKind.ACTION_STATEMENT)) {
             addSpaces = true;
         }
         int startColumn = getStartColumn(checkExpressionNode, addSpaces);
@@ -1283,9 +1275,9 @@ public class FormattingTreeModifier extends TreeModifier {
             return nilTypeDescriptorNode;
         }
         boolean addSpaces = true;
-        if (nilTypeDescriptorNode.parent().kind().equals(SyntaxKind.UNION_TYPE_DESC) ||
+        if (nilTypeDescriptorNode.parent().kind() == (SyntaxKind.UNION_TYPE_DESC) ||
                 (nilTypeDescriptorNode.parent() != null) &&
-                        nilTypeDescriptorNode.parent().kind().equals(SyntaxKind.TYPE_PARAMETER)) {
+                        nilTypeDescriptorNode.parent().kind() == (SyntaxKind.TYPE_PARAMETER)) {
             addSpaces = false;
         }
         int startColumn = getStartColumn(nilTypeDescriptorNode, addSpaces);
@@ -1369,7 +1361,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean addSpaces = true;
         if (xmlTypeDescriptorNode.parent().parent() != null &&
-                xmlTypeDescriptorNode.parent().parent().kind().equals(SyntaxKind.TYPE_CAST_EXPRESSION)) {
+                xmlTypeDescriptorNode.parent().parent().kind() == (SyntaxKind.TYPE_CAST_EXPRESSION)) {
             addSpaces = false;
         }
         int startColumn = getStartColumn(xmlTypeDescriptorNode, addSpaces);
@@ -1624,8 +1616,8 @@ public class FormattingTreeModifier extends TreeModifier {
         Token endBacktick = getToken(templateExpressionNode.endBacktick());
         int leadingSpaces = 1;
         if (templateExpressionNode.parent() != null &&
-                (templateExpressionNode.parent().kind().equals(SyntaxKind.LOCAL_VAR_DECL) ||
-                        templateExpressionNode.parent().kind().equals(SyntaxKind.INTERPOLATION))) {
+                (templateExpressionNode.parent().kind() == (SyntaxKind.LOCAL_VAR_DECL) ||
+                        templateExpressionNode.parent().kind() == (SyntaxKind.INTERPOLATION))) {
             leadingSpaces = 0;
         }
         if (type != null) {
@@ -1665,7 +1657,7 @@ public class FormattingTreeModifier extends TreeModifier {
             return listConstructorExpressionNode;
         }
         int newLines = 0;
-        if (listConstructorExpressionNode.children().get(1).kind().equals(SyntaxKind.MAPPING_CONSTRUCTOR)) {
+        if (listConstructorExpressionNode.children().get(1).kind() == (SyntaxKind.MAPPING_CONSTRUCTOR)) {
             newLines = 1;
         }
         int startColumn = getStartColumn(listConstructorExpressionNode, true);
@@ -1739,8 +1731,8 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean addSpaces = true;
         if (parameterizedTypeDescriptorNode.parent() != null &&
-                (parameterizedTypeDescriptorNode.parent().kind().equals(SyntaxKind.CONST_DECLARATION) ||
-                        parameterizedTypeDescriptorNode.parent().kind().equals(SyntaxKind.TYPE_PARAMETER))) {
+                (parameterizedTypeDescriptorNode.parent().kind() == (SyntaxKind.CONST_DECLARATION) ||
+                        parameterizedTypeDescriptorNode.parent().kind() == (SyntaxKind.TYPE_PARAMETER))) {
             addSpaces = false;
         }
         int startColumn = getStartColumn(parameterizedTypeDescriptorNode, addSpaces);
@@ -2160,8 +2152,8 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean addSpaces = true;
         if (objectTypeDescriptorNode.parent() != null &&
-                (objectTypeDescriptorNode.parent().kind().equals(SyntaxKind.RETURN_TYPE_DESCRIPTOR) ||
-                        objectTypeDescriptorNode.parent().kind().equals(SyntaxKind.TYPE_DEFINITION))) {
+                (objectTypeDescriptorNode.parent().kind() == (SyntaxKind.RETURN_TYPE_DESCRIPTOR) ||
+                        objectTypeDescriptorNode.parent().kind() == (SyntaxKind.TYPE_DEFINITION))) {
             addSpaces = false;
         }
         int startColumn = getStartColumn(objectTypeDescriptorNode, addSpaces);
@@ -3074,7 +3066,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean addSpaces = false;
         if (waitActionNode.parent().parent() != null &&
-                waitActionNode.parent().parent().kind().equals(SyntaxKind.FUNCTION_BODY_BLOCK)) {
+                waitActionNode.parent().parent().kind() == (SyntaxKind.FUNCTION_BODY_BLOCK)) {
             addSpaces = true;
         }
         int startColumn = getStartColumn(waitActionNode, addSpaces);
@@ -3643,19 +3635,19 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public Token transform(Token token) {
         int startColumn = getStartColumn(token, true);
-        if (token.kind().equals(SyntaxKind.COMMA_TOKEN)) {
+        if (token.kind() == (SyntaxKind.COMMA_TOKEN)) {
             return formatToken(token, 0, 1, 0, 0);
-        } else if (token.kind().equals(SyntaxKind.PUBLIC_KEYWORD) || token.kind().equals(SyntaxKind.ABSTRACT_KEYWORD)) {
+        } else if (token.kind() == (SyntaxKind.PUBLIC_KEYWORD) || token.kind() == (SyntaxKind.ABSTRACT_KEYWORD)) {
             boolean addSpaces = true;
             if (token.parent() != null && token.parent().parent() != null &&
-                    token.parent().parent().kind().equals(SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {
+                    token.parent().parent().kind() == (SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {
                 addSpaces = false;
             }
             startColumn = getStartColumn(token.parent(), addSpaces);
             return formatToken(token, addSpaces ? startColumn : 0, 1, 0, 0);
-        } else if (token.parent() != null && token.parent().kind().equals(SyntaxKind.IMPORT_DECLARATION)) {
+        } else if (token.parent() != null && token.parent().kind() == (SyntaxKind.IMPORT_DECLARATION)) {
             return formatToken(token, 0, 0, 0, 0);
-        } else if (token.kind().equals(SyntaxKind.RESOURCE_KEYWORD)) {
+        } else if (token.kind() == (SyntaxKind.RESOURCE_KEYWORD)) {
             return formatToken(token, startColumn, 1, 0, 0);
         }
         return token;
@@ -3672,7 +3664,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Node parent = getParent(node, node.kind());
         if (parent != null) {
             return getPosition(parent).sCol + (addSpaces ? FormatterUtils
-                    .getIndentation(node, 0, formattingOptions) : 0);
+                    .getIndentation(node, 0, options) : 0);
         }
         return 0;
     }
