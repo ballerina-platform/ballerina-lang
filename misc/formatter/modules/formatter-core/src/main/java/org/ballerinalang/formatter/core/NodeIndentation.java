@@ -22,6 +22,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getStartColumn;
 
@@ -41,14 +42,13 @@ class NodeIndentation {
             grandParent = parent.parent();
         }
         boolean addSpaces = true;
-        ArrayList<SyntaxKind> parentNodes = new ArrayList<>(
-                Arrays.asList(
+        List parentNodes = Arrays.asList(
                         SyntaxKind.FUNCTION_CALL,
                         SyntaxKind.TYPE_TEST_EXPRESSION,
                         SyntaxKind.TYPE_PARAMETER,
                         SyntaxKind.TYPE_CAST_PARAM,
                         SyntaxKind.UNION_TYPE_DESC,
-                        SyntaxKind.XML_TYPE_DESC));
+                        SyntaxKind.XML_TYPE_DESC);
         if (parent != null && (parentNodes.contains(parent.kind()) || grandParent != null &&
                 ((parent.kind() == (SyntaxKind.TYPED_BINDING_PATTERN) &&
                         grandParent.kind() == (SyntaxKind.FOREACH_STATEMENT)) ||

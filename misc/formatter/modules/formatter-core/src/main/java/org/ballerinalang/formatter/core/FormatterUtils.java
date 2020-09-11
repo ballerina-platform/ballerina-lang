@@ -130,12 +130,15 @@ class FormatterUtils {
         if (node == null) {
             return indentation;
         }
-        if (node.parent() != null && (node.parent().kind() == (SyntaxKind.BLOCK_STATEMENT) ||
-                node.parent().kind() == (SyntaxKind.FUNCTION_BODY_BLOCK) ||
-                node.parent().kind() == (SyntaxKind.LIST_CONSTRUCTOR) ||
-                node.parent().kind() == (SyntaxKind.TYPE_DEFINITION) ||
-                node.parent().kind() == (SyntaxKind.MAPPING_CONSTRUCTOR))) {
-            indentation += formattingOptions.getTabSize();
+        if (node.parent() != null) {
+            SyntaxKind parentKind = node.parent().kind();
+            if (parentKind == SyntaxKind.BLOCK_STATEMENT ||
+                    parentKind == SyntaxKind.FUNCTION_BODY_BLOCK ||
+                    parentKind == SyntaxKind.LIST_CONSTRUCTOR ||
+                    parentKind == SyntaxKind.TYPE_DEFINITION ||
+                    parentKind == SyntaxKind.MAPPING_CONSTRUCTOR) {
+                indentation += formattingOptions.getTabSize();
+            }
         }
         return getIndentation(node.parent(), indentation, formattingOptions);
     }

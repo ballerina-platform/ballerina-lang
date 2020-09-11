@@ -983,27 +983,27 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBraceToken = getToken(blockStatementNode.openBraceToken());
         Token closeBraceToken = getToken(blockStatementNode.closeBraceToken());
         NodeList<StatementNode> statements = this.modifyNodeList(blockStatementNode.statements());
-
+        SyntaxKind parentKind = blockStatementNode.parent().kind();
         int trailingNewLines = 1;
         if (blockStatementNode.parent() != null &&
-                blockStatementNode.parent().kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
+                parentKind == (SyntaxKind.IF_ELSE_STATEMENT)) {
             IfElseStatementNode ifElseStatementNode = (IfElseStatementNode) blockStatementNode.parent();
             if (ifElseStatementNode.elseBody().isPresent()) {
                 trailingNewLines = 0;
             }
-        } else if (blockStatementNode.parent().kind() == (SyntaxKind.QUERY_ACTION)) {
+        } else if (parentKind == (SyntaxKind.QUERY_ACTION)) {
             trailingNewLines = 0;
         }
         int leadingSpaces = 1;
         int trailingOpeningLines = 1;
         if (blockStatementNode.parent() != null &&
-                (blockStatementNode.parent().kind() == (SyntaxKind.FUNCTION_BODY_BLOCK) ||
-                        blockStatementNode.parent().kind() == (SyntaxKind.IF_ELSE_STATEMENT) ||
-                        blockStatementNode.parent().kind() == (SyntaxKind.ELSE_BLOCK))) {
+                (parentKind == (SyntaxKind.FUNCTION_BODY_BLOCK) ||
+                        parentKind == (SyntaxKind.IF_ELSE_STATEMENT) ||
+                        parentKind == (SyntaxKind.ELSE_BLOCK))) {
             if (blockStatementNode.children().size() <= 2) {
                 trailingOpeningLines = 2;
             }
-            if (blockStatementNode.parent().kind() == (SyntaxKind.FUNCTION_BODY_BLOCK)) {
+            if (parentKind == (SyntaxKind.FUNCTION_BODY_BLOCK)) {
                 leadingSpaces = startColumn;
             }
         }
