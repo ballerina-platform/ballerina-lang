@@ -21,6 +21,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.utils.ErrorGenerator;
@@ -251,8 +252,8 @@ public class SQLDatasource {
         private String user;
         private String password;
         private String datasourceName;
-        private MapValue connectionPool;
-        private MapValue options;
+        private BMap connectionPool;
+        private BMap options;
         private Properties poolProperties;
 
         public SQLDatasourceParams() {
@@ -287,7 +288,7 @@ public class SQLDatasource {
             return this;
         }
 
-        public SQLDatasourceParams setOptions(MapValue options) {
+        public SQLDatasourceParams setOptions(BMap options) {
             this.options = options;
             return this;
         }

@@ -18,7 +18,8 @@
 package org.ballerinalang.mysql;
 
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.utils.ClientUtils;
@@ -32,7 +33,7 @@ import java.util.Properties;
  */
 public class NativeImpl {
 
-    public static Object createClient(ObjectValue client, MapValue<BString, Object> clientConfig,
+    public static Object createClient(BObject client, MapValue<BString, Object> clientConfig,
                                       MapValue<BString, Object> globalPool) {
         String url = "jdbc:mysql://" + clientConfig.getStringValue(Constants.ClientConfiguration.HOST);
         Long portValue = clientConfig.getIntValue(Constants.ClientConfiguration.PORT);
@@ -49,7 +50,7 @@ public class NativeImpl {
             url += "/" + database;
         }
         MapValue options = clientConfig.getMapValue(Constants.ClientConfiguration.OPTIONS);
-        MapValue properties = null;
+        BMap properties = null;
         Properties poolProperties = null;
         if (options != null) {
             properties = Utils.generateOptionsMap(options);
@@ -78,7 +79,7 @@ public class NativeImpl {
         return ClientUtils.createClient(client, sqlDatasourceParams);
     }
 
-    public static Object close(ObjectValue client) {
+    public static Object close(BObject client) {
         return ClientUtils.close(client);
     }
 }

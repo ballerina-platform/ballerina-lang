@@ -18,17 +18,17 @@
 
 package org.ballerinalang.sql.utils;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.exception.ApplicationError;
 
@@ -62,7 +62,7 @@ import static org.ballerinalang.sql.utils.Utils.getGeneratedKeys;
  */
 public class ProcedureCallResultUtils {
 
-    public static Object getNextQueryResult(ObjectValue procedureCallResult) {
+    public static Object getNextQueryResult(BObject procedureCallResult) {
         CallableStatement statement = (CallableStatement) procedureCallResult
                 .getNativeData(STATEMENT_NATIVE_DATA_FIELD);
         ResultSet resultSet;
@@ -118,7 +118,7 @@ public class ProcedureCallResultUtils {
                 Map<String, Object> resultFields = new HashMap<>();
                 resultFields.put(AFFECTED_ROW_COUNT_FIELD, count);
                 resultFields.put(LAST_INSERTED_ID_FIELD, lastInsertedId);
-                MapValue<BString, Object> executionResult = BallerinaValues.createRecordValue(
+                BMap<BString, Object> executionResult = BValueCreator.createRecordValue(
                         SQL_PACKAGE_ID, EXECUTION_RESULT_RECORD, resultFields);
                 procedureCallResult.set(EXECUTION_RESULT_FIELD, executionResult);
                 procedureCallResult.set(QUERY_RESULT_FIELD, null);
@@ -135,7 +135,7 @@ public class ProcedureCallResultUtils {
         }
     }
 
-    public static Object closeCallResult(ObjectValue procedureCallResult) {
+    public static Object closeCallResult(BObject procedureCallResult) {
         Statement statement = (Statement) procedureCallResult.getNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD);
         Connection connection = (Connection) procedureCallResult.getNativeData(Constants.CONNECTION_NATIVE_DATA_FIELD);
         return cleanUpConnection(procedureCallResult, null, statement, connection);

@@ -20,7 +20,7 @@ package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
@@ -38,7 +38,7 @@ public class ClientUtils {
     private ClientUtils() {
     }
 
-    public static Object createClient(ObjectValue client, SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
+    public static Object createClient(BObject client, SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
         try {
             SQLDatasource sqlDatasource = SQLDatasource.retrieveDatasource(sqlDatasourceParams);
             client.addNativeData(Constants.DATABASE_CLIENT, sqlDatasource);
@@ -49,12 +49,12 @@ public class ClientUtils {
         }
     }
 
-    public static Object createSqlClient(ObjectValue client, MapValue<BString, Object> sqlDatasourceParams,
+    public static Object createSqlClient(BObject client, MapValue<BString, Object> sqlDatasourceParams,
                                          MapValue<BString, Object> globalConnectionPool) {
         return createClient(client, createSQLDatasourceParams(sqlDatasourceParams, globalConnectionPool));
     }
 
-    public static Object close(ObjectValue client) {
+    public static Object close(BObject client) {
         Object datasourceObj = client.getNativeData(Constants.DATABASE_CLIENT);
         // When an exception is thrown during database endpoint init (eg: driver not present) stop operation
         // of the endpoint is automatically called. But at this point, datasource is null therefore to handle that

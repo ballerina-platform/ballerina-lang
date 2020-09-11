@@ -20,8 +20,9 @@ package org.ballerinalang.mysql;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 /**
  * This class includes utility functions.
@@ -30,9 +31,9 @@ import org.ballerinalang.jvm.values.api.BString;
  */
 public class Utils {
 
-    static MapValue generateOptionsMap(MapValue mysqlOptions) {
+    static BMap<BString, Object> generateOptionsMap(MapValue mysqlOptions) {
         if (mysqlOptions != null) {
-            MapValue<BString, Object> options = new MapValueImpl<>();
+            BMap<BString, Object> options = BValueCreator.createMapValue();
             addSSLOptions(mysqlOptions.getMapValue(Constants.Options.SSL), options);
 
             long connectTimeout = getTimeout(mysqlOptions.get(Constants.Options.CONNECT_TIMEOUT_SECONDS));
@@ -59,7 +60,7 @@ public class Utils {
         return -1;
     }
 
-    private static void addSSLOptions(MapValue sslConfig, MapValue<BString, Object> options) {
+    private static void addSSLOptions(BMap sslConfig, BMap<BString, Object> options) {
         if (sslConfig == null) {
             options.put(Constants.DatabaseProps.SSL_MODE, Constants.DatabaseProps.SSL_MODE_DISABLED);
         } else {

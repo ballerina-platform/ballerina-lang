@@ -24,10 +24,10 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.exception.ApplicationError;
 
@@ -64,13 +64,13 @@ import static org.ballerinalang.sql.utils.Utils.getString;
 public class RecordIteratorUtils {
     private static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC.getValue()));
 
-    public static Object nextResult(ObjectValue recordIterator) {
+    public static Object nextResult(BObject recordIterator) {
         ResultSet resultSet = (ResultSet) recordIterator.getNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD);
         try {
             if (resultSet.next()) {
                 BStructureType streamConstraint = (BStructureType) recordIterator.
                         getNativeData(Constants.RECORD_TYPE_DATA_FIELD);
-                MapValue<BString, Object> bStruct = new MapValueImpl<>(streamConstraint);
+                BMap<BString, Object> bStruct = BValueCreator.createMapValue(streamConstraint);
                 List<ColumnDefinition> columnDefinitions = (List<ColumnDefinition>) recordIterator
                         .getNativeData(Constants.COLUMN_DEFINITIONS_DATA_FIELD);
                 for (int i = 0; i < columnDefinitions.size(); i++) {
@@ -222,7 +222,7 @@ public class RecordIteratorUtils {
         }
     }
 
-    public static Object closeResult(ObjectValue recordIterator) {
+    public static Object closeResult(BObject recordIterator) {
         ResultSet resultSet = (ResultSet) recordIterator.getNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD);
         Statement statement = (Statement) recordIterator.getNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD);
         Connection connection = (Connection) recordIterator.getNativeData(Constants.CONNECTION_NATIVE_DATA_FIELD);

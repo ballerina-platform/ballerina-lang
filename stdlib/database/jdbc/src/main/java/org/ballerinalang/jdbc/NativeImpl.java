@@ -18,7 +18,7 @@
 package org.ballerinalang.jdbc;
 
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.utils.ClientUtils;
@@ -34,7 +34,7 @@ import java.util.Properties;
  */
 public class NativeImpl {
 
-    public static Object createClient(ObjectValue client, MapValue<BString, Object> clientConfig,
+    public static Object createClient(BObject client, MapValue<BString, Object> clientConfig,
                                       MapValue<BString, Object> globalPool) {
         String url = clientConfig.getStringValue(Constants.ClientConfiguration.URL).getValue();
         if (!isJdbcUrlValid(url)) {
@@ -80,7 +80,7 @@ public class NativeImpl {
         return !jdbcUrl.isEmpty() && jdbcUrl.trim().startsWith("jdbc:");
     }
 
-    public static Object close(ObjectValue client) {
+    public static Object close(BObject client) {
         return ClientUtils.close(client);
     }
 }

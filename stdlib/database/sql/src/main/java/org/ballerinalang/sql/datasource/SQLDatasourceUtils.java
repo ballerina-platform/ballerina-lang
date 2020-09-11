@@ -24,8 +24,8 @@ import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.transaction.SQLTransactionContext;
@@ -49,12 +49,12 @@ public class SQLDatasourceUtils {
     private static final String POOL_MAP_KEY = UUID.randomUUID().toString();
 
     static Map<PoolKey, SQLDatasource> retrieveDatasourceContainer(
-            MapValue<BString, Object> poolOptions) {
+            BMap<BString, Object> poolOptions) {
         return (ConcurrentHashMap<PoolKey, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
     }
 
     public static synchronized Map<PoolKey, SQLDatasource> putDatasourceContainer(
-            MapValue<BString, Object> poolOptions,
+            BMap<BString, Object> poolOptions,
             ConcurrentHashMap<PoolKey, SQLDatasource> datasourceMap) {
         Map<PoolKey, SQLDatasource> existingDataSourceMap =
                 (Map<PoolKey, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
@@ -77,7 +77,7 @@ public class SQLDatasourceUtils {
         return supported;
     }
 
-    public static Connection getConnection(Strand strand, ObjectValue client, SQLDatasource datasource)
+    public static Connection getConnection(Strand strand, BObject client, SQLDatasource datasource)
             throws SQLException {
         Connection conn;
         try {

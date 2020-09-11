@@ -20,7 +20,7 @@ package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BTypedesc;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.exception.ApplicationError;
@@ -50,7 +50,7 @@ import static org.ballerinalang.sql.utils.Utils.getString;
  */
 public class OutParameterUtils {
 
-    public static Object get(ObjectValue result, BTypedesc typeDesc) {
+    public static Object get(BObject result, BTypedesc typeDesc) {
         int sqlType = (int) result.getNativeData(Constants.ParameterObject.SQL_TYPE_NATIVE_DATA);
         Object value = result.getNativeData(Constants.ParameterObject.VALUE_NATIVE_DATA);
 
