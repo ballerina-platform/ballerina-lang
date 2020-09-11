@@ -54,7 +54,9 @@ public class ExpressionContextTest extends CompletionTestNew {
                 "query_expr_ctx_join_clause_config7a.json",
                 "query_expr_ctx_join_clause_config8.json",
                 "query_expr_ctx_join_clause_config11.json", // LS fix needed
-                "query_expr_ctx_orderby_clause_config4.json" // LS fix needed
+                "query_expr_ctx_orderby_clause_config4.json", // LS fix needed
+                "query_expr_ctx_onconflict_clause_config1.json",
+                "query_expr_ctx_onconflict_clause_config1a.json" // LS fix needed
         );
     }
 }

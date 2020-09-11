@@ -16,8 +16,8 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
@@ -30,19 +30,19 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import java.util.List;
 
 /**
- * Completion provider for {@link SelectClauseNode} context.
+ * Completion provider for {@link OnConflictClauseNode} context.
  *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectClauseNode> {
+public class OnConflictClauseNodeContext extends AbstractCompletionProvider<OnConflictClauseNode> {
 
-    public SelectClauseNodeContext() {
-        super(SelectClauseNode.class);
+    public OnConflictClauseNodeContext() {
+        super(OnConflictClauseNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, SelectClauseNode node) {
+    public List<LSCompletionItem> getCompletions(LSContext context, OnConflictClauseNode node) {
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
 
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
@@ -58,7 +58,7 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, SelectClauseNode node) {
-        return !node.selectKeyword().isMissing();
+    public boolean onPreValidation(LSContext context, OnConflictClauseNode node) {
+        return !node.onKeyword().isMissing() && !node.conflictKeyword().isMissing();
     }
 }
