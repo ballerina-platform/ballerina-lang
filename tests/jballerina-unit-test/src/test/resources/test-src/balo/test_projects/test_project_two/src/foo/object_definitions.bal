@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type ObjectWithModuleLevelVisibilityField object {
+public class ObjectWithModuleLevelVisibilityField {
     public int i;
     boolean b;
 
@@ -26,9 +26,9 @@ public type ObjectWithModuleLevelVisibilityField object {
     public function getInt() returns int {
         return self.i;
     }
-};
+}
 
-public type ObjectWithModuleLevelVisibilityMethod object {
+public class ObjectWithModuleLevelVisibilityMethod {
     public int i;
     public boolean b;
 
@@ -40,9 +40,9 @@ public type ObjectWithModuleLevelVisibilityMethod object {
     function getInt() returns int {
         return self.i;
     }
-};
+}
 
-public type ObjectWithPublicFieldsAndMethods object {
+public class ObjectWithPublicFieldsAndMethods {
     public int i;
     public boolean b;
 
@@ -54,7 +54,7 @@ public type ObjectWithPublicFieldsAndMethods object {
     public function getInt() returns int {
         return self.i;
     }
-};
+}
 
 public function getObjectWithModuleLevelVisibilityField() returns ObjectWithModuleLevelVisibilityField => new (1, true);
 

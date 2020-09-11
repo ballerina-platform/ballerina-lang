@@ -391,7 +391,7 @@ type Qux record {|
     string...;
 |};
 
-type Quux abstract object {
+type Quux object {
     map<string> m;
 
     function getMap() returns map<string>;
@@ -402,7 +402,7 @@ type Quuz record {|
     float f;
 |};
 
-type ReadonlyQuux readonly object {
+readonly class ReadonlyQuux {
     map<string> & readonly m;
 
     function init(map<string> & readonly m) {
@@ -412,7 +412,7 @@ type ReadonlyQuux readonly object {
     function getMap() returns map<string> & readonly {
         return self.m;
     }
-};
+}
 
 function testSubTypingWithReadOnlyFieldsPositiveComposite() {
     int[] & readonly arr = [1, 2];

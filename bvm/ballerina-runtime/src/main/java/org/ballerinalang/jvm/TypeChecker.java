@@ -1388,7 +1388,7 @@ public class TypeChecker {
         }
 
         return checkObjectSubTypeForMethods(unresolvedTypes, targetFuncs, sourceFuncs, targetTypeModule,
-                                            sourceTypeModule);
+                                            sourceTypeModule, sourceObjectType, targetType);
     }
 
     private static boolean checkObjectSubTypeForFields(Map<String, BField> targetFields,
@@ -1432,7 +1432,8 @@ public class TypeChecker {
 
     private static boolean checkObjectSubTypeForMethods(List<TypePair> unresolvedTypes,
                                                         AttachedFunction[] targetFuncs, AttachedFunction[] sourceFuncs,
-                                                        String targetTypeModule, String sourceTypeModule) {
+                                                        String targetTypeModule, String sourceTypeModule,
+                                                        BObjectType sourceType, BObjectType targetType) {
         for (AttachedFunction lhsFunc : targetFuncs) {
             AttachedFunction rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
@@ -1450,7 +1451,7 @@ public class TypeChecker {
             return true;
         }
 
-        BTypeIdSet sourceTypeIdSet = sourceObjectType.typeIdSet;
+        BTypeIdSet sourceTypeIdSet = sourceType.typeIdSet;
         if (sourceTypeIdSet == null) {
             return false;
         }

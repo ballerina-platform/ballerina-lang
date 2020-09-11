@@ -490,22 +490,32 @@ function testAnonymousObjectEquivalency() returns [string, string, string] {
     return [s1, s2, s3];
 }
 
-type Qux object {
+class Qux {
     Qux? fn;
 
     public function init(Qux? fn = ()) {
         self.fn = fn;
     }
-};
+}
 
-type Quux object {
+class Quux {
     Quux? fn = ();
-};
+}
 
-type Quuz object {
+class Quuz {
     Quuz? fn = ();
     int i = 1;
-};
+}
+
+class ABC {
+    Qux f;
+    string s;
+
+    function init(Qux f, string s) {
+        self.f = f;
+        self.s = s;
+    }
+}
 
 function testObjectIsCheckWithCycles() {
     Qux f1 = new;
@@ -519,19 +529,11 @@ function testObjectIsCheckWithCycles() {
     assertTrue(a2 is Quux);
     assertFalse(a2 is Quuz);
 
-    object {
-        Qux f;
-        string s;
-
-        function init(Qux f, string s) {
-            self.f = f;
-            self.s = s;
-        }
-    } ob = new (f2, "ballerina");
+    ABC ob = new (f2, "ballerina");
 
     any a3 = ob;
-    assertTrue(a3 is  abstract object { Qux f; });
-    assertFalse(a3 is abstract object { Quuz f; });
+    assertTrue(a3 is object { Qux f; });
+    assertFalse(a3 is object { Quuz f; });
 }
 
 // ========================== Arrays ==========================

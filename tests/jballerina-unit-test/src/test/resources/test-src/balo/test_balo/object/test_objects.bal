@@ -306,7 +306,7 @@ public function testObjectReferingNonAbstractObjLoadedFromBalo() {
     utils:assertEquality(20, cemp1.Age());
 }
 
-public type ObjectWithModuleLevelVisibilityField object {
+public class ObjectWithModuleLevelVisibilityField {
     public int i;
     boolean b;
 
@@ -318,9 +318,9 @@ public type ObjectWithModuleLevelVisibilityField object {
     public function getInt() returns int {
         return self.i;
     }
-};
+}
 
-public type ObjectWithModuleLevelVisibilityMethod object {
+public class ObjectWithModuleLevelVisibilityMethod {
     public int i;
     public boolean b;
 
@@ -332,9 +332,9 @@ public type ObjectWithModuleLevelVisibilityMethod object {
     function getInt() returns int {
         return self.i;
     }
-};
+}
 
-public type ObjectWithPublicFieldsAndMethods object {
+public class ObjectWithPublicFieldsAndMethods {
     public int i;
     public boolean b;
 
@@ -346,7 +346,7 @@ public type ObjectWithPublicFieldsAndMethods object {
     public function getInt() returns int {
         return self.i;
     }
-};
+}
 
 function testSubTypingWithModuleLevelVisibleFields() {
     foo:ObjectWithModuleLevelVisibilityField f1 = foo:getObjectWithModuleLevelVisibilityField();

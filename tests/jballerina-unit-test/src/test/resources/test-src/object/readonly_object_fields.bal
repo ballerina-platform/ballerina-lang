@@ -368,7 +368,7 @@ function testSubTypingWithReadOnlyFieldsNegative() {
 
 const HUNDRED = 100;
 
-type Baz abstract object {
+type Baz object {
     HUNDRED i;
     float|string f;
     object {} a1;
@@ -381,7 +381,7 @@ type Baz abstract object {
     int z;
 };
 
-type Qux object {
+class Qux {
     readonly string|int i;
     float f;
     readonly int|Quux a1;
@@ -405,9 +405,9 @@ type Qux object {
         self.r = r;
         self.q = q;
     }
-};
+}
 
-type Quux abstract object {
+type Quux object {
     map<string> m;
 
     function getMap() returns map<string>;
@@ -418,7 +418,7 @@ type Quuz record {|
     float f;
 |};
 
-type ReadonlyQuux readonly object {
+readonly class ReadonlyQuux {
     map<string> & readonly m;
 
     function init(map<string> & readonly m) {
@@ -428,7 +428,7 @@ type ReadonlyQuux readonly object {
     function getMap() returns map<string> & readonly {
         return self.m;
     }
-};
+}
 
 function testSubTypingWithReadOnlyFieldsPositiveComposite() {
     int[] & readonly arr = [1, 2];
