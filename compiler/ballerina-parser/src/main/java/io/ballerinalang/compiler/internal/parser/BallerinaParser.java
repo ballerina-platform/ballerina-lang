@@ -2818,7 +2818,7 @@ public class BallerinaParser extends AbstractParser {
 
             if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
                 addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_NAMED_WORKER_NOT_ALLOWED_HERE);
-                break;
+                continue;
             }
 
             //Local type def is not allowed in new spec, hence add it as invalid node minutia.
