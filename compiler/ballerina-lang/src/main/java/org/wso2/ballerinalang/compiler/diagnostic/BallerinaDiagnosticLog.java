@@ -202,6 +202,6 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
 
     private void storeDiagnosticInPackage(PackageID pkgId, BallerinaDiagnostic diagnostic) {
         BLangPackage pkgNode = this.packageCache.get(pkgId);
-        pkgNode.diagCollector.addDiagnostic(diagnostic);
+        pkgNode.addDiagnostic(diagnostic);
     }
 }

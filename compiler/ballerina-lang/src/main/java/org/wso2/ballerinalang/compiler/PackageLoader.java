@@ -34,7 +34,6 @@ import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
@@ -118,7 +117,6 @@ public class PackageLoader {
     private final SymbolEnter symbolEnter;
     private final BIRPackageSymbolEnter birPackageSymbolEnter;
     private final Names names;
-    private final BallerinaDiagnosticLog dlog;
     private static final boolean shouldReadBalo = true;
     private final CompilerPhase compilerPhase;
     
@@ -151,7 +149,6 @@ public class PackageLoader {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
-        this.dlog = BallerinaDiagnosticLog.getInstance(context);
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
         this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
         this.lockEnabled = Boolean.parseBoolean(options.get(LOCK_ENABLED));
@@ -378,7 +375,7 @@ public class PackageLoader {
         }
 
         BLangPackage packageNode = parse(pkgId, (PackageSource) pkgEntity);
-        if (!newParserEnabled && packageNode.diagCollector.hasErrors()) {
+        if (!newParserEnabled && packageNode.hasErrors()) {
             return packageNode;
         }
 

@@ -22,8 +22,6 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +34,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 
@@ -123,6 +119,6 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
             logger.error("Unable to create the empty stream.");
         }
         BLangPackage bLangPackage = compileSafe(compiler, parent.toString(), packageName, lsContext);
-        return new BallerinaFile(bLangPackage, bLangPackage.diagCollector.getDagnostics(), false, context);
+        return new BallerinaFile(bLangPackage, bLangPackage.getDagnostics(), false, context);
     }
 }

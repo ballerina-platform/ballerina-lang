@@ -74,8 +74,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public Set<Flag> flagSet;
     public byte[] jarBinaryContent;
 
-    // TODO Revisit these instance variables
-    public DiagnosticCollector diagCollector;
+    private int errorCount;
+    private List<Diagnostic> diagnostics;
 
     public RepoHierarchy repos;
 
@@ -93,9 +93,9 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
-        this.diagCollector = new DiagnosticCollector();
         this.testablePkgs = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
+        this.diagnostics = new ArrayList<>();
     }
 
     @Override
@@ -248,32 +248,18 @@ public class BLangPackage extends BLangNode implements PackageNode {
         return this.testablePkgs.size() > 0;
     }
 
-    /**
-     * This class collect diagnostics [latest implementation].
-     *
-     * @since 2.0.0
-     */
-    public static class DiagnosticCollector {
-        private int errorCount;
-        private List<Diagnostic> diagnostics;
-
-        public DiagnosticCollector() {
-            this.diagnostics = new ArrayList<>();
+    public void addDiagnostic(BallerinaDiagnostic diagnostic) {
+        this.diagnostics.add(diagnostic);
+        if (diagnostic.severity() == DiagnosticSeverity.ERROR) {
+            this.errorCount++;
         }
+    }
 
-        public void addDiagnostic(BallerinaDiagnostic diagnostic) {
-            this.diagnostics.add(diagnostic);
-            if (diagnostic.severity() == DiagnosticSeverity.ERROR) {
-                this.errorCount++;
-            }
-        }
+    public List<Diagnostic> getDagnostics() {
+        return this.diagnostics;
+    }
 
-        public List<Diagnostic> getDagnostics() {
-            return this.diagnostics;
-        }
-
-        public boolean hasErrors() {
-            return this.errorCount > 0;
-        }
+    public boolean hasErrors() {
+        return this.errorCount > 0;
     }
 }

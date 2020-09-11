@@ -120,7 +120,7 @@ public class Compiler {
 
     public void list(String sourcePackage) {
         BLangPackage bLangPackage = compile(sourcePackage);
-        if (bLangPackage.diagCollector.hasErrors()) {
+        if (bLangPackage.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
         }
 

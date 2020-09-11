@@ -88,7 +88,7 @@ public class CompileTask implements Task {
                 }
             }
 
-            if (module.diagCollector.hasErrors()) {
+            if (module.hasErrors()) {
                 throw new BLangCompilerException("compilation contains errors");
             }
         }

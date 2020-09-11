@@ -499,6 +499,6 @@ public class TestUtil {
                 .build();
 
         BLangPackage pkg = LSModuleCompiler.getBLangPackage(context, documentManager, null, true, true, true);
-        return pkg.diagCollector.getDagnostics();
+        return pkg.getDagnostics();
     }
 }
