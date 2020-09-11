@@ -110,7 +110,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT,
             ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.TRANSACTION_STMT,
             ParserRuleContext.RETRY_STMT, ParserRuleContext.ROLLBACK_STMT, ParserRuleContext.DO_BLOCK,
-            ParserRuleContext.MATCH_STMT, ParserRuleContext.FAIL_STATEMENT};
+            ParserRuleContext.FAIL_STATEMENT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
@@ -243,7 +243,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
             ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD,
-            ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION, ParserRuleContext.FAIL_KEYWORD };
+            ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -607,6 +607,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] LISTENERS_LIST_END =
             { ParserRuleContext.COMMA, ParserRuleContext.OPEN_BRACE };
+
+    private static final ParserRuleContext[] REGULAR_COMPOUND_STMT_RHS =
+            { ParserRuleContext.STATEMENT, ParserRuleContext.ON_FAIL_CLAUSE };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -1342,6 +1345,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
             case TYPE_DESC_OR_EXPR_RHS:
             case LISTENERS_LIST_END:
+            case REGULAR_COMPOUND_STMT_RHS:
                 return true;
             default:
                 return false;
@@ -1758,6 +1762,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case INTERMEDIATE_CLAUSE_START:
                 alternativeRules = INTERMEDIATE_CLAUSE_START;
                 break;
+            case REGULAR_COMPOUND_STMT_RHS:
+                alternativeRules = REGULAR_COMPOUND_STMT_RHS;
+                break;
             default:
                 return seekMatchInExprRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
                         isEntryPoint);
@@ -2073,7 +2080,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
         ParserRuleContext nextContext;
         if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK ||
-                parentCtx == ParserRuleContext.FOREACH_STMT || parentCtx == ParserRuleContext.DO_BLOCK) {
+                parentCtx == ParserRuleContext.FOREACH_STMT) {
             nextContext = ParserRuleContext.BLOCK_STMT;
         } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD ||
                 parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.LISTENER_DECL ||
@@ -2713,6 +2720,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.IDENTIFIER;
             case OBJECT_MEMBER_QUALIFIER:
                 return ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
+            case ON_FAIL_CLAUSE:
+                return ParserRuleContext.ON_KEYWORD;
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }
@@ -2740,6 +2749,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.CONFLICT_KEYWORD;
                 } else if (parentCtx == ParserRuleContext.ON_CLAUSE) {
                     return ParserRuleContext.EXPRESSION;
+                } else if (parentCtx == ParserRuleContext.ON_FAIL_CLAUSE) {
+                    return ParserRuleContext.FAIL_KEYWORD;
                 }
                 return ParserRuleContext.LISTENERS_LIST;
             case RESOURCE_KEYWORD:
@@ -2780,6 +2791,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CHECKING_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case FAIL_KEYWORD:
+                if (getParentContext() == ParserRuleContext.ON_FAIL_CLAUSE) {
+                    return ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN;
+                }
                 return ParserRuleContext.EXPRESSION;
             case PANIC_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
@@ -2911,7 +2925,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case WAIT_KEYWORD:
                 return ParserRuleContext.WAIT_KEYWORD_RHS;
             case DO_KEYWORD:
-                return ParserRuleContext.OPEN_BRACE;
             case TRANSACTION_KEYWORD:
                 return ParserRuleContext.BLOCK_STMT;
             case COMMIT_KEYWORD:
@@ -3064,6 +3077,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NAMED_ARG_MATCH_PATTERN:
             case SELECT_CLAUSE:
             case JOIN_CLAUSE:
+            case ON_FAIL_CLAUSE:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -3540,6 +3554,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case DO_BLOCK:
                     case RETRY_STMT:
                         endContext();
+                        return ParserRuleContext.REGULAR_COMPOUND_STMT_RHS;
+                    case ON_FAIL_CLAUSE:
+                        endContext();
                         return ParserRuleContext.STATEMENT;
                     case IF_BLOCK:
                         endContext(); // end parent stmt if/lock/while/ block
@@ -3553,7 +3570,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         if (parentCtx == ParserRuleContext.RETRY_STMT) {
                             endContext();
                         }
-                        return ParserRuleContext.STATEMENT;
+                        return ParserRuleContext.REGULAR_COMPOUND_STMT_RHS;
                     case NAMED_WORKER_DECL:
                         endContext(); // end named-worker
                         parentCtx = getParentContext();
@@ -3570,6 +3587,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         }
                     case MATCH_BODY:
                         return ParserRuleContext.MATCH_PATTERN;
+                    case DO_CLAUSE:
+                        return ParserRuleContext.QUERY_EXPRESSION_END;
                     default:
                         return ParserRuleContext.STATEMENT;
                 }
@@ -3602,12 +3621,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SERVICE_CONSTRUCTOR_EXPRESSION:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
-            case DO_CLAUSE:
-                STToken nextToken = this.tokenReader.peek(nextLookahead);
-                if (nextToken.kind == SyntaxKind.LIMIT_KEYWORD) {
-                    return ParserRuleContext.LIMIT_CLAUSE;
-                }
-                return ParserRuleContext.QUERY_EXPRESSION_END;
             case ENUM_MEMBER_LIST:
                 endContext(); // end ENUM_MEMBER_LIST context
                 endContext(); // end MODULE_ENUM_DECLARATION ctx
@@ -3615,7 +3628,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MATCH_BODY:
                 endContext(); // end match body
                 endContext(); // end match stmt
-                return ParserRuleContext.STATEMENT;
+                return ParserRuleContext.REGULAR_COMPOUND_STMT_RHS;
             case MAPPING_MATCH_PATTERN:
                 endContext();
                 return getNextRuleForMatchPattern();
@@ -3756,6 +3769,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.CLOSE_BRACKET;
             case MAPPING_MATCH_PATTERN:
                 return ParserRuleContext.COLON;
+            case ON_FAIL_CLAUSE:
+                return ParserRuleContext.BLOCK_STMT;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }
@@ -4186,7 +4201,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BREAK_STATEMENT:
             case RETURN_STMT:
             case FAIL_STATEMENT:
-            case COMPOUND_ASSIGNMENT_STMT:
             case LOCAL_TYPE_DEFINITION_STMT:
             case EXPRESSION_STATEMENT:
             case LOCK_STMT:
@@ -4197,6 +4211,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ROLLBACK_STMT:
             case AMBIGUOUS_STMT:
             case MATCH_STMT:
+            case ON_FAIL_CLAUSE:
                 return true;
             default:
                 return false;
