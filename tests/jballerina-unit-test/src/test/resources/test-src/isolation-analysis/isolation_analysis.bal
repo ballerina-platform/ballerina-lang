@@ -164,6 +164,16 @@ function (int, map<int>) returns int fn2 = function (int j, map<int> m) returns 
     return rec.i + j + <int> m["first"] + i;
 };
 
+isolated function testIsolatedFunctionPointerInvocation() {
+    int sum = fn1(100, {first: 123, second: 234}) + fn3();
+    assertEquality(sum, 240);
+    assertEquality(fn1(101, {first: 123, second: 234}), 226);
+}
+
+isolated function () returns int fn3 = isolated function () returns int {
+    return 15;
+};
+
 function testIsolatedFunctionAsIsolatedFunctionRuntime() {
     assertEquality(true, <any> fn1 is isolated function (int, map<int>) returns int);
 }
@@ -204,6 +214,17 @@ isolated function testIsolatedClosuresAsRecordDefaultValues() {
 
     assertEquality(111222, r.i);
     assertEquality(234, r.j);
+}
+
+type ISOLATED_FUNCTION isolated function (int) returns int;
+
+ISOLATED_FUNCTION af1 = intVal => intVal + i;
+
+isolated function testIsolatedArrowFunctions() {
+    isolated function (int) returns int af2 = intVal => intVal + 2 * i;
+
+    int sum = af1(90) + af2(10);
+    assertEquality(103, sum);
 }
 
 isolated function assertEquality(any|error expected, any|error actual) {

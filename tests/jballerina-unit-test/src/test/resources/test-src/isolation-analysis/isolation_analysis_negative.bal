@@ -175,3 +175,15 @@ function testInvalidIsolatedAnonFunc() {
         string s = c + "world";
     };
 }
+
+// Invalid arrow functions as isolated functions.
+type ISOLATED_FUNCTION isolated function (int) returns int;
+
+ISOLATED_FUNCTION af1 = x => x + a;
+
+function testInvalidArrowFuncAsIsolatedFunction() {
+    ISOLATED_FUNCTION af2 = x => d[0] + x;
+
+    int y = 100;
+    isolated function (int) returns int af3 = x => x + y;
+}
