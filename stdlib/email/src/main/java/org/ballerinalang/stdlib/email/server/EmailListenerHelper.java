@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.email.server;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.email.util.EmailConstants;
 
@@ -44,7 +44,7 @@ public class EmailListenerHelper {
      * @param serviceEndpointConfig Email server endpoint configuration
      * @throws EmailConnectorException If the given protocol is invalid
      */
-    public static void init(ObjectValue emailListener, MapValue<BString, Object> serviceEndpointConfig)
+    public static void init(BObject emailListener, MapValue<BString, Object> serviceEndpointConfig)
             throws EmailConnectorException {
         final EmailListener listener = new EmailListener(BRuntime.getCurrentRuntime());
         Map<String, Object> paramMap = getServerConnectorParamMap(serviceEndpointConfig);
@@ -57,7 +57,7 @@ public class EmailListenerHelper {
      * @param emailListener Ballerina email listener
      * @param service Ballerina service to be listened
      */
-    public static void register(ObjectValue emailListener, ObjectValue service) {
+    public static void register(BObject emailListener, BObject service) {
         EmailConnector emailConnector = (EmailConnector) emailListener.getNativeData(
                 EmailConstants.EMAIL_SERVER_CONNECTOR);
         EmailListener listener = emailConnector.getEmailListener();
@@ -103,7 +103,7 @@ public class EmailListenerHelper {
      * @param emailListener Ballerina listener for connecting to the email server endpoint
      * @throws Exception If an error occurs during the polling operations
      */
-    public static void poll(ObjectValue emailListener) throws Exception {
+    public static void poll(BObject emailListener) throws Exception {
         EmailConnector connector = (EmailConnector) emailListener.getNativeData(EmailConstants.EMAIL_SERVER_CONNECTOR);
         try {
             connector.poll();

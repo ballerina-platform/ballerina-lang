@@ -18,12 +18,15 @@
 
 package org.ballerinalang.stdlib.email.util;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -162,7 +165,7 @@ public class SmtpUtil {
         multipart.addBodyPart(messageBodyPart);
         for (int i = 0; i < attachments.size(); i++) {
             if (attachments.get(i) instanceof ObjectValue) {
-                ObjectValue mimeEntity = (ObjectValue) attachments.get(i);
+                BObject mimeEntity = (ObjectValue) attachments.get(i);
                 String contentType = getContentTypeWithParameters(mimeEntity);
                 if (contentType.startsWith(MimeConstants.MULTIPART_AS_PRIMARY_TYPE)) {
                     multipart.addBodyPart(populateMultipart(mimeEntity));
@@ -174,12 +177,12 @@ public class SmtpUtil {
         emailMessage.setContent(multipart);
     }
 
-    private static MimeBodyPart populateMultipart(ObjectValue mimeEntity) throws IOException, MessagingException {
+    private static MimeBodyPart populateMultipart(BObject mimeEntity) throws IOException, MessagingException {
         Multipart multipart = new MimeMultipart();
         ArrayValue multipartMimeEntityArrayValue = EntityBodyHandler.getBodyPartArray(mimeEntity);
         int entityCount = multipartMimeEntityArrayValue.size();
         for (int i = 0; i < entityCount; i++) {
-            ObjectValue childMimeEntity = (ObjectValue) multipartMimeEntityArrayValue.get(i);
+            BObject childMimeEntity = (ObjectValue) multipartMimeEntityArrayValue.get(i);
             String childContentType = getContentTypeWithParameters(childMimeEntity);
             if (childContentType.startsWith(MimeConstants.MULTIPART_AS_PRIMARY_TYPE)) {
                 multipart.addBodyPart(populateMultipart(childMimeEntity));
@@ -192,7 +195,7 @@ public class SmtpUtil {
         return returnMimeBodyPart;
     }
 
-    private static MimeBodyPart buildJavaMailBodyPart(ObjectValue mimeEntity, String contentType)
+    private static MimeBodyPart buildJavaMailBodyPart(BObject mimeEntity, String contentType)
             throws MessagingException, IOException {
         MimeBodyPart attachmentBodyPart = new MimeBodyPart();
         Channel channel = EntityBodyHandler.getByteChannel(mimeEntity);
@@ -212,10 +215,10 @@ public class SmtpUtil {
         return attachmentBodyPart;
     }
 
-    private static void addHeadersToJavaMailBodyPart(ObjectValue mimeEntity, MimeBodyPart attachmentBodyPart)
+    private static void addHeadersToJavaMailBodyPart(BObject mimeEntity, MimeBodyPart attachmentBodyPart)
             throws MessagingException {
 
-        MapValue<BString, Object> entityHeaders = EntityHeaderHandler.getEntityHeaderMap(mimeEntity);
+        BMap<BString, Object> entityHeaders = EntityHeaderHandler.getEntityHeaderMap(mimeEntity);
 
         for (BString entryKey : entityHeaders.getKeys()) {
             ArrayValueImpl entryValues = (ArrayValueImpl) entityHeaders.get(entryKey);
@@ -262,7 +265,8 @@ public class SmtpUtil {
         return string != null && !string.isEmpty();
     }
 
-    public static ErrorValue getBallerinaError(String typeId, String message) {
-        return BallerinaErrors.createDistinctError(typeId, EmailConstants.EMAIL_PACKAGE_ID, message);
+    public static BError getBallerinaError(String typeId, String message) {
+        return BErrorCreator.createDistinctError(typeId, EmailConstants.EMAIL_PACKAGE_ID,
+                                                 StringUtils.fromString(message));
     }
 }
