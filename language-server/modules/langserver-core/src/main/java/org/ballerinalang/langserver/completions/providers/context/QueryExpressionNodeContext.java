@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -72,7 +71,7 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
                  */
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SELECT.get()));
             }
-            
+
             return completionItems;
         }
 

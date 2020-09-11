@@ -14,8 +14,7 @@ function testIterableOperation() {
 
     string outputNameString =
                 from var person in personList
-                join var customer in customerList
-                o
+                join module1:
 }
 
 type Customer record {|

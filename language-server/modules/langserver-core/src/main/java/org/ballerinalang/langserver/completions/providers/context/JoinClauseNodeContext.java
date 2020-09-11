@@ -15,13 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.JoinClauseNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;

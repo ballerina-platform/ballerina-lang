@@ -20,6 +20,7 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -85,8 +86,11 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
         int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
         ExpressionNode lhs = node.lhsExpression();
         ExpressionNode rhs = node.rhsExpression();
+        Token equalsKeyword = node.equalsKeyword();
 
-        return !lhs.isMissing() && cursor >= lhs.textRange().endOffset()
-                && (rhs.isMissing() || cursor < rhs.textRange().startOffset());
+        return !lhs.isMissing() && cursor > lhs.textRange().endOffset()
+                && (rhs.isMissing() || cursor < rhs.textRange().startOffset())
+                && (equalsKeyword.isMissing() || (!equalsKeyword.isMissing()
+                && cursor < equalsKeyword.textRange().startOffset()));
     }
 }
