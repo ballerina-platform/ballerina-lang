@@ -1,6 +1,9 @@
 module io.ballerina.openapi.generator {
     exports org.ballerinalang.openapi;
     exports org.ballerinalang.openapi.exception;
+    exports org.ballerinalang.openapi.model;
+    exports org.ballerinalang.openapi.utils;
+    exports org.ballerinalang.openapi.typemodel;
     requires handlebars;
     requires io.swagger.v3.oas.models;
     requires swagger.parser.v3;

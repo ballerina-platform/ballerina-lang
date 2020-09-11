@@ -54,4 +54,6 @@ module io.ballerina.lang {
     exports org.ballerinalang.repository.fs;
     exports org.wso2.ballerinalang.compiler.spi;
     exports org.ballerinalang.util;
+    exports org.wso2.ballerinalang.compiler.tree.clauses;
+    exports org.ballerinalang.model.clauses;
 }

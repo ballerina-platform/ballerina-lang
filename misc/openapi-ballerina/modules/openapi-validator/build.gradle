@@ -25,11 +25,14 @@ configurations.all {
 }
 
 dependencies {
-    implementation ('io.swagger.parser.v3:swagger-parser') {
-        exclude group: 'io.swagger' , module: 'swagger-compat-spec-parser'
-        exclude group: 'org.slf4j' , module: 'slf4j-ext'
-    }
+    implementation 'com.moandjiezana.toml:toml4j'
+    implementation 'info.picocli:picocli'
+    implementation 'org.apache.commons:commons-compress:1.18'
 
+    testCompile 'org.testng:testng'
+    testCompile 'com.moandjiezana.toml:toml4j'
+    implementation 'io.swagger.parser.v3:swagger-parser-v3:2.0.21'
+    implementation 'io.swagger.core.v3:swagger-models:2.1.4'
     // Standard libs
     implementation project(':ballerina-lang')
     testCompile 'org.testng:testng'
@@ -66,16 +69,5 @@ shadowJar {
 test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
-    }
-}
-ext.moduleName = 'io.ballerina.openapi.validator'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
     }
 }
