@@ -5,8 +5,8 @@ sayHello function(ballerina/http:1.0.0:Caller, ballerina/http:1.0.0:Request) -> 
     %1(RETURN) error | ();
     %2(ARG) ballerina/http:1.0.0:Caller;
     %3(ARG) ballerina/http:1.0.0:Request;
-    %4(LOCAL) ballerina/http:1.0.0:FilterContext;
-    %5(LOCAL) ballerina/http:1.0.0:FilterContext;
+    %4(SYNTHETIC) ballerina/http:1.0.0:FilterContext;
+    %5(SYNTHETIC) ballerina/http:1.0.0:FilterContext;
     %9(TEMP) string;
     %10(TEMP) string;
     %11(TEMP) ();
@@ -18,17 +18,17 @@ sayHello function(ballerina/http:1.0.0:Caller, ballerina/http:1.0.0:Request) -> 
     %27(SYNTHETIC) ballerina/lang.array:1.1.0:$anonType$0 | ();
     %31(TEMP) ballerina/lang.array:1.1.0:$anonType$0 | ();
     %32(TEMP) boolean;
-    %34(LOCAL) ballerina/http:1.0.0:RequestFilter | ballerina/http:1.0.0:ResponseFilter;
+    %34(SYNTHETIC) ballerina/http:1.0.0:RequestFilter | ballerina/http:1.0.0:ResponseFilter;
     %36(TEMP) ballerina/http:1.0.0:RequestFilter | ballerina/http:1.0.0:ResponseFilter;
     %37(TEMP) ballerina/lang.array:1.1.0:$anonType$0;
-    %44(LOCAL) boolean;
+    %44(SYNTHETIC) boolean;
     %46(TEMP) ballerina/http:1.0.0:RequestFilter;
-    %58(LOCAL) ();
-    %59(LOCAL) error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | ();
+    %58(SYNTHETIC) ();
+    %59(SYNTHETIC) error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | error{map<anydata | readonly>} | ();
     %61(TEMP) ballerina/http:1.0.0:Response | string | xml | json | byte[] | ballerina/io:0.5.0:ReadableByteChannel | ballerina/mime:1.0.0:Entity[];
     %65(TEMP) ();
-    %67(LOCAL) ();
-    %72(LOCAL) error;
+    %67(SYNTHETIC) ();
+    %72(SYNTHETIC) error;
 
     bb0 {
         %5 = new ballerina/http:1.0.0:FilterContext;

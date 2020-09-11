@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -1018,7 +1019,7 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariableDef astVarDefStmt) {
         VarKind kind;
-        if (Symbols.isFlagOn(astVarDefStmt.var.symbol.flags, Flags.DESTRUCTURED)) {
+        if (astVarDefStmt.var.symbol.origin == SymbolOrigin.VIRTUAL) {
             kind = VarKind.SYNTHETIC;
         } else {
             kind = VarKind.LOCAL;

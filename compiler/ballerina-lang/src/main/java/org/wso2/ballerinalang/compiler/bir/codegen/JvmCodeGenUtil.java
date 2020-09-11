@@ -522,8 +522,8 @@ public class JvmCodeGenUtil {
             mv.visitLabel(insLabel);
             BIRInstruction inst = bb.instructions.get(i);
             if (inst != null) {
-                lastScope = generateDiagnosticPos((BIRAbstractInstruction) inst, funcName, mv, labelGen, visitedScopesSet,
-                        lastScope);
+                lastScope = generateDiagnosticPos((BIRAbstractInstruction) inst, funcName, mv, labelGen,
+                        visitedScopesSet, lastScope);
                 instGen.generateInstructions(localVarOffset, asyncDataCollector, inst);
             }
         }

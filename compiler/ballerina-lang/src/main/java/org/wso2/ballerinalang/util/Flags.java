@@ -55,7 +55,6 @@ public class Flags {
     public static final int PARAMETERIZED = TRANSACTIONAL << 1;
     public static final int DISTINCT = PARAMETERIZED << 1;
     public static final int CLASS = DISTINCT << 1;
-    public static final int DESTRUCTURED = DISTINCT << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -141,10 +140,6 @@ public class Flags {
                     break;
                 case CLASS:
                     mask |= CLASS;
-                    break;
-                case DESTRUCTURED:
-                    mask |= DESTRUCTURED;
-                    break;
             }
         }
         return mask;
@@ -229,9 +224,6 @@ public class Flags {
                     break;
                 case CLASS:
                     flagVal = CLASS;
-                    break;
-                case DESTRUCTURED:
-                    flagVal = DESTRUCTURED;
                     break;
                 default:
                     continue;

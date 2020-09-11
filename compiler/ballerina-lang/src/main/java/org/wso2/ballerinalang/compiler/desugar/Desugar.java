@@ -1142,7 +1142,9 @@ public class Desugar extends BLangNodeVisitor {
         String name = "$tuple$";
         final BLangSimpleVariable tuple =
                 ASTBuilderUtil.createVariable(varNode.pos, name, symTable.arrayAllType, null,
-                        getDestructuredSymbol(name, symTable.arrayAllType, varNode.pos));
+                        new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
+                                symTable.arrayAllType, this.env.scope.owner, varNode.pos,
+                                VIRTUAL));
         tuple.expr = varNode.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
         variableDef.var = tuple;
@@ -1160,7 +1162,9 @@ public class Desugar extends BLangNodeVisitor {
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
         final BLangSimpleVariable mapVariable =
                 ASTBuilderUtil.createVariable(varNode.pos, "$map$0", symTable.mapAllType, null,
-                        getDestructuredSymbol("$map$0", symTable.mapAllType, varNode.pos));
+                        new BVarSymbol(0, names.fromString("$map$0"), this.env.scope.owner.pkgID,
+                                symTable.mapAllType, this.env.scope.owner, varNode.pos,
+                                VIRTUAL));
         mapVariable.expr = varNode.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
         variableDef.var = mapVariable;
@@ -1176,7 +1180,9 @@ public class Desugar extends BLangNodeVisitor {
 
         BType errorType = varNode.type == null ? symTable.errorType : varNode.type;
         // Create a simple var for the error 'error x = ($error$)'.
-        BVarSymbol errorVarSymbol = getDestructuredSymbol("$error$", errorType, varNode.pos);
+        BVarSymbol errorVarSymbol = new BVarSymbol(0, names.fromString("$error$"),
+                this.env.scope.owner.pkgID,
+                errorType, this.env.scope.owner, varNode.pos, VIRTUAL);
         final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varNode.pos, errorVarSymbol.name.value,
                                                                         errorType, null, errorVarSymbol);
         error.expr = varNode.expr;
@@ -2050,7 +2056,9 @@ public class Desugar extends BLangNodeVisitor {
         String name = "tuple";
         final BLangSimpleVariable tuple =
                 ASTBuilderUtil.createVariable(tupleDestructure.pos, name, runTimeType, null,
-                        getDestructuredSymbol(name, runTimeType, tupleDestructure.pos));
+                        new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
+                                runTimeType, this.env.scope.owner, tupleDestructure.pos,
+                                VIRTUAL));
         tuple.expr = tupleDestructure.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(tupleDestructure.pos,
                                                                                         blockStmt);
@@ -2269,7 +2277,9 @@ public class Desugar extends BLangNodeVisitor {
         String name = "$map$0";
         final BLangSimpleVariable mapVariable =
                 ASTBuilderUtil.createVariable(recordDestructure.pos, name, runTimeType, null,
-                        getDestructuredSymbol(name, runTimeType, recordDestructure.pos));
+                        new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
+                                runTimeType, this.env.scope.owner, recordDestructure.pos,
+                                VIRTUAL));
         mapVariable.expr = recordDestructure.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.
                 createVariableDefStmt(recordDestructure.pos, blockStmt);
@@ -2900,7 +2910,9 @@ public class Desugar extends BLangNodeVisitor {
 
         // We need to create a new variable for the expression as well. This is needed because integer ranges can be
         // added as the expression so we cannot get the symbol in such cases.
-        BVarSymbol dataSymbol = getDestructuredSymbol("$data$", foreach.collection.type, foreach.pos);
+        BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString("$data$"),
+                this.env.scope.owner.pkgID,
+                foreach.collection.type, this.env.scope.owner, foreach.pos, VIRTUAL);
         BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(foreach.pos, "$data$",
                                                                          foreach.collection.type, foreach.collection,
                                                                          dataSymbol);
@@ -3000,7 +3012,10 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol iteratorSymbol = varDef.var.symbol;
 
         // Create a new symbol for the $result$.
-        BVarSymbol resultSymbol = getDestructuredSymbol("$result$", foreach.nillableResultType, foreach.pos);
+        BVarSymbol resultSymbol = new BVarSymbol(0, names.fromString("$result$"),
+                this.env.scope.owner.pkgID,
+                foreach.nillableResultType, this.env.scope.owner, foreach.pos,
+                VIRTUAL);
 
         // Note - map<T>? $result$ = $iterator$.next();
         BLangSimpleVariableDef resultVariableDefinition = getIteratorNextVariableDefinition(foreach.pos,
@@ -5123,17 +5138,14 @@ public class Desugar extends BLangNodeVisitor {
         iteratorInvocation.argExprs = Lists.of(dataReference);
         iteratorInvocation.requiredArgs = iteratorInvocation.argExprs;
         iteratorInvocation.langLibInvocation = isIteratorFuncFromLangLib;
-        BVarSymbol iteratorSymbol = getDestructuredSymbol("$iterator$", iteratorInvokableSymbol.retType, pos);
+        BVarSymbol iteratorSymbol = new BVarSymbol(0, names.fromString("$iterator$"),
+                this.env.scope.owner.pkgID,
+                iteratorInvokableSymbol.retType, this.env.scope.owner, pos, VIRTUAL);
 
         // Note - any $iterator$ = $data$.iterator();
         BLangSimpleVariable iteratorVariable = ASTBuilderUtil.createVariable(pos, "$iterator$",
                 iteratorInvokableSymbol.retType, iteratorInvocation, iteratorSymbol);
         return ASTBuilderUtil.createVariableDef(pos, iteratorVariable);
-    }
-
-    private BVarSymbol getDestructuredSymbol(String name, BType type, DiagnosticPos pos) {
-        return new BVarSymbol(Flags.DESTRUCTURED, names.fromString(name), this.env.scope.owner.pkgID, type,
-                this.env.scope.owner, pos, VIRTUAL);
     }
 
     // Foreach desugar helper method.
