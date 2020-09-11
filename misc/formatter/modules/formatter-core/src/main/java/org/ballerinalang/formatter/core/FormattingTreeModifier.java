@@ -334,9 +334,13 @@ public class FormattingTreeModifier extends TreeModifier {
         if (identifier.parent() != null && identifier.parent().kind() == (SyntaxKind.SPECIFIC_FIELD)) {
             addSpaces = true;
         }
+        int trailingSpaces = 0;
+        if (identifier.parent().kind() == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
+            trailingSpaces = 1;
+        }
         int startColumn = getStartColumn(identifier, addSpaces);
         Token identifierToken = getToken(identifier);
-        return (IdentifierToken) formatToken(identifierToken, addSpaces ? startColumn : 0, 0, 0, 0);
+        return (IdentifierToken) formatToken(identifierToken, addSpaces ? startColumn : 0, trailingSpaces, 0, 0);
     }
 
     @Override
@@ -436,6 +440,13 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         int startColumn = NodeIndentation.builtinSimpleNameReferenceNode(builtinSimpleNameReferenceNode, options);
         int trailingSpaces = 0;
+        if (builtinSimpleNameReferenceNode.parent() != null &&
+                (builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.CONST_DECLARATION ||
+                (builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.TYPED_BINDING_PATTERN &&
+                        ((TypedBindingPatternNode) builtinSimpleNameReferenceNode.parent())
+                                .bindingPattern().kind() == SyntaxKind.LIST_BINDING_PATTERN))) {
+            trailingSpaces = 1;
+        }
         if (builtinSimpleNameReferenceNode.parent() != null &&
                 builtinSimpleNameReferenceNode.parent().kind() == (SyntaxKind.CONST_DECLARATION)) {
             trailingSpaces = 1;
@@ -675,9 +686,14 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(captureBindingPatternNode, lineRange)) {
             return captureBindingPatternNode;
         }
+        int leadingSpaces = 1;
+        if (captureBindingPatternNode.parent() != null &&
+                captureBindingPatternNode.parent().kind() == SyntaxKind.LIST_BINDING_PATTERN) {
+            leadingSpaces = 0;
+        }
         Token variableName = getToken(captureBindingPatternNode.variableName());
         return captureBindingPatternNode.modify()
-                .withVariableName(formatToken(variableName, 1, 0, 0, 0))
+                .withVariableName(formatToken(variableName, leadingSpaces, 0, 0, 0))
                 .apply();
     }
 
@@ -686,6 +702,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(listBindingPatternNode, lineRange)) {
             return listBindingPatternNode;
         }
+        boolean addSpaces = false;
+        if (listBindingPatternNode.parent() != null &&
+                listBindingPatternNode.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+            addSpaces = true;
+        }
+        int startColumn = getStartColumn(listBindingPatternNode, addSpaces);
         SeparatedNodeList<BindingPatternNode> bindingPatternNodes = this.modifySeparatedNodeList(
                 listBindingPatternNode.bindingPatterns());
         Token openBracket = getToken(listBindingPatternNode.openBracket());
@@ -698,7 +720,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         return listBindingPatternNode.modify()
                 .withBindingPatterns(bindingPatternNodes)
-                .withOpenBracket(formatToken(openBracket, 0, 0, 0, 0))
+                .withOpenBracket(formatToken(openBracket, startColumn, 0, 0, 0))
                 .withCloseBracket(formatToken(closeBracket, 0, 0, 0, 0))
                 .apply();
     }
@@ -1922,6 +1944,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(localTypeDefinitionStatementNode, lineRange)) {
             return localTypeDefinitionStatementNode;
         }
+        int startColumn = getStartColumn(localTypeDefinitionStatementNode, true);
         NodeList<AnnotationNode> annotations = this.modifyNodeList(localTypeDefinitionStatementNode.annotations());
         Token typeKeyword = getToken(localTypeDefinitionStatementNode.typeKeyword());
         Node typeName = this.modifyNode(localTypeDefinitionStatementNode.typeName());
@@ -1929,10 +1952,10 @@ public class FormattingTreeModifier extends TreeModifier {
         Token semicolonToken = getToken(localTypeDefinitionStatementNode.semicolonToken());
         return localTypeDefinitionStatementNode.modify()
                 .withAnnotations(annotations)
-                .withTypeKeyword(formatToken(typeKeyword, 0, 1, 0, 0))
+                .withTypeKeyword(formatToken(typeKeyword, startColumn, 1, 0, 0))
                 .withTypeName(typeName)
                 .withTypeDescriptor(typeDescriptor)
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
@@ -2306,7 +2329,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return recordRestDescriptorNode.modify()
                 .withTypeName(typeName)
                 .withEllipsisToken(formatToken(ellipsisToken, 0, 0, 0, 0))
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 

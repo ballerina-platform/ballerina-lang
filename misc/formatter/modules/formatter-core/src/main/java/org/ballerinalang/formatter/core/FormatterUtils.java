@@ -81,6 +81,7 @@ class FormatterUtils {
         } else if (parentKind == (SyntaxKind.FUNCTION_DEFINITION) ||
                 parentKind == (SyntaxKind.ELSE_BLOCK) ||
                 parentKind == (SyntaxKind.IF_ELSE_STATEMENT) ||
+                parentKind == (SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) ||
                 parentKind == (SyntaxKind.WHILE_STATEMENT) ||
                 parentKind == (SyntaxKind.CONST_DECLARATION) ||
                 parentKind == (SyntaxKind.METHOD_DECLARATION) ||

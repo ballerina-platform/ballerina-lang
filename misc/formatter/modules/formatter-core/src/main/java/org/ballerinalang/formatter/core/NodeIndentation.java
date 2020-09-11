@@ -46,6 +46,7 @@ class NodeIndentation {
                         SyntaxKind.FUNCTION_CALL,
                         SyntaxKind.TYPE_TEST_EXPRESSION,
                         SyntaxKind.TYPE_PARAMETER,
+                        SyntaxKind.TUPLE_TYPE_DESC,
                         SyntaxKind.TYPE_CAST_PARAM,
                         SyntaxKind.UNION_TYPE_DESC,
                         SyntaxKind.XML_TYPE_DESC);
@@ -81,6 +82,7 @@ class NodeIndentation {
                         SyntaxKind.TYPED_BINDING_PATTERN,
                         SyntaxKind.FIELD_ACCESS,
                         SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE,
+                        SyntaxKind.RECORD_FIELD,
                         SyntaxKind.OPTIONAL_TYPE_DESC,
                         SyntaxKind.ARRAY_TYPE_DESC));
         if (parent != null && ((parentNodes.contains(parent.kind())) || grandParent != null &&

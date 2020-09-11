@@ -40,6 +40,7 @@ public class StructuredTypesTest extends FormatterTest {
         return this.getConfigsList();
     }
 
+    // TODO: Enable the table_type_1.bal test case
     @Override
     public Object[][] testSubset() {
         return new Object[][] {
@@ -49,7 +50,13 @@ public class StructuredTypesTest extends FormatterTest {
                 {"array_type_4.bal", this.getTestResourceDir()},
                 {"array_type_5.bal", this.getTestResourceDir()},
                 {"map_type_1.bal", this.getTestResourceDir()},
-                {"map_type_2.bal", this.getTestResourceDir()}
+                {"map_type_2.bal", this.getTestResourceDir()},
+                {"map_type_3.bal", this.getTestResourceDir()},
+                {"tuple_type_1.bal", this.getTestResourceDir()},
+                {"tuple_type_2.bal", this.getTestResourceDir()},
+                {"tuple_type_3.bal", this.getTestResourceDir()},
+                {"tuple_type_4.bal", this.getTestResourceDir()},
+                {"record_type_1.bal", this.getTestResourceDir()}
         };
     }
 
