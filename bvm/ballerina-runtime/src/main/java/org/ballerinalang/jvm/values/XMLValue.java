@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
@@ -116,8 +117,8 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
     public abstract void build();
 
     @Override
-    public String informalStringValue() {
-        return "`" + toString() + "`";
+    public String informalStringValue(BLink parent) {
+        return "`" + stringValue(parent) + "`";
     }
 
     /**

@@ -208,7 +208,7 @@ public class BMapValueTest {
         map.put(StringUtils.fromString("key1"), 1);
         map.put(StringUtils.fromString("key2"), StringUtils.fromString("foo"));
         map.put(StringUtils.fromString("key3"), XMLFactory.parse("<bar>hello</bar>"));
-        Assert.assertEquals(map.stringValue(), "{\"key1\":1, \"key2\":\"foo\", \"key3\":`<bar>hello</bar>`}");
+        Assert.assertEquals(map.stringValue(null), "{\"key1\":1, \"key2\":\"foo\", \"key3\":`<bar>hello</bar>`}");
     }
 
     @Test(dependsOnMethods = "testGrammar")

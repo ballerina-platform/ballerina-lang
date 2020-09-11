@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
@@ -417,7 +418,7 @@ public final class XMLItem extends XMLValue {
     @Override
     public OMNode value() {
         try {
-            String xmlStr = this.stringValue();
+            String xmlStr = this.stringValue(null);
             OMElement omElement = XMLFactory.stringToOM(xmlStr);
             return omElement;
         } catch (ErrorValue e) {
@@ -435,15 +436,16 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public String toString() {
-        return this.stringValue();
+        return this.stringValue(null);
     }
 
     /**
      * {@inheritDoc}
+     * @param parent The link to the parent node
      */
     @Override
     @Deprecated
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
@@ -459,7 +461,7 @@ public final class XMLItem extends XMLValue {
     }
 
     @Override
-    public String informalStringValue() {
+    public String informalStringValue(BLink parent) {
         return "`" + toString() + "`";
     }
 

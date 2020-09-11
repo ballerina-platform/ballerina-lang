@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
@@ -26,6 +27,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValue;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -76,22 +78,23 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
+        CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
-            return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue() + ")";
+            return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue(linkParent) + ")";
         }
-        return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue() + getCauseToString()
-                + getDetailsToString() + ")";
+        return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue(linkParent) +
+                getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
     }
 
-    private String getCauseToString() {
+    private String getCauseToString(BLink parent) {
         if (cause != null) {
-            return ", " + ((BValue) cause).informalStringValue();
+            return ", " + cause.informalStringValue(parent);
         }
         return "";
     }
 
-    private String getDetailsToString() {
+    private String getDetailsToString(BLink parent) {
         StringJoiner sj = new StringJoiner(", ");
         for (Object key : ((MapValue) details).getKeys()) {
             Object value = ((MapValue) details).get(key);
@@ -108,10 +111,10 @@ public class ErrorValue extends BError implements RefValue {
                     case TypeTags.XML_PI_TAG:
                     case TypeTags.XMLNS_TAG:
                     case TypeTags.XML_TEXT_TAG:
-                        sj.add(key + "=" + ((BValue) value).informalStringValue());
+                        sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
                         break;
                     default:
-                        sj.add(key + "=" + StringUtils.getStringValue(value));
+                        sj.add(key + "=" + StringUtils.getStringValue(value, parent));
                         break;
                 }
             }
@@ -149,7 +152,7 @@ public class ErrorValue extends BError implements RefValue {
 
     @Override
     public String toString() {
-        return stringValue();
+        return stringValue(null);
     }
 
     /**
