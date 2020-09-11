@@ -103,7 +103,7 @@ public class Child {
     }
 };
 
-public class Stub client {
+public client class Stub {
 
     public Child obj = new Child();
 
