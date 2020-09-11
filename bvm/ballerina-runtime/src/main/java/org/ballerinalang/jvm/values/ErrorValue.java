@@ -25,10 +25,11 @@ import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValue;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -78,26 +79,49 @@ public class ErrorValue extends BError implements RefValue {
     @Override
     public String stringValue() {
         if (isEmptyDetail()) {
-            return "error " + getModuleName() + " (message=" + message.getValue() + ")";
+            return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue() + ")";
         }
-        return "error " + getModuleName() + " (message=" + message.getValue() + getCauseToString() + getDetailsToString() + ")";
+        return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue() + getCauseToString()
+                + getDetailsToString() + ")";
     }
 
     private String getCauseToString() {
         if (cause != null) {
-            return ", cause=" + ((BValue) cause).informalStringValue();
+            return ", " + ((BValue) cause).informalStringValue();
         }
         return "";
     }
 
     private String getDetailsToString() {
-        return ", detail=" + ((BValue) details).informalStringValue();
+        StringJoiner sj = new StringJoiner(", ");
+        for (Object key : ((MapValue) details).getKeys()) {
+            Object value = ((MapValue) details).get(key);
+            if (value == null) {
+                sj.add(key + "=null");
+            } else {
+                BType type = TypeChecker.getType(value);
+                switch (type.getTag()) {
+                    case TypeTags.STRING_TAG:
+                    case TypeTags.XML_TAG:
+                    case TypeTags.XML_ELEMENT_TAG:
+                    case TypeTags.XML_ATTRIBUTES_TAG:
+                    case TypeTags.XML_COMMENT_TAG:
+                    case TypeTags.XML_PI_TAG:
+                    case TypeTags.XMLNS_TAG:
+                    case TypeTags.XML_TEXT_TAG:
+                        sj.add(key + "=" + ((BValue) value).informalStringValue());
+                        break;
+                    default:
+                        sj.add(key + "=" + StringUtils.getStringValue(value));
+                        break;
+                }
+            }
+        }
+        return ", " + sj.toString();
     }
 
     private String getModuleName() {
-        return (type.getPackage().org != null && type.getPackage().org.equals("$anon")) ||
-                type.getPackage().name == null ? type.getName() :
-                BallerinaErrorReasons.getModulePrefixedReason(type.getPackage().name, type.getName());
+        return type.getPackage().name == null ? "" : " " + type.getName() + " ";
     }
 
     @Override
