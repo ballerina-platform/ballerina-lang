@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.diagnostic;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
 /**
@@ -31,12 +32,19 @@ public class BallerinaDiagnostic extends Diagnostic {
 
     private Location location;
     private String msg;
+    private DiagnosticSeverity severity;
     private DiagnosticInfo diagnosticInfo;
 
     public BallerinaDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo) {
         this.location = location;
         this.msg = msg;
         this.diagnosticInfo = diagnosticInfo;
+    }
+
+    public BallerinaDiagnostic(Location location, String msg, DiagnosticSeverity severity) {
+        this.location = location;
+        this.msg = msg;
+        this.severity = severity;
     }
 
     @Override
@@ -52,6 +60,10 @@ public class BallerinaDiagnostic extends Diagnostic {
     @Override
     public String message() {
         return msg;
+    }
+
+    public DiagnosticSeverity severity() {
+        return this.severity;
     }
 
     public String toString() {

@@ -36,6 +36,7 @@ import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
@@ -233,7 +234,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private NodeCloner nodeCloner;
     private Types types;
-    private BLangDiagnosticLogHelper dlog;
+    private BallerinaDiagnosticLog dlog;
     private SymbolEnv env;
     private boolean isTypeChecked;
     private TypeNarrower typeNarrower;
@@ -316,7 +317,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BallerinaDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
@@ -881,8 +882,7 @@ public class TypeChecker extends BLangNodeVisitor {
             boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
             this.nonErrorLoggingCheck = true;
 
-            BLangDiagnosticLog prevDLog = this.dlog.getCurrentLog();
-            this.dlog.setNonConsoleDLog();
+            this.dlog.mute();
 
             List<BType> matchingTypes = new ArrayList<>();
             BUnionType expectedType = (BUnionType) applicableExpType;
@@ -895,14 +895,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BType resultType = checkExpr(clonedTableExpr, env, memType);
-                if (resultType != symTable.semanticError && dlog.getErrorCount() == 0 &&
+                if (resultType != symTable.semanticError && dlog.errorCount() == 0 &&
                         isUniqueType(matchingTypes, resultType)) {
                     matchingTypes.add(resultType);
                 }
                 dlog.resetErrorCount();
             }
 
-            this.dlog.setCurrentLog(prevDLog);
+            this.dlog.unmute();
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
 
             if (matchingTypes.isEmpty()) {
@@ -1284,8 +1284,7 @@ public class TypeChecker extends BLangNodeVisitor {
             boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
             this.nonErrorLoggingCheck = true;
 
-            BLangDiagnosticLog prevDLog = this.dlog.getCurrentLog();
-            this.dlog.setNonConsoleDLog();
+            this.dlog.mute();
 
             List<BType> compatibleTypes = new ArrayList<>();
             boolean erroredExpType = false;
@@ -1306,14 +1305,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 BType memCompatibiltyType = checkListConstructorCompatibility(listCompatibleMemType, listConstructor);
 
-                if (memCompatibiltyType != symTable.semanticError && dlog.getErrorCount() == 0 &&
+                if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
                         isUniqueType(compatibleTypes, memCompatibiltyType)) {
                     compatibleTypes.add(memCompatibiltyType);
                 }
                 dlog.resetErrorCount();
             }
 
-            this.dlog.setCurrentLog(prevDLog);
+            this.dlog.unmute();
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
 
             if (compatibleTypes.isEmpty()) {
@@ -1720,8 +1719,7 @@ public class TypeChecker extends BLangNodeVisitor {
             boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
             this.nonErrorLoggingCheck = true;
 
-            BLangDiagnosticLog prevDLog = this.dlog.getCurrentLog();
-            this.dlog.setNonConsoleDLog();
+            this.dlog.mute();
 
             List<BType> compatibleTypes = new ArrayList<>();
             boolean erroredExpType = false;
@@ -1742,14 +1740,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 BType memCompatibiltyType = checkMappingConstructorCompatibility(listCompatibleMemType,
                                                                                  mappingConstructor);
 
-                if (memCompatibiltyType != symTable.semanticError && dlog.getErrorCount() == 0 &&
+                if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
                         isUniqueType(compatibleTypes, memCompatibiltyType)) {
                     compatibleTypes.add(memCompatibiltyType);
                 }
                 dlog.resetErrorCount();
             }
 
-            this.dlog.setCurrentLog(prevDLog);
+            this.dlog.unmute();
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
 
             if (compatibleTypes.isEmpty()) {
