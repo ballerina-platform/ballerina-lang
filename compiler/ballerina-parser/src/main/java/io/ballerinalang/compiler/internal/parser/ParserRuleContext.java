@@ -537,7 +537,6 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_PARENTHESIS("type-desc-in-parenthesis"),
     TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
-    TYPE_DESC_IN_ON_FAIL_CLAUSE("type-desc-in-on-fail-clause"),
 
     // XML
     XML_CONTENT("xml-content"),

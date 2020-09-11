@@ -10778,7 +10778,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.ON_FAIL_CLAUSE);
         STNode onKeyword = parseOnKeyword();
         STNode failKeyword = parseFailKeyword();
-        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ON_FAIL_CLAUSE);
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true, false);
         STNode identifier = parseIdentifier(ParserRuleContext.VARIABLE_REF);
         STNode blockStatement = parseBlockNode();
         endContext();

@@ -1044,7 +1044,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_DESC_IN_STREAM_TYPE_DESC:
                 case TYPE_DESC_IN_PARENTHESIS:
                 case TYPE_DESC_IN_NEW_EXPR:
-                case TYPE_DESC_IN_ON_FAIL_CLAUSE:
                 default:
                     if (isKeyword(currentCtx)) {
                         SyntaxKind expectedToken = getExpectedKeywordKind(currentCtx);
@@ -2537,7 +2536,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
             case TYPE_DESC_IN_TUPLE:
-            case TYPE_DESC_IN_ON_FAIL_CLAUSE:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case VAR_DECL_STARTED_WITH_DENTIFIER:
                 // We come here trying to recover statement started with identifier,
@@ -2794,7 +2792,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case FAIL_KEYWORD:
                 if (getParentContext() == ParserRuleContext.ON_FAIL_CLAUSE) {
-                    return ParserRuleContext.TYPE_DESC_IN_ON_FAIL_CLAUSE;
+                    return ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN;
                 }
                 return ParserRuleContext.EXPRESSION;
             case PANIC_KEYWORD:
@@ -3095,7 +3093,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
             case TYPE_DESC_IN_TUPLE:
-            case TYPE_DESC_IN_ON_FAIL_CLAUSE:
                 startContext(currentCtx);
                 break;
             default:
@@ -3460,9 +3457,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_REFERENCE:
                 endContext();
                 return ParserRuleContext.SEMICOLON;
-            case TYPE_DESC_IN_ON_FAIL_CLAUSE:
-                endContext();
-                return ParserRuleContext.VARIABLE_NAME;
             default:
                 // If none of the above that means we reach here via, anonymous-func-or-func-type context.
                 // Then the rhs of this is definitely an expression-rhs
@@ -3488,7 +3482,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STMT_START_BRACKETED_LIST:
             case BRACKETED_LIST:
             case TYPE_REFERENCE:
-            case TYPE_DESC_IN_ON_FAIL_CLAUSE:
                 return true;
             default:
                 return false;
