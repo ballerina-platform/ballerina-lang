@@ -151,6 +151,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code ascending} keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAscendingKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ASCENDING, "ascending", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get {@code descending} keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getDescendingKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.DESCENDING, "descending", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
      * Get Break statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

@@ -224,6 +224,10 @@ public enum Snippet {
 
     KW_IS(SnippetGenerator.getIsKeywordSnippet()),
 
+    KW_ASCENDING(SnippetGenerator.getAscendingKeywordSnippet()),
+
+    KW_DESCENDING(SnippetGenerator.getDescendingKeywordSnippet()),
+
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),
 

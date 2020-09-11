@@ -51,6 +51,8 @@ public class ItemResolverConstants {
     public static final String TYPEOF = "typeof";
     public static final String COMMIT = "commit";
     public static final String IS = "is";
+    public static final String ASCENDING = "ascending";
+    public static final String DESCENDING = "descending";
     public static final String DEFAULT = "default";
 
     public static final String FUNCTION = "function";
