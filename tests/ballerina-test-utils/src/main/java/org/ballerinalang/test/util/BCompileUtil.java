@@ -432,6 +432,10 @@ public class BCompileUtil {
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
         options.put(OFFLINE, "true");
 
+        if (newParserEnabled()) {
+            options.put(NEW_PARSER_ENABLED, Boolean.TRUE.toString());
+        }
+
         return compile(context, packageName, compilerPhase, false);
     }
 
@@ -618,8 +622,8 @@ public class BCompileUtil {
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, false);
     }
 
-    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-                                                     boolean temp, boolean init, boolean withTests) {
+    public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
+                                                    boolean temp, boolean init, boolean withTests) {
 
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, withTests);
     }
@@ -644,13 +648,12 @@ public class BCompileUtil {
         URLClassLoader classLoader = compileResult.classLoader;
 
         try {
-            Class<?> initClazz = classLoader.loadClass(initClassName);
             final List<String> actualArgs = new ArrayList<>();
             actualArgs.add(0, "java");
             actualArgs.add(1, "-cp");
             String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
             actualArgs.add(2, classPath);
-            actualArgs.add(3, initClazz.getCanonicalName());
+            actualArgs.add(3, initClassName);
             actualArgs.addAll(Arrays.asList(args));
 
             final Runtime runtime = Runtime.getRuntime();
@@ -660,7 +663,7 @@ public class BCompileUtil {
             process.waitFor();
             int exitValue = process.exitValue();
             return new ExitDetails(exitValue, consoleInput, consoleError);
-        } catch (ClassNotFoundException | InterruptedException | IOException e) {
+        } catch (InterruptedException | IOException e) {
             throw new RuntimeException("Main method invocation failed", e);
         }
     }

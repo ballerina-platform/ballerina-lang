@@ -16,6 +16,7 @@
 
 import ballerina/java;
 import ballerina/time;
+import ballerina/lang.array;
 
 # Represents a WebSocket client endpoint.
 public type WebSocketClient client object {
@@ -35,7 +36,7 @@ public type WebSocketClient client object {
     #
     # + url - URL of the target service
     # + config - The configurations to be used when initializing the client
-    public function init(string url, public WebSocketClientConfiguration? config = ()) {
+    public function init(string url, WebSocketClientConfiguration? config = ()) {
         self.url = url;
         if (config is WebSocketClientConfiguration) {
             addCookies(config);
@@ -61,7 +62,7 @@ public type WebSocketClient client object {
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - An `error` if an error occurs when sending
     public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data,
-    public boolean finalFrame = true) returns WebSocketError? {
+    boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushText(data, finalFrame);
     }
 
@@ -71,7 +72,7 @@ public type WebSocketClient client object {
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - An `error` if an error occurs when sending
-    public remote function pushBinary(byte[] data, public boolean finalFrame = true) returns WebSocketError? {
+    public remote function pushBinary(byte[] data, boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushBinary(data, finalFrame);
     }
 
@@ -102,8 +103,8 @@ public type WebSocketClient client object {
     #                   waits until a close frame is received. If the WebSocket frame is received from the remote
     #                   endpoint within the waiting period, the connection is terminated immediately.
     # + return - An `error` if an error occurs while closing the WebSocket connection
-    public remote function close(public int? statusCode = 1000, public string? reason = (),
-        public int timeoutInSeconds = 60) returns WebSocketError? {
+    public remote function close(int? statusCode = 1000, string? reason = (),
+        int timeoutInSeconds = 60) returns WebSocketError? {
         return self.conn.close(statusCode, reason, timeoutInSeconds);
     }
 
@@ -237,7 +238,14 @@ public function addCookies(WebSocketClientConfiguration|WebSocketFailoverClientC
     string cookieHeader = "";
     var cookiesToAdd = config["cookies"];
     if (cookiesToAdd is Cookie[]) {
-        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+        Cookie[] sortedCookies = cookiesToAdd.sort(array:ASCENDING, function(Cookie c) returns int {
+            var cookiePath = c.path;
+            int l = 0;
+            if (cookiePath is string) {
+                l = cookiePath.length();
+            }
+            return l;
+        });
         foreach var cookie in sortedCookies {
             var cookieName = cookie.name;
             var cookieValue = cookie.value;

@@ -49,8 +49,9 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public abstract class FieldAccessContext<T extends Node> extends AbstractCompletionProvider<T> {
-    public FieldAccessContext(Kind kind) {
-        super(kind);
+
+    public FieldAccessContext(Class<T> attachmentPoint) {
+        super(attachmentPoint);
     }
 
     /**
@@ -102,7 +103,10 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                 String mName = ((SimpleNameReferenceNode) ((MethodCallExpressionNode) expr)
                         .methodName()).name().text();
                 return filtered.stream()
-                        .filter(scopeEntry -> scopeEntry.symbol.getName().getValue().equals(mName))
+                        .filter(scopeEntry -> {
+                            String[] nameComps = scopeEntry.symbol.getName().getValue().split("\\.");
+                            return nameComps[nameComps.length - 1].equals(mName);
+                        })
                         .findFirst()
                         .map(entry -> this.getEntriesForSymbol(mName, ((BInvokableSymbol) entry.symbol).retType, ctx))
                         .orElseGet(ArrayList::new);

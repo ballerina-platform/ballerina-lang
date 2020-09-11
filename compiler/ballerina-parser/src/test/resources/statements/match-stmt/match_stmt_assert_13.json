@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -768,7 +763,7 @@
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                 "children": [
                                   {
-                                    "kind": "DECIMAL_INTEGER_LITERAL",
+                                    "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                     "value": "676456"
                                   }
                                 ]
@@ -818,10 +813,10 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "5454",
                                   "leadingMinutiae": [
                                     {
@@ -872,10 +867,10 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "NUMERIC_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                           "value": "453",
                                           "trailingMinutiae": [
                                             {
@@ -952,10 +947,10 @@
                                       ]
                                     },
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "NUMERIC_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                           "value": "676456",
                                           "trailingMinutiae": [
                                             {
@@ -1413,10 +1408,10 @@
                                               "kind": "PLUS_TOKEN"
                                             },
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "kind": "NUMERIC_LITERAL",
                                               "children": [
                                                 {
-                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                   "value": "433",
                                                   "trailingMinutiae": [
                                                     {
@@ -2570,11 +2565,11 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "NUMERIC_LITERAL",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN",
@@ -3307,10 +3302,10 @@
                                                               ]
                                                             },
                                                             {
-                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "kind": "NUMERIC_LITERAL",
                                                               "children": [
                                                                 {
-                                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                                   "value": "45",
                                                                   "trailingMinutiae": [
                                                                     {
@@ -4726,7 +4721,7 @@
                                                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                                                     "children": [
                                                                       {
-                                                                        "kind": "DECIMAL_INTEGER_LITERAL",
+                                                                        "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                                         "value": "55"
                                                                       }
                                                                     ]

@@ -284,6 +284,15 @@ public type FunctionStub object {
             panic result;
         }
     }
+
+    # Sets the original function to be invoked.
+    public function callOriginal() {
+        self.returnValue = "__ORIGINAL__";
+        Error? result = thenReturnFuncExt(self);
+        if (result is Error) {
+            panic result;
+        }
+    }
 };
 
 # Creates and returns a mock object of provided type description.
@@ -291,7 +300,7 @@ public type FunctionStub object {
 # + T - type of object to create the mock
 # + mockObject - mock object to replace the original (optional)
 # + return - created mock object or throw an error if validation failed
-public function mock(public typedesc<object{}> T, object{} mockObject = new) returns T = @java:Method {
+public function mock(typedesc<object{}> T, object{} mockObject = new) returns T = @java:Method {
     class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 

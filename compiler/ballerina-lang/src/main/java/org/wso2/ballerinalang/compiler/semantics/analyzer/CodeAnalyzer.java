@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.ActionNode;
@@ -47,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -57,7 +57,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -87,7 +86,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -497,10 +495,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker worker) {
         /* ignore, remove later */
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpointNode) {
     }
 
     @Override
@@ -1468,6 +1462,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
                 checkForExportableType(invokableType.retType.tsymbol, pos);
                 return;
+            case TypeTags.PARAMETERIZED_TYPE:
+                BTypeSymbol parameterizedType = ((BParameterizedType) symbol.type).paramValueType.tsymbol;
+                checkForExportableType(parameterizedType, pos);
+                return;
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {
@@ -2172,6 +2170,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        if (!actionInvocation.async && !this.withinTransactionScope &&
+                Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
+            dlog.error(actionInvocation.pos, DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED, actionInvocation);
+            return;
+        }
+
         if (actionInvocation.async && this.withinTransactionScope &&
                 !Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticCode.USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED);
@@ -2715,32 +2719,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
                     }
                 }
-            } else if (clause.getKind() == NodeKind.ORDER_BY) {
-                checkOrderFieldValidity(queryExpr.type, (BLangOrderByClause) clause);
             }
             analyzeNode(clause, env);
-        }
-    }
-
-    private void checkOrderFieldValidity(BType resultType, BLangOrderByClause clause) {
-        resultType = types.resolveExprType(resultType);
-        if (resultType.tag != TypeTags.RECORD) {
-            return;
-        }
-        BRecordType recordType = (BRecordType) resultType;
-        Map<String, BField> recordFields = recordType.fields;
-        for (OrderKeyNode orderKeyNode : clause.getOrderKeyList()) {
-            if (!recordFields.containsKey(orderKeyNode.getOrderKey().toString())) {
-                dlog.error(((BLangOrderKey) orderKeyNode).expression.pos,
-                        DiagnosticCode.UNDEFINED_FIELD_IN_RECORD,
-                        ((BLangOrderKey) orderKeyNode).expression, resultType);
-            } else if (orderKeyNode.getOrderKey().toString() != null) {
-                BType exprType = recordFields.get(orderKeyNode.getOrderKey().toString()).type;
-                if (!types.checkBasicType(exprType)) {
-                    dlog.error(((BLangOrderKey) orderKeyNode).expression.pos,
-                            DiagnosticCode.ORDER_BY_NOT_SUPPORTED);
-                }
-            }
         }
     }
 
@@ -2790,7 +2770,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        analyzeExpr(onClause.expression);
+        analyzeExpr(onClause.lhsExpr);
+        analyzeExpr(onClause.rhsExpr);
     }
 
     @Override

@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Language Intelligence, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "2.0.0-Preview2",
+    "version": "2.0.0-Preview4-SNAPSHOT",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -25,18 +25,9 @@
     "activationEvents": [
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
-        "onCommand:ballerina.showTraces",
         "workspaceContains:Ballerina.toml"
     ],
     "contributes": {
-        "views": {
-            "explorer": [
-                {
-                    "id": "ballerinaProjectTree",
-                    "name": "Ballerina Project Overview"
-                }
-            ]
-        },
         "languages": [
             {
                 "id": "ballerina",
@@ -110,6 +101,16 @@
                     "type": "boolean",
                     "default": true,
                     "description": "If set to true ballerina endpoints code lens feature will be allowed"
+                },
+                "ballerina.dataMapper.enabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set to true ballerina data mapper code action feature will be allowed"
+                },
+                "ballerina.dataMapper.url": {
+                    "type": "string",
+                    "default": "https://datamapper.choreo.dev",
+                    "description": "URL of the host for data mapper back end"
                 }
             }
         },
@@ -210,15 +211,6 @@
         ],
         "commands": [
             {
-                "command": "ballerina.showFileOverview",
-                "title": "Show File Overview",
-                "icon": {
-                    "dark": "./resources/images/icons/design-view-inverse.svg",
-                    "light": "./resources/images/icons/design-view.svg"
-                },
-                "category": "Ballerina"
-            },
-            {
                 "command": "ballerina.showExamples",
                 "title": "Show Examples",
                 "category": "Ballerina"
@@ -234,79 +226,12 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.showDocs",
-                "title": "Show Documentation Preview",
-                "icon": {
-                    "dark": "./resources/images/icons/documentation-inverse.svg",
-                    "light": "./resources/images/icons/documentation.svg"
-                },
-                "category": "Ballerina"
-            },
-            {
-                "command": "ballerina.showAPIEditor",
-                "title": "Show API Designer",
-                "icon": {
-                    "dark": "./resources/images/icons/api-design-inverse.svg",
-                    "light": "./resources/images/icons/api-design.svg"
-                },
-                "category": "Ballerina"
-            },
-            {
-                "command": "ballerina.showTraces",
-                "title": "Ballerina: Show Network logs"
-            },
-            {
-                "command": "ballerina.refreshProjectTree",
-                "title": "Refresh",
-                "icon": {
-                    "light": "./resources/images/icons/refresh.svg",
-                    "dark": "./resources/images/icons/refresh-inverse.svg"
-                }
-            },
-            {
                 "command": "ballerina.highlightSyntax",
                 "title": "Syntax Highlight",
                 "category": "Ballerina"
             }
         ],
-        "menus": {
-            "editor/title": [
-                {
-                    "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showFileOverview",
-                    "group": "navigation"
-                },
-                {
-                    "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showDocs",
-                    "group": "navigation"
-                }
-            ],
-            "editor/context": [
-                {
-                    "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showFileOverview",
-                    "group": "navigation"
-                },
-                {
-                    "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showDocs",
-                    "group": "navigation"
-                },
-                {
-                    "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showAPIEditor",
-                    "group": "navigation"
-                }
-            ],
-            "view/title": [
-                {
-                    "command": "ballerina.refreshProjectTree",
-                    "when": "view == ballerinaProjectTree",
-                    "group": "navigation"
-                }
-            ]
-        }
+        "menus": {}
     },
     "main": "./dist/extension",
     "scripts": {

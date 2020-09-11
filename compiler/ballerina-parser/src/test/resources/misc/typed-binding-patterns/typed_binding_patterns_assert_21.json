@@ -12,13 +12,8 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -143,7 +138,7 @@
                                           ]
                                         },
                                         {
-                                          "kind": "FUNCTIONAL_BINDING_PATTERN",
+                                          "kind": "ERROR_BINDING_PATTERN",
                                           "children": [
                                             {
                                               "kind": "ERROR_KEYWORD"
@@ -158,13 +153,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "a"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "a"
                                                     }
                                                   ]
                                                 },
@@ -181,13 +171,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "b"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "b"
                                                     }
                                                   ]
                                                 }
@@ -339,8 +324,17 @@
                                           ]
                                         },
                                         {
-                                          "kind": "FUNCTIONAL_BINDING_PATTERN",
+                                          "kind": "ERROR_BINDING_PATTERN",
                                           "children": [
+                                            {
+                                              "kind": "ERROR_KEYWORD",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            },
                                             {
                                               "kind": "SIMPLE_NAME_REFERENCE",
                                               "children": [
@@ -360,13 +354,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "a"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "a"
                                                     }
                                                   ]
                                                 },
@@ -383,13 +372,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "b"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "b"
                                                     }
                                                   ]
                                                 }
@@ -540,7 +524,7 @@
                                           ]
                                         },
                                         {
-                                          "kind": "FUNCTIONAL_BINDING_PATTERN",
+                                          "kind": "ERROR_BINDING_PATTERN",
                                           "children": [
                                             {
                                               "kind": "ERROR_KEYWORD"
@@ -555,13 +539,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "a"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "a"
                                                     }
                                                   ]
                                                 },
@@ -578,13 +557,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "b"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "b"
                                                     }
                                                   ]
                                                 }

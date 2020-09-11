@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPED_BINDING_PATTERN",
       "hasDiagnostics": true,
       "children": [
@@ -29,33 +20,39 @@
               ]
             },
             {
-              "kind": "LT_TOKEN",
-              "isMissing": true,
+              "kind": "TYPE_PARAMETER",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_LT_TOKEN"
-              ]
-            },
-            {
-              "kind": "INT_TYPE_DESC",
               "children": [
                 {
-                  "kind": "INT_KEYWORD",
-                  "trailingMinutiae": [
+                  "kind": "LT_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_LT_TOKEN"
+                  ]
+                },
+                {
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "INT_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
+                },
+                {
+                  "kind": "GT_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_GT_TOKEN"
+                  ]
                 }
-              ]
-            },
-            {
-              "kind": "GT_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_GT_TOKEN"
               ]
             }
           ]

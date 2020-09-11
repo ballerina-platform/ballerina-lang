@@ -33,8 +33,8 @@ public class ObjectFieldNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
-        return childInBucket(0);
+    public Optional<MetadataNode> metadata() {
+        return optionalChildInBucket(0);
     }
 
     public Optional<Token> visibilityQualifier() {
@@ -53,12 +53,12 @@ public class ObjectFieldNode extends NonTerminalNode {
         return childInBucket(4);
     }
 
-    public Token equalsToken() {
-        return childInBucket(5);
+    public Optional<Token> equalsToken() {
+        return optionalChildInBucket(5);
     }
 
-    public ExpressionNode expression() {
-        return childInBucket(6);
+    public Optional<ExpressionNode> expression() {
+        return optionalChildInBucket(6);
     }
 
     public Token semicolonToken() {
@@ -142,13 +142,13 @@ public class ObjectFieldNode extends NonTerminalNode {
 
         public ObjectFieldNodeModifier(ObjectFieldNode oldNode) {
             this.oldNode = oldNode;
-            this.metadata = oldNode.metadata();
+            this.metadata = oldNode.metadata().orElse(null);
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.readonlyKeyword = oldNode.readonlyKeyword().orElse(null);
             this.typeName = oldNode.typeName();
             this.fieldName = oldNode.fieldName();
-            this.equalsToken = oldNode.equalsToken();
-            this.expression = oldNode.expression();
+            this.equalsToken = oldNode.equalsToken().orElse(null);
+            this.expression = oldNode.expression().orElse(null);
             this.semicolonToken = oldNode.semicolonToken();
         }
 

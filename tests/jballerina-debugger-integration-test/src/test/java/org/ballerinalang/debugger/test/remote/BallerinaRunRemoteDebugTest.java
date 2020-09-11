@@ -32,6 +32,7 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 /**
  * Test class to test positive scenarios of remote debugging ballerina run command.
  */
+@Test(enabled = false)
 public class BallerinaRunRemoteDebugTest extends BaseTestCase {
 
     private BMainInstance balClient;
@@ -41,11 +42,13 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
+        testProjectName = "basic-project";
+        testModuleName = "hello-world";
         projectPath = testProjectBaseDir + File.separator + testProjectName;
         singleFilePath = Paths.get(testSingleFileBaseDir.toString(), testSingleFileName).toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSuspendOnBallerinaModuleRun() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
@@ -55,7 +58,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSuspendOnBallerinaFileRun() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;

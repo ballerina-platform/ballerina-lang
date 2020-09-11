@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerina.tools.text.CharReader;
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
@@ -46,7 +47,6 @@ public class BallerinaLexer extends AbstractLexer {
         STToken token;
         switch (this.mode) {
             case TEMPLATE:
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = readTemplateToken();
                 break;
             case INTERPOLATION:
@@ -66,21 +66,6 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Can we improve this logic by creating the token with diagnostics then and there?
         return cloneWithDiagnostics(token);
-    }
-
-    private STToken nextTokenInternal() {
-        switch (this.mode) {
-            case TEMPLATE:
-                return readTemplateToken();
-            case INTERPOLATION:
-                return readTokenInInterpolation();
-            case INTERPOLATION_BRACED_CONTENT:
-                return readTokenInBracedContentInInterpolation();
-            case DEFAULT:
-            case IMPORT:
-            default:
-                return readToken();
-        }
     }
 
     /*
@@ -302,10 +287,9 @@ public class BallerinaLexer extends AbstractLexer {
             // Other
             default:
                 // Process invalid token as trivia, and continue to next token
-                processInvalidToken();
-
-                // Use the internal method to use the already captured trivia.
-                token = nextTokenInternal();
+                STToken invalidToken = processInvalidToken();
+                token = nextToken();
+                token = SyntaxErrors.addDiagnostic(token, DiagnosticErrorCode.ERROR_INVALID_TOKEN, invalidToken);
                 break;
         }
 
@@ -313,20 +297,20 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     private STToken getSyntaxToken(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
     private STToken getIdentifierToken() {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);
     }
 
     private STToken getLiteral(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
@@ -336,7 +320,6 @@ public class BallerinaLexer extends AbstractLexer {
      * Process leading trivia.
      */
     private void processLeadingTrivia() {
-        this.leadingTriviaList = new ArrayList<>(10);
         processSyntaxTrivia(this.leadingTriviaList, true);
     }
 
@@ -346,7 +329,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Trailing trivia
      */
     private STNode processTrailingTrivia() {
-        List<STNode> triviaList = new ArrayList<>(10);
+        List<STNode> triviaList = new ArrayList<>(INITIAL_TRIVIA_CAPACITY);
         processSyntaxTrivia(triviaList, false);
         return STNodeFactory.createNodeList(triviaList);
     }
@@ -597,7 +580,7 @@ public class BallerinaLexer extends AbstractLexer {
             reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
         }
 
-        return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN);
     }
 
     /**
@@ -647,7 +630,7 @@ public class BallerinaLexer extends AbstractLexer {
                 return parseFloatingPointTypeSuffix();
         }
 
-        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -695,7 +678,7 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         if (isHex) {
-            return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
+            return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN);
         }
 
         switch (nextChar) {
@@ -706,7 +689,7 @@ public class BallerinaLexer extends AbstractLexer {
                 return parseFloatingPointTypeSuffix();
         }
 
-        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -725,7 +708,7 @@ public class BallerinaLexer extends AbstractLexer {
      */
     private STToken parseFloatingPointTypeSuffix() {
         reader.advance();
-        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -784,10 +767,10 @@ public class BallerinaLexer extends AbstractLexer {
             case 'P':
                 return processExponent(true);
             default:
-                return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL);
+                return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL_TOKEN);
         }
 
-        return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
+        return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN);
     }
 
     /**
@@ -1004,7 +987,7 @@ public class BallerinaLexer extends AbstractLexer {
      * Process and returns an invalid token. Consumes the input until {@link #isEndOfInvalidToken()}
      * is reached.
      */
-    private void processInvalidToken() {
+    private STToken processInvalidToken() {
         while (!isEndOfInvalidToken()) {
             reader.advance();
         }
@@ -1013,6 +996,7 @@ public class BallerinaLexer extends AbstractLexer {
         STToken invalidToken = STNodeFactory.createInvalidToken(tokenText);
         STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidToken);
         this.leadingTriviaList.add(invalidNodeMinutiae);
+        return invalidToken;
     }
 
     /**
@@ -1062,7 +1046,6 @@ public class BallerinaLexer extends AbstractLexer {
      * @return <code>true</code>, if the character is an identifier start char. <code>false</code> otherwise.
      */
     private boolean isIdentifierInitialChar(int c) {
-        // TODO: pre-mark all possible characters, using a mask. And use that mask here to check
         if ('A' <= c && c <= 'Z') {
             return true;
         }
@@ -1075,8 +1058,57 @@ public class BallerinaLexer extends AbstractLexer {
             return true;
         }
 
-        // TODO: if (UnicodeIdentifierChar) return false;
-        return false;
+        return isUnicodeIdentifierChar(c);
+    }
+
+    /**
+     * <p>
+     * Check whether a given char is a unicode identifier char.
+     * </p>
+     * <code> UnicodeIdentifierChar := ^ ( AsciiChar | UnicodeNonIdentifierChar ) </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a unicode identifier char. <code>false</code> otherwise.
+     */
+    private boolean isUnicodeIdentifierChar(int c) {
+        // check ASCII char range
+        if (0x0000 <= c && c <= 0x007F) {
+            return false;
+        }
+
+        // check UNICODE private use char
+        if (isUnicodePrivateUseChar(c) || isUnicodePatternWhiteSpaceChar(c)) {
+            return false;
+        }
+
+        // TODO: if (UnicodePatternSyntaxChar) return false
+        return (c != Character.MAX_VALUE);
+    }
+
+    /**
+     * <p>
+     * Check whether a given char is a unicode pattern white space char.
+     * </p>
+     * <code> UnicodePatternWhiteSpaceChar := 0x200E | 0x200F | 0x2028 | 0x2029 </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a unicode pattern white space char. <code>false</code> otherwise.
+     */
+    private boolean isUnicodePatternWhiteSpaceChar(int c) {
+        return (0x200E == c || 0x200F == c || 0x2028 == c || 0x2029 == c);
+    }
+
+    /**
+     * <p>
+     * Check whether a given char is a unicode private use char.
+     * </p>
+     * <code> UnicodePrivateUseChar := 0xE000 .. 0xF8FF | 0xF0000 .. 0xFFFFD | 0x100000 .. 0x10FFFD </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a unicode private use char. <code>false</code> otherwise.
+     */
+    private boolean isUnicodePrivateUseChar(int c) {
+        return (0xE000 <= c && c <= 0xF8FF || 0xF0000 <= c && c <= 0xFFFFD || 0x100000 <= c && c <= 0x10FFFD);
     }
 
     /**
@@ -1207,7 +1239,8 @@ public class BallerinaLexer extends AbstractLexer {
                             }
                             continue;
                         default:
-                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE);
+                            String escapeSequence = String.valueOf((char) this.reader.peek(2));
+                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
                             this.reader.advance();
                             continue;
                     }
@@ -1218,7 +1251,7 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        return getLiteral(SyntaxKind.STRING_LITERAL);
+        return getLiteral(SyntaxKind.STRING_LITERAL_TOKEN);
     }
 
     /**
@@ -1370,7 +1403,7 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0)); // No trailing trivia
         return STNodeFactory.createLiteralValueToken(SyntaxKind.DOCUMENTATION_STRING, lexeme, leadingTrivia,
@@ -1378,7 +1411,7 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     private STToken getBacktickToken() {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         // Trivia after the back-tick including whitespace belongs to the content of the back-tick.
         // Therefore do not process trailing trivia for starting back-tick. We reach here only for
         // starting back-tick. Ending back-tick is processed by the template mode.
@@ -1469,22 +1502,32 @@ public class BallerinaLexer extends AbstractLexer {
                     }
                     continue;
                 default:
-                    // ASCII letters are not allowed
-                    if ('A' <= nextChar && nextChar <= 'Z') {
-                        break;
-                    }
-                    if ('a' <= nextChar && nextChar <= 'z') {
-                        break;
+                    if (!isValidQuotedIdentifierEscapeChar(nextChar)) {
+                        String escapeSequence = String.valueOf((char) nextChar);
+                        reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
                     }
 
                     reader.advance(2);
                     continue;
-                // TODO: UnicodePatternWhiteSpaceChar is also not allowed
             }
             break;
         }
 
         return getIdentifierToken();
+    }
+
+    private boolean isValidQuotedIdentifierEscapeChar(int nextChar) {
+        // ASCII letters are not allowed
+        if ('A' <= nextChar && nextChar <= 'Z') {
+            return false;
+        }
+
+        if ('a' <= nextChar && nextChar <= 'z') {
+            return false;
+        }
+
+        // Unicode pattern white space characters are not allowed
+        return !isUnicodePatternWhiteSpaceChar(nextChar);
     }
 
     private STToken processTokenStartWithGt() {
@@ -1549,7 +1592,7 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     private STToken getSyntaxTokenWithoutTrailingTrivia(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }

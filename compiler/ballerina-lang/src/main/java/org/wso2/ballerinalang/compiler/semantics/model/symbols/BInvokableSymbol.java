@@ -20,10 +20,12 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.InvokableSymbol;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,8 +64,10 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
                             Name name,
                             PackageID pkgID,
                             BType type,
-                            BSymbol owner) {
-        super(flags, name, pkgID, type, owner);
+                            BSymbol owner,
+                            DiagnosticPos pos,
+                            SymbolOrigin origin) {
+        super(flags, name, pkgID, type, owner, pos, origin);
         this.tag = tag;
         this.params = new ArrayList<>();
         this.annAttachments = new ArrayList<>();

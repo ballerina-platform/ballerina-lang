@@ -73,6 +73,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * Helper class to create a clone of it.
  *
@@ -473,7 +476,7 @@ public class ImmutableTypeCloner {
             Name origFieldName = origField.name;
             BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | Flags.READONLY,
                                                              origFieldName, pkgID, immutableFieldType,
-                                                             immutableStructureSymbol);
+                                                             immutableStructureSymbol, origField.pos, SOURCE);
             if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;
@@ -536,14 +539,15 @@ public class ImmutableTypeCloner {
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY,
                                            getImmutableTypeName(names, origRecordType.tsymbol.toString()),
-                                           pkgID, null, env.scope.owner);
+                                           pkgID, null, env.scope.owner, pos, SOURCE);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false);
+                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false,
+                symTable.builtinPos, VIRTUAL);
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
-                                                             bInvokableType);
+                                                             bInvokableType, symTable.builtinPos);
 
         recordSymbol.scope = new Scope(recordSymbol);
         recordSymbol.scope.define(
@@ -588,12 +592,12 @@ public class ImmutableTypeCloner {
         BObjectTypeSymbol objectSymbol =
                 Symbols.createObjectSymbol(origObjectTSymbol.flags | Flags.READONLY,
                                            getImmutableTypeName(names, origObjectTSymbol.toString()),
-                                           pkgID, null, env.scope.owner);
+                                           pkgID, null, env.scope.owner, pos, SOURCE);
 
         objectSymbol.scope = new Scope(objectSymbol);
         objectSymbol.methodScope = new Scope(objectSymbol);
 
-        defineObjectFunctions(objectSymbol, origObjectTSymbol, names);
+        defineObjectFunctions(objectSymbol, origObjectTSymbol, names, symTable);
 
         BObjectType immutableObjectType = new BObjectType(objectSymbol, origObjectType.flags | Flags.READONLY);
 
@@ -629,7 +633,8 @@ public class ImmutableTypeCloner {
     }
 
     public static void defineObjectFunctions(BObjectTypeSymbol immutableObjectSymbol,
-                                             BObjectTypeSymbol originalObjectSymbol, Names names) {
+                                             BObjectTypeSymbol originalObjectSymbol, Names names,
+                                             SymbolTable symTable) {
         List<BAttachedFunction> originalObjectAttachedFuncs = originalObjectSymbol.attachedFuncs;
         List<BAttachedFunction> immutableObjectAttachedFuncs = immutableObjectSymbol.attachedFuncs;
 
@@ -644,9 +649,10 @@ public class ImmutableTypeCloner {
                                                                                origFunc.funcName.value));
             BInvokableSymbol immutableFuncSymbol =
                     ASTBuilderUtil.duplicateFunctionDeclarationSymbol(origFunc.symbol, immutableObjectSymbol,
-                                                                      funcName, immutableObjectSymbol.pkgID);
+                                                                      funcName, immutableObjectSymbol.pkgID,
+                                                                      symTable.builtinPos, VIRTUAL);
             immutableFuncs.add(new BAttachedFunction(origFunc.funcName, immutableFuncSymbol,
-                                                     (BInvokableType) immutableFuncSymbol.type));
+                                                     (BInvokableType) immutableFuncSymbol.type, symTable.builtinPos));
             immutableObjectSymbol.methodScope.define(funcName, immutableFuncSymbol);
         }
         immutableObjectSymbol.attachedFuncs = immutableFuncs;
@@ -660,12 +666,13 @@ public class ImmutableTypeCloner {
 
         if (env == null) {
             return Symbols.createTypeSymbol(originalTSymbol.tag, originalTSymbol.flags | Flags.READONLY,
-                                            getImmutableTypeName(names, originalTSymbol), pkgId, null, owner);
+                                            getImmutableTypeName(names, originalTSymbol), pkgId, null, owner,
+                                            originalTSymbol.pos, SOURCE);
         }
 
         return Symbols.createTypeSymbol(originalTSymbol.tag, originalTSymbol.flags | Flags.READONLY,
                                         getImmutableTypeName(names, originalTSymbol), env.enclPkg.symbol.pkgID, null,
-                                        env.scope.owner);
+                                        env.scope.owner, originalTSymbol.pos, SOURCE);
     }
 
     private static Name getImmutableTypeName(Names names, BTypeSymbol originalTSymbol) {
@@ -688,7 +695,8 @@ public class ImmutableTypeCloner {
         BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
                                                                       Flags.asMask(EnumSet.of(Flag.PUBLIC,
                                                                                               Flag.READONLY)),
-                                                                      Names.EMPTY, pkgId, null, owner);
+                                                                      Names.EMPTY, pkgId, null, owner,
+                                                                      symTable.builtinPos, VIRTUAL);
 
         LinkedHashSet<BType> constituentTypes = new LinkedHashSet<BType>() {{
             add(nonReadOnlyType);

@@ -18,31 +18,30 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.mime.util.EntityHeaderHandler;
+import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
-import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.PARSER_ERROR;
 import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
@@ -50,87 +49,64 @@ import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
  *
  * @since 1.1.0
  */
-public class MimeDataSourceBuilder extends AbstractGetPayloadHandler {
+public abstract class MimeDataSourceBuilder {
 
     public static Object getByteArray(ObjectValue entityObj) {
-        NonBlockingCallback callback = null;
-        ArrayValue result = null;
         try {
             Object messageDataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (messageDataSource != null) {
-                if (messageDataSource instanceof ArrayValue) {
-                    result = (ArrayValue) messageDataSource;
-                } else {
-                    String contentTypeValue = HeaderUtil.getHeaderValue(entityObj,
-                                                                        HttpHeaderNames.CONTENT_TYPE.toString());
-                    if (isNotNullAndEmpty(contentTypeValue)) {
-                        String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
-                        if (isNotNullAndEmpty(charsetValue)) {
-                            result = new ArrayValueImpl(StringUtils.getJsonString(messageDataSource)
-                                                                .getBytes(charsetValue));
-                        } else {
-                            result = new ArrayValueImpl(StringUtils.getJsonString(messageDataSource)
-                                                                .getBytes(Charset.defaultCharset()));
-                        }
-                    }
-                }
-                return result != null ? result : new ArrayValueImpl(new byte[0]);
+                return getAlreadyBuiltByteArray(entityObj, messageDataSource);
             }
-
-            Object transportMessage = entityObj.getNativeData(TRANSPORT_MESSAGE);
-            if (isStreamingRequired(entityObj) || transportMessage == null) {
-                result = EntityBodyHandler.constructBlobDataSource(entityObj);
-                updateDataSource(entityObj, result);
-            } else {
-                callback = new NonBlockingCallback(Scheduler.getStrand());
-                constructNonBlockingDataSource(callback, entityObj, SourceType.BLOB);
-            }
+            ArrayValue result = EntityBodyHandler.constructBlobDataSource(entityObj);
+            updateDataSource(entityObj, result);
+            return result;
         } catch (Exception ex) {
-            if (ex instanceof ErrorValue) {
-                return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                                                   "Error occurred while extracting blob data from " +
-                                                                           "entity", (ErrorValue) ex);
-            }
-            createParsingEntityBodyFailedErrorAndNotify(callback,
-                                                        "Error occurred while extracting blob data from entity : " +
-                                                                getErrorMsg(ex), null);
+            return createError(ex, "blob");
         }
-        return result;
+    }
+
+    protected static Object getAlreadyBuiltByteArray(ObjectValue entityObj, Object messageDataSource)
+            throws UnsupportedEncodingException {
+        if (messageDataSource instanceof ArrayValue) {
+            return messageDataSource;
+        }
+        String contentTypeValue = EntityHeaderHandler.getHeaderValue(entityObj, MimeConstants.CONTENT_TYPE);
+        if (isNotNullAndEmpty(contentTypeValue)) {
+            String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+            if (isNotNullAndEmpty(charsetValue)) {
+                return BValueCreator.createArrayValue(
+                        StringUtils.getJsonString(messageDataSource).getBytes(charsetValue));
+            }
+            return BValueCreator.createArrayValue(
+                    StringUtils.getJsonString(messageDataSource).getBytes(Charset.defaultCharset()));
+        }
+        return BValueCreator.createArrayValue(new byte[0]);
     }
 
     public static Object getJson(ObjectValue entityObj) {
-        NonBlockingCallback callback = null;
-        RefValue result = null;
+        RefValue result;
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                // If the value is already a JSON, then return as it is.
-                if (isJSON(dataSource)) {
-                    result = (RefValue) dataSource;
-                } else {
-                    // Else, build the JSON from the string representation of the payload.
-                    String payload = MimeUtil.getMessageAsString(dataSource);
-                    result = (RefValue) JSONParser.parse(payload);
-                }
-                return result;
+                return getAlreadyBuiltJson(dataSource);
             }
-
-            if (isStreamingRequired(entityObj)) {
-                result = (RefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
-                updateJsonDataSource(entityObj, result);
-            } else {
-                callback = new NonBlockingCallback(Scheduler.getStrand());
-                constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
-            }
+            result = (RefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
+            updateJsonDataSource(entityObj, result);
+            return result;
         } catch (Exception ex) {
-            if (ex instanceof ErrorValue) {
-                return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                                                   "Error occurred while extracting json data from " +
-                                                                           "entity", (ErrorValue) ex);
-            }
-            return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                                               "Error occurred while extracting json data from " +
-                                                                       "entity: " + getErrorMsg(ex), null);
+            return createError(ex, "json");
+        }
+    }
+
+    protected static Object getAlreadyBuiltJson(Object dataSource) {
+        // If the value is already a JSON, then return as it is.
+        RefValue result;
+        if (isJSON(dataSource)) {
+            result = (RefValue) dataSource;
+        } else {
+            // Else, build the JSON from the string representation of the payload.
+            String payload = MimeUtil.getMessageAsString(dataSource);
+            result = (RefValue) JSONParser.parse(payload);
         }
         return result;
     }
@@ -143,68 +119,69 @@ public class MimeDataSourceBuilder extends AbstractGetPayloadHandler {
     }
 
     public static Object getText(ObjectValue entityObj) {
-        NonBlockingCallback callback = null;
-        BString result = null;
+        BString result;
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
                 return org.ballerinalang.jvm.StringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
             }
-
-            if (isStreamingRequired(entityObj)) {
-                result = EntityBodyHandler.constructStringDataSource(entityObj);
-                updateDataSource(entityObj, result);
-            } else {
-                callback = new NonBlockingCallback(Scheduler.getStrand());
-                constructNonBlockingDataSource(callback, entityObj, SourceType.TEXT);
-            }
+            result = EntityBodyHandler.constructStringDataSource(entityObj);
+            updateDataSource(entityObj, result);
+            return result;
         } catch (Exception ex) {
-            if (ex instanceof ErrorValue) {
-                return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                                                   "Error occurred while extracting text data from " +
-                                                                           "entity",
-                                                                   (ErrorValue) ex);
-            }
-            return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                                               "Error occurred while extracting text data from entity" +
-                                                                       " : " + getErrorMsg(ex), null);
+            return createError(ex, "text");
         }
-        return result;
     }
 
     public static Object getXml(ObjectValue entityObj) {
-        NonBlockingCallback callback = null;
-        XMLValue result = null;
+        XMLValue result;
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                if (dataSource instanceof XMLValue) {
-                    result = (XMLValue) dataSource;
-                } else {
-                    // Build the XML from string representation of the payload.
-                    String payload = MimeUtil.getMessageAsString(dataSource);
-                    result = XMLFactory.parse(payload);
-                }
-                return result;
+                return getAlreadyBuiltXml(dataSource);
             }
+            result = EntityBodyHandler.constructXmlDataSource(entityObj);
+            updateDataSource(entityObj, result);
+            return result;
 
-            if (isStreamingRequired(entityObj)) {
-                result = EntityBodyHandler.constructXmlDataSource(entityObj);
-                updateDataSource(entityObj, result);
-            } else {
-                callback = new NonBlockingCallback(Scheduler.getStrand());
-                constructNonBlockingDataSource(callback, entityObj, SourceType.XML);
-            }
         } catch (Exception ex) {
-            if (ex instanceof ErrorValue) {
-                return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                                                   "Error occurred while extracting xml data from " +
-                                                                           "entity", (ErrorValue) ex);
-            }
-            return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                                               "Error occurred while extracting xml data from entity " +
-                                                                       ": " + getErrorMsg(ex), null);
+            return createError(ex, "xml");
         }
-        return result;
+    }
+
+    protected static Object getAlreadyBuiltXml(Object dataSource) {
+        if (dataSource instanceof XMLValue) {
+            return dataSource;
+        }
+        // Build the XML from string representation of the payload.
+        String payload = MimeUtil.getMessageAsString(dataSource);
+        return XMLFactory.parse(payload);
+    }
+
+    protected static void updateDataSource(ObjectValue entityObj, Object result) {
+        EntityBodyHandler.addMessageDataSource(entityObj, result);
+        removeByteChannel(entityObj);
+    }
+
+    protected static void updateJsonDataSource(ObjectValue entityObj, Object result) {
+        EntityBodyHandler.addJsonMessageDataSource(entityObj, result);
+        removeByteChannel(entityObj);
+    }
+
+    private static void removeByteChannel(ObjectValue entityObj) {
+        //Set byte channel to null, once the message data source has been constructed
+        entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
+    }
+
+    protected static Object createError(Exception ex, String type) {
+        String message = "Error occurred while extracting " + type + " data from entity";
+        if (ex instanceof ErrorValue) {
+            return MimeUtil.createError(PARSER_ERROR, message, (ErrorValue) ex);
+        }
+        return MimeUtil.createError(PARSER_ERROR, message + ": " + getErrorMsg(ex), null);
+    }
+
+    protected static String getErrorMsg(Throwable err) {
+        return err instanceof ErrorValue ? err.toString() : err.getMessage();
     }
 }

@@ -62,22 +62,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "error ${1:name} = error(\"${2:errorCode}\", message = \"${3}\");",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Event",
-      "detail": "error",
-      "sortText": "200",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -899,29 +883,6 @@
             }
           },
           "newText": "import ballerina/transactions;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/nats",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "nats",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/nats;\n"
         }
       ]
     },

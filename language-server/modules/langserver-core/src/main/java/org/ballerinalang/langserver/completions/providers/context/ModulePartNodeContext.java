@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,27 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.text.LinePosition;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.SnippetBlock;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.CompletionUtil;
-import org.eclipse.lsp4j.Position;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Predicate;
+
+import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
 
 /**
  * Completion provider for {@link ModulePartNode} context.
@@ -43,43 +46,60 @@ import java.util.Optional;
 public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePartNode> {
 
     public ModulePartNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ModulePartNode.class);
+        super(ModulePartNode.class);
     }
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ModulePartNode node) {
-        Optional<Node> routeToChild = this.routeToChild(context, node);
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (routeToChild.isPresent()) {
-            try {
-                return CompletionUtil.route(context, routeToChild.get());
-            } catch (LSCompletionException e) {
-                // ignore
-            }
-        } else {
-            List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-            completionItems.addAll(addTopLevelItems(context));
-            completionItems.addAll(getBasicTypesItems(context, visibleSymbols));
-            completionItems.addAll(this.getPackagesCompletionItems(context));
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            Predicate<Scope.ScopeEntry> predicate = scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol;
+            List<Scope.ScopeEntry> types = QNameReferenceUtil.getModuleContent(context,
+                    (QualifiedNameReferenceNode) nodeAtCursor, predicate);
+            return this.getCompletionItemList(types, context);
         }
+
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        completionItems.addAll(addTopLevelItems(context));
+        completionItems.addAll(this.getTypeItems(context));
+        completionItems.addAll(this.getPackagesCompletionItems(context));
+        this.sort(context, node, completionItems);
+
         return completionItems;
     }
-    
-    private Optional<Node> routeToChild(LSContext context, ModulePartNode modulePartNode) {
-        for (ModuleMemberDeclarationNode member : modulePartNode.members()) {
-            Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-            LinePosition endLine = member.lineRange().endLine();
-            LinePosition startLine = member.lineRange().startLine();
 
-            if (cursor.getLine() < startLine.line()
-                    || (cursor.getLine() == startLine.line() && cursor.getCharacter() <= startLine.offset())) {
-                return Optional.empty();
-            } else if (cursor.getLine() == endLine.line() && cursor.getCharacter() <= endLine.offset()) {
-                return Optional.of(member);
+    @Override
+    public void sort(LSContext context, ModulePartNode node, List<LSCompletionItem> items, Object... metaData) {
+        for (LSCompletionItem item : items) {
+            CompletionItem cItem = item.getCompletionItem();
+            if (this.isSnippetBlock(item)) {
+                cItem.setSortText(genSortText(1));
+                continue;
             }
+            if (this.isKeyword(item)) {
+                cItem.setSortText(genSortText(2));
+                continue;
+            }
+            if (SortingUtil.isModuleCompletionItem(item)) {
+                cItem.setSortText(genSortText(3));
+                continue;
+            }
+            if (SortingUtil.isTypeCompletionItem(item)) {
+                cItem.setSortText(genSortText(4));
+                continue;
+            }
+            cItem.setSortText(genSortText(5));
         }
-        
-        return Optional.empty();
+    }
+    
+    private boolean isSnippetBlock(LSCompletionItem completionItem) {
+        return completionItem instanceof SnippetCompletionItem
+                && (((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.SNIPPET
+                || ((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.STATEMENT);
+    }
+    
+    private boolean isKeyword(LSCompletionItem completionItem) {
+        return completionItem instanceof SnippetCompletionItem
+                && ((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.KEYWORD;
     }
 }

@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,8 +33,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
-        return childInBucket(0);
+    public Optional<MetadataNode> metadata() {
+        return optionalChildInBucket(0);
     }
 
     public Token serviceKeyword() {
@@ -48,8 +49,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(3);
     }
 
-    public NodeList<ExpressionNode> expressions() {
-        return new NodeList<>(childInBucket(4));
+    public SeparatedNodeList<ExpressionNode> expressions() {
+        return new SeparatedNodeList<>(childInBucket(4));
     }
 
     public Node serviceBody() {
@@ -82,7 +83,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             Token serviceKeyword,
             IdentifierToken serviceName,
             Token onKeyword,
-            NodeList<ExpressionNode> expressions,
+            SeparatedNodeList<ExpressionNode> expressions,
             Node serviceBody) {
         if (checkForReferenceEquality(
                 metadata,
@@ -118,12 +119,12 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         private Token serviceKeyword;
         private IdentifierToken serviceName;
         private Token onKeyword;
-        private NodeList<ExpressionNode> expressions;
+        private SeparatedNodeList<ExpressionNode> expressions;
         private Node serviceBody;
 
         public ServiceDeclarationNodeModifier(ServiceDeclarationNode oldNode) {
             this.oldNode = oldNode;
-            this.metadata = oldNode.metadata();
+            this.metadata = oldNode.metadata().orElse(null);
             this.serviceKeyword = oldNode.serviceKeyword();
             this.serviceName = oldNode.serviceName();
             this.onKeyword = oldNode.onKeyword();
@@ -160,7 +161,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         }
 
         public ServiceDeclarationNodeModifier withExpressions(
-                NodeList<ExpressionNode> expressions) {
+                SeparatedNodeList<ExpressionNode> expressions) {
             Objects.requireNonNull(expressions, "expressions must not be null");
             this.expressions = expressions;
             return this;

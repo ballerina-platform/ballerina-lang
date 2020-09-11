@@ -31,26 +31,20 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STDefaultableParameterNode extends STParameterNode {
-    public final STNode leadingComma;
     public final STNode annotations;
-    public final STNode visibilityQualifier;
     public final STNode typeName;
     public final STNode paramName;
     public final STNode equalsToken;
     public final STNode expression;
 
     STDefaultableParameterNode(
-            STNode leadingComma,
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName,
             STNode equalsToken,
             STNode expression) {
         this(
-                leadingComma,
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -59,27 +53,21 @@ public class STDefaultableParameterNode extends STParameterNode {
     }
 
     STDefaultableParameterNode(
-            STNode leadingComma,
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName,
             STNode equalsToken,
             STNode expression,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.DEFAULTABLE_PARAM, diagnostics);
-        this.leadingComma = leadingComma;
         this.annotations = annotations;
-        this.visibilityQualifier = visibilityQualifier;
         this.typeName = typeName;
         this.paramName = paramName;
         this.equalsToken = equalsToken;
         this.expression = expression;
 
         addChildren(
-                leadingComma,
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -88,9 +76,7 @@ public class STDefaultableParameterNode extends STParameterNode {
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STDefaultableParameterNode(
-                this.leadingComma,
                 this.annotations,
-                this.visibilityQualifier,
                 this.typeName,
                 this.paramName,
                 this.equalsToken,
@@ -99,17 +85,13 @@ public class STDefaultableParameterNode extends STParameterNode {
     }
 
     public STDefaultableParameterNode modify(
-            STNode leadingComma,
             STNode annotations,
-            STNode visibilityQualifier,
             STNode typeName,
             STNode paramName,
             STNode equalsToken,
             STNode expression) {
         if (checkForReferenceEquality(
-                leadingComma,
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -118,9 +100,7 @@ public class STDefaultableParameterNode extends STParameterNode {
         }
 
         return new STDefaultableParameterNode(
-                leadingComma,
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,

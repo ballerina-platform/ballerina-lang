@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.hover.HoverUtil;
@@ -90,9 +89,9 @@ public class ReferencesUtil {
     /**
      * Get the rename workspace edits.
      *
-     * @param context Language server context
-     * @param newName New name to replace
-     * @param position  cursor position
+     * @param context  Language server context
+     * @param newName  New name to replace
+     * @param position cursor position
      * @return {@link WorkspaceEdit}    Rename workspace edit
      * @throws WorkspaceDocumentException when couldn't find file for uri
      * @throws CompilationFailedException when compilation failed
@@ -132,7 +131,7 @@ public class ReferencesUtil {
     /**
      * Get the hover content.
      *
-     * @param context Hover operation context
+     * @param context        Hover operation context
      * @param cursorPosition Cursor position
      * @return {@link Hover} Hover content
      * @throws WorkspaceDocumentException when couldn't find file for uri
@@ -163,10 +162,8 @@ public class ReferencesUtil {
         }
         Path compilationPath = getUntitledFilePath(defFilePath.toString()).orElse(defFilePath.get());
         Optional<Lock> lock = docManager.lockFile(compilationPath);
-        Class<LSCustomErrorStrategy> errStrategy = LSCustomErrorStrategy.class;
         try {
-            return LSModuleCompiler.getBLangPackages(context, docManager, errStrategy, compileProject, false, false,
-                                                     true);
+            return LSModuleCompiler.getBLangPackages(context, docManager, null, compileProject, false, false, true);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -191,8 +188,8 @@ public class ReferencesUtil {
                 // Possible Reference tokens found within the cUnit
                 String symbolPkgName = bLangPackage.symbol.getName().value;
                 SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context,
-                                                                                             tokenAtCursor,
-                                                                                             symbolPkgName);
+                        tokenAtCursor,
+                        symbolPkgName);
                 SymbolReferencesModel symbolReferencesModel = refVisitor.accept(compilationUnit);
                 referencesModel.getDefinitions().addAll(symbolReferencesModel.getDefinitions());
                 referencesModel.getReferences().addAll(symbolReferencesModel.getReferences());
@@ -229,7 +226,7 @@ public class ReferencesUtil {
         }
 
         SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context, tokenAtCursor,
-                                                                                     currentPkgName, true);
+                currentPkgName, true);
         SymbolReferencesModel symbolReferencesModel = refVisitor.accept(currentCUnit.get());
 
         // Prune the found symbol references

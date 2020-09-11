@@ -6,19 +6,24 @@
   "source": "statement_context/source/sync_send_action_ctx_source1.bal",
   "items": [
     {
-      "label": "fs2",
+      "label": "w1",
       "kind": "Variable",
-      "detail": "future<string>",
-      "sortText": "130",
-      "insertText": "fs2",
+      "detail": "future<()>",
+      "insertText": "w1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fs",
+      "label": "w2",
       "kind": "Variable",
-      "detail": "future<string>",
-      "sortText": "130",
-      "insertText": "fs",
+      "detail": "future<()>",
+      "insertText": "w2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "default",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "default",
       "insertTextFormat": "Snippet"
     }
   ]

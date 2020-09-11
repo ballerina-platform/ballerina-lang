@@ -195,20 +195,12 @@ public abstract class NodeVisitor {
         visitSyntaxNode(restParameterNode);
     }
 
-    public void visit(ExpressionListItemNode expressionListItemNode) {
-        visitSyntaxNode(expressionListItemNode);
-    }
-
     public void visit(ImportOrgNameNode importOrgNameNode) {
         visitSyntaxNode(importOrgNameNode);
     }
 
     public void visit(ImportPrefixNode importPrefixNode) {
         visitSyntaxNode(importPrefixNode);
-    }
-
-    public void visit(ImportSubVersionNode importSubVersionNode) {
-        visitSyntaxNode(importSubVersionNode);
     }
 
     public void visit(ImportVersionNode importVersionNode) {
@@ -527,6 +519,22 @@ public abstract class NodeVisitor {
         visitSyntaxNode(letClauseNode);
     }
 
+    public void visit(JoinClauseNode joinClauseNode) {
+        visitSyntaxNode(joinClauseNode);
+    }
+
+    public void visit(OnClauseNode onClauseNode) {
+        visitSyntaxNode(onClauseNode);
+    }
+
+    public void visit(LimitClauseNode limitClauseNode) {
+        visitSyntaxNode(limitClauseNode);
+    }
+
+    public void visit(OnConflictClauseNode onConflictClauseNode) {
+        visitSyntaxNode(onConflictClauseNode);
+    }
+
     public void visit(QueryPipelineNode queryPipelineNode) {
         visitSyntaxNode(queryPipelineNode);
     }
@@ -537,6 +545,10 @@ public abstract class NodeVisitor {
 
     public void visit(QueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
+    }
+
+    public void visit(QueryActionNode queryActionNode) {
+        visitSyntaxNode(queryActionNode);
     }
 
     public void visit(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
@@ -599,8 +611,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(restBindingPatternNode);
     }
 
-    public void visit(FunctionalBindingPatternNode functionalBindingPatternNode) {
-        visitSyntaxNode(functionalBindingPatternNode);
+    public void visit(ErrorBindingPatternNode errorBindingPatternNode) {
+        visitSyntaxNode(errorBindingPatternNode);
     }
 
     public void visit(NamedArgBindingPatternNode namedArgBindingPatternNode) {
@@ -649,10 +661,6 @@ public abstract class NodeVisitor {
 
     public void visit(AnnotAccessExpressionNode annotAccessExpressionNode) {
         visitSyntaxNode(annotAccessExpressionNode);
-    }
-
-    public void visit(QueryActionNode queryActionNode) {
-        visitSyntaxNode(queryActionNode);
     }
 
     public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
@@ -735,28 +743,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(matchGuardNode);
     }
 
-    public void visit(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        visitSyntaxNode(objectMethodDefinitionNode);
-    }
-
     public void visit(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         visitSyntaxNode(distinctTypeDescriptorNode);
-    }
-
-    public void visit(OnConflictClauseNode onConflictClauseNode) {
-        visitSyntaxNode(onConflictClauseNode);
-    }
-
-    public void visit(LimitClauseNode limitClauseNode) {
-        visitSyntaxNode(limitClauseNode);
-    }
-
-    public void visit(JoinClauseNode joinClauseNode) {
-        visitSyntaxNode(joinClauseNode);
-    }
-
-    public void visit(OnClauseNode onClauseNode) {
-        visitSyntaxNode(onClauseNode);
     }
 
     public void visit(ListMatchPatternNode listMatchPatternNode) {

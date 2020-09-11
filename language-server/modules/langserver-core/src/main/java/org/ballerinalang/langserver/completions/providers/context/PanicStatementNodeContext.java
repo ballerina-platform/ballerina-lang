@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class PanicStatementNodeContext extends AbstractCompletionProvider<PanicStatementNode> {
+    
     public PanicStatementNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(PanicStatementNode.class);
+        super(PanicStatementNode.class);
     }
 
     @Override

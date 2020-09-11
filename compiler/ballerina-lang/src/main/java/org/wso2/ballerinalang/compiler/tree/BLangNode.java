@@ -46,6 +46,11 @@ public abstract class BLangNode implements Node {
     public boolean constantPropagated;
 
     /**
+     * Indicates whether this node is part of how a construct in the source code is modeled internally.
+     */
+    public boolean internal;
+
+    /**
      * The position of this node in the source file.
      */
     public DiagnosticPos pos;

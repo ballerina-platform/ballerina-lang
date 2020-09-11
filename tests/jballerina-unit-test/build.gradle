@@ -36,10 +36,7 @@ dependencies {
     implementation project(':ballerina-http')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-java')
-    implementation project(':ballerina-java-arrays')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-jsonutils')
-    implementation project(':ballerina-xmlutils')
     implementation project(':docerina')
 
     implementation 'com.h2database:h2'
@@ -66,7 +63,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-email', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
@@ -74,15 +70,10 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-java-arrays', configuration: 'baloImplementation')
-    // baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 }
 
