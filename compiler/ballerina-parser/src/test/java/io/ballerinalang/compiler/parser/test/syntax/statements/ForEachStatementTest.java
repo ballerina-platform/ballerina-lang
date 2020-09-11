@@ -171,4 +171,9 @@ public class ForEachStatementTest extends AbstractStatementTest {
         testFile("forEach-stmt/forEach_stmt_source_23.bal",
                 "forEach-stmt/forEach_stmt_assert_23.json");
     }
+
+    @Test
+    public void testForEachOnFailClauseRecovery() {
+        testFile("forEach-stmt/forEach_stmt_source_25.bal", "forEach-stmt/forEach_stmt_assert_25.json");
+    }
 }

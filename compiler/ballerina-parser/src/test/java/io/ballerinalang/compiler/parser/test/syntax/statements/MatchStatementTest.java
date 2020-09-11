@@ -99,4 +99,9 @@ public class MatchStatementTest extends AbstractStatementTest {
     public void testMatchStmtRecoveryInvalidFunctionalMatchPatterns() {
         testFile("match-stmt/match_stmt_source_13.bal", "match-stmt/match_stmt_assert_13.json");
     }
+
+    @Test
+    public void testMatchStatementOnFailClauseRecovery() {
+        testFile("match-stmt/match_stmt_source_15.bal", "match-stmt/match_stmt_assert_15.json");
+    }
 }

@@ -40,4 +40,22 @@ public class DoStatementTest extends AbstractStatementTest {
     public void testDoWithOnFailClause() {
         testFile("do-stmt/do_stmt_source_03.bal", "do-stmt/do_stmt_assert_03.json");
     }
+
+    // Recovery test
+
+    @Test
+    public void testDoWithMissingOpenCloseBraces() {
+        testFile("do-stmt/do_stmt_source_04.bal", "do-stmt/do_stmt_assert_04.json");
+        testFile("do-stmt/do_stmt_source_05.bal", "do-stmt/do_stmt_assert_05.json");
+    }
+
+    @Test
+    public void testDoOnFailClauseRecovery() {
+        testFile("do-stmt/do_stmt_source_06.bal", "do-stmt/do_stmt_assert_06.json");
+    }
+
+    @Test
+    public void testDoWithMissingDoKeyword() {
+        testFile("do-stmt/do_stmt_source_07.bal", "do-stmt/do_stmt_assert_07.json");
+    }
 }
