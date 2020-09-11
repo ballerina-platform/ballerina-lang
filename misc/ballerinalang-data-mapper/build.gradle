@@ -52,9 +52,6 @@ dependencies {
     implementation project(':ballerina-tool')
 
     implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
-    implementation 'org.mockito:mockito-all:1.10.19'
-    implementation 'org.powermock:powermock-mockito-release-full:1.6.4'
-    implementation 'org.powermock:powermock-module-testng-common:1.6.4'
 
     compile 'com.fasterxml.jackson.core:jackson-databind:2.1.2'
 
