@@ -21,6 +21,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMCommentImpl;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BLink;
 
 import java.util.Map;
 import java.util.Objects;
@@ -75,12 +76,12 @@ public class XMLComment extends XMLNonElementItem {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         return "<!--" + data + "-->";
     }
 
     @Override
-    public String informalStringValue() {
+    public String informalStringValue(BLink parent) {
         return "`" + toString() + "`";
     }
 

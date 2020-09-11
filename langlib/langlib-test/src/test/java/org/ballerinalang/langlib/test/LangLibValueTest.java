@@ -91,6 +91,11 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testToStringOnCycles() {
+        BRunUtil.invokeFunction(compileResult, "testToStringOnCycles");
+    }
+
+    @Test
     public void testFromJsonString() {
 
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonString");

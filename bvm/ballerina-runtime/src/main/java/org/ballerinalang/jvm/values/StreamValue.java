@@ -18,9 +18,11 @@
 
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BStream;
 
 import java.util.Map;
@@ -82,8 +84,9 @@ public class StreamValue implements RefValue, BStream {
 
     /**
      * {@inheritDoc}
+     * @param parent
      */
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         return "stream <" + getType().toString() + ">";
     }
 
@@ -110,6 +113,6 @@ public class StreamValue implements RefValue, BStream {
 
     @Override
     public String toString() {
-        return stringValue();
+        return stringValue(null);
     }
 }

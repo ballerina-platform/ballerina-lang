@@ -18,8 +18,8 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValue;
 
@@ -76,22 +77,24 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
+        CycleUtils.Node errParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
             return "error " + getModuleName() + " (message=" + message.getValue() + ")";
         }
-        return "error " + getModuleName() + " (message=" + message.getValue() + getCauseToString() + getDetailsToString() + ")";
+        return "error " + getModuleName() + " (message=" + message.getValue() + getCauseToString(errParent) +
+                getDetailsToString(errParent) + ")";
     }
 
-    private String getCauseToString() {
+    private String getCauseToString(BLink parent) {
         if (cause != null) {
-            return ", cause=" + ((BValue) cause).informalStringValue();
+            return ", cause=" + cause.informalStringValue(parent);
         }
         return "";
     }
 
-    private String getDetailsToString() {
-        return ", detail=" + ((BValue) details).informalStringValue();
+    private String getDetailsToString(BLink parent) {
+        return ", detail=" + ((BValue) details).informalStringValue(parent);
     }
 
     private String getModuleName() {
@@ -126,7 +129,7 @@ public class ErrorValue extends BError implements RefValue {
 
     @Override
     public String toString() {
-        return stringValue();
+        return stringValue(null);
     }
 
     /**

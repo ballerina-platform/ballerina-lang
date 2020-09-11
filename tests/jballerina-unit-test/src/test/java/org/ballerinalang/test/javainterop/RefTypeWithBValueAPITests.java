@@ -489,7 +489,7 @@ public class RefTypeWithBValueAPITests {
 
     public static org.ballerinalang.jvm.values.api.BString useTypeDesc(
             org.ballerinalang.jvm.values.api.BTypedesc type) {
-        return StringUtils.fromString(type.stringValue());
+        return StringUtils.fromString(type.stringValue(null));
     }
 
     public static org.ballerinalang.jvm.values.api.BTypedesc getTypeDesc() {
