@@ -22,9 +22,9 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
@@ -71,7 +71,7 @@ public class BrokerConnection {
      * @param duration       Duration in milliseconds to try the operation.
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
-    public static Object close(ObjectValue consumerObject, long duration) {
+    public static Object close(BObject consumerObject, long duration) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
@@ -101,7 +101,7 @@ public class BrokerConnection {
      * @return {@code ErrorValue}, if there's an error, null otherwise.
      */
     @SuppressWarnings(UNCHECKED)
-    public static Object connect(ObjectValue consumerObject) {
+    public static Object connect(BObject consumerObject) {
         // Check whether already native consumer is attached to the struct.
         // This can be happen either from Kafka service or via programmatically.
         if (Objects.nonNull(consumerObject.getNativeData(NATIVE_CONSUMER))) {
@@ -110,7 +110,7 @@ public class BrokerConnection {
                     "Kafka consumer is already connected to external broker. Please close it before re-connecting " +
                             "the external broker again.", CONSUMER_ERROR);
         }
-        MapValue<BString, Object> configs = consumerObject.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
+        BMap<BString, Object> configs = consumerObject.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         Properties consumerProperties = processKafkaConsumerConfig(configs);
         try {
             KafkaConsumer kafkaConsumer = new KafkaConsumer<>(consumerProperties);
@@ -134,7 +134,7 @@ public class BrokerConnection {
      * @param topicPartitions Topic Partitions which needed to be paused.
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
-    public static Object pause(ObjectValue consumerObject, BArray topicPartitions) {
+    public static Object pause(BObject consumerObject, BArray topicPartitions) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
@@ -156,7 +156,7 @@ public class BrokerConnection {
      * @param topicPartitions Topic Partitions which are currently paused and needed to be resumed.
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
-    public static Object resume(ObjectValue consumerObject, BArray topicPartitions) {
+    public static Object resume(BObject consumerObject, BArray topicPartitions) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);

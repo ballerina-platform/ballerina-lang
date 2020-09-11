@@ -18,7 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.service;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.messaging.kafka.exceptions.KafkaConnectorException;
 import org.ballerinalang.messaging.kafka.impl.KafkaServerConnectorImpl;
 import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
@@ -35,7 +35,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERVICE_STA
 public class Start {
     private static final PrintStream console = System.out;
 
-    public static Object start(ObjectValue listener) {
+    public static Object start(BObject listener) {
         KafkaServerConnectorImpl serverConnector = (KafkaServerConnectorImpl) listener.getNativeData(SERVER_CONNECTOR);
         try {
             serverConnector.start();

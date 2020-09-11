@@ -23,8 +23,8 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
 import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
@@ -49,7 +49,7 @@ public class SendAvroKeys {
     private static final Logger logger = LoggerFactory.getLogger(SendAvroKeys.class);
 
     // String and AvroRecord
-    public static Object sendStringValuesAvroKeys(ObjectValue producer, BString value, BString topic,
+    public static Object sendStringValuesAvroKeys(BObject producer, BString value, BString topic,
                                                   MapValue<BString, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -61,7 +61,7 @@ public class SendAvroKeys {
     }
 
     // ballerina int and AvroRecord
-    public static Object sendIntValuesAvroKeys(ObjectValue producer, long value, BString topic,
+    public static Object sendIntValuesAvroKeys(BObject producer, long value, BString topic,
                                                MapValue<BString, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -72,7 +72,7 @@ public class SendAvroKeys {
     }
 
     // ballerina float and AvroRecord
-    public static Object sendFloatValuesAvroKeys(ObjectValue producer, double value, BString topic,
+    public static Object sendFloatValuesAvroKeys(BObject producer, double value, BString topic,
                                                  MapValue<BString, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -83,7 +83,7 @@ public class SendAvroKeys {
     }
 
     // ballerina byte[] and AvroRecord
-    public static Object sendByteArrayValuesAvroKeys(ObjectValue producer, BArray value, BString topic,
+    public static Object sendByteArrayValuesAvroKeys(BObject producer, BArray value, BString topic,
                                                      MapValue<BString, Object> key, Object partition,
                                                      Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
@@ -96,7 +96,7 @@ public class SendAvroKeys {
     }
 
     // ballerina AvroRecord and AvroRecord
-    public static Object sendAvroValuesAvroKeys(ObjectValue producer, MapValue<BString, Object> value, BString topic,
+    public static Object sendAvroValuesAvroKeys(BObject producer, MapValue<BString, Object> value, BString topic,
                                                 MapValue<BString, Object> key, Object partition, Object timestamp) {
         GenericRecord valueRecord = createGenericRecord(value);
         GenericRecord keyRecord = createGenericRecord(key);
@@ -109,7 +109,7 @@ public class SendAvroKeys {
     }
 
     // ballerina anydata and AvroRecord
-    public static Object sendCustomValuesAvroKeys(ObjectValue producer, Object value, BString topic,
+    public static Object sendCustomValuesAvroKeys(BObject producer, Object value, BString topic,
                                                   MapValue<BString, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);

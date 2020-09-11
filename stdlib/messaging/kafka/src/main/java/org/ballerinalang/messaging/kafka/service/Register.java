@@ -21,8 +21,8 @@ package org.ballerinalang.messaging.kafka.service;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.messaging.kafka.api.KafkaListener;
 import org.ballerinalang.messaging.kafka.api.KafkaServerConnector;
@@ -46,9 +46,9 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
 public class Register {
 
     @SuppressWarnings(UNCHECKED)
-    public static Object register(ObjectValue listener, ObjectValue service, Object name) {
+    public static Object register(BObject listener, BObject service, Object name) {
         Strand strand = Scheduler.getStrand();
-        MapValue<BString, Object> listenerConfigurations = listener.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
+        BMap<BString, Object> listenerConfigurations = listener.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         Properties configs = KafkaUtils.processKafkaConsumerConfig(listenerConfigurations);
 
         try {

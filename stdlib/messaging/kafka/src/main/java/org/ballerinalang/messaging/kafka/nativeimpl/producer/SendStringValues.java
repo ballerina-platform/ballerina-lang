@@ -19,8 +19,8 @@
 package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class SendStringValues extends Send {
     private static final Logger logger = LoggerFactory.getLogger(SendStringValues.class);
 
     // String and ()
-    public static Object sendStringValuesNilKeys(ObjectValue producer, BString value, BString topic, Object partition,
+    public static Object sendStringValuesNilKeys(BObject producer, BString value, BString topic, Object partition,
                                                  Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -52,7 +52,7 @@ public class SendStringValues extends Send {
     }
 
     // String and String
-    public static Object sendStringValuesStringKeys(ObjectValue producer, BString value, BString topic, BString key,
+    public static Object sendStringValuesStringKeys(BObject producer, BString value, BString topic, BString key,
                                                     Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -63,7 +63,7 @@ public class SendStringValues extends Send {
     }
 
     // String and ballerina int
-    public static Object sendStringValuesIntKeys(ObjectValue producer, BString value, BString topic, long key,
+    public static Object sendStringValuesIntKeys(BObject producer, BString value, BString topic, long key,
                                                  Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -73,7 +73,7 @@ public class SendStringValues extends Send {
     }
 
     // String and ballerina float
-    public static Object sendStringValuesFloatKeys(ObjectValue producer, BString value, BString topic, double key,
+    public static Object sendStringValuesFloatKeys(BObject producer, BString value, BString topic, double key,
                                                    Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -83,7 +83,7 @@ public class SendStringValues extends Send {
     }
 
     // String and ballerina byte[]
-    public static Object sendStringValuesByteArrayKeys(ObjectValue producer, BString value, BString topic, BArray key,
+    public static Object sendStringValuesByteArrayKeys(BObject producer, BString value, BString topic, BArray key,
                                                        Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -94,7 +94,7 @@ public class SendStringValues extends Send {
     }
 
     // String and ballerina anydata
-    public static Object sendStringValuesCustomKeys(ObjectValue producer, BString value, BString topic, Object key,
+    public static Object sendStringValuesCustomKeys(BObject producer, BString value, BString topic, Object key,
                                                     Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);

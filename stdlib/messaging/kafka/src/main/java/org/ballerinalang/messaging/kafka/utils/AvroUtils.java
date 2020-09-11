@@ -22,7 +22,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.List;
@@ -40,7 +40,7 @@ public class AvroUtils {
      */
     private AvroUtils(){}
 
-    protected static void populateBallerinaGenericAvroRecord(MapValue<BString, Object> genericAvroRecord,
+    protected static void populateBallerinaGenericAvroRecord(BMap<BString, Object> genericAvroRecord,
                                                              GenericRecord record) {
         List<Schema.Field> fields = record.getSchema().getFields();
         for (Schema.Field field : fields) {
@@ -55,9 +55,9 @@ public class AvroUtils {
         }
     }
 
-    protected static MapValue<BString, Object> handleAvroConsumer(Object value) {
+    protected static BMap<BString, Object> handleAvroConsumer(Object value) {
         if (value instanceof GenericRecord) {
-            MapValue<BString, Object> genericAvroRecord = getAvroGenericRecord();
+            BMap<BString, Object> genericAvroRecord = getAvroGenericRecord();
             populateBallerinaGenericAvroRecord(genericAvroRecord, (GenericRecord) value);
             return genericAvroRecord;
         } else {

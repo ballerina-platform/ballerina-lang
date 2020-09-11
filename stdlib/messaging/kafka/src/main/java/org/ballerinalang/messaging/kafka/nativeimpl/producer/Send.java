@@ -23,7 +23,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
@@ -43,7 +43,7 @@ import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.handleTra
 public class Send {
 
     @SuppressWarnings(UNCHECKED)
-    protected static Object sendKafkaRecord(ProducerRecord record, ObjectValue producerObject) {
+    protected static Object sendKafkaRecord(ProducerRecord record, BObject producerObject) {
         Strand strand = Scheduler.getStrand();
         KafkaTracingUtil.traceResourceInvocation(strand, producerObject, record.topic());
         final NonBlockingCallback callback = new NonBlockingCallback(strand);

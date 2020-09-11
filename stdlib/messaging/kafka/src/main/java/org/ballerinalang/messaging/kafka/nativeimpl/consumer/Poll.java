@@ -25,9 +25,9 @@ import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -59,7 +59,7 @@ public class Poll {
      * @param timeout        Duration in milliseconds to try the operation.
      * @return Ballerina {@code ConsumerRecords[]} after the polling.
      */
-    public static Object poll(ObjectValue consumerObject, long timeout) {
+    public static Object poll(BObject consumerObject, long timeout) {
         Strand strand = Scheduler.getStrand();
         KafkaTracingUtil.traceResourceInvocation(strand, consumerObject);
         NonBlockingCallback callback = new NonBlockingCallback(strand);
@@ -72,8 +72,8 @@ public class Poll {
             ConsumerRecords recordsRetrieved = kafkaConsumer.poll(duration);
             if (!recordsRetrieved.isEmpty()) {
                 for (Object record : recordsRetrieved) {
-                    MapValue<BString, Object> recordValue = populateConsumerRecord((ConsumerRecord) record, keyType,
-                                                                                   valueType);
+                    BMap<BString, Object> recordValue = populateConsumerRecord((ConsumerRecord) record, keyType,
+                                                                               valueType);
                     consumerRecordsArray.append(recordValue);
                     KafkaMetricsUtil.reportConsume(consumerObject, recordValue.getStringValue(ALIAS_TOPIC).getValue(),
                                                    recordValue.get(ALIAS_VALUE));

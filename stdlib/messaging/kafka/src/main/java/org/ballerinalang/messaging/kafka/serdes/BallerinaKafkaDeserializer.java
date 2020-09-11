@@ -23,6 +23,7 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
 
@@ -38,7 +39,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ON_DESERIAL
  */
 public class BallerinaKafkaDeserializer implements Deserializer {
 
-    private ObjectValue deserializerObject = null;
+    private BObject deserializerObject = null;
     private BRuntime runtime = null;
     private int timeout = 30000;
 

@@ -26,9 +26,9 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -66,7 +66,7 @@ public class SubscriptionHandler {
      * @param topics         Ballerina {@code string[]} of topics.
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
-    public static Object subscribe(ObjectValue consumerObject, BArray topics) {
+    public static Object subscribe(BObject consumerObject, BArray topics) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         List<String> topicsList = getStringListFromStringBArray(topics);
@@ -89,7 +89,7 @@ public class SubscriptionHandler {
      * @param topicRegex     Regex to match topics to subscribe.
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
-    public static Object subscribeToPattern(ObjectValue consumerObject, BString topicRegex) {
+    public static Object subscribeToPattern(BObject consumerObject, BString topicRegex) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         try {
@@ -113,7 +113,7 @@ public class SubscriptionHandler {
      * @param onPartitionsAssigned Function pointer to invoke if partitions are assigned.
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
-    public static Object subscribeWithPartitionRebalance(ObjectValue consumerObject, BArray topics,
+    public static Object subscribeWithPartitionRebalance(BObject consumerObject, BArray topics,
                                                          FPValue onPartitionsRevoked, FPValue onPartitionsAssigned) {
         Strand strand = Scheduler.getStrand();
         KafkaTracingUtil.traceResourceInvocation(strand, consumerObject);
@@ -144,7 +144,7 @@ public class SubscriptionHandler {
      * @param consumerObject Kafka consumer object from ballerina.
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
-    public static Object unsubscribe(ObjectValue consumerObject) {
+    public static Object unsubscribe(BObject consumerObject) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         try {
@@ -170,10 +170,10 @@ public class SubscriptionHandler {
         private Scheduler scheduler;
         private FPValue onPartitionsRevoked;
         private FPValue onPartitionsAssigned;
-        private ObjectValue consumer;
+        private BObject consumer;
 
         KafkaRebalanceListener(Strand strand, Scheduler scheduler, FPValue onPartitionsRevoked,
-                               FPValue onPartitionsAssigned, ObjectValue consumer) {
+                               FPValue onPartitionsAssigned, BObject consumer) {
             this.strand = strand;
             this.scheduler = scheduler;
             this.onPartitionsRevoked = onPartitionsRevoked;
@@ -205,8 +205,8 @@ public class SubscriptionHandler {
             BArray topicPartitionArray = BValueCreator.createArrayValue(
                     new BArrayType(getTopicPartitionRecord().getType()));
             for (TopicPartition partition : partitions) {
-                MapValue<BString, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
-                                                                                        partition.partition());
+                BMap<BString, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
+                                                                                    partition.partition());
                 topicPartitionArray.append(topicPartition);
             }
             return topicPartitionArray;

@@ -23,6 +23,7 @@ import org.apache.kafka.common.serialization.Serializer;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
 
 import java.util.Map;
@@ -35,7 +36,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ON_SERIALIZ
  */
 public class BallerinaKafkaSerializer implements Serializer {
 
-    private ObjectValue serializerObject = null;
+    private BObject serializerObject = null;
     private int timeout = 30000;
 
     @Override

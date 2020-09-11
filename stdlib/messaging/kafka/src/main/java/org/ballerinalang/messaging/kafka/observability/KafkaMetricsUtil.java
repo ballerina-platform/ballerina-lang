@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
 import org.ballerinalang.jvm.observability.metrics.MetricId;
 import org.ballerinalang.jvm.observability.metrics.MetricRegistry;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class KafkaMetricsUtil {
      *
      * @param producerObject producerObject.
      */
-    public static void reportNewProducer(ObjectValue producerObject) {
+    public static void reportNewProducer(BObject producerObject) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -64,7 +64,7 @@ public class KafkaMetricsUtil {
      *
      * @param consumerObject consumer object
      */
-    public static void reportNewConsumer(ObjectValue consumerObject) {
+    public static void reportNewConsumer(BObject consumerObject) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -80,7 +80,7 @@ public class KafkaMetricsUtil {
      *
      * @param producerObject producer object.
      */
-    public static void reportProducerClose(ObjectValue producerObject) {
+    public static void reportProducerClose(BObject producerObject) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -96,7 +96,7 @@ public class KafkaMetricsUtil {
      *
      * @param consumerObject consumer object.
      */
-    public static void reportConsumerClose(ObjectValue consumerObject) {
+    public static void reportConsumerClose(BObject consumerObject) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -114,7 +114,7 @@ public class KafkaMetricsUtil {
      * @param topic          Subject the message is published to.
      * @param value          Message object.
      */
-    public static void reportPublish(ObjectValue producerObject, String topic, Object value) {
+    public static void reportPublish(BObject producerObject, String topic, Object value) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -155,7 +155,7 @@ public class KafkaMetricsUtil {
      * @param consumerObject Consumer object.
      * @param topicsList     List of topics that the consumer subscribes to.
      */
-    public static void reportBulkSubscription(ObjectValue consumerObject, Set<String> topicsList) {
+    public static void reportBulkSubscription(BObject consumerObject, Set<String> topicsList) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -170,7 +170,7 @@ public class KafkaMetricsUtil {
      * @param consumerObject Consumer object.
      * @param topic          Topic that the consumer subscribes to.
      */
-    public static void reportSubscription(ObjectValue consumerObject, String topic) {
+    public static void reportSubscription(BObject consumerObject, String topic) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -188,7 +188,7 @@ public class KafkaMetricsUtil {
      * @param consumerObject Consumer object.
      * @param topic          Subject that the consumer unsubscribes from.
      */
-    public static void reportUnsubscription(ObjectValue consumerObject, String topic) {
+    public static void reportUnsubscription(BObject consumerObject, String topic) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -206,7 +206,7 @@ public class KafkaMetricsUtil {
      * @param consumerObject Consumer object.
      * @param topics         Subjects that the consumer unsubscribes from.
      */
-    public static void reportBulkUnsubscription(ObjectValue consumerObject, Set<String> topics) {
+    public static void reportBulkUnsubscription(BObject consumerObject, Set<String> topics) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -222,7 +222,7 @@ public class KafkaMetricsUtil {
      * @param topic          Subject that the consumer receives the message from.
      * @param value          Value of the received Kafka record.
      */
-    public static void reportConsume(ObjectValue consumerObject, String topic, Object value) {
+    public static void reportConsume(BObject consumerObject, String topic, Object value) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -240,7 +240,7 @@ public class KafkaMetricsUtil {
      * @param consumerObject Consumer object.
      * @param records        Records
      */
-    public static void reportConsume(ObjectValue consumerObject, ConsumerRecords records) {
+    public static void reportConsume(BObject consumerObject, ConsumerRecords records) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -257,7 +257,7 @@ public class KafkaMetricsUtil {
      * @param producerObject Producer object.
      * @param errorType      Type of the error.
      */
-    public static void reportProducerError(ObjectValue producerObject, String errorType) {
+    public static void reportProducerError(BObject producerObject, String errorType) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -284,7 +284,7 @@ public class KafkaMetricsUtil {
      * @param consumerObject Consumer object.
      * @param errorType      Type of the error.
      */
-    public static void reportConsumerError(ObjectValue consumerObject, String errorType) {
+    public static void reportConsumerError(BObject consumerObject, String errorType) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -298,7 +298,7 @@ public class KafkaMetricsUtil {
      * @param topic          Subject that the consumer is subscribed to.
      * @param errorType      Type of the error.
      */
-    public static void reportConsumerError(ObjectValue consumerObject, String topic, String errorType) {
+    public static void reportConsumerError(BObject consumerObject, String topic, String errorType) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -326,7 +326,7 @@ public class KafkaMetricsUtil {
                          KafkaObservabilityConstants.METRIC_ERRORS[1]);
     }
 
-    public static void reportError(String context, ObjectValue object, String errorType) {
+    public static void reportError(String context, BObject object, String errorType) {
         KafkaObserverContext observerContext = new KafkaObserverContext(context,
                                                                         KafkaUtils.getClientId(object),
                                                                         KafkaUtils.getBootstrapServers(object));
@@ -335,7 +335,7 @@ public class KafkaMetricsUtil {
                          KafkaObservabilityConstants.METRIC_ERRORS[1]);
     }
 
-    public static void reportError(ObjectValue object, String topic, String context, String errorType) {
+    public static void reportError(BObject object, String topic, String context, String errorType) {
         KafkaObserverContext observerContext = new KafkaObserverContext(context,
                                                                         KafkaUtils.getClientId(object),
                                                                         KafkaUtils.getBootstrapServers(object),

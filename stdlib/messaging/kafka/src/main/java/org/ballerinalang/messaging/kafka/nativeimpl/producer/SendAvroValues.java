@@ -21,8 +21,8 @@ package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class SendAvroValues extends Send {
 
     // ballerina AvroRecord
     @SuppressWarnings(UNCHECKED)
-    public static Object sendAvroValuesNilKeys(ObjectValue producer, MapValue<BString, Object> value, BString topic,
+    public static Object sendAvroValuesNilKeys(BObject producer, MapValue<BString, Object> value, BString topic,
                                                Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -58,7 +58,7 @@ public class SendAvroValues extends Send {
     }
 
     // ballerina AvroRecord and String
-    public static Object sendAvroValuesStringKeys(ObjectValue producer, MapValue<BString, Object> value, BString topic,
+    public static Object sendAvroValuesStringKeys(BObject producer, MapValue<BString, Object> value, BString topic,
                                                   BString key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -70,7 +70,7 @@ public class SendAvroValues extends Send {
     }
 
     // ballerina AvroRecord and ballerina int
-    public static Object sendAvroValuesIntKeys(ObjectValue producer, MapValue<BString, Object> value, BString topic,
+    public static Object sendAvroValuesIntKeys(BObject producer, MapValue<BString, Object> value, BString topic,
                                                long key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -81,7 +81,7 @@ public class SendAvroValues extends Send {
     }
 
     // ballerina AvroRecord and ballerina float
-    public static Object sendAvroValuesFloatKeys(ObjectValue producer, MapValue<BString, Object> value, BString topic,
+    public static Object sendAvroValuesFloatKeys(BObject producer, MapValue<BString, Object> value, BString topic,
                                                  double key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -92,7 +92,7 @@ public class SendAvroValues extends Send {
     }
 
     // ballerina AvroRecord and ballerina byte[]
-    public static Object sendAvroValuesByteArrayKeys(ObjectValue producer, MapValue<BString, Object> value,
+    public static Object sendAvroValuesByteArrayKeys(BObject producer, MapValue<BString, Object> value,
                                                      BString topic, BArray key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -104,7 +104,7 @@ public class SendAvroValues extends Send {
     }
 
     // ballerina AvroRecord and ballerina anydata
-    public static Object sendAvroValuesCustomKeys(ObjectValue producer, MapValue<BString, Object> value, BString topic,
+    public static Object sendAvroValuesCustomKeys(BObject producer, MapValue<BString, Object> value, BString topic,
                                                   Object key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);

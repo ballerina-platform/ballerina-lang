@@ -21,7 +21,7 @@ package org.ballerinalang.messaging.kafka.utils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.messaging.kafka.impl.KafkaTransactionContext;
 
 import java.util.Objects;
@@ -38,7 +38,7 @@ public class TransactionUtils {
     private TransactionUtils() {
     }
 
-    public static void handleTransactions(Strand strand, ObjectValue producer) {
+    public static void handleTransactions(Strand strand, BObject producer) {
         if (Objects.nonNull(producer.getNativeData(TRANSACTION_CONTEXT))) {
             KafkaTransactionContext transactionContext = (KafkaTransactionContext) producer
                     .getNativeData(TRANSACTION_CONTEXT);
@@ -48,13 +48,13 @@ public class TransactionUtils {
         // Do nothing if this is non-transactional producer.
     }
 
-    public static KafkaTransactionContext createKafkaTransactionContext(ObjectValue producer) {
+    public static KafkaTransactionContext createKafkaTransactionContext(BObject producer) {
         KafkaProducer kafkaProducer = (KafkaProducer) producer.getNativeData(NATIVE_PRODUCER);
         return new KafkaTransactionContext(kafkaProducer);
     }
 
     public static void registerKafkaTransactionContext(Strand strand,
-                                                       ObjectValue producer,
+                                                       BObject producer,
                                                        KafkaTransactionContext transactionContext) {
         String connectorId = producer.getStringValue(CONNECTOR_ID).getValue();
         if (Objects.isNull(strand.currentTrxContext.getTransactionContext(connectorId))) {

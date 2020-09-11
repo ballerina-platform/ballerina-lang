@@ -21,7 +21,7 @@ package org.ballerinalang.messaging.kafka.observability;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
 
 import java.util.Optional;
@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 public class KafkaTracingUtil {
 
-    public static void traceResourceInvocation(Strand strand, ObjectValue object, String topic) {
+    public static void traceResourceInvocation(Strand strand, BObject object, String topic) {
         if (!ObserveUtils.isTracingEnabled()) {
             return;
         }
@@ -48,7 +48,7 @@ public class KafkaTracingUtil {
         setTags(observerContext, object, topic);
     }
 
-    public static void traceResourceInvocation(Strand strand, ObjectValue object) {
+    public static void traceResourceInvocation(Strand strand, BObject object) {
         if (!ObserveUtils.isTracingEnabled()) {
             return;
         }
@@ -63,13 +63,13 @@ public class KafkaTracingUtil {
         setTags(observerContext, object);
     }
 
-    private static void setTags(ObserverContext observerContext, ObjectValue object, String topic) {
+    private static void setTags(ObserverContext observerContext, BObject object, String topic) {
         observerContext.addTag(KafkaObservabilityConstants.TAG_URL, KafkaUtils.getBootstrapServers(object));
         observerContext.addTag(KafkaObservabilityConstants.TAG_CLIENT_ID, KafkaUtils.getClientId(object));
         observerContext.addTag(KafkaObservabilityConstants.TAG_TOPIC, topic);
     }
 
-    private static void setTags(ObserverContext observerContext, ObjectValue object) {
+    private static void setTags(ObserverContext observerContext, BObject object) {
         observerContext.addTag(KafkaObservabilityConstants.TAG_URL, KafkaUtils.getBootstrapServers(object));
         observerContext.addTag(KafkaObservabilityConstants.TAG_CLIENT_ID, KafkaUtils.getClientId(object));
     }
