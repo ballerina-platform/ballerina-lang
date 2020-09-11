@@ -1831,6 +1831,12 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
+            //Local type def is not allowed in new spec, hence add it as invalid node minutia.
+            if (stmt.kind == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
+                addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED);
+                continue;
+            }
+
             switch (currentCtx) {
                 case DEFAULT_WORKER_INIT:
                     if (stmt.kind != SyntaxKind.NAMED_WORKER_DECLARATION) {
@@ -2813,6 +2819,12 @@ public class BallerinaParser extends AbstractParser {
             if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
                 addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_NAMED_WORKER_NOT_ALLOWED_HERE);
                 break;
+            }
+
+            //Local type def is not allowed in new spec, hence add it as invalid node minutia.
+            if (stmt.kind == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
+                addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED);
+                continue;
             }
             stmts.add(stmt);
         }
@@ -7540,6 +7552,12 @@ public class BallerinaParser extends AbstractParser {
             STNode stmt = parseStatement();
             if (stmt == null) {
                 break;
+            }
+
+            //Local type def is not allowed in new spec, hence add it as invalid node minutia.
+            if (stmt.kind == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
+                addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED);
+                continue;
             }
 
             switch (stmt.kind) {
