@@ -4773,7 +4773,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void markAndRegisterClosureVariable(BSymbol symbol, DiagnosticPos pos) {
         BLangInvokableNode encInvokable = env.enclInvokable;
-        if (symbol.owner instanceof BPackageSymbol) {
+        if (symbol.owner instanceof BPackageSymbol && env.node.getKind() != NodeKind.ARROW_EXPR) {
             return;
         }
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
