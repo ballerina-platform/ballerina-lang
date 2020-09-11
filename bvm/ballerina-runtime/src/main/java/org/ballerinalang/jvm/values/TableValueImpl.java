@@ -304,7 +304,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     private String createStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr) {
-        StringJoiner sj = new StringJoiner(", ");
+        StringJoiner sj = new StringJoiner(",");
         while (itr.hasNext()) {
             Map.Entry<Long, V> struct = itr.next();
             sj.add(struct.getValue().toString());

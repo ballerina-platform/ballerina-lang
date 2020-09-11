@@ -415,7 +415,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
             if (value == null) {
-                sj.add("\"" + key + "\": null");
+                sj.add("\"" + key + "\":null");
             } else {
                 BType type = TypeChecker.getType(value);
                 switch (type.getTag()) {

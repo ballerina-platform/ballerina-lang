@@ -546,7 +546,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(", ");
+        StringJoiner sj = new StringJoiner(",");
         switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.SIGNED32_INT_TAG:
