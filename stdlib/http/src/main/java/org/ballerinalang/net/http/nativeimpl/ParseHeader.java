@@ -20,8 +20,8 @@ package org.ballerinalang.net.http.nativeimpl;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.HeaderUtil;
@@ -63,7 +63,7 @@ public class ParseHeader {
             contentTuple.add(1, HeaderUtil.getParamMap(headerValue.getValue()));
             return contentTuple;
         } catch (Exception ex) {
-            String errMsg = ex instanceof ErrorValue ? ex.toString() : ex.getMessage();
+            String errMsg = ex instanceof BError ? ex.toString() : ex.getMessage();
             return HttpUtil.createHttpError(FAILED_TO_PARSE + errMsg, GENERIC_CLIENT_ERROR);
         }
     }

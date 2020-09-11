@@ -23,8 +23,8 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.runtime.RuntimeConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.slf4j.Logger;
@@ -52,9 +52,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private final HTTPServicesRegistry httpServicesRegistry;
 
-    protected final MapValue endpointConfig;
+    protected final BMap endpointConfig;
 
-    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry, MapValue endpointConfig) {
+    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry, BMap endpointConfig) {
         this.httpServicesRegistry = httpServicesRegistry;
         this.endpointConfig = endpointConfig;
     }
@@ -113,7 +113,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
         }
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
-        ObjectValue service = httpResource.getParentService().getBalService();
+        BObject service = httpResource.getParentService().getBalService();
         Executor.submit(httpServicesRegistry.getScheduler(), service, httpResource.getName(), null,
                         ON_MESSAGE_METADATA, callback, properties, signatureParams);
     }

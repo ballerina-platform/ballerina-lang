@@ -19,7 +19,7 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 public class CancelWebSocketUpgrade {
     private static final Logger log = LoggerFactory.getLogger(CancelWebSocketUpgrade.class);
 
-    public static Object cancelWebSocketUpgrade(ObjectValue connectionObj, long statusCode, BString reason) {
+    public static Object cancelWebSocketUpgrade(BObject connectionObj, long statusCode, BString reason) {
         NonBlockingCallback callback = new NonBlockingCallback(Scheduler.getStrand());
         try {
             WebSocketHandshaker webSocketHandshaker =

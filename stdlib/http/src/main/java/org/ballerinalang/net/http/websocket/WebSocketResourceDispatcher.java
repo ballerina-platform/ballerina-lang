@@ -35,10 +35,10 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
@@ -92,7 +92,7 @@ public class WebSocketResourceDispatcher {
     }
 
     public static void dispatchUpgrade(WebSocketHandshaker webSocketHandshaker, WebSocketServerService wsService,
-                                       MapValue<BString, Object> httpEndpointConfig,
+                                       BMap<BString, Object> httpEndpointConfig,
                                        WebSocketConnectionManager connectionManager) {
         HttpResource onUpgradeResource = wsService.getUpgradeResource();
         webSocketHandshaker.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
@@ -101,7 +101,7 @@ public class WebSocketResourceDispatcher {
         Object[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketHandshaker
                 .getHttpCarbonRequest(), httpEndpointConfig);
 
-        ObjectValue httpCaller = (ObjectValue) signatureParams[0];
+        BObject httpCaller = (BObject) signatureParams[0];
         httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_HANDSHAKER, webSocketHandshaker);
         httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         httpCaller.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
@@ -112,7 +112,7 @@ public class WebSocketResourceDispatcher {
                         new HashMap<>(), signatureParams);
     }
 
-    public static void dispatchOnOpen(WebSocketConnection webSocketConnection, ObjectValue webSocketCaller,
+    public static void dispatchOnOpen(WebSocketConnection webSocketConnection, BObject webSocketCaller,
                                        WebSocketServerService wsService) {
         AttachedFunction onOpenResource = wsService.getResourceByName(RESOURCE_NAME_ON_OPEN);
         if (onOpenResource != null) {
@@ -123,7 +123,7 @@ public class WebSocketResourceDispatcher {
     }
 
     private static void executeOnOpenResource(WebSocketService wsService, AttachedFunction onOpenResource,
-                                              ObjectValue webSocketEndpoint, WebSocketConnection webSocketConnection) {
+                                              BObject webSocketEndpoint, WebSocketConnection webSocketConnection) {
         BType[] parameterTypes = onOpenResource.getParameterType();
         Object[] bValues = new Object[parameterTypes.length * 2];
         bValues[0] = webSocketEndpoint;
@@ -137,7 +137,7 @@ public class WebSocketResourceDispatcher {
             }
 
             @Override
-            public void notifyFailure(ErrorValue error) {
+            public void notifyFailure(BError error) {
                 ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
                 WebSocketObservabilityUtil.observeError(connectionInfo,
@@ -237,7 +237,8 @@ public class WebSocketResourceDispatcher {
                     //Throw an exception because a different type is invalid.
                     //Cannot reach here because of compiler plugin validation.
                     throw WebSocketUtil.getWebSocketException("Invalid resource signature.", null,
-                            WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
+                                                              WebSocketConstants.ErrorCode.WsGenericError.errorCode(),
+                                                              null);
             }
         } catch (WebSocketException ex) {
             webSocketConnection.terminateConnection(1003, ex.detailMessage());
@@ -391,7 +392,7 @@ public class WebSocketResourceDispatcher {
                 }
 
                 @Override
-                public void notifyFailure(ErrorValue error) {
+                public void notifyFailure(BError error) {
                     ErrorHandlerUtils.printError(error.getPrintableStackTrace());
                     finishConnectionClosureIfOpen(webSocketConnection, closeCode, connectionInfo);
                     //Observe error
@@ -456,7 +457,7 @@ public class WebSocketResourceDispatcher {
             }
 
             @Override
-            public void notifyFailure(ErrorValue error) {
+            public void notifyFailure(BError error) {
                 ErrorHandlerUtils.printError(error.getPrintableStackTrace());
                 WebSocketObservabilityUtil.observeError(
                         connectionInfo, WebSocketObservabilityConstants.ERROR_TYPE_RESOURCE_INVOCATION,
@@ -493,7 +494,7 @@ public class WebSocketResourceDispatcher {
                 }
 
                 @Override
-                public void notifyFailure(ErrorValue error) {
+                public void notifyFailure(BError error) {
                     ErrorHandlerUtils.printError(error.getPrintableStackTrace());
                     WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
                 }

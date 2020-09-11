@@ -20,7 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  * {@code Promise} is the extern function to respond back to the client with a PUSH_PROMISE frame.
  */
 public class Promise extends ConnectionAction {
-    public static Object promise(ObjectValue connectionObj, ObjectValue pushPromiseObj) {
+    public static Object promise(BObject connectionObj, BObject pushPromiseObj) {
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
         Strand strand = Scheduler.getStrand();
         DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);

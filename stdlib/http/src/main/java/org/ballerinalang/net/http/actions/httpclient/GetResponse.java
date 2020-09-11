@@ -19,8 +19,8 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -35,7 +35,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  */
 public class GetResponse extends AbstractHTTPAction {
 
-    public static Object getResponse(ObjectValue clientObj, ObjectValue handleObj) {
+    public static Object getResponse(BObject clientObj, BObject handleObj) {
         Strand strand = Scheduler.getStrand();
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), handleObj,
@@ -64,7 +64,7 @@ public class GetResponse extends AbstractHTTPAction {
         }
 
         public void onError(Throwable throwable) {
-            ErrorValue httpConnectorError = HttpUtil
+            BError httpConnectorError = HttpUtil
                     .createHttpError(throwable.getMessage());
             dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }

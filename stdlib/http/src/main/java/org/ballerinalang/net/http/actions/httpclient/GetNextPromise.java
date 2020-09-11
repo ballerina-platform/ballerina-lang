@@ -16,12 +16,12 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  */
 public class GetNextPromise extends AbstractHTTPAction {
 
-    public static Object getNextPromise(ObjectValue clientObj, ObjectValue handleObj) {
+    public static Object getNextPromise(BObject clientObj, BObject handleObj) {
         Strand strand = Scheduler.getStrand();
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), handleObj,
@@ -60,11 +60,11 @@ public class GetNextPromise extends AbstractHTTPAction {
 
         @Override
         public void onPushPromise(Http2PushPromise pushPromise) {
-            ObjectValue pushPromiseObj =
-                    BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
-                                                      HttpConstants.PUSH_PROMISE,
-                                                      StringUtils.fromString(pushPromise.getPath()),
-                                                      StringUtils.fromString(pushPromise.getMethod()));
+            BObject pushPromiseObj =
+                    BValueCreator.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
+                                                    HttpConstants.PUSH_PROMISE,
+                                                    StringUtils.fromString(pushPromise.getPath()),
+                                                    StringUtils.fromString(pushPromise.getMethod()));
             HttpUtil.populatePushPromiseStruct(pushPromiseObj, pushPromise);
             dataContext.notifyInboundResponseStatus(pushPromiseObj, null);
         }

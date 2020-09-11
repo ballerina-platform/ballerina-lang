@@ -19,7 +19,7 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  */
 public class HasPromise extends AbstractHTTPAction {
 
-    public static boolean hasPromise(ObjectValue clientObj, ObjectValue handleObj) {
+    public static boolean hasPromise(BObject clientObj, BObject handleObj) {
         Strand strand = Scheduler.getStrand();
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {

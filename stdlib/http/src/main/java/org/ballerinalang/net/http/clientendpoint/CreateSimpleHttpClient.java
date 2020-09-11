@@ -20,7 +20,7 @@ package org.ballerinalang.net.http.clientendpoint;
 
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
@@ -49,7 +49,7 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0_VERSION;
  */
 public class CreateSimpleHttpClient {
     @SuppressWarnings("unchecked")
-    public static void createSimpleHttpClient(ObjectValue httpClient,
+    public static void createSimpleHttpClient(BObject httpClient,
                                               MapValue<BString, Long> globalPoolConfig) {
         String urlString = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue().replaceAll(
                 HttpConstants.REGEX, HttpConstants.SINGLE_SLASH);

@@ -18,7 +18,7 @@
 package org.ballerinalang.stdlib.services.nativeimpl.promise;
 
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -52,7 +52,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test addHeader function of PushPromise")
     public void testAddHeader() {
-        ObjectValue promise = createPushPromiseObject();
+        BObject promise = createPushPromiseObject();
         String headerName = "header1";
         String headerValue = "value1";
         BValue[] returnVal = BRunUtil.invoke(result, "testAddHeader",
@@ -68,7 +68,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test getHeader function of PushPromise")
     public void testGetHeader() {
-        ObjectValue promise = createPushPromiseObject();
+        BObject promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
@@ -85,7 +85,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test getHeaders function of PushPromise")
     public void testGetHeaders() {
-        ObjectValue promise = createPushPromiseObject();
+        BObject promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header";
@@ -105,7 +105,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test removeHeader function of PushPromise")
     public void testRemoveHeader() {
-        ObjectValue promise = createPushPromiseObject();
+        BObject promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
@@ -125,7 +125,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test removeAllHeaders function of PushPromise")
     public void testRemoveAllHeaders() {
-        ObjectValue promise = createPushPromiseObject();
+        BObject promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String header1Name = "header1";
@@ -148,7 +148,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test setHeader function of PushPromise")
     public void testSetHeader() {
-        ObjectValue promise = createPushPromiseObject();
+        BObject promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
@@ -170,7 +170,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test hasHeader function of PushPromise")
     public void testHasHeader() {
-        ObjectValue promise = createPushPromiseObject();
+        BObject promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
@@ -187,7 +187,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test getHeaderNames function of PushPromise")
     public void testGetHeaderNames() {
-        ObjectValue promise = createPushPromiseObject();
+        BObject promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName1 = "header1";

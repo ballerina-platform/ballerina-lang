@@ -24,7 +24,10 @@ import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 /**
  * Exceptions that could occur in WebSocket.
@@ -40,20 +43,20 @@ public class WebSocketException extends ErrorValue {
     }
 
     public WebSocketException(String message) {
-        this(message, new MapValueImpl<>(BTypes.typeErrorDetail));
+        this(message, BValueCreator.createMapValue(BTypes.typeErrorDetail));
        }
 
-    public WebSocketException(String message, ErrorValue cause) {
-        this(message, cause, new MapValueImpl<>(BTypes.typeErrorDetail));
+    public WebSocketException(String message, BError cause) {
+        this(message, cause, BValueCreator.createMapValue(BTypes.typeErrorDetail));
     }
 
-    public WebSocketException(String message, MapValueImpl<Object, Object> details) {
+    public WebSocketException(String message, BMap<BString, Object> details) {
         super(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
                 StringUtils.fromString(message), null, details);
         this.message = message;
     }
 
-    public WebSocketException(String message, ErrorValue cause, MapValueImpl<Object, Object> details) {
+    public WebSocketException(String message, BError cause, BMap<BString, Object> details) {
         super(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
                 StringUtils.fromString(message), cause, details);
         this.message = message;

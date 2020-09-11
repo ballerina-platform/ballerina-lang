@@ -21,7 +21,7 @@ package org.ballerinalang.net.http.websocket.client;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -45,7 +45,7 @@ public class FailoverInitEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(FailoverInitEndpoint.class);
     private static final BString FAILOVER_INTERVAL = StringUtils.fromString("failoverIntervalInMillis");
 
-    public static void initEndpoint(ObjectValue failoverClient) {
+    public static void initEndpoint(BObject failoverClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<BString, Object> clientEndpointConfig = (MapValue<BString, Object>) failoverClient.getMapValue(
                 WebSocketConstants.CLIENT_ENDPOINT_CONFIG);

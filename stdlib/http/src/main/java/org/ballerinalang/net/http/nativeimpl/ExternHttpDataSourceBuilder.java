@@ -18,9 +18,11 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder;
 import org.ballerinalang.mime.nativeimpl.MimeEntityBody;
@@ -58,7 +60,7 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(ExternHttpDataSourceBuilder.class);
 
-    public static Object getNonBlockingByteArray(ObjectValue entityObj) {
+    public static Object getNonBlockingByteArray(BObject entityObj) {
         Object transportMessage = entityObj.getNativeData(TRANSPORT_MESSAGE);
         if (isStreamingRequired(entityObj) || transportMessage == null) {
             return getByteArray(entityObj);
@@ -79,7 +81,7 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
         return null;
     }
 
-    public static Object getNonBlockingJson(ObjectValue entityObj) {
+    public static Object getNonBlockingJson(BObject entityObj) {
         if (isStreamingRequired(entityObj)) {
             return getJson(entityObj);
         }
@@ -99,7 +101,7 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
         return null;
     }
 
-    public static Object getNonBlockingText(ObjectValue entityObj) {
+    public static Object getNonBlockingText(BObject entityObj) {
         if (isStreamingRequired(entityObj)) {
             return getText(entityObj);
         }
@@ -109,7 +111,7 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                return org.ballerinalang.jvm.StringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
+                return StringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
             }
             callback = new NonBlockingCallback(Scheduler.getStrand());
             constructNonBlockingDataSource(callback, entityObj, SourceType.TEXT);
@@ -119,7 +121,7 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
         return null;
     }
 
-    public static Object getNonBlockingXml(ObjectValue entityObj) {
+    public static Object getNonBlockingXml(BObject entityObj) {
         if (isStreamingRequired(entityObj)) {
             return getXml(entityObj);
         }
@@ -140,7 +142,7 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
         return null;
     }
 
-    public static Object getByteChannel(ObjectValue entityObj) {
+    public static Object getByteChannel(BObject entityObj) {
         HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) entityObj.getNativeData(TRANSPORT_MESSAGE);
         if (httpCarbonMessage != null) {
             HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
@@ -154,7 +156,7 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
         return MimeEntityBody.getByteChannel(entityObj);
     }
 
-    public static void constructNonBlockingDataSource(NonBlockingCallback callback, ObjectValue entity,
+    public static void constructNonBlockingDataSource(NonBlockingCallback callback, BObject entity,
                                                       SourceType sourceType) {
         HttpCarbonMessage inboundMessage = extractTransportMessageFromEntity(entity);
         inboundMessage.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
@@ -201,12 +203,12 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
     }
 
     private static void notifyError(NonBlockingCallback callback, Exception exception, String type) {
-        ErrorValue error = (ErrorValue) createError(exception, type);
+        BError error = (ErrorValue) createError(exception, type);
         setReturnValuesAndNotify(callback, error);
     }
 
     private static void createErrorAndNotify(NonBlockingCallback callback, String errMsg) {
-        ErrorValue error = MimeUtil.createError(PARSER_ERROR, errMsg);
+        BError error = MimeUtil.createError(PARSER_ERROR, errMsg);
         setReturnValuesAndNotify(callback, error);
     }
 
@@ -215,19 +217,19 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
         callback.notifySuccess();
     }
 
-    private static void updateDataSourceAndNotify(NonBlockingCallback callback, ObjectValue entityObj,
+    private static void updateDataSourceAndNotify(NonBlockingCallback callback, BObject entityObj,
                                                   Object result) {
         updateDataSource(entityObj, result);
         setReturnValuesAndNotify(callback, result);
     }
 
-    private static void updateJsonDataSourceAndNotify(NonBlockingCallback callback, ObjectValue entityObj,
+    private static void updateJsonDataSourceAndNotify(NonBlockingCallback callback, BObject entityObj,
                                                       Object result) {
         updateJsonDataSource(entityObj, result);
         setReturnValuesAndNotify(callback, result);
     }
 
-    private static HttpCarbonMessage extractTransportMessageFromEntity(ObjectValue entityObj) {
+    private static HttpCarbonMessage extractTransportMessageFromEntity(BObject entityObj) {
         HttpCarbonMessage message = (HttpCarbonMessage) entityObj.getNativeData(TRANSPORT_MESSAGE);
         if (message != null) {
             return message;

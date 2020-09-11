@@ -20,8 +20,7 @@ package org.ballerinalang.net.uri;
 
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.net.http.HttpConstants;
@@ -61,7 +60,7 @@ public class URIUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static void populateQueryParamMap(String queryParamString, MapValue<BString, Object> queryParamsMap)
+    public static void populateQueryParamMap(String queryParamString, BMap<BString, Object> queryParamsMap)
             throws UnsupportedEncodingException {
         Map<String, List<String>> tempParamMap = new HashMap<>();
         String[] queryParamVals = queryParamString.split("&");
@@ -96,8 +95,8 @@ public class URIUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static MapValue<BString, Object> getMatrixParamsMap(String path, HttpCarbonMessage carbonMessage) {
-        MapValue<BString, Object> matrixParamsBMap = new MapValueImpl<>();
+    public static BMap<BString, Object> getMatrixParamsMap(String path, HttpCarbonMessage carbonMessage) {
+        BMap<BString, Object> matrixParamsBMap = BValueCreator.createMapValue();
         Map<String, Map<String, String>> pathToMatrixParamMap =
                 (Map<String, Map<String, String>>) carbonMessage.getProperty(HttpConstants.MATRIX_PARAMS);
         Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);

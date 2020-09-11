@@ -18,12 +18,12 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -37,12 +37,12 @@ import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 public class DataContext {
     private Strand strand;
     private HttpClientConnector clientConnector;
-    private ObjectValue requestObj;
+    private BObject requestObj;
     private NonBlockingCallback callback;
     private HttpCarbonMessage correlatedMessage;
 
     public DataContext(Strand strand, HttpClientConnector clientConnector, NonBlockingCallback callback,
-                       ObjectValue requestObj, HttpCarbonMessage outboundRequestMsg) {
+                       BObject requestObj, HttpCarbonMessage outboundRequestMsg) {
         this.strand = strand;
         this.callback = callback;
         this.clientConnector = clientConnector;
@@ -58,21 +58,21 @@ public class DataContext {
         this.correlatedMessage = inboundRequestMsg;
     }
 
-    public void notifyInboundResponseStatus(ObjectValue inboundResponse, ErrorValue httpConnectorError) {
+    public void notifyInboundResponseStatus(BObject inboundResponse, BError httpConnectorError) {
         //Make the request associate with this response consumable again so that it can be reused.
         if (inboundResponse != null) {
             getCallback().setReturnValues(inboundResponse);
         } else if (httpConnectorError != null) {
             getCallback().setReturnValues(httpConnectorError);
         } else {
-            MapValue<BString, Object> err = BallerinaValues.createRecordValue(BALLERINA_BUILTIN_PKG_ID,
-                                                                              STRUCT_GENERIC_ERROR);
+            BMap<BString, Object> err = BValueCreator.createRecordValue(BALLERINA_BUILTIN_PKG_ID,
+                                                                        STRUCT_GENERIC_ERROR);
             getCallback().setReturnValues(err);
         }
         getCallback().notifySuccess();
     }
 
-    public void notifyOutboundResponseStatus(ErrorValue httpConnectorError) {
+    public void notifyOutboundResponseStatus(BError httpConnectorError) {
         getCallback().setReturnValues(httpConnectorError);
         getCallback().notifySuccess();
     }
@@ -85,7 +85,7 @@ public class DataContext {
         return clientConnector;
     }
 
-    public ObjectValue getRequestObj() {
+    public BObject getRequestObj() {
         return requestObj;
     }
 
