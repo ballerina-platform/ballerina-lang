@@ -8743,8 +8743,7 @@ public class BallerinaParser extends AbstractParser {
         // start parsing the expr by giving higher-precedence to parse the right side arguments for right associative
         // operators. That is done by lowering the current precedence.
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
-        return STNodeFactory.createImplicitAnonymousFunctionExpressionNode(params, rightDoubleArrow,
-                expression);
+        return STNodeFactory.createImplicitAnonymousFunctionExpressionNode(params, rightDoubleArrow, expression);
     }
 
     /**
