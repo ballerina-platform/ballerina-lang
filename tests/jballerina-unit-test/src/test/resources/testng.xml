@@ -78,6 +78,8 @@
             <package name="org.ballerinalang.test.statements.comment.*"/>
             <package name="org.ballerinalang.test.statements.compoundassignment.*"/>
             <package name="org.ballerinalang.test.statements.continuestatement.*"/>
+            <package name="org.ballerinalang.test.statements.dostatement.*"/>
+            <package name="org.ballerinalang.test.statements.fail.*"/>
 
             <!-- No longer valid since new parser handles those -->
             <!-- <package name="org.ballerinalang.test.statements.expressionstmt.*"/> -->
@@ -150,6 +152,7 @@
             <class name="org.ballerinalang.test.statements.transaction.NestedRetryTransactionStmtsTest" />
             <class name="org.ballerinalang.test.statements.transaction.SetRollbackOnlyTest" />
             <class name="org.ballerinalang.test.statements.transaction.RetryTransactionStmtTest"></class>
+            <class name="org.ballerinalang.test.statements.transaction.TransactionOnFailTest" />
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
