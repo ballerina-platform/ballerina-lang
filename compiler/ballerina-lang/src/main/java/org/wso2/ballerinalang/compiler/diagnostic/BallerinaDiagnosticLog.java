@@ -176,19 +176,6 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
         BallerinaDiagnostic diagnostic = new BallerinaDiagnostic(diagnosticLocation, msg, diagInfo);
         storeDiagnosticInPackage(pos.src.pkgID, diagnostic);
 
-        switch (severity) {
-            case ERROR:
-                console.println("error: " + pos + " " + diagnostic.message());
-                break;
-            case WARNING:
-                console.println("warning: " + pos + " " + diagnostic.message());
-                break;
-            case INTERNAL:
-            case HINT:
-            case INFO:
-            default:
-                break;
-        }
     }
 
     private void storeDiagnosticInPackage(PackageID pkgId, BallerinaDiagnostic diagnostic) {
