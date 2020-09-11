@@ -411,7 +411,7 @@ public final class XMLSequence extends XMLValue {
 
     /**
      * {@inheritDoc}
-     * @param parent
+     * @param parent The link to the parent node
      */
     @Override
     public String stringValue(BLink parent) {

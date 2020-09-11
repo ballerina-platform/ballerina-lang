@@ -224,7 +224,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
     /**
      * Get the string value.
      * @return string value
-     * @param parent
+     * @param parent The link to the parent node
      */
     public String stringValue(BLink parent) {
         if (this.valueKind != DecimalValueKind.OTHER) {

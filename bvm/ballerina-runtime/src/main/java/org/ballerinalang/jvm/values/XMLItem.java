@@ -441,7 +441,7 @@ public final class XMLItem extends XMLValue {
 
     /**
      * {@inheritDoc}
-     * @param parent
+     * @param parent The link to the parent node
      */
     @Override
     @Deprecated
