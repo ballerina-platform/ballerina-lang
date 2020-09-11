@@ -118,7 +118,8 @@ public class JvmConstants {
     public static final String MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
     public static final String TABLE_UTILS = "org/ballerinalang/jvm/TableUtils";
     public static final String STRING_UTILS = "org/ballerinalang/jvm/StringUtils";
-    public static final String BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
+    public static final String ERROR_UTILS = "org/ballerinalang/jvm/internal/ErrorUtils";
+    public static final String B_ERROR_CREATOR = "org/ballerinalang/jvm/api/BErrorCreator";
     public static final String RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
     public static final String ARGUMENT_PARSER = "org/ballerinalang/jvm/util/ArgumentParser";
     public static final String LAUNCH_UTILS = "org/ballerinalang/jvm/launch/LaunchUtils";

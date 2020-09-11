@@ -112,6 +112,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_V
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
@@ -589,11 +590,11 @@ class JvmTypeGen {
             int tempResultIndex = indexMap.addToMapIfNotFoundAndGetIndex(tempResult);
             mv.visitVarInsn(ASTORE, tempResultIndex);
             mv.visitVarInsn(ALOAD, tempResultIndex);
-            mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+            mv.visitTypeInsn(INSTANCEOF, B_ERROR);
             Label noErrorLabel = new Label();
             mv.visitJumpInsn(IFEQ, noErrorLabel);
             mv.visitVarInsn(ALOAD, tempResultIndex);
-            mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
+            mv.visitTypeInsn(CHECKCAST, B_ERROR);
             mv.visitInsn(ATHROW);
             mv.visitLabel(noErrorLabel);
             mv.visitVarInsn(ALOAD, tempVarIndex);
