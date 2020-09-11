@@ -51,7 +51,7 @@ public class MimeConstants {
     public static final String INVALID_HEADER_PARAM_ERROR = "InvalidHeaderParamError";
     public static final String INVALID_CONTENT_LENGTH_ERROR = "InvalidContentLengthError";
     public static final String HEADER_NOT_FOUND_ERROR = "HeaderNotFoundError";
-    public static final String SERIALIZATION_ERROR = "SerializationError";
+    public static final BString SERIALIZATION_ERROR = StringUtils.fromString("SerializationError");
     public static final String NO_CONTENT_ERROR = "NoContentError";
     public static final String INVALID_HEADER_OPERATION_ERROR = "InvalidHeaderOperationError";
 

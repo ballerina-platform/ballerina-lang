@@ -24,8 +24,8 @@ import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.jvnet.mimepull.Header;
@@ -52,8 +52,8 @@ public class EntityHeaderHandler {
      * @return the header map
      */
     @SuppressWarnings("unchecked")
-    public static MapValue<BString, Object> getEntityHeaderMap(ObjectValue entity) {
-        MapValue<BString, Object> httpHeaders = (MapValue<BString, Object>) entity.get(HEADERS_MAP_FIELD);
+    public static BMap<BString, Object> getEntityHeaderMap(BObject entity) {
+        BMap<BString, Object> httpHeaders = (MapValue<BString, Object>) entity.get(HEADERS_MAP_FIELD);
         if (httpHeaders == null) {
             httpHeaders = getNewHeaderMap();
             entity.set(HEADERS_MAP_FIELD, httpHeaders);
@@ -61,7 +61,7 @@ public class EntityHeaderHandler {
         return httpHeaders;
     }
 
-    private static ArrayValue getEntityHeaderNameArray(ObjectValue entity) {
+    private static ArrayValue getEntityHeaderNameArray(BObject entity) {
         ArrayValue headerNames = (ArrayValue) entity.get(HEADER_NAMES_ARRAY_FIELD);
         if (headerNames == null) {
             headerNames = getNewHeaderNamesArray();
@@ -70,8 +70,8 @@ public class EntityHeaderHandler {
         return headerNames;
     }
 
-    static void populateBodyPartHeaders(ObjectValue partStruct, List<? extends Header> bodyPartHeaders) {
-        MapValue<BString, Object> httpHeaders = getNewHeaderMap();
+    static void populateBodyPartHeaders(BObject partStruct, List<? extends Header> bodyPartHeaders) {
+        BMap<BString, Object> httpHeaders = getNewHeaderMap();
         ArrayValue headerNames = getNewHeaderNamesArray();
 
         int index = 0;
@@ -92,7 +92,7 @@ public class EntityHeaderHandler {
      * @return a header value for the given header name. If header map or the value does not exist, returns null
      */
     @SuppressWarnings("unchecked")
-    public static String getHeaderValue(ObjectValue entity, String headerName) {
+    public static String getHeaderValue(BObject entity, String headerName) {
         MapValue<BString, Object> headerMap = (MapValue<BString, Object>) entity.get(HEADERS_MAP_FIELD);
         if (headerMap == null) {
             return null;
@@ -112,7 +112,7 @@ public class EntityHeaderHandler {
      * @param key     Represent header name
      * @param value   Represent header value
      */
-    public static void addHeader(ObjectValue entity, MapValue<BString, Object> headers, String key,
+    public static void addHeader(BObject entity, BMap<BString, Object> headers, String key,
                                  String value) {
         headers.put(StringUtils.fromString(key.toLowerCase(Locale.getDefault())),
                     BValueCreator.createArrayValue(new BString[]{StringUtils.fromString(value)}));
@@ -127,8 +127,8 @@ public class EntityHeaderHandler {
      *
      * @return a header header map
      */
-    public static MapValue<BString, Object> getNewHeaderMap() {
-        return new MapValueImpl<>(mapType);
+    public static BMap<BString, Object> getNewHeaderMap() {
+        return BValueCreator.createMapValue(mapType);
     }
 
     private static ArrayValue getNewHeaderNamesArray() {
