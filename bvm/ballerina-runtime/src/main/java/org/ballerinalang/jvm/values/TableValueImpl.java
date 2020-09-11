@@ -309,7 +309,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Map.Entry<Long, V> struct = itr.next();
             sj.add(struct.getValue().toString());
         }
-        return sj.toString();
+        return "[" + sj.toString() + "]";
     }
 
     private BType getTableConstraintField(BType constraintType, String fieldName) {

@@ -41,7 +41,7 @@ function createIntSealedArrayWithLabel() {
 function createIntDefaultSealedArray() {
     int[5] sealedArray = [0, 0, 0, 0, 0];
     assertArrayLengthPanic(5, sealedArray);
-    isEqualPanic("0 0 0 0 0", sealedArray);
+    isEqualPanic("[0, 0, 0, 0, 0]", sealedArray);
 }
 
 function createSealedArraysOfIntSubtypes() {
@@ -71,7 +71,7 @@ function createBoolSealedArrayWithLabel() {
 function createBoolDefaultSealedArray() {
     boolean[5] sealedArray = [false, false, false, false, false];
     assertArrayLengthPanic(5, sealedArray);
-    isEqualPanic("false false false false false", sealedArray);
+    isEqualPanic("[false, false, false, false, false]", sealedArray);
 }
 
 // Float Arrays
@@ -96,7 +96,7 @@ function createFloatSealedArrayWithLabel() {
 function createFloatDefaultSealedArray() {
     float[5] sealedArray = [0.0, 0.0, 0.0, 0.0, 0.0];
     assertArrayLengthPanic(5, sealedArray);
-    isEqualPanic("0.0 0.0 0.0 0.0 0.0", sealedArray);
+    isEqualPanic("[0.0, 0.0, 0.0, 0.0, 0.0]", sealedArray);
 }
 
 // String Arrays
@@ -118,7 +118,7 @@ function createStringSealedArrayWithLabel() {
 
 function createStringDefaultSealedArray() {
     string[5] sealedArray = ["", "", "", "", ""];
-    isEqualPanic("", sealedArray);
+    isEqualPanic("[\"\", \"\", \"\", \"\", \"\"]", sealedArray);
     assertArrayLengthPanic(5, sealedArray);
 }
 
@@ -201,7 +201,7 @@ function createByteSealedArrayWithLabel() {
 
 function createByteDefaultSealedArray() {
     byte[5] sealedArray = [0, 0, 0, 0, 0];
-    isEqualPanic("0 0 0 0 0", sealedArray);
+    isEqualPanic("[0, 0, 0, 0, 0]", sealedArray);
     assertArrayLengthPanic(5, sealedArray);
 }
 
