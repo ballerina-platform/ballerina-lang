@@ -659,6 +659,10 @@
                   "children": [
                     {
                       "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "LIST",
                       "children": [
                         {
                           "kind": "ISOLATED_KEYWORD",
@@ -670,10 +674,6 @@
                           ]
                         }
                       ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": []
                     },
                     {
                       "kind": "FUNCTION_KEYWORD"

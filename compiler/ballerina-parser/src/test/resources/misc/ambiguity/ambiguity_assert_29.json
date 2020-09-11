@@ -82,10 +82,6 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
                                   "kind": "INFER_PARAM_LIST",
                                   "hasDiagnostics": true,
                                   "children": [

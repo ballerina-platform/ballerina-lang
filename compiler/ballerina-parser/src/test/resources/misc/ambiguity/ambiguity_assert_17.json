@@ -74,10 +74,6 @@
                               "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                               "children": [
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
                                   "kind": "INFER_PARAM_LIST",
                                   "children": [
                                     {

@@ -157,10 +157,6 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "LIST",
-                                      "children": []
-                                    },
-                                    {
                                       "kind": "SIMPLE_NAME_REFERENCE",
                                       "hasDiagnostics": true,
                                       "children": [
