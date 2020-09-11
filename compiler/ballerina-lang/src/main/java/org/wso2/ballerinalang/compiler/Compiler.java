@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.PrintStream;
@@ -121,7 +120,7 @@ public class Compiler {
 
     public void list(String sourcePackage) {
         BLangPackage bLangPackage = compile(sourcePackage);
-        if (bLangPackage.diagCollector.hasErrors()) {
+        if (bLangPackage.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
         }
 

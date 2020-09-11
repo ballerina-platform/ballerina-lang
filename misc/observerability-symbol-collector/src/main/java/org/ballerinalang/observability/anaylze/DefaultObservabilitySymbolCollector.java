@@ -27,6 +27,7 @@ import org.ballerinalang.observability.anaylze.model.CUnitASTHolder;
 import org.ballerinalang.observability.anaylze.model.PkgASTHolder;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
@@ -34,7 +35,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     @Override
     public void init(CompilerContext context) {
         compilerContext = context;
-        diagnosticLog = BLangDiagnosticLogHelper.getInstance(context);
+        diagnosticLog = BallerinaDiagnosticLog.getInstance(context);
     }
 
     @Override

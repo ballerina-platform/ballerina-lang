@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -32,18 +33,15 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
@@ -76,8 +74,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public Set<Flag> flagSet;
     public byte[] jarBinaryContent;
 
-    // TODO Revisit these instance variables
-    public DiagnosticCollector diagCollector;
+    private int errorCount;
+    private List<Diagnostic> diagnostics;
 
     public RepoHierarchy repos;
 
@@ -95,9 +93,9 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
-        this.diagCollector = new DiagnosticCollector();
         this.testablePkgs = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
+        this.diagnostics = new ArrayList<>();
     }
 
     @Override
@@ -250,54 +248,18 @@ public class BLangPackage extends BLangNode implements PackageNode {
         return this.testablePkgs.size() > 0;
     }
 
-    /**
-     * This class collect diagnostics.
-     *
-     * @since 0.970.0
-     */
-    public static class BDiagnosticCollector {
-        private int errorCount;
-        private List<BDiagnostic> diagnostics;
-
-        public BDiagnosticCollector() {
-            this.diagnostics = new ArrayList<>();
-        }
-
-        public void addDiagnostic(BDiagnostic diagnostic) {
-            this.diagnostics.add(diagnostic);
-            if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
-                this.errorCount++;
-            }
-            Collections.sort(diagnostics);
-        }
-
-        public boolean hasErrors() {
-            return this.errorCount > 0;
+    public void addDiagnostic(BallerinaDiagnostic diagnostic) {
+        this.diagnostics.add(diagnostic);
+        if (diagnostic.severity() == DiagnosticSeverity.ERROR) {
+            this.errorCount++;
         }
     }
 
-    /**
-     * This class collect diagnostics [latest implementation].
-     *
-     * @since 2.0.0
-     */
-    public static class DiagnosticCollector {
-        private int errorCount;
-        private List<BallerinaDiagnostic> diagnostics;
+    public List<Diagnostic> getDagnostics() {
+        return this.diagnostics;
+    }
 
-        public DiagnosticCollector() {
-            this.diagnostics = new ArrayList<>();
-        }
-
-        public void addDiagnostic(BallerinaDiagnostic diagnostic) {
-            this.diagnostics.add(diagnostic);
-            if (diagnostic.severity() == DiagnosticSeverity.ERROR) {
-                this.errorCount++;
-            }
-        }
-
-        public boolean hasErrors() {
-            return this.errorCount > 0;
-        }
+    public boolean hasErrors() {
+        return this.errorCount > 0;
     }
 }
