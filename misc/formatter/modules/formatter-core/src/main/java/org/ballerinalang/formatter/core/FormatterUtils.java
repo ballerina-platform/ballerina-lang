@@ -78,8 +78,11 @@ class FormatterUtils {
                 return null;
             }
             return parent;
+
+        } else if (parentKind == SyntaxKind.FUNCTION_CALL && grandParent != null &&
+                        grandParent.kind() == SyntaxKind.PANIC_STATEMENT) {
+            return null;
         } else if (parentKind == (SyntaxKind.FUNCTION_DEFINITION) ||
-                parentKind == (SyntaxKind.ELSE_BLOCK) ||
                 parentKind == (SyntaxKind.IF_ELSE_STATEMENT) ||
                 parentKind == (SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) ||
                 parentKind == (SyntaxKind.WHILE_STATEMENT) ||
@@ -110,7 +113,7 @@ class FormatterUtils {
                 return null;
             }
             return parent;
-        } else if (parentKind == (SyntaxKind.REQUIRED_PARAM)) {
+        } else if (parentKind == (SyntaxKind.REQUIRED_PARAM) || parentKind == (SyntaxKind.TYPE_TEST_EXPRESSION)) {
             return null;
         } else if (parentKind == (SyntaxKind.OBJECT_TYPE_DESC)) {
             if (grandParent != null && grandParent.kind() == (SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {
@@ -242,7 +245,7 @@ class FormatterUtils {
         return createMinutiaeList(minutiae);
     }
 
-    private static int getChildLocation(NonTerminalNode parent, Node child) {
+    static int getChildLocation(NonTerminalNode parent, Node child) {
         if (parent != null && child != null) {
             for (int i = 0; i < parent.children().size(); i++) {
                 if (parent.children().get(i).equals(child)) {

@@ -15,9 +15,11 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
@@ -48,6 +50,7 @@ class NodeIndentation {
                         SyntaxKind.TYPE_PARAMETER,
                         SyntaxKind.TUPLE_TYPE_DESC,
                         SyntaxKind.TYPE_CAST_PARAM,
+                        SyntaxKind.INTERSECTION_TYPE_DESC,
                         SyntaxKind.UNION_TYPE_DESC,
                         SyntaxKind.XML_TYPE_DESC);
         if (parent != null && (parentNodes.contains(parent.kind()) || grandParent != null &&
@@ -59,6 +62,8 @@ class NodeIndentation {
                         ((ObjectFieldNode) parent).visibilityQualifier().isPresent()) ||
                 (grandParent.kind() == (SyntaxKind.LOCAL_VAR_DECL) &&
                         grandParent.children().get(1).equals(parent)) ||
+                (parent.kind() == (SyntaxKind.RECORD_FIELD) &&
+                        ((RecordFieldNode) parent).readonlyKeyword().isPresent()) ||
                 grandParent.kind() == (SyntaxKind.FROM_CLAUSE) ||
                 grandParent.kind() == (SyntaxKind.PARAMETERIZED_TYPE_DESC)))) {
             addSpaces = false;
@@ -93,6 +98,18 @@ class NodeIndentation {
                         parent.children().get(0).equals(node))))) {
             addSpaces = true;
         }
+        if (parent != null && parent.kind() == SyntaxKind.METHOD_CALL && grandParent != null &&
+                grandParent.kind() == SyntaxKind.CALL_STATEMENT) {
+            if (((MethodCallExpressionNode) parent).expression().equals(node)) {
+                addSpaces = true;
+            } else if (((MethodCallExpressionNode) parent).methodName().equals(node)) {
+                addSpaces = false;
+            }
+        }
+        if (parent != null && grandParent != null && parent.kind() == SyntaxKind.INTERSECTION_TYPE_DESC &&
+                grandParent.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
+            addSpaces = true;
+        }
         if (parent != null && grandParent != null &&
                 (grandParent.kind() == (SyntaxKind.OBJECT_FIELD) &&
                         ((ObjectFieldNode) grandParent).visibilityQualifier().isPresent())) {
@@ -105,6 +122,10 @@ class NodeIndentation {
         NonTerminalNode parent = node.parent();
         boolean addSpaces = false;
         if (parent != null && parent.kind() == (SyntaxKind.TYPED_BINDING_PATTERN)) {
+            addSpaces = true;
+        }
+        if (parent != null && parent.kind() == (SyntaxKind.FUNCTION_CALL) && parent.parent() != null &&
+                parent.parent().kind() == (SyntaxKind.CALL_STATEMENT)) {
             addSpaces = true;
         }
         return getStartColumn(node, addSpaces, options);

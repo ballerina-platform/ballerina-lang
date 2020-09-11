@@ -125,6 +125,7 @@ import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
@@ -228,6 +229,7 @@ import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
 import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.formatToken;
+import static org.ballerinalang.formatter.core.FormatterUtils.getChildLocation;
 import static org.ballerinalang.formatter.core.FormatterUtils.getParent;
 import static org.ballerinalang.formatter.core.FormatterUtils.getPosition;
 import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
@@ -525,12 +527,17 @@ public class FormattingTreeModifier extends TreeModifier {
             return qualifiedNameReferenceNode;
         }
         int startColumn = NodeIndentation.qualifiedNameReferenceNode(qualifiedNameReferenceNode, options);
+        int trailingSpace = 0;
+        if (qualifiedNameReferenceNode.parent() != null &&
+                qualifiedNameReferenceNode.parent().kind() == SyntaxKind.ANNOTATION) {
+            trailingSpace = 1;
+        }
         Token modulePrefix = getToken(qualifiedNameReferenceNode.modulePrefix());
         Token identifier = getToken(qualifiedNameReferenceNode.identifier());
         Token colon = getToken((Token) qualifiedNameReferenceNode.colon());
         return qualifiedNameReferenceNode.modify()
                 .withModulePrefix(formatToken(modulePrefix, startColumn, 0, 0, 0))
-                .withIdentifier((IdentifierToken) formatToken(identifier, 0, 0, 0, 0))
+                .withIdentifier((IdentifierToken) formatToken(identifier, 0, trailingSpace, 0, 0))
                 .withColon(formatToken(colon, 0, 0, 0, 0))
                 .apply();
     }
@@ -551,14 +558,28 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(basicLiteralNode, lineRange)) {
             return basicLiteralNode;
         }
+        NonTerminalNode parent = basicLiteralNode.parent();
         Token literalToken = getToken(basicLiteralNode.literalToken());
         int leadingSpaces = 0;
-        if (basicLiteralNode.parent() != null &&
-                basicLiteralNode.parent().kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
+        if (parent != null && parent.kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
             leadingSpaces = 1;
         }
+        int leadingNewLines = 0;
+        if (parent != null && parent.kind() == (SyntaxKind.LIST_CONSTRUCTOR)) {
+            NonTerminalNode grandParent = parent.parent();
+            if (grandParent != null && grandParent.kind() == (SyntaxKind.LOCAL_VAR_DECL)) {
+                SyntaxKind variableType = ((VariableDeclarationNode) grandParent).typedBindingPattern()
+                        .typeDescriptor().kind();
+                if (variableType == SyntaxKind.JSON_TYPE_DESC) {
+                    leadingSpaces = getStartColumn(basicLiteralNode, true);
+                    if (getChildLocation(parent, basicLiteralNode) > 0) {
+                        leadingNewLines = 1;
+                    }
+                }
+            }
+        }
         return basicLiteralNode.modify()
-                .withLiteralToken(formatToken(literalToken, leadingSpaces, 0, 0, 0))
+                .withLiteralToken(formatToken(literalToken, leadingSpaces, 0, leadingNewLines, 0))
                 .apply();
     }
 
@@ -1044,12 +1065,17 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean addSpaces = true;
         int leadingNewLines = 1;
-        if (mappingConstructorExpressionNode.parent() != null &&
-                (mappingConstructorExpressionNode.parent().kind() == (SyntaxKind.LOCAL_VAR_DECL) ||
-                        mappingConstructorExpressionNode.parent().kind() == (SyntaxKind.CONST_DECLARATION) ||
-                        mappingConstructorExpressionNode.parent().kind() == (SyntaxKind.SPECIFIC_FIELD) ||
-                        mappingConstructorExpressionNode.parent().kind() == (SyntaxKind.TABLE_CONSTRUCTOR))) {
+        int openingLeadingNewLines = 0;
+        Node parent = mappingConstructorExpressionNode.parent();
+        if (parent != null &&
+                (parent.kind() == (SyntaxKind.LOCAL_VAR_DECL) ||
+                    parent.kind() == (SyntaxKind.CONST_DECLARATION) ||
+                    parent.kind() == (SyntaxKind.SPECIFIC_FIELD) ||
+                    parent.kind() == (SyntaxKind.TABLE_CONSTRUCTOR))) {
             addSpaces = false;
+        }
+        if (parent != null && parent.kind() == (SyntaxKind.LIST_CONSTRUCTOR)) {
+            openingLeadingNewLines = 1;
         }
         int startOpenBrace = getStartColumn(mappingConstructorExpressionNode, addSpaces);
         int startCloseBrace = getStartColumn(mappingConstructorExpressionNode, true);
@@ -1062,7 +1088,7 @@ public class FormattingTreeModifier extends TreeModifier {
         SeparatedNodeList<MappingFieldNode> fields = this.modifySeparatedNodeList(
                 mappingConstructorExpressionNode.fields());
         return mappingConstructorExpressionNode.modify()
-                .withOpenBrace(formatToken(openBrace, startOpenBrace, 0, 0, 0))
+                .withOpenBrace(formatToken(openBrace, startOpenBrace, 0, openingLeadingNewLines, 0))
                 .withCloseBrace(formatToken(closeBrace, startCloseBrace, 0, leadingNewLines, 0))
                 .withFields(fields)
                 .apply();
@@ -1667,7 +1693,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withContent(formatToken(content, 0, 0, 0, 0)).apply();
         }
         return byteArrayLiteralNode.modify()
-                .withType(formatToken(type, 0, 0, 0, 0))
+                .withType(formatToken(type, 0, 1, 0, 0))
                 .withStartBacktick(formatToken(startBacktick, 0, 0, 0, 0))
                 .withEndBacktick(formatToken(endBacktick, 0, 0, 0, 0))
                 .apply();
@@ -1679,8 +1705,11 @@ public class FormattingTreeModifier extends TreeModifier {
             return listConstructorExpressionNode;
         }
         int newLines = 0;
-        if (listConstructorExpressionNode.children().get(1).kind() == (SyntaxKind.MAPPING_CONSTRUCTOR)) {
-            newLines = 1;
+        int closingNewLines = 0;
+        SeparatedNodeList expressionList = listConstructorExpressionNode.expressions();
+        if (expressionList.size() != 0 &&
+                expressionList.get(expressionList.size() - 1).kind() == (SyntaxKind.MAPPING_CONSTRUCTOR)) {
+            closingNewLines = 1;
         }
         int startColumn = getStartColumn(listConstructorExpressionNode, true);
         Token openBracket = getToken(listConstructorExpressionNode.openBracket());
@@ -1689,7 +1718,8 @@ public class FormattingTreeModifier extends TreeModifier {
         return listConstructorExpressionNode.modify()
                 .withOpenBracket(formatToken(openBracket, 0, 0, 0, newLines))
                 .withExpressions(expressions)
-                .withCloseBracket(formatToken(closeBracket, newLines == 1 ? startColumn : 0, 0, newLines, 0))
+                .withCloseBracket(formatToken(closeBracket, closingNewLines == 1 ? startColumn : 0, 0,
+                        closingNewLines, 0))
                 .apply();
     }
 
@@ -1850,7 +1880,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         if (visibilityQualifier != null) {
             typeDefinitionNode = typeDefinitionNode.modify()
-                    .withVisibilityQualifier(formatToken(visibilityQualifier, 1, 1, 0, 0)).apply();
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 1, 0, 0)).apply();
         }
         return typeDefinitionNode.modify()
                 .withTypeKeyword(formatToken(typeKeyword, 0, 0, 0, 0))
@@ -1918,7 +1948,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
                 .withAnnotations(annotations)
                 .withExternalKeyword(formatToken(externalKeyword, 1, 0, 0, 0))
-                .withSemicolonToken(formatToken(semicolonToken, 1, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 2))
                 .apply();
     }
 
@@ -2264,6 +2294,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(recordFieldNode, lineRange)) {
             return recordFieldNode;
         }
+        int startColumn = getStartColumn(recordFieldNode, true);
         MetadataNode metadata = this.modifyNode(recordFieldNode.metadata().orElse(null));
         Token readonlyKeyword = getToken(recordFieldNode.readonlyKeyword().orElse(null));
         Node typeName = this.modifyNode(recordFieldNode.typeName());
@@ -2276,7 +2307,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         if (readonlyKeyword != null) {
             recordFieldNode = recordFieldNode.modify()
-                    .withReadonlyKeyword(formatToken(readonlyKeyword, 0, 1, 0, 0)).apply();
+                    .withReadonlyKeyword(formatToken(readonlyKeyword, startColumn, 1, 0, 0)).apply();
         }
         if (questionMarkToken != null) {
             recordFieldNode = recordFieldNode.modify()
@@ -2346,7 +2377,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withAnnotValue(annotValue).apply();
         }
         return annotationNode.modify()
-                .withAtToken(formatToken(atToken, 1, 1, 0, 0))
+                .withAtToken(formatToken(atToken, 0, 0, 0, 0))
                 .withAnnotReference(annotReference)
                 .apply();
     }
