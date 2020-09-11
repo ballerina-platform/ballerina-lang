@@ -419,7 +419,7 @@ public final class XMLItem extends XMLValue {
     @Override
     public OMNode value() {
         try {
-            String xmlStr = this.stringValue(new CycleUtils.Node(this, null));
+            String xmlStr = this.stringValue(null);
             OMElement omElement = XMLFactory.stringToOM(xmlStr);
             return omElement;
         } catch (ErrorValue e) {
