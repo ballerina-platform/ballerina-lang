@@ -179,6 +179,7 @@ public abstract class AbstractParser {
      * @param nodeList       node list to be updated
      * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
      * @param diagnosticCode diagnostic code related to the invalid node
+     * @param args           additional arguments used in diagnostic message
      */
     protected void updateLastNodeInListWithInvalidNode(List<STNode> nodeList,
                                                        STNode invalidParam,

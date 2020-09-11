@@ -251,7 +251,8 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible types: " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError " +
+                    "\\{\"message\":\"incompatible types: " +
                     "'function \\(Student\\) returns \\(int\\)' cannot be cast to 'function \\(Person\\)" +
                     " returns \\(int\\)'.*")
     public void testAnyToFuncPointerConversion_2() {

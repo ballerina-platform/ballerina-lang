@@ -432,8 +432,9 @@ function testAddValidDataWithMapConstrTbl() returns boolean {
     PersonAnyTable personTbl = engineerTbl;
     Intern intern1 = { name: "John", age: 23, intern: true, salary: 100 };
     personTbl.add(intern1);
-    testPassed = testPassed && personTbl.toString() == "name=Lisa age=22 intern=true\n" +
-    "name=Jonas age=21 intern=false\nname=John age=23 intern=true salary=100";
+    testPassed = testPassed && personTbl.toString() == "[{\"name\":\"Lisa\", \"age\":22, \"intern\":true}," +
+    "{\"name\":\"Jonas\", \"age\":21, \"intern\":false},{\"name\":\"John\", \"age\":23, \"intern\":true, " +
+    "\"salary\":100}]";
     return testPassed;
 }
 
@@ -534,8 +535,9 @@ function testPutValidDataWithMapConstrTbl() returns boolean {
     PersonAnyTable personTbl = engineerTbl;
     Intern intern1 = { name: "John", age: 23, intern: true, salary: 100 };
     personTbl.put(intern1);
-    testPassed = testPassed && personTbl.toString() == "name=Lisa age=22 intern=true\n" +
-    "name=Jonas age=21 intern=false\nname=John age=23 intern=true salary=100";
+    testPassed = testPassed && personTbl.toString() == "[{\"name\":\"Lisa\", \"age\":22, \"intern\":true}," +
+    "{\"name\":\"Jonas\", \"age\":21, \"intern\":false},{\"name\":\"John\", \"age\":23, \"intern\":true, " +
+    "\"salary\":100}]";
     return testPassed;
 }
 
