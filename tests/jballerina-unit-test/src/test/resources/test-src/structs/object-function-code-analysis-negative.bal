@@ -1,6 +1,6 @@
 import ballerina/io;
 
-public type Response object {
+public class Response {
 
   function f1() returns string|error {
     string|error ret = "";
@@ -16,4 +16,4 @@ public type Response object {
     }
   }
 
-};
+}

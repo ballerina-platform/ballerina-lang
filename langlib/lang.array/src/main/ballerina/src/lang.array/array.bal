@@ -43,7 +43,7 @@ public function length((any|error)[] arr) returns int = external;
 #
 # + arr - the array
 # + return - a new iterator object that will iterate over the members of `arr`.
-public function iterator(Type[] arr) returns abstract object {
+public function iterator(Type[] arr) returns object {
     public function next() returns record {|
         Type value;
     |}?;

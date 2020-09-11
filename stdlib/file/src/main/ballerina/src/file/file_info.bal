@@ -18,7 +18,7 @@ import ballerina/time;
 
 # FileInfo record contains metadata information of a file.
 # This record is returned by getFileInfo function is os module.
-public type FileInfo object {
+public class FileInfo {
 
     string name;
     int size;
@@ -75,4 +75,4 @@ public type FileInfo object {
     public function getPath() returns string {
         return self.path;
     }
-};
+}

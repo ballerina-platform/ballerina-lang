@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Represents a channel which will allow to read
-public type ReadableTextRecordChannel object {
+public class ReadableTextRecordChannel {
 
     private ReadableCharacterChannel charChannel;
     private string rs;
@@ -65,25 +65,25 @@ public type ReadableTextRecordChannel object {
     public function close() returns Error? {
         return closeReadableTextRecordChannelExtern(self);
     }
-};
+}
 
 function initReadableTextRecordChannel(ReadableTextRecordChannel textChannel, ReadableCharacterChannel charChannel,
                                        string fs, string rs, string fmt) = @java:Method {
     name: "initRecordChannel",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;
 
 function hasNextExtern(ReadableTextRecordChannel textChannel) returns boolean = @java:Method {
     name: "hasNext",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;
 
 function getNextExtern(ReadableTextRecordChannel textChannel) returns @tainted string[]|Error = @java:Method {
     name: "getNext",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;
 
 function closeReadableTextRecordChannelExtern(ReadableTextRecordChannel textChannel) returns Error? = @java:Method {
     name: "close",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;

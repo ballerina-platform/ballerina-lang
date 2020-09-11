@@ -4,11 +4,11 @@ type TestObject1 object {
     }
 };
 
-public type SimpleClient client object {
+public client class SimpleClient {
     public remote function simpleAction(string actionParam) {
-        
+
     }
-};
+}
 
 function testCallStatement() returns error? {
     string arg = "Arg Val";

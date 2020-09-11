@@ -50,7 +50,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void parentVariableVisibilityTest() throws BallerinaTestException {
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 154));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);

@@ -24,11 +24,11 @@ function getIntValue() returns int {
     return 1;
 }
 
-public type SimpleClient client object {
+public client class SimpleClient {
     public remote function simpleAction() returns int {
         return 1;
     }
-};
+}
 
 function testAssignmentStatement1() {
     SimpleClient simpleC = new();

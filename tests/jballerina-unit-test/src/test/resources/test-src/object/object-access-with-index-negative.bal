@@ -9,7 +9,7 @@ function testUndeclaredAttributeAccess() {
     dpt["id"] = "HR";       
 }     
       
-type Department object {
+class Department {
     public string dptName = "";
     public int count = 0;
-};
+}

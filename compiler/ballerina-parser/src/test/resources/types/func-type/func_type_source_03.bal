@@ -9,5 +9,5 @@ type bar record {
 };
 
 type bar object {
-    function() f1 = f2;
+    function() f1;
 };

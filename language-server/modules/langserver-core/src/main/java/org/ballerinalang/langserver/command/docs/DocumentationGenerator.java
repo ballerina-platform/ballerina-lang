@@ -175,9 +175,7 @@ public class DocumentationGenerator {
                 .filter(topLevelNode -> topLevelNode instanceof BLangService)
                 .map(topLevelNode -> (BLangService) topLevelNode)
                 .forEach(bLangService -> {
-                    BLangObjectTypeNode serviceType = (BLangObjectTypeNode) bLangService.serviceTypeDefinition
-                            .getTypeNode();
-                    filteredFunctions.addAll(serviceType.getFunctions());
+                    filteredFunctions.addAll(bLangService.serviceClass.getFunctions());
                 });
         for (BLangFunction bLangFunction : filteredFunctions) {
             List<BLangAnnotationAttachment> annotations = bLangFunction.annAttachments;

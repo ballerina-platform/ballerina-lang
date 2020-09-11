@@ -71,7 +71,7 @@ type XmlType xml;
 # + x - xml sequence to iterate over
 # + return - iterator object
 # Each item is represented by an xml singleton.
-public function iterator(xml<ItemType> x) returns abstract object {
+public function iterator(xml<ItemType> x) returns object {
     public function next() returns record {| (xml|string) value; |}?;
 } {
     XMLIterator xmlIterator = new(x);
