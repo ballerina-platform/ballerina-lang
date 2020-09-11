@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.xmlutils;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BString;
 
 /**
@@ -52,7 +52,7 @@ public class ConvertUtils {
             String arrayEntryTag = (options.get(StringUtils.fromString(OPTIONS_ARRAY_ENTRY_TAG))).getValue();
             return JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
         } catch (Exception e) {
-            return BallerinaErrors.createError(StringUtils.fromString(e.getMessage()));
+            return BErrorCreator.createError(StringUtils.fromString(e.getMessage()));
         }
     }
 

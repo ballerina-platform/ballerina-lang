@@ -32,7 +32,9 @@ import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.ArrayList;
@@ -96,7 +98,7 @@ public class XmlToJsonConverter {
      */
     private static Object convertElement(XMLItem xmlItem, String attributePrefix,
                                          boolean preserveNamespaces) {
-        MapValueImpl<BString, Object> rootNode = newJsonMap();
+        BMap<BString, Object> rootNode = newJsonMap();
         LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(xmlItem, preserveNamespaces);
         String keyValue = getElementKey(xmlItem, preserveNamespaces);
         Object children = convertXMLSequence(xmlItem.getChildrenSeq(), attributePrefix, preserveNamespaces);
@@ -105,7 +107,7 @@ public class XmlToJsonConverter {
             if (attributeMap.isEmpty()) {
                 putAsBStrings(rootNode, keyValue, "");
             } else {
-                MapValueImpl<BString, Object> attrMap = newJsonMap();
+                BMap<BString, Object> attrMap = newJsonMap();
                 addAttributes(attrMap, attributePrefix, attributeMap);
 
                 putAsBStrings(rootNode, keyValue, attrMap);
@@ -118,18 +120,18 @@ public class XmlToJsonConverter {
         return rootNode;
     }
 
-    private static void addAttributes(MapValueImpl<BString, Object> rootNode, String attributePrefix,
+    private static void addAttributes(BMap<BString, Object> rootNode, String attributePrefix,
                                       LinkedHashMap<String, String> attributeMap) {
         for (Map.Entry<String, String> entry : attributeMap.entrySet()) {
             putAsBStrings(rootNode, attributePrefix + entry.getKey(), entry.getValue());
         }
     }
 
-    private static void putAsBStrings(MapValueImpl<BString, Object> map, String key, String value) {
+    private static void putAsBStrings(BMap<BString, Object> map, String key, String value) {
         map.put(fromString(key), fromString(value));
     }
 
-    private static void putAsBStrings(MapValueImpl<BString, Object> map, String key, Object value) {
+    private static void putAsBStrings(BMap<BString, Object> map, String key, Object value) {
         map.put(fromString(key), value);
     }
 
@@ -180,7 +182,7 @@ public class XmlToJsonConverter {
 
     private static Object convertSequenceWithOnlyElements(String attributePrefix, boolean preserveNamespaces,
                                                           List<BXML> sequence) {
-        MapValueImpl<BString, Object> elementObj = newJsonMap();
+        BMap<BString, Object> elementObj = newJsonMap();
         for (BXML bxml : sequence) {
             // Skip comments and PI items.
             if (isCommentOrPi(bxml)) {
@@ -217,7 +219,7 @@ public class XmlToJsonConverter {
                 break;
             }
         }
-        MapValueImpl<BString, Object> listWrapper = newJsonMap();
+        BMap<BString, Object> listWrapper = newJsonMap();
         ArrayValueImpl arrayValue = convertChildrenToJsonList(sequence, attributePrefix, preserveNamespaces);
         putAsBStrings(listWrapper, elementName, arrayValue);
         return listWrapper;
@@ -282,8 +284,8 @@ public class XmlToJsonConverter {
         return new ArrayValueImpl(items.toArray(), new BArrayType(BTypes.typeJSON));
     }
 
-    private static MapValueImpl<BString, Object> newJsonMap() {
-        return new MapValueImpl<>(JSON_MAP_TYPE);
+    private static BMap<BString, Object> newJsonMap() {
+        return BValueCreator.createMapValue(JSON_MAP_TYPE);
     }
 
     /**

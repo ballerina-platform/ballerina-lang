@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.jsonutils;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BString;
 
 /**
@@ -46,7 +46,7 @@ public class FromXML {
                 // todo: fix after fixing `handleXMLException`
                 BLangExceptionHelper.handleXMLException("{ballerina/jsonutils}Error", e);
             } catch (Exception ex) {
-                return BallerinaErrors.createError(StringUtils.fromString(ex.getMessage()));
+                return BErrorCreator.createError(StringUtils.fromString(ex.getMessage()));
             }
         }
         return null;
