@@ -14,7 +14,7 @@ function testIterableOperation() {
 
     string outputNameString =
                 from var person in personList
-                limit 
+                limit m
 }
 
 type Customer record {|

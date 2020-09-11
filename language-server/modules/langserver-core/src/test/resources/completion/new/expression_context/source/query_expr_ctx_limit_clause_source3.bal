@@ -14,7 +14,7 @@ function testIterableOperation() {
 
     string outputNameString =
                 from var person in personList
-                limit m
+                limit module1:
 }
 
 type Customer record {|

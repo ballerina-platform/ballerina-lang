@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 16,
-    "character": 25
+    "character": 22
   },
-  "source": "expression_context/source/query_expr_ctx_orderby_clause_source1.bal",
+  "source": "expression_context/source/query_expr_ctx_limit_clause_source1.bal",
   "items": [
     {
       "label": "module1",

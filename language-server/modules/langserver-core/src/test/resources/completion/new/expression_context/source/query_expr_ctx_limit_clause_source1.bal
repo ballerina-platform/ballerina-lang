@@ -14,7 +14,7 @@ function testIterableOperation() {
 
     string outputNameString =
                 from var person in personList
-                order by person.id a
+                limit 
 }
 
 type Customer record {|
