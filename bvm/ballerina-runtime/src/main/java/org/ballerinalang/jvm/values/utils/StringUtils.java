@@ -44,6 +44,7 @@ public class StringUtils {
      * Returns the human-readable string value of Ballerina values.
      * 
      * @param value The value on which the function is invoked
+     * @param parent The link to the parent node
      * @return String value of the value
      */
     public static String getStringValue(Object value, BLink parent) {
