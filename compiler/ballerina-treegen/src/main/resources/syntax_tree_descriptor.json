@@ -2474,13 +2474,13 @@
             "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
             "attributes": [
                 {
-                    "name": "qualifierList",
-                    "type": "Token",
+                    "name": "annotations",
+                    "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
-                    "name": "annotations",
-                    "type": "AnnotationNode",
+                    "name": "qualifierList",
+                    "type": "Token",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -2909,11 +2909,6 @@
             "base": "AnonymousFunctionExpressionNode",
             "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
             "attributes": [
-                {
-                    "name": "qualifierList",
-                    "type": "Token",
-                    "occurrences": "MULTIPLE"
-                },
                 {
                     "name": "params",
                     "type": "Node"

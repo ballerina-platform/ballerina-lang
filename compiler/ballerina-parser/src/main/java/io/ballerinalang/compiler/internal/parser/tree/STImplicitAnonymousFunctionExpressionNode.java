@@ -31,18 +31,15 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFunctionExpressionNode {
-    public final STNode qualifierList;
     public final STNode params;
     public final STNode rightDoubleArrow;
     public final STNode expression;
 
     STImplicitAnonymousFunctionExpressionNode(
-            STNode qualifierList,
             STNode params,
             STNode rightDoubleArrow,
             STNode expression) {
         this(
-                qualifierList,
                 params,
                 rightDoubleArrow,
                 expression,
@@ -50,19 +47,16 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
     }
 
     STImplicitAnonymousFunctionExpressionNode(
-            STNode qualifierList,
             STNode params,
             STNode rightDoubleArrow,
             STNode expression,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION, diagnostics);
-        this.qualifierList = qualifierList;
         this.params = params;
         this.rightDoubleArrow = rightDoubleArrow;
         this.expression = expression;
 
         addChildren(
-                qualifierList,
                 params,
                 rightDoubleArrow,
                 expression);
@@ -70,7 +64,6 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STImplicitAnonymousFunctionExpressionNode(
-                this.qualifierList,
                 this.params,
                 this.rightDoubleArrow,
                 this.expression,
@@ -78,12 +71,10 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
     }
 
     public STImplicitAnonymousFunctionExpressionNode modify(
-            STNode qualifierList,
             STNode params,
             STNode rightDoubleArrow,
             STNode expression) {
         if (checkForReferenceEquality(
-                qualifierList,
                 params,
                 rightDoubleArrow,
                 expression)) {
@@ -91,7 +82,6 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
         }
 
         return new STImplicitAnonymousFunctionExpressionNode(
-                qualifierList,
                 params,
                 rightDoubleArrow,
                 expression,

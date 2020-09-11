@@ -91,10 +91,6 @@
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                   "children": [
                     {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
@@ -176,20 +172,6 @@
                 {
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                   "children": [
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "ISOLATED_KEYWORD",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [

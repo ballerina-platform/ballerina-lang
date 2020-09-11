@@ -3352,15 +3352,8 @@ public class BallerinaParser extends AbstractParser {
                 }
                 return parseSimpleTypeDescriptor();
             case FUNCTION_KEYWORD:
-                return parseExplicitFunctionExpression(annots, isRhsExpr);
             case ISOLATED_KEYWORD:
-                if (peek(2).kind == SyntaxKind.FUNCTION_KEYWORD) {
-                    return parseExplicitFunctionExpression(annots, isRhsExpr);
-                } else {
-                    List<STNode> qualifiers = new ArrayList<>();
-                    qualifiers.add(consume());
-                    return parseImplicitAnonFunc(qualifiers, isRhsExpr);
-                }
+                return parseExplicitFunctionExpression(annots, isRhsExpr);
             case AT_TOKEN:
                 // Annon-func can have annotations. Check for other expressions
                 // that can start with annots.
@@ -3662,8 +3655,7 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseSyncSendAction(lhsExpr);
                 break;
             case RIGHT_DOUBLE_ARROW_TOKEN:
-                STNode qualifierList = STNodeFactory.createEmptyNodeList();
-                newLhsExpr = parseImplicitAnonFunc(qualifierList, lhsExpr, isRhsExpr);
+                newLhsExpr = parseImplicitAnonFunc(lhsExpr, isRhsExpr);
                 break;
             case ANNOT_CHAINING_TOKEN:
                 newLhsExpr = parseAnnotAccessExpression(lhsExpr, isInConditionalExpr);
@@ -4073,8 +4065,7 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 case COMMA_TOKEN:
                     // Here the context is ended inside the method.
-                    STNode qualifierList = STNodeFactory.createEmptyNodeList();
-                    return parseImplicitAnonFunc(qualifierList, openParen, expr, isRhsExpr);
+                    return parseImplicitAnonFunc(openParen, expr, isRhsExpr);
                 default:
                     recover(nextToken, ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS, openParen, expr,
                             isRhsExpr);
@@ -8663,7 +8654,7 @@ public class BallerinaParser extends AbstractParser {
         STNode funcBody = parseAnonFuncBody(isRhsExpr);
 
         STNode qualifierList = STNodeFactory.createNodeList(qualifiers);
-        return STNodeFactory.createExplicitAnonymousFunctionExpressionNode(qualifierList, annots, funcKeyword,
+        return STNodeFactory.createExplicitAnonymousFunctionExpressionNode(annots, qualifierList, funcKeyword,
                 funcSignature, funcBody);
     }
 
@@ -8733,7 +8724,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseImplicitAnonFunc(STNode qualifierList, STNode params, boolean isRhsExpr) {
+    private STNode parseImplicitAnonFunc(STNode params, boolean isRhsExpr) {
         switch (params.kind) {
             case SIMPLE_NAME_REFERENCE:
             case INFER_PARAM_LIST:
@@ -8752,7 +8743,7 @@ public class BallerinaParser extends AbstractParser {
         // start parsing the expr by giving higher-precedence to parse the right side arguments for right associative
         // operators. That is done by lowering the current precedence.
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
-        return STNodeFactory.createImplicitAnonymousFunctionExpressionNode(qualifierList, params, rightDoubleArrow,
+        return STNodeFactory.createImplicitAnonymousFunctionExpressionNode(params, rightDoubleArrow,
                 expression);
     }
 
@@ -8769,24 +8760,6 @@ public class BallerinaParser extends AbstractParser {
                 STNodeFactory.createNodeList(paramList), params.closeParen);
     }
 
-    private STNode parseImplicitAnonFunc(List<STNode> qualifiers, boolean isRhsExpr) {
-        STNode qualifierList = STNodeFactory.createNodeList(qualifiers);
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case IDENTIFIER_TOKEN:
-                STNode parameter = STNodeFactory.createSimpleNameReferenceNode(consume());
-                return parseImplicitAnonFunc(qualifierList, parameter, isRhsExpr);
-            case OPEN_PAREN_TOKEN:
-                STNode openParen = consume();
-                startContext(ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS);
-                STNode firstParam = parseIdentifier(ParserRuleContext.IMPLICIT_ANON_FUNC_PARAM);
-                return parseImplicitAnonFunc(qualifierList, openParen, firstParam, isRhsExpr);
-            default:
-                recover(peek(), ParserRuleContext.IMPLICIT_ANON_FUNC_START);
-                return parseImplicitAnonFunc(qualifiers, isRhsExpr);
-        }
-    }
-
     /**
      * Parse implicit anon function expression.
      *
@@ -8795,7 +8768,7 @@ public class BallerinaParser extends AbstractParser {
      * @param isRhsExpr  Is expression in rhs context
      * @return Implicit anon function expression node
      */
-    private STNode parseImplicitAnonFunc(STNode qualifierList, STNode openParen, STNode firstParam, boolean isRhsExpr) {
+    private STNode parseImplicitAnonFunc(STNode openParen, STNode firstParam, boolean isRhsExpr) {
         List<STNode> paramList = new ArrayList<>();
         paramList.add(firstParam);
 
@@ -8821,7 +8794,7 @@ public class BallerinaParser extends AbstractParser {
         endContext(); // end arg list context
 
         STNode inferedParams = STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
-        return parseImplicitAnonFunc(qualifierList, inferedParams, isRhsExpr);
+        return parseImplicitAnonFunc(inferedParams, isRhsExpr);
     }
 
     private STNode parseImplicitAnonFuncParamEnd() {
