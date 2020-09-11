@@ -74,7 +74,7 @@ function testFilterNegative() returns boolean {
 function testIteratorNegative() returns boolean {
     boolean testPassed = true;
     Person[] personList = getPersonList();
-    abstract object { public function next() returns record {| Employee value; |}?;} itr = tab.iterator();
+    object { public function next() returns record {| Employee value; |}?;} itr = tab.iterator();
     Employee? emp = getEmployee(itr.next());
     testPassed = testPassed && emp?.name == personList[0].name;
     return testPassed;

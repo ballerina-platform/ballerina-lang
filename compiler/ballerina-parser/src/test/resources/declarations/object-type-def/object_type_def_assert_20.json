@@ -30,19 +30,28 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "ABSTRACT_KEYWORD",
-              "trailingMinutiae": [
+              "kind": "CLIENT_KEYWORD",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT",
+                "ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT"
+              ],
+              "leadingMinutiae": [
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
+                      {
+                        "kind": "ABSTRACT_KEYWORD"
+                      }
+                    ]
+                  }
+                },
                 {
                   "kind": "WHITESPACE_MINUTIAE",
                   "value": " "
                 }
-              ]
-            },
-            {
-              "kind": "CLIENT_KEYWORD",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_SAME_OBJECT_TYPE_QUALIFIER"
               ],
               "trailingMinutiae": [
                 {

@@ -55,7 +55,7 @@ function testOutputNestedStruct(string name) returns Person|string {
 }
 
 
-public type HelloWorldBlockingClient client object {
+public client class HelloWorldBlockingClient {
 
     private grpc:Client grpcClient;
 
@@ -90,9 +90,9 @@ public type HelloWorldBlockingClient client object {
             return value;
         }
     }
-};
+}
 
-public type HelloWorldClient client object {
+public client class HelloWorldClient {
 
     private grpc:Client grpcClient;
 
@@ -115,7 +115,7 @@ public type HelloWorldClient client object {
                                                                                                              error? {
         return self.grpcClient->nonBlockingExecute("foo.HelloWorld/testOutputNestedStruct", req, msgListener, headers = headers);
     }
-};
+}
 
 
 type Person record {

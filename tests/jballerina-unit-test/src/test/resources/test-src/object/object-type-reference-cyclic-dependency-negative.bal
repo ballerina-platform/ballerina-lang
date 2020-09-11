@@ -15,28 +15,28 @@
 // under the License.
 
 // Direct circular reference
-type Foo abstract object {
+type Foo object {
     *Foo;
 };
 
 // Indirect circular references
-type A abstract object {
+type A object {
     *B;
 };
 
-type B abstract object {
+type B object {
     *C;
 };
 
-type C abstract object {
+type C object {
     *D;
     *E;
 };
 
-type D abstract object {
+type D object {
     *A;
 };
 
-type E abstract object {
+type E object {
     *C;
 };

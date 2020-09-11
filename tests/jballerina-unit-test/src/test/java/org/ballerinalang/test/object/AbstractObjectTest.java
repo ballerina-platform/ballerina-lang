@@ -40,7 +40,7 @@ public class AbstractObjectTest {
         abstractObjects = BCompileUtil.compile("test-src/object/abstract_object.bal");
     }
 
-    @Test
+    @Test(groups = "brokenOnClassChange")
     public void testAbstractObjectNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/abstract-object-negative.bal");
         int index = 0;
@@ -74,12 +74,22 @@ public class AbstractObjectTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract_anon_object_negative.bal");
         int index = 0;
         BAssertUtil.validateError(compileResult, index++,
-                                  "abstract object '$anonType$0' cannot have a constructor method", 2, 54);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$0'", 2, 99);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$1'", 3, 77);
+                                  "abstract object '$anonType$1' cannot have a constructor method", 2, 45);
+        BAssertUtil.validateError(compileResult, index++, "missing object keyword", 2, 81);
+        BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 2, 81);
+        BAssertUtil.validateError(compileResult, index++, "missing identifier", 2, 83);
+        BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 2, 83);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$1'", 2, 90);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$2'", 3, 68);
         BAssertUtil.validateError(compileResult, index++,
-                "abstract object '$anonType$2' cannot have a constructor method", 6, 58);
-        BAssertUtil.validateError(compileResult, index, "cannot initialize abstract object '$anonType$4'", 8, 81);
+                "abstract object '$anonType$6' cannot have a constructor method", 6, 49);
+        BAssertUtil.validateError(compileResult, index++, "missing object keyword", 6, 85);
+        BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 6, 85);
+        BAssertUtil.validateError(compileResult, index++, "invalid token '}'", 6, 89);
+        BAssertUtil.validateError(compileResult, index++, "missing close brace token", 8, 70);
+        BAssertUtil.validateError(compileResult, index++, "missing identifier", 8, 70);
+        BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 8, 70);
+        BAssertUtil.validateError(compileResult, index, "invalid usage of 'new' with type 'any'", 8, 72);
     }
 
     @Test

@@ -245,9 +245,9 @@ function finiteTypes() returns string {
     return "Fail";
 }
 
-type Obj object {
+class Obj {
     int var1 = 12;
-};
+}
 
 function nonAnydataTypes() returns string {
     Obj y = new;

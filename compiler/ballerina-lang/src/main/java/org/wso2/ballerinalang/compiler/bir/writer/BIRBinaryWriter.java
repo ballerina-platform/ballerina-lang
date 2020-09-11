@@ -117,21 +117,21 @@ public class BIRBinaryWriter {
     /**
      * Write the type definitions. Only the container will be written, to avoid
      * cyclic dependencies with global vars.
-     * 
+     *
      * @param buf ByteBuf
      * @param typeWriter Type writer
-     * @param insWriter Instruction writer              
+     * @param insWriter Instruction writer
      * @param birTypeDefList Type definitions list
      */
     private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
-                List<BIRTypeDefinition> birTypeDefList) {
+                               List<BIRTypeDefinition> birTypeDefList) {
         buf.writeInt(birTypeDefList.size());
         birTypeDefList.forEach(typeDef -> writeType(buf, typeWriter, insWriter, typeDef));
     }
 
     /**
      * Write the body of the type definitions.
-     * 
+     *
      * @param buf ByteBuf
      * @param typeWriter Type writer
      * @param birTypeDefList Type definitions list
@@ -140,6 +140,7 @@ public class BIRBinaryWriter {
                                     List<BIRTypeDefinition> birTypeDefList) {
         List<BIRTypeDefinition> filtered = birTypeDefList.stream().filter(t -> t.type.tag == TypeTags.OBJECT
                 || t.type.tag == TypeTags.RECORD).collect(Collectors.toList());
+        buf.writeInt(filtered.size());
         filtered.forEach(typeDef -> {
             writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs);
             writeReferencedTypes(buf, typeDef.referencedTypes);
@@ -265,11 +266,11 @@ public class BIRBinaryWriter {
             birbuf.writeByte(localVar.kind.getValue());
             writeType(birbuf, localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
-            // Skip compiler added vars and only write metaVarName for user added vars
+            // skip compiler added vars and only write metaVarName for user added vars
             if (localVar.kind.equals(VarKind.ARG)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
             }
-            // Add enclosing basic block id
+            // add enclosing basic block id
             if (localVar.kind.equals(VarKind.LOCAL)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
                 birbuf.writeInt(addStringCPEntry(localVar.endBB != null ? localVar.endBB.id.value : ""));
@@ -278,8 +279,6 @@ public class BIRBinaryWriter {
             }
         }
 
-        // Write a boolean flag to indicate presence of parameter default bb's
-        birbuf.writeBoolean(!birFunction.parameters.isEmpty());
         // Write basic blocks related to parameter default values
         birFunction.parameters.values().forEach(funcInsWriter::writeBBs);
 
@@ -307,9 +306,11 @@ public class BIRBinaryWriter {
         ByteBuf birbuf = Unpooled.buffer();
         birbuf.writeShort(taintTable.rowCount);
         birbuf.writeShort(taintTable.columnCount);
+        birbuf.writeInt(taintTable.taintTable.size());
         for (Integer paramIndex : taintTable.taintTable.keySet()) {
             birbuf.writeShort(paramIndex);
             List<Byte> taintRecord = taintTable.taintTable.get(paramIndex);
+            birbuf.writeInt(taintRecord.size());
             for (Byte taintStatus : taintRecord) {
                 birbuf.writeByte(taintStatus);
             }
@@ -326,7 +327,7 @@ public class BIRBinaryWriter {
     }
 
     private void writeAnnotation(ByteBuf buf, BIRTypeWriter typeWriter,
-                               BIRNode.BIRAnnotation birAnnotation) {
+                                 BIRNode.BIRAnnotation birAnnotation) {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birAnnotation.name.value));
 
@@ -397,7 +398,7 @@ public class BIRBinaryWriter {
                 buf.writeInt(addStringCPEntry((String) constValue.value));
                 break;
             case TypeTags.BOOLEAN:
-                buf.writeByte((Boolean) constValue.value ? 1 : 0);
+                buf.writeBoolean((Boolean) constValue.value);
                 break;
             case TypeTags.NIL:
                 break;

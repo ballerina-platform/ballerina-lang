@@ -24,7 +24,7 @@ function testLength() returns int {
 
 function testIterator() returns string {
     string[] arr = ["Hello", "World!", "From", "Ballerina"];
-    abstract object {
+    object {
          public function next() returns record {| string value; |}?;
     } itr = arr.iterator();
 
@@ -283,14 +283,14 @@ function testUnshift() returns int[] {
     return s;
 }
 
-type Obj object {
+class Obj {
     int i;
     int j;
     function init(int i, int j) {
         self.i = i;
         self.j = j;
     }
-};
+}
 
 function testUnshiftTypeWithoutFillerValues () returns Obj[] {
     Obj[] arr = [];

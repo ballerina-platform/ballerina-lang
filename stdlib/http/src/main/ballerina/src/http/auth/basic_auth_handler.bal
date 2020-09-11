@@ -17,7 +17,7 @@
 import ballerina/auth;
 
 # Defines the Basic Auth header handler for inbound and outbound HTTP traffic.
-public type BasicAuthHandler object {
+public class BasicAuthHandler {
 
     *InboundAuthHandler;
     *OutboundAuthHandler;
@@ -106,4 +106,4 @@ public type BasicAuthHandler object {
             return prepareAuthenticationError("Inbound auth provider is configured for outbound authentication.");
         }
     }
-};
+}

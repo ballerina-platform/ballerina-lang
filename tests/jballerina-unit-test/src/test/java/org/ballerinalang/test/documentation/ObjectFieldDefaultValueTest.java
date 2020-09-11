@@ -43,6 +43,7 @@ import java.util.Map;
 /**
  * Test cases to check default value initialization for objects in docs.
  */
+@Test(groups = "brokenOnClassChange")
 public class ObjectFieldDefaultValueTest {
     private Module testModule;
     List<Object> objects;

@@ -19,7 +19,7 @@ import ballerina/time;
 import ballerina/lang.array;
 
 # Represents a WebSocket client endpoint.
-public type WebSocketClient client object {
+public client class WebSocketClient {
 
     private string id = "";
     private string? negotiatedSubProtocol = ();
@@ -174,8 +174,8 @@ public type WebSocketClient client object {
     public function getHttpResponse() returns Response? {
         return self.response;
     }
-    
-};
+
+}
 
 # Configurations for the WebSocket client.
 # Following fields are inherited from the other configuration records in addition to the Client specific
@@ -278,11 +278,11 @@ public type WebSocketRetryConfig record {|
 |};
 
 function externWSInitEndpoint(WebSocketClient wsClient) = @java:Method {
-    class: "org.ballerinalang.net.http.websocket.client.InitEndpoint",
+    'class: "org.ballerinalang.net.http.websocket.client.InitEndpoint",
     name: "initEndpoint"
 } external;
 
 function externRetryInitEndpoint(WebSocketClient wsClient) = @java:Method {
-    class: "org.ballerinalang.net.http.websocket.client.RetryInitEndpoint",
+    'class: "org.ballerinalang.net.http.websocket.client.RetryInitEndpoint",
     name: "initEndpoint"
 } external;

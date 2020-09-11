@@ -1,14 +1,14 @@
 
-public type officer object {
+public class officer {
     public int age = 0;
     public string name = "hidden, private";
     public string address = "";
     public string zipcode = "23468";
 
     private int ssn;
-};
+}
 
-public type userBar object {
+public class userBar {
     public int age = 0;
     public string name = "hidden, private";
     public string address = "";
@@ -31,9 +31,9 @@ public type userBar object {
     public function getZipcode() returns string {
         return self.zipcode;
     }
-};
+}
 
-public type BarObj object {
+public class BarObj {
     public int age = 0;
     public string name = "";
 
@@ -44,4 +44,4 @@ public type BarObj object {
     function getAge() returns int {
         return self.age;
     }
-};
+}

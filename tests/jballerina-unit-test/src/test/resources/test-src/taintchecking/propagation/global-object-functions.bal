@@ -1,4 +1,4 @@
-type TestObject object {
+class TestObject {
     string 'field = "";
     function testFunction (string input) returns string {
         return input;
@@ -7,7 +7,7 @@ type TestObject object {
     function setField(string newVal) {
         self.'field = newVal;
     }
-};
+}
 
 function secureFunction(@untainted string secureIn, string insecureIn) {
 

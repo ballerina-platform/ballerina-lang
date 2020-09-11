@@ -1,15 +1,14 @@
 public function foo() {
     type Student object {
         public int a;
-        
+
         object {
             int a
-            
-            function () 
+
+            function ()
             }
         } parent
 
-        function foo() {
-        }
+        function foo();
     };
 }
