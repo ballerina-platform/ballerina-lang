@@ -1314,7 +1314,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token asKeyword = getToken(xMLNamespaceDeclarationNode.asKeyword().orElse(null));
         IdentifierToken namespacePrefix = this.modifyNode(xMLNamespaceDeclarationNode.namespacePrefix().orElse(null));
         Token semicolonToken = getToken(xMLNamespaceDeclarationNode.semicolonToken());
-        int startColumn = getStartColumn(xMLNamespaceDeclarationNode, xMLNamespaceDeclarationNode.kind(), true);
+        int startColumn = getStartColumn(xMLNamespaceDeclarationNode, true);
 
         if (asKeyword != null) {
             xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
