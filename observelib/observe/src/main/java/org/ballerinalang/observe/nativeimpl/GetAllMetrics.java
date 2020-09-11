@@ -18,7 +18,6 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.observability.metrics.Counter;
 import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
@@ -37,7 +36,9 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -59,7 +60,7 @@ import java.util.Set;
 )
 public class GetAllMetrics {
 
-    private static final BType METRIC_TYPE = BallerinaValues
+    private static final BType METRIC_TYPE = BValueCreator
             .createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC)
             .getType();
 
@@ -87,7 +88,7 @@ public class GetAllMetrics {
                 metricType = MetricConstants.GAUGE;
             }
             if (metricValue != null) {
-                MapValue<BString, Object> metricStruct = BallerinaValues.createRecordValue(
+                BMap<BString, Object> metricStruct = BValueCreator.createRecordValue(
                         ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC);
                 metricStruct.put(StringUtils.fromString("name"), StringUtils.fromString(metricId.getName()));
                 metricStruct.put(StringUtils.fromString("desc"), StringUtils.fromString(metricId.getDescription()));
