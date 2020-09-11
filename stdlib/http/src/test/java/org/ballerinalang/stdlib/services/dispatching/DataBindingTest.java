@@ -209,7 +209,7 @@ public class DataBindingTest {
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
             expectedExceptionsMessageRegExp =
-                    ".*data binding failed: error failed to create xml: Unexpected character 'n'.*")
+                    ".*data binding failed: error\\(\"failed to create xml: Unexpected character 'n'.*")
     public void testDataBindingIncompatibleXMLPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "name':'WSO2', 'team':'ballerina");
