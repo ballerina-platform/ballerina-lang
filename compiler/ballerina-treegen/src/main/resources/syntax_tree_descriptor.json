@@ -1120,6 +1120,45 @@
             ]
         },
         {
+            "name": "ObjectConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "OBJECT_CONSTRUCTOR",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "objectTypeQualifiers",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "objectKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeReference",
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "members",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "RecordTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "RECORD_TYPE_DESC",
@@ -2617,6 +2656,11 @@
             "isAbstract": true
         },
         {
+            "name": "IntermediateClauseNode",
+            "base": "ClauseNode",
+            "isAbstract": true
+        },
+        {
             "name": "QueryConstructTypeNode",
             "base": "Node",
             "kind": "QUERY_CONSTRUCT_TYPE",
@@ -2634,7 +2678,7 @@
         },
         {
             "name": "FromClauseNode",
-            "base": "ClauseNode",
+            "base": "IntermediateClauseNode",
             "kind": "FROM_CLAUSE",
             "attributes": [
                 {
@@ -2657,7 +2701,7 @@
         },
         {
             "name": "WhereClauseNode",
-            "base": "ClauseNode",
+            "base": "IntermediateClauseNode",
             "kind": "WHERE_CLAUSE",
             "attributes": [
                 {
@@ -2672,7 +2716,7 @@
         },
         {
             "name": "LetClauseNode",
-            "base": "ClauseNode",
+            "base": "IntermediateClauseNode",
             "kind": "LET_CLAUSE",
             "attributes": [
                 {
@@ -2687,6 +2731,95 @@
             ]
         },
         {
+            "name": "JoinClauseNode",
+            "base": "IntermediateClauseNode",
+            "kind": "JOIN_CLAUSE",
+            "attributes": [
+                {
+                    "name": "outerKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "joinKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
+                },
+                {
+                    "name": "inKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "joinOnCondition",
+                    "type": "OnClauseNode"
+                }
+            ]
+        },
+        {
+            "name": "OnClauseNode",
+            "base": "ClauseNode",
+            "kind": "ON_CLAUSE",
+            "attributes": [
+                {
+                    "name": "onKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "lhsExpression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "equalsKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "rhsExpression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "LimitClauseNode",
+            "base": "IntermediateClauseNode",
+            "kind": "LIMIT_CLAUSE",
+            "attributes": [
+                {
+                    "name": "limitKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "OnConflictClauseNode",
+            "base": "ClauseNode",
+            "kind": "ON_CONFLICT_CLAUSE",
+            "attributes": [
+                {
+                    "name": "onKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "conflictKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
             "name": "QueryPipelineNode",
             "base": "Node",
             "kind": "QUERY_PIPELINE",
@@ -2697,7 +2830,7 @@
                 },
                 {
                     "name": "intermediateClauses",
-                    "type": "ClauseNode",
+                    "type": "IntermediateClauseNode",
                     "occurrences": "MULTIPLE"
                 }
             ]
@@ -2739,11 +2872,25 @@
                     "name": "onConflictClause",
                     "type": "OnConflictClauseNode",
                     "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "QueryActionNode",
+            "base": "ActionNode",
+            "kind": "QUERY_ACTION",
+            "attributes": [
+                {
+                    "name": "queryPipeline",
+                    "type": "QueryPipelineNode"
                 },
                 {
-                    "name": "limitClause",
-                    "type": "LimitClauseNode",
-                    "isOptional": true
+                    "name": "doKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "blockStatement",
+                    "type": "BlockStatementNode"
                 }
             ]
         },
@@ -3270,30 +3417,6 @@
             ]
         },
         {
-            "name": "QueryActionNode",
-            "base": "ActionNode",
-            "kind": "QUERY_ACTION",
-            "attributes": [
-                {
-                    "name": "queryPipeline",
-                    "type": "QueryPipelineNode"
-                },
-                {
-                    "name": "doKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "blockStatement",
-                    "type": "BlockStatementNode"
-                },
-                {
-                    "name": "limitClause",
-                    "type": "LimitClauseNode",
-                    "isOptional": true
-                }
-            ]
-        },
-        {
             "name": "OptionalFieldAccessExpressionNode",
             "base": "ExpressionNode",
             "kind": "OPTIONAL_FIELD_ACCESS",
@@ -3721,95 +3844,6 @@
             ]
         },
         {
-            "name": "OnConflictClauseNode",
-            "base": "ClauseNode",
-            "kind": "ON_CONFLICT_CLAUSE",
-            "attributes": [
-                {
-                    "name": "onKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "conflictKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "expression",
-                    "type": "ExpressionNode"
-                }
-            ]
-        },
-        {
-            "name": "LimitClauseNode",
-            "base": "ClauseNode",
-            "kind": "LIMIT_CLAUSE",
-            "attributes": [
-                {
-                    "name": "limitKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "expression",
-                    "type": "ExpressionNode"
-                }
-            ]
-        },
-        {
-            "name": "JoinClauseNode",
-            "base": "ClauseNode",
-            "kind": "JOIN_CLAUSE",
-            "attributes": [
-                {
-                    "name": "outerKeyword",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "joinKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "typedBindingPattern",
-                    "type": "TypedBindingPatternNode"
-                },
-                {
-                    "name": "inKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "expression",
-                    "type": "ExpressionNode"
-                },
-                {
-                    "name": "joinOnCondition",
-                    "type": "OnClauseNode"
-                }
-            ]
-        },
-        {
-            "name": "OnClauseNode",
-            "base": "ClauseNode",
-            "kind": "ON_CLAUSE",
-            "attributes": [
-                {
-                    "name": "onKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "lhsExpression",
-                    "type": "ExpressionNode"
-                },
-                {
-                    "name": "equalsKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "rhsExpression",
-                    "type": "ExpressionNode"
-                }
-            ]
-        },
-        {
             "name": "ListMatchPatternNode",
             "base": "Node",
             "kind": "LIST_MATCH_PATTERN",
@@ -4056,6 +4090,49 @@
                     "name": "orderDirection",
                     "type": "Token",
                     "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ClassDefinitionNode",
+            "base": "ModuleMemberDeclarationNode",
+            "kind": "CLASS_DEFINITION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "visibilityQualifier",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "classTypeQualifiers",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "classKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "className",
+                    "type": "Token"
+                },
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "members",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
                 }
             ]
         }

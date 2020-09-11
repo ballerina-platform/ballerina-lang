@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Student object {
+class Student {
     readonly string name;
     readonly int id;
     float avg = 80.0;
@@ -22,7 +22,7 @@ type Student object {
         self.name = n;
         self.id = i;
     }
-};
+}
 
 function testInvalidUpdateOfObjectWithSimpleReadonlyFields() {
     Student st = new ("Maryam", 5);
@@ -30,7 +30,7 @@ function testInvalidUpdateOfObjectWithSimpleReadonlyFields() {
     st.name = "Mary";
 }
 
-type Employee object {
+class Employee {
     readonly Details details;
     string department;
 
@@ -38,7 +38,7 @@ type Employee object {
         self.details = details;
         self.department = department;
     }
-};
+}
 
 type Details record {
     string name;
@@ -57,7 +57,7 @@ function testObjectWithStructuredReadonlyFields() {
     e.details.name = "Jo";
 }
 
-type Customer object {
+class Customer {
     readonly string name;
     int id;
 
@@ -65,7 +65,7 @@ type Customer object {
         self.name = n;
         self.id = i;
     }
-};
+}
 
 function testInvalidUpdateOfReadonlyFieldInUnion() {
     Customer customer = new ("Jo", 1234);
@@ -74,14 +74,14 @@ function testInvalidUpdateOfReadonlyFieldInUnion() {
     sd.name = "May";
 }
 
-type Foo abstract object {
+type Foo object {
     int[] arr;
     map<string> mp;
 
     function baz() returns string;
 };
 
-type Bar object {
+class Bar {
     readonly int[] arr = [1, 2];
     readonly map<string> mp = {a: "abc"};
     int? oth = ();
@@ -89,25 +89,25 @@ type Bar object {
     function baz() returns string {
         return "Bar";
     }
-};
+}
 
-type Baz object {
+class Baz {
     readonly int[] arr = [1, 2];
     map<string> mp = {a: "abc"};
 
     function baz() returns string {
         return "Baz";
     }
-};
+}
 
-type Qux object {
+class Qux {
     readonly & int[] arr = [1, 2];
     map<string> & readonly mp = {a: "abc"};
 
     function baz() returns string {
         return "Qux";
     }
-};
+}
 
 function testInvalidImmutableTypeAssignmentForNotAllReadOnlyFields() {
     Bar bar = new;
@@ -117,7 +117,7 @@ function testInvalidImmutableTypeAssignmentForNotAllReadOnlyFields() {
     Foo & readonly f3 = new Qux();
 }
 
-type Person object {
+class Person {
     readonly Particulars particulars;
     int id;
 
@@ -125,18 +125,18 @@ type Person object {
         self.particulars = particulars;
         self.id = 1021;
     }
-};
+}
 
-type Undergraduate object {
+class Undergraduate {
     Particulars & readonly particulars;
     int id = 1234;
 
     function init(Particulars & readonly particulars) {
         self.particulars = particulars;
     }
-};
+}
 
-type Graduate object {
+class Graduate {
     Particulars particulars;
     int id;
 
@@ -144,13 +144,13 @@ type Graduate object {
         self.particulars = particulars;
         self.id = id;
     }
-};
+}
 
 type Particulars record {|
     string name;
 |};
 
-type AbstractPerson abstract object {
+type AbstractPerson object {
     Particulars particulars;
     int id;
 };
@@ -167,15 +167,15 @@ function testSubTypingWithReadOnlyFieldsNegative() {
 }
 
 function testReadOnlyModifierInStringRepresentation() {
-    object {
+    var b = object {
         int i = 2;
         string s = "world";
         boolean b = false;
-    } b = new;
+    };
 
     object {
-        readonly int i = 2;
-        string s = "world";
-        readonly boolean b = true;
+        readonly int i;
+        string s;
+        readonly boolean b;
     } y = b;
 }

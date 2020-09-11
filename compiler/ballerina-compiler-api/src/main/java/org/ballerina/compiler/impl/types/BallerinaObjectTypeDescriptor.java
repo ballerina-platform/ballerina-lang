@@ -62,10 +62,6 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
         this.typeQualifiers = new ArrayList<>();
         BObjectType objectType = (BObjectType) getBType();
 
-        if ((objectType.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
-            this.typeQualifiers.add(TypeQualifier.ABSTRACT);
-        }
-
         if ((objectType.flags & Flags.CLIENT) == Flags.CLIENT) {
             this.typeQualifiers.add(TypeQualifier.CLIENT);
         }

@@ -45,9 +45,9 @@ type Baz record {
     Qux q?;
 };
 
-type Qux object {
+class Qux {
 
-};
+}
 
 public const annotation Baz v2 on service, source listener;
 

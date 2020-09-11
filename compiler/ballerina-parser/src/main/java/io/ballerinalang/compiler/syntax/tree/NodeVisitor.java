@@ -231,6 +231,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(objectTypeDescriptorNode);
     }
 
+    public void visit(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        visitSyntaxNode(objectConstructorExpressionNode);
+    }
+
     public void visit(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         visitSyntaxNode(recordTypeDescriptorNode);
     }
@@ -519,6 +523,22 @@ public abstract class NodeVisitor {
         visitSyntaxNode(letClauseNode);
     }
 
+    public void visit(JoinClauseNode joinClauseNode) {
+        visitSyntaxNode(joinClauseNode);
+    }
+
+    public void visit(OnClauseNode onClauseNode) {
+        visitSyntaxNode(onClauseNode);
+    }
+
+    public void visit(LimitClauseNode limitClauseNode) {
+        visitSyntaxNode(limitClauseNode);
+    }
+
+    public void visit(OnConflictClauseNode onConflictClauseNode) {
+        visitSyntaxNode(onConflictClauseNode);
+    }
+
     public void visit(QueryPipelineNode queryPipelineNode) {
         visitSyntaxNode(queryPipelineNode);
     }
@@ -529,6 +549,10 @@ public abstract class NodeVisitor {
 
     public void visit(QueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
+    }
+
+    public void visit(QueryActionNode queryActionNode) {
+        visitSyntaxNode(queryActionNode);
     }
 
     public void visit(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
@@ -643,10 +667,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(annotAccessExpressionNode);
     }
 
-    public void visit(QueryActionNode queryActionNode) {
-        visitSyntaxNode(queryActionNode);
-    }
-
     public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
         visitSyntaxNode(optionalFieldAccessExpressionNode);
     }
@@ -731,22 +751,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(distinctTypeDescriptorNode);
     }
 
-    public void visit(OnConflictClauseNode onConflictClauseNode) {
-        visitSyntaxNode(onConflictClauseNode);
-    }
-
-    public void visit(LimitClauseNode limitClauseNode) {
-        visitSyntaxNode(limitClauseNode);
-    }
-
-    public void visit(JoinClauseNode joinClauseNode) {
-        visitSyntaxNode(joinClauseNode);
-    }
-
-    public void visit(OnClauseNode onClauseNode) {
-        visitSyntaxNode(onClauseNode);
-    }
-
     public void visit(ListMatchPatternNode listMatchPatternNode) {
         visitSyntaxNode(listMatchPatternNode);
     }
@@ -793,6 +797,10 @@ public abstract class NodeVisitor {
 
     public void visit(OrderKeyNode orderKeyNode) {
         visitSyntaxNode(orderKeyNode);
+    }
+
+    public void visit(ClassDefinitionNode classDefinitionNode) {
+        visitSyntaxNode(classDefinitionNode);
     }
 
     // Tokens

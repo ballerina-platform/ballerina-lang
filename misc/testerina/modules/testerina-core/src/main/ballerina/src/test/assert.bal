@@ -156,7 +156,7 @@ private function getInequalityErrorMsg(any|error actual, any|error expected, str
 
 function sprintf(string format, (any|error)... args) returns string = @java:Method {
     name : "sprintf",
-    class : "org.ballerinalang.testerina.natives.io.Sprintf"
+    'class : "org.ballerinalang.testerina.natives.io.Sprintf"
 } external;
 
 function getBallerinaType((any|error) value) returns string = @java:Method {

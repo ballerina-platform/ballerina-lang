@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
@@ -73,6 +74,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -396,26 +398,6 @@ public class Desugar extends BLangNodeVisitor {
                         pkgNode.topLevelNodes.add(f);
                     }
                 });
-
-                if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
-                    continue;
-                }
-
-                BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(objectTypeNode, env);
-                tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
-                        tempGeneratedInitFunction.symbol.scope, env);
-                this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
-                objectTypeNode.generatedInitFunction = tempGeneratedInitFunction;
-
-                // Add generated init function to the attached function list
-                pkgNode.functions.add(objectTypeNode.generatedInitFunction);
-                pkgNode.topLevelNodes.add(objectTypeNode.generatedInitFunction);
-
-                // Add init function to the attached function list
-                if (objectTypeNode.initFunction != null) {
-                    pkgNode.functions.add(objectTypeNode.initFunction);
-                    pkgNode.topLevelNodes.add(objectTypeNode.initFunction);
-                }
             } else if (typeDef.symbol.tag == SymTag.RECORD) {
                 BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
                 recordTypeNode.initFunction = rewrite(
@@ -424,6 +406,40 @@ public class Desugar extends BLangNodeVisitor {
                 pkgNode.functions.add(recordTypeNode.initFunction);
                 pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
             }
+        }
+        int toplevelNodeCount = pkgNode.topLevelNodes.size();
+        for (int i = 0; i < toplevelNodeCount; i++) {
+            TopLevelNode topLevelNode = pkgNode.topLevelNodes.get(i);
+            if (topLevelNode.getKind() != NodeKind.CLASS_DEFN) {
+                continue;
+            }
+            addClassMemberFunctionsToTopLevel(pkgNode, env, (BLangClassDefinition) topLevelNode);
+        }
+    }
+
+    private void addClassMemberFunctionsToTopLevel(BLangPackage pkgNode, SymbolEnv env,
+                                                   BLangClassDefinition classDefinition) {
+        for (BLangFunction function : classDefinition.functions) {
+            if (!pkgNode.objAttachedFunctions.contains(function.symbol)) {
+                pkgNode.functions.add(function);
+                pkgNode.topLevelNodes.add(function);
+            }
+        }
+
+        BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDefinition, env);
+        tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
+                tempGeneratedInitFunction.symbol.scope, env);
+        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
+        classDefinition.generatedInitFunction = tempGeneratedInitFunction;
+
+        // Add generated init function to the attached function list
+        pkgNode.functions.add(classDefinition.generatedInitFunction);
+        pkgNode.topLevelNodes.add(classDefinition.generatedInitFunction);
+
+        // Add init function to the attached function list
+        if (classDefinition.initFunction != null) {
+            pkgNode.functions.add(classDefinition.initFunction);
+            pkgNode.topLevelNodes.add(classDefinition.initFunction);
         }
     }
 
@@ -437,24 +453,30 @@ public class Desugar extends BLangNodeVisitor {
      * nodes, one should always take care to call this method **after** desugaring the init() method (if there is
      * supposed to be one).
      *
-     * @param objectTypeNode The object type node for which the initializer is created
+     * @param classDefinition The class definition node for which the initializer is created
      * @param env            The env for the type node
      * @return The generated initializer method
      */
-    private BLangFunction createGeneratedInitializerFunction(BLangObjectTypeNode objectTypeNode, SymbolEnv env) {
-        BLangFunction generatedInitFunc = createInitFunctionForObjectType(objectTypeNode, env);
-        if (objectTypeNode.initFunction == null) {
+    private BLangFunction createGeneratedInitializerFunction(BLangClassDefinition classDefinition, SymbolEnv env) {
+        BLangFunction generatedInitFunc = createInitFunctionForClassDefn(classDefinition, env);
+        if (classDefinition.initFunction == null) {
             return generatedInitFunc;
         }
 
-        BAttachedFunction initializerFunc = ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc;
-        BAttachedFunction generatedInitializerFunc =
-                ((BObjectTypeSymbol) objectTypeNode.symbol).generatedInitializerFunc;
-        addRequiredParamsToGeneratedInitFunction(objectTypeNode.initFunction, generatedInitFunc,
-                                                 generatedInitializerFunc);
-        addRestParamsToGeneratedInitFunction(objectTypeNode.initFunction, generatedInitFunc, generatedInitializerFunc);
+        return wireUpGeneratedInitFunction(generatedInitFunc,
+                    (BObjectTypeSymbol) classDefinition.symbol, classDefinition.initFunction);
+    }
 
-        generatedInitFunc.returnTypeNode = objectTypeNode.initFunction.returnTypeNode;
+    private BLangFunction wireUpGeneratedInitFunction(BLangFunction generatedInitFunc,
+                                                      BObjectTypeSymbol objectTypeSymbol, BLangFunction initFunction) {
+        BAttachedFunction initializerFunc = objectTypeSymbol.initializerFunc;
+        BAttachedFunction generatedInitializerFunc =
+                objectTypeSymbol.generatedInitializerFunc;
+        addRequiredParamsToGeneratedInitFunction(initFunction, generatedInitFunc,
+                                                 generatedInitializerFunc);
+        addRestParamsToGeneratedInitFunction(initFunction, generatedInitFunc, generatedInitializerFunc);
+
+        generatedInitFunc.returnTypeNode = initFunction.returnTypeNode;
         generatedInitializerFunc.symbol.retType = generatedInitFunc.returnTypeNode.type;
 
         ((BInvokableType) generatedInitFunc.symbol.type).paramTypes = initializerFunc.type.paramTypes;
@@ -692,6 +714,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.constants = rewrite(pkgNode.constants, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
+        desugarClassDefinitions(pkgNode.topLevelNodes);
 
         pkgNode.functions = rewrite(pkgNode.functions, env);
 
@@ -715,6 +738,15 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
+    }
+
+    private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {
+        for (int i = 0, topLevelNodesSize = topLevelNodes.size(); i < topLevelNodesSize; i++) {
+            TopLevelNode topLevelNode = topLevelNodes.get(i);
+            if (topLevelNode.getKind() == NodeKind.CLASS_DEFN) {
+                ((BLangClassDefinition) topLevelNode).accept(this);
+            }
+        }
     }
 
     @Override
@@ -741,73 +773,82 @@ public class Desugar extends BLangNodeVisitor {
         // Merge the fields defined within the object and the fields that
         // get inherited via the type references.
         objectTypeNode.fields.addAll(objectTypeNode.referencedFields);
+        result = objectTypeNode;
+    }
 
-        if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
-            result = objectTypeNode;
-            return;
-        }
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
 
-        for (BLangSimpleVariable bLangSimpleVariable : objectTypeNode.fields) {
+        classDefinition.annAttachments.forEach(attachment ->  rewrite(attachment, env));
+
+        // Merge the fields defined within the object and the fields that
+        // get inherited via the type references.
+        classDefinition.fields.addAll(classDefinition.referencedFields);
+
+        for (BLangSimpleVariable bLangSimpleVariable : classDefinition.fields) {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
         }
 
         // Add object level variables to the init function.
-        Map<BSymbol, BLangStatement> initFuncStmts = objectTypeNode.generatedInitFunction.initFunctionStmts;
-        for (BLangSimpleVariable field : objectTypeNode.fields) {
+        Map<BSymbol, BLangStatement> initFuncStmts = classDefinition.generatedInitFunction.initFunctionStmts;
+        for (BLangSimpleVariable field : classDefinition.fields) {
             // skip if the field is already have an value set by the constructor.
             if (!initFuncStmts.containsKey(field.symbol) && field.expr != null) {
                 initFuncStmts.put(field.symbol,
-                                  createStructFieldUpdate(objectTypeNode.generatedInitFunction, field,
-                                                          objectTypeNode.generatedInitFunction.receiver.symbol));
+                        createStructFieldUpdate(classDefinition.generatedInitFunction, field,
+                                classDefinition.generatedInitFunction.receiver.symbol));
             }
         }
 
         // Adding init statements to the init function.
         BLangStatement[] initStmts = initFuncStmts.values().toArray(new BLangStatement[0]);
         BLangBlockFunctionBody generatedInitFnBody =
-                (BLangBlockFunctionBody) objectTypeNode.generatedInitFunction.body;
+                (BLangBlockFunctionBody) classDefinition.generatedInitFunction.body;
         int i;
         for (i = 0; i < initStmts.length; i++) {
             generatedInitFnBody.stmts.add(i, initStmts[i]);
         }
 
-        if (objectTypeNode.initFunction != null) {
+        if (classDefinition.initFunction != null) {
             ((BLangReturn) generatedInitFnBody.stmts.get(i)).expr =
-                    createUserDefinedInitInvocation(objectTypeNode);
+                    createUserDefinedInitInvocation(classDefinition.pos,
+                            (BObjectTypeSymbol) classDefinition.symbol, classDefinition.generatedInitFunction);
         }
 
         // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
         // gets defined before its first use.
-        for (BLangFunction fn : objectTypeNode.functions) {
+        for (BLangFunction fn : classDefinition.functions) {
             rewrite(fn, this.env);
         }
-        rewrite(objectTypeNode.generatedInitFunction, this.env);
-        rewrite(objectTypeNode.initFunction, this.env);
+        rewrite(classDefinition.generatedInitFunction, this.env);
+        rewrite(classDefinition.initFunction, this.env);
 
-        result = objectTypeNode;
+        result = classDefinition;
+
     }
 
-    private BLangInvocation createUserDefinedInitInvocation(BLangObjectTypeNode objectTypeNode) {
+    private BLangInvocation createUserDefinedInitInvocation(DiagnosticPos pos, BObjectTypeSymbol objectTypeSymbol,
+                                                            BLangFunction generatedInitFunction) {
         ArrayList<BLangExpression> paramRefs = new ArrayList<>();
-        for (BLangSimpleVariable var : objectTypeNode.generatedInitFunction.requiredParams) {
-            paramRefs.add(ASTBuilderUtil.createVariableRef(objectTypeNode.pos, var.symbol));
+        for (BLangSimpleVariable var : generatedInitFunction.requiredParams) {
+            paramRefs.add(ASTBuilderUtil.createVariableRef(pos, var.symbol));
         }
 
-        BLangInvocation invocation = ASTBuilderUtil.createInvocationExprMethod(objectTypeNode.pos,
-                ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc.symbol,
+        BLangInvocation invocation = ASTBuilderUtil.createInvocationExprMethod(pos,
+                objectTypeSymbol.initializerFunc.symbol,
                 paramRefs, Collections.emptyList(), symResolver);
-        if (objectTypeNode.generatedInitFunction.restParam != null) {
-            BLangSimpleVarRef restVarRef = ASTBuilderUtil.createVariableRef(objectTypeNode.pos,
-                    objectTypeNode.generatedInitFunction.restParam.symbol);
+        if (generatedInitFunction.restParam != null) {
+            BLangSimpleVarRef restVarRef = ASTBuilderUtil.createVariableRef(pos,
+                    generatedInitFunction.restParam.symbol);
             BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
             bLangRestArgsExpression.expr = restVarRef;
-            bLangRestArgsExpression.pos = objectTypeNode.generatedInitFunction.pos;
-            bLangRestArgsExpression.type = objectTypeNode.generatedInitFunction.restParam.type;
+            bLangRestArgsExpression.pos = generatedInitFunction.pos;
+            bLangRestArgsExpression.type = generatedInitFunction.restParam.type;
             bLangRestArgsExpression.expectedType = bLangRestArgsExpression.type;
             invocation.restArgs.add(bLangRestArgsExpression);
         }
         invocation.exprSymbol =
-                ((BObjectTypeSymbol) objectTypeNode.symbol).generatedInitializerFunc.symbol.receiverSymbol;
+                objectTypeSymbol.generatedInitializerFunc.symbol.receiverSymbol;
 
         return rewriteExpr(invocation);
     }
@@ -4451,7 +4492,8 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         DiagnosticPos pos = rawTemplateLiteral.pos;
         BObjectType objType = (BObjectType) rawTemplateLiteral.type;
-        BLangTypeDefinition objClassDef = desugarTemplateLiteralObjectTypedef(rawTemplateLiteral.strings, objType, pos);
+        BLangClassDefinition objClassDef =
+                desugarTemplateLiteralObjectTypedef(rawTemplateLiteral.strings, objType, pos);
         BObjectType classObjType = (BObjectType) objClassDef.type;
 
         BVarSymbol insertionsSym = classObjType.fields.get("insertions").symbol;
@@ -4485,28 +4527,29 @@ public class Desugar extends BLangNodeVisitor {
      * @param pos        The diagnostic position info for the type node
      * @return Returns the generated concrete object class def
      */
-    private BLangTypeDefinition desugarTemplateLiteralObjectTypedef(List<BLangLiteral> strings, BObjectType objectType,
+    private BLangClassDefinition desugarTemplateLiteralObjectTypedef(List<BLangLiteral> strings, BObjectType objectType,
                                                                     DiagnosticPos pos) {
         // TODO: Use the anon model helper to generate the object name?
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) objectType.tsymbol;
         Name objectClassName = names.fromString(
                 anonModelHelper.getNextRawTemplateTypeKey(env.enclPkg.packageID, tSymbol.name));
-        final int updatedFlags = Flags.unset(tSymbol.flags, Flags.ABSTRACT);
-        BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(updatedFlags, objectClassName,
+        tSymbol.flags |= Flags.CLASS;
+
+        BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(tSymbol.flags, objectClassName,
                                                                     env.enclPkg.packageID, null, env.enclPkg.symbol,
                                                                     pos, VIRTUAL);
 
         // Create a new concrete, class type for the provided abstract object type
-        BObjectType objectClassType = new BObjectType(classTSymbol, updatedFlags);
+        BObjectType objectClassType = new BObjectType(classTSymbol, tSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
 
         // Create a new object type node and a type def from the concrete class type
-        BLangObjectTypeNode objectClassNode = TypeDefBuilderHelper.createObjectTypeNode(objectClassType, pos);
-        BLangTypeDefinition typeDef = TypeDefBuilderHelper.addTypeDefinition(objectClassType, objectClassType.tsymbol,
-                                                                             objectClassNode, env);
-        typeDef.name = ASTBuilderUtil.createIdentifier(pos, objectClassType.tsymbol.name.value);
-        typeDef.pos = pos;
+//        BLangObjectTypeNode objectClassNode = TypeDefBuilderHelper.createObjectTypeNode(objectClassType, pos);
+//        BLangTypeDefinition typeDef = TypeDefBuilderHelper.addTypeDefinition(objectClassType, objectClassType.tsymbol,
+//                                                                             objectClassNode, env);
+        BLangClassDefinition classDef = TypeDefBuilderHelper.createClassDef(pos, classTSymbol, env);
+        classDef.name = ASTBuilderUtil.createIdentifier(pos, objectClassType.tsymbol.name.value);
 
         // Create a list constructor expr for the strings field. This gets assigned to the corresponding field in the
         // object since this needs to be initialized in the generated init method.
@@ -4514,24 +4557,24 @@ public class Desugar extends BLangNodeVisitor {
         BLangListConstructorExpr stringsList = ASTBuilderUtil.createListConstructorExpr(pos, stringsType);
         stringsList.exprs.addAll(strings);
         stringsList.expectedType = stringsType;
-        objectClassNode.fields.get(0).expr = stringsList;
+        classDef.fields.get(0).expr = stringsList;
 
         // Create the init() method
-        BLangFunction userDefinedInitFunction = createUserDefinedObjectInitFn(objectClassNode, env);
-        objectClassNode.initFunction = userDefinedInitFunction;
+        BLangFunction userDefinedInitFunction = createUserDefinedObjectInitFn(classDef, env);
+        classDef.initFunction = userDefinedInitFunction;
         env.enclPkg.functions.add(userDefinedInitFunction);
         env.enclPkg.topLevelNodes.add(userDefinedInitFunction);
 
         // Create the initializer method for initializing default values
-        BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(objectClassNode, env);
+        BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDef, env);
         tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
                                                                           tempGeneratedInitFunction.symbol.scope, env);
         this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
-        objectClassNode.generatedInitFunction = tempGeneratedInitFunction;
-        env.enclPkg.functions.add(objectClassNode.generatedInitFunction);
-        env.enclPkg.topLevelNodes.add(objectClassNode.generatedInitFunction);
+        classDef.generatedInitFunction = tempGeneratedInitFunction;
+        env.enclPkg.functions.add(classDef.generatedInitFunction);
+        env.enclPkg.topLevelNodes.add(classDef.generatedInitFunction);
 
-        return rewrite(typeDef, env);
+        return rewrite(classDef, env);
     }
 
     /**
@@ -4539,31 +4582,31 @@ public class Desugar extends BLangNodeVisitor {
      * values specified in the type node, this will add parameters for those fields in the init() method and assign the
      * param values to the respective fields in the method body.
      *
-     * @param objectTypeNode The object type node for which the init() method is generated
+     * @param classDefn The object type node for which the init() method is generated
      * @param env            The symbol env for the object type node
      * @return The generated init() method
      */
-    private BLangFunction createUserDefinedObjectInitFn(BLangObjectTypeNode objectTypeNode, SymbolEnv env) {
+    private BLangFunction createUserDefinedObjectInitFn(BLangClassDefinition classDefn, SymbolEnv env) {
         BLangFunction initFunction =
-                TypeDefBuilderHelper.createInitFunctionForStructureType(objectTypeNode, env,
-                                                                        Names.USER_DEFINED_INIT_SUFFIX, names,
-                                                                        symTable);
-        BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) objectTypeNode.type.tsymbol);
+                TypeDefBuilderHelper.createInitFunctionForStructureType(classDefn.pos, classDefn.symbol, env,
+                        names, Names.USER_DEFINED_INIT_SUFFIX,
+                        symTable, classDefn.type);
+        BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefn.type.tsymbol);
         typeSymbol.initializerFunc = new BAttachedFunction(Names.USER_DEFINED_INIT_SUFFIX, initFunction.symbol,
-                                                           (BInvokableType) initFunction.type, objectTypeNode.pos);
-        objectTypeNode.initFunction = initFunction;
+                                                           (BInvokableType) initFunction.type, classDefn.pos);
+        classDefn.initFunction = initFunction;
         initFunction.returnTypeNode.type = symTable.nilType;
 
         BLangBlockFunctionBody initFuncBody = (BLangBlockFunctionBody) initFunction.body;
         BInvokableType initFnType = (BInvokableType) initFunction.type;
-        for (BLangSimpleVariable field : objectTypeNode.fields) {
+        for (BLangSimpleVariable field : classDefn.fields) {
             if (field.expr != null) {
                 continue;
             }
             BVarSymbol fieldSym = field.symbol;
             BVarSymbol paramSym = new BVarSymbol(Flags.FINAL, fieldSym.name, this.env.scope.owner.pkgID, fieldSym.type,
-                                                 initFunction.symbol, objectTypeNode.pos, VIRTUAL);
-            BLangSimpleVariable param = ASTBuilderUtil.createVariable(objectTypeNode.pos, fieldSym.name.value,
+                                                 initFunction.symbol, classDefn.pos, VIRTUAL);
+            BLangSimpleVariable param = ASTBuilderUtil.createVariable(classDefn.pos, fieldSym.name.value,
                                                                       fieldSym.type, null, paramSym);
             param.flagSet.add(Flag.FINAL);
             initFunction.symbol.scope.define(paramSym.name, paramSym);
@@ -4983,7 +5026,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         final BLangTypeInit typeInit = ASTBuilderUtil.createEmptyTypeInit(serviceConstructorExpr.pos,
-                serviceConstructorExpr.serviceNode.serviceTypeDefinition.symbol.type);
+                serviceConstructorExpr.serviceNode.serviceClass.symbol.type);
         serviceConstructorExpr.serviceNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = rewriteExpr(typeInit);
     }
@@ -6867,15 +6910,14 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangFunction createInitFunctionForObjectType(BLangObjectTypeNode structureTypeNode, SymbolEnv env) {
+    private BLangFunction createInitFunctionForClassDefn(BLangClassDefinition classDefinition, SymbolEnv env) {
         BLangFunction initFunction =
-                TypeDefBuilderHelper.createInitFunctionForStructureType(structureTypeNode, env,
-                                                                        Names.GENERATED_INIT_SUFFIX, names, symTable);
-        BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) structureTypeNode.type.tsymbol);
+                TypeDefBuilderHelper.createInitFunctionForStructureType(classDefinition.pos, classDefinition.symbol,
+                        env, names, Names.GENERATED_INIT_SUFFIX, symTable, classDefinition.type);
+        BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefinition.type.tsymbol);
         typeSymbol.generatedInitializerFunc = new BAttachedFunction(Names.GENERATED_INIT_SUFFIX, initFunction.symbol,
-                                                                    (BInvokableType) initFunction.type,
-                                                                    symTable.builtinPos);
-        structureTypeNode.generatedInitFunction = initFunction;
+                (BInvokableType) initFunction.type, classDefinition.pos);
+        classDefinition.generatedInitFunction = initFunction;
         initFunction.returnTypeNode.type = symTable.nilType;
         return rewrite(initFunction, env);
     }

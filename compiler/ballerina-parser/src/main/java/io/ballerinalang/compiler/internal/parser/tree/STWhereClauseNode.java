@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STWhereClauseNode extends STClauseNode {
+public class STWhereClauseNode extends STIntermediateClauseNode {
     public final STNode whereKeyword;
     public final STNode expression;
 

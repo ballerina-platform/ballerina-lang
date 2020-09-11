@@ -31,6 +31,6 @@ type Bar record {
 
 type IntersectionWithInvalidObjectTypeAfter Baz & readonly;
 
-type Baz abstract object {
+type Baz object {
     future<int> ft;
 };
