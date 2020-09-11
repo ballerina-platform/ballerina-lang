@@ -121,6 +121,7 @@ import static java.lang.String.format;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
+
 /**
  * @since 0.94
  */
@@ -910,23 +911,15 @@ public class SymbolResolver extends BLangNodeVisitor {
                 BLangExpression size = arrayTypeNode.sizes[i];
                 if (size.getKind() == NodeKind.LITERAL || size.getKind() == NodeKind.NUMERIC_LITERAL) {
                     Integer sizeIndicator = (Integer) (((BLangLiteral) size).getValue());
-
+                    BArrayState arrayState;
                     if (sizeIndicator == OPEN_ARRAY_INDICATOR) {
-                        arrType = new BArrayType(resultType,
-                                arrayTypeSymbol,
-                                sizeIndicator,
-                                BArrayState.UNSEALED);
+                        arrayState = BArrayState.UNSEALED;
                     } else if (sizeIndicator == INFERRED_ARRAY_INDICATOR) {
-                        arrType = new BArrayType(resultType,
-                                arrayTypeSymbol,
-                                sizeIndicator,
-                                BArrayState.OPEN_SEALED);
+                        arrayState = BArrayState.OPEN_SEALED;
                     } else {
-                        arrType =  new BArrayType(resultType,
-                                arrayTypeSymbol,
-                                sizeIndicator,
-                                BArrayState.CLOSED_SEALED);
+                        arrayState = BArrayState.CLOSED_SEALED;
                     }
+                    arrType =  new BArrayType(resultType, arrayTypeSymbol,  sizeIndicator, arrayState);
                 } else {
                     BLangSimpleVarRef sizeReference = (BLangSimpleVarRef) size;
                     Name pkgAlias = names.fromIdNode(sizeReference.pkgAlias);
@@ -959,10 +952,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     }
 
                     int length = Integer.parseInt(sizeConstSymbol.type.toString());
-                    arrType = new BArrayType(resultType,
-                            arrayTypeSymbol,
-                            length,
-                            BArrayState.CLOSED_SEALED);
+                    arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED_SEALED);
                 }
             }
             arrayTypeSymbol.type = arrType;

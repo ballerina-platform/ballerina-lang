@@ -442,7 +442,7 @@ function createConstLiteralAutoFilledSealedArray() {
 
 function testArrayWithConstantSizeReferenceFill() {
     int[constLength] sealedArray = [1];
-    sealedArray[1]=2;
+    sealedArray[1] = 2;
     assertArrayLengthPanic(2, sealedArray);
     assertArrayValuePanic(2, sealedArray, 1);
 }

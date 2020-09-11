@@ -37,59 +37,66 @@ public class ArraySizeDefinitionTest {
 
     @Test(groups = { "disableOnOldParser" })
     public void testCompilationSizeReferenceErrors() {
+        CompileResult resultPositive = BCompileUtil.compile("test-src/statements/arrays/array_size_test.bal");
+        Assert.assertEquals(resultPositive.getDiagnostics().length, 0);
+
         int index = 0;
-        CompileResult result = BCompileUtil.compile(
-                "test-src/statements/arrays/array-size-test.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 20);
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 6, 26);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 7, 9);
-        BAssertUtil.validateError(result, index++, incompatibleTypeError, 8, 9);
-        BAssertUtil.validateError(result, index++, undefinedSymbolError, 9, 5);
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 10, 16);
+        CompileResult resultNegative = BCompileUtil.compile("test-src/statements/arrays/array_size_test_" +
+                "negative.bal");
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 22, 26);
+        BAssertUtil.validateError(resultNegative, index++, invalidReferenceExpressionError, 23, 9);
+        BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 24, 9);
+        BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 25, 5);
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 26, 16);
 
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 12, 36);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 13, 12);
-        BAssertUtil.validateError(result, index++, incompatibleTypeError, 14, 12);
-        BAssertUtil.validateError(result, index++, undefinedSymbolError, 15, 5);
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 16, 26);
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 28, 36);
+        BAssertUtil.validateError(resultNegative, index++, invalidReferenceExpressionError, 29, 12);
+        BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 30, 12);
+        BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 31, 5);
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 32, 26);
 
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 18, 29);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 19, 9);
-        BAssertUtil.validateError(result, index++, incompatibleTypeError, 20, 9);
-        BAssertUtil.validateError(result, index++, undefinedSymbolError, 21, 5);
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 22, 19);
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 34, 29);
+        BAssertUtil.validateError(resultNegative, index++, invalidReferenceExpressionError, 35, 9);
+        BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 36, 9);
+        BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 37, 5);
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 38, 19);
 
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 24, 33);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 25, 12);
-        BAssertUtil.validateError(result, index++, incompatibleTypeError, 26, 12);
-        BAssertUtil.validateError(result, index++, undefinedSymbolError, 27, 5);
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 28, 23);
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 40, 33);
+        BAssertUtil.validateError(resultNegative, index++, invalidReferenceExpressionError, 41, 12);
+        BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 42, 12);
+        BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 43, 5);
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 44, 23);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, index);
     }
 
     @Test(groups = { "disableOnOldParser" })
     public void arraySizeReferenceInDifferentScopeTest() {
+        CompileResult resultPositive = BCompileUtil.compile("test-src/statements/arrays/array_size_scope_test.bal");
+        Assert.assertEquals(resultPositive.getDiagnostics().length, 0);
+
         int index = 0;
-        CompileResult result = BCompileUtil.compile(
-                "test-src/statements/arrays/array-size-scope-test.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 16);
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 6, 22);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 7, 5);
-        BAssertUtil.validateError(result, index++, incompatibleTypeError, 8, 5);
-        BAssertUtil.validateError(result, index++, undefinedSymbolError, 9, 1);
+        CompileResult resultNegative = BCompileUtil.compile("test-src/statements/arrays/array_size_scope_test_" +
+                "negative.bal");
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 17, 24);
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 23, 22);
+        BAssertUtil.validateError(resultNegative, index++, invalidReferenceExpressionError, 24, 5);
+        BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 25, 5);
+        BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 26, 1);
 
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 13, 26);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 14, 9);
-        BAssertUtil.validateError(result, index++, incompatibleTypeError, 15, 9);
-        BAssertUtil.validateError(result, index++, undefinedSymbolError, 16, 5);
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 29, 26);
+        BAssertUtil.validateError(resultNegative, index++, invalidReferenceExpressionError, 30, 9);
+        BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 31, 9);
+        BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 32, 5);
 
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 21, 41);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 22, 24);
-        BAssertUtil.validateError(result, index++, incompatibleTypeError, 23, 24);
-        BAssertUtil.validateError(result, index++, undefinedSymbolError, 24, 20);
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 36, 41);
+        BAssertUtil.validateError(resultNegative, index++, invalidReferenceExpressionError, 37, 24);
+        BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 38, 24);
+        BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 39, 20);
 
-        BAssertUtil.validateError(result, index++, sizeMismatchError, 33, 30);
-        BAssertUtil.validateError(result, index++, invalidReferenceExpressionError, 34, 13);
-        BAssertUtil.validateError(result, index++, incompatibleTypeError, 35, 13);
-        BAssertUtil.validateError(result, index++, undefinedSymbolError, 36, 9);
+        BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 47, 30);
+        BAssertUtil.validateError(resultNegative, index++, invalidReferenceExpressionError, 48, 13);
+        BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 49, 13);
+        BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 50, 9);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, index);
     }
 }

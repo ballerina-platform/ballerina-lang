@@ -27,7 +27,7 @@
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
     <suite-files>
-        <suite-file path="./testng-jballerina.xml" />
+<!--        <suite-file path="./testng-jballerina.xml" />-->
         <suite-file path="./testng-new-parser.xml" />
     </suite-files>
 </suite>

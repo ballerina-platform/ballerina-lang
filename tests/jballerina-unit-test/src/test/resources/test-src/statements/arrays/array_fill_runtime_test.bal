@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 const constLength = 2;
 
 type Rec record {
@@ -123,7 +124,7 @@ function createMultipleConstLiteralAutoFilledSealedArray() {
 
 function tesOneDimensionalArrayWithConstantSizeReferenceFill() {
     int[constLength] a = [];
-    a[1]=2;
+    a[1] = 2;
     assertEqualPanic(2, a.length());
     assertEqualPanic(0, a[0]);
     assertEqualPanic(2, a[1]);
