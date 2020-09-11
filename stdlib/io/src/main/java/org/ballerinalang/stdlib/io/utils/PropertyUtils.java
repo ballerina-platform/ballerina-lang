@@ -21,11 +21,10 @@ package org.ballerinalang.stdlib.io.utils;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.MappingInitialValueEntry;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,14 +59,14 @@ public class PropertyUtils {
         }
         String value = readableProperties.getProperty(key.getValue(), defaultValue.getValue());
         if (value != null) {
-            return org.ballerinalang.jvm.StringUtils.fromString(value);
+            return StringUtils.fromString(value);
         }
 
         return null;
     }
 
     // Read all properties and return as a ballerina map
-    public static MapValue<BString, BString> readAllProperties(Reader reader, String propertiesId) throws IOException {
+    public static BMap<BString, Object> readAllProperties(Reader reader, String propertiesId) throws IOException {
         Properties readableProperties;
         if (!propertiesMap.containsKey(propertiesId)) {
             readableProperties = new Properties();
@@ -87,7 +86,7 @@ public class PropertyUtils {
             keyValues[i] = keyValue;
             i++;
         }
-        return new MapValueImpl<>(mapType, keyValues);
+        return BValueCreator.createMapValue(mapType, keyValues);
     }
 
 

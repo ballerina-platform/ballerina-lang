@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.BallerinaErrors.createError;
+import static org.ballerinalang.jvm.values.api.BErrorCreator.createError;
 import static org.ballerinalang.jvm.values.api.BValueCreator.createObjectValue;
 
 /**

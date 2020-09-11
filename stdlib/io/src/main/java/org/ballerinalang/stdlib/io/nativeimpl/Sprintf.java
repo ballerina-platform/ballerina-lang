@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
@@ -25,7 +26,6 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.util.IllegalFormatConversionException;
 
@@ -137,7 +137,7 @@ public class Sprintf {
             // no match, copy and continue
             result.append(format.getValue().charAt(i));
         }
-        return org.ballerinalang.jvm.StringUtils.fromString(result.toString());
+        return StringUtils.fromString(result.toString());
     }
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {

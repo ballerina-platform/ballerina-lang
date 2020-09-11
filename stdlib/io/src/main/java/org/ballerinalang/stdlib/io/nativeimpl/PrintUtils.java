@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.values.utils.StringUtils;
+import org.ballerinalang.jvm.StringUtils;
 
 import java.io.PrintStream;
 
