@@ -41,7 +41,7 @@ annotation ArgsData DefaultableArgs on function;
 #
 # The usage of a deprecated program element is not recommended due to
 # various reasons. Hence, the compiler issues a warning when such an element is used.
-public const annotation deprecated on source type, source object type, source const, source annotation,
+public const annotation deprecated on source type, source class, source const, source annotation,
                 source function, source parameter, source object function, source object field;
 
 //# Defines a disptcher to be used for concurrent execution of strands.
@@ -71,4 +71,4 @@ public type StrandData record {|
 public const annotation StrandData strand on source worker;
 
 # Denotes icon metadata related to types and functions.
-public const annotation record {| string path; |} icon on source type, source function;
+public const annotation record {| string path; |} icon on source type, source function, source class;

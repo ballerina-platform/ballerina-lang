@@ -18,10 +18,10 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/http;
 
-type Person object {
+class Person {
     string name = "";
     int age = 0;
-};
+}
 
 @http:ServiceConfig {
     basePath: "/s1"

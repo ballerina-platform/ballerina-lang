@@ -15,6 +15,5 @@ type DummyObject object {
     # `` Purpose of adding
     # this documentation is
     # to check backtick documentations ``
-    public function func1() {
-    }
+    public function func1();
 };

@@ -336,7 +336,7 @@ function testFuncWithNilDefaultParamExpr() returns [any, any] {
     return [funcWithNilDefaultParamExpr_1(), funcWithNilDefaultParamExpr_2()];
 }
 
-public type Employee object {
+public class Employee {
 
     public string name = "";
     public int salary = 0;
@@ -349,7 +349,7 @@ public type Employee object {
     public function getSalary (string n, int b = 0) returns int {
         return self.salary + b;
     }
-};
+}
 
 function testAttachedFunction() returns [int, int] {
     Employee emp = new;
@@ -362,7 +362,7 @@ function testDefaultableParamInnerFunc () returns [int, string] {
     return p.test1(a = 50);
 }
 
-type Person object {
+class Person {
     public int age = 0;
 
     function test1(int a = 77, string n = "inner default") returns [int, string] {
@@ -376,7 +376,7 @@ type Person object {
         int intVal = a + 10;
         return [intVal, val];
     }
-};
+}
 
 function functionOfFunctionTypedParamWithRest(int[] x, function (int...) returns int bar) returns [int, int] {
     return [x[0], bar(x[0])] ;

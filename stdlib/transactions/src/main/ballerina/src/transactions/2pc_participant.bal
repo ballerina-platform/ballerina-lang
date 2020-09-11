@@ -35,7 +35,7 @@ type RemoteProtocol record {
 
 type UProtocol LocalProtocol|RemoteProtocol;
 
-type Participant abstract object {
+type Participant object {
 
     string participantId;
 
@@ -44,7 +44,7 @@ type Participant abstract object {
     function notify(string action, string? protocolName) returns (NotifyResult|error)?;
 };
 
-type RemoteParticipant object {
+class RemoteParticipant {
 
     string participantId;
     private string transactionId;
@@ -142,9 +142,9 @@ type RemoteParticipant object {
         }
         panic TransactionError("Unknown status on notify remote participant");
     }
-};
+}
 
-type LocalParticipant object {
+class LocalParticipant {
 
     string participantId;
     private TwoPhaseCommitTransaction participatedTxn;
@@ -242,4 +242,4 @@ type LocalParticipant object {
             panic TransactionError("Invalid protocol action:" + action);
         }
     }
-};
+}

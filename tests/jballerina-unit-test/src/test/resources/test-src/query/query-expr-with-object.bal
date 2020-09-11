@@ -4,7 +4,7 @@ public function testObjectBasedQueryExpr() {
     testQueryExprInObjectMethod();
 }
 
-type Student object {
+class Student {
     public string firstName;
     public string lastName;
     public int age;
@@ -20,7 +20,7 @@ type Student object {
     function getFullName() returns string {
         return self.firstName + " " + self.lastName;
     }
-};
+}
 
 public function testQueryExprForObject() {
 
@@ -64,7 +64,7 @@ type Person record {
     string? address;
 };
 
-type Employee object {
+class Employee {
     public string firstName;
     public string lastName;
     public int age;
@@ -95,7 +95,7 @@ type Employee object {
 
         return outputPersonList;
     }
-};
+}
 
 public function testQueryExprInObjectMethod() {
 

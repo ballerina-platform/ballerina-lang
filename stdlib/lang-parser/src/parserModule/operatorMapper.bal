@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type OperatorMapper object {
-    map<OperatorKind> operatorTypeMap = {};
+class OperatorMapper {
+    map<OperatorKind> operatorTypeMap = {}
 
     public function init() {
         self.fillOperatorMapper();

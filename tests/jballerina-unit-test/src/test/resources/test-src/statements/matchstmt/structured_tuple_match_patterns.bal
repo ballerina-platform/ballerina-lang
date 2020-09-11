@@ -437,10 +437,10 @@ function foo8(any x) returns string {
     }
 }
 
-type NoFillerObject object {
+class NoFillerObject {
     int i;
 
     function init(int i) {
         self.i = i;
     }
-};
+}

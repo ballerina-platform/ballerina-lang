@@ -214,7 +214,7 @@ type Person record {|
    int age;
 |};
 
-public type Child object {
+public class Child {
     # Returns foo
     # + a - float
     # + b - boolean

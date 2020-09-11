@@ -97,7 +97,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
             }
             if (topLevelNode instanceof BLangService) {
                 BLangService service = (BLangService) topLevelNode;
-                ((BLangObjectTypeNode) service.serviceTypeDefinition.getTypeNode()).getFunctions()
+                service.serviceClass.getFunctions()
                         .forEach(bLangResource -> {
                             DocAttachmentInfo resourceInfo = getDocumentationEditForNode(bLangResource);
                             if (resourceInfo != null) {

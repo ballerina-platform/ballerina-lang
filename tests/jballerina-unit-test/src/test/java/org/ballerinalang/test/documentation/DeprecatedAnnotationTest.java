@@ -52,6 +52,7 @@ import java.util.Map;
 /**
  * Test cases to check @deprecated annotation is showing in the docs.
  */
+@Test(groups = "brokenOnClassChange")
 public class DeprecatedAnnotationTest {
 
     private Module testModule;

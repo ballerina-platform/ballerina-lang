@@ -34,7 +34,7 @@ public enum LogLevel {
 #
 # + msg - The message to be logged
 public function printDebug(anydata|(function () returns (anydata)) msg) = @java:Method {
-    class: "org.ballerinalang.stdlib.log.Utils"
+    'class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
 # Logs the specified message at ERROR level.
@@ -46,7 +46,7 @@ public function printDebug(anydata|(function () returns (anydata)) msg) = @java:
 # + msg - The message to be logged
 # + err - The error struct to be logged
 public function printError(anydata|(function () returns (anydata)) msg, error? err = ()) = @java:Method {
-    class: "org.ballerinalang.stdlib.log.Utils"
+    'class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
 # Logs the specified message at INFO level.
@@ -56,7 +56,7 @@ public function printError(anydata|(function () returns (anydata)) msg, error? e
 # 
 # + msg - The message to be logged
 public function printInfo(anydata|(function () returns (anydata)) msg) = @java:Method {
-    class: "org.ballerinalang.stdlib.log.Utils"
+    'class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
 # Logs the specified message at TRACE level.
@@ -66,7 +66,7 @@ public function printInfo(anydata|(function () returns (anydata)) msg) = @java:M
 # 
 # + msg - The message to be logged
 public function printTrace(anydata|(function () returns (anydata)) msg) = @java:Method {
-    class: "org.ballerinalang.stdlib.log.Utils"
+    'class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
 # Logs the specified message at WARN level.
@@ -76,7 +76,7 @@ public function printTrace(anydata|(function () returns (anydata)) msg) = @java:
 # 
 # + msg - The message to be logged
 public function printWarn(anydata|(function () returns (anydata)) msg) = @java:Method {
-    class: "org.ballerinalang.stdlib.log.Utils"
+    'class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
 # Sets the module log level. If a module name is not specified, the log level will be set to the current module.
@@ -104,5 +104,5 @@ public function printWarn(anydata|(function () returns (anydata)) msg) = @java:M
 # + logLevel - Log level to be set
 # + moduleName - Name of the module
 public function setModuleLogLevel(LogLevel logLevel, string? moduleName = ()) = @java:Method {
-    class: "org.ballerinalang.stdlib.log.Utils"
+    'class: "org.ballerinalang.stdlib.log.Utils"
 } external;

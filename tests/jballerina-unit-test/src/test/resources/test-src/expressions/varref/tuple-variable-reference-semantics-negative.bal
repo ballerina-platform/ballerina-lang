@@ -100,7 +100,7 @@ type Bar record {
     boolean flag;
 };
 
-type FooObj object {
+class FooObj {
     public string s;
     public float f;
     public byte b;
@@ -109,16 +109,16 @@ type FooObj object {
         self.f = f;
         self.b = b;
     }
-};
+}
 
-type BarObj object {
+class BarObj {
     public boolean b;
     public int i;
     function init(boolean b, int i) {
         self.b = b;
         self.i = i;
     }
-};
+}
 
 function testInvalidTupleVarDef1() {
     [[string, [int, [boolean, int]]], [float, int]] [[s, [i1, [b, y]]], [f, i2]] = [["Bal", [3, [true, 34]]], [5.6, 45]];
@@ -173,8 +173,8 @@ function testAssigningValuesToFinalVars() {
     [f2, b2] = [2.0, false];
 }
 
-type NoFillerObject object {
+class NoFillerObject {
     function init(int i) {
 
     }
-};
+}

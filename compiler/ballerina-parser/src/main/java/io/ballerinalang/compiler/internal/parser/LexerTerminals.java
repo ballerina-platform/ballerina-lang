@@ -104,6 +104,7 @@ public class LexerTerminals {
     public static final String BY = "by";
     public static final String ASCENDING = "ascending";
     public static final String DESCENDING = "descending";
+    public static final String CLASS = "class";
 
     // For BFM only
     public static final String VARIABLE = "variable";

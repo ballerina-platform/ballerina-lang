@@ -6,7 +6,7 @@ function testReturningBBooleanJBoolean(handle receiver, handle strValue) returns
 }
 
 public function contentEquals(handle receiver, handle strValue) returns boolean = @java:Method {
-    class:"java.lang.String",
+    'class:"java.lang.String",
     paramTypes: ["java.lang.String"]
 } external;
 
@@ -17,7 +17,7 @@ function testReturningBByteJByte(handle receiver) returns byte {
 }
 
 public function byteValue(handle receiver) returns byte = @java:Method {
-    class:"java.lang.Long"
+    'class:"java.lang.Long"
 } external;
 
 
@@ -28,7 +28,7 @@ function testReturningBIntJLong(handle receiver) returns int {
 
 public function longValue(handle receiver) returns int = @java:Method {
     name:"longValue",
-    class:"java.lang.Long"
+    'class:"java.lang.Long"
 } external;
 
 
@@ -39,6 +39,6 @@ function testReturningBFloatJDouble(handle receiver) returns float {
 
 public function doubleValue(handle receiver) returns float = @java:Method {
     name:"doubleValue",
-    class:"java.lang.Double"
+    'class:"java.lang.Double"
 } external;
 

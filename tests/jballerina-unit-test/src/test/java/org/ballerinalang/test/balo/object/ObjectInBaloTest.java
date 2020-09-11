@@ -575,6 +575,13 @@ public class ObjectInBaloTest {
     }
 
     @Test
+    public void testDistinctAssignability() {
+        CompileResult compile =
+                BCompileUtil.compile("test-src/balo/test_balo/object/test_distinct_class_assignability.bal");
+        BRunUtil.invoke(compile, "testDistinctAssignability");
+    }
+
+    @Test(enabled = false) // disabled as with the class change objects would not have implementations.
     public void testObjectReferingTypeFromBaloNegative() {
         CompileResult result =
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");

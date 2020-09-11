@@ -28,7 +28,7 @@ service hello on testListener {
     }
 }
 
-type Listener object {
+class Listener {
     *lang:Listener;
 
     public function init() {
@@ -50,7 +50,7 @@ type Listener object {
     public function __immediateStop() returns error? {
         return ();
     }
-};
+}
 
 
 public function workersTest() {
@@ -302,14 +302,14 @@ public function functionWithQueryExpression() {
     }
 }
 
-type OddNumberGenerator object {
+class OddNumberGenerator {
     int i = 1;
 
     public function next() returns record {|int value;|}|error? {
         self.i += 2;
         return {value: self.i};
     }
-};
+}
 
 type ResultValue record {|
     int value;
@@ -480,11 +480,11 @@ public function functionWithFork() {
 
 int count = 0;
 
-type ClientObject client object {
+client class ClientObject {
     public remote function remoteFunc(string arg) returns int|error {
         return 1;
     }
-};
+}
 
 ClientObject clientEndpoint = new;
 

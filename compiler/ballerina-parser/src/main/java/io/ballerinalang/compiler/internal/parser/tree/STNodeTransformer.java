@@ -221,6 +221,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(objectTypeDescriptorNode);
     }
 
+    public T transform(STObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        return transformSyntaxNode(objectConstructorExpressionNode);
+    }
+
     public T transform(STRecordTypeDescriptorNode recordTypeDescriptorNode) {
         return transformSyntaxNode(recordTypeDescriptorNode);
     }
@@ -783,6 +787,10 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STOrderKeyNode orderKeyNode) {
         return transformSyntaxNode(orderKeyNode);
+    }
+
+    public T transform(STClassDefinitionNode classDefinitionNode) {
+        return transformSyntaxNode(classDefinitionNode);
     }
 
     // Tokens

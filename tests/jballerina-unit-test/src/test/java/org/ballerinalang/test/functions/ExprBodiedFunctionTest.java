@@ -52,11 +52,15 @@ public class ExprBodiedFunctionTest {
                 "a type compatible with mapping constructor expressions not found in type 'int'", 18, 43);
         validateError(result, index++, "missing open bracket token", 19, 1);
         validateError(result, index++, "invalid token 'return'", 19, 12);
-        validateError(result, index++, "missing close brace token", 19, 17);
         validateError(result, index++, "missing close bracket token", 19, 17);
         validateError(result, index++, "missing colon token", 19, 17);
         validateError(result, index++, "missing identifier", 19, 17);
-        validateError(result, index++, "invalid token '}'", 23, 1);
+        validateError(result, index++, "missing object keyword", 19, 17);
+        validateError(result, index++, "missing open brace token", 19, 17);
+        validateError(result, index++, "invalid token ';'", 20, 1);
+        validateError(result, index++, "missing close brace token", 21, 1);
+        validateError(result, index++, "missing semicolon token", 21, 1);
+
         validateError(result, index++,
                 "incompatible types: expected 'int', found 'function (int,int) returns (int)'", 26, 1);
         validateError(result, index++, "invalid token 'external'", 26, 1);
