@@ -18,11 +18,12 @@
 
 package org.ballerinalang.jvm.values.utils;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 
 import static java.lang.String.format;
 import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
@@ -76,8 +77,10 @@ public class ArrayUtils {
         }
     }
 
-    public static ErrorValue createOpNotSupportedError(BType type, String op) {
-        return BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                           format("%s not supported on type '%s'", op, type.getQualifiedName()));
+    public static BError createOpNotSupportedError(BType type, String op) {
+        return BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                                                 OPERATION_NOT_SUPPORTED_IDENTIFIER),
+                                         StringUtils.fromString(format("%s not supported on type '%s'", op,
+                                                                       type.getQualifiedName())));
     }
 }

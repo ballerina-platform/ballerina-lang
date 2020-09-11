@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BString;
 
 import javax.xml.XMLConstants;
@@ -55,8 +55,8 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
     @Override
     public BString put(BString keyBStr, BString value) {
         if (isFrozen()) {
-            throw BallerinaErrors.createError(getModulePrefixedReason(XML_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                              BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+            throw BErrorCreator.createError(getModulePrefixedReason(XML_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                            BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
         }
 
         return insertValue(keyBStr, value, false);
@@ -71,7 +71,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         PutAttributeFunction func = onInitialization ? super::populateInitialValue : super:: put;
 
         if (localName == null || localName.isEmpty()) {
-            throw BallerinaErrors.createError("localname of the attribute cannot be empty");
+            throw BErrorCreator.createError(StringUtils.fromString(("localname of the attribute cannot be empty")));
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
@@ -94,7 +94,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
             String errorMsg = String.format(
                     "failed to add attribute '%s:%s'. prefix '%s' is already bound to namespace '%s'",
                     prefix, localName, prefix, nsOfPrefix.getValue());
-            throw BallerinaErrors.createError(errorMsg);
+            throw BErrorCreator.createError(StringUtils.fromString((errorMsg)));
         }
 
         if ((namespaceUri == null || namespaceUri.isEmpty())) {
@@ -124,7 +124,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         }
 
         if (localName.isEmpty()) {
-            throw BallerinaErrors.createError("localname of the attribute cannot be empty");
+            throw BErrorCreator.createError(StringUtils.fromString(("localname of the attribute cannot be empty")));
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.

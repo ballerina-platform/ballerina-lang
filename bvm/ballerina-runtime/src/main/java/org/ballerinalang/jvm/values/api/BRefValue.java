@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.jvm.values.api;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;

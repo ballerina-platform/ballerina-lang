@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -30,8 +30,8 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -113,7 +113,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.size = values.length;
         bStringValues = new BString[size];
         for (int i = 0; i < size; i++) {
-            bStringValues[i] = org.ballerinalang.jvm.StringUtils.fromString(values[i]);
+            bStringValues[i] = StringUtils.fromString(values[i]);
         }
         setArrayType(BTypes.typeString);
     }
@@ -500,7 +500,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Deprecated
     private void addString(long index, String value) {
-        addBString(index, org.ballerinalang.jvm.StringUtils.fromString(value));
+        addBString(index, StringUtils.fromString(value));
     }
 
     private void addBString(long index, BString value) {
@@ -972,10 +972,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private void prepareForAdd(long index, Object value, BType sourceType, int currentArraySize) {
         // check types
         if (!TypeChecker.checkIsType(value, sourceType, this.elementType)) {
-            String reason = getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
-            String detail = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
+            BString reason = getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
+            BString detail = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
                     sourceType);
-            throw BallerinaErrors.createError(reason, detail);
+            throw BErrorCreator.createError(reason, detail);
         }
 
         int intIndex = (int) index;

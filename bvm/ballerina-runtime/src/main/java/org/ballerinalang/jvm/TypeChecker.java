@@ -19,6 +19,7 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.internal.ErrorUtils;
 import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BAnydataType;
@@ -120,102 +121,102 @@ public class TypeChecker {
             }
         }
 
-        throw BallerinaErrors.createTypeCastError(sourceVal, targetType);
+        throw ErrorUtils.createTypeCastError(sourceVal, targetType);
     }
 
     public static long anyToInt(Object sourceVal) {
         return TypeConverter.anyToIntCast(sourceVal,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeInt));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeInt));
     }
 
     public static long anyToSigned32(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntSigned32,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntSigned32));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntSigned32));
     }
 
     public static long anyToSigned16(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntSigned16,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntSigned16));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntSigned16));
     }
 
     public static long anyToSigned8(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntSigned8,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntSigned8));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntSigned8));
     }
 
     public static long anyToUnsigned32(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntUnsigned32,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntUnsigned32));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntUnsigned32));
     }
 
     public static long anyToUnsigned16(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntUnsigned16,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntUnsigned16));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntUnsigned16));
     }
 
     public static long anyToUnsigned8(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntUnsigned8,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntUnsigned8));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntUnsigned8));
     }
 
     public static double anyToFloat(Object sourceVal) {
-        return TypeConverter.anyToFloatCast(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
-                BTypes.typeFloat));
+        return TypeConverter.anyToFloatCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
+                                                                                            BTypes.typeFloat));
     }
 
     public static boolean anyToBoolean(Object sourceVal) {
-        return TypeConverter.anyToBooleanCast(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
-                BTypes.typeBoolean));
+        return TypeConverter.anyToBooleanCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
+                                                                                              BTypes.typeBoolean));
     }
 
     public static int anyToByte(Object sourceVal) {
-        return TypeConverter.anyToByteCast(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
-                                                                                            BTypes.typeByte));
+        return TypeConverter.anyToByteCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
+                                                                                           BTypes.typeByte));
     }
 
     public static DecimalValue anyToDecimal(Object sourceVal) {
-        return TypeConverter.anyToDecimal(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
-                                                                                               BTypes.typeDecimal));
+        return TypeConverter.anyToDecimal(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
+                                                                                             BTypes.typeDecimal));
     }
 
     public static byte anyToJByte(Object sourceVal) {
         return TypeConverter.anyToJByteCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "byte"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "byte"));
     }
 
     public static char anyToJChar(Object sourceVal) {
         return TypeConverter.anyToJCharCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "char"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "char"));
     }
 
     public static short anyToJShort(Object sourceVal) {
         return TypeConverter.anyToJShortCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "short"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "short"));
     }
 
     public static int anyToJInt(Object sourceVal) {
         return TypeConverter.anyToJIntCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "int"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "int"));
     }
 
     public static long anyToJLong(Object sourceVal) {
         return TypeConverter.anyToJLongCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "long"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "long"));
     }
 
     public static float anyToJFloat(Object sourceVal) {
         return TypeConverter.anyToJFloatCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "float"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "float"));
     }
 
     public static double anyToJDouble(Object sourceVal) {
         return TypeConverter.anyToJDoubleCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "double"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "double"));
     }
 
     public static boolean anyToJBoolean(Object sourceVal) {
         return TypeConverter.anyToJBooleanCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "boolean"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "boolean"));
     }
 
     /**

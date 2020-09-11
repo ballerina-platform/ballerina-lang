@@ -31,10 +31,11 @@ import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.lang.reflect.InvocationTargetException;
@@ -72,7 +73,7 @@ public class Executor {
      * @param properties   to be passed to context.
      * @param args         required for the resource.
      */
-    public static void submit(Scheduler scheduler, ObjectValue service, String resourceName, String strandName,
+    public static void submit(Scheduler scheduler, BObject service, String resourceName, String strandName,
                               StrandMetadata metaData, CallableUnitCallback callback,
                               Map<String, Object> properties, Object... args) {
 
@@ -99,7 +100,7 @@ public class Executor {
      * @param args       to be passed to invokable unit
      * @return results
      */
-    public static Object executeFunction(Strand strand, ObjectValue service, AttachedFunction resource,
+    public static Object executeFunction(Strand strand, BObject service, AttachedFunction resource,
                                          String strandName, StrandMetadata metaData, Object... args) {
         int requiredArgNo = resource.type.paramTypes.length;
         int providedArgNo = (args.length / 2); // due to additional boolean args being added for each arg
@@ -160,7 +161,7 @@ public class Executor {
                 }
 
                 @Override
-                public void notifyFailure(ErrorValue error) {
+                public void notifyFailure(BError error) {
                     completeFunction.countDown();
                 }
             }, new HashMap<>(), BTypes.typeNull, strandName, metaData);

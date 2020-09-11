@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
@@ -28,6 +27,7 @@ import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
@@ -363,7 +363,7 @@ public final class XMLItem extends XMLValue {
     }
 
     private BallerinaException createXMLCycleError() {
-        return new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR, "Cycle detected");
+        return new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR.getValue(), "Cycle detected");
     }
 
     private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXML> appendingList) {
@@ -424,9 +424,9 @@ public final class XMLItem extends XMLValue {
             throw e;
         } catch (OMException | XMLStreamException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
-            throw BallerinaErrors.createError(cause.getMessage());
+            throw BErrorCreator.createError(StringUtils.fromString((cause.getMessage())));
         } catch (Throwable e) {
-            throw BallerinaErrors.createError("failed to parse xml: " + e.getMessage());
+            throw BErrorCreator.createError(StringUtils.fromString(("failed to parse xml: " + e.getMessage())));
         }
     }
 

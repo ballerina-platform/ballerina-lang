@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BField;
@@ -26,6 +25,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.HashMap;
@@ -161,7 +161,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     protected void checkFieldUpdate(String fieldName, Object value) {
         if (type.isReadOnly()) {
-            throw BallerinaErrors.createError(
+            throw BErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_READONLY_VALUE_UPDATE));
         }
@@ -169,7 +169,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
         BField field = type.getFields().get(fieldName);
 
         if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
-            throw BallerinaErrors.createError(
+            throw BErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.OBJECT_INVALID_READONLY_FIELD_UPDATE,
                                                          fieldName, type));
@@ -183,9 +183,11 @@ public abstract class AbstractObjectValue implements ObjectValue {
             return;
         }
 
-        throw BallerinaErrors.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
-                                                                  INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                "invalid value for object field '" + fieldName + "': expected value of type '" + fieldType +
-                        "', found '" + TypeChecker.getType(value) + "'");
+        throw BErrorCreator.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
+                                                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                                        StringUtils.fromString("invalid value for object field '" + fieldName +
+                                                                       "': expected value of type '" + fieldType +
+                                                                       "', found '" + TypeChecker.getType(value) +
+                                                                       "'"));
     }
 }

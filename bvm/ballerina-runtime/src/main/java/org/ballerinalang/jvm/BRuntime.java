@@ -28,7 +28,8 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 import java.util.Map;
@@ -97,7 +98,7 @@ public class BRuntime {
             }
 
             @Override
-            public void notifyFailure(ErrorValue error) {
+            public void notifyFailure(BError error) {
                 handleRuntimeErrors(error);
             }
         };
@@ -163,7 +164,7 @@ public class BRuntime {
      * @param callback   Callback which will get notify once method execution done.
      * @param args       Ballerina function arguments.
      */
-    public void invokeMethodAsync(ObjectValue object, String methodName, String strandName, StrandMetadata metadata,
+    public void invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                   CallableUnitCallback callback, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         scheduler.schedule(new Object[1], func, null, callback, strandName, metadata);
@@ -181,7 +182,7 @@ public class BRuntime {
      * @param properties Set of properties for strand
      * @param args       Ballerina function arguments.
      */
-    public void invokeMethodAsync(ObjectValue object, String methodName, String strandName, StrandMetadata metadata,
+    public void invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                   CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
         Function<Object[], Object> func = objects -> {
             Strand strand = (Strand) objects[0];
@@ -205,11 +206,11 @@ public class BRuntime {
      * @param metadata   Meta data of new strand.
      * @param args       Ballerina function arguments.
      */
-    public void invokeMethodSync(ObjectValue object, String methodName, String strandName,
+    public void invokeMethodSync(BObject object, String methodName, String strandName,
                                  StrandMetadata metadata, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         Semaphore semaphore = new Semaphore(0);
-        final ErrorValue[] errorValue = new ErrorValue[1];
+        final BError[] errorValue = new ErrorValue[1];
         scheduler.schedule(new Object[1], func, null, new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -217,7 +218,7 @@ public class BRuntime {
             }
 
             @Override
-            public void notifyFailure(ErrorValue error) {
+            public void notifyFailure(BError error) {
                 errorValue[0] = error;
                 semaphore.release();
             }
@@ -244,11 +245,11 @@ public class BRuntime {
      * @param args       Ballerina function arguments.
      * @return Ballerina function invoke result.
      */
-    public Object getSyncMethodInvokeResult(ObjectValue object, String methodName, String strandName,
+    public Object getSyncMethodInvokeResult(BObject object, String methodName, String strandName,
                                             StrandMetadata metadata, int timeout, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         Semaphore semaphore = new Semaphore(0);
-        final ErrorValue[] errorValue = new ErrorValue[1];
+        final BError[] errorValue = new ErrorValue[1];
         // Add 1 more element to keep null for add the strand later.
         Object[] params = new Object[]{null, args};
         FutureValue futureValue = scheduler.schedule(params, func, null, new CallableUnitCallback() {
@@ -258,7 +259,7 @@ public class BRuntime {
             }
 
             @Override
-            public void notifyFailure(ErrorValue error) {
+            public void notifyFailure(BError error) {
                 errorValue[0] = error;
                 semaphore.release();
             }
@@ -293,7 +294,7 @@ public class BRuntime {
             }
 
             @Override
-            public void notifyFailure(ErrorValue error) {
+            public void notifyFailure(BError error) {
                 handleRuntimeErrors(error);
             }
         };

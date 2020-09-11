@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.Map;
 
@@ -77,7 +77,7 @@ public class BRecordType extends BStructureType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) BallerinaValues.createRecordValue(this.pkg, this.typeName);
+        return (V) BValueCreator.createRecordValue(this.pkg, this.typeName);
     }
 
     @SuppressWarnings("unchecked")

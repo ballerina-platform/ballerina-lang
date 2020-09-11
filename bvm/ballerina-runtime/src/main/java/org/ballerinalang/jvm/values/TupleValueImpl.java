@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
@@ -26,8 +26,8 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -657,7 +657,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         if (!TypeChecker.checkIsType(value, elemType)) {
-            throw BallerinaErrors.createError(
+            throw BErrorCreator.createError(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, elemType,
                                                          TypeChecker.getType(value)));

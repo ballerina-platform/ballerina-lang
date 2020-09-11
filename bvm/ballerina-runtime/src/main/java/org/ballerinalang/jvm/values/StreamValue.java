@@ -21,6 +21,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BStream;
 
 import java.util.Map;
@@ -41,7 +42,7 @@ public class StreamValue implements RefValue, BStream {
     private BType type;
     private BType constraintType;
     private BType iteratorNextReturnType;
-    private ObjectValue iteratorObj;
+    private BObject iteratorObj;
 
 
     /**
@@ -57,7 +58,7 @@ public class StreamValue implements RefValue, BStream {
         this.iteratorObj = null;
     }
 
-    public StreamValue(BType type, ObjectValue iteratorObj) {
+    public StreamValue(BType type, BObject iteratorObj) {
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
         this.streamId = UUID.randomUUID().toString();
@@ -68,7 +69,7 @@ public class StreamValue implements RefValue, BStream {
         return streamId;
     }
 
-    public ObjectValue getIteratorObj() {
+    public BObject getIteratorObj() {
         return iteratorObj;
     }
 

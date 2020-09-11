@@ -17,7 +17,6 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TableUtils;
@@ -30,13 +29,16 @@ import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BIterator;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -49,7 +51,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -79,6 +81,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private long noOfAddedEntries = 0;
 
     private boolean nextKeySupported;
+
+    private final Map<String, Object> nativeData = new HashMap<>();
 
     public TableValueImpl(BTableType type) {
         this.type = type;
@@ -160,7 +164,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                     ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
                 }
             } catch (BLangFreezeException e) {
-                throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
+                throw BErrorCreator.createError(StringUtils.fromString(e.getMessage()),
+                                                StringUtils.fromString(e.getDetail()));
             }
         }
     }
@@ -223,7 +228,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     @Override
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
-            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                            StringUtils.fromString("cannot find key '" + key + "'"));
         }
         return this.get(key);
     }
@@ -231,16 +237,19 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     public V removeOrThrow(Object key) {
         handleFrozenTableValue();
         if (!containsKey(key)) {
-            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                            StringUtils.fromString("cannot find key '" + key + "'"));
         }
         return this.remove(key);
     }
 
     public long getNextKey() {
         if (!nextKeySupported) {
-            throw BallerinaErrors.createError(OPERATION_NOT_SUPPORTED_IDENTIFIER,
-                    "Defined key sequence is not supported with nextKey(). "
-                            + "The key sequence should only have an Integer field.");
+            throw BErrorCreator.createError(OPERATION_NOT_SUPPORTED_ERROR,
+                                            StringUtils
+                                                    .fromString("Defined key sequence is not supported with nextKey(). "
+                                                                        + "The key sequence should only have an " +
+                                                                           "Integer field."));
         }
         return keys.size() == 0 ? 0 : (this.maxIntKey + 1);
     }
@@ -259,7 +268,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
-            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                            StringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         Object value = expectedType.getZeroValue();
@@ -280,6 +290,16 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     @Override
     public boolean isEmpty() {
         return entries.isEmpty();
+    }
+
+    @Override
+    public void addNativeData(String key, Object data) {
+        nativeData.put(key, data);
+    }
+
+    @Override
+    public Object getNativeData(String key) {
+        return nativeData.get(key);
     }
 
     @Override
@@ -374,11 +394,13 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V getData(K key) {
-            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                            StringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         public V putData(K key, V data) {
-            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                            StringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         public V putData(V data) {
@@ -391,7 +413,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V remove(K key) {
-            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                            StringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         public boolean containsKey(K key) {
@@ -399,7 +422,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public BType getKeyType() {
-            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "keys are not defined");
+            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR, StringUtils.fromString("keys are not defined"));
         }
     }
 
@@ -422,8 +445,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             K key = this.keyWrapper.wrapKey(dataMap);
 
             if (containsKey((K) key)) {
-                throw BallerinaErrors.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR, "A value found for key '" +
-                        key + "'");
+                throw BErrorCreator.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR,
+                                                StringUtils.fromString("A value " + "found for key '" + key + "'"));
             }
 
             if (nextKeySupported && (keys.size() == 0 || maxIntKey < TypeChecker.anyToInt(key))) {
@@ -446,8 +469,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Long hash = TableUtils.hash(key, null);
 
             if (!hash.equals(actualHash)) {
-                throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "The key '" +
-                        key + "' not found in value " + data.toString());
+                throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR, StringUtils.fromString("The key '" +
+                        key + "' not found in value " + data.toString()));
             }
 
             return putData(key, data, entry, hash);
@@ -544,10 +567,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     // This method checks for inherent table type violation
     private void checkInherentTypeViolation(MapValue dataMap, BTableType type) {
         if (!TypeChecker.checkIsType(dataMap.getType(), type.getConstrainedType())) {
-            String reason = getModulePrefixedReason(TABLE_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
-            String detail = "value type '" + dataMap.getType() + "' inconsistent with the inherent table type '"
-                    + type + "'";
-            throw BallerinaErrors.createError(reason, detail);
+            BString reason = getModulePrefixedReason(TABLE_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
+            BString detail = StringUtils.fromString("value type '" + dataMap.getType() + "' inconsistent with the " +
+                                                            "inherent table type '" + type + "'");
+            throw BErrorCreator.createError(reason, detail);
         }
     }
 
@@ -577,5 +600,34 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     @Override
     public int hashCode() {
         return System.identityHashCode(this);
+    }
+
+
+    public Long getIntValue(BString key) {
+        return (Long) get(key);
+    }
+
+    public Double getFloatValue(BString key) {
+        return (Double) get(key);
+    }
+
+    public BString getStringValue(BString key) {
+        return (BString) get(key);
+    }
+
+    public Boolean getBooleanValue(BString key) {
+        return (Boolean) get(key);
+    }
+
+    public MapValueImpl<?, ?> getMapValue(BString key) {
+        return (MapValueImpl<?, ?>) get(key);
+    }
+
+    public ObjectValue getObjectValue(BString key) {
+        return (ObjectValue) get(key);
+    }
+
+    public ArrayValue getArrayValue(BString key) {
+        return (ArrayValue) get(key);
     }
 }

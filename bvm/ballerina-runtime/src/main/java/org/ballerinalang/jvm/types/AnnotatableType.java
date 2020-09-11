@@ -19,8 +19,9 @@ package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 /**
  * {@code AnnotatableType} represents a type description which contains annotations.
@@ -29,7 +30,7 @@ import org.ballerinalang.jvm.values.api.BString;
  */
 public abstract class AnnotatableType extends BType {
 
-    protected MapValue<BString, Object> annotations = new MapValueImpl<>();
+    protected BMap<BString, Object> annotations = BValueCreator.createMapValue();
 
     AnnotatableType(String typeName, BPackage pkg, Class<?> valueClass) {
         super(typeName, pkg, valueClass);

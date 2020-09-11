@@ -16,9 +16,19 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.BmpStringValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.NonBmpStringValue;
+import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.BufferedInputStream;
@@ -102,9 +112,10 @@ public class StringUtils {
 
     public static String getStringAt(String s, long index) {
         if (index < 0 || index >= s.length()) {
-            throw BallerinaErrors.createError(getModulePrefixedReason(STRING_LANG_LIB,
-                                                                      INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                                              "string index out of range: index: " + index + ", size: " + s.length());
+            throw BErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
+                                                                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                                            fromString("string index out of range: index: " + index + ", size: " +
+                                                               s.length()));
         }
 
         return String.valueOf(s.charAt((int) index));
@@ -112,9 +123,10 @@ public class StringUtils {
 
     public static BString getStringAt(BString s, long index) {
         if (index < 0 || index >= s.length()) {
-            throw BallerinaErrors.createError(getModulePrefixedReason(STRING_LANG_LIB,
-                                                                      INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                                              "string index out of range: index: " + index + ", size: " + s.length());
+            throw BErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
+                                                                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                                            fromString("string index out of range: index: " + index + ", size: " +
+                                                               s.length()));
         }
 
         return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));
@@ -163,5 +175,88 @@ public class StringUtils {
             i++;
         }
         return bStringArray;
+    }
+
+    /**
+     * Returns the human-readable string value of Ballerina values.
+     *
+     * @param value The value on which the function is invoked
+     * @return String value of the value
+     */
+    public static String getStringValue(Object value) {
+        if (value == null) {
+            return "";
+        }
+
+        BType type = TypeChecker.getType(value);
+
+        //TODO: bstring - change to type tag check
+        if (value instanceof BString) {
+            return ((BString) value).getValue();
+        }
+
+        if (type.getTag() < TypeTags.JSON_TAG) {
+            return String.valueOf(value);
+        }
+
+        if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            MapValueImpl mapValue = (MapValueImpl) value;
+            return mapValue.stringValue();
+        }
+
+        if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
+            ArrayValue arrayValue = (ArrayValue) value;
+            return arrayValue.stringValue();
+        }
+
+        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            AbstractObjectValue objectValue = (AbstractObjectValue) value;
+            BObjectType objectType = objectValue.getType();
+            for (AttachedFunction func : objectType.getAttachedFunctions()) {
+                if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
+                        func.type.retType.getTag() == TypeTags.STRING_TAG) {
+                    return objectValue.call(Scheduler.getStrand(), "toString").toString();
+                }
+            }
+        }
+
+        if (type.getTag() == TypeTags.ERROR_TAG) {
+            RefValue errorValue = (RefValue) value;
+            return errorValue.stringValue();
+        }
+
+        RefValue refValue = (RefValue) value;
+        return refValue.stringValue();
+    }
+
+    /**
+     * Returns the json string value of Ballerina values.
+     *
+     * @param value The value on which the function is invoked
+     * @return Json String value of the value
+     */
+    public static String getJsonString(Object value) {
+        if (value == null) {
+            return "null";
+        }
+
+        BType type = TypeChecker.getType(value);
+
+        if (type.getTag() < TypeTags.JSON_TAG) {
+            return String.valueOf(value);
+        }
+
+        if (type.getTag() == TypeTags.MAP_TAG) {
+            MapValueImpl mapValue = (MapValueImpl) value;
+            return mapValue.getJSONString();
+        }
+
+        if (type.getTag() == TypeTags.ARRAY_TAG) {
+            ArrayValue arrayValue = (ArrayValue) value;
+            return arrayValue.getJSONString();
+        }
+
+        RefValue refValue = (RefValue) value;
+        return refValue.stringValue();
     }
 }

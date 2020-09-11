@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 
 import java.util.Map;
 
@@ -58,9 +59,8 @@ public class TableUtils {
             Node node = new Node(obj, parent);
 
             if (node.hasCyclesSoFar()) {
-                throw BallerinaErrors.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR,
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE,
-                                TypeChecker.getType(obj)));
+                throw BErrorCreator.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper
+                        .getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj)));
             }
 
             RefValue refValue = (RefValue) obj;

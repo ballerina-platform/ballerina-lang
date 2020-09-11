@@ -18,6 +18,8 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Common utility methods used for arithmatic operations.
@@ -26,19 +28,24 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
  */
 public class MathUtils {
 
+    private static final BString DIVIDE_BY_ZERO_ERROR = StringUtils.fromString(" / by zero");
+
+    private static final BString INT_RANGE_OVERFLOW_ERROR = StringUtils.fromString(" int range overflow");
+
     public static long divide(long numerator, long denominator) {
         try {
             if (numerator == Long.MIN_VALUE && denominator == -1) {
                 // a panic will occur on division by zero or overflow,
                 // which happens if the first operand is -2^63 and the second operand is -1
-                throw BallerinaErrors.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, " int range overflow");
+                throw BErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
             }
             return numerator / denominator;
         } catch (ArithmeticException e) {
             if (denominator == 0) {
-                throw BallerinaErrors.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, " / by zero");
+                throw BErrorCreator.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
             } else {
-                throw BallerinaErrors.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR, e.getMessage());
+                throw BErrorCreator.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR,
+                                                StringUtils.fromString(e.getMessage()));
             }
         }
     }
@@ -48,9 +55,10 @@ public class MathUtils {
             return numerator % denominator;
         } catch (ArithmeticException e) {
             if (denominator == 0) {
-                throw BallerinaErrors.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, " / by zero");
+                throw BErrorCreator.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
             } else {
-                throw BallerinaErrors.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR, e.getMessage());
+                throw BErrorCreator.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR,
+                                                StringUtils.fromString(e.getMessage()));
             }
         }
     }

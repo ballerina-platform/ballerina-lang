@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.values.connector;
 
-import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.api.BError;
 
 /**
  * This interface represents a callback to report back a success or a
@@ -39,6 +39,6 @@ public interface CallableUnitCallback {
      *
      * @param error the error to be reported when the operation failed
      */
-    void notifyFailure(ErrorValue error);
+    void notifyFailure(BError error);
 
 }

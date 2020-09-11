@@ -18,8 +18,8 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.DecimalValueKind;
+import org.ballerinalang.jvm.internal.ErrorUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
@@ -151,15 +151,15 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public long intValue() {
         switch (valueKind) {
             case NOT_A_NUMBER:
-                throw BallerinaErrors.createNumericConversionError(NaN, BTypes.typeInt);
+                throw ErrorUtils.createNumericConversionError(NaN, BTypes.typeInt);
             case NEGATIVE_INFINITY:
-                throw BallerinaErrors.createNumericConversionError(NEGATIVE_INF, BTypes.typeInt);
+                throw ErrorUtils.createNumericConversionError(NEGATIVE_INF, BTypes.typeInt);
             case POSITIVE_INFINITY:
-                throw BallerinaErrors.createNumericConversionError(POSITIVE_INF, BTypes.typeInt);
+                throw ErrorUtils.createNumericConversionError(POSITIVE_INF, BTypes.typeInt);
         }
 
         if (!isDecimalWithinIntRange(value)) {
-            throw BallerinaErrors.createNumericConversionError(this.stringValue(), BTypes.typeDecimal, BTypes.typeInt);
+            throw ErrorUtils.createNumericConversionError(this.stringValue(), BTypes.typeDecimal, BTypes.typeInt);
         }
         return (long) Math.rint(value.doubleValue());
     }
@@ -182,16 +182,16 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public int byteValue() {
         switch (valueKind) {
             case NOT_A_NUMBER:
-                throw BallerinaErrors.createNumericConversionError(NaN, BTypes.typeByte);
+                throw ErrorUtils.createNumericConversionError(NaN, BTypes.typeByte);
             case NEGATIVE_INFINITY:
-                throw BallerinaErrors.createNumericConversionError(NEGATIVE_INF, BTypes.typeByte);
+                throw ErrorUtils.createNumericConversionError(NEGATIVE_INF, BTypes.typeByte);
             case POSITIVE_INFINITY:
-                throw BallerinaErrors.createNumericConversionError(POSITIVE_INF, BTypes.typeByte);
+                throw ErrorUtils.createNumericConversionError(POSITIVE_INF, BTypes.typeByte);
         }
 
         int intVal = (int) Math.rint(this.value.doubleValue());
         if (!isByteLiteral(intVal)) {
-            throw BallerinaErrors.createNumericConversionError(value, BTypes.typeDecimal, BTypes.typeByte);
+            throw ErrorUtils.createNumericConversionError(value, BTypes.typeDecimal, BTypes.typeByte);
         }
         return intVal;
     }
