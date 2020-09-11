@@ -357,7 +357,7 @@ function testToStringMethodForTable() {
             { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
         ];
 
-    assertEquality("[{\"id\":1, \"age\":30, \"salary\":300.5, \"name\":\"Mary\", \"married\":true}, "
+    assertEquality("[{\"id\":1, \"age\":30, \"salary\":300.5, \"name\":\"Mary\", \"married\":true},"
     + "{\"id\":2, \"age\":20, \"salary\":300.5, \"name\":\"John\", \"married\":true}]", employeeTable.toString());
 }
 
@@ -945,7 +945,7 @@ function testToStringOnCycles() {
      y["1"] = x;
      y["2"] = arr;
      arr.push(x);
-     assert(x.toString(), "{\"ee\":3, \"1\":{\"qq\":5, \"1\":..., \"2\":[2, 3, 5, ...]}}");
+     assert(x.toString(), "{\"ee\":3, \"1\":{\"qq\":5, \"1\":..., \"2\":[2,3,5,...]}}");
 }
 
 function assert(anydata actual, anydata expected) {
