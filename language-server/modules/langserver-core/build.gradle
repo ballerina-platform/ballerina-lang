@@ -71,23 +71,12 @@ dependencies {
         exclude group: 'org.slf4j', module: 'slf4j-ext'
     }
     implementation ('io.swagger.core.v3:swagger-core')
-//    implementation 'io.swagger.parser.v3:swagger-parser-v3:2.0.21'
     implementation 'io.swagger.core.v3:swagger-models:2.1.4'
-
-//    implementation ('io.swagger.parser.v3:swagger-parser:2.0.21') {
-//        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
-//        exclude group: 'org.slf4j', module: 'slf4j-ext'
-//    }
     implementation 'io.swagger.parser.v3:swagger-parser-core'
     implementation ('io.swagger.parser.v3:swagger-parser-v2-converter')  {
         exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
         exclude group: 'org.slf4j', module: 'slf4j-ext'
     }
-//    implementation ('io.swagger.parser.v3:swagger-parser-v3')  {
-//        exclude group: 'org.slf4j', module: 'slf4j-ext'
-//    }
-
-
     implementation 'com.github.jknack:handlebars:4.0.6'
     implementation 'com.moandjiezana.toml:toml4j'
     //implementation "javax.annotation:javax.annotation-api:1.3.2"
