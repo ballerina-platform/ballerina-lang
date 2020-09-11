@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -207,7 +208,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private SymbolEnv currPkgEnv;
     private Names names;
     private SymbolTable symTable;
-    private BLangDiagnosticLogHelper dlog;
+    private BallerinaDiagnosticLog dlog;
     private Types types;
 
     private boolean overridingAnalysis = true;
@@ -251,7 +252,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public TaintAnalyzer(CompilerContext context) {
         context.put(TAINT_ANALYZER_KEY, this);
         names = Names.getInstance(context);
-        dlog = BLangDiagnosticLogHelper.getInstance(context);
+        dlog = BallerinaDiagnosticLog.getInstance(context);
         symTable = SymbolTable.getInstance(context);
         types = Types.getInstance(context);
     }

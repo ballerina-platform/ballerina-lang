@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
@@ -54,13 +55,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private BConstantSymbol currentConstSymbol;
     private BLangConstantValue result;
-    private BLangDiagnosticLogHelper dlog;
+    private BallerinaDiagnosticLog dlog;
     private DiagnosticPos currentPos;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BallerinaDiagnosticLog.getInstance(context);
     }
 
     public static ConstantValueResolver getInstance(CompilerContext context) {

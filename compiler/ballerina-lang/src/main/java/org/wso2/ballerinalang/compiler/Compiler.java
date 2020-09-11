@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -44,7 +45,7 @@ public class Compiler {
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
     private final DependencyTree dependencyTree;
-    private final BLangDiagnosticLogHelper dlog;
+    private final BallerinaDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
     private final Manifest manifest;
     private boolean langLibsLoaded;
@@ -56,7 +57,7 @@ public class Compiler {
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
         this.dependencyTree = DependencyTree.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BallerinaDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.outStream = System.out;
@@ -97,7 +98,7 @@ public class Compiler {
         }
         this.outStream.println("Compiling source");
         BLangPackage bLangPackage = compile(sourcePackage, true);
-        if (this.dlog.getErrorCount() > 0) {
+        if (this.dlog.errorCount() > 0) {
             throw new BLangCompilerException("compilation contains errors");
         }
         return bLangPackage;
@@ -136,7 +137,7 @@ public class Compiler {
         this.outStream.println("Compiling source");
         List<BLangPackage> compiledPackages = compilePackages(pkgList);
         // If it is a build and dlog is not empty, compilation should fail
-        if (isBuild && this.dlog.getErrorCount() > 0) {
+        if (isBuild && this.dlog.errorCount() > 0) {
             throw new BLangCompilerException("compilation contains errors");
         }
         return compiledPackages;

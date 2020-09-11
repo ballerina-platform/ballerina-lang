@@ -35,6 +35,7 @@ import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -71,7 +72,7 @@ public class Parser {
     private PackageCache pkgCache;
     private ParserCache parserCache;
     private NodeCloner nodeCloner;
-    private BLangDiagnosticLogHelper dlog;
+    private BallerinaDiagnosticLog dlog;
 
     public static Parser getInstance(CompilerContext context) {
         Parser parser = context.get(PARSER_KEY);
@@ -91,7 +92,7 @@ public class Parser {
         this.pkgCache = PackageCache.getInstance(context);
         this.parserCache = ParserCache.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BallerinaDiagnosticLog.getInstance(context);
     }
 
     public BLangPackage parseNew(PackageSource pkgSource, Path sourceRootPath) {

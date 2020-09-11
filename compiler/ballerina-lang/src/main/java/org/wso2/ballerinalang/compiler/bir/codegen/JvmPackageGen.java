@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -125,9 +126,9 @@ public class JvmPackageGen {
     private Map<String, String> externClassMap;
     private Map<String, String> globalVarClassMap;
     private Map<String, PackageID> dependentModules;
-    private BLangDiagnosticLogHelper dlog;
+    private BallerinaDiagnosticLog dlog;
 
-    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLogHelper dlog) {
+    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BallerinaDiagnosticLog dlog) {
 
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
@@ -386,7 +387,7 @@ public class JvmPackageGen {
             BPackageSymbol pkgSymbol = packageCache.getSymbol(getBvmAlias(importModule.org.value,
                     importModule.name.value));
             generateDependencyList(pkgSymbol, interopValidator);
-            if (dlog.getErrorCount() > 0) {
+            if (dlog.errorCount() > 0) {
                 return new CompiledJarFile(Collections.emptyMap());
             }
         }
@@ -399,7 +400,7 @@ public class JvmPackageGen {
         String pkgName = JvmCodeGenUtil.getPackageName(module);
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, pkgName, moduleInitClass,
                                                                           interopValidator, isEntry);
-        if (!isEntry || dlog.getErrorCount() > 0) {
+        if (!isEntry || dlog.errorCount() > 0) {
             return new CompiledJarFile(Collections.emptyMap());
         }
 
