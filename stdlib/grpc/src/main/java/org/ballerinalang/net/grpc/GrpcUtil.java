@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.http.HttpConstants;
@@ -261,7 +262,7 @@ public class GrpcUtil {
      * @param endpointConfig    listener endpoint configuration.
      * @return                  transport listener configuration instance.
      */
-    public static ListenerConfiguration getListenerConfig(long port, MapValue<BString, Object> endpointConfig) {
+    public static ListenerConfiguration getListenerConfig(long port, BMap<BString, Object> endpointConfig) {
         BString host = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_HOST);
         MapValue sslConfig = endpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         long idleTimeout = endpointConfig.getIntValue(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);

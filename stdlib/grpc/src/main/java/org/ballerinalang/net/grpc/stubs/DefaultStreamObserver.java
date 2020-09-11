@@ -18,8 +18,8 @@ package org.ballerinalang.net.grpc.stubs;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
@@ -54,7 +54,7 @@ public class DefaultStreamObserver implements StreamObserver {
     private Map<String, ServiceResource> resourceMap = new HashMap<>();
     private Semaphore semaphore;
     
-    public DefaultStreamObserver(BRuntime runtime, ObjectValue callbackService, Semaphore semaphore) throws
+    public DefaultStreamObserver(BRuntime runtime, BObject callbackService, Semaphore semaphore) throws
             GrpcClientException {
         if (callbackService == null) {
             throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
@@ -77,7 +77,7 @@ public class DefaultStreamObserver implements StreamObserver {
         List<BType> signatureParams = resource.getParamTypes();
         Object[] paramValues = new Object[signatureParams.size() * 2];
 
-        ObjectValue headerObject = null;
+        BObject headerObject = null;
         if (resource.isHeaderRequired()) {
             headerObject = getHeaderObject();
             headerObject.addNativeData(MESSAGE_HEADERS, value.getHeaders());
@@ -117,13 +117,13 @@ public class DefaultStreamObserver implements StreamObserver {
         }
         List<BType> signatureParams = onError.getParamTypes();
         Object[] paramValues = new Object[signatureParams.size() * 2];
-        ObjectValue headerObject = null;
+        BObject headerObject = null;
         if (onError.isHeaderRequired()) {
             headerObject = getHeaderObject();
             headerObject.addNativeData(MESSAGE_HEADERS, error.getHeaders());
         }
 
-        ErrorValue errorStruct = MessageUtils.getConnectorError(error.getError());
+        BError errorStruct = MessageUtils.getConnectorError(error.getError());
         paramValues[0] = errorStruct;
         paramValues[1] = true;
 

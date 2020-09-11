@@ -20,12 +20,12 @@ package org.ballerinalang.net.grpc.listener;
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.net.grpc.CallStreamObserver;
 import org.ballerinalang.net.grpc.GrpcConstants;
@@ -141,10 +141,10 @@ public abstract class ServerCallHandler {
      * @param responseObserver client responder instance.
      * @return instance of endpoint type.
      */
-    ObjectValue getConnectionParameter(StreamObserver responseObserver) {
+    BObject getConnectionParameter(StreamObserver responseObserver) {
         // generate client responder struct on request message with response observer and response msg type.
-        ObjectValue clientEndpoint = BallerinaValues.createObjectValue(GrpcConstants.PROTOCOL_GRPC_PKG_ID,
-                GrpcConstants.CALLER);
+        BObject clientEndpoint = BValueCreator.createObjectValue(GrpcConstants.PROTOCOL_GRPC_PKG_ID,
+                                                                 GrpcConstants.CALLER);
         clientEndpoint.set(CALLER_ID, responseObserver.hashCode());
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_OBSERVER, responseObserver);
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
@@ -180,7 +180,7 @@ public abstract class ServerCallHandler {
         Object[] paramValues = new Object[signatureParams.size() * 2];
         paramValues[0] = getConnectionParameter(responseObserver);
         paramValues[1] = true;
-        ObjectValue headerStruct = null;
+        BObject headerStruct = null;
         if (resource.isHeaderRequired()) {
             headerStruct = getHeaderObject();
             headerStruct.addNativeData(MESSAGE_HEADERS, headers);

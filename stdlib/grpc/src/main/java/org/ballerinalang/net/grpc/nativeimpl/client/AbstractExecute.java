@@ -20,7 +20,7 @@ package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.Status;
@@ -43,7 +43,7 @@ abstract class AbstractExecute {
         return MessageUtils.getMethodType(methodDescriptorProto);
     }
 
-    static ErrorValue notifyErrorReply(Status.Code status, String errorMessage) {
+    static BError notifyErrorReply(Status.Code status, String errorMessage) {
         return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                 .fromCode(status).withDescription(errorMessage)));
     }

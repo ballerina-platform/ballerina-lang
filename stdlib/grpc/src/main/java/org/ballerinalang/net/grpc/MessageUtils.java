@@ -24,12 +24,13 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
+import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -61,8 +62,8 @@ public class MessageUtils {
     private static final int MAX_BUFFER_LENGTH = 16384;
     private static final String GOOGLE_PROTOBUF_EMPTY = "google.protobuf.Empty";
 
-    public static ObjectValue getHeaderObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_GRPC_PKG_ID, "Headers");
+    public static BObject getHeaderObject() {
+        return BValueCreator.createObjectValue(PROTOCOL_GRPC_PKG_ID, "Headers");
     }
 
     static boolean headersRequired(AttachedFunction function) {
@@ -94,7 +95,7 @@ public class MessageUtils {
         return total;
     }
 
-    public static StreamObserver getResponseObserver(ObjectValue refType) {
+    public static StreamObserver getResponseObserver(BObject refType) {
         Object observerObject = refType.getNativeData(GrpcConstants.RESPONSE_OBSERVER);
         if (observerObject instanceof StreamObserver) {
             return ((StreamObserver) observerObject);
@@ -110,7 +111,7 @@ public class MessageUtils {
      * @param error     this is StatusRuntimeException send by opposite party.
      * @return error value.
      */
-    public static ErrorValue getConnectorError(Throwable error) {
+    public static BError getConnectorError(Throwable error) {
         String errorIdName;
         String message;
         if (error instanceof StatusRuntimeException) {
@@ -134,7 +135,7 @@ public class MessageUtils {
                 message = error.getMessage();
             }
         }
-        return BallerinaErrors.createDistinctError(errorIdName, PROTOCOL_GRPC_PKG_ID, message);
+        return BErrorCreator.createDistinctError(errorIdName, PROTOCOL_GRPC_PKG_ID, StringUtils.fromString(message));
     }
     
     /**

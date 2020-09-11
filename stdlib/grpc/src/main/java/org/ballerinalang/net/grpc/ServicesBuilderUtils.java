@@ -32,7 +32,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
@@ -63,7 +63,7 @@ import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_SERVICE
  */
 public class ServicesBuilderUtils {
     
-    public static ServerServiceDefinition getServiceDefinition(BRuntime runtime, ObjectValue service,
+    public static ServerServiceDefinition getServiceDefinition(BRuntime runtime, BObject service,
                                                                Object annotationData) throws
             GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = getDescriptor(annotationData);
@@ -78,7 +78,7 @@ public class ServicesBuilderUtils {
         return getServiceDefinition(runtime, service, serviceDescriptor);
     }
 
-    private static String getServiceName(ObjectValue service) {
+    private static String getServiceName(BObject service) {
         Object serviceConfigData = service.getType().getAnnotation(StringUtils.fromString(ANN_SERVICE_CONFIG_FQN));
         if (serviceConfigData != null) {
             MapValue configMap = (MapValue) serviceConfigData;
@@ -92,7 +92,7 @@ public class ServicesBuilderUtils {
         return splitValues[0];
     }
 
-    private static ServerServiceDefinition getServiceDefinition(BRuntime runtime, ObjectValue service,
+    private static ServerServiceDefinition getServiceDefinition(BRuntime runtime, BObject service,
                                                                 Descriptors.ServiceDescriptor serviceDescriptor)
             throws GrpcServerException {
         // Get full service name for the service definition. <package>.<service>
@@ -182,7 +182,7 @@ public class ServicesBuilderUtils {
             MapValue<BString, Object> annotationMap = (MapValue) annotationData;
             BString descriptorData = annotationMap.getStringValue(StringUtils.fromString("descriptor"));
             MapValue<BString, BString> descMap = (MapValue<BString, BString>) annotationMap.getMapValue(
-                StringUtils.fromString("descMap"));
+                    StringUtils.fromString("descMap"));
             return getFileDescriptor(descriptorData, descMap);
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new GrpcServerException("Error while reading the service proto descriptor. check the service " +

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.wso2.transport.http.netty.contract.ServerConnector;
@@ -29,15 +29,15 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
  */
 public abstract class AbstractGrpcNativeFunction {
 
-    protected static ServicesRegistry.Builder getServiceRegistryBuilder(ObjectValue serviceEndpoint) {
+    protected static ServicesRegistry.Builder getServiceRegistryBuilder(BObject serviceEndpoint) {
         return (ServicesRegistry.Builder) serviceEndpoint.getNativeData(GrpcConstants.SERVICE_REGISTRY_BUILDER);
     }
 
-    protected static ServerConnector getServerConnector(ObjectValue serviceEndpoint) {
+    protected static ServerConnector getServerConnector(BObject serviceEndpoint) {
         return (ServerConnector) serviceEndpoint.getNativeData(GrpcConstants.SERVER_CONNECTOR);
     }
 
-    protected static boolean isConnectorStarted(ObjectValue serviceEndpoint) {
+    protected static boolean isConnectorStarted(BObject serviceEndpoint) {
         return serviceEndpoint.getNativeData(GrpcConstants.CONNECTOR_STARTED) != null;
     }
 }

@@ -21,7 +21,7 @@ package org.ballerinalang.net.grpc;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,13 +36,13 @@ import static org.ballerinalang.net.grpc.MessageUtils.headersRequired;
  */
 public class ServiceResource {
 
-    private final ObjectValue service;
+    private final BObject service;
     private final String functionName;
     private final BType[] paramTypes;
     private final boolean headerRequired;
     private final BRuntime runtime;
 
-    public ServiceResource(BRuntime runtime, ObjectValue service, AttachedFunction function) {
+    public ServiceResource(BRuntime runtime, BObject service, AttachedFunction function) {
         this.service = service;
         this.functionName = function.funcName;
         paramTypes = function.getParameterType();
@@ -50,7 +50,7 @@ public class ServiceResource {
         this.runtime = runtime;
     }
 
-    public ObjectValue getService() {
+    public BObject getService() {
         return service;
     }
 

@@ -21,8 +21,9 @@ package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServerConnectorListener;
@@ -70,8 +71,8 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
      * @param listenerObject service listener instance.
      * @return Error if there is an error while initializing the service listener, else returns nil.
      */
-    public static Object externInitEndpoint(ObjectValue listenerObject) {
-        MapValue serviceEndpointConfig = listenerObject.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);
+    public static Object externInitEndpoint(BObject listenerObject) {
+        BMap serviceEndpointConfig = listenerObject.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);
         long port = listenerObject.getIntValue(ENDPOINT_CONFIG_PORT);
         try {
             ListenerConfiguration configuration = getListenerConfig(port, serviceEndpointConfig);
@@ -97,7 +98,7 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
      * @param annotationData service annotation data.
      * @return Error if there is an error while registering the service, else returns nil.
      */
-    public static Object externRegister(ObjectValue listenerObject, ObjectValue service,
+    public static Object externRegister(BObject listenerObject, BObject service,
                                         Object annotationData) {
         ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(listenerObject);
         try {
@@ -118,7 +119,7 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
         }
     }
 
-    private static Object startServerConnector(ObjectValue listener, ServicesRegistry servicesRegistry) {
+    private static Object startServerConnector(BObject listener, ServicesRegistry servicesRegistry) {
         ServerConnector serverConnector = getServerConnector(listener);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHttpConnectorListener(new ServerConnectorListener(servicesRegistry));
@@ -142,7 +143,7 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
      * @param listener service listener instance.
      * @return Error if there is an error while starting the server, else returns nil.
      */
-    public static Object externStart(ObjectValue listener) {
+    public static Object externStart(BObject listener) {
         ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(listener);
 
         if (!isConnectorStarted(listener)) {
@@ -157,13 +158,13 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
      * @param serverEndpoint service listener instance.
      * @return Error if there is an error while starting the server, else returns nil.
      */
-    public static Object externStop(ObjectValue serverEndpoint) {
+    public static Object externStop(BObject serverEndpoint) {
         getServerConnector(serverEndpoint).stop();
         serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);
         return null;
     }
 
-    public static Object nextResult(ObjectValue streamIterator) {
+    public static Object nextResult(BObject streamIterator) {
         BlockingQueue<?> messageQueue = (BlockingQueue<?>) streamIterator.getNativeData(MESSAGE_QUEUE);
         try {
             Message nextMessage = (Message) messageQueue.take();
@@ -180,9 +181,9 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
         }
     }
 
-    public static Object closeStream(ObjectValue streamIterator) {
+    public static Object closeStream(BObject streamIterator) {
         Semaphore listenerSemaphore = (Semaphore) streamIterator.getNativeData(MESSAGE_QUEUE);
-        ObjectValue clientEndpoint = (ObjectValue) streamIterator.getNativeData(CLIENT_ENDPOINT_TYPE);
+        BObject clientEndpoint = (ObjectValue) streamIterator.getNativeData(CLIENT_ENDPOINT_TYPE);
         Object errorVal = streamIterator.getNativeData(ERROR_MESSAGE);
         ErrorValue returnError;
         if (errorVal instanceof ErrorValue) {

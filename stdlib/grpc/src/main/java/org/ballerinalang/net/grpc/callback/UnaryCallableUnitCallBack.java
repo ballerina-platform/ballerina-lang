@@ -19,7 +19,7 @@ package org.ballerinalang.net.grpc.callback;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
@@ -71,7 +71,7 @@ public class UnaryCallableUnitCallBack extends AbstractCallableUnitCallBack {
     }
 
     @Override
-    public void notifyFailure(ErrorValue error) {
+    public void notifyFailure(BError error) {
         handleFailure(requestSender, error);
         if (observerContext != null) {
             observerContext.addProperty(PROPERTY_KEY_HTTP_STATUS_CODE, HttpResponseStatus.INTERNAL_SERVER_ERROR.code());

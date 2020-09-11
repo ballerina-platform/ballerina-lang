@@ -20,7 +20,6 @@ package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
@@ -29,7 +28,9 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.grpc.DataContext;
 import org.ballerinalang.net.grpc.Message;
@@ -88,7 +89,7 @@ public class FunctionUtils extends AbstractExecute {
      * @param endpointObject client endpoint instance.
      * @param globalPoolConfig global pool configuration.
      */
-    public static void externInitGlobalPool(ObjectValue endpointObject, MapValue<BString, Long> globalPoolConfig) {
+    public static void externInitGlobalPool(BObject endpointObject, MapValue<BString, Long> globalPoolConfig) {
         PoolConfiguration globalPool = new PoolConfiguration();
         populatePoolingConfig(globalPoolConfig, globalPool);
         ConnectionManager connectionManager = new ConnectionManager(globalPool);
@@ -105,7 +106,7 @@ public class FunctionUtils extends AbstractExecute {
      * @return Error if there is an error while initializing the client endpoint, else returns nil
      */
     @SuppressWarnings("unchecked")
-    public static Object externInit(ObjectValue clientEndpoint, BString urlString,
+    public static Object externInit(BObject clientEndpoint, BString urlString,
                                     MapValue clientEndpointConfig, MapValue globalPoolConfig) {
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         URL url;
@@ -160,7 +161,7 @@ public class FunctionUtils extends AbstractExecute {
      * @param descriptorMap dependent descriptor map.
      * @return Error if there is an error while initializing the stub, else returns nil
      */
-    public static Object externInitStub(ObjectValue genericEndpoint, ObjectValue clientEndpoint, BString stubType,
+    public static Object externInitStub(BObject genericEndpoint, BObject clientEndpoint, BString stubType,
                                         BString rootDescriptor, MapValue<BString, Object> descriptorMap) {
         HttpClientConnector clientConnector = (HttpClientConnector) genericEndpoint.getNativeData(CLIENT_CONNECTOR);
         String urlString = (String) genericEndpoint.getNativeData(ENDPOINT_URL);
@@ -204,7 +205,7 @@ public class FunctionUtils extends AbstractExecute {
      * @return Error if there is an error while calling remote method, else returns response message.
      */
     @SuppressWarnings("unchecked")
-    public static Object externBlockingExecute(ObjectValue clientEndpoint, BString methodName,
+    public static Object externBlockingExecute(BObject clientEndpoint, BString methodName,
                                                Object payloadBValue, Object headerValues) {
         if (clientEndpoint == null) {
             return notifyErrorReply(INTERNAL, "Error while getting connector. gRPC client connector " +
@@ -289,8 +290,8 @@ public class FunctionUtils extends AbstractExecute {
      * @return Error if there is an error while initializing the stub, else returns nil
      */
     @SuppressWarnings("unchecked")
-    public static Object externNonBlockingExecute(ObjectValue clientEndpoint, BString methodName,
-                                                  Object payload, ObjectValue callbackService, Object headerValues) {
+    public static Object externNonBlockingExecute(BObject clientEndpoint, BString methodName,
+                                                  Object payload, BObject callbackService, Object headerValues) {
         if (clientEndpoint == null) {
             return notifyErrorReply(INTERNAL, "Error while getting connector. gRPC Client connector is " +
                     "not initialized properly");
@@ -368,8 +369,8 @@ public class FunctionUtils extends AbstractExecute {
      * @return Error if there is an error while initializing the stub, else returns nil
      */
     @SuppressWarnings("unchecked")
-    public static Object externStreamingExecute(ObjectValue clientEndpoint, BString methodName,
-                                                ObjectValue callbackService, Object headerValues) {
+    public static Object externStreamingExecute(BObject clientEndpoint, BString methodName,
+                                                BObject callbackService, Object headerValues) {
         if (clientEndpoint == null) {
             return notifyErrorReply(INTERNAL, "Error while getting connector. gRPC Client connector " +
                     "is not initialized properly");
@@ -424,8 +425,8 @@ public class FunctionUtils extends AbstractExecute {
                     return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
                 }
-                ObjectValue streamingConnection = BallerinaValues.createObjectValue(PROTOCOL_GRPC_PKG_ID,
-                        STREAMING_CLIENT);
+                BObject streamingConnection = BValueCreator.createObjectValue(PROTOCOL_GRPC_PKG_ID,
+                                                                              STREAMING_CLIENT);
                 streamingConnection.addNativeData(REQUEST_SENDER, requestSender);
                 streamingConnection.addNativeData(REQUEST_MESSAGE_DEFINITION, methodDescriptor
                         .getInputType());

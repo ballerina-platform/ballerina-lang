@@ -22,7 +22,7 @@ import com.google.protobuf.Descriptors;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
@@ -55,7 +55,7 @@ public class FunctionUtils {
      * @param responseValue message.
      * @return Error if there is an error while sending message to the server, else returns nil.
      */
-    public static Object streamSend(ObjectValue streamConnection, Object responseValue) {
+    public static Object streamSend(BObject streamConnection, Object responseValue) {
         StreamObserver requestSender = (StreamObserver) streamConnection.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status
@@ -83,7 +83,7 @@ public class FunctionUtils {
      * @param errorMsg error message.
      * @return Error if there is an error while sending error message to the server, else returns nil.
      */
-    public static Object streamSendError(ObjectValue streamingConnection, long statusCode,
+    public static Object streamSendError(BObject streamingConnection, long statusCode,
                                          BString errorMsg) {
         StreamObserver requestSender = (StreamObserver) streamingConnection.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
@@ -114,7 +114,7 @@ public class FunctionUtils {
      * @param streamingConnection streaming connection instance.
      * @return Error if there is an error while informing the server, else returns nil.
      */
-    public static Object streamComplete(ObjectValue streamingConnection) {
+    public static Object streamComplete(BObject streamingConnection) {
         StreamObserver requestSender = (StreamObserver) streamingConnection.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status

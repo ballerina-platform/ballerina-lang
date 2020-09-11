@@ -19,7 +19,7 @@ package org.ballerinalang.net.grpc.callback;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.net.grpc.StreamObserver;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
@@ -46,7 +46,7 @@ public class StreamingCallableUnitCallBack extends AbstractCallableUnitCallBack 
     }
 
     @Override
-    public void notifyFailure(ErrorValue error) {
+    public void notifyFailure(BError error) {
         if (responseSender != null) {
             handleFailure(responseSender, error);
         }
