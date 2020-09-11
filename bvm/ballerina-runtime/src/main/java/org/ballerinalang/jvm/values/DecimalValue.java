@@ -160,7 +160,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
         }
 
         if (!isDecimalWithinIntRange(value)) {
-            throw BallerinaErrors.createNumericConversionError(this.stringValue(null), BTypes.typeDecimal, BTypes.typeInt);
+            throw BallerinaErrors.createNumericConversionError(this.stringValue(null), BTypes.typeDecimal,
+                    BTypes.typeInt);
         }
         return (long) Math.rint(value.doubleValue());
     }

@@ -83,8 +83,8 @@ public class ErrorValue extends BError implements RefValue {
         if (isEmptyDetail()) {
             return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue(linkParent) + ")";
         }
-        return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue(linkParent) + getCauseToString(linkParent)
-                + getDetailsToString(linkParent) + ")";
+        return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue(linkParent) +
+                getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
     }
 
     private String getCauseToString(BLink parent) {

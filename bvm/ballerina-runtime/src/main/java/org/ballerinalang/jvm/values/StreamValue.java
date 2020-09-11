@@ -18,7 +18,6 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;

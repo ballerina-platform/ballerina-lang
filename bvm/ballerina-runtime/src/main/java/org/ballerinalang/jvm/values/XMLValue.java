@@ -17,7 +17,6 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
-import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
