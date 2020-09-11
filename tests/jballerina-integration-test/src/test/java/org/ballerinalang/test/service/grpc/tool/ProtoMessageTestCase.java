@@ -19,13 +19,14 @@ package org.ballerinalang.test.service.grpc.tool;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageParser;
 import org.ballerinalang.net.grpc.MessageRegistry;
@@ -75,7 +76,7 @@ public class ProtoMessageTestCase {
     @Test(description = "Test case for parsing proto message with string field")
     public void testStringTypeProtoMessage() {
         // convert message to byte array.
-        MapValue<BString, Object> bMapValue = BallerinaValues.createRecordValue(defaultPkg, "Test1");
+        BMap<BString, Object> bMapValue = BValueCreator.createRecordValue(defaultPkg, "Test1");
         bMapValue.put(StringUtils.fromString("name"), StringUtils.fromString("John"));
         Message message = new Message("Test1", bMapValue);
         Assert.assertEquals(message.getSerializedSize(), 6);
@@ -91,7 +92,7 @@ public class ProtoMessageTestCase {
     @Test(description = "Test case for parsing proto message with primitive field")
     public void testPrimitiveTypeProtoMessage() {
         // convert message to byte array.
-        MapValue<BString, Object> bMapValue = BallerinaValues.createRecordValue(defaultPkg, "Test2");
+        BMap<BString, Object> bMapValue = BValueCreator.createRecordValue(defaultPkg, "Test2");
         bMapValue.put(StringUtils.fromString("a"), StringUtils.fromString("John"));
         bMapValue.put(StringUtils.fromString("b"), 1.2D);
         bMapValue.put(StringUtils.fromString("c"), 2.5D);
@@ -115,7 +116,7 @@ public class ProtoMessageTestCase {
     @Test(description = "Test case for parsing proto message with array field")
     public void testArrayFieldTypeProtoMessage() {
         // convert message to byte array.
-        MapValue<BString, Object> bMapValue = BallerinaValues.createRecordValue(defaultPkg, "Test3");
+        BMap<BString, Object> bMapValue = BValueCreator.createRecordValue(defaultPkg, "Test3");
         bMapValue.put(StringUtils.fromString("a"), new ArrayValueImpl(new String[]{"John"}));
         bMapValue.put(StringUtils.fromString("b"), new ArrayValueImpl(new double[]{1.2}));
         bMapValue.put(StringUtils.fromString("c"), new ArrayValueImpl(new double[]{2.5F}));

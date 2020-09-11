@@ -18,10 +18,9 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -77,8 +76,8 @@ public class UnaryBlockingEmptyValueTestCase extends GrpcBaseTest {
         // Stock Quote struct
         // StockQuote quote2 = {symbol: "Ballerina", name:"ballerina/io", last:1.0, low:0.5, high:2.0};
 
-        MapValue<org.ballerinalang.jvm.values.api.BString, Object>
-                request = BallerinaValues.createRecordValue(defaultPkg, "StockQuote");
+        org.ballerinalang.jvm.values.api.BMap<org.ballerinalang.jvm.values.api.BString, Object>
+                request = BValueCreator.createRecordValue(defaultPkg, "StockQuote");
         request.put(StringUtils.fromString("symbol"), StringUtils.fromString("Ballerina"));
         request.put(StringUtils.fromString("name"), StringUtils.fromString("ballerina/io"));
         request.put(StringUtils.fromString("last"), 1.0);

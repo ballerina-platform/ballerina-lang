@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
@@ -40,7 +38,10 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.api.BDecimal;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BFuture;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTypedesc;
 import org.ballerinalang.jvm.values.api.BValueCreator;
@@ -105,9 +106,9 @@ public class StaticMethods {
         return arrayValue;
     }
 
-    public static MapValue acceptRefTypesAndReturnMap(ObjectValue a, ArrayValue b, Object c,
-                                                      ErrorValue d, Object e, Object f, MapValue g) {
-        MapValue<BString, Object> mapValue = new MapValueImpl<>();
+    public static BMap<BString, Object> acceptRefTypesAndReturnMap(ObjectValue a, ArrayValue b, Object c,
+                                                                   ErrorValue d, Object e, Object f, MapValue g) {
+        BMap<BString, Object> mapValue = BValueCreator.createMapValue();
         mapValue.put(StringUtils.fromString("a"), a);
         mapValue.put(StringUtils.fromString("b"), b);
         mapValue.put(StringUtils.fromString("c"), c);
@@ -122,8 +123,8 @@ public class StaticMethods {
         return TypeTags.SERVICE_TAG == serviceObject.getType().getTag();
     }
 
-    public static ErrorValue acceptStringErrorReturn(BString msg) {
-        return BallerinaErrors.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+    public static BError acceptStringErrorReturn(BString msg) {
+        return BErrorCreator.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static Object acceptIntUnionReturn(int flag) {
@@ -227,11 +228,13 @@ public class StaticMethods {
         return arrayValue;
     }
 
-    public static MapValue acceptRefTypesAndReturnMapWhichThrowsCheckedException(ObjectValue a, ArrayValue b, Object c,
-                                                                                 ErrorValue d, Object e, Object f,
-                                                                                 MapValue g)
+    public static BMap<BString, Object> acceptRefTypesAndReturnMapWhichThrowsCheckedException(ObjectValue a,
+                                                                                              ArrayValue b, Object c,
+                                                                                              ErrorValue d, Object e,
+                                                                                              Object f,
+                                                                                              MapValue g)
             throws JavaInteropTestCheckedException {
-        MapValue<BString, Object> mapValue = new MapValueImpl<>();
+        BMap<BString, Object> mapValue = BValueCreator.createMapValue();
         mapValue.put(StringUtils.fromString("a"), a);
         mapValue.put(StringUtils.fromString("b"), b);
         mapValue.put(StringUtils.fromString("c"), c);
@@ -241,9 +244,9 @@ public class StaticMethods {
         return mapValue;
     }
 
-    public static ErrorValue acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
+    public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
             throws JavaInteropTestCheckedException {
-        return BallerinaErrors.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return BErrorCreator.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
@@ -272,16 +275,16 @@ public class StaticMethods {
         return e;
     }
 
-    public static MapValue getMapOrError(BString swaggerFilePath, MapValue apiDef)
+    public static BMap getMapOrError(BString swaggerFilePath, MapValue apiDef)
             throws JavaInteropTestCheckedException {
         BString finalBasePath = StringUtils.fromString("basePath");
         AtomicLong runCount = new AtomicLong(0L);
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BallerinaValues.createRecordValue(new BPackage(
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BValueCreator.createRecordValue(new BPackage(
                 "", "."), "ResourceDefinition").getType()));
-        MapValue apiDefinitions = BallerinaValues.createRecordValue(new BPackage("",
-                                                                                 "."), "ApiDefinition");
-        MapValue resource = BallerinaValues.createRecordValue(new BPackage("",
-                                                                           "."), "ResourceDefinition");
+        BMap apiDefinitions = BValueCreator.createRecordValue(new BPackage("",
+                                                                           "."), "ApiDefinition");
+        BMap resource = BValueCreator.createRecordValue(new BPackage("",
+                                                                             "."), "ResourceDefinition");
         resource.put(StringUtils.fromString("path"), finalBasePath);
         resource.put(StringUtils.fromString("method"), StringUtils.fromString("Method string"));
         arrayValue.add(runCount.getAndIncrement(), resource);

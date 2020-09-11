@@ -21,7 +21,7 @@ package org.ballerinalang.test.services.testutils;
 import io.netty.handler.codec.http.HttpContent;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
@@ -91,7 +91,7 @@ public class Services {
                 request, registryHolder.getEndpointConfig());
         callback.setRequestStruct(signatureParams[0]);
 
-        ObjectValue service = resource.getParentService().getBalService();
+        BObject service = resource.getParentService().getBalService();
         Scheduler scheduler = registryHolder.getRegistry().getScheduler();
         Executor.submit(scheduler, service, resource.getName(), null, null, callback, properties, signatureParams);
         if (startScheduler) {

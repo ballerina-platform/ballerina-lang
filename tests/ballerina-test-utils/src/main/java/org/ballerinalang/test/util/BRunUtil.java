@@ -18,7 +18,6 @@
 package org.ballerinalang.test.util;
 
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
@@ -50,6 +49,8 @@ import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.BArrayType;
@@ -263,9 +264,11 @@ public class BRunUtil {
                     if (t instanceof BLangRuntimeException) {
                         throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
-                    if (t instanceof ErrorValue) {
+                    if (t instanceof org.ballerinalang.jvm.values.api.BError) {
                         throw new org.ballerinalang.util.exceptions
-                                .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+                                .BLangRuntimeException("error: " +
+                                                               ((org.ballerinalang.jvm.values.api.BError) t)
+                                                                       .getPrintableStackTrace());
                     }
                     if (t instanceof StackOverflowError) {
                         throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " +
@@ -397,7 +400,7 @@ public class BRunUtil {
                     if (t instanceof BLangRuntimeException) {
                         throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
-                    if (t instanceof ErrorValue) {
+                    if (t instanceof org.ballerinalang.jvm.values.api.BError) {
                         throw new org.ballerinalang.util.exceptions
                                 .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
                     }
@@ -526,7 +529,7 @@ public class BRunUtil {
                         packageID.version.getValue());
                 String objName = type.tsymbol.getName().getValue();
 
-                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPackage, objName);
+                BObject jvmObject = BValueCreator.createObjectValue(objPackage, objName);
                 BMap<String, BValue> objVal = (BMap) value;
                 for (Map.Entry<String, BValue> entry : objVal.getMap().entrySet()) {
                     BValue entryVal = entry.getValue();
@@ -653,7 +656,7 @@ public class BRunUtil {
                 BPackage objPkgPath = new BPackage(objPackagePath, "");
                 String objName = type.getName();
 
-                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPkgPath, objName);
+                BObject jvmObject = BValueCreator.createObjectValue(objPkgPath, objName);
                 HashMap<String, Object> nativeData = ((BMap) value).getNativeData();
                 if (nativeData == null) {
                     return jvmObject;

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.javainterop;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -30,6 +29,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -383,7 +383,7 @@ public class RefTypeWithBValueAPITests {
     public static BError acceptStringErrorReturnWhichThrowsCheckedException(
             org.ballerinalang.jvm.values.api.BString msg)
             throws JavaInteropTestCheckedException {
-        return BallerinaErrors.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return BErrorCreator.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static org.ballerinalang.jvm.values.api.BArray
@@ -402,7 +402,7 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static BError acceptStringErrorReturn(org.ballerinalang.jvm.values.api.BString msg) {
-        return BallerinaErrors.createError(msg);
+        return BErrorCreator.createError(msg);
     }
 
     public static Object getJson() {
