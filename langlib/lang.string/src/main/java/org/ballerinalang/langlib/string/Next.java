@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -63,7 +63,7 @@ public class Next {
             char character = stringCharacterIterator.current();
             stringCharacterIterator.next();
             Object charAsStr = StringUtils.fromString(String.valueOf(character));
-            return BallerinaValues.createRecord(new MapValueImpl<>(BTypes.stringItrNextReturnType), charAsStr);
+            return BValueCreator.createRecordValue(new MapValueImpl<>(BTypes.stringItrNextReturnType), charAsStr);
         }
 
         return null;

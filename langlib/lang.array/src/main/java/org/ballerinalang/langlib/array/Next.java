@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.AbstractArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -56,7 +56,7 @@ public class Next {
 
         if (arrIterator.hasNext()) {
             Object element = arrIterator.next();
-            return BallerinaValues.createRecord(new MapValueImpl<>(arr.getIteratorNextReturnType()), element);
+            return BValueCreator.createRecordValue(new MapValueImpl<>(arr.getIteratorNextReturnType()), element);
         }
 
         return null;

@@ -18,8 +18,9 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,8 +40,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
 public class AssertTrue {
     public static void assertTrue(Strand strand, boolean value) {
         if (!value) {
-            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError",
-                    "expected a true value");
+            throw BErrorCreator.createError(StringUtils.fromString("{ballerina/lang.test}AssertionError"),
+                                            StringUtils.fromString("expected a true value"));
         }
     }
 }

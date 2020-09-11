@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.value;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -42,6 +42,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 )
 public class ToString {
     public static BString toString(Strand strand, Object value) {
-        return org.ballerinalang.jvm.StringUtils.fromString(StringUtils.getStringValue(value));
+        return StringUtils.fromString(StringUtils.getStringValue(value));
     }
 }

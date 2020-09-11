@@ -18,9 +18,11 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,9 +43,9 @@ import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
 public class AssertValueEqual {
     public static void assertValueEqual(Strand strand, Object expected, Object actual) {
         if (!TypeChecker.isEqual(expected, actual)) {
-            String reason = "{ballerina/lang.test}AssertionError";
-            String msg = "expected " + expected.toString() + " but found " + actual.toString();
-            throw BallerinaErrors.createError(reason, msg);
+            BString reason = StringUtils.fromString("{ballerina/lang.test}AssertionError");
+            BString msg = StringUtils.fromString("expected " + expected.toString() + " but found " + actual.toString());
+            throw BErrorCreator.createError(reason, msg);
         }
     }
 }

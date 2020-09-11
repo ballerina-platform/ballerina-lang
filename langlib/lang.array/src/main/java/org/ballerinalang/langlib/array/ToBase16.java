@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -51,13 +51,16 @@ public class ToBase16 {
 
     private static final char[] chars = "0123456789abcdef".toCharArray();
 
+    private static final BString NOT_SUPPORTED_ERROR_DETAIL = StringUtils.fromString("toBase16() is only supported " +
+                                                                                               "on 'byte[]'");
+
     public static BString toBase16(Strand strand, ArrayValue arr) {
         BType arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
-            throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
-                                                                      OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                              "toBase16() is only supported on 'byte[]'");
+            throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                                                    OPERATION_NOT_SUPPORTED_IDENTIFIER),
+                                            NOT_SUPPORTED_ERROR_DETAIL);
         }
 
         // Implementation borrowed from https://stackoverflow.com/a/9855338

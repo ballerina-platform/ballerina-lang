@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
@@ -60,13 +60,13 @@ public class SetTransactionContext {
         String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).toString();
         String protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).toString();
         long retryNmbr = getRetryNumber(prevAttemptInfo);
-        MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
+        BMap<BString, Object> trxContext = BValueCreator.createRecordValue(TRANSACTION_PACKAGE_ID,
                 "Info");
         Object[] trxContextData = new Object[]{
                 BValueCreator.createArrayValue(globalTransactionId.getBytes(Charset.defaultCharset())), retryNmbr,
                 System.currentTimeMillis(), prevAttemptInfo
         };
-        MapValue<BString, Object> infoRecord = BallerinaValues.createRecord(trxContext, trxContextData);
+        BMap<BString, Object> infoRecord = BValueCreator.createRecordValue(trxContext, trxContextData);
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol, infoRecord);
         trxCtx.beginTransactionBlock(transactionBlockId);
