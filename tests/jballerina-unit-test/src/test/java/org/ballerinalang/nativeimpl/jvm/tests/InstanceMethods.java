@@ -169,10 +169,6 @@ public class InstanceMethods {
         return ((Long) objectValue.get(new BmpStringValue("age"))).intValue();
     }
 
-    public int getInt(int x) {
-        return x;
-    }
-
     public int getRandomInt() {
         return 123;
     }

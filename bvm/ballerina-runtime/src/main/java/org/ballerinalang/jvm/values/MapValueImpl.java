@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
@@ -33,8 +34,10 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValue;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -373,7 +376,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public String toString() {
-        return stringValue();
+        return stringValue(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -408,14 +411,34 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public String stringValue() {
-        StringJoiner sj = new StringJoiner(" ");
+    public String stringValue(BLink parent) {
+        StringJoiner sj = new StringJoiner(", ");
         for (Map.Entry<K, V> kvEntry : this.entrySet()) {
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
-            sj.add(key + "=" + StringUtils.getStringValue(value));
+            if (value == null) {
+                sj.add("\"" + key + "\":null");
+            } else {
+                BType type = TypeChecker.getType(value);
+                CycleUtils.Node mapParent = new CycleUtils.Node(this, parent);
+                switch (type.getTag()) {
+                    case TypeTags.STRING_TAG:
+                    case TypeTags.XML_TAG:
+                    case TypeTags.XML_ELEMENT_TAG:
+                    case TypeTags.XML_ATTRIBUTES_TAG:
+                    case TypeTags.XML_COMMENT_TAG:
+                    case TypeTags.XML_PI_TAG:
+                    case TypeTags.XMLNS_TAG:
+                    case TypeTags.XML_TEXT_TAG:
+                        sj.add("\"" + key + "\":" + ((BValue) value).informalStringValue(mapParent));
+                        break;
+                    default:
+                        sj.add("\"" + key + "\":" + StringUtils.getStringValue(value, mapParent));
+                        break;
+                }
+            }
         }
-        return sj.toString();
+        return "{" + sj.toString() + "}";
     }
 
     @Override
