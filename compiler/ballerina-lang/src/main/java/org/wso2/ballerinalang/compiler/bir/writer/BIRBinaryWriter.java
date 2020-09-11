@@ -315,7 +315,7 @@ public class BIRBinaryWriter {
             globalVarBuf.add(addStringCPEntry(var.name.value));
         }
 
-        buf.writeLong(globalVarBuf.size());
+        buf.writeInt(globalVarBuf.size());
         globalVarBuf.forEach(buf::writeInt);
     }
 

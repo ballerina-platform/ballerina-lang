@@ -416,7 +416,7 @@ public class BIRPackageSymbolEnter {
     private void defineGlobalVarDependencies(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
             throws IOException {
 
-        long length = dataInStream.readLong();
+        long length = dataInStream.readInt();
         for (int i = 0; i < length; i++) {
             String globalVarName = getStringCPEntryValue(dataInStream.readInt());
             invokableSymbol.dependentGlobalVars.add(this.globalVarMap.get(globalVarName));
