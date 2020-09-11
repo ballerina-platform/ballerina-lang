@@ -35,11 +35,11 @@ public class BStringTableValueTest extends BStringTestCommons {
 
     @Test
     public void testTableGeneration() {
-        testAndAssert("testTableGeneration", 124);
+        testAndAssert("testTableGeneration", 122);
     }
 
     @Test
     public void testTableWithArrayGeneration() {
-        testAndAssert("testTableWithArrayGeneration", 58);
+        testAndAssert("testTableWithArrayGeneration", 56);
     }
 }

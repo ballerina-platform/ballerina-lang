@@ -145,7 +145,7 @@ public class JavaVarargsTest {
     public void testIntArrayTypeVararg() {
         BValue[] returns = BRunUtil.invoke(result, "testIntArrayTypeVararg");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[[[7, 2]], [[8]]]");
+        Assert.assertEquals(returns[0].stringValue(), "[[[7,2]], [[8]]]");
     }
 
     @Test
