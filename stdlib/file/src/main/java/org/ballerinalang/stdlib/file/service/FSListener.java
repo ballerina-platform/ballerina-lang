@@ -19,13 +19,13 @@
 package org.ballerinalang.stdlib.file.service;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemEvent;
@@ -49,13 +49,13 @@ public class FSListener implements LocalFileSystemListener {
 
     private static final Logger log = LoggerFactory.getLogger(FSListener.class);
     private BRuntime runtime;
-    private ObjectValue service;
+    private BObject service;
     private Map<String, AttachedFunction> attachedFunctionRegistry;
     private static final StrandMetadata ON_MESSAGE_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                                  MODULE_NAME, MODULE_VERSION,
                                                                                  RESOURCE_NAME_ON_MESSAGE);
 
-    public FSListener(BRuntime runtime, ObjectValue service, Map<String, AttachedFunction> resourceRegistry) {
+    public FSListener(BRuntime runtime, BObject service, Map<String, AttachedFunction> resourceRegistry) {
         this.runtime = runtime;
         this.service = service;
         this.attachedFunctionRegistry = resourceRegistry;
@@ -75,7 +75,7 @@ public class FSListener implements LocalFileSystemListener {
     }
 
     private Object[] getJvmSignatureParameters(LocalFileSystemEvent fileEvent) {
-        MapValue<BString, Object> eventStruct = BallerinaValues.createRecordValue(FILE_PACKAGE_ID, FILE_SYSTEM_EVENT);
+        BMap<BString, Object> eventStruct = BValueCreator.createRecordValue(FILE_PACKAGE_ID, FILE_SYSTEM_EVENT);
         eventStruct.put(StringUtils.fromString(FILE_EVENT_NAME), StringUtils.fromString(fileEvent.getFileName()));
         eventStruct.put(StringUtils.fromString(FILE_EVENT_OPERATION), StringUtils.fromString(fileEvent.getEvent()));
         return new Object[] { eventStruct, true };
