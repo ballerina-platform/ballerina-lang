@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -222,8 +223,9 @@ public class Sort {
             }
             return c;
         }
-        throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                "expected an ordered type, but found '" + type.toString() + "'");
+        throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
+                                        StringUtils.fromString("expected an ordered type, but found '" +
+                                                                       type.toString() + "'"));
     }
 
     private static int codePointCompare(String str1, String str2) {
