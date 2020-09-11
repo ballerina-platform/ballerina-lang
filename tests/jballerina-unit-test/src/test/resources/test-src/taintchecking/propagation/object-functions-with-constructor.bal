@@ -1,4 +1,4 @@
-type TestObject object {
+class TestObject {
     public string testString;
 
     public function init (string testString) {
@@ -8,7 +8,7 @@ type TestObject object {
     function testFunction (string input) returns string {
         return input;
     }
-};
+}
 
 function secureFunction(@untainted string secureIn, string insecureIn) {
 

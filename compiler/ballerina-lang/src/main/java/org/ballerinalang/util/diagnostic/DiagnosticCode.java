@@ -47,6 +47,7 @@ public enum DiagnosticCode {
     ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
     DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED("missing.error.reason"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
+    OBJECT_TYPE_REQUIRED("object.type.required"),
     UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
@@ -68,6 +69,7 @@ public enum DiagnosticCode {
     ABSTRACT_OBJECT_CONSTRUCTOR("abstract.object.constructor"),
     CANNOT_INITIALIZE_ABSTRACT_OBJECT("cannot.initialize.abstract.object"),
     INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("invalid.interface.of.non.abstract.object"),
+    UNIMPLEMENTED_REFERENCED_METHOD_IN_CLASS("unimplemented.referenced.method.in.class"),
     PRIVATE_FUNCTION_VISIBILITY("private.function.visibility"),
     CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT("cannot.attach.functions.to.abstract.object"),
     ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY("abstract.object.function.cannot.have.body"),
@@ -89,6 +91,8 @@ public enum DiagnosticCode {
     REST_ARG_DEFINED_AFTER_NAMED_ARG("rest.arg.defined.after.named.arg"),
     MISSING_REQUIRED_PARAMETER("missing.required.parameter"),
     MISSING_REQUIRED_ARG_ERROR_MESSAGE("missing.required.parameter.error.message"),
+    OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS("object.constructor.init.function.cannot.have.parameters"),
+    OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS("object.constructor.does.not.support.type.reference.members"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_SPREAD_OP("incompatible.types.spread.op"),
@@ -168,7 +172,6 @@ public enum DiagnosticCode {
     ROLLBACK_NOT_ALLOWED("rollback.not.allowed"),
 
     // Service, endpoint related errors codes
-    SERVICE_OBJECT_TYPE_REQUIRED("service.object.type.required"),
     SERVICE_INVALID_OBJECT_TYPE("service.invalid.object.type"),
     SERVICE_INVALID_ENDPOINT_TYPE("service.invalid.endpoint.type"),
     SERVICE_FUNCTION_INVALID_MODIFIER("service.function.invalid.modifier"),

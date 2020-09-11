@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type PersonObj object {
+class PersonObj {
     public int age = 20;
     public string name = "Person Name";
 
@@ -25,7 +25,7 @@ type PersonObj object {
     function getAge() returns int {
         return self.age;
     }
-};
+}
 
 type PersonRec record {
     int age;

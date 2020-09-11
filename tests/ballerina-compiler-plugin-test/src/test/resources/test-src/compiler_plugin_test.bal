@@ -40,7 +40,7 @@ service routerService2 on ep {
 @types:Config {
     value: "routeCon"
 }
-public type routeCon client object {
+public client class routeCon {
 
     @functions:Config {
         value: "route"
@@ -48,7 +48,7 @@ public type routeCon client object {
     remote function getRoutes() {
 
     }
-};
+}
 
 @types:Config {
     value: "RouteConfig"
@@ -76,7 +76,7 @@ type Person record {
 
 
 // ---- Helper definitions.
-public type ABC object {
+public class ABC {
 
     *'object:Listener;
 
@@ -97,6 +97,6 @@ public type ABC object {
 
     public function __detach(service s) returns error? {
     }
-};
+}
 
 public listener ABC ep = new ABC();

@@ -311,6 +311,13 @@ class JvmTypeGen {
                                 symbolTable);
                         addImmutableType(mv, objectType);
                     }
+                    BTypeIdSet objTypeIdSet = ((BObjectType) bType).typeIdSet;
+                    if (!objTypeIdSet.isEmpty()) {
+                        mv.visitInsn(DUP);
+                        loadTypeIdSet(mv, objTypeIdSet);
+                        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, SET_TYPEID_SET_METHOD,
+                                String.format("(L%s;)V", TYPE_ID_SET), false);
+                    }
                     break;
                 case TypeTags.ERROR:
                     // populate detail field
@@ -407,7 +414,7 @@ class JvmTypeGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.OBJECT &&
-                    !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) {
+                    Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.CLASS)) {
                 objectTypeDefs.add(i, optionalTypeDef);
                 i += 1;
             }

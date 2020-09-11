@@ -15,14 +15,14 @@ function testTwoParamConstructor(handle h1, handle h2) returns handle {
 // Interop functions
 
 public function newClassWithDefaultConstructor() returns handle = @java:Constructor {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/ClassWithDefaultConstructor"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/ClassWithDefaultConstructor"
 } external;
 
 public function newClassWithOneParamConstructor(handle h) returns handle = @java:Constructor {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/ClassWithOneParamConstructor"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/ClassWithOneParamConstructor"
 } external;
 
 public function newClassWithTwoParamConstructor(handle h1, handle h2) returns handle = @java:Constructor {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/ClassWithTwoParamConstructor"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/ClassWithTwoParamConstructor"
 } external;
 

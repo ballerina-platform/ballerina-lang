@@ -1,5 +1,5 @@
 
-public type userPFoo object {
+public class userPFoo {
     public int age = 0;
     public string name = "";
     public string address = "";
@@ -18,4 +18,4 @@ public type userPFoo object {
     public function getAge () returns int {
         return self.age;
     }
-};
+}

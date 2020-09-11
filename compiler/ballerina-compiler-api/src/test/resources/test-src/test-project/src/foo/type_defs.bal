@@ -26,7 +26,7 @@ type Employee record {|
 
 public type BasicType int|float|boolean|string|decimal;
 
-public type PersonObj object {
+public class PersonObj {
     string name;
     int age;
 
@@ -38,7 +38,7 @@ public type PersonObj object {
     public function getName() returns string => self.name;
 
     public function getAge() returns int => self.age;
-};
+}
 
 public type Digit 0|1|2|3|4|5|6|7|8|9;
 

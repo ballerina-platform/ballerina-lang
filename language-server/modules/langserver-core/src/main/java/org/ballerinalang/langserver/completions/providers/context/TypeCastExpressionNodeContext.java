@@ -48,7 +48,7 @@ public class TypeCastExpressionNodeContext extends AbstractCompletionProvider<Ty
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
         }
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
         completionItems.addAll(this.getTypeItems(context));
 
         return completionItems;

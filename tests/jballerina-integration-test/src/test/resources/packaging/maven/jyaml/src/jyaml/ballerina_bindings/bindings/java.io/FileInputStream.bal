@@ -278,17 +278,17 @@ function newFileInputStream3(string arg0) returns FileInputStream|FileNotFoundEx
 // External interop functions for mapping public constructors.
 
 function java_io_FileInputStream_newFileInputStream1(handle arg0) returns handle|error = @java:Constructor {
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: ["java.io.File"]
 } external;
 
 function java_io_FileInputStream_newFileInputStream2(handle arg0) returns handle = @java:Constructor {
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: ["java.io.FileDescriptor"]
 } external;
 
 function java_io_FileInputStream_newFileInputStream3(handle arg0) returns handle|error = @java:Constructor {
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: ["java.lang.String"]
 } external;
 
@@ -296,115 +296,115 @@ function java_io_FileInputStream_newFileInputStream3(handle arg0) returns handle
 
 function java_io_FileInputStream_available(handle receiver) returns int|error = @java:Method {
     name: "available",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_close(handle receiver) returns error? = @java:Method {
     name: "close",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_equals(handle receiver, handle arg0) returns boolean = @java:Method {
     name: "equals",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: ["java.lang.Object"]
 } external;
 
 function java_io_FileInputStream_getChannel(handle receiver) returns handle = @java:Method {
     name: "getChannel",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_getClass(handle receiver) returns handle = @java:Method {
     name: "getClass",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_getFD(handle receiver) returns handle|error = @java:Method {
     name: "getFD",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_hashCode(handle receiver) returns int = @java:Method {
     name: "hashCode",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_mark(handle receiver, int arg0) = @java:Method {
     name: "mark",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: ["int"]
 } external;
 
 function java_io_FileInputStream_markSupported(handle receiver) returns boolean = @java:Method {
     name: "markSupported",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_notify(handle receiver) = @java:Method {
     name: "notify",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_notifyAll(handle receiver) = @java:Method {
     name: "notifyAll",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_read1(handle receiver) returns int|error = @java:Method {
     name: "read",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_read2(handle receiver, handle arg0) returns int|error = @java:Method {
     name: "read",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: ["[B"]
 } external;
 
 function java_io_FileInputStream_read3(handle receiver, handle arg0, int arg1, int arg2) returns int|error = @java:Method {
     name: "read",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: ["[B", "int", "int"]
 } external;
 
 function java_io_FileInputStream_reset(handle receiver) returns error? = @java:Method {
     name: "reset",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_skip(handle receiver, int arg0) returns int|error = @java:Method {
     name: "skip",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: ["long"]
 } external;
 
 function java_io_FileInputStream_wait1(handle receiver) returns error? = @java:Method {
     name: "wait",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: []
 } external;
 
 function java_io_FileInputStream_wait2(handle receiver, int arg0) returns error? = @java:Method {
     name: "wait",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: ["long"]
 } external;
 
 function java_io_FileInputStream_wait3(handle receiver, int arg0, int arg1) returns error? = @java:Method {
     name: "wait",
-    class: "java.io.FileInputStream",
+    'class: "java.io.FileInputStream",
     paramTypes: ["long", "int"]
 } external;
 

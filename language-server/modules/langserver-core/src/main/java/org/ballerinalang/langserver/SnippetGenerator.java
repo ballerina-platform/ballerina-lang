@@ -151,6 +151,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code ascending} keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAscendingKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ASCENDING, "ascending", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get {@code descending} keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getDescendingKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.DESCENDING, "descending", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
      * Get Break statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -238,6 +258,66 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getFromKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.FROM_KEYWORD, "from ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get Where Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWhereKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.WHERE_KEYWORD, "where ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get Join Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getJoinKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.JOIN_KEYWORD, "join ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get Order By Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getOrderByKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ORDERBY_KEYWORD, "order by ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get Join Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getLimitKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.LIMIT_KEYWORD, "limit ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get Select Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getSelectKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.SELECT_KEYWORD, "select ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get {@code equals} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getEqualsKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.EQUALS_KEYWORD, "equals ", ItemResolverConstants.KEYWORD_TYPE,
                 Kind.KEYWORD);
     }
 
@@ -1104,6 +1184,30 @@ public class SnippetGenerator {
         String snippet = "from ${1:var} ${2:item} in " + "${3}";
 
         return new SnippetBlock(ItemResolverConstants.FROM_CLAUSE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get Let clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getLetClauseSnippet() {
+        String snippet = "let ${1:var} ${2:varName} = " + "${3}";
+
+        return new SnippetBlock(ItemResolverConstants.LET_CLAUSE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get Join clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getJoinClauseSnippet() {
+        String snippet = "join ${1:var} ${2:varName} in ${3:expr} on ${3:onExpr} equals ${3:equalsExpr}";
+
+        return new SnippetBlock(ItemResolverConstants.JOIN_CLAUSE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
 

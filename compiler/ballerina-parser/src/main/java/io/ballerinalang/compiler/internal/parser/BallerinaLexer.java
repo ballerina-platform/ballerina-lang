@@ -980,6 +980,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
             case LexerTerminals.DESCENDING:
                 return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
+            case LexerTerminals.CLASS:
+                return getSyntaxToken(SyntaxKind.CLASS_KEYWORD);
             default:
                 return getIdentifierToken();
         }

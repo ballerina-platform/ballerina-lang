@@ -19,7 +19,7 @@ type Annot record {
     int bar?;
 };
 
-public annotation Annot v1 on type;
+public annotation Annot v1 on type, class;
 public annotation Annot v3 on function;
 
 string strValue = "v1 value";
@@ -55,9 +55,9 @@ function testRecordTypeAnnotationReadonlyValueEdit()  {
 @v1 {
     foo: strValue
 }
-type T2 object {
+class T2 {
     string name = "ballerina";
-};
+}
 
 function testAnnotationOnObjectTypeReadonlyValueEdit() {
      var fn = function() {

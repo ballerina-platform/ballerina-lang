@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.970.0
  */
+@Test(groups = "brokenOnClassChange")
 public class AnonymousObjectTest {
 
     private CompileResult compileResult;

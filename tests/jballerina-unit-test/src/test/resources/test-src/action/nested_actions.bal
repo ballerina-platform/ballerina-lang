@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo1 client object {
+client class Foo1 {
     string name;
 
     function init(string name) {
@@ -24,7 +24,7 @@ type Foo1 client object {
     remote function getName() returns string {
         return self.name;
     }
-};
+}
 
 function testNestedClientObjectActions() {
     Foo1 f1 = new("foo");
