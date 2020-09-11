@@ -2187,7 +2187,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token closeBrace = getToken(objectTypeDescriptorNode.closeBrace());
         return objectTypeDescriptorNode.modify()
                 .withObjectTypeQualifiers(objectTypeQualifiers)
-                .withObjectKeyword(formatToken(objectKeyword, 0, 1, 0, 0))
+                .withObjectKeyword(formatToken(objectKeyword, addSpaces ? startColumn : 0, 1, 0, 0))
                 .withOpenBrace(formatToken(openBrace, 0, 0, 0, 1))
                 .withMembers(members)
                 .withCloseBrace(formatToken(closeBrace, startColumn, 0, 0, 0))
@@ -2915,7 +2915,6 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<Token> qualifierList = this.modifyNodeList(methodDeclarationNode.qualifierList());
         Token functionKeyword = getToken(methodDeclarationNode.functionKeyword());
         IdentifierToken methodName = this.modifyNode(methodDeclarationNode.methodName());
-        FunctionSignatureNode methodSignature = this.modifyNode(methodDeclarationNode.methodSignature());
         Token semicolon = getToken(methodDeclarationNode.semicolon());
         if (metadata != null) {
             methodDeclarationNode = methodDeclarationNode.modify()
@@ -2927,8 +2926,8 @@ public class FormattingTreeModifier extends TreeModifier {
             addSpaces = false;
         }
         int startColumn = getStartColumn(methodDeclarationNode, addSpaces);
+        FunctionSignatureNode methodSignature = this.modifyNode(methodDeclarationNode.methodSignature());
         return methodDeclarationNode.modify()
-                .withQualifierList(qualifierList)
                 .withFunctionKeyword(formatToken(functionKeyword, addSpaces ? startColumn : 0, 1, 0, 0))
                 .withMethodName(methodName)
                 .withMethodSignature(methodSignature)

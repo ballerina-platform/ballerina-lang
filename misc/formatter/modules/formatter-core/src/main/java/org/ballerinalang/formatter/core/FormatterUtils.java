@@ -57,7 +57,7 @@ class FormatterUtils {
         LinePosition endPos = range.endLine();
         int startOffset = startPos.offset();
         if (node.kind() == (SyntaxKind.FUNCTION_DEFINITION) || node.kind() == (SyntaxKind.TYPE_DEFINITION) ||
-                node.kind() == (SyntaxKind.CONST_DECLARATION)) {
+                node.kind() == (SyntaxKind.CONST_DECLARATION) || node.kind() == (SyntaxKind.OBJECT_TYPE_DESC)) {
             startOffset = (startOffset / 4) * 4;
         }
         return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
@@ -114,7 +114,7 @@ class FormatterUtils {
             return null;
         } else if (parentKind == (SyntaxKind.OBJECT_TYPE_DESC)) {
             if (grandParent != null && grandParent.kind() == (SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {
-                return parent.parent().parent().parent();
+                return grandParent.parent().parent();
             } else if (grandParent != null && grandParent.kind() == (SyntaxKind.TYPE_DEFINITION)) {
                 return getParent(parent, syntaxKind);
             } else {
@@ -137,6 +137,7 @@ class FormatterUtils {
                     parentKind == SyntaxKind.FUNCTION_BODY_BLOCK ||
                     parentKind == SyntaxKind.LIST_CONSTRUCTOR ||
                     parentKind == SyntaxKind.TYPE_DEFINITION ||
+                    parentKind == SyntaxKind.METHOD_DECLARATION ||
                     parentKind == SyntaxKind.MAPPING_CONSTRUCTOR) {
                 indentation += formattingOptions.getTabSize();
             }
