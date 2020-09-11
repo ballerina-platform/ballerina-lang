@@ -131,16 +131,6 @@ public class JvmCodeGenUtil {
                            String.format("(L%s;L%s;L%s;Z)V", FUNCTION, BTYPE, STRING_VALUE), false);
     }
 
-    /**
-     * Cleanup type name by replacing '/ ' with '_' for readonly types.
-     *
-     * @param name name to be replaced and cleaned
-     * @return cleaned name
-     */
-    static String cleanupReadOnlyTypeName(String name) {
-        return name.contains("readonly") ? name.replaceAll("[/ .]", "_") : name;
-    }
-
     static String cleanupPathSeparators(String name) {
         name = cleanupBalExt(name);
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
@@ -261,6 +251,7 @@ public class JvmCodeGenUtil {
         return STRAND_METADATA_VAR_PREFIX + parentFunction + "$";
     }
 
+    //TODO:Remove this method after fixing issue #25745
     public static String cleanupFunctionName(String functionName) {
         return functionName.matches("(.*)[\\.:/<>](.*)") ? "$" + functionName.replaceAll("[\\.:/<>]", "_") :
                 functionName;

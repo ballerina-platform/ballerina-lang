@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.IdentifierEncoder;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -207,8 +206,7 @@ public class JvmDesugarPhase {
 
         // Rename the function name by appending the record name to it.
         // This done to avoid frame class name overlapping.
-        func.name = new Name(IdentifierEncoder
-                .encodeIdentifier(JvmCodeGenUtil.cleanupFunctionName(toNameString(recordType) + func.name.value)));
+        func.name = new Name(JvmCodeGenUtil.cleanupFunctionName(toNameString(recordType) + func.name.value));
 
         // change the kind of receiver to 'ARG'
         receiver.kind = VarKind.ARG;

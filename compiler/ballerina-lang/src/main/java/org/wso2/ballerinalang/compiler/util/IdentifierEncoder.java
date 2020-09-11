@@ -44,10 +44,10 @@ public class IdentifierEncoder {
                 String unicodePoint = CHAR_PREFIX + String.format("%04d", (int) identifier.charAt(index + 1));
                 sb.append(unicodePoint);
                 index += 2;
-                continue;
+            } else {
+                sb.append(identifier.charAt(index));
+                index++;
             }
-            sb.append(identifier.charAt(index));
-            index++;
         }
         return sb.toString();
     }
@@ -60,17 +60,31 @@ public class IdentifierEncoder {
         int index = 0;
         while (index < encodedName.length()) {
             if (encodedName.charAt(index) == '$' && index + 4 < encodedName.length()) {
-                String unicodePoint = encodedName.substring(index + 1, index + 5);
-                if (containsOnlyDigits(unicodePoint)) {
-                    sb.append((char) Integer.parseInt(unicodePoint));
+                if (isDollarHashPattern(encodedName, index)) {
+                    sb.append("$").append(encodedName, index + 2, index + 6);
+                    index += 6;
+                } else if (isUnicodePoint(encodedName, index)) {
+                    sb.append((char) Integer.parseInt(encodedName.substring(index + 1, index + 5)));
                     index += 5;
-                    continue;
+                } else {
+                    sb.append(encodedName.charAt(index));
+                    index++;
                 }
+            } else {
+                sb.append(encodedName.charAt(index));
+                index++;
             }
-            sb.append(encodedName.charAt(index));
-            index++;
         }
-        return sb.toString().replaceAll("(\\$#)(\\d{4})", "\\$$2");
+        return sb.toString();
+    }
+
+    private static boolean isUnicodePoint(String encodedName, int index) {
+        return (containsOnlyDigits(encodedName.substring(index + 1, index + 5)));
+    }
+
+    private static boolean isDollarHashPattern(String encodedName, int index) {
+        return encodedName.charAt(index + 1) == '#' && index + 5 < encodedName.length() &&
+                containsOnlyDigits(encodedName.substring(index + 2, index + 6));
     }
 
     private static boolean containsOnlyDigits(String digitString) {
@@ -91,9 +105,10 @@ public class IdentifierEncoder {
         if (identifier == null) {
             return identifier;
         }
-        identifier = identifier.replaceAll(ENCODING_PATTERN, "\\$#$1");
         if (identifier.contains(ESCAPE_PREFIX)) {
             identifier = encodeSpecialCharacters(identifier);
+        } else {
+            identifier = identifier.replaceAll(ENCODING_PATTERN, "\\$#$1");
         }
         return StringEscapeUtils.unescapeJava(identifier);
     }

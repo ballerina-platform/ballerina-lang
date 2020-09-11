@@ -542,8 +542,8 @@ public class ImmutableTypeCloner {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY,
-                                           getImmutableTypeName(names, origRecordType.tsymbol.toString()),
-                                           pkgID, null, env.scope.owner, pos, SOURCE);
+                        getImmutableTypeName(names, cleanUpSymbolName(origRecordType.tsymbol.toString())), pkgID, null,
+                        env.scope.owner, pos, SOURCE);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
@@ -586,6 +586,10 @@ public class ImmutableTypeCloner {
         return immutableRecordIntersectionType;
     }
 
+    private static String cleanUpSymbolName(String symbolName) {
+        return  symbolName.replaceAll("[/ .]", "_");
+    }
+
     private static BIntersectionType defineImmutableObjectType(DiagnosticPos pos,
                                                                BObjectType origObjectType, SymbolEnv env,
                                                                SymbolTable symTable,
@@ -596,8 +600,8 @@ public class ImmutableTypeCloner {
         BObjectTypeSymbol origObjectTSymbol = (BObjectTypeSymbol) origObjectType.tsymbol;
         BObjectTypeSymbol objectSymbol =
                 Symbols.createObjectSymbol(origObjectTSymbol.flags | Flags.READONLY,
-                                           getImmutableTypeName(names, origObjectTSymbol.toString()),
-                                           pkgID, null, env.scope.owner, pos, SOURCE);
+                        getImmutableTypeName(names, cleanUpSymbolName(origObjectTSymbol.toString())),
+                        pkgID, null, env.scope.owner, pos, SOURCE);
 
         objectSymbol.scope = new Scope(objectSymbol);
         objectSymbol.methodScope = new Scope(objectSymbol);
