@@ -40,6 +40,6 @@ public class BStringTableValueTest extends BStringTestCommons {
 
     @Test
     public void testTableWithArrayGeneration() {
-        testAndAssert("testTableWithArrayGeneration", 56);
+        testAndAssert("testTableWithArrayGeneration", 58);
     }
 }
