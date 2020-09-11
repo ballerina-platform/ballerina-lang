@@ -114,7 +114,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         if (diagnostic.kind == Diagnostic.Kind.ERROR) {
             errorCount++;
         }
-        storeDiagnosticInPackage(diagnostic.pos.src.pkgID, diagnostic);
+//        storeDiagnosticInPackage(diagnostic.pos.src.pkgID, diagnostic);
 
         // Notify the listener
         this.listener.received(diagnostic);
@@ -122,6 +122,6 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
     private void storeDiagnosticInPackage(PackageID pkgId, BDiagnostic diagnostic) {
         BLangPackage pkgNode = this.pkgCache.get(pkgId);
-        pkgNode.diagCollector.addDiagnostic(diagnostic);
+//        pkgNode.diagCollector.addDiagnostic(diagnostic);
     }
 }

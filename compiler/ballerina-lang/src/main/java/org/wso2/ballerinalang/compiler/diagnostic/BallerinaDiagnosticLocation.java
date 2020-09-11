@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.diagnostic;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 
@@ -30,13 +31,21 @@ import io.ballerina.tools.text.TextRange;
  */
 public class BallerinaDiagnosticLocation implements Location {
 
+    private LineRange lineRange;
+    private TextRange textRange;
+
+    public BallerinaDiagnosticLocation(String filePath, int startLine, int endLine, int startColumn, int endColumn) {
+        this.lineRange = LineRange.from(filePath, LinePosition.from(startLine, 0), LinePosition.from(endLine, 0));
+        this.textRange = TextRange.from(startColumn, endColumn - startColumn);
+    }
+
     @Override
     public LineRange lineRange() {
-        return null;
+        return lineRange;
     }
 
     @Override
     public TextRange textRange() {
-        return null;
+        return textRange;
     }
 }
