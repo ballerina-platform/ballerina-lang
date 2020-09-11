@@ -29,10 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
@@ -110,7 +110,7 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
-        BLangDiagnosticLogHelper.getInstance(context).resetErrorCount();
+        BallerinaDiagnosticLog.getInstance(context).resetErrorCount();
         Compiler compiler = Compiler.getInstance(context);
         LSContext lsContext = new LSCompilerOperationContext
                 .CompilerOperationContextBuilder(CompileFileContextOperation.COMPILE_FILE)
@@ -123,14 +123,6 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
             logger.error("Unable to create the empty stream.");
         }
         BLangPackage bLangPackage = compileSafe(compiler, parent.toString(), packageName, lsContext);
-        BallerinaFile bfile;
-        if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-            List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))
-                    .getDiagnostics();
-            bfile = new BallerinaFile(bLangPackage, diagnostics, false, context);
-        } else {
-            bfile = new BallerinaFile(bLangPackage, new ArrayList<>(), false, context);
-        }
-        return bfile;
+        return new BallerinaFile(bLangPackage, bLangPackage.diagCollector.getDagnostics(), false, context);
     }
 }

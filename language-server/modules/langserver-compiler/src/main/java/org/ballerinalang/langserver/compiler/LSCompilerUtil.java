@@ -35,11 +35,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -233,7 +233,7 @@ public class LSCompilerUtil {
             compilerContext.put(DefaultErrorStrategy.class,
                     CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
         }
-        BLangDiagnosticLogHelper.getInstance(compilerContext).resetErrorCount();
+        BallerinaDiagnosticLog.getInstance(compilerContext).resetErrorCount();
         Compiler compiler = Compiler.getInstance(compilerContext);
         compiler.setOutStream(emptyPrintStream);
         return compiler;

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -32,7 +33,6 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -265,7 +265,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
         public void addDiagnostic(BDiagnostic diagnostic) {
             this.diagnostics.add(diagnostic);
-            if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
+            if (diagnostic.getKind() == org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR) {
                 this.errorCount++;
             }
             Collections.sort(diagnostics);
@@ -283,7 +283,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
      */
     public static class DiagnosticCollector {
         private int errorCount;
-        private List<BallerinaDiagnostic> diagnostics;
+        private List<Diagnostic> diagnostics;
 
         public DiagnosticCollector() {
             this.diagnostics = new ArrayList<>();
@@ -294,6 +294,10 @@ public class BLangPackage extends BLangNode implements PackageNode {
             if (diagnostic.severity() == DiagnosticSeverity.ERROR) {
                 this.errorCount++;
             }
+        }
+
+        public List<Diagnostic> getDagnostics() {
+            return this.diagnostics;
         }
 
         public boolean hasErrors() {

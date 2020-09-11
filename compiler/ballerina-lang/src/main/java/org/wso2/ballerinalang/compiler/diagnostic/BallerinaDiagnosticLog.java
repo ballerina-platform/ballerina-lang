@@ -20,11 +20,13 @@ package org.wso2.ballerinalang.compiler.diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
+import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.PrintStream;
@@ -37,7 +39,7 @@ import java.util.ResourceBundle;
  * 
  * @since 2.0.0
  */
-public class BallerinaDiagnosticLog {
+public class BallerinaDiagnosticLog implements DiagnosticLog {
 
     private static final CompilerContext.Key<BallerinaDiagnosticLog> DIAGNOSTIC_LOG_KEY = new CompilerContext.Key<>();
     private static final String ERROR_PREFIX = "error.";
@@ -48,7 +50,6 @@ public class BallerinaDiagnosticLog {
     private int errorCount = 0;
     private PackageCache packageCache;
     private boolean isMute = false;
-
     private PrintStream console = System.err;
 
     private BallerinaDiagnosticLog(CompilerContext context) {
@@ -135,12 +136,31 @@ public class BallerinaDiagnosticLog {
     /**
      * Logs a message of the specified {@link DiagnosticSeverity} at the {@link Diagnostic.DiagnosticPosition}.
      *
-     * @param severity    the severity of the diagnostic
-     * @param pos     the position of the source code element.
+     * @param severity the severity of the diagnostic
+     * @param pos the position of the source code element.
      * @param message the message
      */
     public void logDiagnostic(DiagnosticSeverity severity, Diagnostic.DiagnosticPosition pos, CharSequence message) {
         this.reportDiagnostic((DiagnosticPos) pos, message.toString(), severity);
+    }
+
+    @Override
+    public void logDiagnostic(Kind kind, DiagnosticPosition pos, CharSequence message) {
+        DiagnosticSeverity severity;
+        switch (kind) {
+            case ERROR:
+                severity = DiagnosticSeverity.ERROR;
+                break;
+            case WARNING:
+                severity = DiagnosticSeverity.WARNING;
+                break;
+            case NOTE:
+            default:
+                severity = DiagnosticSeverity.INFO;
+                break;
+        }
+
+        reportDiagnostic((DiagnosticPos) pos, message.toString(), severity);
     }
 
     // private helper methods
@@ -159,8 +179,8 @@ public class BallerinaDiagnosticLog {
             return;
         }
 
-        BallerinaDiagnosticLocation diagnosticLocation = new BallerinaDiagnosticLocation(pos.getSource().cUnitName,
-                pos.sLine, pos.eLine, pos.sCol, pos.eCol);
+        BallerinaDiagnosticLocation diagnosticLocation =
+                new BallerinaDiagnosticLocation(pos.getSource().cUnitName, pos.sLine, pos.eLine, pos.sCol, pos.eCol);
         BallerinaDiagnostic diagnostic = new BallerinaDiagnostic(diagnosticLocation, msg, severity);
 
         storeDiagnosticInPackage(pos.src.pkgID, diagnostic);
