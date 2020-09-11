@@ -79,7 +79,8 @@ public class CodeCoverageUtils {
             copyClassFilesToBinPath(destination, destJarDir, orgName, moduleName, version);
             deleteDirectory(new File(destJarDir));
         } catch (NoSuchFileException e) {
-            String msg = "Source file for " + moduleName + " doesnt exist. Cannot generate Code coverage";
+            String msg = "Unable to generate code coverage for the module " + moduleName + ". Source file does not " +
+                    "exist";
             errStream.println(msg);
             throw new NoSuchFileException(msg);
         } catch (IOException e) {
