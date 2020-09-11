@@ -63,8 +63,24 @@ function performInvalidCastWithDistinctErrorType() returns error? {
     return e;
 }
 
-function testErrorDetailDefinedAfterErrorDef() returns er:PostDefinedError {
+function testErrorDetailDefinedAfterErrorDef() {
     er:NewPostDefinedError e = er:NewPostDefinedError("New error", code = "ABCD");
     er:PostDefinedError k = e;
-    return k;
+    assertEquality("New error", k.message());
+    assertEquality("ABCD", k.detail()["code"]);
 }
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError("Assertion Error",
+            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
+
+type AssertionError error;

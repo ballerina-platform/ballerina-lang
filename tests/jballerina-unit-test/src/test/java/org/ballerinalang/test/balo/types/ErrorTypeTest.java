@@ -109,8 +109,7 @@ public class ErrorTypeTest {
 
     @Test
     public void testErrorDetailDefinedAfterErrorDef() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorDetailDefinedAfterErrorDef");
-        Assert.assertEquals(returns[0].stringValue(), "New error {code:\"ABCD\"}");
+        BRunUtil.invoke(result, "testErrorDetailDefinedAfterErrorDef");
     }
     
     @Test
