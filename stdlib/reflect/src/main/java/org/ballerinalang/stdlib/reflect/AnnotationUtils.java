@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.reflect;
 
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
 
 /**
@@ -38,7 +38,7 @@ public class AnnotationUtils {
      * @param annot annotation name.
      * @return annotation value object.
      */
-    public static Object externGetResourceAnnotations(ObjectValue service, BString resourceName, BString annot) {
+    public static Object externGetResourceAnnotations(BObject service, BString resourceName, BString annot) {
         AttachedFunction[] functions = service.getType().getAttachedFunctions();
 
         for (AttachedFunction function : functions) {
@@ -60,7 +60,7 @@ public class AnnotationUtils {
      * @param annot annotation name.
      * @return annotation value object.
      */
-    public static Object externGetServiceAnnotations(ObjectValue service, BString annot) {
+    public static Object externGetServiceAnnotations(BObject service, BString annot) {
         Object serviceAnnotation = service.getType().getAnnotation(annot);
         if (serviceAnnotation instanceof String) {
             return StringUtils.fromString((String) serviceAnnotation);

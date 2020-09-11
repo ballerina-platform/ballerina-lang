@@ -19,11 +19,11 @@
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.apache.commons.codec.binary.Base64;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
@@ -56,7 +56,7 @@ public class Decode {
 
     @SuppressWarnings("unchecked")
     public static Object decodePrivateKey(Object keyStoreValue, BString keyAlias, BString keyPassword) {
-        MapValue<BString, Object> keyStore = (MapValue<BString, Object>) keyStoreValue;
+        BMap<BString, Object> keyStore = (BMap<BString, Object>) keyStoreValue;
 
         File keyStoreFile = new File(CryptoUtils.substituteVariables(
                 keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).toString()));
@@ -76,7 +76,7 @@ public class Decode {
             }
             //TODO: Add support for DSA/ECDSA keys and associated crypto operations
             if (privateKey.getAlgorithm().equals("RSA")) {
-                MapValue<BString, Object> privateKeyRecord = BallerinaValues.
+                BMap<BString, Object> privateKeyRecord = BValueCreator.
                         createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PRIVATE_KEY_RECORD);
                 privateKeyRecord.addNativeData(Constants.NATIVE_DATA_PRIVATE_KEY, privateKey);
                 privateKeyRecord.put(StringUtils.fromString(Constants.PRIVATE_KEY_RECORD_ALGORITHM_FIELD),
@@ -98,7 +98,7 @@ public class Decode {
 
     @SuppressWarnings("unchecked")
     public static Object decodePublicKey(Object keyStoreValue, BString keyAlias) {
-        MapValue<BString, Object> keyStore = (MapValue<BString, Object>) keyStoreValue;
+        BMap<BString, Object> keyStore = (BMap<BString, Object>) keyStoreValue;
 
         File keyStoreFile = new File(CryptoUtils.substituteVariables(
                 keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).toString()));
@@ -115,7 +115,7 @@ public class Decode {
             if (certificate == null) {
                 return CryptoUtils.createError("Certificate cannot be recovered by using given key alias: " + keyAlias);
             }
-            MapValue<BString, Object> certificateBMap = BallerinaValues.
+            BMap<BString, Object> certificateBMap = BValueCreator.
                     createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.CERTIFICATE_RECORD);
             if (certificate instanceof X509Certificate) {
                 X509Certificate x509Certificate = (X509Certificate) certificate;
@@ -145,7 +145,7 @@ public class Decode {
             PublicKey publicKey = certificate.getPublicKey();
             //TODO: Add support for DSA/ECDSA keys and associated crypto operations
             if (publicKey.getAlgorithm().equals("RSA")) {
-                MapValue<BString, Object> publicKeyMap = BallerinaValues.
+                BMap<BString, Object> publicKeyMap = BValueCreator.
                         createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PUBLIC_KEY_RECORD);
                 publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
                 publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY_CERTIFICATE, certificate);
@@ -174,7 +174,7 @@ public class Decode {
                                                          new BigInteger(1, decodedExponent));
             RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
 
-            MapValue<BString, Object> publicKeyMap = BallerinaValues.
+            BMap<BString, Object> publicKeyMap = BValueCreator.
                     createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PUBLIC_KEY_RECORD);
             publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
             publicKeyMap.put(StringUtils.fromString(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD),

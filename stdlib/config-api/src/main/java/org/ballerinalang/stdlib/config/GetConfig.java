@@ -19,15 +19,14 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.MappingInitialValueEntry;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 
@@ -63,13 +62,13 @@ public class GetConfig {
                     throw new IllegalStateException("invalid value type: " + type);
             }
         } catch (IllegalArgumentException e) {
-            throw BallerinaErrors.createError(StringUtils.fromString(
+            throw BErrorCreator.createError(StringUtils.fromString(
                     "error occurred while trying to retrieve the value; " + e.getMessage()));
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static MapValue<BString, Object> buildMapValue(Map<String, Object> section) {
+    private static BMap<BString, Object> buildMapValue(Map<String, Object> section) {
         MappingInitialValueEntry.KeyValueEntry[] keyValues = new MappingInitialValueEntry.KeyValueEntry[section.size()];
         int i = 0;
         for (Map.Entry<String, Object> entry : section.entrySet()) {
@@ -78,7 +77,7 @@ public class GetConfig {
             keyValues[i] = keyValue;
             i++;
         }
-        return new MapValueImpl<>(mapType, keyValues);
+        return BValueCreator.createMapValue(mapType, keyValues);
     }
 
     private static BArray buildArrayValue(List value) {

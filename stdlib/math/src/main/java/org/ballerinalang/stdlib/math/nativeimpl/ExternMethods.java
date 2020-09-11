@@ -18,8 +18,9 @@
 
 package org.ballerinalang.stdlib.math.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -75,7 +76,7 @@ public class ExternMethods {
         return Math.scalb(a, intVal);
     }
 
-    private static ErrorValue createMathError(String errMsg) {
-        return BallerinaErrors.createDistinctError(MATH_ERROR, MATH_PACKAGE_ID, errMsg);
+    private static BError createMathError(String errMsg) {
+        return BErrorCreator.createDistinctError(MATH_ERROR, MATH_PACKAGE_ID, StringUtils.fromString(errMsg));
     }
 }

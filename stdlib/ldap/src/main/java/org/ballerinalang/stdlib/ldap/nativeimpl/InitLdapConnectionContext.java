@@ -18,10 +18,11 @@
 
 package org.ballerinalang.stdlib.ldap.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConnectionContext;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
@@ -109,7 +110,7 @@ public class InitLdapConnectionContext {
             LdapConnectionContext connectionSource = new LdapConnectionContext(commonLdapConfiguration);
             DirContext dirContext = connectionSource.getContext();
 
-            MapValue<BString, Object> ldapConnectionRecord = BallerinaValues.
+            BMap<BString, Object> ldapConnectionRecord = BValueCreator.
                     createRecordValue(LdapConstants.LDAP_PACKAGE_ID, LdapConstants.LDAP_CONNECTION);
             ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONFIGURATION, commonLdapConfiguration);
             ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONNECTION_SOURCE, connectionSource);

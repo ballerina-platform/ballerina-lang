@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.stdlib.ldap.util;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -256,7 +257,7 @@ public class LdapUtils {
         socketFactoryName.remove();
     }
 
-    public static ErrorValue createError(String errMsg) {
-        return BallerinaErrors.createDistinctError(LDAP_ERROR_TYPE, LDAP_PACKAGE_ID, errMsg);
+    public static BError createError(String errMsg) {
+        return BErrorCreator.createDistinctError(LDAP_ERROR_TYPE, LDAP_PACKAGE_ID, StringUtils.fromString(errMsg));
     }
 }
