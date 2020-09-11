@@ -146,7 +146,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     }
 
     private List<LSCompletionItem> listenersAndPackagesItems(LSContext context) {
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<Scope.ScopeEntry> listeners = visibleSymbols.stream()
                 .filter(scopeEntry -> CommonUtil.isListenerObject(scopeEntry.symbol))
@@ -189,7 +189,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                         && !(scopeEntry.symbol instanceof BOperatorSymbol))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
         objectTypeSymbol.ifPresent(bSymbol -> completionItems.add(this.getImplicitNewCompletionItem(bSymbol, context)));
 

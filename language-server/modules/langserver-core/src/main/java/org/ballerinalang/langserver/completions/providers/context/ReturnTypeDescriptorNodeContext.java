@@ -71,7 +71,7 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
             (1) function test() returns <cursor>
             (2) function test() returns i<cursor>
             */
-            completionItems.addAll(this.getPackagesCompletionItems(context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.addAll(this.getTypeItems(context));
         }
 

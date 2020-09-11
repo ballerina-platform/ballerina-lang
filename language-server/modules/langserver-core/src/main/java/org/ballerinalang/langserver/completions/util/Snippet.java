@@ -160,6 +160,18 @@ public enum Snippet {
 
     KW_FROM(SnippetGenerator.getFromKeywordSnippet()),
 
+    KW_WHERE(SnippetGenerator.getWhereKeywordSnippet()),
+
+    KW_JOIN(SnippetGenerator.getJoinKeywordSnippet()),
+
+    KW_ORDERBY(SnippetGenerator.getOrderByKeywordSnippet()),
+
+    KW_LIMIT(SnippetGenerator.getLimitKeywordSnippet()),
+
+    KW_SELECT(SnippetGenerator.getSelectKeywordSnippet()),
+
+    KW_EQUALS(SnippetGenerator.getEqualsKeywordSnippet()),
+
     KW_FLUSH(SnippetGenerator.getFlushKeywordSnippet()),
 
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
@@ -212,6 +224,10 @@ public enum Snippet {
 
     KW_IS(SnippetGenerator.getIsKeywordSnippet()),
 
+    KW_ASCENDING(SnippetGenerator.getAscendingKeywordSnippet()),
+
+    KW_DESCENDING(SnippetGenerator.getDescendingKeywordSnippet()),
+
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),
 
@@ -248,7 +264,11 @@ public enum Snippet {
     STMT_WHILE(SnippetGenerator.getWhileStatementSnippet()),
 
     // Snippets related to various clauses such as from, where and etc
-    CLAUSE_FROM(SnippetGenerator.getFromClauseSnippet());
+    CLAUSE_FROM(SnippetGenerator.getFromClauseSnippet()),
+    
+    CLAUSE_LET(SnippetGenerator.getLetClauseSnippet()),
+    
+    CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet());
 
     private final String snippetName;
     private final SnippetBlock snippetBlock;
