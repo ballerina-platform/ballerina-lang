@@ -2927,10 +2927,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case WAIT_KEYWORD:
                 return ParserRuleContext.WAIT_KEYWORD_RHS;
             case DO_KEYWORD:
-                if (getParentContext() == ParserRuleContext.DO_BLOCK) {
-                    return ParserRuleContext.BLOCK_STMT;
-                }
-                return ParserRuleContext.OPEN_BRACE;
             case TRANSACTION_KEYWORD:
                 return ParserRuleContext.BLOCK_STMT;
             case COMMIT_KEYWORD:
@@ -3083,7 +3079,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NAMED_ARG_MATCH_PATTERN:
             case SELECT_CLAUSE:
             case JOIN_CLAUSE:
-            case DO_BLOCK:
             case ON_FAIL_CLAUSE:
 
                 // Contexts that expect a type
@@ -3599,6 +3594,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         }
                     case MATCH_BODY:
                         return ParserRuleContext.MATCH_PATTERN;
+                    case DO_CLAUSE:
+                        return ParserRuleContext.QUERY_EXPRESSION_END;
                     default:
                         return ParserRuleContext.STATEMENT;
                 }
@@ -3631,12 +3628,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SERVICE_CONSTRUCTOR_EXPRESSION:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
-            case DO_CLAUSE:
-                STToken nextToken = this.tokenReader.peek(nextLookahead);
-                if (nextToken.kind == SyntaxKind.LIMIT_KEYWORD) {
-                    return ParserRuleContext.LIMIT_CLAUSE;
-                }
-                return ParserRuleContext.QUERY_EXPRESSION_END;
             case ENUM_MEMBER_LIST:
                 endContext(); // end ENUM_MEMBER_LIST context
                 endContext(); // end MODULE_ENUM_DECLARATION ctx
