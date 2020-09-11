@@ -937,6 +937,17 @@ function testToJsonWithTable() {
     assert(j.toJsonString(), "[{\"id\":12, \"str\":\"abc\"}, {\"id\":34, \"str\":\"def\"}]");
 }
 
+function testToStringOnCycles() {
+     map<anydata> x = {"ee" : 3};
+     map<anydata> y = {"qq" : 5};
+     anydata[] arr = [2 , 3, 5];
+     x["1"] = y;
+     y["1"] = x;
+     y["2"] = arr;
+     arr.push(x);
+     assert(x.toString(), "{\"ee\":3, \"1\":{\"qq\":5, \"1\":..., \"2\":[2, 3, 5, ...]}}");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

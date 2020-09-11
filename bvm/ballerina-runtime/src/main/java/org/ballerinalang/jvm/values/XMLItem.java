@@ -21,6 +21,7 @@ import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
+import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
@@ -28,6 +29,7 @@ import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
@@ -417,7 +419,7 @@ public final class XMLItem extends XMLValue {
     @Override
     public OMNode value() {
         try {
-            String xmlStr = this.stringValue();
+            String xmlStr = this.stringValue(new CycleUtils.Node(this, null));
             OMElement omElement = XMLFactory.stringToOM(xmlStr);
             return omElement;
         } catch (ErrorValue e) {
@@ -435,15 +437,16 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public String toString() {
-        return this.stringValue();
+        return this.stringValue(null);
     }
 
     /**
      * {@inheritDoc}
+     * @param parent
      */
     @Override
     @Deprecated
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
@@ -459,7 +462,7 @@ public final class XMLItem extends XMLValue {
     }
 
     @Override
-    public String informalStringValue() {
+    public String informalStringValue(BLink parent) {
         return "`" + toString() + "`";
     }
 

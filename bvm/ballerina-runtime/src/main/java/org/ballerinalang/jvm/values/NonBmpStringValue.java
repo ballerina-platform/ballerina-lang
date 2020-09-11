@@ -18,6 +18,7 @@
  package org.ballerinalang.jvm.values;
 
  import org.ballerinalang.jvm.StringUtils;
+ import org.ballerinalang.jvm.values.api.BLink;
  import org.ballerinalang.jvm.values.api.BString;
 
  import java.util.Arrays;
@@ -83,12 +84,12 @@
     }
 
      @Override
-     public String stringValue() {
+     public String stringValue(BLink parent) {
          return value;
      }
 
      @Override
-     public String informalStringValue() {
+     public String informalStringValue(BLink parent) {
          return "\"" + toString() + "\"";
      }
 

@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
+import org.ballerinalang.jvm.values.api.BLink;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -79,7 +80,7 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         return "function " + type;
     }
 

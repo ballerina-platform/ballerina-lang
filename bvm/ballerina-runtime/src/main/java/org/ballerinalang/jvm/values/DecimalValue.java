@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BDecimal;
+import org.ballerinalang.jvm.values.api.BLink;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -159,7 +160,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
         }
 
         if (!isDecimalWithinIntRange(value)) {
-            throw BallerinaErrors.createNumericConversionError(this.stringValue(), BTypes.typeDecimal, BTypes.typeInt);
+            throw BallerinaErrors.createNumericConversionError(this.stringValue(null), BTypes.typeDecimal, BTypes.typeInt);
         }
         return (long) Math.rint(value.doubleValue());
     }
@@ -222,8 +223,9 @@ public class DecimalValue implements SimpleValue, BDecimal {
     /**
      * Get the string value.
      * @return string value
+     * @param parent
      */
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         if (this.valueKind != DecimalValueKind.OTHER) {
             return this.valueKind.getValue();
         }
@@ -519,7 +521,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      */
     @Override
     public String toString() {
-        return this.stringValue();
+        return this.stringValue(null);
     }
 
     /**

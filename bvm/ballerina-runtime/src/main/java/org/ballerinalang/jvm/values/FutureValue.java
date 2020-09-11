@@ -17,10 +17,12 @@
   */
 package org.ballerinalang.jvm.values;
 
+ import org.ballerinalang.jvm.CycleUtils;
  import org.ballerinalang.jvm.scheduling.Strand;
  import org.ballerinalang.jvm.types.BFutureType;
  import org.ballerinalang.jvm.types.BType;
  import org.ballerinalang.jvm.values.api.BFuture;
+ import org.ballerinalang.jvm.values.api.BLink;
  import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
  import java.util.Map;
@@ -58,7 +60,7 @@ package org.ballerinalang.jvm.values;
      }
 
      @Override
-     public String stringValue() {
+     public String stringValue(BLink parent) {
          StringJoiner sj = new StringJoiner(",", "{", "}");
          sj.add("isDone:" + isDone);
          if (isDone) {
@@ -131,7 +133,7 @@ package org.ballerinalang.jvm.values;
 
     @Override
     public String toString() {
-        return stringValue();
+        return stringValue(null);
     }
 
 }
