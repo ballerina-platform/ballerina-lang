@@ -19,6 +19,7 @@ import ballerina/java;
 const string assertFailureErrorCategory = "assert-failure";
 const string arraysNotEqualMessage = "Arrays are not equal";
 const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
+const int maxArgLength = 2048;
 
 # The error struct for assertion errors.
 #
@@ -70,16 +71,7 @@ public function assertFalse(boolean condition, string msg = "Assertion Failed!")
 public function assertEquals(anydata|error actual, anydata|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual == expected);
     if (!isEqual) {
-        string expectedStr = sprintf("%s", expected);
-        string expectedType = getBallerinaType(expected);
-        string actualStr = sprintf("%s", actual);
-        string actualType = getBallerinaType(actual);
-        string errorMsg = "";
-        if (expectedType != actualType) {
-            errorMsg = string `${msg}: expected '<${expectedType}> ${expectedStr}' but found '<${actualType}> ${actualStr}'`;
-        } else {
-            errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
-        }
+        string errorMsg = getInequalityErrorMsg(actual, expected, msg);
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -107,16 +99,7 @@ public function assertNotEquals(anydata|error actual, anydata|error expected, st
 public function assertExactEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual === expected);
     if (!isEqual) {
-        string expectedStr = sprintf("%s", expected);
-        string expectedType = getBallerinaType(expected);
-        string actualStr = sprintf("%s", actual);
-        string actualType = getBallerinaType(actual);
-        string errorMsg = "";
-        if (expectedType != actualType) {
-            errorMsg = string `${msg}: expected '<${expectedType}> ${expectedStr}' but found '<${actualType}> ${actualStr}'`;
-        } else {
-            errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
-        }
+        string errorMsg = getInequalityErrorMsg(actual, expected, msg);
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -131,7 +114,7 @@ public function assertNotExactEquals(any|error actual, any|error expected, strin
     if (isEqual) {
         string expectedStr = sprintf("%s", expected);
         string actualStr = sprintf("%s", actual);
-        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -141,6 +124,34 @@ public function assertNotExactEquals(any|error actual, any|error expected, strin
 # + msg - Assertion error message
 public function assertFail(string msg = "Test Failed!") {
     panic createBallerinaError(msg, assertFailureErrorCategory);
+}
+
+# Get the error message to be shown when there is an inequaklity while asserting two values.
+#
+# + actual - Actual value
+# + expected - Expected value
+# + msg - Assertion error message
+#
+# + return - Error message constructed based on the compared values
+private function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "Assertion Failed!") returns string {
+        string expectedStr = sprintf("%s", expected);
+        string expectedType = getBallerinaType(expected);
+        string actualStr = sprintf("%s", actual);
+        string actualType = getBallerinaType(actual);
+        string errorMsg = "";
+        if (expectedType != actualType) {
+            if (expectedStr.length() > maxArgLength) {
+                expectedStr = expectedStr.subString(0, maxArgLength);
+            }
+            if (actualStr.length() > maxArgLength) {
+                actualStr = actualStr.subString(0, maxArgLength);
+            }
+            errorMsg = string `${msg}: expected <${expectedType}> '${expectedStr}' but found <${actualType}> 
+            '${actualStr}'`;
+        } else {
+            errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        }
+        return errorMsg;
 }
 
 function sprintf(string format, (any|error)... args) returns string = @java:Method {
