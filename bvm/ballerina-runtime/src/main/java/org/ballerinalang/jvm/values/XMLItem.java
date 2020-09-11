@@ -21,7 +21,6 @@ import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
-import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;

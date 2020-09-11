@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
-import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BMap;
