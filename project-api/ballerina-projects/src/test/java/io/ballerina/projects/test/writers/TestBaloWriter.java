@@ -25,10 +25,14 @@ import io.ballerina.projects.directory.PackageLoader;
 import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.writers.BaloWriter;
+import io.ballerina.projects.writers.exceptions.NoPermissionException;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileReader;
@@ -47,7 +51,7 @@ public class TestBaloWriter {
     private static final Path BALO_PATH = RESOURCE_DIRECTORY.resolve("tmpBaloDir");
 
 
-    @BeforeClass
+    @BeforeMethod
     public void setUp() throws IOException {
         Files.createDirectory(Paths.get(String.valueOf(BALO_PATH)));
     }
@@ -82,6 +86,25 @@ public class TestBaloWriter {
         Assert.assertEquals(packageJson.getOrganization(), "foo");
         Assert.assertEquals(packageJson.getName(), "winery");
         Assert.assertEquals(packageJson.getVersion(), "0.1.0");
+
+        Assert.assertFalse(packageJson.getLicenses().isEmpty());
+        Assert.assertEquals(packageJson.getLicenses().get(0), "MIT");
+        Assert.assertEquals(packageJson.getLicenses().get(1), "Apache-2.0");
+
+        Assert.assertFalse(packageJson.getAuthors().isEmpty());
+        Assert.assertEquals(packageJson.getAuthors().get(0), "jo@wso2.com");
+        Assert.assertEquals(packageJson.getAuthors().get(1), "pramodya@wso2.com");
+
+        Assert.assertEquals(packageJson.getSourceRepository(), "https://github.com/ballerinalang/ballerina");
+
+        Assert.assertFalse(packageJson.getKeywords().isEmpty());
+        Assert.assertEquals(packageJson.getKeywords().get(0), "ballerina");
+        Assert.assertEquals(packageJson.getKeywords().get(1), "security");
+        Assert.assertEquals(packageJson.getKeywords().get(2), "crypto");
+
+        Assert.assertFalse(packageJson.getExported().isEmpty());
+        Assert.assertEquals(packageJson.getExported().get(0), "winery");
+        Assert.assertEquals(packageJson.getExported().get(1), "service");
 
         // docs
         Path packageMdPath = BALO_PATH.resolve("docs").resolve("Package.md");
@@ -121,7 +144,6 @@ public class TestBaloWriter {
         Assert.assertTrue(libPath.resolve("ballerina-io-1.0.0-java.txt").toFile().exists());
     }
 
-    // TODO minimal test : bal file + Ballerina.toml
     @Test
     public void testBaloWriterWithMinimalBalProject() throws IOException {
         Gson gson = new Gson();
@@ -153,21 +175,36 @@ public class TestBaloWriter {
         Assert.assertEquals(packageJson.getName(), "winery");
         Assert.assertEquals(packageJson.getVersion(), "0.1.0");
         Assert.assertEquals(packageJson.getBallerinaVersion(), "unknown");
+
+        // docs should not exists
+        Assert.assertFalse(BALO_PATH.resolve("docs").toFile().exists());
+
+        // module sources
+        Path defaultModuleSrcPath = BALO_PATH.resolve("modules").resolve("winery");
+        Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
+        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
     }
 
+    @Test(expectedExceptions = NoPermissionException.class,
+            expectedExceptionsMessageRegExp = "No write access to create balo:.*")
+    public void testBaloWriterAccessDenied() {
 
-    // TODO without access : mock isFileWritable()
-    @Test
-    public void testBaleWriterAccessDenied() {
+        Path baloPath = mock(Path.class);
+        File file = mock(File.class);
+        when(file.canWrite()).thenReturn(false);
+        when(file.isDirectory()).thenReturn(true);
+        when(baloPath.toFile()).thenReturn(file);
 
+        Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectTwo");
+        PackageConfig packageConfig = PackageLoader.loadPackage(String.valueOf(projectPath), false);
+        Package pkg = Package.from(packageConfig);
+
+        // invoke write balo method
+        BaloWriter.write(pkg, baloPath);
     }
 
     @AfterMethod
     public void cleanUp() {
-//        cleanBaloPath();
-    }
-
-    private void cleanBaloPath() {
         TestUtils.deleteDirectory(new File(String.valueOf(BALO_PATH)));
     }
 }

@@ -79,9 +79,15 @@ public class BallerinaTomlProcessor {
             }
 
             BallerinaToml ballerinaToml = toml.to(BallerinaToml.class);
-            ballerinaToml.getPackage().setOrg(toml.getString("package.org"));
-            ballerinaToml.getPackage().setName(toml.getString("package.name"));
-            ballerinaToml.getPackage().setVersion(toml.getString("package.version"));
+            Package pkg = ballerinaToml.getPackage();
+            pkg.setOrg(toml.getString("package.org"));
+            pkg.setName(toml.getString("package.name"));
+            pkg.setVersion(toml.getString("package.version"));
+            pkg.setLicense(toml.getList("package.license"));
+            pkg.setAuthors(toml.getList("package.authors"));
+            pkg.setRepository(toml.getString("package.repository"));
+            pkg.setKeywords(toml.getList("package.keywords"));
+            pkg.setExported(toml.getList("package.exported"));
 
             if (toml.contains("build-options")) {
                 Toml buildOptionsTable = toml.getTable("build-options");
