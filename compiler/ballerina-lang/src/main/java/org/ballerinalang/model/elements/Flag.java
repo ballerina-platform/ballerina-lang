@@ -132,9 +132,9 @@ public enum Flag {
     /**
      * Indicates flagged node is a class.
      */
-    CLASS
+    CLASS,
     /**
      * Indicates a variable added during destructuring.
      */
-    DESTRUCTURED,
+    DESTRUCTURED
 }

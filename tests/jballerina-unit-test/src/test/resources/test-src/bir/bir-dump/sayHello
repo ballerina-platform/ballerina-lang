@@ -11,11 +11,11 @@ sayHello function(ballerina/http:1.0.0:Caller, ballerina/http:1.0.0:Request) -> 
     %10(TEMP) string;
     %11(TEMP) ();
     %13(TEMP) ballerina/http:1.0.0:FilterContext | ();
-    %17(LOCAL) ballerina/http:1.0.0:RequestFilter | ballerina/http:1.0.0:ResponseFilter[];
+    %17(SYNTHETIC) ballerina/http:1.0.0:RequestFilter | ballerina/http:1.0.0:ResponseFilter[];
     %19(TEMP) ballerina/http:1.0.0:ListenerConfiguration;
-    %23(LOCAL) ballerina/lang.array:1.1.0:$anonType$1;
+    %23(SYNTHETIC) ballerina/lang.array:1.1.0:$anonType$1;
     %26(TEMP) ballerina/lang.array:1.1.0:$anonType$1;
-    %27(LOCAL) ballerina/lang.array:1.1.0:$anonType$0 | ();
+    %27(SYNTHETIC) ballerina/lang.array:1.1.0:$anonType$0 | ();
     %31(TEMP) ballerina/lang.array:1.1.0:$anonType$0 | ();
     %32(TEMP) boolean;
     %34(LOCAL) ballerina/http:1.0.0:RequestFilter | ballerina/http:1.0.0:ResponseFilter;

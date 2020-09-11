@@ -49,7 +49,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Responsible for serializing BIR instructions and operands.
@@ -63,7 +65,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     private ConstantPool cp;
     private BIRBinaryWriter binaryWriter;
     private int instructionOffset;
-    private BirScope previousScope;
+    private Set<BirScope> completedScopeSet;
     private int scopeCount;
 
     BIRInstructionWriter(ByteBuf buf, ByteBuf scopeBuf, ConstantPool cp, BIRBinaryWriter birBinaryWriter) {
@@ -72,7 +74,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         this.binaryWriter = birBinaryWriter;
         this.cp = cp;
         this.instructionOffset = 0;
-        this.previousScope = null;
+        this.completedScopeSet = new HashSet<>();
         this.scopeCount = 0;
     }
 
@@ -89,16 +91,16 @@ public class BIRInstructionWriter extends BIRVisitor {
         this.instructionOffset++;
         BirScope currentScope = instruction.scope;
 
-        if (currentScope == this.previousScope) {
-            return;
-        }
-
-        this.previousScope = currentScope;
         writeScope(currentScope);
     }
 
     private void writeScope(BirScope currentScope) {
+        if (this.completedScopeSet.contains(currentScope)) {
+            return;
+        }
+        this.completedScopeSet.add(currentScope);
         this.scopeCount++; // Increment the scope count so we can read the scopes iteratively
+
         scopeBuf.writeInt(currentScope.id);
         scopeBuf.writeInt(this.instructionOffset);
 

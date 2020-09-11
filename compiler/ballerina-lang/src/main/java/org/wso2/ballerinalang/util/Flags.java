@@ -141,6 +141,7 @@ public class Flags {
                     break;
                 case CLASS:
                     mask |= CLASS;
+                    break;
                 case DESTRUCTURED:
                     mask |= DESTRUCTURED;
                     break;

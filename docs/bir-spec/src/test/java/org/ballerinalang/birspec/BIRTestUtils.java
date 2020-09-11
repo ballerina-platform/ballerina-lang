@@ -27,11 +27,13 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
+import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -43,6 +45,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -147,6 +152,73 @@ class BIRTestUtils {
             // assert basic blocks
             assertBasicBlocks(actualFunctionBody.functionBasicBlocksInfo(), expectedFunction.basicBlocks,
                     constantPoolEntries);
+
+            assertScopes(actualFunction.scopeEntries(), expectedFunction);
+        }
+    }
+
+    private static void assertScopes(ArrayList<Bir.ScopeEntry> scopeEntries, BIRNode.BIRFunction function) {
+        int instructionOffset = 0;
+        Map<Integer, ExpectedScopeEntry> scopes = new HashMap<>();
+        Set<BirScope> visitedScopes = new HashSet<>();
+
+        // Collect scope vs starting instruction offset
+        Collection<List<BIRNode.BIRBasicBlock>> basicBlocksCollection = function.parameters.values();
+        for (List<BIRNode.BIRBasicBlock> basicBlocks : basicBlocksCollection) {
+            instructionOffset = generateExpectedScopeEntries(basicBlocks, instructionOffset, scopes, visitedScopes);
+        }
+
+        generateExpectedScopeEntries(function.basicBlocks, instructionOffset, scopes, visitedScopes);
+
+        for (Bir.ScopeEntry actualScopeEntry : scopeEntries) {
+            ExpectedScopeEntry expectedScopeEntry = scopes.get(actualScopeEntry.currentScopeIndex());
+            Assert.assertNotNull(expectedScopeEntry);
+
+            Assert.assertEquals(actualScopeEntry.instructionOffset(), expectedScopeEntry.instructionOffset);
+            Assert.assertEquals(actualScopeEntry.hasParent(), expectedScopeEntry.hasParent);
+            Assert.assertEquals(actualScopeEntry.parentScopeIndex(), expectedScopeEntry.parentId);
+        }
+    }
+
+    private static int generateExpectedScopeEntries(List<BIRNode.BIRBasicBlock> bbList, int instructionOffset,
+            Map<Integer, ExpectedScopeEntry> scopes, Set<BirScope> visitedScopes) {
+        for (BIRNode.BIRBasicBlock bb : bbList) {
+            for (BIRAbstractInstruction instruction : bb.instructions) {
+                instructionOffset++;
+                BirScope instructionScope = instruction.scope;
+
+                if (!visitedScopes.contains(instructionScope)) {
+                    visitedScopes.add(instructionScope);
+                    boolean hasParent = instructionScope.parent != null;
+
+                    ExpectedScopeEntry expectedScopeEntry = new ExpectedScopeEntry(instructionScope.id,
+                            instructionOffset,  hasParent ? 1 : 0, hasParent ? instructionScope.parent.id : null);
+                    scopes.put(instructionScope.id, expectedScopeEntry);
+                    putParentScopesAsWell(scopes, instructionScope.parent, instructionOffset);
+                }
+            }
+        }
+        return instructionOffset;
+    }
+
+    private static void putParentScopesAsWell(Map<Integer, ExpectedScopeEntry> scopes, BirScope parent,
+            int instructionOffset) {
+
+        if (parent == null) {
+            return;
+        }
+
+        if (scopes.containsKey(parent.id)) {
+            return;
+        }
+
+        boolean hasParent = parent.parent != null;
+        ExpectedScopeEntry expectedParentScopeEntry = new ExpectedScopeEntry(parent.id,
+                instructionOffset,  hasParent ? 1 : 0, hasParent ? parent.parent.id : null);
+        scopes.put(parent.id, expectedParentScopeEntry);
+
+        if (hasParent) {
+            putParentScopesAsWell(scopes, parent.parent, instructionOffset);
         }
     }
 
@@ -519,6 +591,20 @@ class BIRTestUtils {
 
         Bir getActualBIR() {
             return actualBIR;
+        }
+    }
+
+    static class ExpectedScopeEntry {
+        public int id;
+        public int instructionOffset;
+        public int hasParent;
+        public Integer parentId;
+
+        ExpectedScopeEntry(int id, int instructionOffset, int hasParent, Integer parentId) {
+            this.id = id;
+            this.instructionOffset = instructionOffset;
+            this.hasParent = hasParent;
+            this.parentId = parentId;
         }
     }
 }
