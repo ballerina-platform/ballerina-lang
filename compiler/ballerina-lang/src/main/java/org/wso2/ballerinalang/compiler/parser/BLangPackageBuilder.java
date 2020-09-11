@@ -2597,10 +2597,6 @@ public class BLangPackageBuilder {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
 
-        if (isAbstract) {
-            objectTypeNode.flagSet.add(Flag.ABSTRACT);
-        }
-
         if (isReadOnly) {
             objectTypeNode.flagSet.add(Flag.READONLY);
         }
@@ -3572,7 +3568,8 @@ public class BLangPackageBuilder {
         typeDef.flagSet.add(Flag.SERVICE);
         typeDef.typeNode = (BLangType) this.typeNodeStack.pop();
         typeDef.pos = pos;
-        serviceNode.serviceTypeDefinition = typeDef;
+        // todo: Services will not be supported in old parser due to this
+//        serviceNode.bLangClassDefinition = typeDef;
         this.compUnit.addTopLevelNode(typeDef);
 
         // 2) Create service constructor.

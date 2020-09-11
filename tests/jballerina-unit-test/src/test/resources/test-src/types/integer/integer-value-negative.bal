@@ -16,3 +16,6 @@ function test2() {
     // This is to verify that the compilation continues.
     int y = 1
 }
+
+// This is to verify the correct error message
+public int a;

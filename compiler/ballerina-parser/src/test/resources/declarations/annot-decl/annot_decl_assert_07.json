@@ -142,15 +142,6 @@
                       ]
                     },
                     {
-                      "kind": "OBJECT_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
                       "kind": "TYPE_KEYWORD"
                     }
                   ]

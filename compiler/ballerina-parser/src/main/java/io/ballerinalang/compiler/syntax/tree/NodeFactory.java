@@ -846,6 +846,32 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stObjectTypeDescriptorNode.createUnlinkedFacade();
     }
 
+    public static ObjectConstructorExpressionNode createObjectConstructorExpressionNode(
+            NodeList<AnnotationNode> annotations,
+            NodeList<Token> objectTypeQualifiers,
+            Token objectKeyword,
+            TypeDescriptorNode typeReference,
+            Token openBraceToken,
+            NodeList<Node> members,
+            Token closeBraceToken) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(objectTypeQualifiers, "objectTypeQualifiers must not be null");
+        Objects.requireNonNull(objectKeyword, "objectKeyword must not be null");
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(members, "members must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+
+        STNode stObjectConstructorExpressionNode = STNodeFactory.createObjectConstructorExpressionNode(
+                annotations.underlyingListNode().internalNode(),
+                objectTypeQualifiers.underlyingListNode().internalNode(),
+                objectKeyword.internalNode(),
+                getOptionalSTNode(typeReference),
+                openBraceToken.internalNode(),
+                members.underlyingListNode().internalNode(),
+                closeBraceToken.internalNode());
+        return stObjectConstructorExpressionNode.createUnlinkedFacade();
+    }
+
     public static RecordTypeDescriptorNode createRecordTypeDescriptorNode(
             Token recordKeyword,
             Token bodyStartDelimiter,
@@ -3019,6 +3045,34 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 blockStatement.internalNode(),
                 getOptionalSTNode(onFailClause));
         return stDoStatementNode.createUnlinkedFacade();
+    }
+
+    public static ClassDefinitionNode createClassDefinitionNode(
+            MetadataNode metadata,
+            Token visibilityQualifier,
+            NodeList<Token> classTypeQualifiers,
+            Token classKeyword,
+            Token className,
+            Token openBrace,
+            NodeList<Node> members,
+            Token closeBrace) {
+        Objects.requireNonNull(classTypeQualifiers, "classTypeQualifiers must not be null");
+        Objects.requireNonNull(classKeyword, "classKeyword must not be null");
+        Objects.requireNonNull(className, "className must not be null");
+        Objects.requireNonNull(openBrace, "openBrace must not be null");
+        Objects.requireNonNull(members, "members must not be null");
+        Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+
+        STNode stClassDefinitionNode = STNodeFactory.createClassDefinitionNode(
+                getOptionalSTNode(metadata),
+                getOptionalSTNode(visibilityQualifier),
+                classTypeQualifiers.underlyingListNode().internalNode(),
+                classKeyword.internalNode(),
+                className.internalNode(),
+                openBrace.internalNode(),
+                members.underlyingListNode().internalNode(),
+                closeBrace.internalNode());
+        return stClassDefinitionNode.createUnlinkedFacade();
     }
 }
 

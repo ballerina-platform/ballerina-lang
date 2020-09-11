@@ -31,6 +31,7 @@ import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
+import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ErrorVariableNode;
 import org.ballerinalang.model.tree.FunctionBodyNode;
@@ -153,6 +154,7 @@ import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -214,6 +216,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -936,4 +939,11 @@ public class TreeBuilder {
         return new BLangIsLikeExpr();
     }
 
+    public static ClassDefinition createClassDefNode() {
+        return new BLangClassDefinition();
+    }
+
+    public static BLangObjectConstructorExpression createObjectCtorExpression() {
+        return new BLangObjectConstructorExpression();
+    }
 }

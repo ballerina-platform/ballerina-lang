@@ -249,6 +249,8 @@ types:
         type: object_attached_function
         repeat: expr
         repeat-expr: object_attached_functions_count
+      - id: type_ids
+        type: type_id
   object_field:
     seq:
       - id: name_cp_index

@@ -23,6 +23,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
@@ -73,6 +74,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -180,6 +182,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
 import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
 import static org.wso2.ballerinalang.compiler.util.Constants.DESUGARED_MAPPING_CONSTR_KEY;
@@ -365,12 +368,21 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.imports.forEach(impPkg -> impPkg.accept(this));
         astPkg.constants.forEach(astConst -> astConst.accept(this));
         astPkg.typeDefinitions.forEach(astTypeDef -> astTypeDef.accept(this));
+        generateClassDefinitions(astPkg.topLevelNodes);
         astPkg.globalVars.forEach(astGlobalVar -> astGlobalVar.accept(this));
         astPkg.initFunction.accept(this);
         astPkg.startFunction.accept(this);
         astPkg.stopFunction.accept(this);
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
         astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
+    }
+
+    private void generateClassDefinitions(List<TopLevelNode> topLevelNodes) {
+        for (TopLevelNode topLevelNode : topLevelNodes) {
+            if (topLevelNode.getKind() == CLASS_DEFN) {
+                ((BLangClassDefinition) topLevelNode).accept(this);
+            }
+        }
     }
 
     @Override
@@ -399,7 +411,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Write referenced functions, if this is an abstract-object
         if (astTypeDefinition.symbol.tag != SymTag.OBJECT ||
-                !Symbols.isFlagOn(astTypeDefinition.symbol.flags, Flags.ABSTRACT)) {
+                !Symbols.isFlagOn(astTypeDefinition.symbol.flags, Flags.CLASS)) {
             return;
         }
 
@@ -429,6 +441,54 @@ public class BIRGen extends BLangNodeVisitor {
             }
 
             birFunc.returnVariable = new BIRVariableDcl(astTypeDefinition.pos, funcSymbol.retType,
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN, null);
+            birFunc.localVars.add(0, birFunc.returnVariable);
+
+            typeDef.attachedFuncs.add(birFunc);
+        }
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        BIRTypeDefinition typeDef = new BIRTypeDefinition(classDefinition.pos,
+                classDefinition.symbol.name,
+                classDefinition.symbol.flags,
+                classDefinition.symbol.isLabel,
+                false,
+                classDefinition.type,
+                new ArrayList<>(),
+                classDefinition.symbol.origin.toBIROrigin());
+        typeDefs.put(classDefinition.symbol, typeDef);
+        this.env.enclPkg.typeDefs.add(typeDef);
+        typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
+
+        typeDef.setMarkdownDocAttachment(classDefinition.symbol.markdownDocumentation);
+
+        for (BLangType typeRef : classDefinition.typeRefs) {
+            typeDef.referencedTypes.add(typeRef.type);
+        }
+
+        for (BAttachedFunction func : ((BObjectTypeSymbol) classDefinition.symbol).referencedFunctions) {
+            BInvokableSymbol funcSymbol = func.symbol;
+            BIRFunction birFunc = new BIRFunction(classDefinition.pos, func.funcName, funcSymbol.flags, func.type,
+                    names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable(), funcSymbol.origin.toBIROrigin());
+
+            if (funcSymbol.receiverSymbol != null) {
+                birFunc.receiver = getSelf(funcSymbol.receiverSymbol, funcSymbol.receiverSymbol.type,
+                        funcSymbol.receiverSymbol.name);
+            }
+
+            birFunc.setMarkdownDocAttachment(funcSymbol.markdownDocumentation);
+
+            int defaultableParamsCount = 0;
+            birFunc.argsCount = funcSymbol.params.size() + defaultableParamsCount +
+                    (funcSymbol.restParam != null ? 1 : 0);
+            funcSymbol.params.forEach(requiredParam -> addParam(birFunc, requiredParam, classDefinition.pos));
+            if (funcSymbol.restParam != null) {
+                addRestParam(birFunc, funcSymbol.restParam, classDefinition.pos);
+            }
+
+            birFunc.returnVariable = new BIRVariableDcl(classDefinition.pos, funcSymbol.retType,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN, null);
             birFunc.localVars.add(0, birFunc.returnVariable);
 

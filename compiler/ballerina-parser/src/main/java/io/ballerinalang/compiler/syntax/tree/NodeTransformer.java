@@ -232,6 +232,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(objectTypeDescriptorNode);
     }
 
+    public T transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        return transformSyntaxNode(objectConstructorExpressionNode);
+    }
+
     public T transform(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         return transformSyntaxNode(recordTypeDescriptorNode);
     }
@@ -802,6 +806,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(DoStatementNode doStatementNode) {
         return transformSyntaxNode(doStatementNode);
+    }
+
+    public T transform(ClassDefinitionNode classDefinitionNode) {
+        return transformSyntaxNode(classDefinitionNode);
     }
 
     // Tokens

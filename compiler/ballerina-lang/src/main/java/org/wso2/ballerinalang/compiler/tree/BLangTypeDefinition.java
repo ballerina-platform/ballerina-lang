@@ -115,4 +115,13 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
         return "BLangTypeDefinition: " + this.name;
     }
 
+    @Override
+    public int getPrecedence() {
+        return precedence;
+    }
+
+    @Override
+    public void setPrecedence(int precedence) {
+        this.precedence = precedence;
+    }
 }

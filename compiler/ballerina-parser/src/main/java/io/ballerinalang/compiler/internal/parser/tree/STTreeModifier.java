@@ -681,6 +681,26 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STObjectConstructorExpressionNode transform(
+            STObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        STNode annotations = modifyNode(objectConstructorExpressionNode.annotations);
+        STNode objectTypeQualifiers = modifyNode(objectConstructorExpressionNode.objectTypeQualifiers);
+        STNode objectKeyword = modifyNode(objectConstructorExpressionNode.objectKeyword);
+        STNode typeReference = modifyNode(objectConstructorExpressionNode.typeReference);
+        STNode openBraceToken = modifyNode(objectConstructorExpressionNode.openBraceToken);
+        STNode members = modifyNode(objectConstructorExpressionNode.members);
+        STNode closeBraceToken = modifyNode(objectConstructorExpressionNode.closeBraceToken);
+        return objectConstructorExpressionNode.modify(
+                annotations,
+                objectTypeQualifiers,
+                objectKeyword,
+                typeReference,
+                openBraceToken,
+                members,
+                closeBraceToken);
+    }
+
+    @Override
     public STRecordTypeDescriptorNode transform(
             STRecordTypeDescriptorNode recordTypeDescriptorNode) {
         STNode recordKeyword = modifyNode(recordTypeDescriptorNode.recordKeyword);
@@ -2450,6 +2470,28 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 doKeyword,
                 blockStatement,
                 onFailClause);
+    }
+
+    @Override
+    public STClassDefinitionNode transform(
+            STClassDefinitionNode classDefinitionNode) {
+        STNode metadata = modifyNode(classDefinitionNode.metadata);
+        STNode visibilityQualifier = modifyNode(classDefinitionNode.visibilityQualifier);
+        STNode classTypeQualifiers = modifyNode(classDefinitionNode.classTypeQualifiers);
+        STNode classKeyword = modifyNode(classDefinitionNode.classKeyword);
+        STNode className = modifyNode(classDefinitionNode.className);
+        STNode openBrace = modifyNode(classDefinitionNode.openBrace);
+        STNode members = modifyNode(classDefinitionNode.members);
+        STNode closeBrace = modifyNode(classDefinitionNode.closeBrace);
+        return classDefinitionNode.modify(
+                metadata,
+                visibilityQualifier,
+                classTypeQualifiers,
+                classKeyword,
+                className,
+                openBrace,
+                members,
+                closeBrace);
     }
 
     // Tokens

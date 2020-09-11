@@ -26,6 +26,7 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,6 +54,15 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Option(names = {"--tags"}, description = "Tag that need to write service")
+    private List<String> tags;
+
+    @CommandLine.Option(names = {"--operations"}, description = "Operations that need to write service")
+    private List<String> operations;
+
+    @CommandLine.Option(names = {"--service-name"}, description = "Service name for generated files")
+    private String generatedServiceName;
+
     public OpenApiGenClientCmd() {
         this.outStream = System.err;
     }
@@ -64,6 +74,11 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
 
     @Override
     public void execute() {
+        List<String> tag = new ArrayList<>();
+        List<String> operation = new ArrayList<>();
+        tag.add("pet");
+        operation.add("operation");
+        Filter filter = new Filter(tag, operation);
 
         //User notification of using an experimental tool
         outStream.println(OpenApiMesseges.EXPERIMENTAL_FEATURE);
@@ -91,7 +106,7 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
         }
 
         try {
-            generator.generateClient(executionPath, argList.get(0), moduleArgs.get(1), output);
+            generator.generateClient(executionPath, argList.get(0), moduleArgs.get(1), output, filter);
         } catch (IOException | BallerinaOpenApiException e) {
             if (e.getLocalizedMessage() != null) {
                 throw LauncherUtils.createLauncherException(e.getLocalizedMessage());

@@ -2124,7 +2124,7 @@ public class TypeChecker extends BLangNodeVisitor {
             //  locally defined record type defs. This check should be removed once local var referencing is supported.
             if (((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)) {
                 BVarSymbol varSym = (BVarSymbol) symbol;
-                checkSefReferences(varRefExpr.pos, env, varSym);
+                checkSelfReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
                 markAndRegisterClosureVariable(symbol, varRefExpr.pos);
@@ -2923,7 +2923,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         switch (actualType.tag) {
             case TypeTags.OBJECT:
-                if ((actualType.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+                if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                     dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
                                actualType.tsymbol);
                     cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
@@ -3106,7 +3106,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 // member is not an object.
                 continue;
             }
-            if ((memberType.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+            if ((memberType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                 dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
                            lhsUnionType.tsymbol);
             }
@@ -4042,7 +4042,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Raw template literals can be directly assigned only to abstract object types
-        if (!Symbols.isFlagOn(type.tsymbol.flags, Flags.ABSTRACT)) {
+        if (Symbols.isFlagOn(type.tsymbol.flags, Flags.CLASS)) {
             dlog.error(rawTemplateLiteral.pos, DiagnosticCode.INVALID_RAW_TEMPLATE_ASSIGNMENT, type);
             return symTable.semanticError;
         }
@@ -4605,9 +4605,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 return origTargetType;
             }
 
-            return ImmutableTypeCloner.getImmutableIntersectionType(null, pos, types,
+            return ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
                                                                     (SelectivelyImmutableReferenceType) expType,
-                                                                    env, symTable, anonymousModelHelper, names);
+                                                                    env, symTable, anonymousModelHelper, names,
+                                                                    new HashSet<>());
         }
 
         if (origTargetType.tag != TypeTags.UNION) {
@@ -4637,11 +4638,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BUnionType nonReadOnlyUnion = BUnionType.create(null, nonReadOnlyTypes);
 
-        nonReadOnlyUnion.add(ImmutableTypeCloner.getImmutableIntersectionType(null, pos, types,
+        nonReadOnlyUnion.add(ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
                                                                               (SelectivelyImmutableReferenceType)
                                                                                       expType,
                                                                               env, symTable, anonymousModelHelper,
-                                                                              names));
+                                                                              names, new HashSet<>()));
         return nonReadOnlyUnion;
     }
 
@@ -4671,7 +4672,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkSefReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
+    private void checkSelfReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
@@ -5582,9 +5583,10 @@ public class TypeChecker extends BLangNodeVisitor {
         if (readOnlyConstructorField) {
             if (types.isSelectivelyImmutableType(fieldType)) {
                 fieldType =
-                        ImmutableTypeCloner.getImmutableIntersectionType(null, pos, types,
+                        ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
                                                                          (SelectivelyImmutableReferenceType) fieldType,
-                                                                         env, symTable, anonymousModelHelper, names);
+                                                                         env, symTable, anonymousModelHelper, names,
+                                                                         new HashSet<>());
             } else if (!types.isInherentlyImmutableType(fieldType)) {
                 dlog.error(pos, DiagnosticCode.INVALID_READONLY_MAPPING_FIELD, fieldName, fieldType);
                 fieldType = symTable.semanticError;
@@ -6979,8 +6981,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangRecordKey key = keyValue.key;
                 BLangExpression expression = keyValue.valueExpr;
                 BLangExpression keyExpr = key.expr;
-
                 if (key.computedKey) {
+                    checkExpr(keyExpr, env, symTable.stringType);
                     BType exprType = checkExpr(expression, env, expType);
                     if (isUniqueType(restFieldTypes, exprType)) {
                         restFieldTypes.add(exprType);

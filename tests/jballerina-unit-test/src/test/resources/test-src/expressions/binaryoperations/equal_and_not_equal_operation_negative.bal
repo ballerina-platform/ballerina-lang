@@ -156,9 +156,9 @@ type PersonWithOptionalId record {|
     string id?;
 |};
 
-type Foo object {
+class Foo {
     string s = "";
-};
+}
 
 function refAndNilEqualityCheck() {
     Employee emp = {name: "John", id: 1};

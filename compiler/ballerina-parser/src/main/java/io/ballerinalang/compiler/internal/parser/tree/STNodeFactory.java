@@ -646,6 +646,25 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
+    public static STNode createObjectConstructorExpressionNode(
+            STNode annotations,
+            STNode objectTypeQualifiers,
+            STNode objectKeyword,
+            STNode typeReference,
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
+
+        return new STObjectConstructorExpressionNode(
+                annotations,
+                objectTypeQualifiers,
+                objectKeyword,
+                typeReference,
+                openBraceToken,
+                members,
+                closeBraceToken);
+    }
+
     public static STNode createRecordTypeDescriptorNode(
             STNode recordKeyword,
             STNode bodyStartDelimiter,
@@ -2279,6 +2298,27 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 doKeyword,
                 blockStatement,
                 onFailClause);
+    }
+
+    public static STNode createClassDefinitionNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode classTypeQualifiers,
+            STNode classKeyword,
+            STNode className,
+            STNode openBrace,
+            STNode members,
+            STNode closeBrace) {
+
+        return new STClassDefinitionNode(
+                metadata,
+                visibilityQualifier,
+                classTypeQualifiers,
+                classKeyword,
+                className,
+                openBrace,
+                members,
+                closeBrace);
     }
 }
 

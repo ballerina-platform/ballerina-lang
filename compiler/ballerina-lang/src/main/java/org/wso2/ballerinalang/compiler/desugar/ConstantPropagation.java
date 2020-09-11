@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -211,6 +212,16 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        rewrite(classDefinition.functions);
+        rewrite(classDefinition.fields);
+        classDefinition.initFunction = rewrite(classDefinition.initFunction);
+        classDefinition.receiver = rewrite(classDefinition.receiver);
+        rewrite(classDefinition.annAttachments);
+        result = classDefinition;
+    }
+
+    @Override
     public void visit(BLangSimpleVariableDef varNode) {
         varNode.var = rewrite(varNode.var);
         result = varNode;
@@ -354,8 +365,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
         rewrite(objectTypeNode.functions);
         rewrite(objectTypeNode.fields);
-        objectTypeNode.initFunction = rewrite(objectTypeNode.initFunction);
-        objectTypeNode.receiver = rewrite(objectTypeNode.receiver);
         result = objectTypeNode;
     }
 

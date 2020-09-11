@@ -1140,6 +1140,45 @@
             ]
         },
         {
+            "name": "ObjectConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "OBJECT_CONSTRUCTOR",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "objectTypeQualifiers",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "objectKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeReference",
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "members",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "RecordTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "RECORD_TYPE_DESC",
@@ -4133,6 +4172,49 @@
                     "name": "onFailClause",
                     "type": "OnFailClauseNode",
                     "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ClassDefinitionNode",
+            "base": "ModuleMemberDeclarationNode",
+            "kind": "CLASS_DEFINITION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "visibilityQualifier",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "classTypeQualifiers",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "classKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "className",
+                    "type": "Token"
+                },
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "members",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
                 }
             ]
         }

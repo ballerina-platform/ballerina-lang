@@ -19,9 +19,9 @@ type Foo record {|
     any...;
 |};
 
-type Bar object {
+class Bar {
     int oa = 0;
-};
+}
 
 type Employee record {|
     int id;

@@ -231,6 +231,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(objectTypeDescriptorNode);
     }
 
+    public void visit(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        visitSyntaxNode(objectConstructorExpressionNode);
+    }
+
     public void visit(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         visitSyntaxNode(recordTypeDescriptorNode);
     }
@@ -801,6 +805,10 @@ public abstract class NodeVisitor {
 
     public void visit(DoStatementNode doStatementNode) {
         visitSyntaxNode(doStatementNode);
+    }
+
+    public void visit(ClassDefinitionNode classDefinitionNode) {
+        visitSyntaxNode(classDefinitionNode);
     }
 
     // Tokens

@@ -13,6 +13,6 @@
 # function `m:bar.baz()`
 function foo() { }
 
-type bar object {
+class bar {
     function baz() { }
-};
+}

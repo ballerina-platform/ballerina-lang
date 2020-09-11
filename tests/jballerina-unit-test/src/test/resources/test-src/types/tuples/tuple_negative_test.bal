@@ -165,5 +165,5 @@ function testInvalidConstIndex() {
     var v = tuple[INDEX_NEG_ONE];
 }
 
-type NoFillerObject abstract object {
+type NoFillerObject object {
 };

@@ -31,11 +31,9 @@ public class TypeDefinitionsNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/typedefs/type-definitions-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 3);
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
         int index = 0;
-        BAssertUtil.validateError(compileResult, index++, "uninitialized field 'g'", 7, 18);
-        BAssertUtil.validateError(compileResult, index++, "uninitialized field 'g'", 9, 40);
-        BAssertUtil.validateError(compileResult, index, "uninitialized field 'g'", 11, 19);
+        BAssertUtil.validateError(compileResult, index++, "uninitialized field 'g'", 7, 12);
     }
 
     @Test

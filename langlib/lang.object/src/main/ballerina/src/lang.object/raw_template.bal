@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents the shape expected from all raw templates.
-public type RawTemplate abstract object {
+public type RawTemplate object {
 
     # The string literal parts of the raw template.
     public (readonly & string[]) strings;

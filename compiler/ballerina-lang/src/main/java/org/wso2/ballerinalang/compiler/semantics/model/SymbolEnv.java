@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -143,7 +144,24 @@ public class SymbolEnv {
         return objectEnv;
     }
 
+    public static SymbolEnv createClassEnv(BLangClassDefinition node, Scope scope, SymbolEnv env) {
+        SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
+        objectEnv.envCount = env.envCount;
+        return objectEnv;
+    }
+
     public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
+                                                   SymbolEnv env) {
+        if (objSymbol.methodScope == null) {
+            objSymbol.methodScope = new Scope(objSymbol);
+        }
+        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.methodScope, env);
+        symbolEnv.envCount = env.envCount + 1;
+        env.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createClassMethodsEnv(BLangClassDefinition node, BObjectTypeSymbol objSymbol,
                                                    SymbolEnv env) {
         if (objSymbol.methodScope == null) {
             objSymbol.methodScope = new Scope(objSymbol);

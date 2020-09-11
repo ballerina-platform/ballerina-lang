@@ -262,6 +262,7 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeByte(1);
 
         writeObjectAndServiceTypes(bServiceType);
+        writeTypeIds(bServiceType.typeIdSet);
     }
 
     @Override
@@ -343,8 +344,8 @@ public class BIRTypeWriter implements TypeVisitor {
         // ideal fix would be to use the type tag to
         // differentiate. TODO fix later
         buff.writeByte(0);
-
         writeObjectAndServiceTypes(bObjectType);
+        writeTypeIds(bObjectType.typeIdSet);
     }
 
     private void writeObjectAndServiceTypes(BObjectType bObjectType) {
@@ -359,7 +360,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
         buff.writeInt(addStringCPEntry(tSymbol.name.value));
         //TODO below two line are a temp solution, introduce a generic concept
-        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.ABSTRACT)); // Abstract object or not
+        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)); // Abstract object or not
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields.values()) {

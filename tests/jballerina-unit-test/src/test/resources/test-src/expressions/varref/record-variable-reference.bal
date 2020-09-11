@@ -162,7 +162,7 @@ function testRecordInsideTupleInsideRecord2() returns [string, int, int, string]
     return [name, yearInt, age, format];
 }
 
-type Object object {
+class Object {
     private int 'field;
 
     public function init() {
@@ -172,7 +172,7 @@ type Object object {
     public function getField() returns int {
         return self.'field;
     }
-};
+}
 
 type IntRestRecord record {|
     string name;

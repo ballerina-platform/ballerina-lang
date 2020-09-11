@@ -27,7 +27,7 @@ function testRefTypes(){
     assertEquality("typedesc table<Employee>", d.toString());
 }
 
-type Pet object { public string name = ""; };
+class Pet { public string name = ""; }
 
 function testObjectTypes() returns [typedesc<any>, typedesc<any>] {
     typedesc<Person> a = Person;
@@ -35,7 +35,7 @@ function testObjectTypes() returns [typedesc<any>, typedesc<any>] {
     return [a,b];
 }
 
-type Person object {
+class Person {
     public string name;
 
     function init(string name) {
@@ -45,7 +45,7 @@ type Person object {
     public function getName() returns string {
         return self.name;
     }
-};
+}
 
 type tableOfEmployee table<Employee>;
 
