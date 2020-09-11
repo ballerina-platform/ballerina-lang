@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Completion provider for {@link OnClauseNode} context.
  * Following rule is addressed,
- * <p>
+ * 
  * {@code join typed-binding-pattern in expression on expression equals expression}
  *
  * @since 2.0.0
