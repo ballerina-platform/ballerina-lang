@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -38,7 +37,6 @@ import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -46,7 +44,6 @@ import org.ballerinalang.jvm.values.MappingInitialValueEntry;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.ValueCreator;
@@ -190,29 +187,6 @@ import javax.xml.namespace.QName;
       */
      public static BDecimal createDecimalValue(String value, DecimalValueKind valueKind) {
          return new DecimalValue(value, valueKind);
-     }
-
-     /**
-      * Create error value with given type, message and details.
-      *
-      * @param type {@code BErrorType} of the error
-      * @param message error message
-      * @param details error details
-      * @return error value
-      */
-     public static BError createErrorValue(BErrorType type, BString message, Object details) {
-         return new ErrorValue(type, (StringValue) message, null, details);
-     }
-
-     /**
-      * Create error value with given message and error details.
-      *
-      * @param message error message
-      * @param details error detail
-      * @return error value
-      */
-     public static BError createErrorValue(BString message, Object details) {
-         return new ErrorValue((StringValue) message, details);
      }
 
      /**

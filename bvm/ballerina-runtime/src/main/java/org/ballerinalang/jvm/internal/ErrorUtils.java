@@ -37,7 +37,7 @@ import static org.ballerinalang.jvm.values.api.BErrorCreator.createError;
 /**
  * This class contains internal methods used by codegen and runtime classes to handle errors.
  *
- * @since 2.0.o
+ * @since 2.0.0
  */
 
 public class ErrorUtils {
