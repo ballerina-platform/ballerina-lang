@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person object {
+class Person {
     public int age;
     public string firstName;
     public string lastName;
@@ -24,7 +24,7 @@ type Person object {
         self.firstName = firstName;
         self.lastName = lastName;
     }
-};
+}
 
 function assignLengthToInvalidType() {
     int [] intArr = [1, 2];

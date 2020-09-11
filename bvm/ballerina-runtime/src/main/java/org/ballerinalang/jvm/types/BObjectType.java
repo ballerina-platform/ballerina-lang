@@ -36,6 +36,7 @@ public class BObjectType extends BStructureType {
 
     private final boolean readonly;
     private BIntersectionType immutableType;
+    public BTypeIdSet typeIdSet;
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
@@ -119,5 +120,9 @@ public class BObjectType extends BStructureType {
     @Override
     public void setImmutableType(BIntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    public void setTypeIdSet(BTypeIdSet typeIdSet) {
+        this.typeIdSet = typeIdSet;
     }
 }

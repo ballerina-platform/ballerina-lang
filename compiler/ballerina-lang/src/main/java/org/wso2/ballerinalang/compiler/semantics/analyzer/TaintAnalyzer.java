@@ -40,8 +40,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -354,6 +354,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        BSymbol objectSymbol = classDefinition.symbol;
+        SymbolEnv classDefEnv = SymbolEnv.createPkgLevelSymbolEnv(classDefinition, objectSymbol.scope, env);
+        classDefinition.fields.forEach(field -> analyzeNode(field, classDefEnv));
+        if (classDefinition.initFunction != null) {
+            analyzeNode(classDefinition.initFunction, classDefEnv);
+        }
+        classDefinition.functions.forEach(f -> analyzeNode(f, classDefEnv));
+    }
+
+    @Override
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
@@ -442,7 +453,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // of listeners.
         if (serviceNode.isAnonymousServiceValue) {
             setTaintedStatus(serviceNode.symbol, TaintedStatus.TAINTED);
-            setTaintedStatus(serviceNode.serviceTypeDefinition.symbol, TaintedStatus.TAINTED);
+            setTaintedStatus(serviceNode.serviceClass.symbol, TaintedStatus.TAINTED);
         }
     }
 
@@ -552,11 +563,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         /* ignore, remove later */
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpoint) {
-        /* ignore */
     }
 
     @Override
@@ -2487,10 +2493,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.IGNORED) {
                 return;
             } else if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-                returnTaintedStatus = TaintedStatus.TAINTED;
+                returnTaintedStatus = getTaintedStatusOfReceiverParam(invokableSymbol);
             }
         }
         getCurrentAnalysisState().taintedStatus = returnTaintedStatus;
+    }
+
+    private TaintedStatus getTaintedStatusOfReceiverParam(BInvokableSymbol invokableSymbol) {
+        TaintRecord taintRecordOfReceiverParam = invokableSymbol.taintTable.get(0);
+        if (taintRecordOfReceiverParam == null) {
+            return TaintedStatus.TAINTED;
+        } else {
+            return taintRecordOfReceiverParam.returnTaintedStatus;
+        }
     }
 
     private boolean restoreTableIfIgnored(BInvokableSymbol invokableSymbol, Map<Integer, TaintRecord> origTaintTable,

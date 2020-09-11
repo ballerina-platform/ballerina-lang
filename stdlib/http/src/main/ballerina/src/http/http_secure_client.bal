@@ -22,7 +22,7 @@ import ballerina/log;
 # + url - The URL of the remote HTTP endpoint
 # + config - The configurations of the client endpoint associated with this `HttpActions` instance
 # + httpClient - The underlying `HttpActions` instance, which will make the actual network calls
-public type HttpSecureClient client object {
+public client class HttpSecureClient {
     //These properties are populated from the init call and sent to the client connector as these will be needed at a
     //later stage for retrying and in other few places.
     public string url = "";
@@ -70,7 +70,7 @@ public type HttpSecureClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function head(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->head(path, message = req);
@@ -143,7 +143,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function delete(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->delete(path, req);
@@ -161,7 +161,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function get(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->get(path, message = req);
@@ -179,7 +179,7 @@ public type HttpSecureClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one  occurred while attempting to fulfill the HTTP request
-    public remote function options(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->options(path, message = req);
@@ -259,7 +259,7 @@ public type HttpSecureClient client object {
     public remote function rejectPromise(PushPromise promise) {
         return self.httpClient->rejectPromise(promise);
     }
-};
+}
 
 # Creates an HTTP client capable of securing HTTP requests with authentication.
 #

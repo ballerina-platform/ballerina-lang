@@ -254,7 +254,7 @@ public class FilterUtils {
                 return params.isEmpty() || params.get(0).type.tag == bType.tag ||
                         (types.isAssignable(bType, params.get(0).type));
             }
-            return symbol.kind != null && symbol.kind != SymbolKind.OBJECT;
+            return symbol.kind != null && symbol.kind != SymbolKind.OBJECT && symbol.kind != SymbolKind.CONSTANT;
         }).collect(Collectors.toList());
     }
 }

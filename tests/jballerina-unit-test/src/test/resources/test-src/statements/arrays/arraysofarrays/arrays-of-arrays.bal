@@ -205,15 +205,15 @@ function testArrayUnion() returns [boolean[][], string[][]] {
     return [<boolean[][]>x1, <string[][]>x2];
 }
 
-type Foo1 abstract object {
+type Foo1 object {
     string fooId1;
 };
 
-type Foo2 abstract object {
+type Foo2 object {
     string fooId2;
 };
 
-type Bar object {
+class Bar {
     *Foo1;
     *Foo2;
 
@@ -221,7 +221,7 @@ type Bar object {
         self.fooId1 = "Foo1";
         self.fooId2 = "Foo2";
     }
-};
+}
 
 function testObjectArrayUnion() returns Foo1[][] {
     Bar b = new;

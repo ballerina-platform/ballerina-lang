@@ -6,19 +6,19 @@ public function interopWithArrayAndMap() returns int[] {
 }
 
 public function getArrayValueFromMap(string key, map<int> mapValue) returns int[] = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public type Employee record {
     string name = "";
 };
 
-public type Person object {
+public class Person {
     int age = 9;
     public function init(int age) {
         self.age = age;
     }
-};
+}
 
 public function interopWithRefTypesAndMapReturn() returns map<any> {
     Person a = new Person(44);
@@ -32,7 +32,7 @@ public function interopWithRefTypesAndMapReturn() returns map<any> {
 }
 
 public function acceptRefTypesAndReturnMap(Person a, [int, string, Person] b, int|string|Employee c, error d, any e, anydata f, Employee g) returns map<any> = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function interopWithErrorReturn() returns string {
@@ -41,7 +41,7 @@ public function interopWithErrorReturn() returns string {
 }
 
 public function acceptStringErrorReturn(string s) returns error = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 service testService = service {
@@ -55,7 +55,7 @@ public function acceptServiceAndBooleanReturn() returns boolean {
 }
 
 public function acceptServiceObjectAndReturnBoolean(service s) returns boolean = @java:Method {
-    class: "org.ballerinalang.nativeimpl.jvm.tests.StaticMethods"
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.StaticMethods"
 } external;
 
 public function interopWithUnionReturn() returns boolean {
@@ -79,7 +79,7 @@ public function interopWithUnionReturn() returns boolean {
 }
 
 public function acceptIntUnionReturn(int s) returns int|string|float|boolean|handle = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function interopWithObjectReturn() returns boolean {
@@ -95,7 +95,7 @@ public function interopWithObjectReturn() returns boolean {
 }
 
 public function acceptObjectAndObjectReturn(Person p, int newVal) returns Person = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function interopWithRecordReturn() returns boolean {
@@ -112,7 +112,7 @@ public function interopWithRecordReturn() returns boolean {
 }
 
 public function acceptRecordAndRecordReturn(Employee e, string newVal) returns Employee = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function interopWithAnyReturn() returns boolean {
@@ -136,7 +136,7 @@ public function interopWithAnyReturn() returns boolean {
 }
 
 public function acceptIntAnyReturn(int s) returns any= @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests",
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests",
     name:"acceptIntUnionReturn"
 } external;
 
@@ -161,33 +161,33 @@ public function interopWithAnydataReturn() returns boolean {
 }
 
 public function acceptIntAnydataReturn(int s) returns anydata= @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests",
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests",
     name:"acceptIntUnionReturn"
 } external;
 
 public function acceptIntReturnIntThrowsCheckedException(int a) returns int | error = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function acceptRecordAndRecordReturnWhichThrowsCheckedException(Employee e, string newVal) returns Employee | error = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function acceptIntUnionReturnWhichThrowsCheckedException(int s) returns int|string|float|boolean|error = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function acceptRefTypesAndReturnMapWhichThrowsCheckedException(Person a, [int, string, Person] b,
                     int|string|Employee c, error d, any e, anydata f, Employee g) returns map<any> | error = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function acceptStringErrorReturnWhichThrowsCheckedException(string s) returns error = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function getArrayValueFromMapWhichThrowsCheckedException(string key, map<int> mapValue) returns int[] | error = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 
@@ -202,27 +202,27 @@ function testJsonParams() returns json {
 }
 
 public function getJson() returns json = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function getInt() returns json = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function getJsonObject() returns json = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function getJsonArray() returns json = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function getIntFromJson(json j) returns int = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 public function getNullJson() returns json = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 // XML interop
@@ -232,11 +232,11 @@ function testPassingXML() returns string {
 }
 
 function getXML() returns xml = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function getStringFromXML(xml x) returns string = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 
@@ -256,39 +256,39 @@ function testAcceptMixTypes() returns [any, any, any] {
 }
 
 function getAllInts() returns ALL_INT = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function acceptAllInts(ALL_INT x) returns int = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function acceptAllFloats(ALL_INT x) returns float = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function acceptAny(ALL_INT x) returns any = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function getMixType() returns MIX_TYPE = @java:Method {
     name:"getAny",
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function getIntegersAsMixType() returns MIX_TYPE = @java:Method {
     name:"getAllInts",
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function acceptMixType(MIX_TYPE x) returns any = @java:Method {
     name:"acceptAny",
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function getInvalidIntegerAsMixType() returns MIX_TYPE = @java:Method {
     name:"getInvalidMixType",
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 // Function pointers with interop
@@ -303,11 +303,11 @@ function testGetFunctionPointer() returns int {
 }
 
 function useFunctionPointer((function (int a, int b) returns int) fp) returns int = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function getFunctionPointer(any x) returns (function (int a, int b) returns int) = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 
@@ -323,11 +323,11 @@ function testGetTypeDesc() returns typedesc<any> {
 }
 
 function useTypeDesc(typedesc<any> t) returns string = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function getTypeDesc() returns typedesc<any> = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 
@@ -346,9 +346,9 @@ function testGetFuture() returns any {
 }
 
 function useFuture(future<any> f) returns any = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
 
 function getFuture(any a) returns future<any> = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;

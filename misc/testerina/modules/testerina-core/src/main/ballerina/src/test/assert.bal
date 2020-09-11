@@ -46,7 +46,7 @@ public function createBallerinaError(string errorMessage, string category) retur
 #
 # + condition - Boolean condition to evaluate
 # + msg - Assertion error message
-public function assertTrue(boolean condition, public string msg = "Assertion Failed!") {
+public function assertTrue(boolean condition, string msg = "Assertion Failed!") {
     if (!condition) {
         panic createBallerinaError(msg, assertFailureErrorCategory);
     }
@@ -56,7 +56,7 @@ public function assertTrue(boolean condition, public string msg = "Assertion Fai
 #
 # + condition - Boolean condition to evaluate
 # + msg - Assertion error message
-public function assertFalse(boolean condition, public string msg = "Assertion Failed!") {
+public function assertFalse(boolean condition, string msg = "Assertion Failed!") {
     if (condition) {
         panic createBallerinaError(msg, assertFailureErrorCategory);
     }
@@ -67,7 +67,7 @@ public function assertFalse(boolean condition, public string msg = "Assertion Fa
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertEquals(anydata|error actual, anydata|error expected, public string msg = "Assertion Failed!") {
+public function assertEquals(anydata|error actual, anydata|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual == expected);
     if (!isEqual) {
         string expectedStr = sprintf("%s", expected);
@@ -82,7 +82,7 @@ public function assertEquals(anydata|error actual, anydata|error expected, publi
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertNotEquals(anydata|error actual, anydata|error expected, public string msg = "Assertion Failed!") {
+public function assertNotEquals(anydata|error actual, anydata|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual == expected);
     if (isEqual) {
         string expectedStr = sprintf("%s", expected);
@@ -97,7 +97,7 @@ public function assertNotEquals(anydata|error actual, anydata|error expected, pu
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertExactEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
+public function assertExactEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual === expected);
     if (!isEqual) {
         string expectedStr = sprintf("%s", expected);
@@ -112,7 +112,7 @@ public function assertExactEquals(any|error actual, any|error expected, public s
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertNotExactEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
+public function assertNotExactEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual === expected);
     if (isEqual) {
         string expectedStr = sprintf("%s", expected);
@@ -125,11 +125,11 @@ public function assertNotExactEquals(any|error actual, any|error expected, publi
 # Assert failure is triggered based on user discretion. AssertError is thrown with the given errorMessage.
 #
 # + msg - Assertion error message
-public function assertFail(public string msg = "Test Failed!") {
+public function assertFail(string msg = "Test Failed!") {
     panic createBallerinaError(msg, assertFailureErrorCategory);
 }
 
 function sprintf(string format, (any|error)... args) returns string = @java:Method {
     name : "sprintf",
-    class : "org.ballerinalang.testerina.natives.io.Sprintf"
+    'class : "org.ballerinalang.testerina.natives.io.Sprintf"
 } external;

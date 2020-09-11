@@ -75,13 +75,12 @@ public class VariableUtils {
                     && !stringRef.referenceType().name().equals(JVMValueType.NONBMPSTRING.getString())) {
                 // Additional filtering is required, as some ballerina variable type names may contain redundant
                 // double quotes.
-                return stringRef.toString().replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
+                return removeRedundantQuotes(stringRef.toString());
             }
             Optional<Value> valueField = getFieldValue(stringRef, FIELD_VALUE);
             // Additional filtering is required, as some ballerina variable type names may contain redundant
             // double quotes.
-            return valueField.map(value -> value.toString().replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, ""))
-                    .orElse(UNKNOWN_VALUE);
+            return valueField.map(value -> removeRedundantQuotes(value.toString())).orElse(UNKNOWN_VALUE);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }
@@ -201,5 +200,12 @@ public class VariableUtils {
                     methodName, parent.toString()));
         }
         return Optional.of(methods.get(0));
+    }
+
+    private static String removeRedundantQuotes(String str) {
+        do {
+            str = str.replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
+        } while (str.startsWith("\"\"") || str.endsWith("\"\""));
+        return str;
     }
 }

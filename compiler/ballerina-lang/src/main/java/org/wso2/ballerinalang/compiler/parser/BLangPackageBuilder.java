@@ -2090,7 +2090,8 @@ public class BLangPackageBuilder {
         BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
         onClause.addWS(ws);
         onClause.pos = pos;
-        onClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        onClause.rhsExpr = (BLangExpression) this.exprNodeStack.pop();
+        onClause.lhsExpr = (BLangExpression) this.exprNodeStack.pop();
         BLangJoinClause joinClause = (BLangJoinClause) inputClauseStack.peek();
         joinClause.onClause = onClause;
     }
@@ -2582,10 +2583,6 @@ public class BLangPackageBuilder {
                        boolean isReadOnly, boolean isClient, boolean isService, boolean isDistinct) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
-
-        if (isAbstract) {
-            objectTypeNode.flagSet.add(Flag.ABSTRACT);
-        }
 
         if (isReadOnly) {
             objectTypeNode.flagSet.add(Flag.READONLY);
@@ -3512,7 +3509,8 @@ public class BLangPackageBuilder {
         typeDef.flagSet.add(Flag.SERVICE);
         typeDef.typeNode = (BLangType) this.typeNodeStack.pop();
         typeDef.pos = pos;
-        serviceNode.serviceTypeDefinition = typeDef;
+        // todo: Services will not be supported in old parser due to this
+//        serviceNode.bLangClassDefinition = typeDef;
         this.compUnit.addTopLevelNode(typeDef);
 
         // 2) Create service constructor.

@@ -244,8 +244,8 @@ public class JvmConstants {
     public static final int BAL_ATTACHED = 8;
     public static final int BAL_REQUIRED = 256;
     public static final int BAL_PRIVATE = 1024;
-    public static final int BAL_OPTIONAL = 8192;
-    public static final int BAL_SERVICE = 524288;
+    public static final int BAL_OPTIONAL = 4096;
+    public static final int BAL_SERVICE = 262144;
 
     // type flags
     public static final int TYPE_FLAG_NILABLE = 1;

@@ -46,7 +46,7 @@ public class OperationHandleVTests {
     private ResourceMethod resourceMethod;
     private Operation operation;
 
-    @Test(description = "Operation model has path parameters primitive type")
+    @Test(enabled = false, description = "Operation model has path parameters primitive type")
     public void testPrimitiveTypePath() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstorePathPrimitive.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -58,7 +58,7 @@ public class OperationHandleVTests {
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
-    @Test(description = "Operation model has path parameters object type")
+    @Test(enabled = false, description = "Operation model has path parameters object type")
     public void testObjectTypePath() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstorePathObject.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -70,7 +70,7 @@ public class OperationHandleVTests {
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
-    @Test(description = "Operation model has path parameters array type")
+    @Test(enabled = false, description = "Operation model has path parameters array type")
     public void testArrayTypePath() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstorePathArray.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -82,7 +82,7 @@ public class OperationHandleVTests {
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
-    @Test(description = "Operation model has request parameters ")
+    @Test(enabled = false, description = "Operation model has request parameters ")
     public void testrequestBody() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstoreRBParameter.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());
@@ -94,7 +94,7 @@ public class OperationHandleVTests {
         Assert.assertTrue(validationErrors.isEmpty());
     }
 
-    @Test(description = "Operation model has nestedArray type parameters ")
+    @Test(enabled = false, description = "Operation model has nestedArray type parameters ")
     public void testNestedArrayType() throws OpenApiValidatorException, UnsupportedEncodingException {
         Path contractPath = RES_DIR.resolve("swagger/valid/petstoreNestedArrayType.yaml");
         api = ServiceValidator.parseOpenAPIFile(contractPath.toString());

@@ -67,6 +67,7 @@ public class BallerinaErrorReasons {
     public static final String INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER = "InherentTypeViolation";
     public static final String OPERATION_NOT_SUPPORTED_IDENTIFIER = "OperationNotSupported";
     public static final String KEY_NOT_FOUND_ERROR_IDENTIFIER = "KeyNotFound";
+    public static final String INVALID_TYPE_TO_SORT = "InvalidTypeToSort";
 
     public static final BString INDEX_OUT_OF_RANGE_ERROR = StringUtils.fromString(INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER);
     public static final BString OPERATION_NOT_SUPPORTED_ERROR =

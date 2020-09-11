@@ -35,19 +35,19 @@ type Teacher record {
     string school;
 };
 
-type PersonObj object {
+class PersonObj {
     public int age = 10;
     public string name = "mohan";
 
     public int year = 2014;
     public string month = "february";
-};
+}
 
-type EmployeeObj object {
+class EmployeeObj {
     public int age = 10;
     public string name = "raj";
 
-};
+}
 
 //-----------------------Union Type Stamp -------------------------------------------------------------------
 

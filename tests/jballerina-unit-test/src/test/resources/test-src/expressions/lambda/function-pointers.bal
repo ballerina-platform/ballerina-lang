@@ -101,7 +101,7 @@ function testAnyToFuncPointerConversion_1() returns (int|error) {
     return sumFunction(3, 2);
 }
 
-type Person object {
+class Person {
     int age;
 
     function init (int age) {
@@ -111,16 +111,16 @@ type Person object {
     function getAge() returns (int) {
         return self.age;
     }
-};
+}
 
-type Student object {
+class Student {
     int age = 40;
     private int marks;
 
     function getAge() returns (int) {
         return self.age;
     }
-};
+}
 
 function testFuncPointerConversion() returns (int) {
     function (Person) returns (int) personFunc = function (Person p) returns (int) {

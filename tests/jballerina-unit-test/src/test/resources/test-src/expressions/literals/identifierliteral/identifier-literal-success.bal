@@ -73,7 +73,7 @@ function 'test\ function\ for\ identifier(string val) returns string {
     return val + s;
 }
 
-public type '\|Test\ Connector\| client object {
+public client class '\|Test\ Connector\| {
     boolean action2Invoked = false;
 
     public function init(string param1, string param2, int param3) {
@@ -89,7 +89,7 @@ public type '\|Test\ Connector\| client object {
        string '\|string\ \|\ value\| = "sample string";
        return '\|string\ \|\ value\|;
     }
-};
+}
 
 function testConnectorNameWithIL() returns string {
     '\|Test\ Connector\| testConnector = new("MyParam1", "MyParam2", 5);

@@ -20,6 +20,7 @@ import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -50,5 +51,12 @@ public class FieldAccessExpressionNodeContext extends FieldAccessContext<FieldAc
     @Override
     protected boolean removeOptionalFields() {
         return true;
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, FieldAccessExpressionNode node) {
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        
+        return cursor <= node.textRange().endOffset();
     }
 }

@@ -17,13 +17,13 @@
 import ballerina/java;
 
 # Represents a channel which could be used to write characters through a given WritableCharacterChannel.
-public type WritableCharacterChannel object {
+public class WritableCharacterChannel {
 
     private WritableByteChannel bChannel;
     private string charset;
 
     # Constructs a `WritableByteChannel` from a given `WritableByteChannel` and `Charset`.
-    # 
+    #
     # + bChannel - The `WritableByteChannel`, which would be used to write the characters
     # + charset - The character set, which would be used to encode the given bytes to characters
     public function init(WritableByteChannel bChannel, string charset) {
@@ -86,37 +86,37 @@ public type WritableCharacterChannel object {
     public function close() returns Error? {
         return closeWritableCharacterChannel(self);
     }
-};
+}
 
 function initWritableCharacterChannel(WritableCharacterChannel characterChannel, WritableByteChannel byteChannel,
                                       string charset) = @java:Method {
     name: "initCharacterChannel",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;
 
 function writeExtern(WritableCharacterChannel characterChannel, string content, int startOffset)
                      returns int|Error = @java:Method {
     name: "write",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;
 
 function writeJsonExtern(WritableCharacterChannel characterChannel, json content) returns Error? = @java:Method {
     name: "writeJson",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;
 
 function writeXmlExtern(WritableCharacterChannel characterChannel, xml content) returns Error? = @java:Method {
     name: "writeXml",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;
 
 function writePropertiesExtern(WritableCharacterChannel characterChannel, map<string> properties,
                                 string comment) returns Error? = @java:Method {
     name: "writeProperties",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;
 
 function closeWritableCharacterChannel(WritableCharacterChannel characterChannel) returns Error? = @java:Method {
     name: "close",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;

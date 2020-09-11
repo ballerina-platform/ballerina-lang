@@ -18,9 +18,9 @@ function testInvaidAssignmentToVariable() {
     int i = "hello";
 }
 
-type A object {
+class A {
     string x = "hello";
-};
+}
 
 function testInvalidObjectLvExpr() {
     A a = new;
@@ -39,22 +39,22 @@ function testInvalidOptionalFieldAccesOnLhs() {
     m?.y += 1;
 }
 
-type ObjectWithInvalidFillingReadOnUninitializedField object {
+class ObjectWithInvalidFillingReadOnUninitializedField {
 
     map<int[]> s;
 
     function init() {
         self.s["one"][0] = 1;
     }
-};
+}
 
 type C record {
     map<int>? m = ();
 };
 
-type D object {
+class D {
     C c = {};
-};
+}
 
 function testInvalidFillingReadOnInitializedObjectField() {
     D d = new;

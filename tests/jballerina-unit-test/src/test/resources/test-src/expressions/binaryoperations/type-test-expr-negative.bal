@@ -195,27 +195,27 @@ function testJsonArrays() returns [boolean, boolean] {
     return [b0, b1];
 }
 
-public type X1 abstract object {
+public type X1 object {
     public int p;
     public string q;
 };
 
-public type Y1 abstract object {
+public type Y1 object {
     public float r;
     *X1;
 };
 
-public type Z1 object {
+public class Z1 {
     *Y1;
     public boolean s;
-    
+
     public function init(int p, string q, float r, boolean s) {
         self.p = p;
         self.q = q;
         self.r = r;
         self.s = s;
     }
-};
+}
 
 function testObjectEquivalency() returns [string, string] {
     Z1 z = new Z1(5, "foo", 6.7, true);

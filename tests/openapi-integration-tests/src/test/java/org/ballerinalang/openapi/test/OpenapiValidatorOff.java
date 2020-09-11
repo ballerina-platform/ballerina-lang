@@ -32,12 +32,12 @@ public class OpenapiValidatorOff extends BaseTestCase {
     private BMainInstance balClient;
     private String projectPath;
 
-    @BeforeClass
+    @BeforeClass(enabled = false)
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
         projectPath = basicTestsProjectPath.toString();
     }
-    @Test
+    @Test(enabled = false)
     public void testOpenapiValidatorOff() throws BallerinaTestException {
 
         String msg = "warning: openapi-test/openapi-validator-off:";

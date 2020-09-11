@@ -77,9 +77,9 @@ function testRecordsWithoutFillerValues2() {
     arr[0][1] = {name: "Pubudu"};
 }
 
-type PersonObj object {
+class PersonObj {
     string name = "John Doe";
-};
+}
 
 function testObjectArrays() returns PersonObj[] {
     PersonObj[] arr = [];
@@ -93,13 +93,13 @@ function test2DObjectArrays() returns PersonObj[][] {
     return arr;
 }
 
-type PersonObj2 object {
+class PersonObj2 {
     string name = "John Doe";
 
     public function init(string name = "Pubudu") {
         self.name = name;
     }
-};
+}
 
 function test2DObjectArrays2() returns PersonObj2[][] {
     PersonObj2[][] arr = [];
@@ -107,13 +107,13 @@ function test2DObjectArrays2() returns PersonObj2[][] {
     return arr;
 }
 
-type PersonObj3 object {
+class PersonObj3 {
     string name = "John Doe";
 
     public function init(string name) {
         self.name = name;
     }
-};
+}
 
 function test2DObjectArrays3() returns PersonObj3[][] {
     PersonObj3[][] arr = [];
@@ -132,9 +132,9 @@ function testArraysInRecordFields() {
     assert(<Foo>{arr: [[], [[], [], [{name: "Pubudu"}, {name: "Pubudu"}, {name: "Pubudu"}, {name: "Fernando"}]]]}, f);
 }
 
-type FooObj object {
+class FooObj {
     Person[][][] arr = [];
-};
+}
 
 function testArraysInObjectFields() {
     FooObj f = new;

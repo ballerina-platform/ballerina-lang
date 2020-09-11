@@ -34,7 +34,7 @@ import java.io.PrintStream;
 @Test
 public class PackageImportTest {
 
-    @Test
+    @Test(enabled = false)
     public void testDuplicatePackageImports() {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
@@ -95,7 +95,7 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, i, "unused import module 'ballerina/io as otherIO'", 2, 1);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testIgnoreImport() {
         PrintStream out = System.out;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

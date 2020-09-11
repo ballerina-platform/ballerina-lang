@@ -165,8 +165,8 @@ class JvmValueGen {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
-            if (bType instanceof BServiceType || (bType.tag == TypeTags.OBJECT && !Symbols.isFlagOn(
-                    bType.tsymbol.flags, Flags.ABSTRACT)) || bType.tag == TypeTags.RECORD) {
+            if (bType instanceof BServiceType || (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
+                    bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
                 desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
             }
         }
@@ -1346,7 +1346,7 @@ class JvmValueGen {
                 byte[] bytes = this.createObjectValueClass(serviceType, className, optionalTypeDef, true);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.OBJECT &&
-                    !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) {
+                    Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
                 String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
                 byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, false);
