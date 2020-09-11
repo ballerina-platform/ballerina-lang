@@ -1301,7 +1301,7 @@ public class JvmMethodGen {
             }
 
             // generate instructions
-            JvmCodeGenUtil.generateBbInstructions(mv, labelGen, instGen, localVarOffset, asyncDataCollector,
+            lastScope = JvmCodeGenUtil.generateBbInstructions(mv, labelGen, instGen, localVarOffset, asyncDataCollector,
                     funcName, bb, visitedScopesSet, lastScope);
 
             Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");

@@ -511,7 +511,7 @@ public class JvmCodeGenUtil {
         return orgName.equals("ballerina") && moduleName.equals("builtin");
     }
 
-    public static void generateBbInstructions(MethodVisitor mv, LabelGenerator labelGen, JvmInstructionGen instGen,
+    public static BirScope generateBbInstructions(MethodVisitor mv, LabelGenerator labelGen, JvmInstructionGen instGen,
             int localVarOffset, AsyncDataCollector asyncDataCollector,
             String funcName,
             BIRNode.BIRBasicBlock bb, Set<BirScope> visitedScopesSet, BirScope lastScope) {
@@ -522,14 +522,16 @@ public class JvmCodeGenUtil {
             mv.visitLabel(insLabel);
             BIRInstruction inst = bb.instructions.get(i);
             if (inst != null) {
-                generateDiagnosticPos((BIRAbstractInstruction) inst, funcName, mv, labelGen, visitedScopesSet,
+                lastScope = generateDiagnosticPos((BIRAbstractInstruction) inst, funcName, mv, labelGen, visitedScopesSet,
                         lastScope);
                 instGen.generateInstructions(localVarOffset, asyncDataCollector, inst);
             }
         }
+
+        return lastScope;
     }
 
-    private static void generateDiagnosticPos(BIRAbstractInstruction instruction, String funcName, MethodVisitor mv,
+    private static BirScope generateDiagnosticPos(BIRAbstractInstruction instruction, String funcName, MethodVisitor mv,
             LabelGenerator labelGen, Set<BirScope> visitedScopesSet, BirScope lastScope) {
 
         BirScope scope = instruction.scope;
@@ -542,6 +544,8 @@ public class JvmCodeGenUtil {
         } else {
             generateDiagnosticPos(instruction.pos, mv);
         }
+
+        return lastScope;
     }
 
     public static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv) {
