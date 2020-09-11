@@ -197,7 +197,7 @@ public class DataBindingTest {
     }
 
     @Test(description = "Test data binding without a payload", expectedExceptions = BallerinaConnectorException.class,
-          expectedExceptionsMessageRegExp = ".*data binding failed: error String payload is null *")
+          expectedExceptionsMessageRegExp = ".*data binding failed: error\\(\"String payload is null.*")
     public void testDataBindingWithoutPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "GET");
@@ -240,8 +240,8 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-          expectedExceptionsMessageRegExp = "data binding failed: error \\{ballerina/lang.typedesc\\}ConversionError " +
-                  "message='map<json>' value cannot be converted to 'Person'")
+          expectedExceptionsMessageRegExp = "data binding failed: error\\(\"\\{ballerina/lang.typedesc\\}" +
+                  "ConversionError\", message=\"'map<json>' value cannot be converted to 'Person'.*")
     public void testDataBindingStructWithNoMatchingContent() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "{'name':'WSO2', 'team':8}");
@@ -250,8 +250,8 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "data binding failed: error \\{ballerina/lang" +
-                    ".typedesc\\}ConversionError message='map<json>' value cannot be converted to 'Stock'")
+            expectedExceptionsMessageRegExp = "data binding failed: error\\(\"\\{ballerina/lang.typedesc\\}" +
+                    "ConversionError\", message=\"'map<json>' value cannot be converted to 'Stock'.*")
     public void testDataBindingStructWithInvalidTypes() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body7", "POST", "{'name':'WSO2', 'team':8}");
@@ -260,8 +260,8 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-          expectedExceptionsMessageRegExp = ".*data binding failed: error \\{ballerina/lang" +
-                  ".typedesc\\}ConversionError message='json\\[\\]' value cannot be converted to 'Person\\[\\]'.*")
+          expectedExceptionsMessageRegExp = ".*data binding failed: error\\(\"\\{ballerina/lang" +
+                  ".typedesc\\}ConversionError\", message=\"'json\\[\\]' value cannot be converted to 'Person\\[\\]'.*")
     public void testDataBindingWithRecordArrayNegative() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/body8", "POST",
                   "[{'name':'wso2','team':12}, " + "{'lang':'ballerina','age':3}]");
