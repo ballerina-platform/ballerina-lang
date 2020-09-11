@@ -18,11 +18,9 @@ package org.ballerinalang.langserver.util.definition;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -243,7 +241,6 @@ public class LSStdLibCacheUtil {
         options.put(OFFLINE, Boolean.toString(true));
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(true));
         context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(projectDir)));
-        context.put(DiagnosticListener.class, new CollectDiagnosticListener());
         return context;
     }
 

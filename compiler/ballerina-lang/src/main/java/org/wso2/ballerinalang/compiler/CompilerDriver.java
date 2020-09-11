@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Constants;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.util.HashSet;
 import java.util.List;

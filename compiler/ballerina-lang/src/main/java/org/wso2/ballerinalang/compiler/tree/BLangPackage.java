@@ -39,11 +39,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
@@ -248,32 +246,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     public boolean hasTestablePackage() {
         return this.testablePkgs.size() > 0;
-    }
-
-    /**
-     * This class collect diagnostics.
-     *
-     * @since 0.970.0
-     */
-    public static class BDiagnosticCollector {
-        private int errorCount;
-        private List<BDiagnostic> diagnostics;
-
-        public BDiagnosticCollector() {
-            this.diagnostics = new ArrayList<>();
-        }
-
-        public void addDiagnostic(BDiagnostic diagnostic) {
-            this.diagnostics.add(diagnostic);
-            if (diagnostic.getKind() == org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR) {
-                this.errorCount++;
-            }
-            Collections.sort(diagnostics);
-        }
-
-        public boolean hasErrors() {
-            return this.errorCount > 0;
-        }
     }
 
     /**

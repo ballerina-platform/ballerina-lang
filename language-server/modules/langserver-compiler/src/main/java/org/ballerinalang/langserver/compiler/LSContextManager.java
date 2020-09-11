@@ -150,8 +150,6 @@ public class LSContextManager {
         options.put(OFFLINE, Boolean.toString(true));
         options.put(NEW_PARSER_ENABLED, Boolean.toString(enableNewParser));
         context.put(SourceDirectory.class, new NullSourceDirectory(Paths.get(projectDir), documentManager));
-        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener();
-        context.put(DiagnosticListener.class, diagnosticListener);
         return context;
     }
 

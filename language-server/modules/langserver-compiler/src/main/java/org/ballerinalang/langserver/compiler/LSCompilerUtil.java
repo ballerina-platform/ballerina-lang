@@ -30,7 +30,6 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -134,10 +133,6 @@ public class LSCompilerUtil {
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
         options.put(TOOLING_COMPILATION, String.valueOf(stopOnSemanticErrors));
-
-        if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-            ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).clearAll();
-        }
 
         LangServerFSProjectDirectory projectDirectory =
                 LangServerFSProjectDirectory.getInstance(Paths.get(sourceRoot), documentManager);

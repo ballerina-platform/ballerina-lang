@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
@@ -42,8 +44,6 @@ import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DESUGARED_BB_ID_NAME;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 
 /**
  * BIR desugar phase related methods at JVM code generation.

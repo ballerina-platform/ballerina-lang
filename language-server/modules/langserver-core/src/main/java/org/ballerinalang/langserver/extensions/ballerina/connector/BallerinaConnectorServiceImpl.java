@@ -27,7 +27,6 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.exception.LSConnectorException;
@@ -37,7 +36,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.types.RecordTypeNode;
 import org.ballerinalang.model.types.ValueType;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
@@ -369,7 +367,6 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         options.put(OFFLINE, Boolean.toString(true));
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(true));
         context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(projectDir)));
-        context.put(DiagnosticListener.class, new CollectDiagnosticListener());
         return context;
     }
 }

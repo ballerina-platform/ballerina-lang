@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangParserListener;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
