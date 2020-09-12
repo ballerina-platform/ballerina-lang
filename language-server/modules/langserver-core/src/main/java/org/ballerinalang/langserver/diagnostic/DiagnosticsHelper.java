@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
@@ -73,13 +74,12 @@ public class DiagnosticsHelper {
                                                        LSDocumentIdentifier lsDoc, WorkspaceDocumentManager docManager)
             throws CompilationFailedException {
         // Compile diagnostics
-        List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics = new ArrayList<>();
         List<BLangPackage> packages =
                 LSModuleCompiler.getBLangPackages(context, docManager, null, true, true, true, true);
         
         Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
         for (BLangPackage pkg : packages) {
-            populateDiagnostics(diagnosticMap, pkg.packageID, diagnostics, lsDoc);
+            populateDiagnostics(diagnosticMap, pkg.packageID, pkg.getDiagnostics(), lsDoc);
         }
 
         // If the client is null, returns
@@ -117,20 +117,25 @@ public class DiagnosticsHelper {
 
             LineRange lineRange = location.lineRange();
             TextRange textRange = location.textRange();
-            int startLine = lineRange.startLine().line(); // LSP diagnostics range is 0 based
-            int startChar = textRange.startOffset();
-            int endLine = lineRange.endLine().line();
-            int endChar = textRange.endOffset();
+            int startLine = lineRange.startLine().line() - 1; // LSP diagnostics range is 0 based
+            int startChar = textRange.startOffset() - 1;
+            int endLine = lineRange.endLine().line() - 1;
+            int endChar = textRange.endOffset() - 1;
 
             endLine = (endLine <= 0) ? startLine : endLine;
             endChar = (endChar <= 0) ? startChar + 1 : endChar;
 
             Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
             Diagnostic diagnostic = new Diagnostic(range, diag.message());
-            if (diag.diagnosticInfo().severity() == io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR) {
+            
+            if (!(diag instanceof BallerinaDiagnostic)) {
+                return;
+            }
+            if (((BallerinaDiagnostic) diag).severity() == io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR) {
                 // set diagnostic log kind
                 diagnostic.setSeverity(DiagnosticSeverity.Error);
-            } else if (diag.diagnosticInfo().severity() == io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING) {
+            } else if (((BallerinaDiagnostic) diag).severity()
+                    == io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING) {
                 diagnostic.setSeverity(DiagnosticSeverity.Warning);
             } 
 

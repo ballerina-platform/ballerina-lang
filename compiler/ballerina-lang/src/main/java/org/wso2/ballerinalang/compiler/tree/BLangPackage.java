@@ -255,7 +255,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         }
     }
 
-    public List<Diagnostic> getDagnostics() {
+    public List<Diagnostic> getDiagnostics() {
         return this.diagnostics;
     }
 

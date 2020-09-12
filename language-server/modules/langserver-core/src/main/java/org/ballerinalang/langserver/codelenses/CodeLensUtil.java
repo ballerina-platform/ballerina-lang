@@ -68,7 +68,7 @@ public class CodeLensUtil {
                 .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
                 .findFirst();
 
-        final List<Diagnostic> diagnostics = bLangPackage.getDagnostics();
+        final List<Diagnostic> diagnostics = bLangPackage.getDiagnostics();
 
         codeLensContext.put(CodeLensesProviderKeys.BLANG_PACKAGE_KEY, bLangPackage);
         codeLensContext.put(CodeLensesProviderKeys.FILE_URI_KEY, fileUri);

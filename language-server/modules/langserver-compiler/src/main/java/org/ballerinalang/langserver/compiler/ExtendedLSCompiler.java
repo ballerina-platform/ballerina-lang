@@ -119,6 +119,6 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
             logger.error("Unable to create the empty stream.");
         }
         BLangPackage bLangPackage = compileSafe(compiler, parent.toString(), packageName, lsContext);
-        return new BallerinaFile(bLangPackage, bLangPackage.getDagnostics(), false, context);
+        return new BallerinaFile(bLangPackage, bLangPackage.getDiagnostics(), false, context);
     }
 }

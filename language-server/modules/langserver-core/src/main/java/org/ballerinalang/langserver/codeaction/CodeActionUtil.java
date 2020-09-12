@@ -91,7 +91,7 @@ public class CodeActionUtil {
                     null, false, false, true);
             String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangPackage evalPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
-            List<Diagnostic> diagnostics = bLangPackage.getDagnostics();
+            List<Diagnostic> diagnostics = bLangPackage.getDiagnostics();
             context.put(CodeActionKeys.DIAGNOSTICS_KEY, CodeActionUtil.toDiagnostics(diagnostics));
 
             Optional<BLangCompilationUnit> filteredCUnit = evalPkg.compUnits.stream()
