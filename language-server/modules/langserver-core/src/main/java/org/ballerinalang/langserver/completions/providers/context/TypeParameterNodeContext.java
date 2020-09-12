@@ -79,7 +79,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
             return this.getCompletionItemList(moduleContent, context);
         }
 
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
 
         if (node.parent().kind() == SyntaxKind.XML_TYPE_DESC) {
             /*

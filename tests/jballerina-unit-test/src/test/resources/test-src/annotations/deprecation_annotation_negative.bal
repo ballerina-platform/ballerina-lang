@@ -15,7 +15,7 @@ public type Foo CONST1|CONST2;
 # + fieldTwo - This is the description of the `DummyObject`'s `fieldTwo` field.
 # + fieldThree - This is the description of the `DummyObject`'s `fieldThree` field.
 @deprecated
-public type DummyObject object {
+public class DummyObject {
 
     public string fieldOne = "Foo";
     public string fieldTwo = "Foo";
@@ -27,7 +27,7 @@ public type DummyObject object {
     # # Deprecated
     public function doThatOnObject(string paramOne) {
     }
-};
+}
 
 # This function initialize the object
 #
@@ -82,11 +82,11 @@ function add3(@deprecated int x, @deprecated int y, int z) returns int {
 # + xxx - deprecated
 # # Deprecated
 @deprecated
-type DummyObj object {
+class DummyObj {
 
     @deprecated
     public int xxx = 0;
-};
+}
 
 const string CONST3 = "CONST3";
 const string CONST4 = "CONST4";
@@ -101,14 +101,14 @@ public type T1 CONST3|CONST4;
 # + fieldOne - deprecated
 # # Deprecated
 @deprecated
-public type Object1 object {
+public class Object1 {
 
     @deprecated
     public string fieldOne = "Foo";
     @deprecated     // Compile error
     T1 t = CONST3;
     public string fieldTwo = "";
-};
+}
 
 # The `Object2` is a user-defined object.
 #
@@ -118,25 +118,25 @@ public type Object1 object {
 # # Deprecated parameters
 # + fieldOne - deprecated
 # + t - deprecated          // Compile error
-public type Object2 object {
+public class Object2 {
 
     @deprecated
     public string fieldOne = "Foo";
     public T1 t = CONST3;
     public string fieldTwo = "";
-};
+}
 
 # The `Object3` is a user-defined object.
 #
 # + fieldOne - This is the description of the `DummyObject`'s `fieldOne` field.
 # + fieldTwo - This is the description of the `DummyObject`'s `fieldTwo` field.
-public type Object3 object {
+public class Object3 {
 
     @deprecated             // Compile error
     public string fieldOne = "Foo";
     T1 t = CONST3;
     public string fieldTwo = "";
-};
+}
 
 # Test function doc
 # + x - first integer
@@ -155,7 +155,7 @@ function add5(int x, int y, int... z) {
     int n = z[0];
 }
 
-public type Object4 object {
+public class Object4 {
 
     # Describe the field here
     # # Deprecated
@@ -164,7 +164,7 @@ public type Object4 object {
     @deprecated                         // Compile error
     T1 t = CONST3;
     public string fieldTwo = "";
-};
+}
 
 # Docs for `Foo`
 #
@@ -195,7 +195,7 @@ public type TypeFoo CONST2;
 # + i - deprecated i                    // Compile error
 int i = 0;
 
-type Listener object {
+class Listener {
 
     public function __attach(service s, string? name) returns error? {
 
@@ -216,7 +216,7 @@ type Listener object {
     public function __immediateStop() returns error? {
 
     }
-};
+}
 
 # This is a test service
 #

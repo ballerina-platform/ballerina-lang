@@ -76,81 +76,81 @@ public function testRefArrayTypeVararg() returns string {
 
 public function calculateSum(int... values) returns int = @java:Method {
     name:"getSum",
-    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function calculateMax(int a, int b, int... values) returns int = @java:Method {
     name:"getMax",
-    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function calculateLongSum(int... values) returns int = @java:Method {
     name:"getLongSum",
-    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function getIntArray(int size) returns handle = @java:Method {
     name:"getIntArray",
-    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function calculateSumOfIntArrays(handle... values) returns int = @java:Method {
     name:"getSumOfIntArrays",
-    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function getArrayList(handle... values) returns handle = @java:Method {
     name:"getList",
-    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function mergeLists(handle... values) returns handle = @java:Method {
     name:"merge",
-    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
-    paramTypes:[{class:"java.util.List", dimensions:1}]
+    'class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
+    paramTypes:[{'class:"java.util.List", dimensions:1}]
 } external;
 
 public function calculateSumOfIntArraysWithAnnot(handle... values) returns int = @java:Method {
     name:"getSumOfIntArrays",
-    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
-    paramTypes:[{class:"int", dimensions:2}]
+    'class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
+    paramTypes:[{'class:"int", dimensions:2}]
 } external;
 
 public function asList(int... values) returns handle = @java:Method {
     name:"asList",
-    class: "java.util.Arrays"
+    'class: "java.util.Arrays"
 } external;
 
 public function toShort(int value) returns int = @java:Method {
     name:"toShort",
-    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function getIntFromGeneric(int value) returns int = @java:Method {
     name:"getGenericValue",
-    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function getFloatFromGeneric(float value) returns float = @java:Method {
     name:"getGenericValue",
-    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function getStringFromGeneric(handle value) returns handle = @java:Method {
     name:"getGenericValue",
-    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function getRefVararg((any|error)... value) returns handle = @java:Method {
-    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function getIntArrayTypeVararg(int[]... value) returns handle = @java:Method {
 	name:"getArrayTypeVararg",
-    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function getRefArrayTypeVararg((any|error)[]... value) returns handle = @java:Method {
 	name:"getArrayTypeVararg",
-    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+    'class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;

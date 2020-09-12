@@ -62,7 +62,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(addTopLevelItems(context));
         completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
         this.sort(context, node, completionItems);
 
         return completionItems;

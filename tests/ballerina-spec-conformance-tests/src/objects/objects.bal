@@ -36,7 +36,7 @@ public function PublicNormalObject.publicMethodDecl() returns int {
     return self.counter;
 }
 
-public type PublicClientObject client object {
+public client class PublicClientObject {
     public string publicStringField;
     private int counter;
 
@@ -58,7 +58,7 @@ public type PublicClientObject client object {
 
     public function publicMethodDecl() returns int;
     public remote function publicRemoteMethodDecl() returns int;
-};
+}
 
 public function PublicClientObject.publicMethodDecl() returns int {
     self.counter += 10;
@@ -70,7 +70,7 @@ public remote function PublicClientObject.publicRemoteMethodDecl() returns int {
     return self.counter;
 }
 
-type AbstractObject abstract object {
+type AbstractObject object {
     public string publicStringField;
 
     public function publicMethodDecl(string argOne) returns int;
@@ -102,7 +102,7 @@ public function ObjReferenceToAbstractObject.publicMethodDeclaredOutside() retur
     return self.counter;
 }
 
-public type AbstractClientObject abstract client object {
+public type AbstractClientObject client object {
     public string publicStringField;
 
     public function publicMethodDecl() returns int;
@@ -111,7 +111,7 @@ public type AbstractClientObject abstract client object {
     public remote function publicRemoteMethodDeclaredOutside() returns int;
 };
 
-public type ObjReferenceToAbstractClientObject client object {
+public client class ObjReferenceToAbstractClientObject {
     *AbstractClientObject;
     private int counter;
 
@@ -134,7 +134,7 @@ public type ObjReferenceToAbstractClientObject client object {
         self.publicStringField = argOne;
         self.counter = 10;
     }
-};
+}
 
 public function ObjReferenceToAbstractClientObject.publicMethodDeclaredOutside() returns int {
     self.counter += 10;

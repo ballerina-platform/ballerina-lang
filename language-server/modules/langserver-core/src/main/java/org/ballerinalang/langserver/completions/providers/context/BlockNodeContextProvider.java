@@ -92,7 +92,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(getStaticCompletionItems(context));
         completionItems.addAll(getStatementCompletionItems(context, node));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getSymbolCompletions(context));
 

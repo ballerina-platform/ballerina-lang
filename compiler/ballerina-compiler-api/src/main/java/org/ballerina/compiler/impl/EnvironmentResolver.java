@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -219,12 +220,23 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        if (this.withinBlock(classDefinition.getPosition())) {
+            SymbolEnv env = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, this.symbolEnv);
+            this.scope = env;
+            classDefinition.getFunctions().forEach(function -> this.acceptNode(function, env));
+            if (classDefinition.initFunction != null) {
+                this.acceptNode(classDefinition.initFunction, env);
+            }
+        }
+    }
+
+    @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         if (this.withinBlock(objectTypeNode.getPosition())) {
             SymbolEnv env = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, this.symbolEnv);
             this.scope = env;
             objectTypeNode.getFunctions().forEach(function -> this.acceptNode(function, env));
-            this.acceptNode((BLangNode) objectTypeNode.getInitFunction(), env);
         }
     }
 
@@ -939,7 +951,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
-        
+        this.acceptNode(bLangStatementExpression.stmt, this.symbolEnv);
     }
 
     @Override
@@ -1048,10 +1060,10 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     }
 
     private boolean withinBlock(Diagnostic.DiagnosticPosition symbolPosition) {
-        int zeroBasedStartLine = symbolPosition.getStartLine() - 1;
-        int zeroBasedEndLine = symbolPosition.getEndLine() - 1;
-        int zeroBasedStartCol = symbolPosition.getStartColumn() - 1;
-        int zeroBasedEndCol = symbolPosition.getEndColumn() - 1;
+        int zeroBasedStartLine = symbolPosition.getStartLine();
+        int zeroBasedEndLine = symbolPosition.getEndLine();
+        int zeroBasedStartCol = symbolPosition.getStartColumn();
+        int zeroBasedEndCol = symbolPosition.getEndColumn();
         int line = this.linePosition.line();
         int col = this.linePosition.offset();
 
@@ -1059,6 +1071,6 @@ public class EnvironmentResolver extends BLangNodeVisitor {
                 || (zeroBasedStartLine < line && zeroBasedEndLine == line && zeroBasedEndCol > col)
                 || (zeroBasedStartLine == line && zeroBasedStartCol < col && zeroBasedEndLine > line)
                 || (zeroBasedStartLine == zeroBasedEndLine && zeroBasedStartLine == line
-                && zeroBasedStartCol <= col && zeroBasedEndCol >= col);
+                && zeroBasedStartCol <= col && zeroBasedEndCol > col);
     }
 }

@@ -41,13 +41,6 @@ public class XMLNSDeclarationStatementsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"xmlns_declaration_statement_1.bal", this.getTestResourceDir()}
-        };
-    }
-
-    @Override
     public String getTestResourceDir() {
         return Paths.get("statements", "xmlns-declaration").toString();
     }

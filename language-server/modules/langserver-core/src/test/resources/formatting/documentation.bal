@@ -29,7 +29,7 @@ public type DummyRecord record {
    #
     # + fieldOne - This is the description for the `DummyObject`'s field `fieldOne`.
    # + fieldTwo - This is the description for the `DummyObject`'s field `fieldTwo`.
-public type DummyObject abstract object {
+public type DummyObject object {
 
     public string fieldOne;
     public string fieldTwo;
