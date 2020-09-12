@@ -1,4 +1,4 @@
-type Foo client object {
+client class Foo {
 
     isolated remote function foo1(string b) {
     }
@@ -23,4 +23,4 @@ type Foo client object {
 
     isolated function foo8() {
     }
-};
+}

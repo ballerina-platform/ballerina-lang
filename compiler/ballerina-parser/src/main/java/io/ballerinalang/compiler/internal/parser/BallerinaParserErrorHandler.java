@@ -3026,6 +3026,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case COMP_UNIT:
                         return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
                     case OBJECT_MEMBER:
+                    case CLASS_MEMBER:
+                    case OBJECT_MEMBER_DESCRIPTOR:
                         return ParserRuleContext.OBJECT_METHOD_WITHOUT_ISOLATED;
                     case SERVICE_CONSTRUCTOR_EXPRESSION:
                     case SERVICE_DECL:
