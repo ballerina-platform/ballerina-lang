@@ -141,7 +141,7 @@ public class LangLibValueTest {
                 "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
                 "</CATALOG>");
         Assert.assertEquals(array.getString(i++), "[\"str\",23,23.4,true]");
-        Assert.assertEquals(array.getString(i++), "error FirstError (\"Reason1\", message=\"Test passing error " +
+        Assert.assertEquals(array.getString(i++), "error FirstError (\"Reason1\",message=\"Test passing error " +
                 "union to a function\")");
         Assert.assertEquals(array.getString(i++), "object Student");
         Assert.assertEquals(array.getString(i++), "Rola from MMV");
@@ -163,7 +163,7 @@ public class LangLibValueTest {
                                     "<ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
                                     "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`," +
                                     "\"varArr\":[\"str\",23,23.4,true]," +
-                                    "\"varErr\":error FirstError (\"Reason1\", " +
+                                    "\"varErr\":error FirstError (\"Reason1\"," +
                                     "message=\"Test passing error union to a function\")," +
                                     "\"varObj\":object Student," +
                                     "\"varObj2\":Rola from MMV," +
