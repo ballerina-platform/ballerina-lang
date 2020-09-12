@@ -412,7 +412,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public String stringValue(BLink parent) {
-        StringJoiner sj = new StringJoiner(", ");
+        StringJoiner sj = new StringJoiner(",");
         for (Map.Entry<K, V> kvEntry : this.entrySet()) {
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
