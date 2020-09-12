@@ -1,4 +1,4 @@
-type Foo client object {
+client class Foo {
     isolated function () {
 
     }
@@ -6,4 +6,4 @@ type Foo client object {
     public remote isolated transactional function (int i) returns string {
 
     }
-};
+}
