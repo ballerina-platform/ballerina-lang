@@ -58,7 +58,7 @@ public class TableWithXMLKeySpecifierTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
-                    "find key '<id>245</id> \\{\"fname\":\"Sanjiva\", \"lname\":\"Weerawarana\"}'.*")
+                    "find key '<id>245</id> \\{\"fname\":\"Sanjiva\",\"lname\":\"Weerawarana\"}'.*")
     public void testMemberAccessWithInvalidMultiKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidXMLMultiKey");
         Assert.fail();

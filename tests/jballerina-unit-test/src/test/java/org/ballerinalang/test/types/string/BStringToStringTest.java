@@ -44,12 +44,12 @@ public class BStringToStringTest extends BStringTestCommons {
 
     @Test
     public void testMapToString() {
-        testAndAssert("testMapToString", 84);
+        testAndAssert("testMapToString", 81);
     }
 
     @Test
     public void testMapToStringWithSymbol() {
-        testAndAssert("testMapToStringWithSymbol", 87);
+        testAndAssert("testMapToStringWithSymbol", 84);
     }
 
     @Test
