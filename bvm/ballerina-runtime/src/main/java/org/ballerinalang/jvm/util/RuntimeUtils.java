@@ -116,17 +116,31 @@ public class RuntimeUtils {
         int index = 0;
         while (index < typeName.length()) {
             if (typeName.charAt(index) == '$' && index + 4 < typeName.length()) {
-                String unicodePoint = typeName.substring(index + 1, index + 5);
-                if (containsOnlyDigits(unicodePoint)) {
-                    sb.append((char) Integer.parseInt(unicodePoint));
+                if (isDollarHashPattern(typeName, index)) {
+                    sb.append("$").append(typeName, index + 2, index + 6);
+                    index += 6;
+                } else if (isUnicodePoint(typeName, index)) {
+                    sb.append((char) Integer.parseInt(typeName.substring(index + 1, index + 5)));
                     index += 5;
-                    continue;
+                } else {
+                    sb.append(typeName.charAt(index));
+                    index++;
                 }
+            } else {
+                sb.append(typeName.charAt(index));
+                index++;
             }
-            sb.append(typeName.charAt(index));
-            index++;
         }
-        return sb.toString().replaceAll("(\\$#)(\\d{4})", "\\$$2");
+        return sb.toString();
+    }
+
+    private static boolean isUnicodePoint(String encodedName, int index) {
+        return (containsOnlyDigits(encodedName.substring(index + 1, index + 5)));
+    }
+
+    private static boolean isDollarHashPattern(String encodedName, int index) {
+        return encodedName.charAt(index + 1) == '#' && index + 5 < encodedName.length() &&
+                containsOnlyDigits(encodedName.substring(index + 2, index + 6));
     }
 
     private static boolean containsOnlyDigits(String digitString) {

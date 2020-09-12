@@ -261,4 +261,9 @@ public class IdentifierLiteralTest {
         BRunUtil.invoke(result, "testToStringStructFieldsWithIL");
     }
 
+    @Test(description = "Test IL with immutable type")
+    public void testImmutableTypeIL() {
+        BRunUtil.invoke(result, "testImmutableTypeIL");
+    }
+
 }

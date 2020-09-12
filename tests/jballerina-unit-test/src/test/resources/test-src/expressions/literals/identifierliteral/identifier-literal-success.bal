@@ -256,6 +256,36 @@ function testToStringStructFieldsWithIL() {
     assertEquality("object  /:@[`{~⌤_ƮέŞŢ_Connector", testConnector.toString());
 }
 
+public type 'Department_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ record {
+    string name = "IT";
+};
+
+public readonly class 'Employee_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ {
+    public 'Department_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ dept;
+    public int id;
+
+    public function init('Department_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ & readonly dept, int id) {
+        self.dept = dept;
+        self.id = id;
+    }
+}
+
+function testImmutableTypeIL() {
+    'Employee_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ emp = new({}, 1234);
+    object {
+        public 'Department_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ dept;
+        public int id;
+    } obj = emp;
+
+    assertTrue(<any> obj.dept is readonly);
+    assertTrue(obj.dept is 'Department_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ & readonly);
+    assertEquality(<'Department_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ> {name: "IT"}, obj.dept);
+    assertEquality(1234, obj.id);
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {

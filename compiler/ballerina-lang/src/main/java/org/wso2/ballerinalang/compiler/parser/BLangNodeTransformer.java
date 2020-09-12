@@ -1582,7 +1582,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private String unescapeUnicodeCodepoints(String identifier) {
-        Matcher matcher = Pattern.compile("\\\\u\\{(\\p{XDigit}{4})\\}").matcher(identifier);
+        Matcher matcher = UNICODE_PATTERN.matcher(identifier);
         StringBuffer buffer = new StringBuffer(identifier.length());
         while (matcher.find()) {
             String ch = String.valueOf((char) Integer.parseInt(matcher.group(1), 16));
