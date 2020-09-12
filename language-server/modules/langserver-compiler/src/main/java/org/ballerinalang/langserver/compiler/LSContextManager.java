@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerI
 import org.ballerinalang.langserver.compiler.workspace.repository.LSPathConverter;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
