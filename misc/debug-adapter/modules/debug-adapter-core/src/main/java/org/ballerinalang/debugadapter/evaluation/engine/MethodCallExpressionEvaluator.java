@@ -42,9 +42,8 @@ public class MethodCallExpressionEvaluator extends Evaluator {
     private final Evaluator objectExpressionEvaluator;
     private final List<Evaluator> argEvaluators;
 
-    public MethodCallExpressionEvaluator(SuspendedContext context, Evaluator expression,
-                                         MethodCallExpressionNode methodCallExpressionNode,
-                                         List<Evaluator> argEvaluators) {
+    public MethodCallExpressionEvaluator(SuspendedContext context, MethodCallExpressionNode methodCallExpressionNode,
+                                         Evaluator expression, List<Evaluator> argEvaluators) {
         super(context);
         this.syntaxNode = methodCallExpressionNode;
         this.objectExpressionEvaluator = expression;

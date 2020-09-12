@@ -80,6 +80,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -1948,11 +1949,11 @@ public class JvmMethodGen {
         nextVarId = -1;
 
         BIRVariableDcl retVar = new BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
-                VarScope.FUNCTION, VarKind.RETURN, "");
+                                                   VarScope.FUNCTION, VarKind.RETURN, "");
         BIROperand retVarRef = new BIROperand(retVar);
 
-        BIRFunction modInitFunc = new BIRFunction(null, new Name(funcName), 0,
-                new BInvokableType(Collections.emptyList(), null, errorOrNilType, null), null, 0, null);
+        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
+        BIRFunction modInitFunc = new BIRFunction(null, new Name(funcName), 0, funcType, null, 0, null, VIRTUAL);
         modInitFunc.localVars.add(retVar);
         addAndGetNextBasicBlock(modInitFunc);
 

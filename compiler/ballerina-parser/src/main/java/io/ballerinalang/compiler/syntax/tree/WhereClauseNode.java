@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class WhereClauseNode extends ClauseNode {
+public class WhereClauseNode extends IntermediateClauseNode {
 
     public WhereClauseNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

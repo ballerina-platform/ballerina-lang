@@ -161,9 +161,9 @@ type Foo record {
     function (int) returns int lambda = (i) => i * k;
 };
 
-type Bar object {
+class Bar {
     function (int) returns int lambda = (i) => i * k;
-};
+}
 
 function testArrowExprInRecord() returns int {
     Foo f = {};

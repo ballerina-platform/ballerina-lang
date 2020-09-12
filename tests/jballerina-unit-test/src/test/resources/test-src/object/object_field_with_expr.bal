@@ -5,13 +5,13 @@ function testFieldWithExpr() returns [int, string] {
 }
 
 
-type Person object {
+class Person {
     public int age = 90;
     public Employee ep = new(88, "sanjiva");
-};
+}
 
 
-type Employee object {
+class Employee {
     public int pp = 0;
     public string name = "";
 
@@ -19,4 +19,4 @@ type Employee object {
         self.pp = pp;
         self.name = name;
     }
-};
+}

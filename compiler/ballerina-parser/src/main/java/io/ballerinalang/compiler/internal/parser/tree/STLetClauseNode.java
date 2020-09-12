@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STLetClauseNode extends STClauseNode {
+public class STLetClauseNode extends STIntermediateClauseNode {
     public final STNode letKeyword;
     public final STNode letVarDeclarations;
 

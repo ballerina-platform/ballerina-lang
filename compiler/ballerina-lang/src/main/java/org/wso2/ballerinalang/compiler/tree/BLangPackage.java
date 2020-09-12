@@ -23,6 +23,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -68,6 +69,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangTestablePackage> testablePkgs;
     // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
     public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
+    public List<BLangClassDefinition> classDefinitions;
 
     public PackageID packageID;
     public BPackageSymbol symbol;
@@ -89,6 +91,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.functions = new ArrayList<>();
         this.typeDefinitions = new ArrayList<>();
         this.annotations = new ArrayList<>();
+        this.classDefinitions = new ArrayList<>();
 
         this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
@@ -189,6 +192,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
+    public List<? extends ClassDefinition> getClassDefinitions() {
+        return this.classDefinitions;
+    }
+
+    @Override
     public void addTypeDefinition(TypeDefinition typeDefinition) {
         this.typeDefinitions.add((BLangTypeDefinition) typeDefinition);
         this.topLevelNodes.add(typeDefinition);
@@ -248,6 +256,16 @@ public class BLangPackage extends BLangNode implements PackageNode {
         return this.testablePkgs.size() > 0;
     }
 
+    public void addClassDefinition(BLangClassDefinition classDefNode) {
+        this.topLevelNodes.add(classDefNode);
+        this.classDefinitions.add(classDefNode);
+    }
+
+    /**
+     * Add a diagnostic to this package.
+     * 
+     * @param diagnostic Diagnostic to be added
+     */
     public void addDiagnostic(BallerinaDiagnostic diagnostic) {
         this.diagnostics.add(diagnostic);
         if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
@@ -255,10 +273,20 @@ public class BLangPackage extends BLangNode implements PackageNode {
         }
     }
 
+    /**
+     * Get all the diagnostics of this package.
+     * 
+     * @return List of diagnostics in this package
+     */
     public List<Diagnostic> getDiagnostics() {
         return this.diagnostics;
     }
 
+    /**
+     * Check whether this package has any errors.
+     * 
+     * @return <code>true</code> if this package has any errors. <code>false</code> otherwise
+     */
     public boolean hasErrors() {
         return this.errorCount > 0;
     }

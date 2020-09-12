@@ -7,7 +7,7 @@ public function passValueForDefaultableObjectField () returns [int, string] {
     return [resValue, stringResVal];
 }
 
-type Person object {
+class Person {
     public int age;
     public string name;
 
@@ -17,5 +17,5 @@ type Person object {
         resValue = age;
         stringResVal = name;
     }
-};
+}
 

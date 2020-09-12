@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type ObjectWithInvalidFillingReadOnUninitializedField object {
+class ObjectWithInvalidFillingReadOnUninitializedField {
 
     map<int[]> s;
 
     function init() {
         self.s["one"][0] = 1;
     }
-};
+}
 

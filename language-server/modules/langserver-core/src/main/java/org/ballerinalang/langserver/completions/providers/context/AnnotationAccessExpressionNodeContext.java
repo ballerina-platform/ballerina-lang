@@ -103,7 +103,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
 
         }
 
-        List<LSCompletionItem> completionItems = this.getPackagesCompletionItems(context);
+        List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
         List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         visibleSymbols.stream()
                 .filter(scopeEntry -> {

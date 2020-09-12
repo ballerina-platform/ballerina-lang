@@ -18,7 +18,7 @@
 #
 # + authzHandler - `AuthzHandler` instance for handling authorization
 # + scopes - An array of scopes or an array consisting of arrays of scopes
-public type AuthzFilter object {
+public class AuthzFilter {
 
     *RequestFilter;
 
@@ -65,7 +65,7 @@ public type AuthzFilter object {
         send403(caller, context);
         return false;
     }
-};
+}
 
 function send403(Caller caller, FilterContext context) {
     if (isWebSocketUpgradeRequest(context)) {
