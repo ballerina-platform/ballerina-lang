@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Qux abstract object {
+type Qux object {
     isolated function qux() returns int;
 };
 
@@ -22,14 +22,18 @@ function testNonIsolatedMethodAsIsolatedMethodNegative() {
     object {
         int i;
 
-        function init(int i) {
-            self.i = i;
+        function qux() returns int;
+    } obj = object {
+        int i;
+
+        function init() {
+            self.i = 123;
         }
 
         function qux() returns int {
             return self.i;
         }
-    } obj = new (123);
+    };
     Qux q = obj;
 }
 

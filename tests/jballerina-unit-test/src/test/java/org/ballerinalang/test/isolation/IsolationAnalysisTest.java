@@ -71,7 +71,7 @@ public class IsolationAnalysisTest {
 
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'Qux', found 'object { int i; function qux () " +
-                "returns (int); }'", 33, 13);
+                "returns (int); }'", 37, 13);
 //        validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
 //                "'function () returns (int)'", 38, 40);
         Assert.assertEquals(result.getErrorCount(), i);

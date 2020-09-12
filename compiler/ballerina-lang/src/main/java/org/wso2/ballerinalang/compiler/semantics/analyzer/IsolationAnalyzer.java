@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -226,6 +227,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         for (BLangTypeDefinition typeDefinition : pkgNode.typeDefinitions) {
             analyzeNode(typeDefinition.typeNode, env);
+        }
+
+        for (BLangClassDefinition classDefinition : pkgNode.classDefinitions) {
+            analyzeNode(classDefinition, env);
         }
 
         for (BLangFunction function : pkgNode.functions) {
@@ -1042,6 +1047,28 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         for (BLangFunction function : objectTypeNode.functions) {
             analyzeNode(function, objectEnv);
+        }
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
+
+        for (BLangSimpleVariable bLangSimpleVariable : classDefinition.fields) {
+            analyzeNode(bLangSimpleVariable, classEnv);
+        }
+
+        for (BLangSimpleVariable field : classDefinition.referencedFields) {
+            analyzeNode(field, classEnv);
+        }
+
+        BLangFunction initFunction = classDefinition.initFunction;
+        if (initFunction != null) {
+            analyzeNode(initFunction, classEnv);
+        }
+
+        for (BLangFunction function : classDefinition.functions) {
+            analyzeNode(function, classEnv);
         }
     }
 
