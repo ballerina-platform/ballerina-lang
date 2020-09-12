@@ -183,7 +183,7 @@ public class Util {
         XMLValue xmlNode = XMLFactory.parse("<name>Ballerina</name>");
         ObjectValue bodyPart = createEntityObject();
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
-                xmlNode.stringValue().getBytes(StandardCharsets.UTF_8)));
+                xmlNode.stringValue(null).getBytes(StandardCharsets.UTF_8)));
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(byteChannel));
         MimeUtil.setContentType(createMediaTypeObject(), bodyPart, APPLICATION_XML);
         return bodyPart;
@@ -337,7 +337,7 @@ public class Util {
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
         XMLValue xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);
         Assert.assertNotNull(xmlData);
-        Assert.assertEquals(xmlData.stringValue(), "<name>Ballerina xml file part</name>");
+        Assert.assertEquals(xmlData.stringValue(null), "<name>Ballerina xml file part</name>");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(2));
         BString textData = EntityBodyHandler.constructStringDataSource(bodyPart);

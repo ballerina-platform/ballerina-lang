@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -154,6 +155,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
@@ -178,7 +180,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private int blockClosureMapCount = 1;
 
     static {
-        CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null);
+        CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null, VIRTUAL);
     }
 
     public static ClosureDesugar getInstance(CompilerContext context) {
@@ -512,6 +514,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
             typeDef.typeNode = rewrite(typeDef.typeNode, env);
         }
         result = typeDef;
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        result = classDefinition;
     }
 
     @Override
@@ -1109,7 +1116,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
      */
     private BVarSymbol createMapSymbol(String mapName, SymbolEnv symbolEnv) {
         return new BVarSymbol(0, names.fromString(mapName), symbolEnv.scope.owner.pkgID,
-                              symTable.mapAllType, symbolEnv.scope.owner, symTable.builtinPos);
+                              symTable.mapAllType, symbolEnv.scope.owner, symTable.builtinPos, VIRTUAL);
     }
 
     /**

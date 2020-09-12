@@ -90,7 +90,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 (2) function(T<cursor>)
                  */
                 completionItems.addAll(this.getTypeItems(context));
-                completionItems.addAll(this.getPackagesCompletionItems(context));
+                completionItems.addAll(this.getModuleCompletionItems(context));
             }
         }
         return completionItems;

@@ -59,7 +59,7 @@ public class LocalTypeDefinitionStatement extends AbstractStatementTest {
     }
 
     @Test
-    public void testObjectFieldWithMissingEqual() {
+    public void testObjectFieldWithInitializer() {
         testFile("local-type-defn-stmt/local_type_defn_stmt_source_06.bal",
         "local-type-defn-stmt/local_type_defn_stmt_assert_06.json");
     }

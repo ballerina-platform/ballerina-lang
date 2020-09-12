@@ -14,17 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo object {
+class Foo {
     *map<string>;
     *Bar;
     *int;
-};
+}
 
-type Bar abstract object {
+type Bar object {
     int x;
     string y;
 };
 
-type XXX object {
+class XXX {
     *YYY;   // non existing type
-};
+}

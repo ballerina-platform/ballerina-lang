@@ -6,19 +6,19 @@ public function interopWithArrayAndMap() returns byte[] | error {
 }
 
 public function getArrayValueFromMap(string key, map<int> mapValue) returns byte[] = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public type Employee record {
     string name = "";
 };
 
-public type Person object {
+public class Person {
     int age = 9;
     public function init(int age) {
         self.age = age;
     }
-};
+}
 
 public function interopWithRefTypesAndMapReturn() returns map<any> {
     Person a = new Person(44);
@@ -32,7 +32,7 @@ public function interopWithRefTypesAndMapReturn() returns map<any> {
 }
 
 public function acceptRefTypesAndReturnMap(Person a, [int, string, Person] b, int|string|Employee c, error d, any e, anydata f, Employee g) returns map<any> = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/PublicStaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/PublicStaticMethods"
 } external;
 
 public function interopWithErrorReturn() returns string {
@@ -41,7 +41,7 @@ public function interopWithErrorReturn() returns string {
 }
 
 public function acceptStringOrErrorReturn(string s) returns error = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function interopWithUnionReturn() returns boolean | error {
@@ -65,7 +65,7 @@ public function interopWithUnionReturn() returns boolean | error {
 }
 
 public function acceptIntUnionReturn(int s) returns int|string|float|boolean|handle = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function interopWithObjectReturn() returns boolean {
@@ -81,7 +81,7 @@ public function interopWithObjectReturn() returns boolean {
 }
 
 public function acceptObjectAndObjectReturn(Person p, int newVal, float f) returns Person = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function interopWithRecordReturn() returns boolean {
@@ -98,7 +98,7 @@ public function interopWithRecordReturn() returns boolean {
 }
 
 public function acceptRecordAndRecordReturn(Employee e, int a,  string newVal) returns Employee = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function interopWithAnyReturn() returns boolean {
@@ -122,7 +122,7 @@ public function interopWithAnyReturn() returns boolean {
 }
 
 public function acceptIntAnyReturn(int s) returns any = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name:"acceptIntAndUnionReturn"
 } external;
 
@@ -147,31 +147,31 @@ public function interopWithAnydataReturn() returns boolean {
 }
 
 public function acceptIntAnydataReturn(int s) returns anydata= @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name:"acceptIntStringAndUnionReturn"
 } external;
 
 public function acceptIntReturnIntThrowsCheckedException(int a) returns int = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function acceptRecordAndRecordReturnWhichThrowsCheckedException(Employee e, string newVal) returns Employee = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function acceptIntUnionReturnWhichThrowsCheckedException(int s) returns int|string|float|boolean = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function acceptRefTypesAndReturnMapWhichThrowsCheckedException(Person a, [int, string, Person] b,
                     int|string|Employee c, error d, any e, anydata f, Employee g) returns map<any> = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function acceptStringErrorReturnWhichThrowsCheckedException(string s) = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function getArrayValueFromMapWhichThrowsCheckedException(string key, map<int> mapValue) returns int[] = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;

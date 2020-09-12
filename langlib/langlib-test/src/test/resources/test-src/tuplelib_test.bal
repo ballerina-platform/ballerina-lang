@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.array;
 
 function testEnumerate() returns [int, (int|string|float)][] {
     [int, string, int, float] person = [1, "John Doe", 25, 5.9];
@@ -71,8 +72,8 @@ function testRemove() {
 
 function testSort(){
     [int, int, int, int, int, int] arr = [98, 34, 44, 87, 13, 2];
-    int[] sorted = arr.sort(function (int x, int y) returns int {
-        return x - y;
+    int[] sorted = arr.sort(array:ASCENDING, function(int x) returns int {
+        return x;
     });
 }
 

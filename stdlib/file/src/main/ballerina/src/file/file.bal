@@ -23,7 +23,7 @@ import ballerina/java;
 # 
 # + return - Current working directory or else an empty string if the current working directory cannot be determined
 public function getCurrentDirectory() returns string = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    'class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "getCurrentDirectory"
 } external;
 
@@ -35,7 +35,7 @@ public function getCurrentDirectory() returns string = @java:Method {
 # + path - String value of the file path
 # + return - True if the path is absolute or else false
 public function exists(@untainted string path) returns boolean = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    'class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "exists"
 } external;
 
@@ -49,7 +49,7 @@ public function exists(@untainted string path) returns boolean = @java:Method {
 # + parentDirs - Indicates whether the `createDir` should create non-existing parent directories
 # + return - Absolute path value of the created directory or else an `file:Error` if failed
 public function createDir(@untainted string dir, boolean parentDirs = false) returns string|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    'class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "createDir"
 } external;
 
@@ -63,7 +63,7 @@ public function createDir(@untainted string dir, boolean parentDirs = false) ret
 # + recursive - Indicates whether the `remove` should recursively remove all the files inside the given directory
 # + return - An `file:Error` if failed to remove
 public function remove(@untainted string path, boolean recursive = false) returns Error? = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    'class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "remove"
 } external;
 
@@ -77,7 +77,7 @@ public function remove(@untainted string path, boolean recursive = false) return
 # + newPath - String value of the new file path
 # + return - An `file:Error` if failed to rename
 public function rename(@untainted string oldPath, @untainted string newPath) returns Error? = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    'class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "rename"
 } external;
 
@@ -88,7 +88,7 @@ public function rename(@untainted string oldPath, @untainted string newPath) ret
 #
 # + return - Temporary directory location
 public function tempDir() returns string = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    'class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "tempDir"
 } external;
 
@@ -101,7 +101,7 @@ public function tempDir() returns string = @java:Method {
 # + path - String value of the file path
 # + return - Absolute path value of the created file or else an `file:Error` if failed
 public function createFile(@untainted string path) returns string|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    'class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "createFile"
 } external;
 
@@ -113,7 +113,7 @@ public function createFile(@untainted string path) returns string|Error = @java:
 # + path - String value of the file path.
 # + return - The `FileInfo` instance with the file metadata or else an `file:Error`
 public function getFileInfo(@untainted string path) returns FileInfo|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    'class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "getFileInfo"
 } external;
 
@@ -127,7 +127,7 @@ public function getFileInfo(@untainted string path) returns FileInfo|Error = @ja
 # + maxDepth - The maximum number of directory levels to visit. -1 to indicate that all levels should be visited
 # + return - The `FileInfo` array or else an `file:Error` if there is an error while changing the mode.
 public function readDir(@untainted string path, int maxDepth = -1) returns FileInfo[]|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    'class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "readDir"
 } external;
 
@@ -143,6 +143,6 @@ public function readDir(@untainted string path, int maxDepth = -1) returns FileI
 # + return - An `file:Error` if failed to rename
 public function copy(@untainted string sourcePath, @untainted string destinationPath,
                      boolean replaceExisting = false) returns Error? = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    'class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "copy"
 } external;

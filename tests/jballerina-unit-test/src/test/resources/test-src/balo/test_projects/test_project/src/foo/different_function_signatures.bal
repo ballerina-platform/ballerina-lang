@@ -88,7 +88,7 @@ public function sigma() returns never {
 
 // ------------------- Test function signature for attached functions ------------------
 
-public type Employee object {
+public class Employee {
 
     public string name;
     public int salary;
@@ -101,10 +101,10 @@ public type Employee object {
     public function getSalary (string n, int b = 0) returns int {
         return self.salary + b;
     }
-};
+}
 
 
-public type Person object {
+public class Person {
     public int age = 0;
 
     public function test1(int a = 77, string n = "hello") returns [int, string] {
@@ -118,18 +118,18 @@ public type Person object {
         int intVal = a + 10;
         return [intVal, val];
     }
-};
+}
 
-public type Foo client object {
+public client class Foo {
     public function bar(int i, boolean... b) returns int {
         return i;
     }
 
     public remote function baz(string s, float f = 2.0, boolean... b) {
     }
-};
+}
 
-public type FooTwo client object {
+public client class FooTwo {
     public function baz(int i, boolean... b) returns [int, boolean[]] {
         return [i, checkpanic b.cloneWithType(BooleanArray)];
     }
@@ -137,4 +137,4 @@ public type FooTwo client object {
     public remote function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
         return [i, s, checkpanic t.cloneWithType(StringArray)];
     }
-};
+}

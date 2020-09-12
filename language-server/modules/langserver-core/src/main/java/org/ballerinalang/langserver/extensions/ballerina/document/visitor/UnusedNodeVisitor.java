@@ -270,7 +270,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        serviceNode.getTypeDefinition().accept(this);
+        serviceNode.getServiceClass().accept(this);
         serviceNode.getResources().forEach(resource -> resource.accept(this));
         serviceNode.getAttachedExprs().forEach(expr -> expr.accept(this));
     }

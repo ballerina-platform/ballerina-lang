@@ -1,6 +1,6 @@
 import ballerina/http;
 
-type testObject abstract object {
+type testObject object {
     int testField = 12;
     int testPrivate = 12;
     public string testString = "hello";

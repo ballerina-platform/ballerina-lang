@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 # Represent the iterator type returned when `iterator` method is invoked.
-type TableIterator object {
+class TableIterator {
 
     private table<Type> t;
     private KeyType[] keys;
@@ -35,4 +35,4 @@ type TableIterator object {
     public function next() returns record {|
         Type value;
     |}? = external;
-};
+}

@@ -32,17 +32,17 @@ type ExtendedEmployee record {
     Address address;
 };
 
-type Address object {
+class Address {
     public int no = 10;
     public string streetName = "Palm Grove";
     public string city = "colombo";
-};
+}
 
-type EmployeeObject object {
+class EmployeeObject {
     string name = "Mohan";
     string status = "Single";
     string batch = "LK2014";
-};
+}
 
 function seaWithInvalidNoOrParameters() returns json {
 

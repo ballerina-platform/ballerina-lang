@@ -17,11 +17,13 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
@@ -400,7 +402,7 @@ public final class XMLSequence extends XMLValue {
     @Override
     public String toString() {
         try {
-            return stringValue();
+            return stringValue(null);
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
@@ -409,13 +411,14 @@ public final class XMLSequence extends XMLValue {
 
     /**
      * {@inheritDoc}
+     * @param parent The link to the parent node
      */
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         try {
             StringBuilder sb = new StringBuilder();
             for (BXML child : children) {
-                sb.append(child.stringValue());
+                sb.append(child.stringValue(new CycleUtils.Node(this, parent)));
             }
             return sb.toString();
         } catch (Throwable t) {
@@ -424,6 +427,10 @@ public final class XMLSequence extends XMLValue {
         return BLangConstants.STRING_NULL_VALUE;
     }
 
+    @Override
+    public String informalStringValue(BLink parent) {
+        return "`" + stringValue(parent) + "`";
+    }
 
     /**
      * {@inheritDoc}

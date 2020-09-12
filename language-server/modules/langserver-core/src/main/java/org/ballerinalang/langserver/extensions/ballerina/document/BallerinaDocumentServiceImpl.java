@@ -47,6 +47,7 @@ import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.cmd.Filter;
 import org.ballerinalang.openapi.model.GenSrcFile;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
@@ -147,8 +148,13 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             //Generate compilation unit for provided Open Api Sep JSON
             File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
             CodeGenerator generator = new CodeGenerator();
+
+            List<String> tag = new ArrayList<>();
+            List<String> operation = new ArrayList<>();
+            Filter filter = new Filter(tag, operation);
+
             List<GenSrcFile> oasSources = generator.generateBalSource(GeneratorConstants.GenType.GEN_SERVICE,
-                    tempOasJsonFile.getPath(), "", null);
+                    tempOasJsonFile.getPath(), "", null, filter);
 
             Optional<GenSrcFile> oasServiceFile = oasSources.stream()
                     .filter(genSrcFile -> genSrcFile.getType().equals(GenSrcFile.GenFileType.GEN_SRC)).findAny();
