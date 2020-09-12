@@ -89,13 +89,13 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getCauseToString(BLink parent) {
         if (cause != null) {
-            return ", " + cause.informalStringValue(parent);
+            return "," + cause.informalStringValue(parent);
         }
         return "";
     }
 
     private String getDetailsToString(BLink parent) {
-        StringJoiner sj = new StringJoiner(", ");
+        StringJoiner sj = new StringJoiner(",");
         for (Object key : ((MapValue) details).getKeys()) {
             Object value = ((MapValue) details).get(key);
             if (value == null) {
@@ -119,7 +119,7 @@ public class ErrorValue extends BError implements RefValue {
                 }
             }
         }
-        return ", " + sj.toString();
+        return "," + sj.toString();
     }
 
     private String getModuleName() {
