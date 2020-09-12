@@ -250,7 +250,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     public void addDiagnostic(BallerinaDiagnostic diagnostic) {
         this.diagnostics.add(diagnostic);
-        if (diagnostic.severity() == DiagnosticSeverity.ERROR) {
+        if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
             this.errorCount++;
         }
     }

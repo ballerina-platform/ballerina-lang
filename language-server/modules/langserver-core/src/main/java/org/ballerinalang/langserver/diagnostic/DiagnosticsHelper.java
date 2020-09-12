@@ -31,7 +31,6 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
@@ -127,17 +126,14 @@ public class DiagnosticsHelper {
 
             Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
             Diagnostic diagnostic = new Diagnostic(range, diag.message());
-            
-            if (!(diag instanceof BallerinaDiagnostic)) {
-                return;
-            }
-            if (((BallerinaDiagnostic) diag).severity() == io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR) {
+
+            io.ballerina.tools.diagnostics.DiagnosticSeverity severity = diag.diagnosticInfo().severity();
+            if (severity == io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR) {
                 // set diagnostic log kind
                 diagnostic.setSeverity(DiagnosticSeverity.Error);
-            } else if (((BallerinaDiagnostic) diag).severity()
-                    == io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING) {
+            } else if (severity == io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING) {
                 diagnostic.setSeverity(DiagnosticSeverity.Warning);
-            } 
+            }
 
             List<Diagnostic> clientDiagnostics = diagnosticsMap.get(fileURI);
             clientDiagnostics.add(diagnostic);

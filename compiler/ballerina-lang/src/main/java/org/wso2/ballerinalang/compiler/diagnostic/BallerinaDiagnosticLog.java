@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.diagnostic;
 
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -42,9 +42,9 @@ import java.util.ResourceBundle;
 public class BallerinaDiagnosticLog implements DiagnosticLog {
 
     private static final CompilerContext.Key<BallerinaDiagnosticLog> DIAGNOSTIC_LOG_KEY = new CompilerContext.Key<>();
-    private static final String ERROR_PREFIX = "error.";
-    private static final String WARNING_PREFIX = "warning.";
-    private static final String NOTE_PREFIX = "note.";
+    private static final String ERROR_PREFIX = "error";
+    private static final String WARNING_PREFIX = "warning";
+    private static final String NOTE_PREFIX = "note";
     private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("compiler", Locale.getDefault());
 
     private int errorCount = 0;
@@ -133,17 +133,6 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
         this.isMute = false;
     }
 
-    /**
-     * Logs a message of the specified {@link DiagnosticSeverity} at the {@link Diagnostic.DiagnosticPosition}.
-     *
-     * @param severity the severity of the diagnostic
-     * @param pos the position of the source code element.
-     * @param message the message
-     */
-    public void logDiagnostic(DiagnosticSeverity severity, Diagnostic.DiagnosticPosition pos, CharSequence message) {
-        this.reportDiagnostic((DiagnosticPos) pos, message.toString(), severity);
-    }
-
     @Override
     public void logDiagnostic(Kind kind, DiagnosticPosition pos, CharSequence message) {
         DiagnosticSeverity severity;
@@ -166,7 +155,7 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
     // private helper methods
 
     private String formatMessage(String prefix, DiagnosticCode code, Object[] args) {
-        String msgKey = MESSAGES.getString(prefix + code.getValue());
+        String msgKey = MESSAGES.getString(prefix + "." + code.getValue());
         return MessageFormat.format(msgKey, args);
     }
 
@@ -179,10 +168,12 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
             return;
         }
 
+        // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
+        DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
+
         BallerinaDiagnosticLocation diagnosticLocation =
                 new BallerinaDiagnosticLocation(pos.getSource().cUnitName, pos.sLine, pos.eLine, pos.sCol, pos.eCol);
-        BallerinaDiagnostic diagnostic = new BallerinaDiagnostic(diagnosticLocation, msg, severity);
-
+        BallerinaDiagnostic diagnostic = new BallerinaDiagnostic(diagnosticLocation, msg, diagInfo);
         storeDiagnosticInPackage(pos.src.pkgID, diagnostic);
 
         switch (severity) {
