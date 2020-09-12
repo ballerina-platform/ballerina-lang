@@ -252,18 +252,6 @@
         </classes>
     </test>
 
-    <test name="ballerina-identifier-tests" preserve-order="true" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true" />
-        <groups>
-            <run>
-                <exclude name="brokenOnJBallerina"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="org.ballerinalang.test.identifier.IdentifierLiteralTestCase" />
-        </classes>
-    </test>
-
     <test name="ballerina-launch-listener-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
