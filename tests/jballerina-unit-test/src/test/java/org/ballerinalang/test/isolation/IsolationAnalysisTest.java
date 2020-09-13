@@ -26,6 +26,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.util.BAssertUtil.validateNote;
 
 /**
  * Test cases related to isolation analysis.
@@ -38,6 +39,11 @@ public class IsolationAnalysisTest {
             "invalid access of mutable storage in an 'isolated' function";
     private static final String INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR =
             "invalid invocation of a non-isolated function in an 'isolated' function";
+
+    private static final String INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT =
+            "invalid access of mutable storage as the default value of a record field";
+    private static final String INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT =
+            "invalid invocation of a non-isolated function as the default value of a record field";
 
     private CompileResult result;
 
@@ -60,7 +66,9 @@ public class IsolationAnalysisTest {
                 "testIsolatedObjectMethods",
                 "testNonIsolatedMethodAsIsolatedMethodRuntimeNegative",
 //                "testIsolatedFunctionAsIsolatedFunctionRuntime",
-//                "testIsolatedFunctionAsIsolatedFunctionRuntimeNegative"
+//                "testIsolatedFunctionAsIsolatedFunctionRuntimeNegative",
+                "testConstantRefsInIsolatedFunctions",
+                "testIsolatedClosuresAsRecordDefaultValues"
         };
     }
 
@@ -128,5 +136,20 @@ public class IsolationAnalysisTest {
 //        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 174, 33);
 //        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 175, 20);
         Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test
+    public void testNonIsolatedRecordFieldDefaultsNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/isolation-analysis/isolated_record_field_default_negative.bal");
+        int i = 0;
+        validateNote(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 22, 13);
+        validateNote(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 23, 13);
+        validateNote(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 30, 17);
+        validateNote(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 31, 20);
+        validateNote(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 32, 20);
+        validateNote(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 32, 24);
+        Assert.assertEquals(result.getNoteCount(), i);
+
     }
 }

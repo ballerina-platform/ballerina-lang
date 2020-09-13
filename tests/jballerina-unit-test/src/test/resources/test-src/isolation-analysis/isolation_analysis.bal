@@ -179,6 +179,33 @@ function testNonIsolatedMethodAsIsolatedMethodRuntimeNegative() {
 //                        "'isolated function (int, map<int>) returns int'", err.detail()["message"]);
 //}
 
+const FLOAT = 1.23;
+
+const map<float> FLOAT_MAP = {
+    a: 1.0,
+    b: 2.0
+};
+
+isolated function testConstantRefsInIsolatedFunctions() {
+    assertEquality(4.23, FLOAT + <float> FLOAT_MAP["a"] + <float> FLOAT_MAP["b"]);
+}
+
+final int recI = 111222;
+
+isolated function recJ() returns int => 234;
+
+type RecWithDefaults record {|
+    int i = recI;
+    int j = recJ();
+|};
+
+isolated function testIsolatedClosuresAsRecordDefaultValues() {
+    RecWithDefaults r = {};
+
+    assertEquality(111222, r.i);
+    assertEquality(234, r.j);
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

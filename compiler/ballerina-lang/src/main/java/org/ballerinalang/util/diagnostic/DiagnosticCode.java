@@ -571,7 +571,9 @@ public enum DiagnosticCode {
     METHODS_NOT_ALLOWED("methods.not.allowed"),
 
     INVALID_MUTABLE_ACCESS_IN_ISOLATED_FUNCTION("invalid.mutable.access.in.isolated.function"),
+    INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("invalid.mutable.access.as.record.default"),
     INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION("invalid.non.isolated.invocation.in.isolated.function"),
+    INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT("invalid.non.isolated.invocation.as.record.default"),
     INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION("invalid.async.invocation.in.isolated.function"),
     INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION("invalid.worker.declaration.in.isolated.function"),
     FUNCTION_CAN_BE_MARKED_ISOLATED("function.can.be.marked.isolated"),
