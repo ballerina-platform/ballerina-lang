@@ -251,8 +251,8 @@ function testToStringStructFieldsWithIL() {
         'Ȧɢέ: "25"
     };
     '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Connector testConnector = new("MyParam1", "MyParam2", 5);
-    assertEquality("1st_name=Jack Ȧɢέ_ /:@[`{~⌤=50", person.toString());
-    assertEquality(" /:@[`{~⌤_First_name=John Ȧɢέ=25", personMap.toString());
+    assertEquality("{\"1st_name\":\"Jack\",\"Ȧɢέ_ /:@[`{~⌤\":50}", person.toString());
+    assertEquality("{\" /:@[`{~⌤_First_name\":\"John\",\"Ȧɢέ\":\"25\"}", personMap.toString());
     assertEquality("object  /:@[`{~⌤_ƮέŞŢ_Connector", testConnector.toString());
 }
 
