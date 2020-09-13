@@ -1074,14 +1074,27 @@ public class TypeChecker {
                         return sourceArrayType.getElementType().getTag() == targetRestType.getTag();
                     }
                 case CLOSED_SEALED:
-                    if (targetRestType == null && sourceArrayType.getSize() != targetTypes.size()) {
-                        return false;
-                    } else if (targetRestType != null && sourceArrayType.getSize() == targetTypes.size()) {
+                    if (sourceArrayType.getSize() >= targetTypes.size()) {
+                        if (targetTypes.isEmpty()) {
+                            if (targetRestType != null) {
+                                return sourceArrayType.getElementType().getTag() == targetRestType.getTag();
+                            }
+                            return true;
+                        }
+
                         boolean isSameType = true;
 
-                        for (int i = 0; i < sourceArrayType.getSize(); i++) {
+                        for (int i = 0; i < targetTypes.size(); i++) {
                             if (sourceArrayType.getElementType().getTag() != targetTypes.get(i).getTag()) {
                                 isSameType = false;
+                            }
+                        }
+                        if (sourceArrayType.getSize() > targetTypes.size()) {
+                            if (targetRestType != null) {
+                                return (sourceArrayType.getElementType().getTag() == targetRestType.getTag()
+                                        && isSameType);
+                            } else {
+                                return false;
                             }
                         }
                         return isSameType;
@@ -1099,8 +1112,7 @@ public class TypeChecker {
         List<BType> sourceTypes = new ArrayList<>(sourceTupleType.getTupleTypes());
         BType sourceRestType = sourceTupleType.getRestType();
 
-        if ((targetTypes.size() != 0 && (sourceTypes.size() == 0 || sourceTypes.size() != 0))
-                && (sourceRestType != null && targetRestType == null)) {
+        if ((!(targetTypes.isEmpty()) && (sourceRestType != null && targetRestType == null))) {
             return false;
         }
 

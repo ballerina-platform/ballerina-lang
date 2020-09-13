@@ -176,9 +176,18 @@ public function testClosedArrayType(){
       int[2] b=[1,2];
       any y = b;
       assertEquality(y is [int, int], true);
-      assertEquality(y is [int...], false);
+      assertEquality(y is [int...], true);
       assertEquality(y is [int, int, int...], true);
       assertEquality(y is [string, string, int...], false);
+}
+
+public function testInferredArrayType(){
+    int[*] b=[1,2];
+    any y = b;
+    assertEquality(y is [int, int], true);
+    assertEquality(y is [int...], true);
+    assertEquality(y is [int, int, int...], true);
+    assertEquality(y is [string, string, int...], false);
 }
 
 public function testEmptyArrayType() {
