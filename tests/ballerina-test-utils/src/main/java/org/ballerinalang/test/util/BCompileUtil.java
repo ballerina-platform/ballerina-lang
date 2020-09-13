@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.writer.JarFileWriter;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -485,9 +484,7 @@ public class BCompileUtil {
         options.put(OFFLINE, "true");
         context.put(SourceDirectory.class, sourceDirectory);
 
-        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
-        context.put(DiagnosticListener.class, listener);
-        CompileResult comResult = new CompileResult(listener);
+        CompileResult comResult = new CompileResult();
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
@@ -499,18 +496,16 @@ public class BCompileUtil {
     private static CompileResult compile(CompilerContext context, String packageName,
                                          CompilerPhase compilerPhase, boolean withTests) {
 
-        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
-        context.put(DiagnosticListener.class, listener);
-        return compile(context, listener, packageName, compilerPhase, withTests);
+        return compile(context, null, packageName, compilerPhase, withTests);
     }
 
     private static CompileResult compile(CompilerContext context,
-                                         CompileResult.CompileResultDiagnosticListener listener,
+                                         String listener,
                                          String packageName,
                                          CompilerPhase compilerPhase,
                                          boolean withTests) {
 
-        CompileResult comResult = new CompileResult(listener);
+        CompileResult comResult = new CompileResult();
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
@@ -540,9 +535,6 @@ public class BCompileUtil {
         options.put(OFFLINE, "true");
 
         options.put(NEW_PARSER_ENABLED, Boolean.TRUE.toString());
-
-        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
-        context.put(DiagnosticListener.class, listener);
 
         // compile
         Compiler compiler = Compiler.getInstance(context);

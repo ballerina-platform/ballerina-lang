@@ -77,6 +77,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public byte[] jarBinaryContent;
 
     private int errorCount;
+    private int warnCount;
     private List<Diagnostic> diagnostics;
 
     public RepoHierarchy repos;
@@ -263,28 +264,38 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     /**
      * Add a diagnostic to this package.
-     * 
+     *
      * @param diagnostic Diagnostic to be added
      */
     public void addDiagnostic(BallerinaDiagnostic diagnostic) {
         this.diagnostics.add(diagnostic);
         if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
             this.errorCount++;
+        } else if (diagnostic.severity() == DiagnosticSeverity.WARNING) {
+            this.warnCount++;
         }
     }
 
     /**
      * Get all the diagnostics of this package.
-     * 
+     *
      * @return List of diagnostics in this package
      */
     public List<Diagnostic> getDiagnostics() {
         return this.diagnostics;
     }
 
+    public int getErrorCount() {
+        return errorCount;
+    }
+
+    public int getWarnCount() {
+        return warnCount;
+    }
+
     /**
      * Check whether this package has any errors.
-     * 
+     *
      * @return <code>true</code> if this package has any errors. <code>false</code> otherwise
      */
     public boolean hasErrors() {
