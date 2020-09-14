@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Test the formatting of structured type descriptors.
@@ -41,11 +43,8 @@ public class StructuredTypesTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"array_type_3.bal", this.getTestResourceDir()},
-                {"array_type_5.bal", this.getTestResourceDir()}
-        };
+    public List<String> skipList() {
+        return Collections.singletonList("table_type_1.bal");
     }
 
     @Override
