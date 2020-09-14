@@ -76,7 +76,7 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
             }
-            List<LSCompletionItem> completionItems = this.getPackagesCompletionItems(context);
+            List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
             completionItems.addAll(this.getTypeItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
             

@@ -99,10 +99,11 @@ public enum SyntaxKind {
     JOIN_KEYWORD(244, "join"),
     OUTER_KEYWORD(245, "outer"),
     EQUALS_KEYWORD(246, "equals"),
-    ORDER_KEYWORD(247, "order"),
-    BY_KEYWORD(248, "by"),
-    ASCENDING_KEYWORD(249, "ascending"),
-    DESCENDING_KEYWORD(250, "descending"),
+    CLASS_KEYWORD(247, "class"),
+    ORDER_KEYWORD(248, "order"),
+    BY_KEYWORD(249, "by"),
+    ASCENDING_KEYWORD(250, "ascending"),
+    DESCENDING_KEYWORD(251, "descending"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),
@@ -244,6 +245,7 @@ public enum SyntaxKind {
     ANNOTATION_DECLARATION(2007),
     MODULE_XML_NAMESPACE_DECLARATION(2008),
     ENUM_DECLARATION(2009),
+    CLASS_DEFINITION(2010),
 
     // Statements
     BLOCK_STATEMENT(1200),
@@ -316,9 +318,10 @@ public enum SyntaxKind {
     NULL_LITERAL(1342),
     BYTE_ARRAY_LITERAL(1342),
     ASTERISK_LITERAL(1343),
+    OBJECT_CONSTRUCTOR(1344),
 
     // Type descriptors
-//    TYPE_DESC(2000),
+    TYPE_DESC(2000),
     RECORD_TYPE_DESC(2001),
     OBJECT_TYPE_DESC(2002),
     NIL_TYPE_DESC(2003),

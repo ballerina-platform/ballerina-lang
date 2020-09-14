@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 16,
+    "character": 35
+  },
+  "source": "expression_context/source/query_expr_ctx_orderby_clause_source3.bal",
+  "items": [
+    {
+      "label": "ascending",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "ascending",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "descending",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "descending",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

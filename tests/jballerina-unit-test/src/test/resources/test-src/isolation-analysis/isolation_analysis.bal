@@ -50,7 +50,7 @@ isolated function testIsolatedFunctionAccessingImmutableGlobalStorage() {
 
 final int[] & readonly arr = [1, 2, 3];
 
-type Baz object {
+class Baz {
     int iv;
 
     isolated function init(int j) {
@@ -60,7 +60,7 @@ type Baz object {
     isolated function val() returns int {
         return self.iv + arr[0] + 100;
     }
-};
+}
 
 isolated function testIsolatedObjectMethods() {
     Baz b = new (100);
@@ -71,7 +71,7 @@ isolated function testIsolatedObjectMethods() {
 
 //// Service tests, only testing definition since dispatching is not possible atm ////
 
-public type Listener object {
+public class Listener {
 
     *'object:Listener;
 
@@ -84,7 +84,7 @@ public type Listener object {
     public function __gracefulStop() returns error? { }
 
     public function __immediateStop() returns error? { }
-};
+}
 
 service s1 on new Listener() {
     isolated resource function res1(map<int> j) {
@@ -118,7 +118,7 @@ service s2 = service {
 
 /////////////////////////////////////////////////////////////////////////////
 
-type Qux abstract object {
+type Qux object {
     isolated function qux() returns int;
 };
 
@@ -126,14 +126,18 @@ function testNonIsolatedMethodAsIsolatedMethodRuntimeNegative() {
     object {
         int i;
 
-        function init(int i) {
-            self.i = i;
+        function qux() returns int;
+    } obj = object {
+        int i;
+
+        function init() {
+            self.i = 123;
         }
 
         function qux() returns int {
             return self.i;
         }
-    } obj = new (123);
+    };
 
     assertEquality(false, <any> obj is Qux);
 }
@@ -174,6 +178,33 @@ function testNonIsolatedMethodAsIsolatedMethodRuntimeNegative() {
 //    assertEquality("incompatible types: 'function (int,map) returns (int)' cannot be cast to " +
 //                        "'isolated function (int, map<int>) returns int'", err.detail()["message"]);
 //}
+
+const FLOAT = 1.23;
+
+const map<float> FLOAT_MAP = {
+    a: 1.0,
+    b: 2.0
+};
+
+isolated function testConstantRefsInIsolatedFunctions() {
+    assertEquality(4.23, FLOAT + <float> FLOAT_MAP["a"] + <float> FLOAT_MAP["b"]);
+}
+
+final int recI = 111222;
+
+isolated function recJ() returns int => 234;
+
+type RecWithDefaults record {|
+    int i = recI;
+    int j = recJ();
+|};
+
+isolated function testIsolatedClosuresAsRecordDefaultValues() {
+    RecWithDefaults r = {};
+
+    assertEquality(111222, r.i);
+    assertEquality(234, r.j);
+}
 
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {

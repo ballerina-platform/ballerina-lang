@@ -46,12 +46,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -227,6 +229,38 @@ public class SymbolLookupTest {
                 {21, 43, getSymbolNames(moduleLevelSymbols, "b", "x", "z")},
                 {23, 51, getSymbolNames(moduleLevelSymbols, "b", "strTemp")},
                 {25, 54, getSymbolNames(moduleLevelSymbols, "b", "strTemp", "rawTemp")},
+        };
+    }
+
+    @Test(dataProvider = "PositionProvider5")
+    public void testSymbolLookupAtPosition(int line, int column, String expSymbolName) {
+        CompilerContext context = new CompilerContext();
+        CompileResult result = compile("test-src/var_symbol_lookup_test.bal", context);
+        BLangPackage pkg = (BLangPackage) result.getAST();
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+
+        Optional<Symbol> symbol = model.symbol("var_symbol_lookup_test.bal", LinePosition.from(line, column));
+        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+
+        if (!symbol.isPresent()) {
+            assertNull(expSymbolName);
+        }
+    }
+
+    @DataProvider(name = "PositionProvider5")
+    public Object[][] getPositionsForExactLookup() {
+        return new Object[][]{
+                {17, 7, null},
+                {17, 8, "aString"},
+                {17, 10, "aString"},
+                {17, 15, null},
+                {20, 9, null},
+//                {20, 10, "test"},
+//                {20, 12, "test"},
+                {20, 14, null},
+                {27, 12, null},
+                {27, 13, "a"},
+                {27, 14, null},
         };
     }
 

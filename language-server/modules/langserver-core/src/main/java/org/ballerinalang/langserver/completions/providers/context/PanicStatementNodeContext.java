@@ -50,7 +50,7 @@ public class PanicStatementNodeContext extends AbstractCompletionProvider<PanicS
                 .filter(scopeEntry -> scopeEntry.symbol.type instanceof BErrorType)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
         return completionItems;
     }
 }

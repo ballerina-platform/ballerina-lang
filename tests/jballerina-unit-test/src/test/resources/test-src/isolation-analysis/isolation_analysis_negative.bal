@@ -57,11 +57,11 @@ isolated function invalidIsolatedFunctionWithNonIsolatedFunctionCall() {
 
 function nonIsolated() returns int => a;
 
-type Foo object {
+class Foo {
     function getInt() returns int {
         return 1;
     }
-};
+}
 
 isolated function invalidIsolatedFunctionWithNonIsolatedMethodCall() {
     Foo f = new;
@@ -94,7 +94,7 @@ isolated function invalidIsolationFunctionAccessingMutableStorageViaFinalVar() {
     int a = bar.a;
 }
 
-type Baz object {
+class Baz {
     int i;
 
     isolated function init(int j) {
@@ -104,9 +104,9 @@ type Baz object {
     isolated function val() returns int {
         return self.i + d[0] + 100;
     }
-};
+}
 
-public type Listener object {
+public class Listener {
 
     *'object:Listener;
 
@@ -119,7 +119,7 @@ public type Listener object {
     public function __gracefulStop() returns error? { }
 
     public function __immediateStop() returns error? { }
-};
+}
 
 service s1 on new Listener() {
     isolated resource function res1(map<int> j) {

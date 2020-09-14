@@ -190,13 +190,13 @@ type Employee record {
     string department = "finance";
 };
 
-type Student object {
+class Student {
     string name = "Maryam";
 
     function getName() returns string {
         return self.name;
     }
-};
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

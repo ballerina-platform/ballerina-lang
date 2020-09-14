@@ -1,7 +1,7 @@
 import ballerina/http;
 
 # Description
-public type Person abstract object {
+public type Person object {
 };
 
 type Student object {

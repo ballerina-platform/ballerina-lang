@@ -18,6 +18,7 @@
 package org.ballerinalang.openapi.typemodel;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
@@ -37,6 +38,24 @@ public class BallerinaOpenApiType {
     private List<Tag> tags;
     private List<BallerinaOpenApiPath> pathList;
     private BallerinaOpenApiComponent component;
+    private List<Tag> filteredTags;
+    private List<Operation> operations;
+
+    public List<Operation> getOperations() {
+        return operations;
+    }
+
+    public void setOperations(List<Operation> operations) {
+        this.operations = operations;
+    }
+
+    public List<Tag> getFilteredTags() {
+        return filteredTags;
+    }
+
+    public void setFilteredTags(List<Tag> filteredTags) {
+        this.filteredTags = filteredTags;
+    }
 
     public BallerinaOpenApiComponent getComponent() {
         return component;

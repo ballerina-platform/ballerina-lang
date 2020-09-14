@@ -410,10 +410,6 @@ public class FunctionGenerator {
                 // Anon Object
                 StringBuilder builder = new StringBuilder();
                 BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) tSymbol;
-                boolean isAbstract = (objectTypeSymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT;
-                if (isAbstract) {
-                    builder.append("abstract ");
-                }
                 builder.append("object {");
                 if (objectTypeSymbol.attachedFuncs != null && !objectTypeSymbol.attachedFuncs.isEmpty()) {
                     builder.append(CommonUtil.LINE_SEPARATOR);
@@ -490,9 +486,6 @@ public class FunctionGenerator {
         }
         if ((flagValue & Flags.PRIVATE) == Flags.PRIVATE) {
             joiner.add("private");
-        }
-        if ((flagValue & Flags.ABSTRACT) == Flags.ABSTRACT) {
-            joiner.add("abstract");
         }
         if ((flagValue & Flags.REMOTE) == Flags.REMOTE) {
             joiner.add("remote");

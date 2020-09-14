@@ -16,7 +16,7 @@
 
 const ASSERTION_ERR_REASON = "AssertionError";
 
-public type '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Connector client object {
+public client class '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Connector {
     boolean action2Invoked = false;
 
     public function init(string param1, string param2, int param3) {
@@ -36,7 +36,7 @@ public type '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Connector client object {
         string 'üňĩćőđę_var2 = "action 2";
         return 'sample_String_2 + '\ \/\:\@\[\`\{\~\u{2324}_var2 + 'üňĩćőđę_var2;
     }
-};
+}
 
 function testConnectorNameWithIL() {
     '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Connector testConnector = new("MyParam1", "MyParam2", 5);

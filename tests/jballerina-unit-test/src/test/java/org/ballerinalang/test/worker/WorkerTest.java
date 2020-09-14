@@ -110,13 +110,13 @@ public class WorkerTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: err message=err msg.*")
+            expectedExceptionsMessageRegExp = ".*error: err \\{\"message\":\"err msg.*")
     public void receiveWithCheckpanic() {
         BRunUtil.invoke(result, "receiveWithCheckpanic");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: err message=sync send err msg.*")
+            expectedExceptionsMessageRegExp = ".*error: err \\{\"message\":\"sync send err msg.*")
     public void syncSendReceiveWithCheckpanic() {
         BRunUtil.invoke(result, "syncSendReceiveWithCheckpanic");
     }

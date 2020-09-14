@@ -15,7 +15,7 @@
 // under the License.
 
 # Represent the iterator type returned when `iterator` method is invoked.
-type MapIterator object {
+class MapIterator {
 
     private map<Type> m;
 
@@ -28,4 +28,4 @@ type MapIterator object {
     public function next() returns record {|
         Type value;
     |}? = external;
-};
+}
