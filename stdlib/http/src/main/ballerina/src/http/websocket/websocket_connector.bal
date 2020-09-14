@@ -18,7 +18,7 @@ import ballerina/lang.'string as strings;
 import ballerina/java;
 
 # Represents a WebSocket connection in Ballerina. This includes all connection-oriented operations.
-type WebSocketConnector object {
+class WebSocketConnector {
     private boolean isReady = false;
 
     # Pushes text to the connection. If an error occurs while sending the text message to the connection, that message
@@ -102,38 +102,38 @@ type WebSocketConnector object {
             return externClose(self, -1, "", timeoutInSecs);
         }
     }
-};
+}
 
 function externPushText(WebSocketConnector wsConnector, string text, boolean finalFrame) returns WebSocketError? =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector"
+    'class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector"
 } external;
 
 function externPushBinary(WebSocketConnector wsConnector, byte[] data, boolean finalFrame) returns WebSocketError? =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
+    'class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
     name: "pushBinary"
 } external;
 
 function externPing(WebSocketConnector wsConnector, byte[] data) returns WebSocketError? =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
+    'class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
     name: "ping"
 } external;
 
 function externPong(WebSocketConnector wsConnector, byte[] data) returns WebSocketError? =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
+    'class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
     name: "pong"
 } external;
 
 function externClose(WebSocketConnector wsConnector, int statusCode, string reason, int timeoutInSecs)
                      returns WebSocketError? =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.Close"
+    'class: "org.ballerinalang.net.http.actions.websocketconnector.Close"
 } external;
 
 function externReady(WebSocketConnector wsConnector) returns WebSocketError? = @java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.Ready",
+    'class: "org.ballerinalang.net.http.actions.websocketconnector.Ready",
     name: "ready"
 } external;

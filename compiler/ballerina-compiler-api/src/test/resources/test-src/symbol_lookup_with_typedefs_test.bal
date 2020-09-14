@@ -23,7 +23,7 @@ type Person record {|
     Person? parent?;
 |};
 
-type PersonObj object {
+class PersonObj {
     string name;
     int age;
     PersonObj? parent;
@@ -40,7 +40,7 @@ type PersonObj object {
 
         return self.age;
     }
-};
+}
 
 function testAnonTypes() {
     int x = 20;

@@ -3,12 +3,15 @@ readonly
 string  country ;
 |};
 
-public function main78() {
+public function foo() {
    Details &
 
 readonly        immutableDetails   = {
        id: 112233,
        country: "Sri Lanka"
-   };readonly
+   };
+
+
+   readonly
    readonlyValue       = "hello";
 }

@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Foo object {
+public class Foo {
     public future<int> intFuture = getFuture();
-};
+}
 
 Foo globalFoo = new;
 

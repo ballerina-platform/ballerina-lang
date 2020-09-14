@@ -220,11 +220,11 @@ function testMappingConstrExprWithNoACET2() {
     assertEquality("other", e3["fn"]);
 }
 
-type Bar object {
+class Bar {
     public function init(any arg) {
 
     }
-};
+}
 
 type Rec1 record {
     int i;

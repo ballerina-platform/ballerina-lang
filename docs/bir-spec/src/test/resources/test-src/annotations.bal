@@ -20,10 +20,10 @@ type Annot record {
     string val;
 };
 
-public annotation Annot v1 on type;
-annotation Annot v2 on object type;
+public annotation Annot v1 on type, class;
+annotation Annot v2 on class, type;
 public annotation Annot v3 on function;
-annotation map<int> v4 on object function;
+annotation map<int> v4 on function;
 public annotation Annot v5 on resource function;
 annotation Annot v6 on parameter;
 public annotation v7 on return;
@@ -49,7 +49,7 @@ public type T1 record {
 @v2 {
     val: "v2 value"
 }
-type T2 object {
+class T2 {
     string name = "ballerina";
 
     @v3 {
@@ -63,7 +63,7 @@ type T2 object {
                             @v6 { val: "v61 value rest" } string... others) returns @v7 () {
         self.name = name;
     }
-};
+}
 
 @v3 {
     val: "v33 value"
@@ -122,7 +122,7 @@ service serTwo = @v8 {
     }
 };
 
-type Listener object {
+class Listener {
     *lang:Listener;
 
     public function init() {
@@ -144,7 +144,7 @@ type Listener object {
     public function __immediateStop() returns error? {
         return ();
     }
-};
+}
 
 // Test compilation for annotations with the worker attach point.
 function funcWithWorker() {

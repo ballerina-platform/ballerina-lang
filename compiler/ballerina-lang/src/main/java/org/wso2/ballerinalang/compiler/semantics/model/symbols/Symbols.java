@@ -77,6 +77,18 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BClassSymbol createClassSymbol(int flags,
+                                                       Name name,
+                                                       PackageID pkgID,
+                                                       BType type,
+                                                       BSymbol owner,
+                                                       DiagnosticPos pos,
+                                                       SymbolOrigin origin) {
+        BClassSymbol typeSymbol = new BClassSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner, pos, origin);
+        typeSymbol.kind = SymbolKind.OBJECT;
+        return typeSymbol;
+    }
+
     public static BRecordTypeSymbol createRecordSymbol(int flags,
                                                        Name name,
                                                        PackageID pkgID,

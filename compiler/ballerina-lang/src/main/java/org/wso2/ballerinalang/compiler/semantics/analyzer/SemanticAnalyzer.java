@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -400,6 +401,59 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateBuiltinTypeAnnotationAttachment(typeDefinition.annAttachments);
     }
 
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        classDefinition.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.CLASS);
+            annotationAttachment.accept(this);
+        });
+        validateAnnotationAttachmentCount(classDefinition.annAttachments);
+
+        analyzeClassDefinition(classDefinition);
+    }
+
+    private void analyzeClassDefinition(BLangClassDefinition classDefinition) {
+        SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            analyzeDef(field, classEnv);
+        }
+
+        // Visit functions as they are not in the same scope/env as the object fields
+        for (BLangFunction function : classDefinition.functions) {
+            analyzeDef(function, env);
+            if (function.flagSet.contains(Flag.RESOURCE) && function.flagSet.contains(Flag.NATIVE)) {
+                this.dlog.error(function.pos, DiagnosticCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, function.name);
+            }
+        }
+
+        // Validate the referenced functions that don't have implementations within the function.
+        for (BAttachedFunction func : ((BObjectTypeSymbol) classDefinition.symbol).referencedFunctions) {
+            validateReferencedFunction(classDefinition.pos, func, env);
+        }
+
+        analyzerClassInitMethod(classDefinition);
+    }
+
+    private void analyzerClassInitMethod(BLangClassDefinition classDefinition) {
+        if (classDefinition.initFunction == null) {
+            return;
+        }
+
+        if (classDefinition.initFunction.flagSet.contains(Flag.PRIVATE)) {
+            this.dlog.error(classDefinition.initFunction.pos, DiagnosticCode.PRIVATE_OBJECT_CONSTRUCTOR,
+                    classDefinition.symbol.name);
+            return;
+        }
+
+        if (classDefinition.initFunction.flagSet.contains(Flag.NATIVE)) {
+            this.dlog.error(classDefinition.initFunction.pos, DiagnosticCode.OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN,
+                    classDefinition.symbol.name);
+            return;
+        }
+
+        analyzeDef(classDefinition.initFunction, env);
+    }
+
     public void visit(BLangTypeConversionExpr conversionExpr) {
         conversionExpr.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
@@ -425,28 +479,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
 
-        boolean isAbstract = objectTypeNode.flagSet.contains(Flag.ABSTRACT);
         objectTypeNode.fields.forEach(field -> {
             analyzeDef(field, objectEnv);
-            if (isAbstract) {
-                if (field.flagSet.contains(Flag.PRIVATE)) {
-                    this.dlog.error(field.pos, DiagnosticCode.PRIVATE_FIELD_ABSTRACT_OBJECT, field.symbol.name);
-                }
-
-                if (field.expr != null) {
-                    this.dlog.error(field.expr.pos, DiagnosticCode.FIELD_WITH_DEFAULT_VALUE_ABSTRACT_OBJECT);
-                }
+            if (field.flagSet.contains(Flag.PRIVATE)) {
+                this.dlog.error(field.pos, DiagnosticCode.PRIVATE_FIELD_ABSTRACT_OBJECT, field.symbol.name);
             }
+
+//            if (field.expr != null) {
+//                this.dlog.error(field.expr.pos, DiagnosticCode.FIELD_WITH_DEFAULT_VALUE_ABSTRACT_OBJECT);
+//            }
         });
 
         // Visit functions as they are not in the same scope/env as the object fields
         objectTypeNode.functions.forEach(func -> {
             analyzeDef(func, env);
-            if (isAbstract && func.flagSet.contains(Flag.PRIVATE)) {
+            if (func.flagSet.contains(Flag.PRIVATE)) {
                 this.dlog.error(func.pos, DiagnosticCode.PRIVATE_FUNC_ABSTRACT_OBJECT, func.name,
                         objectTypeNode.symbol.name);
             }
-            if (isAbstract && func.flagSet.contains(Flag.NATIVE)) {
+            if (func.flagSet.contains(Flag.NATIVE)) {
                 this.dlog.error(func.pos, DiagnosticCode.EXTERN_FUNC_ABSTRACT_OBJECT, func.name,
                         objectTypeNode.symbol.name);
             }
@@ -469,19 +520,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
-            this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticCode.ABSTRACT_OBJECT_CONSTRUCTOR,
-                    objectTypeNode.symbol.name);
-            return;
-        }
-
-        if (objectTypeNode.initFunction.flagSet.contains(Flag.NATIVE)) {
-            this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticCode.OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN,
-                            objectTypeNode.symbol.name);
-            return;
-        }
-
-        analyzeDef(objectTypeNode.initFunction, env);
+        this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticCode.ABSTRACT_OBJECT_CONSTRUCTOR,
+                objectTypeNode.symbol.name);
     }
 
     @Override
@@ -2960,7 +3000,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         // If the function is attached to an abstract object, it don't need to have an implementation.
-        if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
+        if (!Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.CLASS)) {
             if (funcNode.body != null) {
                 dlog.error(funcNode.pos, DiagnosticCode.ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY, funcNode.name,
                         funcNode.receiver.type);
@@ -2976,7 +3016,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateReferencedFunction(DiagnosticPos pos, BAttachedFunction func, SymbolEnv env) {
-        if (Symbols.isFlagOn(func.symbol.receiverSymbol.type.tsymbol.flags, Flags.ABSTRACT)) {
+        if (!Symbols.isFlagOn(func.symbol.receiverSymbol.type.tsymbol.flags, Flags.CLASS)) {
             return;
         }
 
@@ -2986,7 +3026,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // There must be an implementation at the outer level, if the function is an interface.
         if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
-            dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
+            dlog.error(pos, DiagnosticCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_CLASS, func.funcName,
                     func.symbol.receiverSymbol.type);
         }
     }

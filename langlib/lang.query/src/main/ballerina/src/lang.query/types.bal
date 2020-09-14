@@ -37,18 +37,18 @@ type ErrorType error?;
 anydata[][] orderFieldValsArr = [];
 boolean[] orderDirectionsArr = [];
 
-type _Iterator abstract object {
+type _Iterator object {
     public function next() returns record {|Type value;|}|error?;
 };
 
-type _Iterable abstract object {
+type _Iterable object {
     public function __iterator() returns
-        abstract object {
+        object {
             public function next() returns record {|Type value;|}|error?;
         };
 };
 
-type _StreamFunction abstract object {
+type _StreamFunction object {
     public _StreamFunction? prevFunc;
     public function process() returns _Frame|error?;
     public function reset();
@@ -58,7 +58,7 @@ type _Frame record {|
     (any|error|())...;
 |};
 
-type _StreamPipeline object {
+class _StreamPipeline {
     _StreamFunction streamFunction;
     typedesc<Type> resType;
 
@@ -86,40 +86,13 @@ type _StreamPipeline object {
     }
 
     public function getStream() returns stream <Type, error?> {
-        object {
-            public _StreamPipeline pipeline;
-            public typedesc<Type> outputType;
-
-            function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
-                self.pipeline = pipeline;
-                self.outputType = outputType;
-            }
-
-            public function next() returns record {|Type value;|}|error? {
-                _StreamPipeline p = self.pipeline;
-                _Frame|error? f = p.next();
-                if (f is _Frame) {
-                    Type v = <Type>f["$value$"];
-                    // Add orderKey and orderDirection values to respective arrays.
-                    if ((!(f["$orderKey$"] is ())) && (!(f["$orderDirection$"] is ()))) {
-                        anydata[] orKey = <anydata[]>f["$orderKey$"];
-                        // Need to keep the stream value to sort the stream.
-                        orKey.push(<anydata>v);
-                        orderFieldValsArr.push(orKey);
-                        orderDirectionsArr = <boolean[]>f["$orderDirection$"];
-                    }
-                    return internal:setNarrowType(self.outputType, {value: v});
-                } else {
-                    return f;
-                }
-            }
-        } itrObj = new (self, self.resType);
+        IterHelper itrObj = new (self, self.resType);
         var strm = internal:construct(self.resType, itrObj);
         return strm;
     }
-};
+}
 
-type _InitFunction object {
+class _InitFunction {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
@@ -174,9 +147,9 @@ type _InitFunction object {
             return lang_stream:iterator(collection);
         }
     }
-};
+}
 
-type _InputFunction object {
+class _InputFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -208,9 +181,9 @@ type _InputFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _NestedFromFunction object {
+class _NestedFromFunction {
     *_StreamFunction;
     _Iterator? itr;
 
@@ -290,9 +263,9 @@ type _NestedFromFunction object {
         }
         panic error("Unsuppored collection", message = "unsuppored collection type.");
     }
-};
+}
 
-type _LetFunction object {
+class _LetFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -322,9 +295,9 @@ type _LetFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _InnerJoinFunction object {
+class _InnerJoinFunction {
     *_StreamFunction;
     function (_Frame _frame) returns any lhsKeyFunction;
     function (_Frame _frame) returns any rhsKeyFunction;
@@ -395,9 +368,9 @@ type _InnerJoinFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _OuterJoinFunction object {
+class _OuterJoinFunction {
     *_StreamFunction;
     function (_Frame _frame) returns any lhsKeyFunction;
     function (_Frame _frame) returns any rhsKeyFunction;
@@ -478,9 +451,9 @@ type _OuterJoinFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _FilterFunction object {
+class _FilterFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -509,9 +482,9 @@ type _FilterFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _OrderByFunction object {
+class _OrderByFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -542,9 +515,9 @@ type _OrderByFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _SelectFunction object {
+class _SelectFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -577,9 +550,9 @@ type _SelectFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _DoFunction object {
+class _DoFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -612,9 +585,9 @@ type _DoFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _LimitFunction object {
+class _LimitFunction {
     *_StreamFunction;
 
     # Desugared function to limit the number of results
@@ -651,9 +624,9 @@ type _LimitFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type StreamOrderBy object {
+class StreamOrderBy {
     anydata[][] sortFields = [];
     boolean[] sortTypes = [];
 
@@ -816,9 +789,9 @@ type StreamOrderBy object {
         }
         return result;
     }
-};
+}
 
-type _FrameMultiMap object {
+class _FrameMultiMap {
 
     map<_Frame[]> m;
 
@@ -846,4 +819,4 @@ type _FrameMultiMap object {
         }
     }
 
-};
+}

@@ -75,7 +75,7 @@ const PREPARE_DECISION_ABORT = "abort";
 
 type UProtocol LocalProtocol|RemoteProtocol;
 
-type Participant abstract object {
+type Participant object {
 
     string participantId;
 
@@ -84,7 +84,7 @@ type Participant abstract object {
     function notify(string action, string? protocolName) returns (NotifyResult|error)?;
 };
 
-type LocalParticipant object {
+class LocalParticipant {
 
     string participantId;
     private TwoPhaseCommitTransaction participatedTxn;
@@ -182,7 +182,7 @@ type LocalParticipant object {
             panic err;
         }
     }
-};
+}
 
 function getParticipatedTransactionId(string transactionId, string transactionBlockId) returns string {
     string id = transactionId + ":" + transactionBlockId;
@@ -219,7 +219,7 @@ function isValidCoordinationType(string coordinationType) returns boolean {
     return false;
 }
 
-type TwoPhaseCommitTransaction object {
+class TwoPhaseCommitTransaction {
 
     string transactionId;
     string transactionBlockId;
@@ -476,7 +476,7 @@ type TwoPhaseCommitTransaction object {
             //TODO: do what?
         }
     }
-};
+}
 
 # This map is used for caching transaction that are initiated.
 map<TwoPhaseCommitTransaction> initiatedTransactions = {};

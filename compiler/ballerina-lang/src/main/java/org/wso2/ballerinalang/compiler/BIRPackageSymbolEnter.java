@@ -425,7 +425,7 @@ public class BIRPackageSymbolEnter {
         }
 
         // Temp solution to add abstract flag if available TODO find a better approach
-        flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.ABSTRACT) ? flags | Flags.ABSTRACT : flags;
+        flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLASS) ? flags | Flags.CLASS : flags;
 
         // Temp solution to add client flag if available TODO find a better approach
         flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT) ? flags | Flags.CLIENT : flags;
@@ -1253,7 +1253,7 @@ public class BIRPackageSymbolEnter {
                     pkgId = getPackageId(pkgCpIndex);
 
                     String objName = getStringCPEntryValue(inputStream);
-                    int objFlags = (inputStream.readBoolean() ? Flags.ABSTRACT : 0) | Flags.PUBLIC;
+                    int objFlags = (inputStream.readBoolean() ? Flags.CLASS : 0) | Flags.PUBLIC;
                     objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
                     BObjectTypeSymbol objectSymbol = Symbols.createObjectSymbol(objFlags,
                                                                                 names.fromString(objName),
@@ -1308,6 +1308,9 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < funcCount; i++) {
                         ignoreAttachedFunc();
                     }
+
+                    objectType.typeIdSet = readTypeIdSet(inputStream);
+
                     Object poppedObjType = compositeStack.pop();
                     assert poppedObjType == objectType;
 

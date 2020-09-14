@@ -22,14 +22,14 @@ import ballerina/java;
 ///////////////////////////////////
 
 # Represents the directory listener endpoint, which is used to listen to a directory in the local file system.
-public type Listener object {
+public class Listener {
     private ListenerConfig config;
 
     *lang:Listener;
 
     # Creates a new Directory listener.
-    # 
-    # + listenerConfig - The `ListenerConfig` record with the directory details 
+    #
+    # + listenerConfig - The `ListenerConfig` record with the directory details
     public function init(ListenerConfig listenerConfig) {
         self.config = listenerConfig;
         var result = initEndpoint(self);
@@ -39,28 +39,28 @@ public type Listener object {
     }
 
     # Starts the `file:Listener`.
-    # 
-    # + return - () or else error upon failure to start the listener 
+    #
+    # + return - () or else error upon failure to start the listener
     public function __start() returns error? {
         return startEndpoint(self);
     }
 
     # Stops the `file:Listener` gracefully.
-    # 
-    # + return - () or else error upon failure to stop the listener 
+    #
+    # + return - () or else error upon failure to stop the listener
         public function __gracefulStop() returns error? {
         return ();
     }
 
     # Stops the `file:Listener` forcefully.
-    # 
-    # + return - () or else error upon failure to stop the listener 
+    #
+    # + return - () or else error upon failure to stop the listener
     public function __immediateStop() returns error? {
         return ();
     }
 
     # Binds a service to the `file:Listener`.
-    # 
+    #
     # + s - Type descriptor of the service
     # + name - Name of the service
     # + return - () or else error upon failure to attach to the service
@@ -69,12 +69,12 @@ public type Listener object {
     }
 
     # Stops listening to the directory and detaches the service from the `file:Listener`.
-    # 
+    #
     # + s - Type descriptor of the service
     # + return - () or else error upon failure to detach to the service
     public function __detach(service s) returns error? {
     }
-};
+}
 
 # Represents configurations that required for directory listener.
 #
@@ -86,16 +86,16 @@ public type ListenerConfig record {|
 |};
 
 function initEndpoint(Listener fileListener) returns error? = @java:Method {
-    class: "org.ballerinalang.stdlib.file.service.endpoint.InitEndpoint",
+    'class: "org.ballerinalang.stdlib.file.service.endpoint.InitEndpoint",
     name: "initEndpoint"
 } external;
 
 function register(Listener fileListener, service s, string? name) returns error? = @java:Method {
-    class: "org.ballerinalang.stdlib.file.service.endpoint.Register",
+    'class: "org.ballerinalang.stdlib.file.service.endpoint.Register",
     name: "register"
 } external;
 
 function startEndpoint(Listener fileListener) returns error? = @java:Method {
-    class: "org.ballerinalang.stdlib.file.service.endpoint.Start",
+    'class: "org.ballerinalang.stdlib.file.service.endpoint.Start",
     name: "start"
 } external;

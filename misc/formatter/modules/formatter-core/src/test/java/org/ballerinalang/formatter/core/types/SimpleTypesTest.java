@@ -21,9 +21,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Test the formatting of simple type descriptors.
@@ -41,11 +38,6 @@ public class SimpleTypesTest extends FormatterTest {
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
-    }
-
-    @Override
-    public List<String> skipList() {
-        return new ArrayList<>(Arrays.asList("nil_type_1.bal", "int_type_4.bal"));
     }
 
     @Override

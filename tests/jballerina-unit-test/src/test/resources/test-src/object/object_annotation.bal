@@ -3,11 +3,11 @@
 # + a - annotation `field a` documentation
 # + b - annotation `field b` documentation
 # + c - annotation `field c` documentation
-type Tst object {
+class Tst {
     public string a = "";
     public string b = "";
     public string c = "";
-};
+}
 
 # Documentation for Test annotation
 annotation Test Tst;

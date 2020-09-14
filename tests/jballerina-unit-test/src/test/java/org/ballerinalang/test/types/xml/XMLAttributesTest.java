@@ -269,7 +269,7 @@ public class XMLAttributesTest {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(xmlAttrProgFile, "testPrintAttribMap");
             Assert.assertEquals(outContent.toString(),
-                    "{http://www.w3.org/2000/xmlns/}xmlns=http://sample.com/wso2/c1 name=Foo",
+                    "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\",\"name\":\"Foo\"}",
                     "Invalid attribute map printed");
         } finally {
             try {

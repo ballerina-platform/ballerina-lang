@@ -46,17 +46,18 @@ type F string;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T6 object { G g = ""; };
+class T6 { G g = ""; }
 
 type G string;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T7 int[]|A[]|[B, C]|map<string>|map<D>|E|int|record { F f; }|object { public G g = ""; }|error;
+class T7Dash { public G g = ""; }
+type T7 int[]|A[]|[B, C]|map<string>|map<D>|E|int|record { F f; }|T7Dash|error;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, object { public G g = ""; }, error];
+type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, T7Dash, error];
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -72,7 +73,7 @@ type J map<A>;
 
 type K record { F f = ""; };
 
-type L error|object { public G g = ""; };
+type L error|T7Dash;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -84,15 +85,16 @@ type T12 xml;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type FB "A" | object { string f; function init(string f) { self.f = f; }};
+class FBClass { string f; function init(string f) { self.f = f; }}
+type FB "A" | FBClass;
 
-type Foo object {
+class Foo {
     string f;
 
     function init(string f) {
         self.f = f;
     }
-};
+}
 
 type FB2 "A" | record { string f; };
 
@@ -114,3 +116,62 @@ function testTypeConstants() returns ACTION {
     return GET;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+distinct class DistinctFoo {
+    int i = 0;
+}
+
+distinct class DistinctBar {
+    *DistinctFoo;
+
+    function init(int i) {
+        self.i = i;
+    }
+}
+
+distinct class ClassA {
+    *ClassB;
+
+    function init(int i, int j) {
+        self.i = i;
+        self.j = j;
+    }
+}
+
+distinct class ClassB {
+    int i = 0;
+    int j = 0;
+}
+
+distinct class ClassY {
+    *ClassX;
+
+    function init(int i) {
+        self.i = i;
+    }
+}
+
+class ClassX {
+    int i;
+
+    function init(int i) {
+        self.i = i;
+    }
+}
+
+class Baz {
+    *DistinctFoo;
+
+    function init(int i) {
+        self.i = i;
+    }
+}
+
+class Claz {
+
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+type DistinctError distinct error;
+
+type DistinctCustomError distinct error<record { int i; }>;

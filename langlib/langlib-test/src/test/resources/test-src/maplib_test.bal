@@ -161,7 +161,7 @@ function getLargeMap() returns map<int> {
     return m;
 }
 
-type Person object {
+class Person {
     string name;
 
     function init(string n) {
@@ -169,7 +169,7 @@ type Person object {
     }
 
     function getName() returns string => self.name;
-};
+}
 
 function testMapOfUnionToArray() {
     map<int|string|Person> m = {"i": 10, "s": "foo", "p": new Person("Pubudu")};

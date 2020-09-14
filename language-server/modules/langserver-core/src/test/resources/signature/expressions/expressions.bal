@@ -276,7 +276,7 @@ public function bar2(float a, boolean b) returns Child {
     return new Child();
 }
 
-public type Child object {
+public class Child {
     public int age = 10;
 
     # Returns foo
@@ -287,7 +287,7 @@ public type Child object {
     }
 };
 
-public type Stub client object {
+public client class Stub {
 
     public Child obj = new Child();
 
@@ -353,7 +353,7 @@ public const MY_ERROR_REASON = "MyError";
 # Custom Error
 public type MyError error<record {| string message?; error cause?;  string...;|}>;
 
-public type MockListener object {
+public class MockListener {
 
     *lang:Listener;
 

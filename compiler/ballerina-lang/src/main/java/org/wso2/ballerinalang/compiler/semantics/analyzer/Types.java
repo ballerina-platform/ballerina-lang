@@ -1057,7 +1057,7 @@ public class Types {
             case TypeTags.OBJECT:
                 BObjectType objectType = (BObjectType) type;
 
-                if (!Symbols.isFlagOn(objectType.tsymbol.flags, Flags.ABSTRACT) &&
+                if (Symbols.isFlagOn(objectType.tsymbol.flags, Flags.CLASS) &&
                         (disallowReadOnlyObjects || !Symbols.isFlagOn(objectType.flags, Flags.READONLY))) {
                     return false;
                 }
@@ -1237,7 +1237,7 @@ public class Types {
             }
         }
 
-        return true;
+        return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
@@ -3271,7 +3271,7 @@ public class Types {
     }
 
     private boolean checkFillerValue(BObjectType type) {
-        if ((type.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+        if ((type.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
             return false;
         }
 
