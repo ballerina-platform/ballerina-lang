@@ -281,14 +281,16 @@ public class JvmDesugarPhase {
         for (BIRFunction function : functions) {
             function.name.value = encodeIdentifier(function.name.value);
             for (BIRNode.BIRVariableDcl localVar : function.localVars) {
-                if (localVar.metaVarName != null) {
-                    localVar.metaVarName = encodeIdentifier(localVar.metaVarName);
+                if (localVar.metaVarName == null) {
+                    continue;
                 }
+                localVar.metaVarName = encodeIdentifier(localVar.metaVarName);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
-                if (parameter.name != null) {
-                    parameter.name.value = encodeIdentifier(parameter.name.value);
+                if (parameter.name == null) {
+                    continue;
                 }
+                parameter.name.value = encodeIdentifier(parameter.name.value);
             }
             encodeWorkerName(function);
         }
@@ -315,9 +317,10 @@ public class JvmDesugarPhase {
 
     private static void encodeGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars) {
         for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
-            if (globalVar != null) {
-                globalVar.name.value = encodeIdentifier(globalVar.name.value);
+            if (globalVar == null) {
+                continue;
             }
+            globalVar.name.value = encodeIdentifier(globalVar.name.value);
         }
     }
 }

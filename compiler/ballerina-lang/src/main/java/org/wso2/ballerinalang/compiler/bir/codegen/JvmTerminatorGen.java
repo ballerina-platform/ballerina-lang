@@ -1236,8 +1236,7 @@ public class JvmTerminatorGen {
     }
 
     static String getStrandMetadataVarName(String typeName, String parentFunction) {
-        return STRAND_METADATA_VAR_PREFIX + typeName + "$" + parentFunction +
-                "$";
+        return STRAND_METADATA_VAR_PREFIX + typeName + "$" + parentFunction + "$";
     }
 
     private void loadFpReturnType(BIROperand lhsOp) {

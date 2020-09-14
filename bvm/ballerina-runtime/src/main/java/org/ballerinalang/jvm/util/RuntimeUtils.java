@@ -108,6 +108,11 @@ public class RuntimeUtils {
         return (intValue >= BBYTE_MIN_VALUE && intValue <= BBYTE_MAX_VALUE);
     }
 
+    /**
+     * Decode the encoded Type name for runtime name calls.
+     * @param typeName Name of the defined type
+     * @return decoded name String
+     */
     public static String decodeTypeName(String typeName) {
         if (typeName == null) {
             return typeName;
