@@ -824,8 +824,6 @@ public class ParserTestUtils {
                 return SyntaxKind.INDEXED_EXPRESSION;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
-            case "FAIL_EXPRESSION":
-                return SyntaxKind.FAIL_EXPRESSION;
             case "MAPPING_CONSTRUCTOR":
                 return SyntaxKind.MAPPING_CONSTRUCTOR;
             case "TYPEOF_EXPRESSION":
@@ -894,8 +892,6 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_ACTION;
             case "CHECK_ACTION":
                 return SyntaxKind.CHECK_ACTION;
-            case "FAIL_ACTION":
-                return SyntaxKind.FAIL_ACTION;
             case "START_ACTION":
                 return SyntaxKind.START_ACTION;
             case "TRAP_ACTION":
@@ -928,6 +924,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ELSE_BLOCK;
             case "WHILE_STATEMENT":
                 return SyntaxKind.WHILE_STATEMENT;
+            case "DO_STATEMENT":
+                return SyntaxKind.DO_STATEMENT;
             case "CALL_STATEMENT":
                 return SyntaxKind.CALL_STATEMENT;
             case "PANIC_STATEMENT":
@@ -936,6 +934,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CONTINUE_STATEMENT;
             case "BREAK_STATEMENT":
                 return SyntaxKind.BREAK_STATEMENT;
+            case "FAIL_STATEMENT":
+                return SyntaxKind.FAIL_STATEMENT;
             case "RETURN_STATEMENT":
                 return SyntaxKind.RETURN_STATEMENT;
             case "COMPOUND_ASSIGNMENT_STATEMENT":
@@ -1110,6 +1110,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WHERE_CLAUSE;
             case "LET_CLAUSE":
                 return SyntaxKind.LET_CLAUSE;
+            case "ON_FAIL_CLAUSE":
+                return SyntaxKind.ON_FAIL_CLAUSE;
             case "QUERY_PIPELINE":
                 return SyntaxKind.QUERY_PIPELINE;
             case "SELECT_CLAUSE":

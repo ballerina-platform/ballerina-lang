@@ -86,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -99,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -154,9 +154,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -245,6 +247,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int loopCount;
     private int transactionCount;
     private boolean statementReturns;
+    private boolean failureHandled;
     private boolean lastStatement;
     private boolean withinLockBlock;
     private SymbolTable symTable;
@@ -262,6 +265,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Names names;
     private SymbolEnv env;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
+    private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
+    private final Stack<BType> onFailErrorType = new Stack<>();
     private boolean isJSONContext;
     private boolean enableExperimentalFeatures;
     private int commitCount;
@@ -527,6 +532,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(transactionNode.pos, DiagnosticCode.TRANSACTION_CANNOT_BE_USED_WITHIN_TRANSACTIONAL_SCOPE);
             return;
         }
+
+        this.errorTypes.push(new LinkedHashSet<>());
+        boolean failureHandled = this.failureHandled;
+
         boolean previousWithinTxScope = this.withinTransactionScope;
         boolean previousWithinTrxBlock = this.withinTransactionBlock;
         int previousCommitCount = this.commitCount;
@@ -551,13 +560,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.doneWithinTransactionCheckStack.push(false);
         this.returnWithinLambdaWrappingCheckStack.push(false);
         this.transactionCount++;
-//        if (this.transactionCount > 1) {
-//            this.dlog.error(transactionNode.pos, DiagnosticCode.NESTED_TRANSACTIONS_ARE_INVALID);
-//        }
+        if (!this.failureHandled) {
+            this.failureHandled = transactionNode.onFailClause != null;
+        }
         analyzeNode(transactionNode.transactionBody, env);
+        this.failureHandled = failureHandled;
         if (commitCount < 1) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.INVALID_COMMIT_COUNT);
         }
+
         transactionNode.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();
         this.transactionCount--;
@@ -573,12 +584,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!this.withinTransactionBlock) {
             this.innerTransactionBlock = null;
         }
-
-        this.resetLastStatement();
-
         this.returnWithinTransactionCheckStack.pop();
         this.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
+        transactionNode.transactionBody.isBreakable = transactionNode.onFailClause != null;
+        analyzeOnFailClause(transactionNode.onFailClause);
+        this.errorTypes.pop();
+    }
+
+    private void analyzeOnFailClause(BLangOnFailClause onFailClause) {
+        if (onFailClause != null) {
+            boolean currentStatementReturns = this.statementReturns;
+            this.resetStatementReturns();
+            this.resetLastStatement();
+            analyzeNode(onFailClause, env);
+            this.statementReturns = currentStatementReturns;
+        }
     }
 
     @Override
@@ -628,10 +649,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetry retryNode) {
         this.returnWithinLambdaWrappingCheckStack.push(false);
+        this.errorTypes.push(new LinkedHashSet<>());
+        boolean failureHandled = this.failureHandled;
+        this.checkStatementExecutionValidity(retryNode);
+        if (!this.failureHandled) {
+            this.failureHandled = retryNode.onFailClause != null;
+        }
         retryNode.retrySpec.accept(this);
         retryNode.retryBody.accept(this);
+        this.failureHandled = failureHandled;
         retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();
+        this.resetLastStatement();
+        retryNode.retryBody.isBreakable = retryNode.onFailClause != null;
+        analyzeOnFailClause(retryNode.onFailClause);
+        this.errorTypes.pop();
     }
 
     @Override
@@ -739,6 +771,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchStmt) {
+        this.errorTypes.push(new LinkedHashSet<>());
+        if (!this.failureHandled) {
+            this.failureHandled = matchStmt.onFailClause != null;
+        }
         analyzeExpr(matchStmt.expr);
 
         boolean staticLastPattern = false;
@@ -755,6 +791,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeEmptyMatchPatterns(matchStmt);
             analyzeMatchedPatterns(matchStmt, staticLastPattern, structuredLastPattern);
         }
+        analyzeOnFailClause(matchStmt.onFailClause);
+        this.errorTypes.pop();
     }
 
     @Override
@@ -1348,39 +1386,103 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangForeach foreach) {
         this.loopWithinTransactionCheckStack.push(true);
+        this.errorTypes.push(new LinkedHashSet<>());
         boolean statementReturns = this.statementReturns;
+        boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(foreach);
+        if (!this.failureHandled) {
+            this.failureHandled = foreach.onFailClause != null;
+        }
         this.loopCount++;
         analyzeNode(foreach.body, env);
         this.loopCount--;
         this.statementReturns = statementReturns;
+        this.failureHandled = failureHandled;
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(foreach.collection);
+        foreach.body.isBreakable = foreach.onFailClause != null;
+        analyzeOnFailClause(foreach.onFailClause);
+        this.errorTypes.pop();
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
         this.loopWithinTransactionCheckStack.push(true);
+        this.errorTypes.push(new LinkedHashSet<>());
         boolean statementReturns = this.statementReturns;
+        boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(whileNode);
+        if (!this.failureHandled) {
+            this.failureHandled = whileNode.onFailClause != null;
+        }
         this.loopCount++;
         analyzeNode(whileNode.body, env);
         this.loopCount--;
         this.statementReturns = statementReturns;
+        this.failureHandled = failureHandled;
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(whileNode.expr);
+        whileNode.body.isBreakable = whileNode.onFailClause != null;
+        analyzeOnFailClause(whileNode.onFailClause);
+        this.errorTypes.pop();
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        this.errorTypes.push(new LinkedHashSet<>());
+        boolean failureHandled = this.failureHandled;
+        this.checkStatementExecutionValidity(doNode);
+        if (!this.failureHandled) {
+            this.failureHandled = doNode.onFailClause != null;
+        }
+        analyzeNode(doNode.body, env);
+        this.failureHandled = failureHandled;
+        doNode.body.isBreakable = doNode.onFailClause != null;
+        analyzeOnFailClause(doNode.onFailClause);
+        this.errorTypes.pop();
+    }
+
+
+    @Override
+    public void visit(BLangFail failNode) {
+        this.lastStatement = true;
+        analyzeExpr(failNode.expr);
+        if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+            // Check at module level.
+            return;
+        }
+        typeChecker.checkExpr(failNode.expr, env);
+        if (!this.errorTypes.empty()) {
+            this.errorTypes.peek().add(getErrorTypes(failNode.expr.type));
+        }
+        if (!this.failureHandled) {
+            this.statementReturns = true;
+            BType exprType = env.enclInvokable.getReturnTypeNode().type;
+            this.returnTypes.peek().add(exprType);
+            if (!types.isAssignable(getErrorTypes(failNode.expr.type), exprType)) {
+                dlog.error(failNode.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+            }
+        }
     }
 
     @Override
     public void visit(BLangLock lockNode) {
-
+        this.errorTypes.push(new LinkedHashSet<>());
+        boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(lockNode);
+        if (!this.failureHandled) {
+            this.failureHandled = lockNode.onFailClause != null;
+        }
         boolean previousWithinLockBlock = this.withinLockBlock;
         this.withinLockBlock = true;
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
         this.withinLockBlock = previousWithinLockBlock;
+        this.failureHandled = failureHandled;
+        lockNode.body.isBreakable = lockNode.onFailClause != null;
+        analyzeOnFailClause(lockNode.onFailClause);
+        this.errorTypes.pop();
     }
 
     @Override
@@ -2689,33 +2791,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
 
-        if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
+        if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
             dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
-
-        returnTypes.peek().add(exprType);
-    }
-
-    @Override
-    public void visit(BLangFailExpr failExpr) {
-        analyzeExpr(failExpr.expr);
-
-        if (failExpr.expectedType.tag == symTable.noType.tag) {
-            this.statementReturns = true;
-            if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
-                // Check at module level.
-                return;
-            }
-
-            BType exprType = env.enclInvokable.getReturnTypeNode().type;
-
-            if (!types.isAssignable(getErrorTypes(failExpr.expr.type), exprType)) {
-                dlog.error(failExpr.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
-            }
-
-            returnTypes.peek().add(exprType);
-            validateActionParentNode(failExpr.pos, failExpr);
+        if (!this.errorTypes.empty()) {
+            this.errorTypes.peek().add(getErrorTypes(checkedExpr.expr.type));
         }
+        returnTypes.peek().add(exprType);
     }
 
     @Override
@@ -2817,6 +2899,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangDoClause doClause) {
         analyzeNode(doClause.body, env);
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        this.resetLastStatement();
+        this.returnWithinLambdaWrappingCheckStack.push(false);
+        BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
+        for (BType errorType : errorTypes.peek()) {
+            if (!types.isAssignable(errorType, onFailVarNode.type)) {
+                dlog.error(onFailVarNode.pos, DiagnosticCode.INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION, errorType,
+                        onFailVarNode.type);
+            }
+        }
+        analyzeNode(onFailClause.body, env);
+        onFailClause.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
+        this.returnWithinLambdaWrappingCheckStack.pop();
     }
 
     @Override
@@ -3035,7 +3133,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         types.checkType(receive, send.type, receive.type);
         addImplicitCast(send.type, receive);
         NodeKind kind = receive.parent.getKind();
-        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
+        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR ||
+                kind == NodeKind.FAIL) {
             typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
         receive.sendExpression = send.expr;
