@@ -837,7 +837,7 @@ public class TypeChecker {
                 continue;
             }
 
-            BString name = StringUtils.fromString(field.name);
+            BString name = BStringValues.fromString(field.name);
 
             if (Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !sourceVal.containsKey(name)) {
                 continue;
@@ -1104,7 +1104,7 @@ public class TypeChecker {
             String fieldName = field.getFieldName();
 
             if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
-                BString fieldNameBString = StringUtils.fromString(fieldName);
+                BString fieldNameBString = BStringValues.fromString(fieldName);
 
                 if (Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !sourceVal.containsKey(fieldNameBString)) {
                     continue;
@@ -1170,7 +1170,7 @@ public class TypeChecker {
             boolean optionalSourceField = Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL);
 
             if (Flags.isFlagOn(sourceField.flags, Flags.READONLY)) {
-                BString fieldNameBString = StringUtils.fromString(fieldName);
+                BString fieldNameBString = BStringValues.fromString(fieldName);
 
                 if (optionalSourceField && !sourceRecordValue.containsKey(fieldNameBString)) {
                     if (!optionalTargetField) {
@@ -1203,7 +1203,7 @@ public class TypeChecker {
             }
 
             if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
-                if (!checkIsLikeType(sourceRecordValue.get(StringUtils.fromString(field.name)),
+                if (!checkIsLikeType(sourceRecordValue.get(BStringValues.fromString(field.name)),
                                      targetType.restFieldType)) {
                     return false;
                 }
@@ -1422,7 +1422,7 @@ public class TypeChecker {
             }
 
             if (Flags.isFlagOn(rhsField.flags, Flags.READONLY)) {
-                if (!checkIsLikeType(sourceObjVal.get(StringUtils.fromString(name)), lhsField.type)) {
+                if (!checkIsLikeType(sourceObjVal.get(BStringValues.fromString(name)), lhsField.type)) {
                     return false;
                 }
             } else if (!checkIsType(rhsField.type, lhsField.type, unresolvedTypes)) {
