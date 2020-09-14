@@ -101,9 +101,8 @@ public function testInteropsInsideObject() {
     assertEquality(counter, 24);
     int age = p.getObjectValueField(h);
     assertEquality(age, 5);
-    // todo: https://github.com/ballerina-platform/ballerina-lang/issues/25631
-    //int x = p.getInt(h, 444);
-    //assertEquality(x, 444);
+    int x = p.getInt(h, 444);
+    assertEquality(x, 5);
     int y = p.getRandomInt(h);
     assertEquality(y, 123);
 

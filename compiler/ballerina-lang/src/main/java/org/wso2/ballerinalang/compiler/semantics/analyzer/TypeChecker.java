@@ -5102,6 +5102,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (((varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) && !aInv.async) {
             dlog.error(aInv.pos, DiagnosticCode.INVALID_ACTION_INVOCATION, varRef.type);
             this.resultType = symTable.semanticError;
+            aInv.symbol = symTable.notFoundSymbol;
             return;
         }
 

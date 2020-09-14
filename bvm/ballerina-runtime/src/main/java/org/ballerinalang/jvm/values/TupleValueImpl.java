@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -27,6 +28,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BErrorCreator;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.IOException;
@@ -391,10 +393,10 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         StringJoiner sj = new StringJoiner(" ");
         for (int i = 0; i < this.size; i++) {
-            sj.add(StringUtils.getStringValue(this.refValues[i]));
+            sj.add(StringUtils.getStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
         }
         return sj.toString();
     }

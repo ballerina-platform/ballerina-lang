@@ -41,7 +41,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
         isPublic = true
 )
 public class ToString {
+
     public static BString toString(Strand strand, Object value) {
-        return StringUtils.fromString(StringUtils.getStringValue(value));
+        return StringUtils.fromString(StringUtils.getStringValue(value, null));
     }
 }

@@ -94,7 +94,7 @@ public class ExprBodiedFunctionTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*NumberParsingError message='string' value " +
+          expectedExceptionsMessageRegExp = ".*NumberParsingError \\{\"message\":\"'string' value " +
                   "'invalid' cannot be converted to 'int'.*")
     public void testCheckPanic() {
         BRunUtil.invoke(compileResult, "testCheckPanic");

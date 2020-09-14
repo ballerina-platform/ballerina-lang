@@ -82,7 +82,8 @@ public class Sprintf {
                             break;
                         case 's':
                             if (ref != null) {
-                                result.append(String.format("%" + padding + "s", StringUtils.getStringValue(ref)));
+                                result.append(String.format("%" + padding + "s",
+                                        StringUtils.getStringValue(ref, null)));
                             }
                             break;
                         case '%':

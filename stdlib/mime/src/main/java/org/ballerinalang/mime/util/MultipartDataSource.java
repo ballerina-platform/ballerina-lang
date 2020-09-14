@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
@@ -220,7 +221,7 @@ public class MultipartDataSource implements RefValue {
         }
     }
 
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         return null;
     }
 

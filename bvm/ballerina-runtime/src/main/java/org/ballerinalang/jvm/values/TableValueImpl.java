@@ -17,6 +17,7 @@
 
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TableUtils;
@@ -31,6 +32,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.jvm.values.api.BIterator;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 
@@ -313,18 +315,24 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.values().forEach(val -> ((RefValue) val).freezeDirect());
     }
 
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
-        return createStringValueDataEntry(itr);
+        return createStringValueDataEntry(itr, parent);
     }
 
-    private String createStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr) {
-        StringJoiner sj = new StringJoiner("\n");
+    @Override
+    public String informalStringValue(BLink parent) {
+        return stringValue(parent);
+    }
+
+    private String createStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
         while (itr.hasNext()) {
             Map.Entry<Long, V> struct = itr.next();
-            sj.add(struct.getValue().toString());
+            sj.add(StringUtils.getStringValue(struct.getValue(),
+                    new CycleUtils.Node(this, parent)));
         }
-        return sj.toString();
+        return "[" + sj.toString() + "]";
     }
 
     private BType getTableConstraintField(BType constraintType, String fieldName) {

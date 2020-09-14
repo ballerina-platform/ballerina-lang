@@ -159,7 +159,7 @@ public class TableJSONDataSource implements JSONDataSource {
                         getStructData(record.getMapValue(key), structFields, index, key));
                 break;
             case TypeTags.XML_TAG:
-                BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key)));
+                BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key), null));
                 jsonObject.put(StringUtils.fromString(name), strVal);
                 break;
             default:

@@ -22,6 +22,7 @@ import org.apache.axiom.om.impl.llom.CharacterDataImpl;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.Map;
@@ -90,7 +91,7 @@ public class XMLText extends XMLNonElementItem {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         try {
             return data;
         } catch (Throwable t) {

@@ -17,17 +17,23 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BErrorType;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValue;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.io.PrintWriter;
@@ -82,20 +88,66 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
     }
 
-    @Override
-    public String stringValue() {
-        if (isEmptyDetail()) {
-            return "error " + message.getValue();
-        }
-        return "error " + message.getValue() + " " + getCauseToString() +
-                StringUtils.getStringValue(details);
+    public ErrorValue(BType type, BString message, BError cause, Object details,
+                      String typeIdName, BPackage typeIdPkg) {
+        super(message);
+        this.type = type;
+        this.message = message;
+        this.cause = cause;
+        this.details = details;
+        BTypeIdSet typeIdSet = new BTypeIdSet();
+        typeIdSet.add(typeIdPkg, typeIdName, true);
+        ((BErrorType) type).setTypeIdSet(typeIdSet);
     }
 
-    private String getCauseToString() {
+    @Override
+    public String stringValue(BLink parent) {
+        CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
+        if (isEmptyDetail()) {
+            return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue(linkParent) + ")";
+        }
+
+        return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue(linkParent) +
+                getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
+    }
+
+    private String getCauseToString(BLink parent) {
         if (cause != null) {
-            return StringUtils.getStringValue(cause) + " ";
+            return "," + cause.informalStringValue(parent);
         }
         return "";
+    }
+
+    private String getDetailsToString(BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
+        for (Object key : ((MapValue) details).getKeys()) {
+            Object value = ((MapValue) details).get(key);
+            if (value == null) {
+                sj.add(key + "=null");
+            } else {
+                BType type = TypeChecker.getType(value);
+                switch (type.getTag()) {
+                    case TypeTags.STRING_TAG:
+                    case TypeTags.XML_TAG:
+                    case TypeTags.XML_ELEMENT_TAG:
+                    case TypeTags.XML_ATTRIBUTES_TAG:
+                    case TypeTags.XML_COMMENT_TAG:
+                    case TypeTags.XML_PI_TAG:
+                    case TypeTags.XMLNS_TAG:
+                    case TypeTags.XML_TEXT_TAG:
+                        sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
+                        break;
+                    default:
+                        sj.add(key + "=" + StringUtils.getStringValue(value, parent));
+                        break;
+                }
+            }
+        }
+        return "," + sj.toString();
+    }
+
+    private String getModuleName() {
+        return type.getPackage().name == null ? "" : " " + type.getName() + " ";
     }
 
     @Override
@@ -124,7 +176,7 @@ public class ErrorValue extends BError implements RefValue {
 
     @Override
     public String toString() {
-        return stringValue();
+        return stringValue(null);
     }
 
     /**

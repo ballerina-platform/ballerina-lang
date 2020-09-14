@@ -4,3 +4,4 @@ public function foo() {
     boolean l = 23 === 1;
     boolean m = "hello" !== "world";
 }
+
