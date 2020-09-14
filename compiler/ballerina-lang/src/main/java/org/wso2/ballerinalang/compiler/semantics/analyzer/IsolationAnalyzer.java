@@ -261,7 +261,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (isBallerinaModule(env.enclPkg) && !Symbols.isFlagOn(funcNode.symbol.flags, Flags.ISOLATED) &&
                 this.inferredIsolated && !Symbols.isFlagOn(funcNode.symbol.flags, Flags.WORKER)) {
-            dlog.note(funcNode.pos, DiagnosticCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
+            dlog.warning(funcNode.pos, DiagnosticCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
         }
 
         this.inferredIsolated = prevInferredIsolated;
@@ -679,9 +679,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (recordFieldDefaultValue && isBallerinaModule(env.enclPkg)) {
+        if (recordFieldDefaultValue) {
             // TODO: 9/13/20 make this error once stdlibs are migrated
-            dlog.note(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+            dlog.warning(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
         }
     }
 
@@ -717,9 +717,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (isRecordFieldDefaultValue(env.enclType) && isBallerinaModule(env.enclPkg)) {
+        if (isRecordFieldDefaultValue(env.enclType)) {
             // TODO: 9/13/20 make this error once stdlibs are migrated
-            dlog.note(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+            dlog.warning(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
         }
     }
 
@@ -1236,9 +1236,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isBallerinaModule(BLangPackage module) {
-        // TODO: 9/13/20 Enable check once stdlibs are migrated and logs are changed to actual levels.
-        return true;
-//        return module.packageID.orgName.value.equals("ballerina");
+        return module.packageID.orgName.value.equals("ballerina");
     }
 
     private boolean isInIsolatedFunction(BLangInvokableNode enclInvokable) {
