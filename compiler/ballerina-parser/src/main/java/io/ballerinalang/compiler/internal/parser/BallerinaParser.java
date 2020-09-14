@@ -1033,11 +1033,9 @@ public class BallerinaParser extends AbstractParser {
         STNode typeDesc = STNodeFactory.createFunctionTypeDescriptorNode(qualifiers, functionKeyword,
                 funcSignature);
 
-        // Check if it is a complex type desc starting with function type
-        if (isValidTypeContinuationToken(peek())) {
-            typeDesc = parseComplexTypeDescriptor(typeDesc,
-                    ParserRuleContext.TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC, false);
-        }
+        // Check if it is a complex type desc starting with function type.
+        typeDesc = parseComplexTypeDescriptor(typeDesc,
+                ParserRuleContext.TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC, false);
 
         if (isObjectMember) {
             STNode readonlyQualifier = STNodeFactory.createEmptyNode();
