@@ -236,6 +236,5 @@ isolated function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic error("AssertionError");
-    //panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
+    panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
 }
