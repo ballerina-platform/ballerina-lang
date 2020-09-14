@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.NonBmpStringValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.api.BErrorCreator;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.BufferedInputStream;
@@ -52,6 +53,8 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * @since 0.95.3
  */
 public class StringUtils {
+
+    private static final String STR_CYCLE = "...";
 
     /**
      * Check whether two strings are equal in value.
@@ -181,9 +184,10 @@ public class StringUtils {
      * Returns the human-readable string value of Ballerina values.
      *
      * @param value The value on which the function is invoked
+     * @param parent The link to the parent node
      * @return String value of the value
      */
-    public static String getStringValue(Object value) {
+    public static String getStringValue(Object value, BLink parent) {
         if (value == null) {
             return "";
         }
@@ -199,14 +203,24 @@ public class StringUtils {
             return String.valueOf(value);
         }
 
+        CycleUtils.Node node = new CycleUtils.Node(value, parent);
+
+        if (node.hasCyclesSoFar()) {
+            return STR_CYCLE;
+        }
+
         if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             MapValueImpl mapValue = (MapValueImpl) value;
-            return mapValue.stringValue();
+            return mapValue.stringValue(parent);
         }
 
         if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
             ArrayValue arrayValue = (ArrayValue) value;
-            return arrayValue.stringValue();
+            return arrayValue.stringValue(parent);
+        }
+
+        if (type.getTag() == TypeTags.TABLE_TAG) {
+            return ((RefValue) value).informalStringValue(parent);
         }
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
@@ -222,11 +236,11 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.ERROR_TAG) {
             RefValue errorValue = (RefValue) value;
-            return errorValue.stringValue();
+            return errorValue.stringValue(parent);
         }
 
         RefValue refValue = (RefValue) value;
-        return refValue.stringValue();
+        return refValue.stringValue(parent);
     }
 
     /**
@@ -257,6 +271,7 @@ public class StringUtils {
         }
 
         RefValue refValue = (RefValue) value;
-        return refValue.stringValue();
+        return refValue.stringValue(null);
     }
+
 }

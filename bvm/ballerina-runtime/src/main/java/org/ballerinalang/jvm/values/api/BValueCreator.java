@@ -326,7 +326,6 @@ import javax.xml.namespace.QName;
      }
 
      /**
-      * /**
       * Create a runtime map value with given type.
       *
       * @param mapType map type.
@@ -337,7 +336,6 @@ import javax.xml.namespace.QName;
      }
 
      /**
-      * /**
       * Create a runtime map value wwith given initial values and given type.
       *
       * @param mapType   map type.

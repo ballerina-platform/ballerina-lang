@@ -22,11 +22,9 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
 /**
@@ -38,40 +36,90 @@ public class BErrorCreator {
 
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
 
+    /**
+     * Create an error with given reason.
+     *
+     * @param message error message
+     * @return new error
+     */
     public static BError createError(BString message) {
         return new ErrorValue(message, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
-    public static BError createError(BString reason, BString detail) {
+    /**
+     * Create an error with given message and details.
+     *
+     * @param message error message
+     * @param details error details
+     * @return new error.
+     */
+    public static BError createError(BString message, BString details) {
         MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
-        if (detail != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, detail);
+        if (details != null) {
+            detailMap.put(ERROR_MESSAGE_FIELD, details);
         }
-        return new ErrorValue(reason, detailMap);
+        return new ErrorValue(message, detailMap);
     }
 
+    /**
+     * Create an error with given reason and java @{@link Throwable}.
+     *
+     * @param message error message
+     * @param throwable java throwable
+     * @return new error
+     */
     public static BError createError(BString message, Throwable throwable) {
         return new ErrorValue(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage()),
                               message, createError(StringUtils.fromString(throwable.getMessage())),
                               new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
-    public static BError createError(BType type, BString message, BError cause, Object details) {
+    /**
+     * Create an error with given type, message, cause and details.
+     *
+     * @param type    error type
+     * @param message  error message
+     * @param cause   cause for the error
+     * @param details error details
+     * @return new error
+     */
+    public static BError createError(BType type, BString message, BError cause, BMap<BString, Object> details) {
         return new ErrorValue(type, message, cause, details);
     }
 
-    public static BError createError(BType type, BString message, BString detail) {
+    /**
+     * Create an error with given type, reason and details.
+     *
+     * @param type    error type
+     * @param message  error message
+     * @param details error details
+     * @return new error
+     */
+    public static BError createError(BType type, BString message, BString details) {
         MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
-        if (detail != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, detail);
+        if (details != null) {
+            detailMap.put(ERROR_MESSAGE_FIELD, details);
         }
         return new ErrorValue(type, message, null, detailMap);
     }
 
-    public static BError createError(BString message, BMap detailMap) {
-        return new ErrorValue(message, detailMap);
+    /**
+     * Create an error with given reason and details.
+     *
+     * @param message  error message
+     * @param details error details
+     * @return new error
+     */
+    public static BError createError(BString message, BMap<BString, Object> details) {
+        return new ErrorValue(message, details);
     }
 
+    /**
+     * Create an error with given @Throwable.
+     *
+     * @param error  java @{@link Throwable}
+     * @return new error
+     */
     public static BError createError(Throwable error) {
         if (error instanceof BError) {
             return (BError) error;
@@ -79,30 +127,47 @@ public class BErrorCreator {
         return createError(StringUtils.fromString(error.getMessage()));
     }
 
+    /**
+     * Create an distinct error with given typeID, typeIdPkg and reason.
+     *
+     * @param typeIdName type id
+     * @param typeIdPkg  type id module
+     * @param message  error message
+     * @return new error
+     */
     public static BError createDistinctError(String typeIdName, BPackage typeIdPkg, BString message) {
         return createDistinctError(typeIdName, typeIdPkg, message, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
+    /**
+     * Create an distinct error with given typeID, typeIdPkg and reason.
+     *
+     * @param typeIdName type id
+     * @param typeIdPkg  type id module
+     * @param message  error message
+     * @param details  error details
+     * @return new error
+     */
     public static BError createDistinctError(String typeIdName, BPackage typeIdPkg, BString message,
-                                             MapValue<BString, Object> detailRecord) {
-        BError error = createError(message, detailRecord);
-        setTypeId(typeIdName, typeIdPkg, error);
-        return error;
+                                             BMap<BString, Object> details) {
+        return new ErrorValue(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker
+                .getType(details)), message, null, details, typeIdName, typeIdPkg);
     }
 
+    /**
+     * Create an distinct error with given typeID, typeIdPkg and reason.
+     *
+     * @param typeIdName type id
+     * @param typeIdPkg  type id module
+     * @param message     error message
+     * @param cause      error cause
+     * @return new error
+     */
     public static BError createDistinctError(String typeIdName, BPackage typeIdPkg, BString message,
                                              BError cause) {
         MapValueImpl<Object, Object> details = new MapValueImpl<>(BTypes.typeErrorDetail);
-        BError error = new ErrorValue(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
-                                                     TypeChecker.getType(details)), message, cause, details);
-        setTypeId(typeIdName, typeIdPkg, error);
-        return error;
-    }
-
-    public static void setTypeId(String typeIdName, BPackage typeIdPkg, BError error) {
-        BErrorType type = (BErrorType) error.getType();
-        BTypeIdSet typeIdSet = new BTypeIdSet();
-        typeIdSet.add(typeIdPkg, typeIdName, true);
-        type.setTypeIdSet(typeIdSet);
+        return new ErrorValue(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
+                                             TypeChecker.getType(details)), message, cause, details,
+                              typeIdName, typeIdPkg);
     }
 }
