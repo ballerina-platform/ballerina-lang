@@ -42,6 +42,17 @@ public class CompileResult {
         this.diagnosticListener = diagnosticListener;
     }
 
+    public Diagnostic[] getErrorAndWarnDiagnostics() {
+        List<Diagnostic> nonNoteDiagnostics = new ArrayList<>();
+
+        for (Diagnostic diagnostic : getDiagnostics()) {
+            if (diagnostic.getKind() != Diagnostic.Kind.NOTE) {
+                nonNoteDiagnostics.add(diagnostic);
+            }
+        }
+        return nonNoteDiagnostics.toArray(new Diagnostic[0]);
+    }
+
     public Diagnostic[] getDiagnostics() {
         List<Diagnostic> diagnostics = this.diagnosticListener.getDiagnostics();
         diagnostics.sort(Comparator.comparing((Diagnostic d) -> d.getSource().getCompilationUnitName()).
@@ -55,6 +66,10 @@ public class CompileResult {
 
     public int getWarnCount() {
         return this.diagnosticListener.warnCount;
+    }
+
+    public int getNoteCount() {
+        return this.diagnosticListener.noteCount;
     }
 
     public PackageNode getAST() {
@@ -80,7 +95,7 @@ public class CompileResult {
             builder.append("Compilation Successful");
         } else {
             builder.append("Compilation Failed:\n");
-            for (Diagnostic diag : this.getDiagnostics()) {
+            for (Diagnostic diag : this.getErrorAndWarnDiagnostics()) {
                 builder.append(diag + "\n");
             }
         }
@@ -96,6 +111,7 @@ public class CompileResult {
         private List<Diagnostic> diagnostics;
         private int errorCount = 0;
         private int warnCount = 0;
+        private int noteCount = 0;
 
         public CompileResultDiagnosticListener() {
             this.diagnostics = new ArrayList<>();
@@ -112,6 +128,7 @@ public class CompileResult {
                     warnCount++;
                     break;
                 default:
+                    noteCount++;
                     break;
             }
         }
@@ -122,6 +139,10 @@ public class CompileResult {
 
         public int getWarnCount() {
             return warnCount;
+        }
+
+        public int getNoteCount() {
+            return noteCount;
         }
 
         public List<Diagnostic> getDiagnostics() {

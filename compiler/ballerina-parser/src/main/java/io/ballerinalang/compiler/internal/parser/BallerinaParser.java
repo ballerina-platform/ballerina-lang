@@ -204,6 +204,7 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
             case ENUM_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case ISOLATED_KEYWORD:
                 // Following are module-class-defn starting tokens
             case CLASS_KEYWORD:
             case DISTINCT_KEYWORD:
@@ -270,6 +271,7 @@ public class BallerinaParser extends AbstractParser {
             case XMLNS_KEYWORD:
             case ENUM_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case ISOLATED_KEYWORD:
                 // Following are module-class-defn starting tokens
             case CLASS_KEYWORD:
             case DISTINCT_KEYWORD:
@@ -535,6 +537,7 @@ public class BallerinaParser extends AbstractParser {
             case IMPORT_KEYWORD:
             case FINAL_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case ISOLATED_KEYWORD:
                 return true;
             default:
                 return false;
@@ -747,6 +750,7 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case ISOLATED_KEYWORD:
                 // Anything starts with a function keyword could be a function definition
                 // or a module-var-decl with function type desc.
                 List<STNode> qualifiers = new ArrayList<>();
@@ -4721,6 +4725,7 @@ public class BallerinaParser extends AbstractParser {
             case REMOTE_KEYWORD:
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case ISOLATED_KEYWORD:
             case RESOURCE_KEYWORD:// resource qualifier is not allowed but let it pass here and validate in
                 // parseFunctionQualifiers method
                 metadata = STNodeFactory.createEmptyNode();
@@ -4772,6 +4777,7 @@ public class BallerinaParser extends AbstractParser {
             case REMOTE_KEYWORD:
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case ISOLATED_KEYWORD:
             case RESOURCE_KEYWORD: // resource qualifier is not allowed but let it pass here and validate in
                 // parseFunctionQualifiers method
                 member = parseObjectMethod(metadata, new ArrayList<>(), isObjectTypeDesc);
@@ -4834,6 +4840,7 @@ public class BallerinaParser extends AbstractParser {
             case REMOTE_KEYWORD:
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case ISOLATED_KEYWORD:
             case RESOURCE_KEYWORD: // resource qualifier is not allowed but let it pass here and validate in
                 // parseFunctionQualifiers method
                 if (visibilityQualifier != null) {
@@ -4881,6 +4888,9 @@ public class BallerinaParser extends AbstractParser {
                 case RESOURCE_KEYWORD:
                     qualifier = parseResourceKeyword();
                     break;
+                case ISOLATED_KEYWORD:
+                    qualifier = consume();
+                    break;
                 default:
                     recover(peek(), context, context, qualifierList);
                     return parseFunctionQualifiers(context, qualifierList);
@@ -4925,6 +4935,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             case TRANSACTIONAL_KEYWORD:
+            case ISOLATED_KEYWORD:
                 break;
             default:// RESOURCE_KEYWORD
                 if (context != ParserRuleContext.RESOURCE_DEF_QUALIFIERS) {
@@ -6004,6 +6015,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case RESOURCE_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case ISOLATED_KEYWORD:
             case FUNCTION_KEYWORD:
             case REMOTE_KEYWORD: // remote qualifier is not allowed but let it pass here and validate in
                 // parseFunctionQualifiers method

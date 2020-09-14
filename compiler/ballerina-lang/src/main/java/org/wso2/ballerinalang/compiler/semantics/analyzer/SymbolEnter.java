@@ -2335,6 +2335,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         invokableSymbol.type = new BInvokableType(paramTypes, restType, invokableNode.returnTypeNode.type, null);
         invokableSymbol.type.tsymbol = functionTypeSymbol;
+
+        if (Symbols.isFlagOn(functionTypeSymbol.flags, Flags.ISOLATED)) {
+            invokableSymbol.type.flags |= Flags.ISOLATED;
+        }
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {

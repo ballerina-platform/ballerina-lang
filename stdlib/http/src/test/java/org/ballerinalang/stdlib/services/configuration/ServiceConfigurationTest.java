@@ -43,7 +43,7 @@ public class ServiceConfigurationTest {
     public void testDuplicateServiceConfigAnnotations() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/services/configuration/service-config-annotation.bal");
-        Diagnostic[] diag = compileResult.getDiagnostics();
+        Diagnostic[] diag = compileResult.getErrorAndWarnDiagnostics();
         Assert.assertEquals(diag.length, 1);
         Assert.assertEquals(diag[0].getMessage(),
                             "cannot specify more than one annotation value for annotation 'ServiceConfig'");

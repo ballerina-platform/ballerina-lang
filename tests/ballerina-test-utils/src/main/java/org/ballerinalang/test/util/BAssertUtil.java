@@ -41,7 +41,7 @@ public class BAssertUtil {
      */
     public static void validateError(CompileResult result, int errorIndex, String expectedErrMsg, int expectedErrLine,
             int expectedErrCol) {
-        Diagnostic diag = result.getDiagnostics()[errorIndex];
+        Diagnostic diag = result.getErrorAndWarnDiagnostics()[errorIndex];
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
         Assert.assertEquals(diag.getMessage().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                 expectedErrMsg.replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "incorrect error message:");
@@ -51,7 +51,7 @@ public class BAssertUtil {
 
     public static void validateError(CompileResult result, int errorIndex, String expectedErrMsg, String fileName,
                                      int expectedErrLine, int expectedErrCol) {
-        Diagnostic diag = result.getDiagnostics()[errorIndex];
+        Diagnostic diag = result.getErrorAndWarnDiagnostics()[errorIndex];
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
         Assert.assertEquals(diag.getMessage().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                 expectedErrMsg.replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "incorrect error message:");
@@ -69,7 +69,7 @@ public class BAssertUtil {
      * @param expectedErrCol  Expected column number of the error
      */
     public static void validateError(CompileResult result, int errorIndex, int expectedErrLine, int expectedErrCol) {
-        Diagnostic diag = result.getDiagnostics()[errorIndex];
+        Diagnostic diag = result.getErrorAndWarnDiagnostics()[errorIndex];
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
         Assert.assertEquals(diag.getPosition().getStartColumn(), expectedErrCol, "incorrect column position:");
@@ -83,7 +83,7 @@ public class BAssertUtil {
      * @param expectedPartOfErrMsg Expected part of error message
      */
     public static void validateErrorMessageOnly(CompileResult result, int errorIndex, String expectedPartOfErrMsg) {
-        Diagnostic diag = result.getDiagnostics()[errorIndex];
+        Diagnostic diag = result.getErrorAndWarnDiagnostics()[errorIndex];
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
         Assert.assertTrue(diag.getMessage().contains(expectedPartOfErrMsg),
                 '\'' + expectedPartOfErrMsg + "' is not contained in error message '" + diag.getMessage() + '\'');
@@ -97,7 +97,7 @@ public class BAssertUtil {
      * @param expectedPartsOfErrMsg Array of expected parts of error message
      */
     public static void validateErrorMessageOnly(CompileResult result, int errorIndex, String[] expectedPartsOfErrMsg) {
-        Diagnostic diag = result.getDiagnostics()[errorIndex];
+        Diagnostic diag = result.getErrorAndWarnDiagnostics()[errorIndex];
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
         boolean contains = false;
         for (String part : expectedPartsOfErrMsg) {
@@ -121,10 +121,41 @@ public class BAssertUtil {
      */
     public static void validateWarning(CompileResult result, int warningIndex, String expectedWarnMsg,
             int expectedWarnLine, int expectedWarnCol) {
-        Diagnostic diag = result.getDiagnostics()[warningIndex];
+        Diagnostic diag = result.getErrorAndWarnDiagnostics()[warningIndex];
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.WARNING, "incorrect diagnostic type");
         Assert.assertEquals(diag.getMessage(), expectedWarnMsg, "incorrect warning message:");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedWarnLine, "incorrect line number:");
         Assert.assertEquals(diag.getPosition().getStartColumn(), expectedWarnCol, "incorrect column position:");
+    }
+
+    public static void validateNote(CompileResult result, int index, String expectedMessage, int expectedLine,
+                                    int expectedColumn) {
+        Diagnostic[] diagnostics = result.getDiagnostics();
+        Diagnostic noteDiagnostic = null;
+
+        int noteIndex = 0;
+
+        for (Diagnostic diagnostic : diagnostics) {
+            if (diagnostic.getKind() != Diagnostic.Kind.NOTE) {
+                continue;
+            }
+
+            if (noteIndex == index) {
+                noteDiagnostic = diagnostic;
+                break;
+            }
+
+            noteIndex++;
+        }
+
+        if (noteDiagnostic == null) {
+            Assert.fail("note diagnostic not found at specified index");
+        }
+
+        Assert.assertEquals(noteDiagnostic.getMessage().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
+                            expectedMessage.replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "incorrect note message:");
+        Diagnostic.DiagnosticPosition position = noteDiagnostic.getPosition();
+        Assert.assertEquals(position.getStartLine(), expectedLine, "incorrect line number:");
+        Assert.assertEquals(position.getStartColumn(), expectedColumn, "incorrect column position:");
     }
 }

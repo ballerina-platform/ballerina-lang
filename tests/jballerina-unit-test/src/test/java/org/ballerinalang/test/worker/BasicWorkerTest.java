@@ -38,7 +38,7 @@ public class BasicWorkerTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/basic-worker-actions.bal");
-        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
+        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getErrorAndWarnDiagnostics()).toString());
     }
     
     @Test

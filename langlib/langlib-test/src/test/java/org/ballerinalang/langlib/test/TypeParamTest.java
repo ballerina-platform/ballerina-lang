@@ -101,7 +101,7 @@ public class TypeParamTest {
 
         CompileResult result = BCompileUtil.compile("test-src/type-param/imported_type_param.bal");
         Assert.assertEquals(result.getErrorCount(), 0, "compilation contains error\n"
-                + Arrays.toString(result.getDiagnostics()));
+                + Arrays.toString(result.getErrorAndWarnDiagnostics()));
         BValue[] ret1 = BRunUtil.invoke(result, "testImportedModuleTypeParam1");
         Assert.assertEquals(ret1.length, 1);
         Assert.assertEquals(ret1[0].stringValue(), "[20, 40, 60, 80]");

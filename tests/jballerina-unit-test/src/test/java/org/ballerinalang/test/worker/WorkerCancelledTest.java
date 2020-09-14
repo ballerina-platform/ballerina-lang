@@ -37,7 +37,7 @@ public class WorkerCancelledTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/worker-cancelled.bal");
-        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
+        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getErrorAndWarnDiagnostics()).toString());
     }
 
     @Test()
