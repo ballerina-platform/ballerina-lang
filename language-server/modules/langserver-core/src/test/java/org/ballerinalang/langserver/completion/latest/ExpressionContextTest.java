@@ -45,6 +45,18 @@ public class ExpressionContextTest extends CompletionTestNew {
                 "query_expr_ctx_config2.json",
                 "query_expr_ctx_config6a.json",
                 "query_expr_ctx_config7.json",
-                "query_expr_ctx_config5.json");
+                "query_expr_ctx_config5.json",
+                "query_expr_ctx_join_clause_config4.json",
+                "query_expr_ctx_join_clause_config5a.json",
+                "query_expr_ctx_join_clause_config6.json",
+                "query_expr_ctx_join_clause_config6a.json",
+                "query_expr_ctx_join_clause_config7.json",
+                "query_expr_ctx_join_clause_config7a.json",
+                "query_expr_ctx_join_clause_config8.json",
+                "query_expr_ctx_join_clause_config11.json", // LS fix needed
+                "query_expr_ctx_orderby_clause_config4.json", // LS fix needed
+                "query_expr_ctx_onconflict_clause_config1.json",
+                "query_expr_ctx_onconflict_clause_config1a.json" // LS fix needed
+        );
     }
 }

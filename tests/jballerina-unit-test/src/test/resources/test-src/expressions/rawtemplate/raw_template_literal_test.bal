@@ -161,12 +161,12 @@ function testUsageWithQueryExpressions() {
         select `INSERT INTO product ('id', 'name', 'price') VALUES (${x}, ${x + 10}, ${x + 20})`;
 
     foreach var x in queries {
-        assert("INSERT INTO product ('id', 'name', 'price') VALUES ( ,  ,  )", x.strings.toString());
+        assert("[\"INSERT INTO product ('id', 'name', 'price') VALUES (\",\", \",\", \",\")\"]", x.strings.toString());
     }
 
     int i = 0;
     foreach var x in queries {
-        assert(string `${arr[i]} ${arr[i] + 10} ${arr[i] + 20}`, x.insertions.toString());
+        assert(string `[${arr[i]},${arr[i] + 10},${arr[i] + 20}]`, x.insertions.toString());
         i += 1;
     }
 }
@@ -188,12 +188,12 @@ function testUsageWithQueryExpressions2() {
     ParameterizedQuery[] queries = from var rec in data select `INSERT INTO People (name) values (${rec.name});`;
 
     foreach var x in queries {
-        assert("INSERT INTO People (name) values ( );", x.strings.toString());
+        assert("[\"INSERT INTO People (name) values (\",\");\"]", x.strings.toString());
     }
 
     int i = 0;
     foreach var x in queries {
-        assert(data[i]["name"], x.insertions.toString());
+        assert("[\"" + data[i]["name"]+ "\"]", x.insertions.toString());
         i += 1;
     }
 }

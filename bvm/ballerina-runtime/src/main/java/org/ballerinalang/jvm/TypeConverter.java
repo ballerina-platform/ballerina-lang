@@ -660,7 +660,7 @@ public class TypeConverter {
         } else if (sourceVal instanceof Boolean) {
             return Boolean.toString((Boolean) sourceVal);
         } else if (sourceVal instanceof DecimalValue) {
-            return ((DecimalValue) sourceVal).stringValue();
+            return ((DecimalValue) sourceVal).stringValue(null);
         } else if (sourceVal instanceof String) {
             return (String) sourceVal;
         } else if (sourceVal == null) {

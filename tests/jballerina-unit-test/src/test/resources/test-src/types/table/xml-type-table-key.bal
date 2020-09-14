@@ -19,7 +19,7 @@ type Name record {
 type CustomerTableWithKS table<Customer> key(id);
 type CustomerTableWithoutKS table<Customer>;
 type CustomerTableWithKC table<Customer> key<xml>;
-string tableAsString = "id=<id>123</id> name=fname=Sanjiva lname=Weerawarana address=Sri Lanka\nid=<id>234</id> name=fname=James lname=Clark address=Thailand";
+string tableAsString = "[{\"id\":`<id>123</id>`,\"name\":{\"fname\":\"Sanjiva\",\"lname\":\"Weerawarana\"},\"address\":\"Sri Lanka\"},{\"id\":`<id>234</id>`,\"name\":{\"fname\":\"James\",\"lname\":\"Clark\"},\"address\":\"Thailand\"}]";
 
 function testTableTypeWithXMLKeySpecifierV1() {
     CustomerTableWithKS tab = table [{id: xml `<id>123</id>`, name: {fname: "Sanjiva", lname: "Weerawarana"}, address: "Sri Lanka" },
@@ -116,7 +116,7 @@ function testTableWithKeySpecifier() {
 }
 
 function testInferTableType() {
-    string cutomerListString = "id=<id>123</id> name=Sanjiva lname=Weerawarana\nid=<id>1233</id> name=James\nid=<id>444</id> name=Mohan lname=Darshan address=no=32 road=High level";
+    string cutomerListString = "[{\"id\":`<id>123</id>`,\"name\":\"Sanjiva\",\"lname\":\"Weerawarana\"},{\"id\":`<id>1233</id>`,\"name\":\"James\"},{\"id\":`<id>444</id>`,\"name\":\"Mohan\",\"lname\":\"Darshan\",\"address\":{\"no\":32,\"road\":\"High level\"}}]";
     var tab = table [{ id: xml `<id>123</id>` , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: xml `<id>1233</id>` , name: "James" },
                                        { id: xml `<id>444</id>` , name: "Mohan", lname: "Darshan" , address: {no: 32, road: "High level"}}];
