@@ -988,6 +988,7 @@ public class BallerinaParser extends AbstractParser {
                 // Parse the remaining as var-decl, because its the only module-level construct
                 // that can start with a func-type-desc. Constants cannot have func-type-desc.
             default:
+                endContext(); // end the func-type
                 return parseVarDeclWithFunctionType(functionKeyword, funcSignature, qualifiers, metadata,
                         isObjectMember, isObjectTypeDesc);
         }
@@ -1009,7 +1010,6 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseVarDeclWithFunctionType(STNode functionKeyword, STNode funcSignature, STNode qualifiers,
                                                 STNode metadata, boolean isObjectMember, boolean isObjectTypeDesc) {
-        endContext(); // end the func-type
         STNodeList qualifierList = (STNodeList) qualifiers;
         STNode visibilityQualifier = STNodeFactory.createEmptyNode();
         List<STNode> validatedQualifierList = new ArrayList<>();
@@ -1026,7 +1026,6 @@ public class BallerinaParser extends AbstractParser {
             } else {
                 functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
                         DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
-
             }
         }
 
@@ -4945,6 +4944,11 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             case TRANSACTIONAL_KEYWORD:
+                if (context == ParserRuleContext.FUNC_TYPE_DESC_START ||
+                        context == ParserRuleContext.ANON_FUNC_EXPRESSION_START) {
+                    return DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED;
+                }
+                break;
             case ISOLATED_KEYWORD:
                 break;
             default:// RESOURCE_KEYWORD
@@ -8846,21 +8850,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFunctionTypeDesc() {
         startContext(ParserRuleContext.FUNC_TYPE_DESC);
         List<STNode> qualifiers = new ArrayList<>();
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case ISOLATED_KEYWORD:
-                qualifiers.add(consume());
-                break;
-            case FUNCTION_KEYWORD:
-                break;
-            default:
-                recover(peek(), ParserRuleContext.FUNC_TYPE_DESC_START);
-                return parseFunctionTypeDesc();
-        }
+        STNode qualifierList = parseFunctionQualifiers(ParserRuleContext.FUNC_TYPE_DESC_START, qualifiers);
         STNode functionKeyword = parseFunctionKeyword();
         STNode signature = parseFuncSignature(true);
         endContext();
-        STNode qualifierList = STNodeFactory.createNodeList(qualifiers);
         return STNodeFactory.createFunctionTypeDescriptorNode(qualifierList, functionKeyword, signature);
     }
 
@@ -8876,22 +8869,11 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseExplicitFunctionExpression(STNode annots, boolean isRhsExpr) {
         startContext(ParserRuleContext.ANON_FUNC_EXPRESSION);
         List<STNode> qualifiers = new ArrayList<>();
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case ISOLATED_KEYWORD:
-                qualifiers.add(consume());
-                break;
-            case FUNCTION_KEYWORD:
-                break;
-            default:
-                recover(peek(), ParserRuleContext.ANON_FUNC_EXPRESSION_START);
-                return parseFunctionTypeDesc();
-        }
+        STNode qualifierList = parseFunctionQualifiers(ParserRuleContext.ANON_FUNC_EXPRESSION_START, qualifiers);
         STNode funcKeyword = parseFunctionKeyword();
         STNode funcSignature = parseFuncSignature(false);
+        // Context ended inside parseAnonFuncBody method
         STNode funcBody = parseAnonFuncBody(isRhsExpr);
-
-        STNode qualifierList = STNodeFactory.createNodeList(qualifiers);
         return STNodeFactory.createExplicitAnonymousFunctionExpressionNode(annots, qualifierList, funcKeyword,
                 funcSignature, funcBody);
     }
@@ -12669,23 +12651,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseAnonFuncExprOrFuncTypeDesc() {
         startContext(ParserRuleContext.FUNC_TYPE_DESC_OR_ANON_FUNC);
         List<STNode> qualifiers = new ArrayList<>();
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case ISOLATED_KEYWORD:
-                qualifiers.add(consume());
-                break;
-            case FUNCTION_KEYWORD:
-                break;
-            default:
-                recover(peek(), ParserRuleContext.FUNC_TYPE_DESC_START);
-                return parseFunctionTypeDesc();
-        }
-
+        STNode qualifierList = parseFunctionQualifiers(ParserRuleContext.FUNC_TYPE_DESC_START, qualifiers);
         STNode functionKeyword = parseFunctionKeyword();
         STNode funcSignature = parseFuncSignature(true);
         endContext();
-
-        STNode qualifierList = STNodeFactory.createNodeList(qualifiers);
 
         switch (peek().kind) {
             case OPEN_BRACE_TOKEN:
