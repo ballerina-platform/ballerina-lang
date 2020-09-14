@@ -45,6 +45,7 @@ import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.openapi.cmd.Filter;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiOperation;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiParameter;
@@ -318,7 +319,12 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
             BallerinaOpenApiPath typePath = new BallerinaOpenApiPath();
 
             typePath.setPath(pathName);
-            typePath.setOperationsList(extractOpenApiOperations(pathObject.readOperationsMap(), pathName));
+
+            List<String> tag = new ArrayList<>();
+            List<String> operation = new ArrayList<>();
+            Filter filter = new Filter(tag, operation);
+
+            typePath.setOperationsList(extractOpenApiOperations(pathObject.readOperationsMap(), pathName, filter));
 
             paths.add(typePath);
         }

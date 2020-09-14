@@ -104,7 +104,7 @@ function testTableArrayFill(int index) {
         }
     }
 
-    assertEquality("id=1 name=John salary=50000.0", ar[index].toString());
+    assertEquality("[{\"id\":1,\"name\":\"John\",\"salary\":50000.0}]", ar[index].toString());
     assertEquality("John", name.trim());
 }
 

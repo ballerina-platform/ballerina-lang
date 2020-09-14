@@ -54,6 +54,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * Helper class with util methods to create type definitions.
  *
@@ -67,7 +69,8 @@ public class TypeDefBuilderHelper {
         for (BField field : recordType.fields.values()) {
             BVarSymbol symbol = field.symbol;
             if (symbol == null) {
-                symbol = new BVarSymbol(Flags.PUBLIC, field.name, packageID, symTable.pureType, null, field.pos);
+                symbol = new BVarSymbol(Flags.PUBLIC, field.name, packageID, symTable.pureType, null, field.pos,
+                                        VIRTUAL);
             }
 
             BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
@@ -134,7 +137,7 @@ public class TypeDefBuilderHelper {
         initFunction.receiver = ASTBuilderUtil.createReceiver(pos, type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, type, null, pos);
+                                                   env.enclPkg.symbol.pkgID, type, null, pos, VIRTUAL);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
@@ -147,7 +150,7 @@ public class TypeDefBuilderHelper {
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
                                       initFunction.type, symbol, initFunction.body != null,
-                                      initFunction.pos);
+                                      initFunction.pos, VIRTUAL);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
@@ -157,7 +160,8 @@ public class TypeDefBuilderHelper {
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                          initFunction.symbol.flags,
                                                                          env.enclPkg.packageID, initFunction.type,
-                                                                         initFunction.symbol, initFunction.pos);
+                                                                         initFunction.symbol, initFunction.pos,
+                                                                         VIRTUAL);
         tsymbol.params = initFunction.symbol.params;
         tsymbol.restParam = initFunction.symbol.restParam;
         tsymbol.returnType = initFunction.symbol.retType;

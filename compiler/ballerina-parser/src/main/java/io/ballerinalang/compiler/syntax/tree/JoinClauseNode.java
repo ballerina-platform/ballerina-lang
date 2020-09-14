@@ -27,7 +27,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class JoinClauseNode extends ClauseNode {
+public class JoinClauseNode extends IntermediateClauseNode {
 
     public JoinClauseNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

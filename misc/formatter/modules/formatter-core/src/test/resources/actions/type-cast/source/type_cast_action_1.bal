@@ -8,7 +8,7 @@ type Employee record {
 
 public function foo() {
    Employee employee = {name: "Jane Doe"};
-   Person2 person  =   <  Person2  >
+   Person person  =   <  Person  >
      employee   ;
    anydata value = 100;
    int   i   =   <int  >   value

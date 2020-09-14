@@ -19,7 +19,7 @@ type Name record {
 };
 
 type CustomerTableWithKS table<Customer> key(name);
-string tableAsString = "name=fname=Sanjiva lname=Weerawarana id=13 address=Sri Lanka\nname=fname=James lname=Clark id=23 address=Thailand";
+string tableAsString = "[{\"name\":{\"fname\":\"Sanjiva\",\"lname\":\"Weerawarana\"},\"id\":13,\"address\":\"Sri Lanka\"},{\"name\":{\"fname\":\"James\",\"lname\":\"Clark\"},\"id\":23,\"address\":\"Thailand\"}]";
 
 function testTableTypeWithKeySpecifier() {
     CustomerTableWithKS tab = table [{name: {fname: "Sanjiva", lname: "Weerawarana"}, id: 13, address: "Sri Lanka" },
@@ -105,7 +105,7 @@ function testKeylessTable() {
                                         {name: {fname: "James" , lname: "Clark"}, id: 23 , address: "Thailand" }];
 
     assertEquality(3, customerTable.length());
-    string expectedValues = "name=fname=Sanjiva lname=Weerawarana id=13 address=Sri Lanka\nname=fname=James lname=Clark id=23 address=Thailand\nname=fname=James lname=Clark id=23 address=Thailand";
+    string expectedValues = "[{\"name\":{\"fname\":\"Sanjiva\",\"lname\":\"Weerawarana\"},\"id\":13,\"address\":\"Sri Lanka\"},{\"name\":{\"fname\":\"James\",\"lname\":\"Clark\"},\"id\":23,\"address\":\"Thailand\"},{\"name\":{\"fname\":\"James\",\"lname\":\"Clark\"},\"id\":23,\"address\":\"Thailand\"}]";
     assertEquality(expectedValues, customerTable.toString());
 }
 
@@ -147,7 +147,7 @@ function testTableWithKeySpecifier() {
 }
 
 function testInferTableType() {
-    string cutomerListString = "id=13 name=Sanjiva lname=Weerawarana\nid=23 name=James\nid=133 name=Mohan lname=Darshan address=no=32 road=High level";
+    string cutomerListString = "[{\"id\":13,\"name\":\"Sanjiva\",\"lname\":\"Weerawarana\"},{\"id\":23,\"name\":\"James\"},{\"id\":133,\"name\":\"Mohan\",\"lname\":\"Darshan\",\"address\":{\"no\":32,\"road\":\"High level\"}}]";
     var tab = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" },
                                        { id: 133 , name: "Mohan", lname: "Darshan" , address: {no: 32, road: "High level"}}];

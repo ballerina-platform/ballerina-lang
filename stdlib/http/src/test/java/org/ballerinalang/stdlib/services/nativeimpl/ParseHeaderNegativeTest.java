@@ -62,7 +62,7 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(((BError) returnVals[0]).getMessage(),
-                            "failed to parse: error invalid header value: ;a = 2");
+                            "failed to parse: error(\"invalid header value: ;a = 2\")");
     }
 
     @Test(description = "Test function with invalid param values")
@@ -74,7 +74,7 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(((BError) returnVals[0]).getMessage(),
-                            "failed to parse: error invalid header parameter: a =");
+                            "failed to parse: error(\"invalid header parameter: a =\")");
     }
 
     @Test(description = "Test function with invalid param values")
@@ -86,7 +86,7 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(((BError) returnVals[0]).getMessage(),
-                            "failed to parse: error invalid header parameter: =");
+                            "failed to parse: error(\"invalid header parameter: =\")");
     }
 
     @Test(description = "Test function with invalid param values")
@@ -98,6 +98,6 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(((BError) returnVals[0]).getMessage(),
-                            "failed to parse: error invalid header parameter: = 2");
+                            "failed to parse: error(\"invalid header parameter: = 2\")");
     }
 }

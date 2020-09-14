@@ -1,5 +1,6 @@
 public function foo() {
-   {
+    {
 
-   }
+    }
 }
+

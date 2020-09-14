@@ -17,7 +17,7 @@ GlobalTable1 tab1 = table [
 ];
 
 function testGlobalTableConstructExpr() returns boolean {
-    return tab1.toString() == "name=AAA age=31\nname=BBB age=34";
+    return tab1.toString() == "[{\"name\":\"AAA\",\"age\":31},{\"name\":\"BBB\",\"age\":34}]";
 }
 
 function testTableMemberAccessStore() returns boolean {
@@ -27,7 +27,7 @@ function testTableMemberAccessStore() returns boolean {
     ];
 
     tab[{"CCC":"EEEE"}] = { m: {"CCC":"EEEE"}, age: 34 };
-    return tab.toString() == "m=AAA=DDDD age=31\nm=BBB=DDDD age=34\nm=CCC=EEEE age=34";
+    return tab.toString() == "[{\"m\":{\"AAA\":\"DDDD\"},\"age\":31},{\"m\":{\"BBB\":\"DDDD\"},\"age\":34},{\"m\":{\"CCC\":\"EEEE\"},\"age\":34}]";
 }
 
 function testTableMemberAccessLoad() returns boolean {
@@ -36,7 +36,7 @@ function testTableMemberAccessLoad() returns boolean {
       { m: {"BBB":"DDDD"}, age: 34 }
     ];
     Foo aaa = tab[{"AAA":"DDDD"}];
-    return aaa.toString() == "m=AAA=DDDD age=31";
+    return aaa.toString() == "{\"m\":{\"AAA\":\"DDDD\"},\"age\":31}";
 }
 
 type Customer record {
@@ -45,7 +45,7 @@ type Customer record {
     string lname;
 };
 
-string cutomerListString = "id=13 name=Sanjiva lname=Weerawarana\nid=23 name=James lname=Clark";
+string cutomerListString = "[{\"id\":13,\"name\":\"Sanjiva\",\"lname\":\"Weerawarana\"},{\"id\":23,\"name\":\"James\",\"lname\":\"Clark\"}]";
 
 type CustomerTableWithKS table<Customer> key(id);
 
@@ -151,7 +151,7 @@ function testKeylessTable() {
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
     assertEquality(3, customerTable.length());
-    string expectedValues = "id=13 name=Sanjiva lname=Weerawarana\nid=23 name=James lname=Clark\nid=23 name=James lname=Clark";
+    string expectedValues = "[{\"id\":13,\"name\":\"Sanjiva\",\"lname\":\"Weerawarana\"},{\"id\":23,\"name\":\"James\",\"lname\":\"Clark\"},{\"id\":23,\"name\":\"James\",\"lname\":\"Clark\"}]";
     assertEquality(expectedValues, customerTable.toString());
 }
 
@@ -194,7 +194,7 @@ function testTableWithKeySpecifier() {
 }
 
 function testInferTableType() {
-    string cutomerListString = "id=13 name=Sanjiva lname=Weerawarana\nid=23 name=James\nid=133 name=Mohan lname=Darshan address=Colombo";
+    string cutomerListString = "[{\"id\":13,\"name\":\"Sanjiva\",\"lname\":\"Weerawarana\"},{\"id\":23,\"name\":\"James\"},{\"id\":133,\"name\":\"Mohan\",\"lname\":\"Darshan\",\"address\":\"Colombo\"}]";
     var tab = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" },
                                        { id: 133 , name: "Mohan", lname: "Darshan" , address: "Colombo"} ];
@@ -273,8 +273,8 @@ function testTableAsRecordField()  {
 
      TableRec tableRecord2 = {detTable: tb};
 
-    assertEquality("detTable=name=Jo id=azqw\nname=Amy id=ldhe", tableRecord1.toString());
-    assertEquality("detTable=name=Jo id=azqw\nname=Amy id=ldhe", tableRecord2.toString());
+    assertEquality("{\"detTable\":[{\"name\":\"Jo\",\"id\":\"azqw\"},{\"name\":\"Amy\",\"id\":\"ldhe\"}]}", tableRecord1.toString());
+    assertEquality("{\"detTable\":[{\"name\":\"Jo\",\"id\":\"azqw\"},{\"name\":\"Amy\",\"id\":\"ldhe\"}]}", tableRecord2.toString());
 }
 
 type Bar record {|

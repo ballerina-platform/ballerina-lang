@@ -267,6 +267,7 @@ public class NodeCloner extends BLangNodeVisitor {
             sourceNode.accept(this);
             result = sourceNode.cloneRef;
             result.pos = sourceNode.pos;
+            result.internal = sourceNode.internal;
             result.addWS(source.getWS());
             result.type = sourceNode.type;
         }
@@ -1550,7 +1551,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.functions = cloneList(source.functions);
         clone.initFunction = clone(source.initFunction);
-        clone.receiver = clone(source.receiver);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         cloneBLangStructureTypeNode(source, clone);
         cloneBLangType(source, clone);

@@ -1,13 +1,14 @@
 function foo() {
     type Student record {
-       string name;
-       Grades grades;
+        string name;
+        Grades grades;
     };
     type Address record {|
-       string city;
+        string city;
     |};
     type Grades record {|
-       int maths;
-       int...;
+        int maths;
+        int...;
     |};
 }
+
