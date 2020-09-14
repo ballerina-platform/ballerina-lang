@@ -62,6 +62,7 @@ public class TypeExtractorUtil {
      * the OpenApi Object.
      *
      * @param apiDef - OpenApi definition
+     * @param filter - Tags and Operations that need to be documented
      * @return - Ballerina compatible type object
      * @throws BallerinaOpenApiException - throws exception if extraction fails.
      */
@@ -127,6 +128,7 @@ public class TypeExtractorUtil {
      *
      * @param operationMap - OpenApi operations map
      * @param pathName - Relative OpenApi Path name
+     * @param filter   - Tags and Operations that need to be documented
      * @return - List of Ballerina compatible operation types
      * @throws BallerinaOpenApiException - throws exception if extraction fails.
      */
