@@ -407,7 +407,7 @@ type IdentifierAbstractObj object {
 };
 
 class IdentifierObj {
-    readonly string id;
+    final string id;
 
     function init() {
         self.id = "object";

@@ -30,6 +30,8 @@ function testFinalObjectFields() {
     testSubTypingWithFinalFieldsNegative();
     testSubTypingWithReadOnlyFieldsPositiveComposite();
     testSubTypingWithReadOnlyFieldsNegativeComposite();
+    testSubTypingWithMutableFinalFields();
+    testSubTypingWithMutableFinalFieldsNegative();
 }
 
 public class Student {
@@ -385,22 +387,22 @@ type Baz object {
     decimal? d;
     () ad;
     map<int>|boolean[] u;
-    readonly readonly r;
+    readonly r;
     Quuz q;
     int z;
 };
 
 class Qux {
-    readonly string|int i;
+    final string|int i;
     float f;
-    readonly int|Quux a1;
-    readonly any a2;
-    readonly int[]? d;
-    readonly anydata ad;
-    readonly map<any> u;
-    readonly int[] r;
-    readonly anydata|object {} q;
-    readonly json z = 1111;
+    final readonly & int|Quux a1;
+    final readonly & any a2;
+    final readonly & int[]? d;
+    final readonly & anydata ad;
+    final readonly & map<any> u;
+    final readonly & int[] r;
+    final readonly & anydata|object {} q;
+    final readonly & json z = 1111;
 
     function init(string|int i, float f, readonly & int|Quux a1, readonly & anydata ad, map<any> & readonly u,
                   readonly & int[] r, readonly & anydata|object {} q, readonly & (int[]?) d = ()) {
@@ -506,6 +508,82 @@ function testSubTypingWithReadOnlyFieldsNegativeComposite() {
     a = b6; // doesn't match, invalid `d`, expected `decimal?`
     assertTrue(a is Qux);
     assertFalse(a is Baz);
+}
+
+type Controller object {
+    map<int> config;
+
+    function getConfig() returns map<json>;
+};
+
+class MyController {
+    final map<int>|map<float> config;
+
+    function init(map<int>|map<float> config) {
+        self.config = config;
+    }
+
+    function getConfig() returns map<json> {
+        return self.config;
+    }
+}
+
+function testSubTypingWithMutableFinalFields() {
+    map<int> c1 = {
+        factor: 1,
+        pressure: 2
+    };
+    MyController mc = new (c1);
+    assertTrue(<any> mc is Controller);
+
+    object {
+        map<json> config;
+
+        function getConfig() returns map<json>;
+    } ob = object {
+        final map<json> config;
+
+        function init() {
+            self.config = <map<int>> {
+                factor: 10,
+                pressure: 5
+            };
+        }
+
+        function getConfig() returns map<json> {
+            return self.config;
+        }
+    };
+    assertTrue(ob is Controller);
+}
+
+function testSubTypingWithMutableFinalFieldsNegative() {
+    map<float> c1 = {
+        factor: 1.1,
+        pressure: 2.3
+    };
+    MyController mc = new (c1);
+    assertFalse(<any> mc is Controller);
+
+    object {
+        map<json> config;
+
+        function getConfig() returns map<json>;
+    } ob = object {
+        final map<json> config;
+
+        function init() {
+            self.config = <map<json>> {
+                factor: 10,
+                pressure: 5
+            };
+        }
+
+        function getConfig() returns map<json> {
+            return self.config;
+        }
+    };
+    assertFalse(ob is Controller);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
