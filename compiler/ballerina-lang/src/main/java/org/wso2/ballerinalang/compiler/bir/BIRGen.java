@@ -391,7 +391,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                           astTypeDefinition.symbol.flags,
                                                           astTypeDefinition.symbol.isLabel,
                                                           astTypeDefinition.isBuiltinTypeDef,
-                                                          astTypeDefinition.typeNode.type,
+                                                          getDefinedType(astTypeDefinition),
                                                           new ArrayList<>(),
                                                           astTypeDefinition.symbol.origin.toBIROrigin());
         typeDefs.put(astTypeDefinition.symbol, typeDef);
@@ -445,6 +445,16 @@ public class BIRGen extends BLangNodeVisitor {
 
             typeDef.attachedFuncs.add(birFunc);
         }
+    }
+
+    private BType getDefinedType(BLangTypeDefinition astTypeDefinition) {
+        BType nodeType = astTypeDefinition.typeNode.type;
+        // Consider: type DE distinct E;
+        // For distinct types, the type defined by typeDefStmt (DE) is different from type used to define it (E).
+        if (nodeType.tag == TypeTags.ERROR) {
+            return astTypeDefinition.symbol.type;
+        }
+        return nodeType;
     }
 
     @Override
