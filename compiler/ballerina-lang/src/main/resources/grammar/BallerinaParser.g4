@@ -379,6 +379,8 @@ statement
     |   lockStatement
     |   namespaceDeclarationStatement
     |   blockStatement
+    |   doStatement
+    |   failStatement
     ;
 
 variableDefinitionStatement
@@ -468,7 +470,7 @@ elseClause
     ;
 
 matchStatement
-    :   MATCH  expression  LEFT_BRACE matchPatternClause+ RIGHT_BRACE
+    :   MATCH  expression  LEFT_BRACE matchPatternClause+ RIGHT_BRACE onFailClause?
     ;
 
 matchPatternClause
@@ -605,7 +607,16 @@ restRefBindingPattern
     ;
 
 foreachStatement
-    :   FOREACH LEFT_PARENTHESIS? (typeName | VAR) bindingPattern IN expression RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
+    :   FOREACH LEFT_PARENTHESIS? (typeName | VAR) bindingPattern IN expression RIGHT_PARENTHESIS? LEFT_BRACE
+    statement* RIGHT_BRACE onFailClause?
+    ;
+
+doStatement
+    :   DO LEFT_BRACE statement* RIGHT_BRACE onFailClause?
+    ;
+
+failStatement
+    :   FAIL expression SEMICOLON
     ;
 
 intRangeExpression
@@ -613,7 +624,7 @@ intRangeExpression
     ;
 
 whileStatement
-    :   WHILE expression LEFT_BRACE statement* RIGHT_BRACE
+    :   WHILE expression LEFT_BRACE statement* RIGHT_BRACE onFailClause?
     ;
 
 continueStatement
@@ -772,7 +783,7 @@ expressionStmt
     ;
 
 transactionStatement
-    :   TRANSACTION LEFT_BRACE statement* RIGHT_BRACE
+    :   TRANSACTION LEFT_BRACE statement* RIGHT_BRACE onFailClause?
     ;
 
 rollbackStatement
@@ -780,7 +791,7 @@ rollbackStatement
     ;
 
 lockStatement
-    :   LOCK LEFT_BRACE statement* RIGHT_BRACE
+    :   LOCK LEFT_BRACE statement* RIGHT_BRACE onFailClause?
     ;
 
 retrySpec
@@ -788,7 +799,7 @@ retrySpec
     ;
 
 retryStatement
-    :   RETRY retrySpec LEFT_BRACE statement* RIGHT_BRACE
+    :   RETRY retrySpec LEFT_BRACE statement* RIGHT_BRACE onFailClause?
     ;
 
 retryTransactionStatement
@@ -816,7 +827,6 @@ expression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
-    |   FAIL expression                                                     # failExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
     |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
     |   expression (MUL | DIV | MOD) expression                             # binaryDivMulModExpression
@@ -943,6 +953,10 @@ fromClause
 
 doClause
     :   DO LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+onFailClause
+    :   ON FAIL (typeName | VAR) Identifier LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 queryPipeline

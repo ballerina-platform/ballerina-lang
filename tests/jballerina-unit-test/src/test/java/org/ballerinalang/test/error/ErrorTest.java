@@ -67,6 +67,11 @@ public class ErrorTest {
     }
 
     @Test
+    public void testFunctionCallInDetailArgExpr() {
+         BRunUtil.invoke(distinctErrorTestResult, "testFunctionCallInDetailArgExpr");
+    }
+
+    @Test
     public void testNegativeDistinctError() {
         int i = 0;
         BAssertUtil.validateError(negativeDistinctErrorRes, i++,

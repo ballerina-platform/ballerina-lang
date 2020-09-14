@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -79,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -105,9 +107,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -2276,6 +2280,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             patternClause.matchExpr = matchNode.expr;
             patternClause.accept(this);
         });
+
+        if (matchNode.onFailClause != null) {
+            this.analyzeNode(matchNode.onFailClause, env);
+        }
+
         matchNode.exprTypes = exprTypes;
     }
 
@@ -2405,14 +2414,41 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Create a new block environment for the foreach node's body.
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
         // Check foreach node's variables and set types.
-        handleForeachVariables(foreach, blockEnv);
+        handleForeachDefinitionVariables(foreach.variableDefinitionNode, foreach.varType, foreach.isDeclaredWithVar,
+                false, blockEnv);
         // Analyze foreach node's statements.
         analyzeStmt(foreach.body, blockEnv);
+
+        if (foreach.onFailClause != null) {
+            this.analyzeNode(foreach.onFailClause, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        if (onFailClause.variableDefinitionNode == null) {
+            //not-possible
+            return;
+        }
+        // Create a new block environment for the onfail node.
+        SymbolEnv onFailEnv = SymbolEnv.createOnFailEnv(onFailClause, env);
+        // Check onfail node's variables and set types.
+        handleForeachDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
+                onFailClause.isDeclaredWithVar, true, onFailEnv);
+        analyzeStmt(onFailClause.body, onFailEnv);
+        BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
+        if (!types.isAssignable(onFailVarNode.type, symTable.errorType)) {
+            dlog.error(onFailVarNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, onFailVarNode.type);
+        }
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, symTable.booleanType);
+
+        if (whileNode.onFailClause != null) {
+            this.analyzeNode(whileNode.onFailClause, env);
+        }
 
         BType actualType = whileNode.expr.type;
         if (TypeTags.TUPLE == actualType.tag) {
@@ -2424,8 +2460,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangDo doNode) {
+        SymbolEnv narrowedEnv = SymbolEnv.createTypeNarrowedEnv(doNode, env);
+        if (doNode.onFailClause != null) {
+            this.analyzeNode(doNode.onFailClause, narrowedEnv);
+        }
+        analyzeStmt(doNode.body, narrowedEnv);
+    }
+
+    @Override
+    public void visit(BLangFail failNode) {
+        BLangExpression errorExpression = failNode.expr;
+        BType errorExpressionType = typeChecker.checkExpr(errorExpression, env);
+
+        if (errorExpressionType == symTable.semanticError ||
+                !types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
+            dlog.error(errorExpression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, errorExpression.toString());
+        }
+    }
+
+    @Override
     public void visit(BLangLock lockNode) {
         analyzeStmt(lockNode.body, env);
+        if (lockNode.onFailClause != null) {
+            this.analyzeNode(lockNode.onFailClause, env);
+        }
     }
 
     @Override
@@ -2503,6 +2562,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, env);
+
+        if (transactionNode.onFailClause != null) {
+            this.analyzeNode(transactionNode.onFailClause, env);
+        }
         analyzeStmt(transactionNode.transactionBody, transactionEnv);
     }
 
@@ -2530,6 +2593,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv retryEnv = SymbolEnv.createRetryEnv(retryNode, env);
         analyzeStmt(retryNode.retryBody, retryEnv);
+
+        if (retryNode.onFailClause != null) {
+            this.analyzeNode(retryNode.onFailClause, env);
+        }
     }
 
     @Override
@@ -2724,24 +2791,30 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handleForeachVariables(BLangForeach foreachStmt, SymbolEnv blockEnv) {
-        BLangVariable variableNode = (BLangVariable) foreachStmt.variableDefinitionNode.getVariable();
+    private void handleForeachDefinitionVariables(VariableDefinitionNode variableDefinitionNode, BType varType,
+                                                  boolean isDeclaredWithVar, boolean isOnFailDef, SymbolEnv blockEnv) {
+        BLangVariable variableNode = (BLangVariable) variableDefinitionNode.getVariable();
         // Check whether the foreach node's variables are declared with var.
-        if (foreachStmt.isDeclaredWithVar) {
+        if (isDeclaredWithVar) {
             // If the foreach node's variables are declared with var, type is `varType`.
-            handleDeclaredVarInForeach(variableNode, foreachStmt.varType, blockEnv);
+            handleDeclaredVarInForeach(variableNode, varType, blockEnv);
             return;
         }
         // If the type node is available, we get the type from it.
         BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
+        if (isOnFailDef) {
+            BType sourceType = varType;
+            varType = typeNodeType;
+            typeNodeType = sourceType;
+        }
         // Then we need to check whether the RHS type is assignable to LHS type.
-        if (types.isAssignable(foreachStmt.varType, typeNodeType)) {
+        if (types.isAssignable(varType, typeNodeType)) {
             // If assignable, we set types to the variables.
-            handleDeclaredVarInForeach(variableNode, foreachStmt.varType, blockEnv);
+            handleDeclaredVarInForeach(variableNode, varType, blockEnv);
             return;
         }
         // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
-        dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, foreachStmt.varType, typeNodeType);
+        dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, varType, typeNodeType);
         handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
     }
 
