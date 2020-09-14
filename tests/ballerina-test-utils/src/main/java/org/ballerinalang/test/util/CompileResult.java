@@ -68,10 +68,6 @@ public class CompileResult {
         return this.diagnosticListener.warnCount;
     }
 
-    public int getNoteCount() {
-        return this.diagnosticListener.noteCount;
-    }
-
     public PackageNode getAST() {
         return pkgNode;
     }
@@ -111,7 +107,6 @@ public class CompileResult {
         private List<Diagnostic> diagnostics;
         private int errorCount = 0;
         private int warnCount = 0;
-        private int noteCount = 0;
 
         public CompileResultDiagnosticListener() {
             this.diagnostics = new ArrayList<>();
@@ -128,7 +123,6 @@ public class CompileResult {
                     warnCount++;
                     break;
                 default:
-                    noteCount++;
                     break;
             }
         }
@@ -139,10 +133,6 @@ public class CompileResult {
 
         public int getWarnCount() {
             return warnCount;
-        }
-
-        public int getNoteCount() {
-            return noteCount;
         }
 
         public List<Diagnostic> getDiagnostics() {

@@ -26,6 +26,7 @@ import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
@@ -167,7 +168,8 @@ public class GenerateBalo {
         int deprecatedWarnCount = 0;
         if (reportWarnings && diagListner.getWarnCount() > 0) {
             for (Diagnostic diagnostic : diagListner.getDiagnostics()) {
-                if (diagnostic.getCode() == USAGE_OF_DEPRECATED_CONSTRUCT) {
+                DiagnosticCode code = diagnostic.getCode();
+                if (code == USAGE_OF_DEPRECATED_CONSTRUCT || isIsolatedWarningLog(code)) {
                     deprecatedWarnCount++;
                 }
             }
@@ -201,5 +203,15 @@ public class GenerateBalo {
             Path path = Paths.get(targetDir, dirName, compiledPackage.getPackageID().version.value);
             super.saveCompiledPackage(compiledPackage, path, fileName);
         }
+    }
+
+    private static boolean isIsolatedWarningLog(DiagnosticCode code) {
+        switch (code) {
+            case FUNCTION_CAN_BE_MARKED_ISOLATED:
+            case INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT:
+            case INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT:
+                return true;
+        }
+        return false;
     }
 }
