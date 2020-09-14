@@ -51,11 +51,6 @@ public class ExpressionsTest extends AbstractSignatureHelpTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return super.testSubset();
-    }
-
-    @Override
     public String getTestResourceDir() {
         return "expressions";
     }
