@@ -21,9 +21,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Test the formatting of range expressions.
@@ -41,11 +38,6 @@ public class RangeExpressionsTest extends FormatterTest {
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
-    }
-
-    @Override
-    public List<String> skipList() {
-        return new ArrayList<>(Arrays.asList("range_expression_1.bal", "range_expression_2.bal"));
     }
 
     @Override

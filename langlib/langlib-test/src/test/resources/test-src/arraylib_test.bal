@@ -551,55 +551,80 @@ function testSort1() {
         return s.id;
     });
 
-    assertValueEquality(sortedArr[0].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
-    assertValueEquality(sortedArr[1].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
-    assertValueEquality(sortedArr[2].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
-    assertValueEquality(sortedArr[3].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
-    assertValueEquality(sortedArr[4].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
+    assertValueEquality(sortedArr[0].toString(),
+    "{\"id\":20,\"fname\":null,\"fee\":2000.56,\"impact\":0.45,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr[1].toString(),
+    "{\"id\":10,\"fname\":\"Kate\",\"fee\":NaN,\"impact\":0.146,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr[2].toString(),
+    "{\"id\":3,\"fname\":\"Kate\",\"fee\":5000.56,\"impact\":0.4,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr[3].toString(),
+    "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
+    assertValueEquality(sortedArr[4].toString(),
+    "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
     assertValueEquality(studentArr, sortedArr);
 
     Student[] sortedArr2 = studentArr.sort(array:DESCENDING, function(Student s) returns string? {
         return s.fname;
     });
 
-    assertValueEquality(sortedArr2[0].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
-    assertValueEquality(sortedArr2[1].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
-    assertValueEquality(sortedArr2[2].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
-    assertValueEquality(sortedArr2[3].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
-    assertValueEquality(sortedArr2[4].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
+    assertValueEquality(sortedArr2[0].toString(),
+    "{\"id\":10,\"fname\":\"Kate\",\"fee\":NaN,\"impact\":0.146,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr2[1].toString(),
+    "{\"id\":3,\"fname\":\"Kate\",\"fee\":5000.56,\"impact\":0.4,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr2[2].toString(),
+    "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
+    assertValueEquality(sortedArr2[3].toString(),
+    "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
+    assertValueEquality(sortedArr2[4].toString(),
+    "{\"id\":20,\"fname\":null,\"fee\":2000.56,\"impact\":0.45,\"isUndergrad\":false}");
     assertValueEquality(studentArr, sortedArr2);
 
     Student[] sortedArr3 = studentArr.sort(array:ASCENDING, function(Student s) returns float? {
         return s.fee;
     });
 
-    assertValueEquality(sortedArr3[0].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
-    assertValueEquality(sortedArr3[1].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
-    assertValueEquality(sortedArr3[2].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
-    assertValueEquality(sortedArr3[3].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
-    assertValueEquality(sortedArr3[4].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
+    assertValueEquality(sortedArr3[0].toString(),
+    "{\"id\":20,\"fname\":null,\"fee\":2000.56,\"impact\":0.45,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr3[1].toString(),
+    "{\"id\":3,\"fname\":\"Kate\",\"fee\":5000.56,\"impact\":0.4,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr3[2].toString(),
+    "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
+    assertValueEquality(sortedArr3[3].toString(),
+    "{\"id\":10,\"fname\":\"Kate\",\"fee\":NaN,\"impact\":0.146,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr3[4].toString(),
+    "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
     assertValueEquality(studentArr, sortedArr3);
 
     Student[] sortedArr4 = studentArr.sort(array:ASCENDING, function(Student s) returns decimal {
         return s.impact;
     });
 
-    assertValueEquality(sortedArr4[0].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
-    assertValueEquality(sortedArr4[1].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
-    assertValueEquality(sortedArr4[2].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
-    assertValueEquality(sortedArr4[3].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
-    assertValueEquality(sortedArr4[4].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
+    assertValueEquality(sortedArr4[0].toString(),
+    "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
+    assertValueEquality(sortedArr4[1].toString(),
+    "{\"id\":10,\"fname\":\"Kate\",\"fee\":NaN,\"impact\":0.146,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr4[2].toString(),
+    "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
+    assertValueEquality(sortedArr4[3].toString(),
+    "{\"id\":3,\"fname\":\"Kate\",\"fee\":5000.56,\"impact\":0.4,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr4[4].toString(),
+    "{\"id\":20,\"fname\":null,\"fee\":2000.56,\"impact\":0.45,\"isUndergrad\":false}");
     assertValueEquality(studentArr, sortedArr4);
 
     Student[] sortedArr5 = studentArr.sort(array:ASCENDING, function(Student s) returns boolean {
         return s.isUndergrad;
     });
 
-    assertValueEquality(sortedArr5[0].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
-    assertValueEquality(sortedArr5[1].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
-    assertValueEquality(sortedArr5[2].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
-    assertValueEquality(sortedArr5[3].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
-    assertValueEquality(sortedArr5[4].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
+    assertValueEquality(sortedArr5[0].toString(),
+    "{\"id\":10,\"fname\":\"Kate\",\"fee\":NaN,\"impact\":0.146,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr5[1].toString(),
+    "{\"id\":3,\"fname\":\"Kate\",\"fee\":5000.56,\"impact\":0.4,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr5[2].toString(),
+    "{\"id\":20,\"fname\":null,\"fee\":2000.56,\"impact\":0.45,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr5[3].toString(),
+    "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
+    assertValueEquality(sortedArr5[4].toString(),
+    "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
     assertValueEquality(studentArr, sortedArr5);
 
 
@@ -659,11 +684,16 @@ function testSort5() {
         return getFullName(s.id, s.fname);
     });
 
-    assertValueEquality(sortedArr[0].toString(), "id=3 fname=Kate fee=5000.56 impact=0.4 isUndergrad=false");
-    assertValueEquality(sortedArr[1].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
-    assertValueEquality(sortedArr[2].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
-    assertValueEquality(sortedArr[3].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
-    assertValueEquality(sortedArr[4].toString(), "id=20 fname= fee=2000.56 impact=0.45 isUndergrad=false");
+    assertValueEquality(sortedArr[0].toString(),
+    "{\"id\":3,\"fname\":\"Kate\",\"fee\":5000.56,\"impact\":0.4,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr[1].toString(),
+    "{\"id\":10,\"fname\":\"Kate\",\"fee\":NaN,\"impact\":0.146,\"isUndergrad\":false}");
+    assertValueEquality(sortedArr[2].toString(),
+    "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
+    assertValueEquality(sortedArr[3].toString(),
+    "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
+    assertValueEquality(sortedArr[4].toString(),
+    "{\"id\":20,\"fname\":null,\"fee\":2000.56,\"impact\":0.45,\"isUndergrad\":false}");
     assertValueEquality(studentArr, sortedArr);
 }
 
@@ -695,13 +725,14 @@ function testSort6() {
         return ();
     });
 
-    assertValueEquality(sortedArr.toString(), "k=Bar true 1 2.0 3 12.09 32 90 100 AA BB true");
+    assertValueEquality(sortedArr.toString(),
+    "[{\"k\":\"Bar\"},true,1,2.0,3,12.09,32,90,100,\"AA\",[\"BB\",true]]");
     assertValueEquality(arr, sortedArr);
 
     string?[] arr2 = ["Hello", "World!", (), "from", "Ballerina"];
 
     string?[] sortedArr2 = arr2.sort();
-    assertValueEquality(sortedArr2.toString(), "Ballerina Hello World! from ");
+    assertValueEquality(sortedArr2.toString(), "[\"Ballerina\",\"Hello\",\"World!\",\"from\",null]");
 
     Obj obj1 = new Obj(1, 1);
     Obj obj2 = new Obj(1,2);
@@ -722,12 +753,12 @@ function testSort6() {
         return i;
     });
 
-    assertValueEquality(sortedArr4.toString(), "0 1 3 7 9 21");
+    assertValueEquality(sortedArr4.toString(), "[0,1,3,7,9,21]");
 
     int[] arr5 = [2, 0, 12, 1, 23, 3, 100, 55];
 
     int[] sortedArr5 = arr5.sort(array:DESCENDING);
-    assertValueEquality(sortedArr5.toString(), "100 55 23 12 3 2 1 0");
+    assertValueEquality(sortedArr5.toString(), "[100,55,23,12,3,2,1,0]");
 
     string?[] sortedArr6 = arr2.sort(array:DESCENDING, function(string? s) returns string?[]? {
         if (s is string) {
@@ -736,7 +767,7 @@ function testSort6() {
         return ();
     });
 
-    assertValueEquality(sortedArr6.toString(), "from World! Hello Ballerina ");
+    assertValueEquality(sortedArr6.toString(), "[\"from\",\"World!\",\"Hello\",\"Ballerina\",null]");
 
     string?[] sortedArr7 = arr2.sort(array:ASCENDING, function(string? s) returns string?[] {
         if (s is string) {
@@ -745,10 +776,10 @@ function testSort6() {
         return ["W", "A"];
     });
 
-    assertValueEquality(sortedArr7.toString(), "Ballerina Hello  World! from");
+    assertValueEquality(sortedArr7.toString(), "[\"Ballerina\",\"Hello\",null,\"World!\",\"from\"]");
 
     int[] sortedArr8 = arr5.sort(array:ASCENDING, ());
-    assertValueEquality(sortedArr8.toString(), "0 1 2 3 12 23 55 100");
+    assertValueEquality(sortedArr8.toString(), "[0,1,2,3,12,23,55,100]");
 
     Grade[] arr6 = ["A+", "B+", "C", "F", "A-", "C", "A+", "B"];
 
@@ -756,7 +787,7 @@ function testSort6() {
         return grade;
     });
 
-    assertValueEquality(sortedArr9.toString(), "F C C B+ B A- A+ A+");
+    assertValueEquality(sortedArr9.toString(), "[\"F\",\"C\",\"C\",\"B+\",\"B\",\"A-\",\"A+\",\"A+\"]");
     assertValueEquality(sortedArr9, arr6);
 
     Student s1 = {id: 1, fname: "Amber", fee: 10000.56, impact: 0.127, isUndergrad: true};
@@ -773,27 +804,30 @@ function testSort6() {
         }
     });
 
-    assertValueEquality(sortedArr10[0].toString(), "id=1 fname=Amber fee=10000.56 impact=0.127 isUndergrad=true");
+    assertValueEquality(sortedArr10[0].toString(),
+    "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
     assertValueEquality(sortedArr10[1].toString(), "Anne");
-    assertValueEquality(sortedArr10[2].toString(), "id=2 fname=Dan fee= impact=0.3 isUndergrad=true");
+    assertValueEquality(sortedArr10[2].toString(),
+    "{\"id\":2,\"fname\":\"Dan\",\"fee\":null,\"impact\":0.3,\"isUndergrad\":true}");
     assertValueEquality(sortedArr10[3].toString(), "Frank");
     assertValueEquality(sortedArr10[4].toString(), "James");
-    assertValueEquality(sortedArr10[5].toString(), "id=10 fname=Kate fee=NaN impact=0.146 isUndergrad=false");
+    assertValueEquality(sortedArr10[5].toString(),
+    "{\"id\":10,\"fname\":\"Kate\",\"fee\":NaN,\"impact\":0.146,\"isUndergrad\":false}");
     assertValueEquality(sortedArr10, arr7);
 
     int[] sortedArr11 = array:sort(arr5);
-    assertValueEquality(sortedArr11.toString(), "0 1 2 3 12 23 55 100");
+    assertValueEquality(sortedArr11.toString(), "[0,1,2,3,12,23,55,100]");
     assertValueEquality(sortedArr11, arr5);
 
     int[2]|int[] sortedArr12 = array:sort(arr4, array:DESCENDING, function(int i) returns int {
         return i;
     });
 
-    assertValueEquality(sortedArr12.toString(), "21 9 7 3 1 0");
+    assertValueEquality(sortedArr12.toString(), "[21,9,7,3,1,0]");
     assertValueEquality(sortedArr12, arr4);
 
     string?[] sortedArr13 = array:sort(arr2, array:DESCENDING);
-    assertValueEquality(sortedArr13.toString(), "from World! Hello Ballerina ");
+    assertValueEquality(sortedArr13.toString(), "[\"from\",\"World!\",\"Hello\",\"Ballerina\",null]");
 }
 
 function testSort7() {
@@ -893,12 +927,13 @@ function testSort9() {
     strings:Char[] arr = ["s", "a", "b", "M", "Z"];
 
     strings:Char[] sortedArr = arr.sort(array:DESCENDING);
-    assertValueEquality(sortedArr.toString(), "s b a Z M");
+    assertValueEquality(sortedArr.toString(), "[\"s\",\"b\",\"a\",\"Z\",\"M\"]");
 
     int[] arr2 = [4294967295, 4194967295, 4294967290, 4284967295, 3294967295, 1294967295];
 
     int[] sortedArr2 = arr2.sort();
-    assertValueEquality(sortedArr2.toString(), "1294967295 3294967295 4194967295 4284967295 4294967290 4294967295");
+    assertValueEquality(sortedArr2.toString(),
+    "[1294967295,3294967295,4194967295,4284967295,4294967290,4294967295]");
 
     ints:Signed32[] arr3 = [2147483647, -2147483648, 2147483637, -1147483648, -2137483648, 1147483647];
 
