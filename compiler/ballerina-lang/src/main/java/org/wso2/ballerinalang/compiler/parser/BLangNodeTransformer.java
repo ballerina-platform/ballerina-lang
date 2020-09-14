@@ -803,7 +803,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             if (detail != null) {
                 errorType.detailType = detail;
-                if (errorTypeDescriptorNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
+                NonTerminalNode parent = errorTypeDescriptorNode.parent();
+                if (parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
+                    parent = parent.parent();
+                }
+                if (parent.kind() != SyntaxKind.TYPE_DEFINITION) {
                     return deSugarTypeAsUserDefType(errorType);
                 }
             } else {
