@@ -21,8 +21,8 @@ type Annot record {
     int bar?;
 };
 
-public annotation Annot v1 on type;
-annotation Annot[] v2 on object type;
+public annotation Annot v1 on type, class;
+annotation Annot[] v2 on class;
 public annotation Annot v3 on function;
 annotation map<int> v4 on object function;
 public annotation map<string> v5 on resource function;
@@ -64,7 +64,7 @@ function testTypeAnnotAccess2() returns boolean {
 @v2 {
     foo: "v2 value 2"
 }
-type T2 object {
+class T2 {
     string name = "ballerina";
 
     @v3 {
@@ -88,7 +88,7 @@ type T2 object {
     public function getLetter(@v6 { foo: "v62 value" } int intVal) returns @v7 string {
         return self.name.substring(intVal, intVal + 1);
     }
-};
+}
 
 function testObjectTypeAnnotAccess1() returns boolean {
     T2 c = new;
@@ -217,7 +217,7 @@ function testFunctionAnnotAccess2() returns boolean {
     return annot is ();
 }
 
-type Listener object {
+class Listener {
     *lang:Listener;
 
     public function init() {
@@ -239,7 +239,7 @@ type Listener object {
     public function __immediateStop() returns error? {
         return ();
     }
-};
+}
 
 // TODO: #17936
 //public function testInlineAnnotAccess() returns boolean {

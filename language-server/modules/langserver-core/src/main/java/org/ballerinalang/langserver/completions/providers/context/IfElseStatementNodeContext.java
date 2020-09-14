@@ -51,7 +51,7 @@ public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfEls
                         && !(scopeEntry.symbol instanceof BOperatorSymbol))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
     }

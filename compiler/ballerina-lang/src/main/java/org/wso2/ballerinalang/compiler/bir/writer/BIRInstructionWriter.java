@@ -185,6 +185,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         waitAll.lhsOp.accept(this);
         buf.writeInt(waitAll.keys.size());
         waitAll.keys.forEach(key -> buf.writeInt(addStringCPEntry(key)));
+        buf.writeInt(waitAll.valueExprs.size());
         waitAll.valueExprs.forEach(val -> val.accept(this));
         addCpAndWriteString(waitAll.thenBB.id.value);
     }
@@ -479,6 +480,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
     }
 
+    // private methods
 
     private void addCpAndWriteString(String string) {
         buf.writeInt(addStringCPEntry(string));
@@ -507,11 +509,11 @@ public class BIRInstructionWriter extends BIRVisitor {
                 sourceFileName = pos.src.cUnitName;
             }
         }
-        buf.writeInt(sLine);
-        buf.writeInt(eLine);
-        buf.writeInt(sCol);
-        buf.writeInt(eCol);
         buf.writeInt(addStringCPEntry(sourceFileName));
+        buf.writeInt(sLine);
+        buf.writeInt(sCol);
+        buf.writeInt(eLine);
+        buf.writeInt(eCol);
     }
 
 }

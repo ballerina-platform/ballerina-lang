@@ -44,6 +44,7 @@ import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
+import org.ballerinalang.openapi.cmd.Filter;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiPath;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
@@ -262,7 +263,12 @@ public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
             BallerinaOpenApiPath typePath = new BallerinaOpenApiPath();
 
             typePath.setPath(pathName);
-            typePath.setOperationsList(extractOpenApiOperations(pathObject.readOperationsMap(), pathName));
+
+            List<String> tag = new ArrayList<>();
+            List<String> operation = new ArrayList<>();
+            Filter filter = new Filter(tag, operation);
+
+            typePath.setOperationsList(extractOpenApiOperations(pathObject.readOperationsMap(), pathName, filter));
 
             paths.add(typePath);
         }

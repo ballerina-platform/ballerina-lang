@@ -40,7 +40,7 @@ string? cookiePathToRemove = ();
 # Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.
 #
 # + fileName - Name of the CSV file to store persistent cookies
-public type CsvPersistentCookieHandler object {
+public class CsvPersistentCookieHandler {
     *PersistentCookieHandler;
 
     string fileName = "";
@@ -153,7 +153,7 @@ public type CsvPersistentCookieHandler object {
             return CookieHandlingError("Error in removing the csv file", removeResults);
         }
     }
-};
+}
 
 function validateFileExtension(string fileName) returns string|CookieHandlingError {
     if (fileName.toLowerAscii().endsWith(".csv")) {

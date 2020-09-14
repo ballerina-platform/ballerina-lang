@@ -41,7 +41,7 @@ type Person record {
     int age;
 };
 
-type Employee object {
+class Employee {
     string name;
     int age;
 
@@ -53,7 +53,7 @@ type Employee object {
     function growOld() {
         self.age += 1;
     }
-};
+}
 
 function testTupleWithBasicTypes() returns string {
     string result = "";

@@ -306,7 +306,7 @@ function testRecordRestFieldRHSIndexAccess() returns [Department?, Department?] 
     return [p["dept"], dept];
 }
 
-type Animal object {
+class Animal {
     public string kind = "";
     public string name = "";
 
@@ -314,7 +314,7 @@ type Animal object {
         self.name = name;
         self.kind = kind;
     }
-};
+}
 
 type Person10 record {|
     string name = "";

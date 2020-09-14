@@ -32,11 +32,11 @@ function testRecFieldFuncPointerAsyncCall() {
     assert("FOO", result2);
 }
 
-type BarObj client object {
+client class BarObj {
     remote function getInt() returns int => 100;
 
     function getName() returns string => "BAR";
-};
+}
 
 function testObjectMethodsAsAsyncCalls() {
     BarObj bo = new;

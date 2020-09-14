@@ -402,11 +402,11 @@ type IdentifierRec record {
     string id = "record";
 };
 
-type IdentifierAbstractObj abstract object {
+type IdentifierAbstractObj object {
     function getId() returns string;
 };
 
-type IdentifierObj object {
+class IdentifierObj {
     readonly string id;
 
     function init() {
@@ -416,7 +416,7 @@ type IdentifierObj object {
     function getId() returns string {
         return self.id;
     }
-};
+}
 
 type ConfigRec record {
     se:Versioning versioning;

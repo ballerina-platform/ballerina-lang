@@ -213,13 +213,13 @@ function testTupleUnionExpectedType() {
     assertEquality("str", val2[1]);
 }
 
-type NoFillerObject object {
+class NoFillerObject {
     int a;
 
     function init(int arg) {
         self.a = arg;
     }
-};
+}
 
 function testUnionRestDescriptor() {
     [int, string|boolean...] x = [1, "hi", true];

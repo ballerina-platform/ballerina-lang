@@ -772,31 +772,7 @@
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "f1",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "EQUAL_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "f2"
-                            }
-                          ]
+                          "value": "f1"
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",

@@ -1,3 +1,3 @@
-type Foo readonly client abstract object {
+type Foo client object {
     @hey on int a;
 };

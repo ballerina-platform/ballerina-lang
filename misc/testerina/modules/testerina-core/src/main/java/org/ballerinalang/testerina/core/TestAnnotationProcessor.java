@@ -247,8 +247,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                             continue;
                         }
 
-                        // check if groups attribute is present in the annotation
-                        if (GROUP_ANNOTATION_NAME.equals(name)) {
+                        // check if groups attribute is present in the annotation and it is not disabled
+                        if (GROUP_ANNOTATION_NAME.equals(name) && !shouldSkip.get()) {
                             if (valueExpr instanceof BLangListConstructorExpr) {
                                 BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
                                 test.setGroups(values.exprs.stream().map(node -> node.toString())

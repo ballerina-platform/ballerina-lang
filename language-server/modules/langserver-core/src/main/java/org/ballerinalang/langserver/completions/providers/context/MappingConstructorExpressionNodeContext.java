@@ -120,6 +120,11 @@ public class MappingConstructorExpressionNodeContext extends
         return completionItems;
     }
 
+    @Override
+    public boolean onPreValidation(LSContext context, MappingConstructorExpressionNode node) {
+        return !node.openBrace().isMissing() && !node.closeBrace().isMissing();
+    }
+
     private boolean withinValueExpression(LSContext context, NonTerminalNode evalNodeAtCursor) {
         Token colon = null;
 
@@ -302,7 +307,7 @@ public class MappingConstructorExpressionNodeContext extends
                         && !(scopeEntry.symbol instanceof BOperatorSymbol))
                 .collect(Collectors.toList());
         List<LSCompletionItem> completionItems = this.getCompletionItemList(filteredList, context);
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
     }

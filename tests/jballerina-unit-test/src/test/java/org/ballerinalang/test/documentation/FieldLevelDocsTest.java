@@ -44,6 +44,7 @@ import java.util.Map;
 /**
  * Test class to check record/object field-level documentation in docerina.
  */
+@Test(groups = "brokenOnClassChange")
 public class FieldLevelDocsTest {
 
     // record with module-level documentation

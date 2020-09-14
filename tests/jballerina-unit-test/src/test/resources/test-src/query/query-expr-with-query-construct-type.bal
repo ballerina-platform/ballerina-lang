@@ -206,14 +206,14 @@ function testInnerJoinAndLimitReturnStream() returns boolean {
     stream<EmpProfile> outputEmpProfileStream = stream from var person in personList.toStream()
             join Employee employee in employeeList.toStream()
             on person.firstName equals employee.firstName
+            limit 1
             select {
                 firstName: employee.firstName,
                 lastName: employee.lastName,
                 age: person.age,
                 dept: employee.dept,
                 status: "Permanent"
-            }
-            limit 1;
+            };
 
     record {| EmpProfile value; |}? empProfile = getEmpProfileValue(outputEmpProfileStream.next());
     testPassed = testPassed && empProfile?.value?.firstName == "Alex" && empProfile?.value?.lastName == "George" &&
@@ -394,13 +394,13 @@ function testQueryExprWithLimitClauseReturnTable() returns boolean {
 
      CustomerTable|error customerTable = table key(id, name) from var customer in customerList.toStream()
          where customer.name == "Melina"
+         limit 1
          select {
              id: customer.id,
              name: customer.name,
              noOfItems: customer.noOfItems
          }
-         on conflict onConflictError
-         limit 1;
+         on conflict onConflictError;
 
     if (customerTable is CustomerTable) {
         var itr = customerTable.iterator();
