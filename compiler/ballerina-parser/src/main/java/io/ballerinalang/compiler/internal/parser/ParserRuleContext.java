@@ -595,6 +595,8 @@ public enum ParserRuleContext {
     ENUM_MEMBER_START("enum-member-start"),
     TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER("tuple-type-desc-or-list-cont-member"),
     TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC("top.level.func.def.or.func.type.desc"),
+    FUNC_DEF_OR_FUNC_TYPE_WITHOUT_TRANSACTIONAL("func-def-or-func-type-without-transactional"),
+    FUNC_DEF_OR_FUNC_TYPE_WITHOUT_ISOLATED("func-def-or-func-type-without-isolated"),
     ;
 
     private String value;
