@@ -581,13 +581,12 @@ public class WebSocketUtil {
         WebSocketException exception;
         String message = errorCode.substring(2) + ": " + msg;
         if (throwable != null) {
-            exception = new WebSocketException(throwable);
+            exception = new WebSocketException(throwable, errorCode);
         } else if (cause != null) {
-            exception = new WebSocketException(message, cause);
+            exception = new WebSocketException(message, cause, errorCode);
         } else {
-            exception = new WebSocketException(message);
+            exception = new WebSocketException(message, errorCode);
         }
-        BErrorCreator.setTypeId(errorCode, WebSocketConstants.PROTOCOL_HTTP_PKG_ID, exception);
         return exception;
     }
 

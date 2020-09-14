@@ -37,28 +37,28 @@ import org.ballerinalang.jvm.values.api.BValueCreator;
 public class WebSocketException extends ErrorValue {
     private final String message;
 
-    public WebSocketException(Throwable ex) {
+    public WebSocketException(Throwable ex, String typeIdName) {
         this(WebSocketConstants.ErrorCode.WsGenericError.errorCode().substring(2) + ":" +
-                WebSocketUtil.getErrorMessage(ex));
+                     WebSocketUtil.getErrorMessage(ex), typeIdName);
     }
 
-    public WebSocketException(String message) {
-        this(message, BValueCreator.createMapValue(BTypes.typeErrorDetail));
-       }
-
-    public WebSocketException(String message, BError cause) {
-        this(message, cause, BValueCreator.createMapValue(BTypes.typeErrorDetail));
+    public WebSocketException(String message, String typeIdName) {
+        this(message, BValueCreator.createMapValue(BTypes.typeErrorDetail), typeIdName);
     }
 
-    public WebSocketException(String message, BMap<BString, Object> details) {
+    public WebSocketException(String message, BError cause, String typeIdName) {
+        this(message, cause, BValueCreator.createMapValue(BTypes.typeErrorDetail), typeIdName);
+    }
+
+    public WebSocketException(String message, BMap<BString, Object> details, String typeIdName) {
         super(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
-                StringUtils.fromString(message), null, details);
+              StringUtils.fromString(message), null, details, typeIdName, WebSocketConstants.PROTOCOL_HTTP_PKG_ID);
         this.message = message;
     }
 
-    public WebSocketException(String message, BError cause, BMap<BString, Object> details) {
+    public WebSocketException(String message, BError cause, BMap<BString, Object> details, String typeIdName) {
         super(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
-                StringUtils.fromString(message), cause, details);
+              StringUtils.fromString(message), cause, details, typeIdName, WebSocketConstants.PROTOCOL_HTTP_PKG_ID);
         this.message = message;
     }
 
