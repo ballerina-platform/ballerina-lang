@@ -4761,9 +4761,8 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
-                STNode visibilityQualifier = parseObjectMemberVisibility();
-                if (context == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR &&
-                        visibilityQualifier.kind == SyntaxKind.PRIVATE_KEYWORD) {
+                STNode visibilityQualifier = consume();
+                if (isObjectTypeDesc && visibilityQualifier.kind == SyntaxKind.PRIVATE_KEYWORD) {
                     addInvalidNodeToNextToken(visibilityQualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
                             visibilityQualifier.toString().trim());
                     visibilityQualifier = STNodeFactory.createEmptyNode();
@@ -4783,15 +4782,8 @@ public class BallerinaParser extends AbstractParser {
                 STNode semicolonToken = parseSemicolon();
                 member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
                 break;
-            case FINAL_KEYWORD:
-                STToken nextNextToken = peek(2);
-                if (isTypeStartingToken(nextNextToken.kind)) {
-                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectTypeDesc);
-                    break;
-                }
-                // Else fall through
             default:
-                if (isTypeStartingToken(nextToken.kind)) {
+                if (nextToken.kind == SyntaxKind.FINAL_KEYWORD || isTypeStartingToken(nextToken.kind)) {
                     member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectTypeDesc);
                     break;
                 }
@@ -4808,21 +4800,6 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return member;
-    }
-
-    /**
-     * Parse object visibility. Visibility can be <code>public</code> or <code>private</code>.
-     *
-     * @return Parsed node
-     */
-    private STNode parseObjectMemberVisibility() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.PUBLIC_KEYWORD || token.kind == SyntaxKind.PRIVATE_KEYWORD) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.OBJECT_MEMBER_QUALIFIER);
-            return parseObjectMemberVisibility();
-        }
     }
 
     /**
@@ -4859,13 +4836,8 @@ public class BallerinaParser extends AbstractParser {
                     return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc);
                 }
                 break;
-            case FINAL_KEYWORD:
-                if (isTypeStartingToken(nextNextToken.kind)) {
-                    return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc);
-                }
-                // Else fall through
             default:
-                if (isTypeStartingToken(nextToken.kind)) {
+                if (nextToken.kind == SyntaxKind.FINAL_KEYWORD || isTypeStartingToken(nextToken.kind)) {
                     return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc);
                 }
                 break;
@@ -4988,72 +4960,20 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseObjectField(STNode metadata, STNode visibilityQualifier, boolean isObjectTypeDesc) {
         STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.READONLY_KEYWORD) {
-            STNode finalQualifier = STNodeFactory.createEmptyNode();
-            if (nextToken.kind == SyntaxKind.FINAL_KEYWORD) {
-                finalQualifier = consume();
-            }
-
-            if (finalQualifier != null && isObjectTypeDesc) {
-                addInvalidNodeToNextToken(finalQualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
-                        ((STToken) finalQualifier).text());
-                finalQualifier = STNodeFactory.createEmptyNode();
-            }
-
-            STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
-            STNode fieldName = parseVariableName();
-            return parseObjectFieldRhs(metadata, visibilityQualifier, finalQualifier, type, fieldName,
-                    isObjectTypeDesc);
+        STNode finalQualifier = STNodeFactory.createEmptyNode();
+        if (nextToken.kind == SyntaxKind.FINAL_KEYWORD) {
+            finalQualifier = consume();
         }
 
-        // Following logic is only useful when user accidentally use readonly qualifier from outdated spec
-
-        // If the readonly-keyword is present, check whether its qualifier
-        // or the readonly-type-desc.
-        STNode type;
-        STNode readonlyQualifier = parseReadonlyKeyword();
-        nextToken = peek();
-        if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            STNode fieldNameOrTypeDesc = parseQualifiedIdentifier(ParserRuleContext.RECORD_FIELD_NAME_OR_TYPE_NAME);
-            if (fieldNameOrTypeDesc.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                // readonly a:b
-                // Then treat "a:b" as the type-desc
-                type = fieldNameOrTypeDesc;
-            } else {
-                // readonly a
-                nextToken = peek();
-                switch (nextToken.kind) {
-                    case SEMICOLON_TOKEN: // readonly a;
-                    case EQUAL_TOKEN: // readonly a =
-                        // Then treat "readonly" as type-desc, and "a" as the field-name
-                        type = createBuiltinSimpleNameReference(readonlyQualifier);
-                        STNode fieldName = ((STSimpleNameReferenceNode) fieldNameOrTypeDesc).name;
-                        return parseObjectFieldRhs(metadata, visibilityQualifier, STNodeFactory.createEmptyNode(), type,
-                                fieldName, isObjectTypeDesc);
-                    default:
-                        // else, treat a as the type-name
-                        type = parseComplexTypeDescriptor(fieldNameOrTypeDesc,
-                                ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
-                        break;
-                }
-            }
-        } else if (isTypeStartingToken(nextToken.kind)) {
-            type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
-        } else {
-            readonlyQualifier = createBuiltinSimpleNameReference(readonlyQualifier);
-            type = parseComplexTypeDescriptor(readonlyQualifier, ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
-            readonlyQualifier = STNodeFactory.createEmptyNode();
+        if (finalQualifier != null && isObjectTypeDesc) {
+            addInvalidNodeToNextToken(finalQualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
+                    ((STToken) finalQualifier).text());
+            finalQualifier = STNodeFactory.createEmptyNode();
         }
 
+        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
         STNode fieldName = parseVariableName();
-
-        if (readonlyQualifier != null) {
-            type = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(type, readonlyQualifier);
-            type = SyntaxErrors.addDiagnostic(type, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
-                    ((STToken) readonlyQualifier).text());
-        }
-
-        return parseObjectFieldRhs(metadata, visibilityQualifier, STNodeFactory.createEmptyNode(), type, fieldName,
+        return parseObjectFieldRhs(metadata, visibilityQualifier, finalQualifier, type, fieldName,
                 isObjectTypeDesc);
     }
 
