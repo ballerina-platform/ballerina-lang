@@ -44,7 +44,7 @@ class NodeIndentation {
             grandParent = parent.parent();
         }
         boolean addSpaces = true;
-        List parentNodes = Arrays.asList(
+        List<SyntaxKind> parentNodes = Arrays.asList(
                         SyntaxKind.FUNCTION_CALL,
                         SyntaxKind.TYPE_TEST_EXPRESSION,
                         SyntaxKind.TYPE_PARAMETER,
