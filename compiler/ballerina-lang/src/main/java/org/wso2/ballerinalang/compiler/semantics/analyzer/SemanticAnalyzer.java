@@ -1795,7 +1795,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorDestructure errorDeStmt) {
         BLangErrorVarRef varRef = errorDeStmt.varRef;
-        if (varRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+        if (varRef.message == null) {
+            dlog.error(varRef.pos, DiagnosticCode.MISSING_REQUIRED_ARG_BINDING_PATTERN_ERROR_MESSAGE);
+        } else if (varRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
                 names.fromIdNode(((BLangSimpleVarRef) varRef.message).variableName) != Names.IGNORE) {
             setTypeOfVarRefInErrorBindingAssignment(varRef.message);
         } else {
@@ -2895,7 +2897,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return;
             case ERROR_VARIABLE_REF:
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) expr;
-                setTypeOfVarRefForBindingPattern(errorVarRef.message);
+                if (errorVarRef.message != null) {
+                    setTypeOfVarRefForBindingPattern(errorVarRef.message);
+                }
                 if (errorVarRef.cause != null) {
                     setTypeOfVarRefForBindingPattern(errorVarRef.cause);
                     if (!types.isAssignable(symTable.errorOrNilType, errorVarRef.cause.type)) {
