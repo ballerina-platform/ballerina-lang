@@ -271,7 +271,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.diagnostics.add(diagnostic);
         if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
             this.errorCount++;
-        } else if (diagnostic.severity() == DiagnosticSeverity.WARNING) {
+        } else if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.WARNING) {
             this.warnCount++;
         }
     }

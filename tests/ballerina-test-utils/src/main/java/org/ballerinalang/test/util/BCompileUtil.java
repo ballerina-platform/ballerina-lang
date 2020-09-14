@@ -493,14 +493,7 @@ public class BCompileUtil {
         return comResult;
     }
 
-    private static CompileResult compile(CompilerContext context, String packageName,
-                                         CompilerPhase compilerPhase, boolean withTests) {
-
-        return compile(context, null, packageName, compilerPhase, withTests);
-    }
-
     private static CompileResult compile(CompilerContext context,
-                                         String listener,
                                          String packageName,
                                          CompilerPhase compilerPhase,
                                          boolean withTests) {

@@ -45,8 +45,6 @@ public abstract class Diagnostic {
      */
     public abstract String message();
 
-    public abstract DiagnosticSeverity severity();
-
     @Override
     public String toString() {
         return diagnosticInfo().severity().toString() + " [" +

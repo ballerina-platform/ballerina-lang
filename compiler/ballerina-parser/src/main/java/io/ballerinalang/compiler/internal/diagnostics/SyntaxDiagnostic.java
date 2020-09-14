@@ -19,7 +19,6 @@ package io.ballerinalang.compiler.internal.diagnostics;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.syntax.tree.NodeLocation;
 
@@ -67,11 +66,6 @@ public class SyntaxDiagnostic extends Diagnostic {
     @Override
     public String message() {
         return DiagnosticMessageHelper.getDiagnosticMessage(nodeDiagnostic.diagnosticCode(), nodeDiagnostic.args());
-    }
-
-    @Override
-    public DiagnosticSeverity severity() {
-        return nodeDiagnostic.diagnosticCode().severity();
     }
 
     @Override

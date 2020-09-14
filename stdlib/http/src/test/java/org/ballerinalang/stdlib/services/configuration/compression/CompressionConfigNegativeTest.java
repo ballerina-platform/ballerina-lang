@@ -38,7 +38,7 @@ public class CompressionConfigNegativeTest {
                                                                    .getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].message(),
                             "incompatible types: expected '(AUTO|ALWAYS|NEVER)', found 'string'");
     }
 
@@ -49,7 +49,7 @@ public class CompressionConfigNegativeTest {
                                                                    .getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].message(),
                 "Invalid multiple configurations for compression");
     }
 
@@ -59,7 +59,7 @@ public class CompressionConfigNegativeTest {
                 "test-src/services/configuration/compression/bogus-content-type.bal").getPath()).getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].message(),
                             "Invalid Content-Type value for compression: 'hello=/#bal'");
     }
 

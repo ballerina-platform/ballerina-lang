@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -50,7 +49,6 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
     private int errorCount = 0;
     private PackageCache packageCache;
     private boolean isMute = false;
-    private PrintStream console = System.err;
 
     private BallerinaDiagnosticLog(CompilerContext context) {
         context.put(DIAGNOSTIC_LOG_KEY, this);
