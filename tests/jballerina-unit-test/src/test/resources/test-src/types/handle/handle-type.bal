@@ -85,7 +85,7 @@ function testCreateTuplesWithHandleValues(handle h1, handle h2) returns handle {
     return h3;
 }
 
-type Person object {
+class Person {
     int age = 0;
     string name = "";
     string address = "";
@@ -111,7 +111,7 @@ type Person object {
     function setData(handle h) {
         self.data = h;
     }
-};
+}
 
 function testCreateObjectWithHandleValues(handle h1, handle h2) returns handle {
     Person person = new(h1);

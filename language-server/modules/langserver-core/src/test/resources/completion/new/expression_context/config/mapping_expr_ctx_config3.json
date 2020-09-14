@@ -15,7 +15,6 @@
           "value": ""
         }
       },
-      "sortText": "130",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -29,7 +28,6 @@
           "value": ""
         }
       },
-      "sortText": "130",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -40,10 +38,9 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ls_org1/module1:0.1.0_  \n  \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
         }
       },
-      "sortText": "120",
       "insertText": "function1();",
       "insertTextFormat": "Snippet"
     },
@@ -54,10 +51,9 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ls_org1/module1:0.1.0_  \n  \nThis is function2  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
         }
       },
-      "sortText": "120",
       "insertText": "function2();",
       "insertTextFormat": "Snippet"
     },
@@ -68,10 +64,9 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ls_org1/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description"
         }
       },
-      "sortText": "120",
       "insertText": "function3(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -86,10 +81,9 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ls_org1/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description"
         }
       },
-      "sortText": "120",
       "insertText": "function4(${1});",
       "insertTextFormat": "Snippet",
       "command": {

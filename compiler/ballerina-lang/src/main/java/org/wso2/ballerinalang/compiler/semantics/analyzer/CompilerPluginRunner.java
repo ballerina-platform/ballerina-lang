@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -196,7 +197,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         List<BLangAnnotationAttachment> attachmentList = funcNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(funcNode, list));
-        funcNode.endpoints.forEach(endpoint -> endpoint.accept(this));
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -219,6 +219,12 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefNode) {
         List<BLangAnnotationAttachment> attachmentList = typeDefNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(typeDefNode, list));
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        List<BLangAnnotationAttachment> attachmentList = classDefinition.getAnnotationAttachments();
+        notifyProcessors(attachmentList, (processor, list) -> processor.process(classDefinition, list));
     }
 
     public void visit(BLangSimpleVariable varNode) {

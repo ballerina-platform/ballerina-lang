@@ -670,7 +670,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static DefaultableParameterNode createDefaultableParameterNode(
             NodeList<AnnotationNode> annotations,
-            Token visibilityQualifier,
             Node typeName,
             Token paramName,
             Token equalsToken,
@@ -682,7 +681,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stDefaultableParameterNode = STNodeFactory.createDefaultableParameterNode(
                 annotations.underlyingListNode().internalNode(),
-                getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
                 getOptionalSTNode(paramName),
                 equalsToken.internalNode(),
@@ -692,7 +690,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static RequiredParameterNode createRequiredParameterNode(
             NodeList<AnnotationNode> annotations,
-            Token visibilityQualifier,
             Node typeName,
             Token paramName) {
         Objects.requireNonNull(annotations, "annotations must not be null");
@@ -700,7 +697,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stRequiredParameterNode = STNodeFactory.createRequiredParameterNode(
                 annotations.underlyingListNode().internalNode(),
-                getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
                 getOptionalSTNode(paramName));
         return stRequiredParameterNode.createUnlinkedFacade();
@@ -841,6 +837,32 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 members.underlyingListNode().internalNode(),
                 closeBrace.internalNode());
         return stObjectTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static ObjectConstructorExpressionNode createObjectConstructorExpressionNode(
+            NodeList<AnnotationNode> annotations,
+            NodeList<Token> objectTypeQualifiers,
+            Token objectKeyword,
+            TypeDescriptorNode typeReference,
+            Token openBraceToken,
+            NodeList<Node> members,
+            Token closeBraceToken) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(objectTypeQualifiers, "objectTypeQualifiers must not be null");
+        Objects.requireNonNull(objectKeyword, "objectKeyword must not be null");
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(members, "members must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+
+        STNode stObjectConstructorExpressionNode = STNodeFactory.createObjectConstructorExpressionNode(
+                annotations.underlyingListNode().internalNode(),
+                objectTypeQualifiers.underlyingListNode().internalNode(),
+                objectKeyword.internalNode(),
+                getOptionalSTNode(typeReference),
+                openBraceToken.internalNode(),
+                members.underlyingListNode().internalNode(),
+                closeBraceToken.internalNode());
+        return stObjectConstructorExpressionNode.createUnlinkedFacade();
     }
 
     public static RecordTypeDescriptorNode createRecordTypeDescriptorNode(
@@ -1965,9 +1987,77 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stLetClauseNode.createUnlinkedFacade();
     }
 
+    public static JoinClauseNode createJoinClauseNode(
+            Token outerKeyword,
+            Token joinKeyword,
+            TypedBindingPatternNode typedBindingPattern,
+            Token inKeyword,
+            ExpressionNode expression,
+            OnClauseNode joinOnCondition) {
+        Objects.requireNonNull(joinKeyword, "joinKeyword must not be null");
+        Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
+        Objects.requireNonNull(inKeyword, "inKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(joinOnCondition, "joinOnCondition must not be null");
+
+        STNode stJoinClauseNode = STNodeFactory.createJoinClauseNode(
+                getOptionalSTNode(outerKeyword),
+                joinKeyword.internalNode(),
+                typedBindingPattern.internalNode(),
+                inKeyword.internalNode(),
+                expression.internalNode(),
+                joinOnCondition.internalNode());
+        return stJoinClauseNode.createUnlinkedFacade();
+    }
+
+    public static OnClauseNode createOnClauseNode(
+            Token onKeyword,
+            ExpressionNode lhsExpression,
+            Token equalsKeyword,
+            ExpressionNode rhsExpression) {
+        Objects.requireNonNull(onKeyword, "onKeyword must not be null");
+        Objects.requireNonNull(lhsExpression, "lhsExpression must not be null");
+        Objects.requireNonNull(equalsKeyword, "equalsKeyword must not be null");
+        Objects.requireNonNull(rhsExpression, "rhsExpression must not be null");
+
+        STNode stOnClauseNode = STNodeFactory.createOnClauseNode(
+                onKeyword.internalNode(),
+                lhsExpression.internalNode(),
+                equalsKeyword.internalNode(),
+                rhsExpression.internalNode());
+        return stOnClauseNode.createUnlinkedFacade();
+    }
+
+    public static LimitClauseNode createLimitClauseNode(
+            Token limitKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(limitKeyword, "limitKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stLimitClauseNode = STNodeFactory.createLimitClauseNode(
+                limitKeyword.internalNode(),
+                expression.internalNode());
+        return stLimitClauseNode.createUnlinkedFacade();
+    }
+
+    public static OnConflictClauseNode createOnConflictClauseNode(
+            Token onKeyword,
+            Token conflictKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(onKeyword, "onKeyword must not be null");
+        Objects.requireNonNull(conflictKeyword, "conflictKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stOnConflictClauseNode = STNodeFactory.createOnConflictClauseNode(
+                onKeyword.internalNode(),
+                conflictKeyword.internalNode(),
+                expression.internalNode());
+        return stOnConflictClauseNode.createUnlinkedFacade();
+    }
+
     public static QueryPipelineNode createQueryPipelineNode(
             FromClauseNode fromClause,
-            NodeList<ClauseNode> intermediateClauses) {
+            NodeList<IntermediateClauseNode> intermediateClauses) {
         Objects.requireNonNull(fromClause, "fromClause must not be null");
         Objects.requireNonNull(intermediateClauses, "intermediateClauses must not be null");
 
@@ -1993,8 +2083,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             QueryConstructTypeNode queryConstructType,
             QueryPipelineNode queryPipeline,
             SelectClauseNode selectClause,
-            OnConflictClauseNode onConflictClause,
-            LimitClauseNode limitClause) {
+            OnConflictClauseNode onConflictClause) {
         Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
         Objects.requireNonNull(selectClause, "selectClause must not be null");
 
@@ -2002,9 +2091,23 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 getOptionalSTNode(queryConstructType),
                 queryPipeline.internalNode(),
                 selectClause.internalNode(),
-                getOptionalSTNode(onConflictClause),
-                getOptionalSTNode(limitClause));
+                getOptionalSTNode(onConflictClause));
         return stQueryExpressionNode.createUnlinkedFacade();
+    }
+
+    public static QueryActionNode createQueryActionNode(
+            QueryPipelineNode queryPipeline,
+            Token doKeyword,
+            BlockStatementNode blockStatement) {
+        Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
+        Objects.requireNonNull(doKeyword, "doKeyword must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stQueryActionNode = STNodeFactory.createQueryActionNode(
+                queryPipeline.internalNode(),
+                doKeyword.internalNode(),
+                blockStatement.internalNode());
+        return stQueryActionNode.createUnlinkedFacade();
     }
 
     public static IntersectionTypeDescriptorNode createIntersectionTypeDescriptorNode(
@@ -2211,22 +2314,24 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRestBindingPatternNode.createUnlinkedFacade();
     }
 
-    public static FunctionalBindingPatternNode createFunctionalBindingPatternNode(
+    public static ErrorBindingPatternNode createErrorBindingPatternNode(
+            Token errorKeyword,
             Node typeReference,
             Token openParenthesis,
             SeparatedNodeList<BindingPatternNode> argListBindingPatterns,
             Token closeParenthesis) {
-        Objects.requireNonNull(typeReference, "typeReference must not be null");
+        Objects.requireNonNull(errorKeyword, "errorKeyword must not be null");
         Objects.requireNonNull(openParenthesis, "openParenthesis must not be null");
         Objects.requireNonNull(argListBindingPatterns, "argListBindingPatterns must not be null");
         Objects.requireNonNull(closeParenthesis, "closeParenthesis must not be null");
 
-        STNode stFunctionalBindingPatternNode = STNodeFactory.createFunctionalBindingPatternNode(
-                typeReference.internalNode(),
+        STNode stErrorBindingPatternNode = STNodeFactory.createErrorBindingPatternNode(
+                errorKeyword.internalNode(),
+                getOptionalSTNode(typeReference),
                 openParenthesis.internalNode(),
                 argListBindingPatterns.underlyingListNode().internalNode(),
                 closeParenthesis.internalNode());
-        return stFunctionalBindingPatternNode.createUnlinkedFacade();
+        return stErrorBindingPatternNode.createUnlinkedFacade();
     }
 
     public static NamedArgBindingPatternNode createNamedArgBindingPatternNode(
@@ -2395,23 +2500,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 annotChainingToken.internalNode(),
                 annotTagReference.internalNode());
         return stAnnotAccessExpressionNode.createUnlinkedFacade();
-    }
-
-    public static QueryActionNode createQueryActionNode(
-            QueryPipelineNode queryPipeline,
-            Token doKeyword,
-            BlockStatementNode blockStatement,
-            LimitClauseNode limitClause) {
-        Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
-        Objects.requireNonNull(doKeyword, "doKeyword must not be null");
-        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
-
-        STNode stQueryActionNode = STNodeFactory.createQueryActionNode(
-                queryPipeline.internalNode(),
-                doKeyword.internalNode(),
-                blockStatement.internalNode(),
-                getOptionalSTNode(limitClause));
-        return stQueryActionNode.createUnlinkedFacade();
     }
 
     public static OptionalFieldAccessExpressionNode createOptionalFieldAccessExpressionNode(
@@ -2725,74 +2813,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stDistinctTypeDescriptorNode.createUnlinkedFacade();
     }
 
-    public static OnConflictClauseNode createOnConflictClauseNode(
-            Token onKeyword,
-            Token conflictKeyword,
-            ExpressionNode expression) {
-        Objects.requireNonNull(onKeyword, "onKeyword must not be null");
-        Objects.requireNonNull(conflictKeyword, "conflictKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
-
-        STNode stOnConflictClauseNode = STNodeFactory.createOnConflictClauseNode(
-                onKeyword.internalNode(),
-                conflictKeyword.internalNode(),
-                expression.internalNode());
-        return stOnConflictClauseNode.createUnlinkedFacade();
-    }
-
-    public static LimitClauseNode createLimitClauseNode(
-            Token limitKeyword,
-            ExpressionNode expression) {
-        Objects.requireNonNull(limitKeyword, "limitKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
-
-        STNode stLimitClauseNode = STNodeFactory.createLimitClauseNode(
-                limitKeyword.internalNode(),
-                expression.internalNode());
-        return stLimitClauseNode.createUnlinkedFacade();
-    }
-
-    public static JoinClauseNode createJoinClauseNode(
-            Token outerKeyword,
-            Token joinKeyword,
-            TypedBindingPatternNode typedBindingPattern,
-            Token inKeyword,
-            ExpressionNode expression,
-            OnClauseNode onCondition) {
-        Objects.requireNonNull(joinKeyword, "joinKeyword must not be null");
-        Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
-        Objects.requireNonNull(inKeyword, "inKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
-        Objects.requireNonNull(onCondition, "onCondition must not be null");
-
-        STNode stJoinClauseNode = STNodeFactory.createJoinClauseNode(
-                getOptionalSTNode(outerKeyword),
-                joinKeyword.internalNode(),
-                typedBindingPattern.internalNode(),
-                inKeyword.internalNode(),
-                expression.internalNode(),
-                onCondition.internalNode());
-        return stJoinClauseNode.createUnlinkedFacade();
-    }
-
-    public static OnClauseNode createOnClauseNode(
-            Token onKeyword,
-            ExpressionNode lhsExpression,
-            Token equalsKeyword,
-            ExpressionNode rhsExpression) {
-        Objects.requireNonNull(onKeyword, "onKeyword must not be null");
-        Objects.requireNonNull(lhsExpression, "lhsExpression must not be null");
-        Objects.requireNonNull(equalsKeyword, "equalsKeyword must not be null");
-        Objects.requireNonNull(rhsExpression, "rhsExpression must not be null");
-
-        STNode stOnClauseNode = STNodeFactory.createOnClauseNode(
-                onKeyword.internalNode(),
-                lhsExpression.internalNode(),
-                equalsKeyword.internalNode(),
-                rhsExpression.internalNode());
-        return stOnClauseNode.createUnlinkedFacade();
-    }
-
     public static ListMatchPatternNode createListMatchPatternNode(
             Token openBracket,
             SeparatedNodeList<Node> matchPatterns,
@@ -2977,6 +2997,34 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 expression.internalNode(),
                 getOptionalSTNode(orderDirection));
         return stOrderKeyNode.createUnlinkedFacade();
+    }
+
+    public static ClassDefinitionNode createClassDefinitionNode(
+            MetadataNode metadata,
+            Token visibilityQualifier,
+            NodeList<Token> classTypeQualifiers,
+            Token classKeyword,
+            Token className,
+            Token openBrace,
+            NodeList<Node> members,
+            Token closeBrace) {
+        Objects.requireNonNull(classTypeQualifiers, "classTypeQualifiers must not be null");
+        Objects.requireNonNull(classKeyword, "classKeyword must not be null");
+        Objects.requireNonNull(className, "className must not be null");
+        Objects.requireNonNull(openBrace, "openBrace must not be null");
+        Objects.requireNonNull(members, "members must not be null");
+        Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+
+        STNode stClassDefinitionNode = STNodeFactory.createClassDefinitionNode(
+                getOptionalSTNode(metadata),
+                getOptionalSTNode(visibilityQualifier),
+                classTypeQualifiers.underlyingListNode().internalNode(),
+                classKeyword.internalNode(),
+                className.internalNode(),
+                openBrace.internalNode(),
+                members.underlyingListNode().internalNode(),
+                closeBrace.internalNode());
+        return stClassDefinitionNode.createUnlinkedFacade();
     }
 }
 

@@ -12,7 +12,7 @@ public type Person record {|
 
 string testString = "test";
 
-public type Company object {
+public class Company {
     string name;
     string address;
 
@@ -20,7 +20,7 @@ public type Company object {
     	 self.name = "test";
     	 self.address = "test";
     }
-};
+}
 
 @test:Config {
     before: "beforeFunc",

@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.ByteArrayOutputStream;
@@ -237,7 +238,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     @Override
-    public abstract String stringValue();
+    public abstract String stringValue(BLink parent);
 
     @Override
     public abstract BType getType();
@@ -265,7 +266,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
 
     @Override
     public String toString() {
-        return stringValue();
+        return stringValue(null);
     }
 
     @Override

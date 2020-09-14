@@ -221,6 +221,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(objectTypeDescriptorNode);
     }
 
+    public T transform(STObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        return transformSyntaxNode(objectConstructorExpressionNode);
+    }
+
     public T transform(STRecordTypeDescriptorNode recordTypeDescriptorNode) {
         return transformSyntaxNode(recordTypeDescriptorNode);
     }
@@ -509,6 +513,22 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(letClauseNode);
     }
 
+    public T transform(STJoinClauseNode joinClauseNode) {
+        return transformSyntaxNode(joinClauseNode);
+    }
+
+    public T transform(STOnClauseNode onClauseNode) {
+        return transformSyntaxNode(onClauseNode);
+    }
+
+    public T transform(STLimitClauseNode limitClauseNode) {
+        return transformSyntaxNode(limitClauseNode);
+    }
+
+    public T transform(STOnConflictClauseNode onConflictClauseNode) {
+        return transformSyntaxNode(onConflictClauseNode);
+    }
+
     public T transform(STQueryPipelineNode queryPipelineNode) {
         return transformSyntaxNode(queryPipelineNode);
     }
@@ -519,6 +539,10 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STQueryExpressionNode queryExpressionNode) {
         return transformSyntaxNode(queryExpressionNode);
+    }
+
+    public T transform(STQueryActionNode queryActionNode) {
+        return transformSyntaxNode(queryActionNode);
     }
 
     public T transform(STIntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
@@ -581,8 +605,8 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(restBindingPatternNode);
     }
 
-    public T transform(STFunctionalBindingPatternNode functionalBindingPatternNode) {
-        return transformSyntaxNode(functionalBindingPatternNode);
+    public T transform(STErrorBindingPatternNode errorBindingPatternNode) {
+        return transformSyntaxNode(errorBindingPatternNode);
     }
 
     public T transform(STNamedArgBindingPatternNode namedArgBindingPatternNode) {
@@ -631,10 +655,6 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STAnnotAccessExpressionNode annotAccessExpressionNode) {
         return transformSyntaxNode(annotAccessExpressionNode);
-    }
-
-    public T transform(STQueryActionNode queryActionNode) {
-        return transformSyntaxNode(queryActionNode);
     }
 
     public T transform(STOptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
@@ -721,22 +741,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(distinctTypeDescriptorNode);
     }
 
-    public T transform(STOnConflictClauseNode onConflictClauseNode) {
-        return transformSyntaxNode(onConflictClauseNode);
-    }
-
-    public T transform(STLimitClauseNode limitClauseNode) {
-        return transformSyntaxNode(limitClauseNode);
-    }
-
-    public T transform(STJoinClauseNode joinClauseNode) {
-        return transformSyntaxNode(joinClauseNode);
-    }
-
-    public T transform(STOnClauseNode onClauseNode) {
-        return transformSyntaxNode(onClauseNode);
-    }
-
     public T transform(STListMatchPatternNode listMatchPatternNode) {
         return transformSyntaxNode(listMatchPatternNode);
     }
@@ -783,6 +787,10 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STOrderKeyNode orderKeyNode) {
         return transformSyntaxNode(orderKeyNode);
+    }
+
+    public T transform(STClassDefinitionNode classDefinitionNode) {
+        return transformSyntaxNode(classDefinitionNode);
     }
 
     // Tokens

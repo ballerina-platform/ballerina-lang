@@ -224,8 +224,8 @@ public class RefTypeWithBValueAPITests {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible types: 'int'" +
-                  " cannot be cast to 'MIX_TYPE'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                  "types: 'int' cannot be cast to 'MIX_TYPE'.*")
     public void testGetInvalidIntegerAsMixType() {
         BValue[] returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);
@@ -489,7 +489,7 @@ public class RefTypeWithBValueAPITests {
 
     public static org.ballerinalang.jvm.values.api.BString useTypeDesc(
             org.ballerinalang.jvm.values.api.BTypedesc type) {
-        return StringUtils.fromString(type.stringValue());
+        return StringUtils.fromString(type.stringValue(null));
     }
 
     public static org.ballerinalang.jvm.values.api.BTypedesc getTypeDesc() {

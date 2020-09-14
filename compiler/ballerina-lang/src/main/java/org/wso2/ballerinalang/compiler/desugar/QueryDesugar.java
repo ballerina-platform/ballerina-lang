@@ -180,6 +180,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * Class responsible for desugar query pipeline into actual Ballerina code.
  *
@@ -413,7 +415,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                                        BLangExpression collection, BType resultType) {
         String name = getNewVarName();
         BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
-                collection.type, this.env.scope.owner);
+                                               collection.type, this.env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(pos, name,
                 collection.type, addTypeConversionExpr(collection, collection.type), dataSymbol);
         BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(pos, dataVariable);
@@ -688,8 +690,12 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference addLimitFunction(BLangBlockStmt blockStmt, BLangLimitClause limitClause) {
         DiagnosticPos pos = limitClause.pos;
-        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LIMIT_FUNCTION,
-                Lists.of(limitClause.expression), pos);
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.expr = desugar.addConversionExprIfRequired(limitClause.expression, symTable.intType);
+        returnNode.pos = pos;
+        BLangLambdaFunction limitFunction = createLambdaFunction(pos, getIntTypeNode(), returnNode, false);
+        limitFunction.accept(this);
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LIMIT_FUNCTION, Lists.of(limitFunction), pos);
     }
 
     /**
@@ -756,7 +762,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             tableConstructorExpr.tableKeySpecifier = keySpecifier;
         }
         BVarSymbol tableSymbol = new BVarSymbol(0, names.fromString(name),
-                env.scope.owner.pkgID, tableType, this.env.scope.owner);
+                                                env.scope.owner.pkgID, tableType, this.env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable tableVariable = ASTBuilderUtil.createVariable(pos,
                 name, tableType, tableConstructorExpr, tableSymbol);
         queryBlock.addStatement(ASTBuilderUtil.createVariableDef(pos, tableVariable));
@@ -832,7 +838,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         // function(_Frame frame) ... and ref to frame
         BType frameType = getFrameTypeSymbol().type;
         BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(FRAME_PARAMETER_NAME),
-                this.env.scope.owner.pkgID, frameType, this.env.scope.owner);
+                                                this.env.scope.owner.pkgID, frameType, this.env.scope.owner, pos,
+                                                VIRTUAL);
         BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, null,
                 frameSymbol.type, null, frameSymbol);
         BLangVariableReference frameVarRef = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
@@ -904,7 +911,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         String name = getNewVarName();
         BLangInvocation queryLibInvocation = createQueryLibInvocation(functionName, requiredArgs, pos);
         type = (type == null) ? queryLibInvocation.type : type;
-        BVarSymbol varSymbol = new BVarSymbol(0, new Name(name), env.scope.owner.pkgID, type, env.scope.owner);
+        BVarSymbol varSymbol = new BVarSymbol(0, new Name(name), env.scope.owner.pkgID, type, env.scope.owner, pos,
+                                              VIRTUAL);
         BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, name, type,
                 desugar.addConversionExprIfRequired(queryLibInvocation, type), varSymbol);
         BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
@@ -1117,7 +1125,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
         String frameName = getNewVarName();
         BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(frameName),
-                env.scope.owner.pkgID, frameType, this.env.scope.owner);
+                env.scope.owner.pkgID, frameType, this.env.scope.owner, pos, VIRTUAL);
         BLangRecordLiteral frameInit = ASTBuilderUtil.createEmptyRecordLiteral(pos, frameType);
         BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(
                 pos, frameName, frameType, frameInit, frameSymbol);
@@ -1147,6 +1155,18 @@ public class QueryDesugar extends BLangNodeVisitor {
         anyTypeNode.typeKind = TypeKind.ANY;
         anyTypeNode.type = symTable.anyType;
         return anyTypeNode;
+    }
+
+    /**
+     * Return BLangValueType of a int type.
+     *
+     * @return a int type node.
+     */
+    BLangValueType getIntTypeNode() {
+        BLangValueType intTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        intTypeNode.typeKind = TypeKind.INT;
+        intTypeNode.type = symTable.intType;
+        return intTypeNode;
     }
 
     /**

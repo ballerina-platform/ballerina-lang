@@ -18,7 +18,7 @@ public type Foo CONST1|CONST2;
 # # Deprecated
 # This object is deprecated
 @deprecated
-public type DummyObject object {
+public class DummyObject {
 
     public string fieldOne = "Foo";
     Foo foo = CONST1;
@@ -31,7 +31,7 @@ public type DummyObject object {
     @deprecated
     public function doThatOnObject(string paramOne) {
     }
-};
+}
 
 # This function initialize the object
 #
@@ -63,11 +63,11 @@ type Annot record {
 #
 # # Deprecated
 @deprecated
-public annotation Annot v1 on type;
+public annotation Annot v1 on type, class;
 @deprecated
-public annotation Annot[] v2 on object type;
+public annotation Annot[] v2 on class;
 @deprecated
-public annotation map<int> v4 on object function, function;
+public annotation map<int> v4 on object function, function, class;
 
 string strValue = "v1 value";
 
@@ -96,7 +96,7 @@ function testAnnotationDeprecation() {
 @v2 {
     foo: "v2 value 2"
 }
-type T2 object {
+class T2 {
     string name = "ballerina";
 
     @v4 {
@@ -104,7 +104,7 @@ type T2 object {
     }
     public function objMethod() {
     }
-};
+}
 
 @v4 {
         val: 42
@@ -124,12 +124,12 @@ public function deprecated_annotation_func() {
 # # Deprecated
 # function is deprecated
 @deprecated
-function add1(@deprecated public int x, @deprecated int y, @deprecated int z) returns int {
+function add1(@deprecated int x, @deprecated int y, @deprecated int z) returns int {
     return x + y + z;
 }
 
 @deprecated
-function add2(@deprecated public int x, @deprecated int y, @deprecated int z) returns int {
+function add2(@deprecated int x, @deprecated int y, @deprecated int z) returns int {
     return x + y + z;
 }
 
@@ -139,7 +139,7 @@ const string CONST4 = "CONST4";
 public type TYPE1 CONST3|CONST4;
 
 @deprecated
-public type Object1 object {
+public class Object1 {
 
     @deprecated
     public string fieldOne = "Foo";
@@ -151,12 +151,12 @@ public type Object1 object {
         self.fieldOne = paramOne;
         self.t = t;
     }
-};
+}
 
 # The `Object2` is a user-defined object.
 #
 # + fieldTwo - This is the description of the `Object2`'s `fieldTwo` field.
-public type Object2 object {
+public class Object2 {
 
     # This is the description of the `Object2`'s `fieldOne` field.
     # # Deprecated
@@ -174,9 +174,9 @@ public type Object2 object {
         self.fieldOne = paramOne;
         self.t = t;
     }
-};
+}
 
-public type Object3 object {
+public class Object3 {
 
     # This is the description of the `Object2`'s `fieldOne` field.
     # # Deprecated
@@ -194,7 +194,7 @@ public type Object3 object {
         self.fieldOne = paramOne;
         self.t = t;
     }
-};
+}
 
 public function func5() {
     int x1 = add1(2, 3, 3);
@@ -209,7 +209,7 @@ public function func5() {
 # + z - third integer
 # # Deprecated parameters
 # + z - deprecated rest parameter
-function add3(public int x, public int y, @deprecated int... z) {
+function add3(int x, int y, @deprecated int... z) {
     int n = z[0];
 }
 

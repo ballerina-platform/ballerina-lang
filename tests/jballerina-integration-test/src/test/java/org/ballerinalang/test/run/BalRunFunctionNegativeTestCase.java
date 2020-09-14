@@ -40,7 +40,7 @@ public class BalRunFunctionNegativeTestCase extends BaseTest {
 
     private static final int LOG_LEECHER_TIMEOUT = 10000;
 
-    @Test(description = "test insufficient arguments")
+    @Test(enabled = false, description = "test insufficient arguments")
     public void testInsufficientArguments() throws BallerinaTestException {
         LogLeecher errLogLeecher = new LogLeecher("ballerina: insufficient arguments to call the 'main' function",
                                                   LeecherType.ERROR);
@@ -52,7 +52,7 @@ public class BalRunFunctionNegativeTestCase extends BaseTest {
         errLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
-    @Test(description = "test too many arguments")
+    @Test(enabled = false, description = "test too many arguments")
     public void testTooManyArguments() throws BallerinaTestException {
         LogLeecher errLogLeecher = new LogLeecher("ballerina: too many arguments to call the 'main' function",
                                                   LeecherType.ERROR);

@@ -24,7 +24,7 @@ function init() {
 public function main() {
 }
 
-public type TestListener object {
+public class TestListener {
 
     *'object:Listener;
     private string name = "";
@@ -59,6 +59,6 @@ public type TestListener object {
     public function __detach(service s) returns error? {
         io:println("basic:TestListener listener __detach called, service name - " + self.name);
     }
-};
+}
 
 listener TestListener ep = new TestListener("basic");

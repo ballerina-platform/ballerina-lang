@@ -122,7 +122,7 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
      *
      * @param serviceName - Service Name
      */
-    private void genOASfromFile(String serviceName, Path servicePath) {
+    public void genOASfromFile(String serviceName, Path servicePath) {
         Path outPath = Paths.get(exportLocation);
 
         try {

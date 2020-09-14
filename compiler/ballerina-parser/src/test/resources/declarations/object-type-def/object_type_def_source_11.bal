@@ -3,13 +3,11 @@ function foo() {
         public int a;
         
         object {
-            int a = 0;
-            
-            function bar() {
-            }
+            int a;
+
+            function bar();
         } parent;
-    
-        function foo() {
-        }
+
+        function foo();
     } student;
 }

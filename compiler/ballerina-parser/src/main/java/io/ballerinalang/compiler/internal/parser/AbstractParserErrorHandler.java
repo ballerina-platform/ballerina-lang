@@ -151,7 +151,6 @@ public abstract class AbstractParserErrorHandler {
      * @param fix Solution to recover from the missing token
      */
     private STNode handleMissingToken(ParserRuleContext currentCtx, Solution fix) {
-//        return SyntaxErrors.createMissingTokenWithDiagnostics(fix.tokenKind);
         return SyntaxErrors.createMissingTokenWithDiagnostics(fix.tokenKind, fix.ctx);
     }
 

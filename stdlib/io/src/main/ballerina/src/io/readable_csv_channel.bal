@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Represents a ReadableCSVChannel which could be used to read records from CSV file.
-public type ReadableCSVChannel object {
+public class ReadableCSVChannel {
     private ReadableTextRecordChannel? dc;
 
     # Constructs a CSV channel from a CharacterChannel to read/write CSV records.
@@ -25,7 +25,7 @@ public type ReadableCSVChannel object {
     # + byteChannel - The CharacterChannel, which will represent the content in the CSV file
     # + fs - Field separator, which will separate between the records in the CSV file
     # + nHeaders - Number of headers, which should be skipped prior to reading records
-    public function init(ReadableCharacterChannel byteChannel, public Separator fs = ",", public int nHeaders = 0) {
+    public function init(ReadableCharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
         if (fs == TAB) {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
         } else if (fs == COLON) {
@@ -105,14 +105,14 @@ public type ReadableCSVChannel object {
 # + structType - The object in which the CSV records should be deserialized
 # + fieldNames - The names of the fields used as the (composite)key of the table
 # + return - Table, which represents the CSV records or else an `io:Error`
-    public function getTable(typedesc<record {}> structType, public string[] fieldNames = [])
+    public function getTable(typedesc<record {}> structType, string[] fieldNames = [])
     returns @tainted table<record {}>|Error {
         return getTableExtern(self, structType, fieldNames);
     }
-};
+}
 
-function getTableExtern(ReadableCSVChannel csvChannel, typedesc<record {}> structType, public string[] fieldNames)
+function getTableExtern(ReadableCSVChannel csvChannel, typedesc<record {}> structType, string[] fieldNames)
             returns @tainted table<record {}>|Error = @java:Method {
     name: "getTable",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.GetTable"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.GetTable"
 } external;
