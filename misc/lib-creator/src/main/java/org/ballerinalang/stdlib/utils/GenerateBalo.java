@@ -66,6 +66,8 @@ import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE_PRO
  */
 public class GenerateBalo {
 
+    private static final String LOG_ISOLATION_WARNINGS_PROP = "BALLERINA_DEV_LOG_ISOLATION_WARNINGS";
+
     public static void main(String[] args) throws IOException {
         String isBuiltinFlag = args[0];
         String sourceDir = args[1];
@@ -88,7 +90,8 @@ public class GenerateBalo {
             boolean reportWarnings = !skipReportingWarnings;
 
             genBalo(targetDir, sourceDir, reportWarnings, Boolean.parseBoolean(jvmTarget),
-                    new HashSet<>(Arrays.asList(moduleFilter.split(","))), Boolean.parseBoolean(newParser));
+                    new HashSet<>(Arrays.asList(moduleFilter.split(","))), Boolean.parseBoolean(newParser),
+                    Boolean.parseBoolean(System.getenv(LOG_ISOLATION_WARNINGS_PROP)));
         } finally {
             unsetProperty(COMPILE_BALLERINA_ORG_PROP, originalShouldCompileBalOrg);
             unsetProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, originalIsBuiltin);
@@ -105,7 +108,8 @@ public class GenerateBalo {
     }
 
     private static void genBalo(String targetDir, String sourceRootDir, boolean reportWarnings, boolean jvmTarget,
-                                Set<String> docModuleFilter, boolean newParser) throws IOException {
+                                Set<String> docModuleFilter, boolean newParser, boolean logIsolationWarnings)
+            throws IOException {
         Files.createDirectories(Paths.get(targetDir));
 
         CompilerContext context = new CompilerContext();
@@ -132,7 +136,7 @@ public class GenerateBalo {
         BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
 
         List<Diagnostic> diagnostics = diagListner.getDiagnostics();
-        printErrors(reportWarnings, diagListner, diagnostics);
+        printErrors(reportWarnings, diagListner, diagnostics, logIsolationWarnings);
 
         compiler.write(buildPackages);
 
@@ -164,12 +168,12 @@ public class GenerateBalo {
     }
 
     private static void printErrors(boolean reportWarnings, CompileResult.CompileResultDiagnosticListener diagListner,
-                                    List<Diagnostic> diagnostics) {
+                                    List<Diagnostic> diagnostics, boolean logIsolationWarnings) {
         int deprecatedWarnCount = 0;
         if (reportWarnings && diagListner.getWarnCount() > 0) {
             for (Diagnostic diagnostic : diagListner.getDiagnostics()) {
                 DiagnosticCode code = diagnostic.getCode();
-                if (code == USAGE_OF_DEPRECATED_CONSTRUCT || isIsolatedWarningLog(code)) {
+                if (code == USAGE_OF_DEPRECATED_CONSTRUCT || (!logIsolationWarnings && isIsolatedWarningLog(code))) {
                     deprecatedWarnCount++;
                 }
             }
