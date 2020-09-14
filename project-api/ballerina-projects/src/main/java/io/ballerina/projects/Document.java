@@ -18,14 +18,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * {@code Document} represents a Ballerina source file(.bal).
@@ -35,14 +28,13 @@ import java.nio.file.Paths;
 public class Document {
     private final DocumentContext documentContext;
     private final Module module;
-    private SyntaxTree syntaxTree;
 
     Document(DocumentContext documentContext, Module module) {
         this.documentContext = documentContext;
         this.module = module;
     }
 
-    static Document from(DocumentContext documentContext, Module module) {
+    public static Document from(DocumentContext documentContext, Module module) {
         return new Document(documentContext, module);
     }
 
@@ -53,23 +45,55 @@ public class Document {
     public Module module() {
         return this.module;
     }
-    
+
     public SyntaxTree syntaxTree() {
-        if (this.syntaxTree == null) {
-            Path documentPath = Paths.get(documentId().documentPath());
-            try {
-                String text = new String(Files.readAllBytes(documentPath), StandardCharsets.UTF_8);
-                TextDocument textDocument = TextDocuments.from(text);
-                this.syntaxTree = SyntaxTree.from(textDocument);
-            } catch (IOException e) {
-                throw new RuntimeException("unable to parse file: " + documentPath);
-            }
-        }
-        
-        return this.syntaxTree;
+        return this.documentContext.syntaxTree();
     }
 
     public TextDocument textDocument() {
         return null;
+    }
+
+    /** Returns an instance of the Document.Modifier.
+     *
+     * @return  module modifier
+     */
+    public Modifier modify() {
+        return new Modifier(this);
+    }
+
+    /**
+     * Inner class that handles Document modifications.
+     */
+    public static class Modifier {
+        private String content;
+        private Document oldDocument;
+
+        private Modifier(Document oldDocument) {
+            this.oldDocument = oldDocument;
+        }
+
+        /**
+         * Sets the content to be changed.
+         *
+         * @param content content to change with
+         * @return Document.Modifier that holds the content to be changed
+         */
+        public Modifier withContent(String content) {
+            this.content = content;
+            return this;
+        }
+
+        /**
+         * Returns a new document with updated content.
+         *
+         * @return document with updated content
+         */
+        public Document apply() {
+            DocumentConfig documentConfig = DocumentConfig.from(oldDocument.documentId(), this.content);
+            DocumentContext documentContext = DocumentContext.from(documentConfig);
+            Module newModule = oldDocument.module().modify().updateDocument(documentContext).apply();
+            return newModule.document(oldDocument.documentId());
+        }
     }
 }

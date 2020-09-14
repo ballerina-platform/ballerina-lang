@@ -21,7 +21,9 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.utils.ProjectConstants;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
@@ -41,7 +43,8 @@ public class ProjectLoader {
         Path absProjectPath = Optional.of(path.toAbsolutePath()).get();
         Path projectRoot;
         if (absProjectPath.toFile().isDirectory()) {
-            if (ProjectConstants.MODULES_ROOT.equals(Optional.of(absProjectPath.getParent()).get().toFile().getName())) {
+            if (ProjectConstants.MODULES_ROOT.equals(
+                    Optional.of(absProjectPath.getParent()).get().toFile().getName())) {
                 projectRoot = Optional.of(Optional.of(absProjectPath.getParent()).get().getParent()).get();
             } else {
                 projectRoot = absProjectPath;
@@ -62,13 +65,20 @@ public class ProjectLoader {
         }
 
         // check if the file is a source file in a non-default module
-        Path modulesRoot = Optional.of(Optional.of(absProjectPath.getParent()).get().getParent()).get();
+        Path moduleDirPath = Optional.of(absProjectPath.getParent()).get();
+        if (!Files.exists(moduleDirPath)) {
+            throw new RuntimeException("module directory path does not exist: " + moduleDirPath.toString());
+        }
+        Path modulesRoot = Optional.of(moduleDirPath.getParent()).get();
         projectRoot = modulesRoot.getParent();
         if (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
             return BuildProject.loadProject(projectRoot);
         }
 
         // check if the file is a test file in a non-default module
+        if (!Files.exists(testsRoot)) {
+            throw new RuntimeException("module tests directory path does not exist: " + testsRoot.toString());
+        }
         modulesRoot = Optional.of(Optional.of(testsRoot.getParent()).get().getParent()).get();
         projectRoot = modulesRoot.getParent();
 
@@ -81,5 +91,34 @@ public class ProjectLoader {
 
     private static boolean hasBallerinaToml(Path filePath) {
         return filePath.resolve(ProjectConstants.BALLERINA_TOML).toFile().exists();
+    }
+
+    /**
+     * Returns the documentId of the provided file path.
+     *
+     * @param documentFilePath file path of the document
+     * @param project project that the file belongs to
+     * @return documentId of the document
+     */
+    public static DocumentId getDocumentId(Path documentFilePath, Project project) {
+        Path parent = Optional.of(documentFilePath.getParent()).get();
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            if (parent.toString().equals(moduleId.moduleDirPath()) || parent.toString().equals(
+                    Paths.get(moduleId.moduleDirPath()).resolve(ProjectConstants.TEST_DIR_NAME).toString())) {
+                Module module = project.currentPackage().module(moduleId);
+                for (DocumentId documentId : module.documentIds()) {
+                    if (documentId.documentPath().equals(documentFilePath.toString())) {
+                        return documentId;
+                    }
+                }
+
+                for (DocumentId documentId : module.testDocumentIds()) {
+                    if (documentId.documentPath().equals(documentFilePath.toString())) {
+                        return documentId;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

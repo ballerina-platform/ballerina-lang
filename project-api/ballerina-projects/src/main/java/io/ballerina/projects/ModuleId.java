@@ -44,6 +44,10 @@ public final class ModuleId {
         return id;
     }
 
+    public String moduleDirPath() {
+        return moduleDirPath;
+    }
+
     public PackageId packageId() {
         return packageId;
     }

@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Spliterator;
@@ -70,7 +71,7 @@ public class Module {
     }
 
     public Iterable<Document> testDocuments() {
-        return null;
+        return new DocumentIterable(this.testSrcDocs.values());
     }
 
     public Document document(DocumentId documentId) {
@@ -81,7 +82,15 @@ public class Module {
             return this.testSrcDocs.computeIfAbsent(documentId, this.populateDocumentFunc);
         }
     }
-    
+
+    /** Returns an instance of the Module.Modifier.
+     *
+     * @return  module modifier
+     */
+    public Modifier modify() {
+        return new Modifier(this);
+    }
+
     private static class DocumentIterable implements Iterable {
         private final Collection<Document> documentList;
     
@@ -99,4 +108,117 @@ public class Module {
             return this.documentList.spliterator();
         }
     }
+
+    /**
+     * Inner class that handles module modifications.
+     */
+    public static class Modifier {
+        private Module oldModule;
+        private DocumentContext newDocContext;
+        private Module newModule;
+
+        private Modifier(Module oldModule) {
+            this.oldModule = oldModule;
+        }
+
+        Modifier updateDocument(DocumentContext newDocContext) {
+            this.newDocContext = newDocContext;
+            Map<DocumentId, DocumentContext> srcDocContextMap = copySrcDocsfromOld();
+            Map<DocumentId, DocumentContext> testDocContextMap = copyTestDocsfromOld();
+
+            if (oldModule.moduleContext.srcDocumentIds().contains(newDocContext.documentId())) {
+                srcDocContextMap.put(newDocContext.documentId(), newDocContext);
+            } else {
+                testDocContextMap.put(newDocContext.documentId(), newDocContext);
+            }
+            createNewModule(srcDocContextMap, testDocContextMap);
+            return this;
+        }
+
+        /**
+         * Creates a copy of the existing module and adds a new source document to the new module.
+         *
+         * @param documentConfig configurations to create the document
+         * @return an instance of the Module.Modifier
+         */
+        public Modifier addDocument(DocumentConfig documentConfig) {
+            this.newDocContext = DocumentContext.from(documentConfig);
+            Map<DocumentId, DocumentContext> srcDocContextMap = copySrcDocsfromOld();
+            Map<DocumentId, DocumentContext> testDocContextMap = copyTestDocsfromOld();
+
+            srcDocContextMap.put(newDocContext.documentId(), newDocContext);
+            createNewModule(srcDocContextMap, testDocContextMap);
+            return this;
+        }
+
+        /**
+         * Creates a copy of the existing module and adds a new test document to the new module.
+         *
+         * @param documentConfig configurations to create the document
+         * @return an instance of the Module.Modifier
+         */
+        public Modifier addTestDocument(DocumentConfig documentConfig) {
+            this.newDocContext = DocumentContext.from(documentConfig);
+            Map<DocumentId, DocumentContext> srcDocContextMap = copySrcDocsfromOld();
+            Map<DocumentId, DocumentContext> testDocContextMap = copyTestDocsfromOld();
+
+            testDocContextMap.put(newDocContext.documentId(), newDocContext);
+            createNewModule(srcDocContextMap, testDocContextMap);
+            return this;
+        }
+
+        /**
+         * Creates a copy of the existing module and removes the specified document from the new module.
+         *
+         * @param documentId documentId of the document to remove
+         * @return an instance of the Module.Modifier
+         */
+        public Modifier removeDocument(DocumentId documentId) {
+            Map<DocumentId, DocumentContext> srcDocContextMap = copySrcDocsfromOld();
+            Map<DocumentId, DocumentContext> testDocContextMap = copyTestDocsfromOld();
+
+            if (oldModule.moduleContext.srcDocumentIds().contains(documentId)) {
+                srcDocContextMap.remove(documentId);
+            } else {
+                testDocContextMap.remove(documentId);
+            }
+            createNewModule(srcDocContextMap, testDocContextMap);
+            return this;
+        }
+
+        /**
+         * Returns the updated module created by a document add/remove/update operation.
+         *
+         * @return the updated module
+         */
+        public Module apply() {
+            return newModule;
+        }
+
+        private Map<DocumentId, DocumentContext> copySrcDocsfromOld() {
+            Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+            for (DocumentId documentId : oldModule.moduleContext.srcDocumentIds()) {
+                srcDocContextMap.put(documentId, oldModule.moduleContext.documentContext(documentId));
+            }
+            return srcDocContextMap;
+        }
+
+        private Map<DocumentId, DocumentContext> copyTestDocsfromOld() {
+            Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+            for (DocumentId documentId : oldModule.moduleContext.testSrcDocumentIds()) {
+                testDocContextMap.put(documentId, oldModule.moduleContext.documentContext(documentId));
+            }
+            return testDocContextMap;
+        }
+
+        private void createNewModule(Map<DocumentId, DocumentContext> srcDocContextMap, Map<DocumentId,
+                DocumentContext> testDocContextMap) {
+            ModuleContext newModuleContext = new ModuleContext(
+                    oldModule.moduleId(), srcDocContextMap, testDocContextMap);
+            Package newPackage = oldModule.packageInstance.modify().updateModule(newModuleContext).apply();
+            newModule = newPackage.module(oldModule.moduleId());
+        }
+
+    }
+
 }

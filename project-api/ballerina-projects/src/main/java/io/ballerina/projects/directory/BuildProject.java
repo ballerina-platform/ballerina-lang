@@ -65,6 +65,12 @@ public class BuildProject extends Project {
         } else {
             this.context.setBuildOptions(new BuildOptions());
         }
+
+
+    }
+
+    public BuildOptions getBuildOptions() {
+        return (BuildOptions) this.context.getBuildOptions();
     }
 
     /**
@@ -74,11 +80,7 @@ public class BuildProject extends Project {
      */
     private void addPackage(String projectPath) {
         final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, false);
-        this.context.addPackage(packageConfig);
-    }
-
-    public BuildOptions getBuildOptions() {
-        return (BuildOptions) this.context.getBuildOptions();
+        this.context.addPackage(packageConfig, this);
     }
 
     /**

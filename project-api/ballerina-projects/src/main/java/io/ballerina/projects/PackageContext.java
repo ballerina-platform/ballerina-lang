@@ -37,22 +37,24 @@ import java.util.Map;
  * @since 2.0.0
  */
 class PackageContext {
-    private final PackageConfig packageConfig;
+    private final PackageId packageId;
+    private Path packagePath;
     private final ModuleContext defaultModuleContext;
     private final Map<ModuleId, ModuleContext> moduleContextMap;
     private final Collection<ModuleId> moduleIds;
     private final BallerinaToml ballerinaToml;
 
-    private PackageContext(PackageConfig packageConfig,
+    PackageContext(PackageId packageId, Path packagePath,
                            ModuleContext defaultModuleContext,
                            Map<ModuleId, ModuleContext> moduleContextMap) {
-        this.packageConfig = packageConfig;
+        this.packageId = packageId;
+        this.packagePath = packagePath;
         this.defaultModuleContext = defaultModuleContext;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
 
         // load Ballerina.toml
-        Path ballerinaTomlPath = packageConfig.packagePath().resolve(ProjectConstants.BALLERINA_TOML);
+        Path ballerinaTomlPath = this.packagePath.resolve(ProjectConstants.BALLERINA_TOML);
         if (ballerinaTomlPath.toFile().exists()) {
             try {
                 this.ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlPath);
@@ -77,11 +79,16 @@ class PackageContext {
             moduleContextMap.put(moduleConfig.moduleId(), ModuleContext.from(moduleConfig));
         }
 
-        return new PackageContext(packageConfig, defaultModuleContext, moduleContextMap);
+        return new PackageContext(
+                packageConfig.packageId(), packageConfig.packagePath(), defaultModuleContext, moduleContextMap);
     }
 
     PackageId packageId() {
-        return this.packageConfig.packageId();
+        return this.packageId;
+    }
+
+    Path packagePath() {
+        return this.packagePath;
     }
 
     Collection<ModuleId> moduleIds() {

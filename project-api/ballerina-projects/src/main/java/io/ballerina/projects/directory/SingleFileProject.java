@@ -72,7 +72,7 @@ public class SingleFileProject extends Project {
      */
     private void addPackage(String projectPath) {
         final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, true);
-        this.context.addPackage(packageConfig);
+        this.context.addPackage(packageConfig, this);
     }
 
     /**

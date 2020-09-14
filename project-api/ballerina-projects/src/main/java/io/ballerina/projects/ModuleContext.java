@@ -30,16 +30,16 @@ import java.util.Map;
  * @since 2.0.0
  */
 class ModuleContext {
-    private final ModuleConfig moduleConfig;
+    private final ModuleId moduleId;
     private final Collection<DocumentId> srcDocIds;
     private final Map<DocumentId, DocumentContext> srcDocContextMap;
     private final Collection<DocumentId> testSrcDocIds;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
 
-    private ModuleContext(ModuleConfig moduleConfig,
+    ModuleContext(ModuleId moduleId,
                           Map<DocumentId, DocumentContext> srcDocContextMap,
                           Map<DocumentId, DocumentContext> testDocContextMap) {
-        this.moduleConfig = moduleConfig;
+        this.moduleId = moduleId;
         this.srcDocContextMap = srcDocContextMap;
         this.srcDocIds = Collections.unmodifiableCollection(srcDocContextMap.keySet());
         this.testDocContextMap = testDocContextMap;
@@ -56,11 +56,11 @@ class ModuleContext {
         for (DocumentConfig testSrcDocConfig : moduleConfig.testSourceDocs()) {
             testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
         }
-        return new ModuleContext(moduleConfig, srcDocContextMap, testDocContextMap);
+        return new ModuleContext(moduleConfig.moduleId(), srcDocContextMap, testDocContextMap);
     }
 
     ModuleId moduleId() {
-        return moduleConfig.moduleId();
+        return this.moduleId;
     }
 
     Collection<DocumentId> srcDocumentIds() {

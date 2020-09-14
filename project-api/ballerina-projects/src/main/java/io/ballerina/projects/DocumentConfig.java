@@ -17,9 +17,6 @@
  */
 package io.ballerina.projects;
 
-import java.nio.file.Path;
-import java.util.Optional;
-
 /**
  * {@code DocumentConfig} contains necessary configuration elements required to
  * create an instance of a {@code Document}.
@@ -29,22 +26,22 @@ import java.util.Optional;
 public class DocumentConfig {
     // This class should contain project-agnostic information
     private final DocumentId documentId;
-    private final Path filePath;
+    private String content;
 
-    private DocumentConfig(DocumentId documentId, Path filePath) {
+    private DocumentConfig(DocumentId documentId, String content) {
         this.documentId = documentId;
-        this.filePath = filePath;
+        this.content = content;
     }
 
-    public static DocumentConfig from(DocumentId documentId, Path filePath) {
-        return new DocumentConfig(documentId, filePath);
+    public static DocumentConfig from(DocumentId documentId, String content) {
+        return new DocumentConfig(documentId, content);
     }
 
     public DocumentId documentId() {
         return documentId;
     }
 
-    public Optional<Path> filePath() {
-        return Optional.ofNullable(filePath);
+    public String content() {
+        return content;
     }
 }

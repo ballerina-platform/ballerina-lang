@@ -35,15 +35,15 @@ public class ProjectContext {
         return currentPackage;
     }
 
-    private void setCurrentPackage(Package currentPackage) {
+    void setCurrentPackage(Package currentPackage) {
         // TODO Handle concurrent read/write to the currentPackage variable
         this.currentPackage = currentPackage;
     }
 
-    public void addPackage(PackageConfig packageConfig) {
+    public void addPackage(PackageConfig packageConfig, Project project) {
         // TODO 1) Create the Package instance by first creating PackageContext instance
         // TODO 2) Set the created package instance as the currentPackage
-        Package newPackage = Package.from(packageConfig);
+        Package newPackage = Package.from(packageConfig, project);
         setCurrentPackage(newPackage);
     }
 

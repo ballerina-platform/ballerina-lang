@@ -17,6 +17,10 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+
 /**
  * Maintains the internal state of a {@code Document} instance.
  * <p>
@@ -26,6 +30,7 @@ package io.ballerina.projects;
  */
 class DocumentContext {
     private final DocumentConfig documentConfig;
+    private SyntaxTree syntaxTree;
 
     private DocumentContext(DocumentConfig documentConfig) {
         this.documentConfig = documentConfig;
@@ -37,5 +42,14 @@ class DocumentContext {
 
     DocumentId documentId() {
         return documentConfig.documentId();
+    }
+
+    protected SyntaxTree syntaxTree() {
+        if (this.syntaxTree == null) {
+            TextDocument textDocument = TextDocuments.from(this.documentConfig.content());
+            this.syntaxTree = SyntaxTree.from(textDocument);
+        }
+
+        return this.syntaxTree;
     }
 }
