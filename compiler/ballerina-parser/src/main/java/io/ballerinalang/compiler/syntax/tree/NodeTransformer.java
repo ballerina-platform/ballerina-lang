@@ -84,6 +84,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(breakStatementNode);
     }
 
+    public T transform(FailStatementNode failStatementNode) {
+        return transformSyntaxNode(failStatementNode);
+    }
+
     public T transform(ExpressionStatementNode expressionStatementNode) {
         return transformSyntaxNode(expressionStatementNode);
     }
@@ -142,10 +146,6 @@ public abstract class NodeTransformer<T> {
 
     public T transform(CheckExpressionNode checkExpressionNode) {
         return transformSyntaxNode(checkExpressionNode);
-    }
-
-    public T transform(FailExpressionNode failExpressionNode) {
-        return transformSyntaxNode(failExpressionNode);
     }
 
     public T transform(FieldAccessExpressionNode fieldAccessExpressionNode) {
@@ -798,6 +798,14 @@ public abstract class NodeTransformer<T> {
 
     public T transform(OrderKeyNode orderKeyNode) {
         return transformSyntaxNode(orderKeyNode);
+    }
+
+    public T transform(OnFailClauseNode onFailClauseNode) {
+        return transformSyntaxNode(onFailClauseNode);
+    }
+
+    public T transform(DoStatementNode doStatementNode) {
+        return transformSyntaxNode(doStatementNode);
     }
 
     public T transform(ClassDefinitionNode classDefinitionNode) {

@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -44,6 +45,10 @@ public class WhileStatementNode extends StatementNode {
         return childInBucket(2);
     }
 
+    public Optional<OnFailClauseNode> onFailClause() {
+        return optionalChildInBucket(3);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -59,24 +64,28 @@ public class WhileStatementNode extends StatementNode {
         return new String[]{
                 "whileKeyword",
                 "condition",
-                "whileBody"};
+                "whileBody",
+                "onFailClause"};
     }
 
     public WhileStatementNode modify(
             Token whileKeyword,
             ExpressionNode condition,
-            BlockStatementNode whileBody) {
+            BlockStatementNode whileBody,
+            OnFailClauseNode onFailClause) {
         if (checkForReferenceEquality(
                 whileKeyword,
                 condition,
-                whileBody)) {
+                whileBody,
+                onFailClause)) {
             return this;
         }
 
         return NodeFactory.createWhileStatementNode(
                 whileKeyword,
                 condition,
-                whileBody);
+                whileBody,
+                onFailClause);
     }
 
     public WhileStatementNodeModifier modify() {
@@ -93,12 +102,14 @@ public class WhileStatementNode extends StatementNode {
         private Token whileKeyword;
         private ExpressionNode condition;
         private BlockStatementNode whileBody;
+        private OnFailClauseNode onFailClause;
 
         public WhileStatementNodeModifier(WhileStatementNode oldNode) {
             this.oldNode = oldNode;
             this.whileKeyword = oldNode.whileKeyword();
             this.condition = oldNode.condition();
             this.whileBody = oldNode.whileBody();
+            this.onFailClause = oldNode.onFailClause().orElse(null);
         }
 
         public WhileStatementNodeModifier withWhileKeyword(
@@ -122,11 +133,19 @@ public class WhileStatementNode extends StatementNode {
             return this;
         }
 
+        public WhileStatementNodeModifier withOnFailClause(
+                OnFailClauseNode onFailClause) {
+            Objects.requireNonNull(onFailClause, "onFailClause must not be null");
+            this.onFailClause = onFailClause;
+            return this;
+        }
+
         public WhileStatementNode apply() {
             return oldNode.modify(
                     whileKeyword,
                     condition,
-                    whileBody);
+                    whileBody,
+                    onFailClause);
         }
     }
 }

@@ -115,9 +115,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -603,6 +605,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
+        retryNode.retryBody = rewrite(retryNode.retryBody, env);
         result = retryNode;
     }
 
@@ -627,6 +630,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = panicNode;
     }
 
+    public void visit(BLangDo doNode) {
+        doNode.body = rewrite(doNode.body, env);
+        result = doNode;
+    }
+
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl, env);
@@ -643,6 +651,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangExpressionStmt exprStmtNode) {
         exprStmtNode.expr = rewriteExpr(exprStmtNode.expr);
         result = exprStmtNode;
+    }
+
+    @Override
+    public void visit(BLangFail failNode) {
+        if (failNode.exprStmt != null) {
+            failNode.exprStmt = rewrite(failNode.exprStmt, env);
+        }
+        result = failNode;
     }
 
     @Override
