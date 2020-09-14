@@ -54,7 +54,7 @@ public class FromJsonDecimalString {
         try {
             return JSONParser.parse(str, JSONParser.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING);
         } catch (BallerinaException e) {
-            return BallerinaErrors.createError("{ballerina}FromJsonDecimalStringError", e.getMessage());
+            return BallerinaErrors.createError("{ballerina/lang.value}FromJsonDecimalStringError", e.getMessage());
         }
     }
 }

@@ -53,7 +53,7 @@ public class FromJsonString {
         try {
             return JSONParser.parse(str);
         } catch (BallerinaException e) {
-            return BallerinaErrors.createError("{ballerina}FromJsonStringError", e.getMessage());
+            return BallerinaErrors.createError("{ballerina/lang.value}FromJsonStringError", e.getMessage());
         }
     }
 }

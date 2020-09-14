@@ -56,6 +56,11 @@ public class JSONParser {
 
     /**
      * Represents the modes which process numeric values.
+     * FROM_JSON_STRING convert numeric values that starts with minus(-) and numerically equal zero(0) to -0.0f, numeric
+     * values that is syntactically an integer to int and all other numeric values to decimal while converting a string
+     * to JSON
+     * FROM_JSON_FLOAT_STRING convert all numerical values to float while converting a string to JSON
+     * FROM_JSON_DECIMAL_STRING convert all numerical values to decimal while converting a string to JSON
      */
     public enum NonStringValueProcessingMode {
         FROM_JSON_STRING, FROM_JSON_FLOAT_STRING, FROM_JSON_DECIMAL_STRING
@@ -830,7 +835,6 @@ public class JSONParser {
         private void processNonStringValue(ValueType type) throws JsonParserException {
             String str = value();
             if (str.indexOf('.') >= 0) {
-                char ch = str.charAt(0);
                 try {
                     switch (mode) {
                         case FROM_JSON_FLOAT_STRING:
@@ -930,10 +934,8 @@ public class JSONParser {
                     ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
                             StringUtils.fromString(this.fieldNames.pop()), value);
                     break;
-                case VALUE:
-                    currentJsonNode = value;
-                    break;
                 default:
+                    currentJsonNode = value;
                     break;
             }
         }

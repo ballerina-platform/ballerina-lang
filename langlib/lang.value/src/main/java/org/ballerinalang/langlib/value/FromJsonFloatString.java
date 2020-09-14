@@ -54,7 +54,7 @@ public class FromJsonFloatString {
         try {
             return JSONParser.parse(str, JSONParser.NonStringValueProcessingMode.FROM_JSON_FLOAT_STRING);
         } catch (BallerinaException e) {
-            return BallerinaErrors.createError("{ballerina}FromJsonFloatStringError", e.getMessage());
+            return BallerinaErrors.createError("{ballerina/lang.value}FromJsonFloatStringError", e.getMessage());
         }
     }
 }
