@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -82,7 +83,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -143,9 +143,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -567,6 +569,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatch match) {
         analyzeNode(match.expr, env);
+        if (match.onFailClause != null) {
+            analyzeNode(match.onFailClause, env);
+        }
+
         Map<BSymbol, InitStatus> uninitVars = new HashMap<>();
         BranchResult lastPatternResult = null;
         for (BLangMatch.BLangMatchBindingPatternClause patternClause : match.patternClauses) {
@@ -597,6 +603,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangForeach foreach) {
         analyzeNode(foreach.collection, env);
         analyzeNode(foreach.body, env);
+        if (foreach.onFailClause != null) {
+            analyzeNode(foreach.onFailClause, env);
+        }
     }
 
     @Override
@@ -611,6 +620,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
         analyzeNode(whileNode.expr, env);
         analyzeNode(whileNode.body, env);
+        if (whileNode.onFailClause != null) {
+            analyzeNode(whileNode.onFailClause, env);
+        }
+
         for (BSymbol symbol : prevUninitializedVars.keySet()) {
             if (!this.uninitializedVars.containsKey(symbol)) {
                 this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
@@ -619,13 +632,31 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangDo doNode) {
+        analyzeNode(doNode.body, env);
+        if (doNode.onFailClause != null) {
+            analyzeNode(doNode.onFailClause, env);
+        }
+    }
+
+    public void visit(BLangFail failNode) {
+        analyzeNode(failNode.expr, env);
+    }
+
+    @Override
     public void visit(BLangLock lockNode) {
         analyzeNode(lockNode.body, this.env);
+        if (lockNode.onFailClause != null) {
+            analyzeNode(lockNode.onFailClause, env);
+        }
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
         analyzeNode(transactionNode.transactionBody, env);
+        if (transactionNode.onFailClause != null) {
+            analyzeNode(transactionNode.onFailClause, env);
+        }
 
         // marks the injected import as used
         Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
@@ -987,6 +1018,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(doClause.body, env);
     }
 
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        analyzeNode(onFailClause.body, env);
+    }
+
     private boolean isFieldsInitializedForSelfArgument(BLangInvocation invocationExpr) {
 
         if (invocationExpr.expr == null || !isSelfKeyWordExpr(invocationExpr.expr)) {
@@ -1286,10 +1322,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(checkPanicExpr.expr, env);
     }
 
-    public void visit(BLangFailExpr failExpr) {
-        analyzeNode(failExpr.expr, env);
-    }
-
     @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
         bLangXMLSequenceLiteral.xmlItems.forEach(xml -> analyzeNode(xml, env));
@@ -1311,6 +1343,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetry retryNode) {
         analyzeNode(retryNode.retryBody, env);
+        if (retryNode.onFailClause != null) {
+            analyzeNode(retryNode.onFailClause, env);
+        }
     }
 
     @Override
