@@ -309,9 +309,6 @@ public class BIRBinaryWriter {
         List<Integer> globalVarBuf = new LinkedList<>();
 
         for (BIRNode.BIRVariableDcl var : birFunction.dependentGlobalVars) {
-            if (var == null) {
-                continue;
-            }
             globalVarBuf.add(addStringCPEntry(var.name.value));
         }
 
