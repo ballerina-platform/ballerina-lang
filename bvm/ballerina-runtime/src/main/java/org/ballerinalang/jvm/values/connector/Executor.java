@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.jvm.values.connector;
 
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
@@ -34,9 +37,6 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -19,12 +19,12 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
 import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;
@@ -120,7 +120,7 @@ public class HTTPServicesRegistry {
             String basePath = httpService.getBasePath();
             if (servicesByBasePath.containsKey(basePath)) {
                 String errorMessage = hostName.equals(DEFAULT_HOST) ? "'" : "' under host name : '" + hostName + "'";
-                throw BErrorCreator.createError(StringUtils.fromString((
+                throw BErrorCreator.createError(BStringValues.fromString((
                         "Service registration failed: two services have the same basePath : '" +
                                 basePath + errorMessage)));
             }

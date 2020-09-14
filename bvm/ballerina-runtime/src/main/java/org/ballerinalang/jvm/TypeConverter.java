@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.internal.ErrorUtils;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -36,9 +40,6 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -90,7 +91,7 @@ public class TypeConverter {
                 return anyToFloat(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, BTypes.typeFloat));
             case TypeTags.STRING_TAG:
-                return StringUtils.fromString(anyToString(inputValue));
+                return BStringValues.fromString(anyToString(inputValue));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBoolean(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, BTypes.typeBoolean));
@@ -324,7 +325,7 @@ public class TypeConverter {
         for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            if (sourceMapValueImpl.containsKey(StringUtils.fromString(fieldName))) {
+            if (sourceMapValueImpl.containsKey(BStringValues.fromString(fieldName))) {
                 continue;
             }
             BField targetField = targetType.getFields().get(fieldName);
@@ -570,7 +571,7 @@ public class TypeConverter {
         if (!isCharLiteralValue(sourceVal)) {
             throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeStringChar);
         }
-        return StringUtils.fromString(Objects.toString(sourceVal));
+        return BStringValues.fromString(Objects.toString(sourceVal));
     }
 
     public static BString anyToChar(Object sourceVal) {

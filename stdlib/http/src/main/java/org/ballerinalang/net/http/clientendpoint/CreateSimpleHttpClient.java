@@ -18,10 +18,10 @@
 
 package org.ballerinalang.net.http.clientendpoint;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -53,7 +53,7 @@ public class CreateSimpleHttpClient {
                                               MapValue<BString, Long> globalPoolConfig) {
         String urlString = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue().replaceAll(
                 HttpConstants.REGEX, HttpConstants.SINGLE_SLASH);
-        httpClient.set(CLIENT_ENDPOINT_SERVICE_URI, StringUtils.fromString(urlString));
+        httpClient.set(CLIENT_ENDPOINT_SERVICE_URI, BStringValues.fromString(urlString));
         MapValue<BString, Object> clientEndpointConfig = (MapValue<BString, Object>) httpClient.get(
                 CLIENT_ENDPOINT_CONFIG);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();

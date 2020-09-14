@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BHandleValue;
@@ -141,7 +141,7 @@ public class StaticMethodTest {
     }
 
     public static Object returnObjectOrError() {
-        return BErrorCreator.createError(StringUtils.fromString("some reason"),
+        return BErrorCreator.createError(BStringValues.fromString("some reason"),
                                          new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 

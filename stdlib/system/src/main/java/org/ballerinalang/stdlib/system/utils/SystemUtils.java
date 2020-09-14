@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.stdlib.system.utils;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +70,7 @@ public class SystemUtils {
      * @return Ballerina error object.
      */
     public static BError getBallerinaError(String typeId, String message) {
-        return BErrorCreator.createDistinctError(typeId, SYSTEM_PACKAGE_ID, StringUtils.fromString(message));
+        return BErrorCreator.createDistinctError(typeId, SYSTEM_PACKAGE_ID, BStringValues.fromString(message));
     }
 
     public static BObject getFileInfo(File inputFile) throws IOException {
@@ -78,10 +78,10 @@ public class SystemUtils {
         FileTime lastModified = Files.getLastModifiedTime(inputFile.toPath());
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
-                                                lastModified.toMillis(), StringUtils
+                                                lastModified.toMillis(), BStringValues
                                                         .fromString(zonedDateTime.getZone().toString()));
         return BValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE,
-                                               StringUtils.fromString(inputFile.getName()), inputFile.length(),
+                                               BStringValues.fromString(inputFile.getName()), inputFile.length(),
                                                lastModifiedInstance, inputFile.isDirectory());
     }
 

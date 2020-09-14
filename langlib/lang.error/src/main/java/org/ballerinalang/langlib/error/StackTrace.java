@@ -17,7 +17,11 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -32,10 +36,6 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -104,12 +104,12 @@ public class StackTrace {
 
         @Override
         public Object call(Strand strand, String funcName, Object... args) {
-            throw BErrorCreator.createError(StringUtils.fromString("No such field or method: " + funcName));
+            throw BErrorCreator.createError(BStringValues.fromString("No such field or method: " + funcName));
         }
 
         @Override
         public FutureValue start(Strand strand, String funcName, Object... args) {
-            throw BErrorCreator.createError(StringUtils.fromString("No such field or method: " + funcName));
+            throw BErrorCreator.createError(BStringValues.fromString("No such field or method: " + funcName));
         }
 
         @Override
@@ -117,12 +117,12 @@ public class StackTrace {
             if (fieldName.getValue().equals("callStack")) {
                 return callStack;
             }
-            throw BErrorCreator.createError(StringUtils.fromString("No such field or method: callStack"));
+            throw BErrorCreator.createError(BStringValues.fromString("No such field or method: callStack"));
         }
 
         @Override
         public void set(BString fieldName, Object value) {
-            throw BErrorCreator.createError(StringUtils.fromString("No such field or method: callStack"));
+            throw BErrorCreator.createError(BStringValues.fromString("No such field or method: callStack"));
         }
     }
 }

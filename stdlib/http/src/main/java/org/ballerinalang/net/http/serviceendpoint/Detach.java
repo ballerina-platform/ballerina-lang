@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;

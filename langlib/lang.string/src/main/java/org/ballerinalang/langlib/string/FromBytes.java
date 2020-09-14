@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -46,10 +46,10 @@ public class FromBytes {
 
     public static Object fromBytes(Strand strand, ArrayValue bytes) {
         try {
-            return StringUtils.fromString(new String(bytes.getBytes(), StandardCharsets.UTF_8));
+            return BStringValues.fromString(new String(bytes.getBytes(), StandardCharsets.UTF_8));
         } catch (Exception e) {
-            return BErrorCreator.createError(StringUtils.fromString("FailedToDecodeBytes"),
-                                             StringUtils.fromString(e.getMessage()));
+            return BErrorCreator.createError(BStringValues.fromString("FailedToDecodeBytes"),
+                                             BStringValues.fromString(e.getMessage()));
         }
     }
 }

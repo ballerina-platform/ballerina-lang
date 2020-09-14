@@ -15,10 +15,12 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.jvm.values.api;
+package org.ballerinalang.jvm.api;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
@@ -34,7 +36,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
  */
 public class BErrorCreator {
 
-    private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
+    private static final BString ERROR_MESSAGE_FIELD = BStringValues.fromString("message");
 
     /**
      * Create an error with given reason.
@@ -70,7 +72,7 @@ public class BErrorCreator {
      */
     public static BError createError(BString message, Throwable throwable) {
         return new ErrorValue(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage()),
-                              message, createError(StringUtils.fromString(throwable.getMessage())),
+                              message, createError(BStringValues.fromString(throwable.getMessage())),
                               new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
@@ -124,7 +126,7 @@ public class BErrorCreator {
         if (error instanceof BError) {
             return (BError) error;
         }
-        return createError(StringUtils.fromString(error.getMessage()));
+        return createError(BStringValues.fromString(error.getMessage()));
     }
 
     /**

@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.stdlib.crypto;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -165,7 +165,7 @@ public class CryptoUtils {
      * @return conversion error
      */
     public static BError createError(String errMsg) {
-        return BErrorCreator.createDistinctError(CRYPTO_ERROR, CRYPTO_PACKAGE_ID, StringUtils.fromString(errMsg));
+        return BErrorCreator.createDistinctError(CRYPTO_ERROR, CRYPTO_PACKAGE_ID, BStringValues.fromString(errMsg));
     }
 
     /**

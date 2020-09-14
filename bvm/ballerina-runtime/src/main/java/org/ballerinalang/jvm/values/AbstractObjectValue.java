@@ -17,17 +17,17 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BLink;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BLink;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -145,7 +145,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
                 continue;
             }
             String fieldName = field.getKey();
-            sj.add(fieldName + ":" + getStringValue(get(StringUtils.fromString(fieldName))));
+            sj.add(fieldName + ":" + getStringValue(get(BStringValues.fromString(fieldName))));
         }
 
         return sj.toString();
@@ -191,7 +191,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
         throw BErrorCreator.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
                                                                 INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                        StringUtils.fromString("invalid value for object field '" + fieldName +
+                                        BStringValues.fromString("invalid value for object field '" + fieldName +
                                                                        "': expected value of type '" + fieldType +
                                                                        "', found '" + TypeChecker.getType(value) +
                                                                        "'"));

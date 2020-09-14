@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder;
 import org.ballerinalang.mime.nativeimpl.MimeEntityBody;
@@ -111,7 +111,7 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                return StringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
+                return BStringValues.fromString(MimeUtil.getMessageAsString(dataSource));
             }
             callback = new NonBlockingCallback(Scheduler.getStrand());
             constructNonBlockingDataSource(callback, entityObj, SourceType.TEXT);

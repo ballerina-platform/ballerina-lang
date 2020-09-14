@@ -16,8 +16,9 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
 import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
 
 /**
  * This class defines the basic set of utility methods to validate XML.
@@ -283,7 +284,7 @@ public class XMLValidator {
      */
     public static void validateXMLName(String name) {
         if (name != null && !isValid(name)) {
-            throw BErrorCreator.createError(StringUtils.fromString(("invalid xml qualified name: unsupported " +
+            throw BErrorCreator.createError(BStringValues.fromString(("invalid xml qualified name: unsupported " +
                     "characters in '" + name + "'")));
         }
     }

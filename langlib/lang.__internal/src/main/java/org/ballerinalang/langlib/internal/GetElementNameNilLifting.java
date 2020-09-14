@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -25,8 +25,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.jvm.api.BErrorCreator.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
-import static org.ballerinalang.jvm.values.api.BErrorCreator.createError;
 
 /**
  * Return name of the element if `x` is a element or nil if element name is not set, else error.
@@ -52,6 +52,6 @@ public class GetElementNameNilLifting {
         }
         String nodeTypeName = xmlVal.getNodeType().value();
         return createError(XML_OPERATION_ERROR,
-                           StringUtils.fromString("XML " + nodeTypeName + " does not contain element name"));
+                           BStringValues.fromString("XML " + nodeTypeName + " does not contain element name"));
     }
 }

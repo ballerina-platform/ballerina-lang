@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BArray;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.net.http.HttpUtil;
 
@@ -59,7 +59,7 @@ public class ParseHeader {
                 value = HeaderUtil.getHeaderValue(value);
             }
             BArray contentTuple = BValueCreator.createTupleValue(parseHeaderTupleType);
-            contentTuple.add(0, StringUtils.fromString(value));
+            contentTuple.add(0, BStringValues.fromString(value));
             contentTuple.add(1, HeaderUtil.getParamMap(headerValue.getValue()));
             return contentTuple;
         } catch (Exception ex) {

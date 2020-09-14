@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -52,7 +52,7 @@ public class LangLibBooleanTest {
 
     @Test(dataProvider = "InputList")
     public void testFromString(String val, Object expectedVal) {
-        BRunUtil.invoke(compileResult, "testFromString", new Object[]{StringUtils.fromString(val), expectedVal});
+        BRunUtil.invoke(compileResult, "testFromString", new Object[]{BStringValues.fromString(val), expectedVal});
     }
 
     @DataProvider(name = "InputList")

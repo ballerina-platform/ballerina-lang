@@ -18,8 +18,10 @@
 package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -36,18 +38,16 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.jvm.api.BErrorCreator.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
-import static org.ballerinalang.jvm.values.api.BErrorCreator.createError;
 import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
@@ -133,7 +133,7 @@ public class ToJson {
         MapValueImpl<BString, Object> newMap = new MapValueImpl<>(new BMapType(BTypes.typeJSON));
         for (Map.Entry entry : map.entrySet()) {
             Object newValue = convert(entry.getValue(), unresolvedValues, strand);
-            newMap.put(StringUtils.fromString(entry.getKey().toString()), newValue);
+            newMap.put(BStringValues.fromString(entry.getKey().toString()), newValue);
         }
         return newMap;
     }
@@ -157,6 +157,6 @@ public class ToJson {
     private static BError createConversionError(Object inputValue, BType targetType, String detailMessage) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
-                .concat(StringUtils.fromString(": ".concat(detailMessage))));
+                .concat(BStringValues.fromString(": ".concat(detailMessage))));
     }
 }

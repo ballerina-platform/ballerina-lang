@@ -18,10 +18,10 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.mime.util.MimeUtil;
 
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_STRUCT;
@@ -51,6 +51,6 @@ public class ContentDisposition {
                 MimeUtil.convertDispositionObjectToString(dispositionBuilder, contentDispositionObj);
             }
         }
-        return StringUtils.fromString(dispositionBuilder.toString());
+        return BStringValues.fromString(dispositionBuilder.toString());
     }
 }

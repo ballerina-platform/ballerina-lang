@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BValue;
+import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.internal.ErrorUtils;
@@ -60,9 +64,6 @@ import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValue;
-import org.ballerinalang.jvm.values.api.BXML;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -552,7 +553,7 @@ public class TypeChecker {
         if (!(describingType instanceof AnnotatableType)) {
             return null;
         }
-        return ((AnnotatableType) describingType).getAnnotation(StringUtils.fromString(annotTag));
+        return ((AnnotatableType) describingType).getAnnotation(BStringValues.fromString(annotTag));
     }
 
     public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
@@ -1882,7 +1883,7 @@ public class TypeChecker {
         }
 
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
-            Object fieldName = StringUtils.fromString(targetTypeEntry.getKey().toString());
+            Object fieldName = BStringValues.fromString(targetTypeEntry.getKey().toString());
             if (!(((MapValueImpl) sourceValue).containsKey(fieldName)) &&
                     !Flags.isFlagOn(targetType.getFields().get(fieldName.toString()).flags, Flags.OPTIONAL)) {
                 return false;

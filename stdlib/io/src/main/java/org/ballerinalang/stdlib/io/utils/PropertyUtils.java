@@ -18,13 +18,13 @@
 
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MappingInitialValueEntry;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class PropertyUtils {
         }
         String value = readableProperties.getProperty(key.getValue(), defaultValue.getValue());
         if (value != null) {
-            return StringUtils.fromString(value);
+            return BStringValues.fromString(value);
         }
 
         return null;
@@ -82,7 +82,7 @@ public class PropertyUtils {
             String key = (String) e.nextElement();
             String value = readableProperties.getProperty(key);
             MappingInitialValueEntry.KeyValueEntry keyValue = new MappingInitialValueEntry.KeyValueEntry(
-                    StringUtils.fromString(key), StringUtils.fromString(value));
+                    BStringValues.fromString(key), BStringValues.fromString(value));
             keyValues[i] = keyValue;
             i++;
         }

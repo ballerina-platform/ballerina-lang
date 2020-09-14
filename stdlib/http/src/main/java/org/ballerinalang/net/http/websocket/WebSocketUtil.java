@@ -24,18 +24,18 @@ import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.websocketx.CorruptedWebSocketFrameException;
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -79,8 +79,8 @@ import javax.net.ssl.SSLException;
 public class WebSocketUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketUtil.class);
-    private static final BString CLIENT_ENDPOINT_CONFIG = StringUtils.fromString("config");
-    private static final BString HANDSHAKE_TIME_OUT = StringUtils.fromString("handShakeTimeoutInSeconds");
+    private static final BString CLIENT_ENDPOINT_CONFIG = BStringValues.fromString("config");
+    private static final BString HANDSHAKE_TIME_OUT = BStringValues.fromString("handShakeTimeoutInSeconds");
     private static final String WEBSOCKET_FAILOVER_CLIENT_NAME = WebSocketConstants.PACKAGE_HTTP +
             WebSocketConstants.SEPARATOR + WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
     public static final String ERROR_MESSAGE = "Error occurred: ";
@@ -110,9 +110,9 @@ public class WebSocketUtil {
 
     public static void populateWebSocketEndpoint(WebSocketConnection webSocketConnection, BObject webSocketClient) {
         webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD,
-                            StringUtils.fromString(webSocketConnection.getChannelId()));
+                            BStringValues.fromString(webSocketConnection.getChannelId()));
         webSocketClient.set(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD,
-                            StringUtils.fromString(webSocketConnection.getNegotiatedSubProtocol()));
+                            BStringValues.fromString(webSocketConnection.getNegotiatedSubProtocol()));
         webSocketClient.set(WebSocketConstants.LISTENER_IS_SECURE_FIELD, webSocketConnection.isSecure());
         webSocketClient.set(WebSocketConstants.LISTENER_IS_OPEN_FIELD, webSocketConnection.isOpen());
     }
@@ -262,7 +262,7 @@ public class WebSocketUtil {
     }
 
     private static BError createErrorCause(String message, String errorIdName, BPackage packageName) {
-        return BErrorCreator.createDistinctError(errorIdName, packageName, StringUtils.fromString(message));
+        return BErrorCreator.createDistinctError(errorIdName, packageName, BStringValues.fromString(message));
     }
 
     /**

@@ -18,7 +18,9 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
@@ -32,8 +34,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
@@ -62,7 +62,7 @@ public class GetTable {
     public static Object getTable(BObject csvChannel, TypedescValue typedescValue, ArrayValue key) {
         try {
             final BObject delimitedObj =
-                    (ObjectValue) csvChannel.get(StringUtils.fromString(CSV_CHANNEL_DELIMITED_STRUCT_FIELD));
+                    (ObjectValue) csvChannel.get(BStringValues.fromString(CSV_CHANNEL_DELIMITED_STRUCT_FIELD));
             DelimitedRecordChannel delimitedChannel = (DelimitedRecordChannel) delimitedObj
                     .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             if (delimitedChannel.hasReachedEnd()) {

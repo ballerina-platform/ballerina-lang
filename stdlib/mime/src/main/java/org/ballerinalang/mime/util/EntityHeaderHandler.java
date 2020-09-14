@@ -18,16 +18,16 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.jvnet.mimepull.Header;
 
 import java.util.List;
@@ -76,9 +76,9 @@ public class EntityHeaderHandler {
 
         int index = 0;
         for (final Header header : bodyPartHeaders) {
-            httpHeaders.put(StringUtils.fromString(header.getName().toLowerCase(Locale.getDefault())),
-                            BValueCreator.createArrayValue(new BString[]{StringUtils.fromString(header.getValue())}));
-            headerNames.add(index++, StringUtils.fromString(header.getName()));
+            httpHeaders.put(BStringValues.fromString(header.getName().toLowerCase(Locale.getDefault())),
+                            BValueCreator.createArrayValue(new BString[]{BStringValues.fromString(header.getValue())}));
+            headerNames.add(index++, BStringValues.fromString(header.getName()));
         }
         partStruct.set(MimeConstants.HEADERS_MAP_FIELD, httpHeaders);
         partStruct.set(MimeConstants.HEADER_NAMES_ARRAY_FIELD, headerNames);
@@ -97,7 +97,7 @@ public class EntityHeaderHandler {
         if (headerMap == null) {
             return null;
         }
-        ArrayValue headerValues = (ArrayValue) headerMap.get(StringUtils.fromString(headerName));
+        ArrayValue headerValues = (ArrayValue) headerMap.get(BStringValues.fromString(headerName));
         if (headerValues == null || headerValues.size() < 1) {
             return null;
         }
@@ -114,12 +114,12 @@ public class EntityHeaderHandler {
      */
     public static void addHeader(BObject entity, BMap<BString, Object> headers, String key,
                                  String value) {
-        headers.put(StringUtils.fromString(key.toLowerCase(Locale.getDefault())),
-                    BValueCreator.createArrayValue(new BString[]{StringUtils.fromString(value)}));
+        headers.put(BStringValues.fromString(key.toLowerCase(Locale.getDefault())),
+                    BValueCreator.createArrayValue(new BString[]{BStringValues.fromString(value)}));
 
         // update header name array
         ArrayValue headerNames = getEntityHeaderNameArray(entity);
-        headerNames.add(headerNames.size(), StringUtils.fromString(key));
+        headerNames.add(headerNames.size(), BStringValues.fromString(key));
     }
 
     /**

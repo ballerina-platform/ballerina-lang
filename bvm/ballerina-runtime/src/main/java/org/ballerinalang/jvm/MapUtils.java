@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -26,9 +30,6 @@ import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 
@@ -120,8 +121,8 @@ public class MapUtils {
     public static BError createOpNotSupportedError(BType type, String op) {
         return BErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                  OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                         StringUtils.fromString(String.format("%s not supported on type '%s'", op,
-                                                                              type.getQualifiedName())));
+                                         BStringValues.fromString(String.format("%s not supported on type '%s'", op,
+                                                                                type.getQualifiedName())));
     }
 
     public static void checkIsMapOnlyOperation(BType mapType, String op) {
@@ -164,7 +165,7 @@ public class MapUtils {
 
     private static BError createOpNotSupportedErrorForRecord(BType type, String field) {
         return BErrorCreator.createError(getModulePrefixedReason(
-                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), StringUtils.fromString(
+                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), BStringValues.fromString(
                 String.format("failed to remove field: '%s' is a required field in '%s'", field,
                               type.getQualifiedName())));
     }

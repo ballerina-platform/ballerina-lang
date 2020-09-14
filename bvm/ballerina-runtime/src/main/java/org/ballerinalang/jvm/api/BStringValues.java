@@ -14,8 +14,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm;
+package org.ballerinalang.jvm.api;
 
+import org.ballerinalang.jvm.CycleUtils;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.values.BLink;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BObjectType;
@@ -28,9 +32,6 @@ import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.NonBmpStringValue;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BLink;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,7 +53,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * 
  * @since 0.95.3
  */
-public class StringUtils {
+public class BStringValues {
 
     private static final String STR_CYCLE = "...";
 
@@ -97,7 +98,7 @@ public class StringUtils {
             } catch (IOException ignored) {
             }
         }
-        return StringUtils.fromString(result);
+        return BStringValues.fromString(result);
     }
 
     public static BString getStringFromInputStream(InputStream inputStream, String charset) {
@@ -110,7 +111,7 @@ public class StringUtils {
         } catch (IOException e) {
             throw new BallerinaException("Error occurred when reading input stream with the charset" + charset, e);
         }
-        return StringUtils.fromString(textBuilder.toString());
+        return BStringValues.fromString(textBuilder.toString());
     }
 
     public static String getStringAt(String s, long index) {
@@ -132,7 +133,7 @@ public class StringUtils {
                                                                s.length()));
         }
 
-        return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));
+        return BStringValues.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));
     }
 
     public static BString fromString(String s) {
@@ -165,7 +166,7 @@ public class StringUtils {
     public static BString[] fromStringArray(String[] s) {
         BString[] bStringArray = new BString[s.length];
         for (int i = 0; i < s.length; i++) {
-            bStringArray[i] = StringUtils.fromString(s[i]);
+            bStringArray[i] = BStringValues.fromString(s[i]);
         }
         return bStringArray;
     }
@@ -174,7 +175,7 @@ public class StringUtils {
         BString[] bStringArray = new BString[set.size()];
         int i = 0;
         for (String s : set) {
-            bStringArray[i] = StringUtils.fromString(s);
+            bStringArray[i] = BStringValues.fromString(s);
             i++;
         }
         return bStringArray;

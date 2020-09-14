@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.cache.nativeimpl;
 
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.concurrent.ConcurrentHashMap;
 

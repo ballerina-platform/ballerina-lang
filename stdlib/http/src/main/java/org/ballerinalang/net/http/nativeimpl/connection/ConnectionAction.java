@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.net.http.DataContext;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;

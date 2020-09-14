@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.Map.Entry;
 import java.util.StringJoiner;

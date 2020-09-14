@@ -18,8 +18,11 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -28,9 +31,6 @@ import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -57,14 +57,14 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 )
 public class Next {
 
-    private static final BString MUTATED_TABLE_ERROR_DETAIL =  StringUtils.fromString("Table was mutated after the " +
+    private static final BString MUTATED_TABLE_ERROR_DETAIL =  BStringValues.fromString("Table was mutated after the " +
                                                                                                "iterator was created");
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue t) {
         IteratorValue tableIterator = (IteratorValue) t.getNativeData("&iterator&");
-        TableValueImpl table = (TableValueImpl) t.get(StringUtils.fromString("t"));
-        ArrayValueImpl keys = (ArrayValueImpl) t.get(StringUtils.fromString("keys"));
-        long initialSize = (long) t.get(StringUtils.fromString("size"));
+        TableValueImpl table = (TableValueImpl) t.get(BStringValues.fromString("t"));
+        ArrayValueImpl keys = (ArrayValueImpl) t.get(BStringValues.fromString("keys"));
+        long initialSize = (long) t.get(BStringValues.fromString("size"));
         if (tableIterator == null) {
             tableIterator = table.getIterator();
             t.addNativeData("&iterator&", tableIterator);

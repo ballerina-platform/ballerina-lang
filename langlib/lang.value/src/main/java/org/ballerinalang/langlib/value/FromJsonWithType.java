@@ -17,10 +17,13 @@
  */
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.internal.ErrorUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -45,9 +48,6 @@ import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.ArrayList;
@@ -55,10 +55,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.jvm.api.BErrorCreator.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
-import static org.ballerinalang.jvm.values.api.BErrorCreator.createError;
 import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
@@ -83,7 +83,7 @@ public class FromJsonWithType {
             return e;
         } catch (BallerinaException e) {
             return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                               StringUtils.fromString(e.getDetail()));
+                               BStringValues.fromString(e.getDetail()));
         }
     }
 
@@ -240,7 +240,7 @@ public class FromJsonWithType {
     private static void putToMap(MapValue<BString, Object> map, Map.Entry entry, BType fieldType,
                                  List<TypeValuePair> unresolvedValues, TypedescValue t, Strand strand) {
         Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, t, strand);
-        map.put(StringUtils.fromString(entry.getKey().toString()), newValue);
+        map.put(BStringValues.fromString(entry.getKey().toString()), newValue);
     }
 
     private static BError createConversionError(Object inputValue, BType targetType) {
@@ -252,6 +252,6 @@ public class FromJsonWithType {
     private static BError createConversionError(Object inputValue, BType targetType, String detailMessage) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
-                .concat(StringUtils.fromString(": ".concat(detailMessage))));
+                .concat(BStringValues.fromString(": ".concat(detailMessage))));
     }
 }

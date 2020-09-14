@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

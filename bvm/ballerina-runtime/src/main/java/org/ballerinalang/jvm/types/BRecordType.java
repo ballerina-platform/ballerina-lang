@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.Map;
 
@@ -88,7 +88,7 @@ public class BRecordType extends BStructureType {
                 .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
                 .forEach(entry -> {
                     Object value = entry.getValue().getFieldType().getEmptyValue();
-                    implicitInitValue.put(StringUtils.fromString(entry.getKey()), value);
+                    implicitInitValue.put(BStringValues.fromString(entry.getKey()), value);
                 });
         return (V) implicitInitValue;
     }

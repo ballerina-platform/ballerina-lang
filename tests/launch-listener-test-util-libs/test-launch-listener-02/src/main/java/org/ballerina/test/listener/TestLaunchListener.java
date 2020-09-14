@@ -17,9 +17,9 @@
  */
 package org.ballerina.test.listener;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
 import org.ballerinalang.jvm.launch.LaunchListener;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
 
 /**
  * Test Launcher Listener used for testing purpose.
@@ -30,7 +30,7 @@ public class TestLaunchListener implements LaunchListener {
 
     @Override
     public void beforeRunProgram(boolean service) {
-        throw BErrorCreator.createError(StringUtils.fromString("An error in beforeRunProgram method"));
+        throw BErrorCreator.createError(BStringValues.fromString("An error in beforeRunProgram method"));
     }
 
     @Override

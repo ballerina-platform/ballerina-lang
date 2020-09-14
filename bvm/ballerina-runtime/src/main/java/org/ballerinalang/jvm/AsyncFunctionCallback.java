@@ -18,9 +18,9 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 /**
@@ -48,11 +48,11 @@ public abstract class AsyncFunctionCallback implements CallableUnitCallback {
         return future.result;
     }
 
-    void setFuture(FutureValue future) {
+    public void setFuture(FutureValue future) {
         this.future = future;
     }
 
-    void setStrand(Strand strand) {
+    public void setStrand(Strand strand) {
         this.strand = strand;
     }
 }

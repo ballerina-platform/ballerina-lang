@@ -18,10 +18,10 @@
 
 package org.ballerinalang.jvm.values.connector;
 
+import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.api.BError;
 
 /**
  * The callback implementation to handle non-blocking function behaviour.

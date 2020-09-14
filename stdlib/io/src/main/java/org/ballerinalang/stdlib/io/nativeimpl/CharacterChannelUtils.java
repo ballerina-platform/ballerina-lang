@@ -19,13 +19,13 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
@@ -72,7 +72,7 @@ public class CharacterChannelUtils {
             return IOUtils.createEoFError();
         } else {
             try {
-                return StringUtils
+                return BStringValues
                         .fromString(characterChannel.read((int) numberOfCharacters));
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading characters.", e);
@@ -88,7 +88,7 @@ public class CharacterChannelUtils {
             Object returnValue = JSONParser.parse(reader);
             if (returnValue instanceof String) {
 
-                return StringUtils.fromString((String) returnValue);
+                return BStringValues.fromString((String) returnValue);
             }
             return returnValue;
         } catch (BallerinaException e) {
@@ -152,7 +152,7 @@ public class CharacterChannelUtils {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj
                     .getNativeData(CHARACTER_CHANNEL_NAME);
-            IOUtils.writeFull(characterChannel, StringUtils.getJsonString(content));
+            IOUtils.writeFull(characterChannel, BStringValues.getJsonString(content));
         } catch (BallerinaIOException e) {
             return IOUtils.createError(e);
         }

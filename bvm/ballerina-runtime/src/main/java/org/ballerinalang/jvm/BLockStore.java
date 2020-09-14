@@ -18,9 +18,9 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

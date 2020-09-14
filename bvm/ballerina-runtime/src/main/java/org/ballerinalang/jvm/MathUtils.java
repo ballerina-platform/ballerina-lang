@@ -17,9 +17,10 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Common utility methods used for arithmatic operations.
@@ -28,9 +29,9 @@ import org.ballerinalang.jvm.values.api.BString;
  */
 public class MathUtils {
 
-    private static final BString DIVIDE_BY_ZERO_ERROR = StringUtils.fromString(" / by zero");
+    private static final BString DIVIDE_BY_ZERO_ERROR = BStringValues.fromString(" / by zero");
 
-    private static final BString INT_RANGE_OVERFLOW_ERROR = StringUtils.fromString(" int range overflow");
+    private static final BString INT_RANGE_OVERFLOW_ERROR = BStringValues.fromString(" int range overflow");
 
     public static long divide(long numerator, long denominator) {
         try {
@@ -45,7 +46,7 @@ public class MathUtils {
                 throw BErrorCreator.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
             } else {
                 throw BErrorCreator.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR,
-                                                StringUtils.fromString(e.getMessage()));
+                                                BStringValues.fromString(e.getMessage()));
             }
         }
     }
@@ -58,7 +59,7 @@ public class MathUtils {
                 throw BErrorCreator.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
             } else {
                 throw BErrorCreator.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR,
-                                                StringUtils.fromString(e.getMessage()));
+                                                BStringValues.fromString(e.getMessage()));
             }
         }
     }

@@ -18,13 +18,13 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
@@ -49,7 +49,7 @@ public class ExternPushPromise {
     public static BString getHeader(BObject pushPromiseObj, BString headerName) {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
-        return StringUtils.fromString(http2PushPromise.getHeader(headerName.getValue()));
+        return BStringValues.fromString(http2PushPromise.getHeader(headerName.getValue()));
     }
 
     public static ArrayValue getHeaderNames(BObject pushPromiseObj) {
@@ -61,14 +61,14 @@ public class ExternPushPromise {
         }
         Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         distinctNames.addAll(httpHeaderNames);
-        return new ArrayValueImpl(StringUtils.fromStringSet(distinctNames));
+        return new ArrayValueImpl(BStringValues.fromStringSet(distinctNames));
     }
 
     public static ArrayValue getHeaders(BObject pushPromiseObj, BString headerName) {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
         String[] headers = http2PushPromise.getHeaders(headerName.getValue());
-        return new ArrayValueImpl(StringUtils.fromStringArray(headers));
+        return new ArrayValueImpl(BStringValues.fromStringArray(headers));
     }
 
     public static boolean hasHeader(BObject pushPromiseObj, BString headerName) {

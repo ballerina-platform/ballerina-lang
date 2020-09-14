@@ -17,8 +17,11 @@
  */
 package org.ballerinalang.jvm.internal;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -26,13 +29,10 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
 
+import static org.ballerinalang.jvm.api.BErrorCreator.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
-import static org.ballerinalang.jvm.values.api.BErrorCreator.createError;
 
 /**
  * This class contains internal methods used by codegen and runtime classes to handle errors.
@@ -42,9 +42,9 @@ import static org.ballerinalang.jvm.values.api.BErrorCreator.createError;
 
 public class ErrorUtils {
 
-    private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
-    private static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
-    private static final BString NULL_REF_EXCEPTION = StringUtils.fromString("NullReferenceException");
+    private static final BString ERROR_MESSAGE_FIELD = BStringValues.fromString("message");
+    private static final BString ERROR_CAUSE_FIELD = BStringValues.fromString("cause");
+    private static final BString NULL_REF_EXCEPTION = BStringValues.fromString("NullReferenceException");
 
 
     /**
@@ -56,14 +56,14 @@ public class ErrorUtils {
     public static ErrorValue createInteropError(Throwable e) {
         BMap<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (e.getMessage() != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, StringUtils.fromString(e.getMessage()));
+            detailMap.put(ERROR_MESSAGE_FIELD, BStringValues.fromString(e.getMessage()));
         }
         if (e.getCause() != null) {
-            detailMap.put(ERROR_CAUSE_FIELD, createError(StringUtils.fromString(e.getCause().getClass().getName()),
-                                                         StringUtils.fromString(e.getCause().getMessage())));
+            detailMap.put(ERROR_CAUSE_FIELD, createError(BStringValues.fromString(e.getCause().getClass().getName()),
+                                                         BStringValues.fromString(e.getCause().getMessage())));
         }
 
-        return (ErrorValue) createError(StringUtils.fromString(e.getClass().getName()), detailMap);
+        return (ErrorValue) createError(BStringValues.fromString(e.getClass().getName()), detailMap);
     }
 
     public static Object handleResourceError(Object returnValue) {

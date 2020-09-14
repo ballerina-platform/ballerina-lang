@@ -18,9 +18,9 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
@@ -51,7 +51,7 @@ public class MimeConstants {
     public static final String INVALID_HEADER_PARAM_ERROR = "InvalidHeaderParamError";
     public static final String INVALID_CONTENT_LENGTH_ERROR = "InvalidContentLengthError";
     public static final String HEADER_NOT_FOUND_ERROR = "HeaderNotFoundError";
-    public static final BString SERIALIZATION_ERROR = StringUtils.fromString("SerializationError");
+    public static final BString SERIALIZATION_ERROR = BStringValues.fromString("SerializationError");
     public static final String NO_CONTENT_ERROR = "NoContentError";
     public static final String INVALID_HEADER_OPERATION_ERROR = "InvalidHeaderOperationError";
 
@@ -115,8 +115,8 @@ public class MimeConstants {
     public static final String BOUNDARY = "boundary";
     public static final String FORM_DATA_PARAM = "form-data";
 
-    public static final BString DEFAULT_PRIMARY_TYPE = StringUtils.fromString("application");
-    public static final BString DEFAULT_SUB_TYPE = StringUtils.fromString("octet-stream");
+    public static final BString DEFAULT_PRIMARY_TYPE = BStringValues.fromString("application");
+    public static final BString DEFAULT_SUB_TYPE = BStringValues.fromString("octet-stream");
     public static final String SUFFIX_ATTACHMENT = "+";
 
     public static final String MESSAGE_DATA_SOURCE = "message_datasource";
@@ -129,34 +129,34 @@ public class MimeConstants {
 
     public static final String CHARSET = "charset";
 
-    public static final BString REQUEST_ENTITY_FIELD = StringUtils.fromString("entity");
-    public static final BString RESPONSE_ENTITY_FIELD = StringUtils.fromString("entity");
+    public static final BString REQUEST_ENTITY_FIELD = BStringValues.fromString("entity");
+    public static final BString RESPONSE_ENTITY_FIELD = BStringValues.fromString("entity");
 
     //Native argument indexes
     public static final int FIRST_PARAMETER_INDEX = 0;
     public static final int SECOND_PARAMETER_INDEX = 1;
 
     //Entity properties
-    public static final BString MEDIA_TYPE_FIELD = StringUtils.fromString("cType");
-    public static final BString CONTENT_ID_FIELD = StringUtils.fromString("cId");
-    public static final BString SIZE_FIELD = StringUtils.fromString("cLength");
-    public static final BString CONTENT_DISPOSITION_FIELD = StringUtils.fromString("cDisposition");
-    public static final BString HEADERS_MAP_FIELD = StringUtils.fromString("headerMap");
-    public static final BString HEADER_NAMES_ARRAY_FIELD = StringUtils.fromString("headerNames");
+    public static final BString MEDIA_TYPE_FIELD = BStringValues.fromString("cType");
+    public static final BString CONTENT_ID_FIELD = BStringValues.fromString("cId");
+    public static final BString SIZE_FIELD = BStringValues.fromString("cLength");
+    public static final BString CONTENT_DISPOSITION_FIELD = BStringValues.fromString("cDisposition");
+    public static final BString HEADERS_MAP_FIELD = BStringValues.fromString("headerMap");
+    public static final BString HEADER_NAMES_ARRAY_FIELD = BStringValues.fromString("headerNames");
 
     public static final int FIRST_BODY_PART_INDEX = 0;
 
     //Media type properties
-    public static final BString PRIMARY_TYPE_FIELD = StringUtils.fromString("primaryType");
-    public static final BString SUBTYPE_FIELD = StringUtils.fromString("subType");
-    public static final BString SUFFIX_FIELD = StringUtils.fromString("suffix");
-    public static final BString PARAMETER_MAP_FIELD = StringUtils.fromString("parameters");
+    public static final BString PRIMARY_TYPE_FIELD = BStringValues.fromString("primaryType");
+    public static final BString SUBTYPE_FIELD = BStringValues.fromString("subType");
+    public static final BString SUFFIX_FIELD = BStringValues.fromString("suffix");
+    public static final BString PARAMETER_MAP_FIELD = BStringValues.fromString("parameters");
 
     //Content-Disposition properties
-    public static final BString CONTENT_DISPOSITION_FILENAME_FIELD = StringUtils.fromString("fileName");
-    public static final BString DISPOSITION_FIELD = StringUtils.fromString("disposition");
-    public static final BString CONTENT_DISPOSITION_NAME_FIELD = StringUtils.fromString("name");
-    public static final BString CONTENT_DISPOSITION_PARA_MAP_FIELD = StringUtils.fromString("parameters");
+    public static final BString CONTENT_DISPOSITION_FILENAME_FIELD = BStringValues.fromString("fileName");
+    public static final BString DISPOSITION_FIELD = BStringValues.fromString("disposition");
+    public static final BString CONTENT_DISPOSITION_NAME_FIELD = BStringValues.fromString("name");
+    public static final BString CONTENT_DISPOSITION_PARA_MAP_FIELD = BStringValues.fromString("parameters");
 
     //extern function indexes
     public static final int STRING_INDEX = 0;

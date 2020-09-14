@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.cachingclient;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;

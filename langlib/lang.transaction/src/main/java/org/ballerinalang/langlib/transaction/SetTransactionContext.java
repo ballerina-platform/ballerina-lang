@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -79,7 +79,7 @@ public class SetTransactionContext {
             return 0;
         } else {
             Map<BString, Object> infoRecord = (Map<BString, Object>) prevAttemptInfo;
-            Long retryNumber = (Long) infoRecord.get(StringUtils.fromString("retryNumber"));
+            Long retryNumber = (Long) infoRecord.get(BStringValues.fromString("retryNumber"));
             return retryNumber + 1;
         }
     }

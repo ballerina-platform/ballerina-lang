@@ -24,10 +24,10 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -213,7 +213,7 @@ public class ServiceTest {
         Assert.assertTrue(bJson instanceof MapValue);
 
         Assert.assertTrue(((MapValueImpl<BString, BString>) bJson).get(
-                StringUtils.fromString("Team")).toString().isEmpty(),
+                BStringValues.fromString("Team")).toString().isEmpty(),
                           "Team variable not set properly");
     }
 

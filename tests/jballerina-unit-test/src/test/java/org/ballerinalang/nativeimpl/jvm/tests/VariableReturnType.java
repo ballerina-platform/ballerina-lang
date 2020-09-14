@@ -17,6 +17,14 @@
 
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BFunctionPointer;
+import org.ballerinalang.jvm.api.values.BFuture;
+import org.ballerinalang.jvm.api.values.BStream;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BTypedesc;
+import org.ballerinalang.jvm.api.values.BValue;
+import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -31,14 +39,6 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BFunctionPointer;
-import org.ballerinalang.jvm.values.api.BFuture;
-import org.ballerinalang.jvm.values.api.BStream;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BTypedesc;
-import org.ballerinalang.jvm.values.api.BValue;
-import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -51,7 +51,7 @@ public class ToBase16 {
 
     private static final char[] chars = "0123456789abcdef".toCharArray();
 
-    private static final BString NOT_SUPPORTED_ERROR_DETAIL = StringUtils.fromString("toBase16() is only supported " +
+    private static final BString NOT_SUPPORTED_ERROR_DETAIL = BStringValues.fromString("toBase16() is only supported " +
                                                                                                "on 'byte[]'");
 
     public static BString toBase16(Strand strand, ArrayValue arr) {
@@ -73,6 +73,6 @@ public class ToBase16 {
             base16Chars[i * 2 + 1] = chars[v & 0xF];
         }
 
-        return StringUtils.fromString(new String(base16Chars));
+        return BStringValues.fromString(new String(base16Chars));
     }
 }

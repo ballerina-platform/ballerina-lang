@@ -17,11 +17,11 @@
   */
 package org.ballerinalang.jvm.values;
 
+ import org.ballerinalang.jvm.api.values.BFuture;
+ import org.ballerinalang.jvm.api.values.BLink;
  import org.ballerinalang.jvm.scheduling.Strand;
  import org.ballerinalang.jvm.types.BFutureType;
  import org.ballerinalang.jvm.types.BType;
- import org.ballerinalang.jvm.values.api.BFuture;
- import org.ballerinalang.jvm.values.api.BLink;
  import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
  import java.util.Map;

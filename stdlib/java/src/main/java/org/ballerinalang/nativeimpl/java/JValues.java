@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.nativeimpl.java;
 
+import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.api.BError;
 
 /**
  * Contains utility methods required to implement Java related Ballerina functions in ballerina/java module.

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.stdlib.file.utils.FileUtils;
@@ -39,16 +39,16 @@ public class InitEndpoint {
                 getStringValue(DirectoryListenerConstants.ANNOTATION_PATH).getValue();
         if (path == null || path.isEmpty()) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
-                                               StringUtils.fromString("'path' field is empty"));
+                                               BStringValues.fromString("'path' field is empty"));
         }
         final Path dirPath = Paths.get(path);
         if (Files.notExists(dirPath)) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
-                                               StringUtils.fromString("Folder does not exist: " + path));
+                                               BStringValues.fromString("Folder does not exist: " + path));
         }
         if (!Files.isDirectory(dirPath)) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
-                                               StringUtils.fromString("Unable to find a directory: " + path));
+                                               BStringValues.fromString("Unable to find a directory: " + path));
         }
         return null;
     }

@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
@@ -64,7 +64,7 @@ public class IOUtils {
      */
     public static BError createError(String errorMsg) {
         return BErrorCreator.createDistinctError(GenericError.errorCode(), IO_PACKAGE_ID,
-                                                 StringUtils.fromString(errorMsg));
+                                                 BStringValues.fromString(errorMsg));
     }
 
     /**
@@ -85,7 +85,7 @@ public class IOUtils {
      * @return an error which will be propagated to ballerina user
      */
     public static BError createError(IOConstants.ErrorCode code, String errorMsg) {
-        return BErrorCreator.createDistinctError(code.errorCode(), IO_PACKAGE_ID, StringUtils.fromString(errorMsg));
+        return BErrorCreator.createDistinctError(code.errorCode(), IO_PACKAGE_ID, BStringValues.fromString(errorMsg));
     }
 
     /**

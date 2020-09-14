@@ -19,16 +19,16 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BArray;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MappingInitialValueEntry;
-import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class GetConfig {
         try {
             switch (type.getValue()) {
                 case "STRING":
-                    return StringUtils.fromString(configRegistry.getAsString(configKey.getValue()));
+                    return BStringValues.fromString(configRegistry.getAsString(configKey.getValue()));
                 case "INT":
                     return configRegistry.getAsInt(configKey.getValue());
                 case "FLOAT":
@@ -62,7 +62,7 @@ public class GetConfig {
                     throw new IllegalStateException("invalid value type: " + type);
             }
         } catch (IllegalArgumentException e) {
-            throw BErrorCreator.createError(StringUtils.fromString(
+            throw BErrorCreator.createError(BStringValues.fromString(
                     "error occurred while trying to retrieve the value; " + e.getMessage()));
         }
     }
@@ -73,7 +73,7 @@ public class GetConfig {
         int i = 0;
         for (Map.Entry<String, Object> entry : section.entrySet()) {
             MappingInitialValueEntry.KeyValueEntry keyValue = new MappingInitialValueEntry.KeyValueEntry(
-                    StringUtils.fromString(entry.getKey()), getConvertedValue(entry.getValue()));
+                    BStringValues.fromString(entry.getKey()), getConvertedValue(entry.getValue()));
             keyValues[i] = keyValue;
             i++;
         }
@@ -97,6 +97,6 @@ public class GetConfig {
         } else if (obj instanceof List) {
             return buildArrayValue((List) obj);
         }
-        return StringUtils.fromString(String.valueOf(obj));
+        return BStringValues.fromString(String.valueOf(obj));
     }
 }

@@ -30,7 +30,12 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -46,11 +51,6 @@ import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityHeaderHandler;
@@ -328,15 +328,15 @@ public class HttpUtil {
         HttpHeaders httpHeaders = httpCarbonMessage.getHeaders();
         for (String key : httpHeaders.names()) {
             String[] values = httpHeaders.getAll(key).toArray(new String[0]);
-            headers.put(StringUtils.fromString(key.toLowerCase()),
-                        new ArrayValueImpl(StringUtils.fromStringArray(values)));
+            headers.put(BStringValues.fromString(key.toLowerCase()),
+                        new ArrayValueImpl(BStringValues.fromStringArray(values)));
         }
         entity.set(HEADERS_MAP_FIELD, headers);
 
         Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         distinctNames.addAll(httpHeaders.names());
         entity.set(HEADER_NAMES_ARRAY_FIELD, new ArrayValueImpl(
-                StringUtils.fromStringSet(distinctNames)));
+                BStringValues.fromStringSet(distinctNames)));
     }
 
     /**
@@ -558,12 +558,12 @@ public class HttpUtil {
 
     public static BError createHttpError(String message, HttpErrorType errorType) {
         return BErrorCreator.createDistinctError(errorType.getErrorName(), PROTOCOL_HTTP_PKG_ID,
-                                                 StringUtils.fromString(message));
+                                                 BStringValues.fromString(message));
     }
 
     public static BError createHttpError(String message, HttpErrorType errorType, BError cause) {
         return BErrorCreator.createDistinctError(errorType.getErrorName(), PROTOCOL_HTTP_PKG_ID,
-                                                 StringUtils.fromString(message), cause);
+                                                 BStringValues.fromString(message), cause);
     }
 
     // TODO: Find a better way to get the error type than String matching.
@@ -610,7 +610,7 @@ public class HttpUtil {
     }
 
     private static BError createErrorCause(String message, String errorTypeId, BPackage packageName) {
-        return BErrorCreator.createDistinctError(errorTypeId, packageName, StringUtils.fromString(message));
+        return BErrorCreator.createDistinctError(errorTypeId, packageName, BStringValues.fromString(message));
     }
 
     public static HttpCarbonMessage getCarbonMsg(BObject objectValue, HttpCarbonMessage defaultMsg) {
@@ -647,9 +647,9 @@ public class HttpUtil {
     public static void populatePushPromiseStruct(BObject pushPromiseObj,
                                                  Http2PushPromise pushPromise) {
         pushPromiseObj.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
-        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_PATH_FIELD, StringUtils
+        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_PATH_FIELD, BStringValues
                 .fromString(pushPromise.getPath()));
-        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_METHOD_FIELD, StringUtils
+        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_METHOD_FIELD, BStringValues
                 .fromString(pushPromise.getMethod()));
     }
 
@@ -684,9 +684,9 @@ public class HttpUtil {
         MapValue<BString, Object> mutualSslRecord = ValueCreatorUtils.createHTTPRecordValue(
                 MUTUAL_SSL_HANDSHAKE_RECORD);
         mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
-                            StringUtils.fromString(
+                            BStringValues.fromString(
                                     (String) inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT)));
-        mutualSslRecord.put(MUTUAL_SSL_CERTIFICATE, StringUtils
+        mutualSslRecord.put(MUTUAL_SSL_CERTIFICATE, BStringValues
                 .fromString((String) inboundRequestMsg.getProperty(HttpConstants.BASE_64_ENCODED_CERT)));
         inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
 
@@ -709,7 +709,7 @@ public class HttpUtil {
     private static void enrichWithInboundRequestHeaders(BObject inboundRequestObj,
                                                         HttpCarbonMessage inboundRequestMsg) {
         if (inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
-            BString agent = StringUtils.fromString(
+            BString agent = BStringValues.fromString(
                     inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()));
             inboundRequestObj.set(HttpConstants.REQUEST_USER_AGENT_FIELD, agent);
             inboundRequestMsg.removeHeader(HttpHeaderNames.USER_AGENT.toString());
@@ -719,16 +719,16 @@ public class HttpUtil {
     private static void enrichWithInboundRequestInfo(BObject inboundRequestObj,
                                                      HttpCarbonMessage inboundRequestMsg) {
         inboundRequestObj.set(HttpConstants.REQUEST_RAW_PATH_FIELD,
-                              StringUtils.fromString(inboundRequestMsg.getRequestUrl()));
+                              BStringValues.fromString(inboundRequestMsg.getRequestUrl()));
         inboundRequestObj.set(HttpConstants.REQUEST_METHOD_FIELD,
-                              StringUtils.fromString(inboundRequestMsg.getHttpMethod()));
+                              BStringValues.fromString(inboundRequestMsg.getHttpMethod()));
         inboundRequestObj.set(HttpConstants.REQUEST_VERSION_FIELD,
-                              StringUtils.fromString(inboundRequestMsg.getHttpVersion()));
+                              BStringValues.fromString(inboundRequestMsg.getHttpVersion()));
         HttpResourceArguments resourceArgValues = (HttpResourceArguments) inboundRequestMsg.getProperty(
                 HttpConstants.RESOURCE_ARGS);
         if (resourceArgValues != null && resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO) != null) {
             inboundRequestObj.set(
-                    HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD, StringUtils.fromString(
+                    HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD, BStringValues.fromString(
                             resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO)));
         }
     }
@@ -761,7 +761,7 @@ public class HttpUtil {
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
-            BString remoteHost = StringUtils.fromString(inetSocketAddress.getHostString());
+            BString remoteHost = BStringValues.fromString(inetSocketAddress.getHostString());
             long remotePort = inetSocketAddress.getPort();
             remote.put(HttpConstants.REMOTE_HOST_FIELD, remoteHost);
             remote.put(HttpConstants.REMOTE_PORT_FIELD, remotePort);
@@ -773,11 +773,11 @@ public class HttpUtil {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) localSocketAddress;
             String localHost = inetSocketAddress.getHostName();
             long localPort = inetSocketAddress.getPort();
-            local.put(HttpConstants.LOCAL_HOST_FIELD, StringUtils.fromString(localHost));
+            local.put(HttpConstants.LOCAL_HOST_FIELD, BStringValues.fromString(localHost));
             local.put(HttpConstants.LOCAL_PORT_FIELD, localPort);
         }
         httpCaller.set(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        httpCaller.set(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD, StringUtils
+        httpCaller.set(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD, BStringValues
                 .fromString((String) inboundMsg.getProperty(HttpConstants.PROTOCOL)));
         httpCaller.set(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, config);
         httpCaller.addNativeData(HttpConstants.HTTP_SERVICE, httpResource.getParentService());
@@ -795,17 +795,17 @@ public class HttpUtil {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = inboundResponseMsg.getHttpStatusCode();
         inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, (long) statusCode);
-        inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD, StringUtils
+        inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD, BStringValues
                 .fromString(HttpResponseStatus.valueOf(statusCode).reasonPhrase()));
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
-            inboundResponse.set(HttpConstants.RESPONSE_SERVER_FIELD, StringUtils
+            inboundResponse.set(HttpConstants.RESPONSE_SERVER_FIELD, BStringValues
                     .fromString(inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString())));
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
 
         if (inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI) != null) {
-            inboundResponse.set(RESOLVED_REQUESTED_URI_FIELD, StringUtils
+            inboundResponse.set(RESOLVED_REQUESTED_URI_FIELD, BStringValues
                     .fromString(inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString()));
         }
 

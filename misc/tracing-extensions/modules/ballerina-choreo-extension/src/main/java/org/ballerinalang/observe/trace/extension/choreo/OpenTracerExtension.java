@@ -19,9 +19,9 @@ import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.samplers.RateLimitingSampler;
 import io.jaegertracing.spi.Reporter;
 import io.opentracing.Tracer;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
 import org.ballerinalang.jvm.observability.tracer.OpenTracer;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClient;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolder;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
@@ -45,12 +45,13 @@ public class OpenTracerExtension implements OpenTracer {
             choreoClient = ChoreoClientHolder.getChoreoClient();
         } catch (ChoreoClientException e) {
             throw BErrorCreator.createError(
-                    StringUtils.fromString("Choreo client is not initialized. Please check Ballerina configurations."),
-                    StringUtils.fromString(e.getMessage()));
+                    BStringValues
+                            .fromString("Choreo client is not initialized. Please check Ballerina configurations."),
+                    BStringValues.fromString(e.getMessage()));
         }
 
         if (Objects.isNull(choreoClient)) {
-            throw BErrorCreator.createError(StringUtils.fromString(
+            throw BErrorCreator.createError(BStringValues.fromString(
                     "Choreo client is not initialized. Please check Ballerina configurations."));
         }
     }
@@ -59,7 +60,7 @@ public class OpenTracerExtension implements OpenTracer {
     public Tracer getTracer(String serviceName) {
         if (Objects.isNull(choreoClient)) {
             throw BErrorCreator.createError(
-                    StringUtils
+                    BStringValues
                             .fromString("Choreo client is not initialized. Please check Ballerina configurations."));
         }
 

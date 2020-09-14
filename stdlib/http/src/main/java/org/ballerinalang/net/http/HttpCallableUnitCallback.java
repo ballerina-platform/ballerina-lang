@@ -16,7 +16,7 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 

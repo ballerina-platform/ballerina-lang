@@ -18,8 +18,14 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.CycleUtils;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BLink;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BValue;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BErrorType;
@@ -29,12 +35,6 @@ import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BLink;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValue;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -138,7 +138,7 @@ public class ErrorValue extends BError implements RefValue {
                         sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
                         break;
                     default:
-                        sj.add(key + "=" + StringUtils.getStringValue(value, parent));
+                        sj.add(key + "=" + BStringValues.getStringValue(value, parent));
                         break;
                 }
             }

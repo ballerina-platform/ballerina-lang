@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 
 import java.io.ByteArrayInputStream;
@@ -55,7 +55,7 @@ public class Utils {
 
     private static BError createBase64Error(String errorType, String msg, boolean isMimeSpecific) {
         if (isMimeSpecific) {
-            return BErrorCreator.createDistinctError(errorType, PACKAGE_ID_MIME, StringUtils.fromString(msg));
+            return BErrorCreator.createDistinctError(errorType, PACKAGE_ID_MIME, BStringValues.fromString(msg));
         }
         return IOUtils.createError(IOConstants.ErrorCode.GenericError, msg);
     }

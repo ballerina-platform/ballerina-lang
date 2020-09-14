@@ -18,8 +18,14 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -27,12 +33,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,12 +196,12 @@ public class MimeUtil {
 
             if (contentType != null) {
                 MimeType mimeType = new MimeType(contentType);
-                primaryType = StringUtils.fromString(mimeType.getPrimaryType());
+                primaryType = BStringValues.fromString(mimeType.getPrimaryType());
 
                 String subTypeStr = mimeType.getSubType();
-                subType = StringUtils.fromString(subTypeStr);
+                subType = BStringValues.fromString(subTypeStr);
                 if (subTypeStr != null && subTypeStr.contains(SUFFIX_ATTACHMENT)) {
-                    suffix = StringUtils.fromString(
+                    suffix = BStringValues.fromString(
                             subTypeStr.substring(subTypeStr.lastIndexOf(SUFFIX_ATTACHMENT) + 1));
                 } else {
                     suffix = BTypes.typeString.getZeroValue();
@@ -212,8 +212,8 @@ public class MimeUtil {
 
                 while (keys.hasMoreElements()) {
                     String key = (String) keys.nextElement();
-                    BString value = StringUtils.fromString(parameterList.get(key));
-                    parameterMap.put(StringUtils.fromString(key), value);
+                    BString value = BStringValues.fromString(parameterList.get(key));
+                    parameterMap.put(BStringValues.fromString(key), value);
                 }
             } else {
                 primaryType = suffix = subType = BTypes.typeString.getZeroValue();
@@ -257,7 +257,7 @@ public class MimeUtil {
             } else {
                 dispositionValue = contentDispositionHeaderWithParams;
             }
-            contentDisposition.set(DISPOSITION_FIELD, StringUtils
+            contentDisposition.set(DISPOSITION_FIELD, BStringValues
                     .fromString(dispositionValue));
             BMap<BString, Object> paramMap = HeaderUtil.getParamMap(contentDispositionHeaderWithParams);
             for (BString key : paramMap.getKeys()) {
@@ -272,8 +272,8 @@ public class MimeUtil {
                     default:
                 }
             }
-            paramMap.remove(StringUtils.fromString(CONTENT_DISPOSITION_FILE_NAME));
-            paramMap.remove(StringUtils.fromString(CONTENT_DISPOSITION_NAME));
+            paramMap.remove(BStringValues.fromString(CONTENT_DISPOSITION_FILE_NAME));
+            paramMap.remove(BStringValues.fromString(CONTENT_DISPOSITION_NAME));
             contentDisposition.set(CONTENT_DISPOSITION_PARA_MAP_FIELD, paramMap);
         }
     }
@@ -457,7 +457,7 @@ public class MimeUtil {
      * @return Ballerina error value
      */
     public static BError createError(String errorTypeName, String errMsg) {
-        return BErrorCreator.createDistinctError(errorTypeName, PROTOCOL_MIME_PKG_ID, StringUtils
+        return BErrorCreator.createDistinctError(errorTypeName, PROTOCOL_MIME_PKG_ID, BStringValues
                 .fromString(errMsg));
     }
 
@@ -470,7 +470,7 @@ public class MimeUtil {
      * @return Ballerina error value
      */
     public static BError createError(String errorTypeName, String errMsg, ErrorValue errorValue) {
-        return BErrorCreator.createDistinctError(errorTypeName, PROTOCOL_MIME_PKG_ID, StringUtils
+        return BErrorCreator.createDistinctError(errorTypeName, PROTOCOL_MIME_PKG_ID, BStringValues
                 .fromString(errMsg), errorValue);
     }
 
@@ -504,7 +504,7 @@ public class MimeUtil {
             return new String(((ArrayValue) dataSource).getBytes(), StandardCharsets.UTF_8);
         }
 
-        return StringUtils.getJsonString(dataSource);
+        return BStringValues.getJsonString(dataSource);
     }
 
     /**

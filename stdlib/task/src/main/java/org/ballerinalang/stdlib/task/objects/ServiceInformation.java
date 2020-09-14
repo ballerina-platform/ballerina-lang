@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.task.objects;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.api.BRuntime;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.api.BObject;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 

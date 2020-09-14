@@ -20,8 +20,8 @@ package org.ballerinalang.stdlib.services.nativeimpl.request;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -71,7 +71,7 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetHeader() {
         BObject inRequest = createRequestObject();
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeader", new Object[]{inRequest,
-                StringUtils.fromString(HttpHeaderNames.CONTENT_TYPE.toString())});
+                BStringValues.fromString(HttpHeaderNames.CONTENT_TYPE.toString())});
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BString) returnVals[0]).value(), "Header not found!");
     }
@@ -189,7 +189,7 @@ public class RequestNativeFunctionNegativeTest {
         httpHeaders.add("Expect", "100-continue");
         outRequest.addNativeData(HTTP_HEADERS, httpHeaders);
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testRemoveHeader",
-                                              new Object[]{outRequest, StringUtils.fromString(range)});
+                                              new Object[]{outRequest, BStringValues.fromString(range)});
 
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);

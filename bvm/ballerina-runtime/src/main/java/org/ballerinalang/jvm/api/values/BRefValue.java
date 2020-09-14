@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.values.api;
+package org.ballerinalang.jvm.api.values;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
@@ -89,7 +89,7 @@ public interface BRefValue extends BValue {
      */
     default void serialize(OutputStream outputStream) {
         try {
-            outputStream.write(StringUtils.getJsonString(this).getBytes(Charset.defaultCharset()));
+            outputStream.write(BStringValues.getJsonString(this).getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
             throw new BallerinaException("error occurred while serializing data", e);
         }

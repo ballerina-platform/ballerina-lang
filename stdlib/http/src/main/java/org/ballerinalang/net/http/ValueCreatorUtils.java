@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ValueCreator;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
@@ -61,8 +61,8 @@ public class ValueCreatorUtils {
     }
 
     public static BObject createPushPromiseObject() {
-        return createObjectValue(httpValueCreator, PUSH_PROMISE, StringUtils.fromString("/"),
-                                 StringUtils.fromString("GET"));
+        return createObjectValue(httpValueCreator, PUSH_PROMISE, BStringValues.fromString("/"),
+                                 BStringValues.fromString("GET"));
     }
 
     public static BObject createRequestCacheControlObject() {

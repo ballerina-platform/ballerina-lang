@@ -18,16 +18,16 @@
 
 package org.ballerinalang.stdlib.mime;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -333,7 +333,7 @@ public class Util {
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
         Object jsonData = EntityBodyHandler.constructJsonDataSource(bodyPart);
         Assert.assertNotNull(jsonData);
-        Assert.assertEquals(StringUtils.getJsonString(jsonData), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
+        Assert.assertEquals(BStringValues.getJsonString(jsonData), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
         XMLValue xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);

@@ -19,7 +19,11 @@
 
 package io.ballerina.transactions;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
@@ -27,10 +31,6 @@ import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -175,7 +175,7 @@ public class Utils {
             return 0;
         } else {
             Map<BString, Object> infoRecord = (Map<BString, Object>) prevAttemptInfo;
-            Long retryNumber = (Long) infoRecord.get(StringUtils.fromString("retryNumber"));
+            Long retryNumber = (Long) infoRecord.get(BStringValues.fromString("retryNumber"));
             return retryNumber + 1;
         }
     }
@@ -193,7 +193,7 @@ public class Utils {
             currentTransactionId = transactionLocalContext.getGlobalTransactionId() + ":" + transactionLocalContext
                     .getCurrentTransactionBlockId();
         }
-        return StringUtils.fromString(currentTransactionId);
+        return BStringValues.fromString(currentTransactionId);
     }
 
     public static boolean abortResourceManagers(BString transactionId, BString transactionBlockId) {
@@ -244,7 +244,7 @@ public class Utils {
             TransactionLocalContext context = strand.currentTrxContext;
             return (MapValue<BString, Object>) context.getInfoRecord();
         }
-        throw BErrorCreator.createError(StringUtils
+        throw BErrorCreator.createError(BStringValues
                 .fromString("cannot call info() if the strand is not in transaction mode"));
     }
 
@@ -273,7 +273,7 @@ public class Utils {
     }
 
     public static BString getHostAddress() {
-        return StringUtils.fromString(getLocalHostLANAddress().getHostAddress());
+        return BStringValues.fromString(getLocalHostLANAddress().getHostAddress());
     }
 
     private static InetAddress getLocalHostLANAddress() throws RuntimeException {

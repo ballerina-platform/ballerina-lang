@@ -19,12 +19,12 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -48,14 +48,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class StartSpan {
     public static Object startSpan(Strand strand, BString spanName, Object tags, long parentSpanId) {
         if (parentSpanId < -1) {
-            return BErrorCreator.createError(StringUtils.fromString(("The given parent span ID " + parentSpanId + " " +
-                    "is invalid.")));
+            return BErrorCreator.createError(
+                    BStringValues.fromString(("The given parent span ID " + parentSpanId + " " + "is invalid.")));
         } else {
             long spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(
                     (String) strand.getProperty(ObservabilityConstants.SERVICE_NAME), spanName.getValue(),
                     Utils.toStringMap((MapValue<BString, ?>) tags), parentSpanId, strand);
             if (spanId == -1) {
-                return BErrorCreator.createError(StringUtils.fromString((
+                return BErrorCreator.createError(BStringValues.fromString((
                         "No parent span for ID " + parentSpanId + " found. Please recheck the parent span Id")));
             }
 

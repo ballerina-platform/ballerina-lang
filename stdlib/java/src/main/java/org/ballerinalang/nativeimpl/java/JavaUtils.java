@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.nativeimpl.java;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -67,7 +67,7 @@ public class JavaUtils {
             return new HandleValue(clazz);
         } catch (ClassNotFoundException e) {
             return BErrorCreator.createDistinctError(BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR,
-                                                     JAVA_PACKAGE_ID, StringUtils.fromString(name));
+                                                     JAVA_PACKAGE_ID, BStringValues.fromString(name));
         }
     }
 

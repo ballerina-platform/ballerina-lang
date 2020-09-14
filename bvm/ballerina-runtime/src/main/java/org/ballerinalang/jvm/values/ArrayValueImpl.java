@@ -18,8 +18,13 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.CycleUtils;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BArray;
+import org.ballerinalang.jvm.api.values.BLink;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BValue;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
@@ -30,11 +35,6 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BLink;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValue;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -116,7 +116,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.size = values.length;
         bStringValues = new BString[size];
         for (int i = 0; i < size; i++) {
-            bStringValues[i] = StringUtils.fromString(values[i]);
+            bStringValues[i] = BStringValues.fromString(values[i]);
         }
         setArrayType(BTypes.typeString);
     }
@@ -503,7 +503,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Deprecated
     private void addString(long index, String value) {
-        addBString(index, StringUtils.fromString(value));
+        addBString(index, BStringValues.fromString(value));
     }
 
     private void addBString(long index, BString value) {
@@ -601,7 +601,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                                         .Node(this, parent)));
                                 break;
                             default:
-                                sj.add(StringUtils.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
+                                sj.add(BStringValues.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
                                 break;
                         }
                     }

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.values.connector;
 
-import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.api.values.BError;
 
 /**
  * This interface represents a callback to report back a success or a

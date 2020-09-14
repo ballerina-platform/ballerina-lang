@@ -19,12 +19,12 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.MapUtils;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -56,12 +56,13 @@ public class Remove {
             try {
                 return m.remove(k);
             } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-                throw BErrorCreator.createError(StringUtils.fromString(e.getMessage()),
-                                                StringUtils.fromString(
+                throw BErrorCreator.createError(BStringValues.fromString(e.getMessage()),
+                                                BStringValues.fromString(
                                                         "Failed to remove element from map: " + e.getDetail()));
             }
         }
 
-        throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils.fromString("cannot find key '" + k + "'"));
+        throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringValues
+                .fromString("cannot find key '" + k + "'"));
     }
 }

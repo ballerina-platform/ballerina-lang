@@ -22,9 +22,13 @@ import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
@@ -36,10 +40,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.http.HttpConstants;
@@ -168,7 +168,7 @@ public class WebSocketResourceDispatcher {
             BType dataType = parameterTypes[1];
             int dataTypeTag = dataType.getTag();
             if (dataTypeTag == TypeTags.STRING_TAG) {
-                bValues[2] = StringUtils.fromString(textMessage.getText());
+                bValues[2] = BStringValues.fromString(textMessage.getText());
                 bValues[3] = true;
                 if (parameterTypes.length == 3) {
                     bValues[4] = finalFragment;
@@ -383,7 +383,7 @@ public class WebSocketResourceDispatcher {
             bValues[1] = true;
             bValues[2] = closeCode;
             bValues[3] = true;
-            bValues[4] = closeReason == null ? StringUtils.fromString("") : StringUtils.fromString(closeReason);
+            bValues[4] = closeReason == null ? BStringValues.fromString("") : BStringValues.fromString(closeReason);
             bValues[5] = true;
             CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
                 @Override

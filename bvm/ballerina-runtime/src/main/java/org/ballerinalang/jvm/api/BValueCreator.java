@@ -15,12 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.values.api;
+package org.ballerinalang.jvm.api;
 
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.JSONDataSource;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.values.BArray;
+import org.ballerinalang.jvm.api.values.BDecimal;
+import org.ballerinalang.jvm.api.values.BFunctionPointer;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BStream;
+import org.ballerinalang.jvm.api.values.BStreamingJson;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BTypedesc;
+import org.ballerinalang.jvm.api.values.BXML;
+import org.ballerinalang.jvm.api.values.BXMLQName;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -375,9 +385,9 @@ import javax.xml.namespace.QName;
          for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
              Object val = fieldEntry.getValue();
              if (val instanceof String) {
-                 val = StringUtils.fromString((String) val);
+                 val = BStringValues.fromString((String) val);
              }
-             record.put(StringUtils.fromString(fieldEntry.getKey()), val);
+             record.put(BStringValues.fromString(fieldEntry.getKey()), val);
          }
 
          return record;
@@ -400,8 +410,8 @@ import javax.xml.namespace.QName;
                  continue;
              }
 
-             mapValue.put(StringUtils.fromString(fieldEntry.getKey()), value instanceof String ?
-                     StringUtils.fromString((String) value) : value);
+             mapValue.put(BStringValues.fromString(fieldEntry.getKey()), value instanceof String ?
+                     BStringValues.fromString((String) value) : value);
          }
          return mapValue;
      }

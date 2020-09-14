@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -89,8 +89,8 @@ public class URIUtil {
 
         for (Map.Entry<String, List<String>> entry : tempParamMap.entrySet()) {
             List<String> entryValue = entry.getValue();
-            queryParamsMap.put(StringUtils.fromString(entry.getKey()), BValueCreator
-                    .createArrayValue(StringUtils.fromStringArray(entryValue.toArray(new String[0]))));
+            queryParamsMap.put(BStringValues.fromString(entry.getKey()), BValueCreator
+                    .createArrayValue(BStringValues.fromStringArray(entryValue.toArray(new String[0]))));
         }
     }
 
@@ -102,8 +102,8 @@ public class URIUtil {
         Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
         if (matrixParamsMap != null) {
             for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
-                matrixParamsBMap.put(StringUtils.fromString(matrixParamEntry.getKey()),
-                                     StringUtils.fromString(matrixParamEntry.getValue()));
+                matrixParamsBMap.put(BStringValues.fromString(matrixParamEntry.getKey()),
+                                     BStringValues.fromString(matrixParamEntry.getValue()));
             }
         }
         return matrixParamsBMap;

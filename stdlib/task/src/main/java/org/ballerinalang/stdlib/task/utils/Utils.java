@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.stdlib.task.utils;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BErrorCreator;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Appointment;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
@@ -66,7 +66,7 @@ public class Utils {
     }
 
     public static BError createTaskError(String reason, String message) {
-        return BErrorCreator.createDistinctError(reason, TASK_PACKAGE_ID, StringUtils.fromString(message));
+        return BErrorCreator.createDistinctError(reason, TASK_PACKAGE_ID, BStringValues.fromString(message));
     }
 
     @SuppressWarnings("unchecked")

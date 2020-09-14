@@ -19,12 +19,12 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.DecimalValueKind;
+import org.ballerinalang.jvm.api.values.BDecimal;
+import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.internal.ErrorUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.values.api.BDecimal;
-import org.ballerinalang.jvm.values.api.BLink;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
