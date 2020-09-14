@@ -96,6 +96,11 @@ public class BFunctionType extends AnnotatableType {
         }
 
         BFunctionType that = (BFunctionType) o;
+
+        if (Flags.isFlagOn(that.flags, Flags.ISOLATED) != Flags.isFlagOn(this.flags, Flags.ISOLATED)) {
+            return false;
+        }
+
         if (!Arrays.equals(paramTypes, that.paramTypes)) {
             return false;
         }

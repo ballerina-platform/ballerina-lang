@@ -7,7 +7,7 @@ function foo(function() f = function() returns int {
         int c = a + b;
     };
 
-    x = function(int a, int b, string... c) returns function(int, int a) {
+    x = isolated function(int a, int b, string... c) returns function(int, int a) {
             return x;
         };
 }

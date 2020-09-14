@@ -5406,10 +5406,20 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
-        BType returnType = keyLambdaFunction.function.type.getReturnType();
+        DiagnosticPos pos;
+        BType returnType;
+
+        if (keyFunction.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            pos = keyFunction.pos;
+            returnType = ((BLangSimpleVarRef) keyFunction).type.getReturnType();
+        } else {
+            BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
+            pos = keyLambdaFunction.function.pos;
+            returnType = keyLambdaFunction.function.type.getReturnType();
+        }
+
         if (!types.isOrderedType(returnType)) {
-            dlog.error(keyLambdaFunction.function.pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
+            dlog.error(pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
     }
 
