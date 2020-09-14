@@ -144,9 +144,27 @@ class BIRTestUtils {
             Assert.assertEquals(actualFunctionBody.argsCount(), expectedFunction.argsCount);
             Assert.assertEquals(actualFunctionBody.defaultParameterCount(), expectedFunction.parameters.size());
 
+            // assert dependent global variables
+            assertDepGlobalVar(actualFunction, expectedFunction.dependentGlobalVars.toArray(), constantPoolEntries);
+
             // assert basic blocks
             assertBasicBlocks(actualFunctionBody.functionBasicBlocksInfo(), expectedFunction.basicBlocks,
                     constantPoolEntries);
+        }
+    }
+
+    private static void assertDepGlobalVar(Bir.Function actualFunction,
+            Object[] dependentGlobalVars,
+            ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+
+        ArrayList<Integer> dependentGlobalVarsCPEntries = actualFunction.dependentGlobalVarCpEntry();
+        Assert.assertEquals(dependentGlobalVarsCPEntries.size(), dependentGlobalVars.length);
+
+
+        for (int i = 0; i < dependentGlobalVarsCPEntries.size(); i++) {
+            Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(dependentGlobalVarsCPEntries.get(i));
+            String expectedName = ((BIRNode.BIRGlobalVariableDcl) dependentGlobalVars[i]).name.value;
+            assertConstantPoolEntry(constantPoolEntry, expectedName);
         }
     }
 

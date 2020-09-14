@@ -28,11 +28,11 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Root class of Ballerina intermediate representation-BIR.
@@ -333,7 +333,7 @@ public abstract class BIRNode {
 
         public List<BIRAnnotationAttachment> annotAttachments;
 
-        public Set<BIRGlobalVariableDcl> dependentGlobalVars = new HashSet<>();
+        public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
         public BIRFunction(DiagnosticPos pos, Name name, int flags, BInvokableType type, Name workerName,
                            int sendInsCount, TaintTable taintTable, SymbolOrigin origin) {
