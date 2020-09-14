@@ -26,7 +26,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
-import static org.ballerinalang.test.util.BAssertUtil.validateNote;
+import static org.ballerinalang.test.util.BAssertUtil.validateWarning;
 
 /**
  * Test cases related to isolation analysis.
@@ -148,13 +148,13 @@ public class IsolationAnalysisTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/isolated_record_field_default_negative.bal");
         int i = 0;
-        validateNote(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 22, 13);
-        validateNote(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 23, 13);
-        validateNote(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 30, 17);
-        validateNote(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 31, 20);
-        validateNote(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 32, 20);
-        validateNote(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 32, 24);
-        Assert.assertEquals(result.getNoteCount(), i);
+        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 22, 13);
+        validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 23, 13);
+        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 30, 17);
+        validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 31, 20);
+        validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 32, 20);
+        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 32, 24);
+        Assert.assertEquals(result.getWarnCount(), i);
 
     }
 }

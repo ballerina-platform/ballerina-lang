@@ -21,9 +21,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Test the formatting of checking actions.
@@ -41,11 +38,6 @@ public class CheckingActionsTest extends FormatterTest {
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
-    }
-
-    @Override
-    public List<String> skipList() {
-        return new ArrayList<>(Arrays.asList("checking_action_1.bal", "checking_action_2.bal"));
     }
 
     @Override

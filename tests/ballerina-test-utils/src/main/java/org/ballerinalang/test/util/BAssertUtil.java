@@ -127,35 +127,4 @@ public class BAssertUtil {
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedWarnLine, "incorrect line number:");
         Assert.assertEquals(diag.getPosition().getStartColumn(), expectedWarnCol, "incorrect column position:");
     }
-
-    public static void validateNote(CompileResult result, int index, String expectedMessage, int expectedLine,
-                                    int expectedColumn) {
-        Diagnostic[] diagnostics = result.getDiagnostics();
-        Diagnostic noteDiagnostic = null;
-
-        int noteIndex = 0;
-
-        for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.getKind() != Diagnostic.Kind.NOTE) {
-                continue;
-            }
-
-            if (noteIndex == index) {
-                noteDiagnostic = diagnostic;
-                break;
-            }
-
-            noteIndex++;
-        }
-
-        if (noteDiagnostic == null) {
-            Assert.fail("note diagnostic not found at specified index");
-        }
-
-        Assert.assertEquals(noteDiagnostic.getMessage().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                            expectedMessage.replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "incorrect note message:");
-        Diagnostic.DiagnosticPosition position = noteDiagnostic.getPosition();
-        Assert.assertEquals(position.getStartLine(), expectedLine, "incorrect line number:");
-        Assert.assertEquals(position.getStartColumn(), expectedColumn, "incorrect column position:");
-    }
 }

@@ -46,6 +46,7 @@ import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DocumentationReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
@@ -58,7 +59,7 @@ import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.FailExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FailStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternNode;
@@ -126,6 +127,7 @@ import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OrderByClauseNode;
@@ -270,6 +272,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -285,7 +288,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -348,9 +350,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -803,7 +807,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             if (detail != null) {
                 errorType.detailType = detail;
-                if (errorTypeDescriptorNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
+                NonTerminalNode parent = errorTypeDescriptorNode.parent();
+                if (parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
+                    parent = parent.parent();
+                }
+                if (parent.kind() != SyntaxKind.TYPE_DEFINITION) {
                     return deSugarTypeAsUserDefType(errorType);
                 }
             } else {
@@ -1430,6 +1438,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         foreachBlock.pos = getPosition(forEachStatementNode.blockStatement());
         foreach.setBody(foreachBlock);
         foreach.setCollection(createExpression(forEachStatementNode.actionOrExpressionNode()));
+
+        forEachStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
+            foreach.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
+
         return foreach;
     }
 
@@ -1724,14 +1738,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return createCheckExpr(pos, expr);
         }
         return createCheckPanickedExpr(pos, expr);
-    }
-
-    @Override
-    public BLangNode transform(FailExpressionNode failExpressionNode) {
-        BLangFailExpr failExpr = (BLangFailExpr) TreeBuilder.createFailExpressionNode();
-        failExpr.pos = getPosition(failExpressionNode);
-        failExpr.expr = createExpression(failExpressionNode.expression());
-        return failExpr;
     }
 
     @Override
@@ -2465,6 +2471,29 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(DoStatementNode doStatementNode) {
+        BLangDo bLDo = (BLangDo) TreeBuilder.createDoNode();
+        bLDo.pos = getPosition(doStatementNode);
+
+        BLangBlockStmt bLBlockStmt = (BLangBlockStmt) doStatementNode.blockStatement().apply(this);
+        bLBlockStmt.pos = getPosition(doStatementNode.blockStatement());
+        bLDo.setBody(bLBlockStmt);
+        doStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
+            bLDo.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
+        return bLDo;
+    }
+
+    @Override
+    public BLangNode transform(FailStatementNode failStatementNode) {
+        BLangFail bLFail = (BLangFail) TreeBuilder.createFailNode();
+        bLFail.pos = getPosition(failStatementNode);
+        bLFail.expr = createExpression(failStatementNode.expression());
+        return bLFail;
+    }
+
+    @Override
     public BLangNode transform(WhileStatementNode whileStmtNode) {
         BLangWhile bLWhile = (BLangWhile) TreeBuilder.createWhileNode();
         bLWhile.setCondition(createExpression(whileStmtNode.condition()));
@@ -2473,6 +2502,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangBlockStmt bLBlockStmt = (BLangBlockStmt) whileStmtNode.whileBody().apply(this);
         bLBlockStmt.pos = getPosition(whileStmtNode.whileBody());
         bLWhile.setBody(bLBlockStmt);
+        whileStmtNode.onFailClause().ifPresent(onFailClauseNode -> {
+            bLWhile.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
         return bLWhile;
     }
 
@@ -2524,6 +2557,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangBlockStmt lockBlock = (BLangBlockStmt) lockStatementNode.blockStatement().apply(this);
         lockBlock.pos = getPosition(lockStatementNode.blockStatement());
         lockNode.setBody(lockBlock);
+
+        lockStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
+            lockNode.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
+
         return lockNode;
     }
 
@@ -2781,6 +2820,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         transactionBlock.pos = getPosition(transactionStatementNode.blockStatement());
         transaction.setTransactionBody(transactionBlock);
         transaction.pos = getPosition(transactionStatementNode);
+
+        transactionStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
+            transaction.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
+
         return transaction;
     }
 
@@ -3366,6 +3411,34 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return queryExpr;
     }
 
+    public BLangNode transform(OnFailClauseNode onFailClauseNode) {
+        DiagnosticPos pos = getPosition(onFailClauseNode);
+        BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) TreeBuilder.
+                createSimpleVariableDefinitionNode();
+        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        boolean isDeclaredWithVar = onFailClauseNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
+        var.isDeclaredWithVar = isDeclaredWithVar;
+        if (!isDeclaredWithVar) {
+            var.setTypeNode(createTypeNode(onFailClauseNode.typeDescriptor()));
+        }
+        var.pos = getPosition(onFailClauseNode);
+        var.setName(this.createIdentifier(onFailClauseNode.failErrorName()));
+        var.name.pos = getPosition(onFailClauseNode.failErrorName());
+        variableDefinitionNode.setVariable(var);
+
+
+        BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
+        onFailClause.pos = pos;
+
+        onFailClause.isDeclaredWithVar = isDeclaredWithVar;
+        markVariableAsFinal(variableDefinitionNode.getVariable());
+        onFailClause.variableDefinitionNode = variableDefinitionNode;
+        BLangBlockStmt blockNode = (BLangBlockStmt) transform(onFailClauseNode.blockStatement());
+        blockNode.pos = getPosition(onFailClauseNode);
+        onFailClause.body = blockNode;
+        return onFailClause;
+    }
+
     @Override
     public BLangNode transform(LetClauseNode letClauseNode) {
         BLangLetClause bLLetClause = (BLangLetClause) TreeBuilder.createLetClauseNode();
@@ -3593,6 +3666,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         retryNode.setRetrySpec(retrySpec);
         BLangBlockStmt retryBlock = (BLangBlockStmt) retryBody.apply(this);
         retryNode.setRetryBody(retryBlock);
+
+        retryStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
+            retryNode.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
+
         return retryNode;
     }
 
@@ -3706,6 +3785,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             patternClause.body = (BLangBlockStmt) transform(((MatchClauseNode) matchClause).blockStatement());
         }
+
+        matchStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
+            bLangMatch.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
 
         return bLangMatch;
     }

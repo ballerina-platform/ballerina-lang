@@ -1866,19 +1866,24 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineErrorDetails(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
-            if (typeDef.typeNode.getKind() != NodeKind.ERROR_TYPE) {
-                continue;
+            BLangType typeNode = typeDef.typeNode;
+            if (typeNode.getKind() == NodeKind.ERROR_TYPE) {
+                SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
+                BLangErrorType errorTypeNode = (BLangErrorType) typeNode;
+
+                BType detailType = Optional.ofNullable(errorTypeNode.detailType)
+                        .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
+                        .orElse(symTable.detailType);
+
+                ((BErrorType) typeDef.symbol.type).detailType = detailType;
+            } else if (typeNode.type != null && typeNode.type.tag == TypeTags.ERROR) {
+                SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
+                BType detailType = ((BErrorType) typeNode.type).detailType;
+                if (detailType == symTable.noType) {
+                    BErrorType type = (BErrorType) symResolver.resolveTypeNode(typeNode, typeDefEnv);
+                    ((BErrorType) typeDef.symbol.type).detailType = type.detailType;
+                }
             }
-
-            BLangErrorType errorTypeNode = (BLangErrorType) typeDef.typeNode;
-            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(errorTypeNode, typeDef.symbol.scope, pkgEnv);
-
-            BType detailType = Optional.ofNullable(errorTypeNode.detailType)
-                                        .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
-                                        .orElse(symTable.detailType);
-
-            BErrorType errorType = (BErrorType) typeDef.symbol.type;
-            errorType.detailType = detailType;
         }
     }
 
