@@ -127,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -942,6 +943,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         analyzeNode(checkedExpr.expr, env);
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        analyzeNode(doNode.body, env);
+        if (doNode.onFailClause != null) {
+            analyzeNode(doNode.onFailClause, env);
+        }
     }
 
     @Override
