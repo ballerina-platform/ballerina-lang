@@ -71,7 +71,7 @@ import java.util.function.Function;
 import javax.xml.namespace.QName;
 
  /**
-  * Helper class to create ballerina value instances.
+  * Class @{@link BValueCreator} provides apis to create ballerina value instances.
   *
   * @since 1.1.0
   */

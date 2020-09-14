@@ -30,9 +30,9 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
 /**
- * Util Class for handling Error in Ballerina VM.
+ * Class @{@link BErrorCreator} provides apis to create ballerina error instances.
  *
- * @since 0.995.0
+ * @since 2.0.0
  */
 public class BErrorCreator {
 
