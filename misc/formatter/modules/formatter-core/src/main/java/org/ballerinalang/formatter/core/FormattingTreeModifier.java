@@ -55,6 +55,7 @@ import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
+import io.ballerinalang.compiler.syntax.tree.FailStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternNode;
@@ -1904,6 +1905,21 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withBinaryOperator(formatToken(binaryOperator, 1, 1, 0, 0))
                 .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
                 .withRhsExpression(rhsExpression)
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public FailStatementNode transform(FailStatementNode failStatementNode) {
+        if (!isInLineRange(failStatementNode, lineRange)) {
+            return failStatementNode;
+        }
+        Token failKeyword = getToken(failStatementNode.failKeyword());
+        ExpressionNode expression = this.modifyNode(failStatementNode.expression());
+        Token semicolonToken = getToken(failStatementNode.semicolonToken());
+        return failStatementNode.modify()
+                .withFailKeyword(formatToken(failKeyword, 0, 0, 0, 0))
+                .withExpression(expression)
                 .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
                 .apply();
     }
