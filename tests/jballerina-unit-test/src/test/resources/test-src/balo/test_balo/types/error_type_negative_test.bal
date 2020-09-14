@@ -23,3 +23,8 @@ function getDistinctError() returns error {
     k = f; // expected 'testorg/errors:1.0.0:OrderCreationError2', found 'testorg/errors:1.0.0:OrderCreationError'
     return f;
 }
+
+function testErrorDetailDefinedAfterErrorDef() returns er:PostDefinedError {
+    er:NewPostDefinedError e = er:PostDefinedError("New error", code = "ABCD");
+    return e;
+}
