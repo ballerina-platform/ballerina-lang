@@ -133,7 +133,7 @@ public function assertFail(string msg = "Test Failed!") {
 # + msg - Assertion error message
 #
 # + return - Error message constructed based on the compared values
-private function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "Assertion Failed!") returns string {
+function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "Assertion Failed!") returns string {
         string expectedStr = sprintf("%s", expected);
         string expectedType = getBallerinaType(expected);
         string actualStr = sprintf("%s", actual);
@@ -141,15 +141,15 @@ private function getInequalityErrorMsg(any|error actual, any|error expected, str
         string errorMsg = "";
         if (expectedType != actualType) {
             if (expectedStr.length() > maxArgLength) {
-                expectedStr = expectedStr.subString(0, maxArgLength);
+                expectedStr = expectedStr.substring(0, maxArgLength);
             }
             if (actualStr.length() > maxArgLength) {
-                actualStr = actualStr.subString(0, maxArgLength);
+                actualStr = actualStr.substring(0, maxArgLength);
             }
-            errorMsg = string `${msg}: expected <${expectedType}> '${expectedStr}' but found <${actualType}> 
-            '${actualStr}'`;
+            errorMsg = string `${msg}` + "\nexpected: " + string `<${expectedType}> '${expectedStr}'` + "\nactual\t: " + string `<${actualType}> '${actualStr}'`;
         } else {
-            errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+            errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
+            + string `'${actualStr}'`;
         }
         return errorMsg;
 }
@@ -161,5 +161,5 @@ function sprintf(string format, (any|error)... args) returns string = @java:Meth
 
 function getBallerinaType((any|error) value) returns string = @java:Method {
     name : "getBallerinaType",
-    class : "org.ballerinalang.testerina.core.BallerinaTypeCheck"
+    'class : "org.ballerinalang.testerina.core.BallerinaTypeCheck"
 } external;
