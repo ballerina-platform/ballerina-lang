@@ -330,6 +330,7 @@ public enum DiagnosticCode {
     INVALID_ERROR_MATCH_PATTERN("invalid.error.match.pattern"),
     DUPLICATE_VARIABLE_IN_BINDING_PATTERN("duplicate.variable.in.binding.pattern"),
     INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN("invalid.variable.reference.in.binding.pattern"),
+    MISSING_REQUIRED_ARG_BINDING_PATTERN_ERROR_MESSAGE("missing.error.arg.binding.pattern.error.message"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
