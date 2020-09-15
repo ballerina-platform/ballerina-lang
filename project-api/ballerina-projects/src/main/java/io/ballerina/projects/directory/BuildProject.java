@@ -19,6 +19,8 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.env.BuildEnvContext;
+import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 
@@ -47,20 +49,20 @@ public class BuildProject extends Project {
         if (!isBallerinaProject(absProjectPath)) {
             throw new RuntimeException("provided path is not a valid Ballerina project: " + projectPath);
         }
-        return new BuildProject(absProjectPath);
+        return new BuildProject(BuildEnvContext.getInstance(), absProjectPath);
     }
 
-    private BuildProject(Path projectPath) {
-        super();
+    private BuildProject(EnvironmentContext environmentContext, Path projectPath) {
+        super(environmentContext);
         this.sourceRoot = projectPath;
         addPackage(projectPath.toString());
 
         // Set default build options
-        if (this.context.currentPackage().ballerinaToml().getBuildOptions() != null) {
-            this.context.setBuildOptions(this.context.currentPackage().ballerinaToml().getBuildOptions());
-        } else {
-            this.context.setBuildOptions(new BuildOptions());
-        }
+//        if (this.context.currentPackage().ballerinaToml().getBuildOptions() != null) {
+//            this.context.setBuildOptions(this.context.currentPackage().ballerinaToml().getBuildOptions());
+//        } else {
+//            this.context.setBuildOptions(new BuildOptions());
+//        }
     }
 
     /**
@@ -70,7 +72,7 @@ public class BuildProject extends Project {
      */
     private void addPackage(String projectPath) {
         final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, false);
-        this.context.addPackage(packageConfig);
+        this.addPackage(packageConfig);
     }
 
     /**
@@ -88,7 +90,7 @@ public class BuildProject extends Project {
     }
 
     public BuildOptions getBuildOptions() {
-        return (BuildOptions) this.context.getBuildOptions();
+        return (BuildOptions) super.getBuildOptions();
     }
 
     /**

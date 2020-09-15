@@ -18,6 +18,7 @@
 package io.ballerina.projects.ls;
 
 import io.ballerina.projects.Project;
+import io.ballerina.projects.environment.EnvironmentContext;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created by the language server.
@@ -25,6 +26,9 @@ import io.ballerina.projects.Project;
  * @since 2.0.0
  */
 public class LSProject extends Project {
+    protected LSProject(EnvironmentContext environmentContext) {
+        super(environmentContext);
+    }
     // Language server specific Project implementation.
     // TODO Move projects.build package to a different Gradle module.
 }

@@ -19,6 +19,7 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 
@@ -50,11 +51,11 @@ public class SingleFileProject extends Project {
     }
 
     private SingleFileProject(Path projectPath) {
-        super();
+        super(BuildEnvContext.getInstance());
 
         this.sourceRoot = createTempProjectRoot(); // create a temp directory and assign to source root
         addPackage(projectPath.toString());
-        this.context.setBuildOptions(new BuildOptions()); // Set default build options
+        this.setBuildOptions(new BuildOptions()); // Set default build options
     }
 
     private Path createTempProjectRoot() {
@@ -72,7 +73,7 @@ public class SingleFileProject extends Project {
      */
     private void addPackage(String projectPath) {
         final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, true);
-        this.context.addPackage(packageConfig);
+        this.addPackage(packageConfig);
     }
 
     /**
@@ -115,7 +116,7 @@ public class SingleFileProject extends Project {
      * @return build options
      */
     public BuildOptions getBuildOptions() {
-        return (BuildOptions) this.context.getBuildOptions();
+        return (BuildOptions) super.getBuildOptions();
     }
 
     /**
