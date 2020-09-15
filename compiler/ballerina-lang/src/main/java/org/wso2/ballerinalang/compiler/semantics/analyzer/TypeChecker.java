@@ -4382,18 +4382,20 @@ public class TypeChecker extends BLangNodeVisitor {
         //checks whether iterable collection's next() method returns an error
         BType nextMethodReturnType = null;
         BType errorType = null;
-        switch (collectionType.tag) {
-            case TypeTags.STREAM:
-                errorType = ((BStreamType) collectionType).error;
-                break;
-            case TypeTags.OBJECT:
-                nextMethodReturnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
-                break;
-            default:
-                BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                        names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
-                nextMethodReturnType =
-                        (BUnionType) types.getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+        if (collectionType.tag != TypeTags.SEMANTIC_ERROR) {
+            switch (collectionType.tag) {
+                case TypeTags.STREAM:
+                    errorType = ((BStreamType) collectionType).error;
+                    break;
+                case TypeTags.OBJECT:
+                    nextMethodReturnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
+                    break;
+                default:
+                    BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
+                            names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                    nextMethodReturnType =
+                            types.getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+            }
         }
 
         if (nextMethodReturnType != null) {
