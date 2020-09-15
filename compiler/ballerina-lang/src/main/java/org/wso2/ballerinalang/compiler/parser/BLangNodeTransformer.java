@@ -576,14 +576,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         NodeList<IdentifierToken> names = importDeclaration.moduleName();
         DiagnosticPos position = getPosition(importDeclaration);
-        names.forEach(name -> pkgNameComps.add(this.createIdentifier(position, name.text(), null)));
+        names.forEach(name -> pkgNameComps.add(this.createIdentifier(getPosition(name), name.text(), null)));
 
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
         importDcl.pos = position;
         importDcl.pkgNameComps = pkgNameComps;
-        importDcl.orgName = this.createIdentifier(position, orgName);
+        importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
         importDcl.version = this.createIdentifier(getPosition(versionNode), version);
-        importDcl.alias = (prefixNode != null) ? this.createIdentifier(position, prefixNode.prefix())
+        importDcl.alias = (prefixNode != null) ? this.createIdentifier(getPosition(prefixNode), prefixNode.prefix())
                                                : pkgNameComps.get(pkgNameComps.size() - 1);
 
         return importDcl;
@@ -4623,8 +4623,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 IdentifierToken identifier = iNode.identifier();
                 BLangIdentifier pkgAlias = this.createIdentifier(getPosition(modulePrefix), modulePrefix);
                 DiagnosticPos namePos = getPosition(identifier);
-                namePos.sCol = namePos.sCol - modulePrefix.text().length() - 1; // 1 = length of colon
-                pkgAlias.pos.eCol = namePos.eCol;
                 BLangIdentifier name = this.createIdentifier(namePos, identifier);
                 return new BLangNameReference(getPosition(node), null, pkgAlias, name);
             case ERROR_TYPE_DESC:

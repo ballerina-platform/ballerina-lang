@@ -19,9 +19,13 @@ package org.ballerina.compiler.impl;
 
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
+import org.ballerinalang.model.symbols.Symbol;
+import org.ballerinalang.model.tree.IdentifiableNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -237,7 +241,15 @@ class NodeResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
-        this.enclosingNode = importPkgNode;
+        if (importPkgNode.orgName.pos != null && setEnclosingNode(importPkgNode, importPkgNode.orgName.pos)) {
+            return;
+        }
+        if (setEnclosingNode(importPkgNode, importPkgNode.alias.pos)) {
+            return;
+        }
+        if (importPkgNode.version.pos != null) {
+            setEnclosingNode(importPkgNode, importPkgNode.version.pos);
+        }
     }
 
     @Override
@@ -626,7 +638,11 @@ class NodeResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        this.enclosingNode = varRefExpr;
+        if (setEnclosingNode(varRefExpr, varRefExpr.variableName.pos)) {
+            return;
+        }
+
+        setEnclosingNode(new BLangIdentifiableNode(varRefExpr.pkgSymbol), varRefExpr.pkgAlias.pos);
     }
 
     @Override
@@ -646,7 +662,10 @@ class NodeResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (setEnclosingNode(invocationExpr, invocationExpr.name.pos)) {
+        // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
+        // Hence owner would be a package symbol.
+        if (setEnclosingNode(new BLangIdentifiableNode(invocationExpr.symbol.owner), invocationExpr.pkgAlias.pos)
+                || setEnclosingNode(invocationExpr, invocationExpr.name.pos)) {
             return;
         }
 
@@ -663,7 +682,11 @@ class NodeResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-        if (setEnclosingNode(actionInvocationExpr, actionInvocationExpr.name.pos)) {
+        // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
+        // Hence owner would be a package symbol.
+        if (setEnclosingNode(new BLangIdentifiableNode(actionInvocationExpr.symbol.owner),
+                             actionInvocationExpr.pkgAlias.pos)
+                || setEnclosingNode(actionInvocationExpr, actionInvocationExpr.name.pos)) {
             return;
         }
 
@@ -943,6 +966,11 @@ class NodeResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
         this.enclosingNode = userDefinedType;
+        if (setEnclosingNode(userDefinedType, userDefinedType.typeName.pos)) {
+            return;
+        }
+
+        setEnclosingNode(new BLangIdentifiableNode(userDefinedType.type.tsymbol.owner), userDefinedType.pkgAlias.pos);
     }
 
     @Override
@@ -1318,5 +1346,34 @@ class NodeResolver extends BLangNodeVisitor {
                 || (zeroBasedStartLine == line && zeroBasedStartCol < col && zeroBasedEndLine > line)
                 || (zeroBasedStartLine == zeroBasedEndLine && zeroBasedStartLine == line
                 && zeroBasedStartCol <= col && zeroBasedEndCol > col);
+    }
+
+    private static class BLangIdentifiableNode extends BLangNode implements IdentifiableNode {
+        
+        private BSymbol symbol;
+
+        BLangIdentifiableNode(BSymbol symbol) {
+            this.symbol = symbol;
+        }
+
+        @Override
+        public Symbol getSymbol() {
+            return this.symbol;
+        }
+
+        @Override
+        public void setSymbol(Symbol symbol) {
+            this.symbol = (BSymbol) symbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            this.accept(visitor);
+        }
+
+        @Override
+        public NodeKind getKind() {
+            return null;
+        }
     }
 }

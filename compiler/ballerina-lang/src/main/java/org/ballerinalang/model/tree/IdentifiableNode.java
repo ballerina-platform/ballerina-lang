@@ -24,7 +24,7 @@ import org.ballerinalang.model.symbols.Symbol;
  *
  * @since 2.0.0
  */
-public interface IdentifiableNode {
+public interface IdentifiableNode extends Node {
 
     /**
      * Retrieves the symbol associated with the node.
