@@ -39,6 +39,7 @@ public class Module {
     Module(ModuleContext moduleContext, Package packageInstance) {
         this.moduleContext = moduleContext;
         this.packageInstance = packageInstance;
+
         this.srcDocs = new ConcurrentHashMap<>();
         this.testSrcDocs = new ConcurrentHashMap<>();
         this.populateDocumentFunc = documentId -> Document.from(
@@ -55,6 +56,10 @@ public class Module {
 
     public ModuleId moduleId() {
         return this.moduleContext.moduleId();
+    }
+
+    public ModuleName moduleName() {
+        return this.moduleContext.moduleName();
     }
 
     public Collection<DocumentId> documentIds() {
@@ -81,14 +86,30 @@ public class Module {
             return this.testSrcDocs.computeIfAbsent(documentId, this.populateDocumentFunc);
         }
     }
-    
+
+    public ModuleCompilation getCompilation() {
+        return this.packageInstance.packageContext().getModuleCompilation(this.moduleContext);
+    }
+
+    public Collection<ModuleDependency> moduleDependencies() {
+        return moduleContext.dependencies();
+    }
+
+    public boolean isDefaultModule() {
+        return moduleContext.isDefaultModule();
+    }
+
+    ModuleContext moduleContext() {
+        return moduleContext;
+    }
+
     private static class DocumentIterable implements Iterable {
         private final Collection<Document> documentList;
-    
+
         public DocumentIterable(Collection<Document> documentList) {
             this.documentList = documentList;
         }
-    
+
         @Override
         public Iterator<Document> iterator() {
             return this.documentList.iterator();
