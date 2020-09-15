@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -24,7 +25,6 @@ import org.ballerinalang.jvm.values.api.BFuture;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
