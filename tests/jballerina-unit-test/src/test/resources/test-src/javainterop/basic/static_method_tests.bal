@@ -187,3 +187,51 @@ function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
+ public function addTwoNumbersSlowAsyncVoidSig(int a, int b) returns int = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+ public function addTwoNumbersFastAsyncVoidSig(int a, int b) returns int = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+ public function addTwoNumbersSlowAsync(int a, int b) returns int = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+ public function addTwoNumbersFastAsync(int a, int b) returns int = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function testBalEnvSlowAsyncVoidSig() {
+    int added = addTwoNumbersSlowAsyncVoidSig(1, 2);
+    assertEquality(3, added);
+}
+
+public function testBalEnvFastAsyncVoidSig() {
+    int added = addTwoNumbersFastAsyncVoidSig(1, 2);
+    assertEquality(3, added);
+}
+
+public function testBalEnvSlowAsync() {
+    int added = addTwoNumbersSlowAsync(1, 2);
+    assertEquality(3, added);
+}
+
+public function testBalEnvFastAsync() {
+    int added = addTwoNumbersFastAsync(1, 2);
+    assertEquality(3, added);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

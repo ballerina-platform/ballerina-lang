@@ -107,6 +107,8 @@ public class JvmConstants {
     public static final String JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
     public static final String STRAND_CLASS = "org/ballerinalang/jvm/scheduling/Strand";
     public static final String STRAND_METADATA = "org/ballerinalang/jvm/scheduling/StrandMetadata";
+    public static final String BAL_ENV = "org/ballerinalang/jvm/api/BalEnv";
+    public static final String BAL_FUTURE = "org/ballerinalang/jvm/api/BalFuture";
     public static final String TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
     public static final String STRAND_STATE = "org/ballerinalang/jvm/scheduling/State";
     public static final String VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";

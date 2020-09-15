@@ -33,6 +33,7 @@ public class NonBlockingCallback {
     private final Strand strand;
     private final Scheduler scheduler;
 
+    @Deprecated // replace with org.ballerinalang.jvm.api.BalEnv#markAsync
     public NonBlockingCallback(Strand strand) {
         strand.blockedOnExtern = true;
         strand.setState(State.BLOCK_AND_YIELD);
