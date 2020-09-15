@@ -125,6 +125,7 @@ public class CodeGenerator {
      * @param executionPath  Command execution path
      * @param definitionPath Input Open Api Definition file path
      * @param serviceName    Name of the service
+     * @param filter         Tags and Operations that need to be documented
      * @param outPath        Destination file path to save generated source files. If not provided
      *                       {@code definitionPath} will be used as the default destination path
      * @throws IOException               when file operations fail
@@ -147,6 +148,7 @@ public class CodeGenerator {
      * @param serviceName    service name for the generated service
      * @param outPath        Destination file path to save generated source files. If not provided
      *                       {@code definitionPath} will be used as the default destination path
+     * @param filter        Tags and Operations that need to be documented
      * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
@@ -169,6 +171,7 @@ public class CodeGenerator {
      * @param serviceName    Out put service name
      * @param definitionPath Input Open Api Definition file path
      * @param reldefinitionPath Relative OpenApi File
+     * @param filter            Tags and Operations that need to be documented
      * @return a list of generated source files wrapped as {@link GenSrcFile}
      * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when open api context building fail

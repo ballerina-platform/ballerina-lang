@@ -101,7 +101,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private int transactionBlockCount;
 
     private BLangStatementExpression result;
-
+    private boolean onFailHandled;
     private TransactionDesugar(CompilerContext context) {
         context.put(TRANSACTION_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
@@ -118,7 +118,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return desugar;
     }
 
-    public BLangStatementExpression rewrite (BLangNode node, SymbolEnv env) {
+    public BLangStatementExpression rewrite (BLangNode node, SymbolEnv env, boolean nestedTrxOnFailHandled) {
+        this.onFailHandled = nestedTrxOnFailHandled;
         String id = this.uniqueId;
         BLangExpression trxId = this.transactionID;
         BLangExpression trxBlockId = this.transactionBlockID;
@@ -222,6 +223,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangLambdaFunction trxMainFunc = desugar.createLambdaFunction(transactionNode.pos, "$trxFunc$",
                 Lists.of(trxMainFuncParamPrevAttempt), transactionReturnType, transactionNode.transactionBody.stmts,
                 env, transactionNode.transactionBody.scope);
+        ((BLangBlockFunctionBody) trxMainFunc.function.body).isBreakable = this.onFailHandled;
 
         // transactionId = startTransaction(1, prevAttempt)
         BLangInvocation startTransactionInvocation = createStartTransactionInvocation(pos, transactionBlockIDLiteral,

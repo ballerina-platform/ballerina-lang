@@ -52,13 +52,18 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -74,7 +79,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -85,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -122,19 +127,26 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -237,6 +249,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(function, env);
         }
 
+        for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
+            analyzeNode(globalVar, env);
+        }
+
         pkgNode.completedPhases.add(CompilerPhase.ISOLATION_ANALYZE);
     }
 
@@ -261,7 +277,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (isBallerinaModule(env.enclPkg) && !Symbols.isFlagOn(funcNode.symbol.flags, Flags.ISOLATED) &&
                 this.inferredIsolated && !Symbols.isFlagOn(funcNode.symbol.flags, Flags.WORKER)) {
-            dlog.note(funcNode.pos, DiagnosticCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
+            dlog.warning(funcNode.pos, DiagnosticCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
         }
 
         this.inferredIsolated = prevInferredIsolated;
@@ -287,14 +303,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
-        for (BLangExpression attachedExpr : serviceNode.attachedExprs) {
-            analyzeNode(attachedExpr, serviceEnv);
-        }
-
-        for (BLangFunction resourceFunction : serviceNode.resourceFunctions) {
-            analyzeNode(resourceFunction, serviceEnv);
-        }
     }
 
     @Override
@@ -314,7 +322,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        analyzeNode(varNode.typeNode, env);
+        BLangType typeNode = varNode.typeNode;
+        if (typeNode != null &&
+                (typeNode.type == null || typeNode.type.tsymbol == null ||
+                         typeNode.type.tsymbol.owner.getKind() != SymbolKind.PACKAGE)) {
+            // Only analyze the type node if it is not available at module level, since module level type definitions
+            // have already been analyzed.
+            analyzeNode(typeNode, env);
+        }
 
         BLangExpression expr = varNode.expr;
         if (expr == null) {
@@ -447,6 +462,63 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangMatchStatement matchStatement) {
+        analyzeNode(matchStatement.expr, env);
+
+        for (BLangMatchClause matchClause : matchStatement.matchClauses) {
+            analyzeNode(matchClause, env);
+        }
+
+        if (matchStatement.onFailClause != null) {
+            analyzeNode(matchStatement.onFailClause, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatchGuard matchGuard) {
+        analyzeNode(matchGuard.expr, env);
+    }
+
+    @Override
+    public void visit(BLangConstPattern constMatchPattern) {
+        analyzeNode(constMatchPattern.expr, env);
+    }
+
+    @Override
+    public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
+    }
+
+    @Override
+    public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
+        analyzeNode(varBindingPattern.getBindingPattern(), env);
+    }
+
+    @Override
+    public void visit(BLangCaptureBindingPattern captureBindingPattern) {
+    }
+
+    @Override
+    public void visit(BLangListBindingPattern listBindingPattern) {
+        for (BLangBindingPattern bindingPattern : listBindingPattern.bindingPatterns) {
+            analyzeNode(bindingPattern, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatchClause matchClause) {
+        for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
+            analyzeNode(matchPattern, env);
+        }
+
+        BLangMatchGuard matchGuard = matchClause.matchGuard;
+        if (matchGuard != null) {
+            analyzeNode(matchGuard, env);
+        }
+
+        analyzeNode(matchClause.blockStmt, env);
+    }
+
+    @Override
     public void visit(BLangForeach foreach) {
         analyzeNode(foreach.collection, env);
         analyzeNode(foreach.body, env);
@@ -502,6 +574,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangDoClause doClause) {
         analyzeNode(doClause.body, env);
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        analyzeNode(onFailClause.body, env);
     }
 
     @Override
@@ -659,8 +736,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
         boolean recordFieldDefaultValue = isRecordFieldDefaultValue(enclType);
 
-        if (inIsolatedFunction && symbol.owner == enclInvokable.symbol) {
-            return;
+        if (inIsolatedFunction) {
+            if (enclInvokable == null) {
+                BLangArrowFunction bLangArrowFunction = (BLangArrowFunction) env.enclEnv.node;
+
+                for (BLangSimpleVariable param : bLangArrowFunction.params) {
+                    if (param.symbol == symbol) {
+                        return;
+                    }
+                }
+            } else if (symbol.owner == enclInvokable.symbol) {
+                return;
+            }
         }
 
         if (Symbols.isFlagOn(symbol.flags, Flags.CONSTANT)) {
@@ -679,9 +766,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (recordFieldDefaultValue && isBallerinaModule(env.enclPkg)) {
+        if (recordFieldDefaultValue) {
             // TODO: 9/13/20 make this error once stdlibs are migrated
-            dlog.note(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+            dlog.warning(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
         }
     }
 
@@ -717,9 +804,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (isRecordFieldDefaultValue(env.enclType) && isBallerinaModule(env.enclPkg)) {
+        if (isRecordFieldDefaultValue(env.enclType)) {
             // TODO: 9/13/20 make this error once stdlibs are migrated
-            dlog.note(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+            dlog.warning(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
         }
     }
 
@@ -911,10 +998,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        for (BLangSimpleVariable param : bLangArrowFunction.params) {
-            analyzeNode(param, env);
-        }
-        analyzeNode(bLangArrowFunction.body, env);
+        SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
+        analyzeNode(bLangArrowFunction.body, arrowFunctionEnv);
     }
 
     @Override
@@ -939,7 +1024,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFailExpr failExpr) {
+    public void visit(BLangDo doNode) {
+        analyzeNode(doNode.body, env);
+        if (doNode.onFailClause != null) {
+            analyzeNode(doNode.onFailClause, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangFail failExpr) {
         analyzeNode(failExpr.expr, env);
     }
 
@@ -1178,7 +1271,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause matchStaticBindingPatternClause) {
-        analyzeNode(matchStaticBindingPatternClause.literal, env);
         analyzeNode(matchStaticBindingPatternClause.body, env);
     }
 
@@ -1236,14 +1328,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isBallerinaModule(BLangPackage module) {
-        // TODO: 9/13/20 Enable check once stdlibs are migrated and logs are changed to actual levels.
-        return true;
-//        return module.packageID.orgName.value.equals("ballerina");
+        return module.packageID.orgName.value.equals("ballerina");
     }
 
     private boolean isInIsolatedFunction(BLangInvokableNode enclInvokable) {
         if (enclInvokable == null) {
-            return false;
+            // TODO: 14/11/20 This feels hack-y but cannot think of a different approach without a class variable
+            // maintaining isolated-ness.
+            if (env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY ||
+                    env.enclEnv.node.getKind() != NodeKind.ARROW_EXPR) {
+                return false;
+            }
+            return Symbols.isFlagOn(((BLangArrowFunction) env.enclEnv.node).funcType.flags, Flags.ISOLATED);
         }
 
         return Symbols.isFlagOn(enclInvokable.symbol.flags, Flags.ISOLATED);

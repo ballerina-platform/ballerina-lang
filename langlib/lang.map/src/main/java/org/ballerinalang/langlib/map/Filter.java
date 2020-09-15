@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BMapType;
@@ -74,7 +75,7 @@ public class Filter {
         MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{strand,
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
@@ -84,7 +85,7 @@ public class Filter {
                                                                Object value = m.get(key);
                                                                newMap.put(key, value);
                                                            }
-                                                       }, () -> newMap);
+                                                       }, () -> newMap, Scheduler.getStrand().scheduler);
         return newMap;
     }
 }

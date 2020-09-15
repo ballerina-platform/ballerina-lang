@@ -51,6 +51,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
@@ -238,7 +239,7 @@ public class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, BType sourceType, BType targetType) {
-        if (checkIsType(sourceType, targetType)) {
+        if (checkIsType(sourceVal, sourceType, targetType, new ArrayList<>())) {
             return true;
         }
 
@@ -641,6 +642,74 @@ public class TypeChecker {
         }
     }
 
+    private static boolean checkIsType(Object sourceVal, BType sourceType, BType targetType,
+                                      List<TypePair> unresolvedTypes) {
+        int sourceTypeTag = sourceType.getTag();
+        int targetTypeTag = targetType.getTag();
+
+        // If the source type is neither a record type nor an object type, check `is` type by looking only at the types.
+        // Else, since records and objects may have `readonly` fields, need to use the value also.
+        // e.g.,
+        //      const HUNDRED = 100;
+        //
+        //      type Foo record {
+        //          HUNDRED i;
+        //      };
+        //
+        //      type Bar record {
+        //          readonly string|int i;
+        //      };
+        //
+        // where `Bar b = {i: 100};`, `b is Foo` should evaluate to true.
+        if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
+            return checkIsType(sourceType, targetType);
+        }
+
+        if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
+            targetType = ((BIntersectionType) targetType).getEffectiveType();
+            targetTypeTag = targetType.getTag();
+        }
+
+        if (sourceType == targetType || sourceType.equals(targetType)) {
+            return true;
+        }
+
+        if (targetType.isReadOnly() && !sourceType.isReadOnly()) {
+            return false;
+        }
+
+        switch (targetTypeTag) {
+            case TypeTags.ANY_TAG:
+                return checkIsAnyType(sourceType);
+            case TypeTags.ANYDATA_TAG:
+                if (sourceTypeTag == TypeTags.OBJECT_TYPE_TAG) {
+                    return false;
+                }
+                return checkRecordBelongsToAnydataType((MapValue) sourceVal, (BRecordType) sourceType, unresolvedTypes);
+            case TypeTags.READONLY_TAG:
+                return isInherentlyImmutableType(sourceType) || sourceType.isReadOnly();
+            case TypeTags.MAP_TAG:
+                return checkIsMapType(sourceVal, sourceType, (BMapType) targetType, unresolvedTypes);
+            case TypeTags.JSON_TAG:
+                return checkIsMapType(sourceVal, sourceType,
+                                      new BMapType(targetType.isReadOnly() ? BTypes.typeReadonlyJSON : BTypes.typeJSON),
+                                      unresolvedTypes);
+            case TypeTags.RECORD_TYPE_TAG:
+                return checkIsRecordType(sourceVal, sourceType, (BRecordType) targetType, unresolvedTypes);
+            case TypeTags.UNION_TAG:
+                for (BType type : ((BUnionType) targetType).getMemberTypes()) {
+                    if (checkIsType(sourceVal, sourceType, type, unresolvedTypes)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.OBJECT_TYPE_TAG:
+                return checkObjectEquivalency(sourceVal, sourceType, (BObjectType) targetType, unresolvedTypes);
+            default:
+                return false;
+        }
+    }
+
     // Private methods
 
     private static boolean checkTypeDescType(BType sourceType, BTypedescType targetType,
@@ -739,6 +808,49 @@ public class TypeChecker {
             default:
                 return false;
         }
+    }
+
+    private static boolean checkIsMapType(Object sourceVal, BType sourceType, BMapType targetType,
+                                          List<TypePair> unresolvedTypes) {
+        BType targetConstrainedType = targetType.getConstrainedType();
+        switch (sourceType.getTag()) {
+            case TypeTags.MAP_TAG:
+                return checkConstraints(((BMapType) sourceType).getConstrainedType(), targetConstrainedType,
+                                        unresolvedTypes);
+            case TypeTags.RECORD_TYPE_TAG:
+                return checkIsMapType((MapValue) sourceVal, (BRecordType) sourceType, unresolvedTypes,
+                                      targetConstrainedType);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean checkIsMapType(MapValue sourceVal, BRecordType sourceType, List<TypePair> unresolvedTypes,
+                                          BType targetConstrainedType) {
+        for (BField field : sourceType.getFields().values()) {
+            if (!Flags.isFlagOn(field.flags, Flags.READONLY)) {
+                if (!checkIsType(field.type, targetConstrainedType, unresolvedTypes)) {
+                    return false;
+                }
+                continue;
+            }
+
+            BString name = StringUtils.fromString(field.name);
+
+            if (Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !sourceVal.containsKey(name)) {
+                continue;
+            }
+
+            if (!checkIsLikeType(sourceVal.get(name), targetConstrainedType)) {
+                return false;
+            }
+        }
+
+        if (sourceType.sealed) {
+            return true;
+        }
+
+        return checkIsType(sourceType.restFieldType, targetConstrainedType, unresolvedTypes);
     }
 
     private static boolean checkIsXMLType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
@@ -975,6 +1087,131 @@ public class TypeChecker {
         return true;
     }
 
+    private static boolean checkRecordBelongsToAnydataType(MapValue sourceVal, BRecordType recordType,
+                                                           List<TypePair> unresolvedTypes) {
+        BType targetType = BTypes.typeAnydata;
+        TypePair pair = new TypePair(recordType, targetType);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+
+        Map<String, BField> fields = recordType.getFields();
+
+        for (BField field : fields.values()) {
+            String fieldName = field.getFieldName();
+
+            if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
+                BString fieldNameBString = StringUtils.fromString(fieldName);
+
+                if (Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !sourceVal.containsKey(fieldNameBString)) {
+                    continue;
+                }
+
+                if (!checkIsLikeType(sourceVal.get(fieldNameBString), targetType)) {
+                    return false;
+                }
+            } else {
+                if (!checkIsType(field.type, targetType, unresolvedTypes)) {
+                    return false;
+                }
+            }
+        }
+
+        if (recordType.sealed) {
+            return true;
+        }
+
+        return checkIsType(recordType.restFieldType, targetType, unresolvedTypes);
+    }
+
+    private static boolean checkIsRecordType(Object sourceVal, BType sourceType, BRecordType targetType,
+                                             List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            return false;
+        }
+
+        TypePair pair = new TypePair(sourceType, targetType);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+
+        BRecordType sourceRecordType = (BRecordType) sourceType;
+        if (targetType.sealed && !sourceRecordType.sealed) {
+            return false;
+        }
+
+        if (!sourceRecordType.sealed &&
+                !checkIsType(sourceRecordType.restFieldType, targetType.restFieldType, unresolvedTypes)) {
+            return false;
+        }
+
+        MapValue sourceRecordValue = (MapValue) sourceVal;
+
+        Map<String, BField> sourceFields = sourceRecordType.getFields();
+        Set<String> targetFieldNames = targetType.getFields().keySet();
+
+        for (BField targetField : targetType.getFields().values()) {
+            String fieldName = targetField.getFieldName();
+            BField sourceField = sourceFields.get(fieldName);
+
+            if (sourceField == null) {
+                return false;
+            }
+
+            if (hasIncompatibleReadOnlyFlags(targetField, sourceField)) {
+                return false;
+            }
+
+            boolean optionalTargetField = Flags.isFlagOn(targetField.flags, Flags.OPTIONAL);
+            boolean optionalSourceField = Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL);
+
+            if (Flags.isFlagOn(sourceField.flags, Flags.READONLY)) {
+                BString fieldNameBString = StringUtils.fromString(fieldName);
+
+                if (optionalSourceField && !sourceRecordValue.containsKey(fieldNameBString)) {
+                    if (!optionalTargetField) {
+                        return false;
+                    }
+                    continue;
+                }
+
+                if (!checkIsLikeType(sourceRecordValue.get(fieldNameBString), targetField.type)) {
+                    return false;
+                }
+            } else {
+                if (!optionalTargetField && optionalSourceField) {
+                    return false;
+                }
+
+                if (!checkIsType(sourceField.type, targetField.type, unresolvedTypes)) {
+                    return false;
+                }
+            }
+        }
+
+        if (targetType.sealed) {
+            return targetFieldNames.containsAll(sourceFields.keySet());
+        }
+
+        for (BField field : sourceFields.values()) {
+            if (targetFieldNames.contains(field.name)) {
+                continue;
+            }
+
+            if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
+                if (!checkIsLikeType(sourceRecordValue.get(StringUtils.fromString(field.name)),
+                                     targetType.restFieldType)) {
+                    return false;
+                }
+            } else if (!checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static boolean hasIncompatibleReadOnlyFlags(BField targetField, BField sourceField) {
         return Flags.isFlagOn(targetField.flags, Flags.READONLY) && !Flags.isFlagOn(sourceField.flags, Flags.READONLY);
     }
@@ -1106,6 +1343,11 @@ public class TypeChecker {
 
     private static boolean checkObjectEquivalency(BType sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
+        return checkObjectEquivalency(null, sourceType, targetType, unresolvedTypes);
+    }
+
+    private static boolean checkObjectEquivalency(Object sourceVal, BType sourceType, BObjectType targetType,
+                                                  List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
             return false;
         }
@@ -1132,26 +1374,70 @@ public class TypeChecker {
             return false;
         }
 
+        String targetTypeModule = Optional.ofNullable(targetType.getPackage()).map(BPackage::toString).orElse("");
+        String sourceTypeModule = Optional.ofNullable(sourceObjectType.getPackage()).map(BPackage::toString).orElse("");
+
+        if (sourceVal == null) {
+            if (!checkObjectSubTypeForFields(targetFields, sourceFields, targetTypeModule, sourceTypeModule,
+                                             unresolvedTypes)) {
+                return false;
+            }
+        } else if (!checkObjectSubTypeForFieldsByValue(targetFields, sourceFields, targetTypeModule, sourceTypeModule,
+                                                       (ObjectValue) sourceVal, unresolvedTypes)) {
+            return false;
+        }
+
+        return checkObjectSubTypeForMethods(unresolvedTypes, targetFuncs, sourceFuncs, targetTypeModule,
+                                            sourceTypeModule, sourceObjectType, targetType);
+    }
+
+    private static boolean checkObjectSubTypeForFields(Map<String, BField> targetFields,
+                                                       Map<String, BField> sourceFields, String targetTypeModule,
+                                                       String sourceTypeModule, List<TypePair> unresolvedTypes) {
         for (BField lhsField : targetFields.values()) {
             BField rhsField = sourceFields.get(lhsField.name);
             if (rhsField == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
-                        .orElse(""), Optional.ofNullable(rhsField.type.getPackage()).map(BPackage::getName)
-                        .orElse(""), lhsField.flags, rhsField.flags) ||
+                    !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsField.flags, rhsField.flags) ||
                     hasIncompatibleReadOnlyFlags(lhsField, rhsField) ||
-                    !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
+                    !checkIsType(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
         }
+        return true;
+    }
 
+    private static boolean checkObjectSubTypeForFieldsByValue(Map<String, BField> targetFields,
+                                                              Map<String, BField> sourceFields, String targetTypeModule,
+                                                              String sourceTypeModule, ObjectValue sourceObjVal,
+                                                              List<TypePair> unresolvedTypes) {
+        for (BField lhsField : targetFields.values()) {
+            String name = lhsField.name;
+            BField rhsField = sourceFields.get(name);
+            if (rhsField == null ||
+                    !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsField.flags, rhsField.flags) ||
+                    hasIncompatibleReadOnlyFlags(lhsField, rhsField)) {
+                return false;
+            }
+
+            if (Flags.isFlagOn(rhsField.flags, Flags.READONLY)) {
+                if (!checkIsLikeType(sourceObjVal.get(StringUtils.fromString(name)), lhsField.type)) {
+                    return false;
+                }
+            } else if (!checkIsType(rhsField.type, lhsField.type, unresolvedTypes)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkObjectSubTypeForMethods(List<TypePair> unresolvedTypes,
+                                                        AttachedFunction[] targetFuncs, AttachedFunction[] sourceFuncs,
+                                                        String targetTypeModule, String sourceTypeModule,
+                                                        BObjectType sourceType, BObjectType targetType) {
         for (AttachedFunction lhsFunc : targetFuncs) {
             AttachedFunction rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackage())
-                                    .map(BPackage::getName)
-                                    .orElse(""),
-                            Optional.ofNullable(rhsFunc.type.getPackage()).map(BPackage::getName).orElse(""),
-                            lhsFunc.flags, rhsFunc.flags)) {
+                    !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }
             if (Flags.isFlagOn(lhsFunc.flags, Flags.REMOTE) != Flags.isFlagOn(rhsFunc.flags, Flags.REMOTE)) {
@@ -1165,7 +1451,7 @@ public class TypeChecker {
             return true;
         }
 
-        BTypeIdSet sourceTypeIdSet = sourceObjectType.typeIdSet;
+        BTypeIdSet sourceTypeIdSet = sourceType.typeIdSet;
         if (sourceTypeIdSet == null) {
             return false;
         }

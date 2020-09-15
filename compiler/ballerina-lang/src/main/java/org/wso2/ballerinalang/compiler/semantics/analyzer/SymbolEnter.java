@@ -1866,19 +1866,24 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineErrorDetails(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
-            if (typeDef.typeNode.getKind() != NodeKind.ERROR_TYPE) {
-                continue;
+            BLangType typeNode = typeDef.typeNode;
+            if (typeNode.getKind() == NodeKind.ERROR_TYPE) {
+                SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
+                BLangErrorType errorTypeNode = (BLangErrorType) typeNode;
+
+                BType detailType = Optional.ofNullable(errorTypeNode.detailType)
+                        .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
+                        .orElse(symTable.detailType);
+
+                ((BErrorType) typeDef.symbol.type).detailType = detailType;
+            } else if (typeNode.type != null && typeNode.type.tag == TypeTags.ERROR) {
+                SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
+                BType detailType = ((BErrorType) typeNode.type).detailType;
+                if (detailType == symTable.noType) {
+                    BErrorType type = (BErrorType) symResolver.resolveTypeNode(typeNode, typeDefEnv);
+                    ((BErrorType) typeDef.symbol.type).detailType = type.detailType;
+                }
             }
-
-            BLangErrorType errorTypeNode = (BLangErrorType) typeDef.typeNode;
-            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(errorTypeNode, typeDef.symbol.scope, pkgEnv);
-
-            BType detailType = Optional.ofNullable(errorTypeNode.detailType)
-                                        .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
-                                        .orElse(symTable.detailType);
-
-            BErrorType errorType = (BErrorType) typeDef.symbol.type;
-            errorType.detailType = detailType;
         }
     }
 
@@ -2283,6 +2288,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(invokableNode.name.pos, funcSymbol);
         invokableEnv.scope = funcSymbol.scope;
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
+
+        if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.ISOLATED)) {
+            funcSymbol.type.flags |= Flags.ISOLATED;
+        }
     }
 
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
@@ -2335,10 +2344,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         invokableSymbol.type = new BInvokableType(paramTypes, restType, invokableNode.returnTypeNode.type, null);
         invokableSymbol.type.tsymbol = functionTypeSymbol;
-
-        if (Symbols.isFlagOn(functionTypeSymbol.flags, Flags.ISOLATED)) {
-            invokableSymbol.type.flags |= Flags.ISOLATED;
-        }
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
@@ -2430,6 +2435,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (safeType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
                                              env.scope.owner, pos, isInternal ? VIRTUAL : SOURCE);
+            if (Symbols.isFlagOn(safeType.flags, Flags.ISOLATED)) {
+                varSymbol.flags |= Flags.ISOLATED;
+            }
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
             varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, pos,
@@ -2862,9 +2870,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveAndSetFunctionTypeFromRHSLambda(BLangSimpleVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
-        variable.type = symResolver.createInvokableType(function.getParameters(),
-                                                        function.restParam, function.returnTypeNode,
-                                                        Flags.asMask(variable.flagSet), env, function.pos);
+        BInvokableType invokableType = symResolver.createInvokableType(function.getParameters(),
+                                                                       function.restParam, function.returnTypeNode,
+                                                                       Flags.asMask(variable.flagSet), env,
+                                                                       function.pos);
+
+        if (function.flagSet.contains(Flag.ISOLATED)) {
+            invokableType.flags |= Flags.ISOLATED;
+            invokableType.tsymbol.flags |= Flags.ISOLATED;
+        }
+
+        variable.type = invokableType;
     }
 
     /**

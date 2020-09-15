@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
@@ -56,11 +57,11 @@ public class ForEach {
             return;
         }
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
                                                        () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
                                                                true},
                                                        result -> {
-                                                       }, () -> null);
+                                                       }, () -> null, Scheduler.getStrand().scheduler);
     }
 }

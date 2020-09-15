@@ -24,7 +24,7 @@ class FilterSupport {
       self.func = func;
     }
 
-    public function next() returns record {|Type value;|}|ErrorType? {
+    public isolated function next() returns record {|Type value;|}|ErrorType? {
         // while loop is required to continue filtering until we find a value which matches the filter or ().
         while(true) {
             var nextVal = next(self.strm);
@@ -53,7 +53,7 @@ class MapSupport {
         self.func = func;
     }
 
-    public function next() returns record {|Type value;|}|ErrorType? {
+    public isolated function next() returns record {|Type value;|}|ErrorType? {
         var nextVal = next(self.strm);
         if (nextVal is ()) {
             return ();

@@ -164,14 +164,26 @@ isolated function testInvalidNonIsolatedAccessAsArgs() {
 isolated function diffParamKinds(int a, string b = "hello", boolean|int... c) {
 }
 
-//var testInvalidIsolatedModuleAnonFunc = isolated function () {
-//    int y = nonIsolated() + d[0];
-//    string s = c + "world";
-//};
-//
-//function testInvalidIsolatedAnonFunc() {
-//    var testInvalidIsolatedModuleAnonFunc = isolated function () {
-//        int y = nonIsolated() + d[0];
-//        string s = c + "world";
-//    };
-//}
+var testInvalidIsolatedModuleAnonFunc = isolated function () {
+    int y = nonIsolated() + d[0];
+    string s = c + "world";
+};
+
+function testInvalidIsolatedAnonFunc() {
+    var testInvalidIsolatedModuleAnonFunc = isolated function () {
+        int y = nonIsolated() + d[0];
+        string s = c + "world";
+    };
+}
+
+// Invalid arrow functions as isolated functions.
+type ISOLATED_FUNCTION isolated function (int) returns int;
+
+ISOLATED_FUNCTION af1 = x => x + a;
+
+function testInvalidArrowFuncAsIsolatedFunction() {
+    ISOLATED_FUNCTION af2 = x => d[0] + x;
+
+    int y = 100;
+    isolated function (int) returns int af3 = x => x + y;
+}

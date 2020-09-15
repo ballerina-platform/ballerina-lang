@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test the formatting of if else statements.
@@ -41,10 +43,8 @@ public class IfElseStatementsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"if_else_statement_1.bal", this.getTestResourceDir()}
-        };
+    public List<String> skipList() {
+        return Arrays.asList("if_else_statement_1.bal", "if_else_statement_2.bal", "if_else_statement_3.bal");
     }
 
     @Override

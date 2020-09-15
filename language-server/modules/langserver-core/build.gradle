@@ -40,6 +40,7 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-parser')
+    implementation project(':formatter:formatter-core')
     implementation project(':language-server:language-server-commons')
     implementation project(':language-server:language-server-compiler')
     implementation project(':openapi-ballerina:openapi-validator')

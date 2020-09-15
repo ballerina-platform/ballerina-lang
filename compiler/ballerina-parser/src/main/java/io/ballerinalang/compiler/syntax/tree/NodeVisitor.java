@@ -83,6 +83,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(breakStatementNode);
     }
 
+    public void visit(FailStatementNode failStatementNode) {
+        visitSyntaxNode(failStatementNode);
+    }
+
     public void visit(ExpressionStatementNode expressionStatementNode) {
         visitSyntaxNode(expressionStatementNode);
     }
@@ -141,10 +145,6 @@ public abstract class NodeVisitor {
 
     public void visit(CheckExpressionNode checkExpressionNode) {
         visitSyntaxNode(checkExpressionNode);
-    }
-
-    public void visit(FailExpressionNode failExpressionNode) {
-        visitSyntaxNode(failExpressionNode);
     }
 
     public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
@@ -797,6 +797,14 @@ public abstract class NodeVisitor {
 
     public void visit(OrderKeyNode orderKeyNode) {
         visitSyntaxNode(orderKeyNode);
+    }
+
+    public void visit(OnFailClauseNode onFailClauseNode) {
+        visitSyntaxNode(onFailClauseNode);
+    }
+
+    public void visit(DoStatementNode doStatementNode) {
+        visitSyntaxNode(doStatementNode);
     }
 
     public void visit(ClassDefinitionNode classDefinitionNode) {
