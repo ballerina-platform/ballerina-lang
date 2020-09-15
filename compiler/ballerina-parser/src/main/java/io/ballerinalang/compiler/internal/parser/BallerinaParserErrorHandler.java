@@ -130,6 +130,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.MODULE_CLASS_DEFINITION };
 
     private static final ParserRuleContext[] TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC =
+            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.TRANSACTIONAL_KEYWORD,
+                    ParserRuleContext.ISOLATED_KEYWORD };
+
+    private static final ParserRuleContext[] FUNC_DEF_OR_FUNC_TYPE_WITHOUT_TRANSACTIONAL =
+            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.ISOLATED_KEYWORD };
+
+    private static final ParserRuleContext[] FUNC_DEF_OR_FUNC_TYPE_WITHOUT_ISOLATED =
             { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
@@ -628,6 +635,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] LISTENERS_LIST_END =
             { ParserRuleContext.COMMA, ParserRuleContext.OPEN_BRACE };
 
+    private static final ParserRuleContext[] FUNC_TYPE_DESC_START =
+            { ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
+
     private static final ParserRuleContext[] MODULE_CLASS_DEFINITION_START =
             { ParserRuleContext.CLASS_TYPE_QUALIFIER, ParserRuleContext.CLASS_KEYWORD };
 
@@ -759,8 +769,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_METHOD_WITHOUT_TRANSACTIONAL:
             case OBJECT_METHOD_WITHOUT_ISOLATED:
             case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
+            case FUNC_DEF_OR_FUNC_TYPE_WITHOUT_TRANSACTIONAL:
+            case FUNC_DEF_OR_FUNC_TYPE_WITHOUT_ISOLATED:
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
             case TYPE_DESC_OR_EXPR_RHS:
+            case FUNC_TYPE_DESC_START:
+            case ANON_FUNC_EXPRESSION_START:
                 return true;
             default:
                 return false;
@@ -1380,12 +1394,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_METHOD_WITHOUT_TRANSACTIONAL:
             case OBJECT_METHOD_WITHOUT_ISOLATED:
             case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
+            case FUNC_DEF_OR_FUNC_TYPE_WITHOUT_TRANSACTIONAL:
+            case FUNC_DEF_OR_FUNC_TYPE_WITHOUT_ISOLATED:
             case JOIN_CLAUSE_START:
             case INTERMEDIATE_CLAUSE_START:
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
             case TYPE_DESC_OR_EXPR_RHS:
             case LISTENERS_LIST_END:
             case REGULAR_COMPOUND_STMT_RHS:
+            case FUNC_TYPE_DESC_START:
+            case ANON_FUNC_EXPRESSION_START:
             case MODULE_CLASS_DEFINITION_START:
             case OBJECT_CONSTRUCTOR_TYPE_REF:
                 return true;
@@ -1409,6 +1427,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
                 alternativeRules = TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC;
+                break;
+            case FUNC_DEF_OR_FUNC_TYPE_WITHOUT_TRANSACTIONAL:
+                alternativeRules = FUNC_DEF_OR_FUNC_TYPE_WITHOUT_TRANSACTIONAL;
+                break;
+            case FUNC_DEF_OR_FUNC_TYPE_WITHOUT_ISOLATED:
+                alternativeRules = FUNC_DEF_OR_FUNC_TYPE_WITHOUT_ISOLATED;
                 break;
             case FUNC_OPTIONAL_RETURNS:
                 ParserRuleContext parentCtx = getParentContext();
@@ -1591,6 +1615,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
                 alternativeRules = MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER;
+                break;
+            case FUNC_TYPE_DESC_START:
+            case ANON_FUNC_EXPRESSION_START:
+                alternativeRules = FUNC_TYPE_DESC_START;
                 break;
             case MODULE_CLASS_DEFINITION_START:
                 alternativeRules = MODULE_CLASS_DEFINITION_START;
@@ -2229,9 +2257,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:
-            case FUNC_TYPE_DESC:
-            case ANON_FUNC_EXPRESSION:
                 return ParserRuleContext.FUNCTION_KEYWORD;
+            case ANON_FUNC_EXPRESSION:
+                return ParserRuleContext.ANON_FUNC_EXPRESSION_START;
+            case FUNC_TYPE_DESC:
+                return ParserRuleContext.FUNC_TYPE_DESC_START;
             case EXTERNAL_FUNC_BODY:
                 return ParserRuleContext.ASSIGN_OP;
             case FUNC_BODY_BLOCK:
@@ -2678,6 +2708,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_TYPE_DESC_END:
                 endContext();
                 return ParserRuleContext.TYPEDESC_RHS;
+            case BRACED_EXPR_OR_ANON_FUNC_PARAMS:
+                return ParserRuleContext.IMPLICIT_ANON_FUNC_PARAM;
             case IMPLICIT_ANON_FUNC_PARAM:
                 return ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS;
             case EXPLICIT_ANON_FUNC_EXPR_BODY_START:
@@ -3026,7 +3058,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx = getParentContext();
                 switch (parentCtx) {
                     case COMP_UNIT:
-                        return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
+                        return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE_WITHOUT_TRANSACTIONAL;
                     case OBJECT_MEMBER:
                     case CLASS_MEMBER:
                     case OBJECT_MEMBER_DESCRIPTOR:
@@ -3041,7 +3073,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx = getParentContext();
                 switch (parentCtx) {
                     case COMP_UNIT:
-                        return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
+                        return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE_WITHOUT_ISOLATED;
                     case OBJECT_MEMBER:
                     case CLASS_MEMBER:
                     case OBJECT_MEMBER_DESCRIPTOR:
@@ -3049,6 +3081,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case SERVICE_CONSTRUCTOR_EXPRESSION:
                     case SERVICE_DECL:
                         return ParserRuleContext.RESOURCE_DEF_START_WITHOUT_ISOLATED;
+                    case FUNC_TYPE_DESC:
+                    case FUNC_TYPE_DESC_OR_ANON_FUNC:
+                    case ANON_FUNC_EXPRESSION:
+                        return ParserRuleContext.FUNCTION_KEYWORD;
                     default:
                         return ParserRuleContext.EXPRESSION_RHS; // TODO: 8/14/20 verify
                 }
@@ -3186,6 +3222,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SELECT_CLAUSE:
             case JOIN_CLAUSE:
             case ON_FAIL_CLAUSE:
+            case BRACED_EXPR_OR_ANON_FUNC_PARAMS:
             case MODULE_CLASS_DEFINITION:
             case OBJECT_CONSTRUCTOR:
 

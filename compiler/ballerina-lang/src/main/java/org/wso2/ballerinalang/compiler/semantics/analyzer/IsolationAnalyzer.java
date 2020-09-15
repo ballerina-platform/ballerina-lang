@@ -239,6 +239,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(function, env);
         }
 
+        for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
+            analyzeNode(globalVar, env);
+        }
+
         pkgNode.completedPhases.add(CompilerPhase.ISOLATION_ANALYZE);
     }
 
@@ -289,14 +293,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
-        for (BLangExpression attachedExpr : serviceNode.attachedExprs) {
-            analyzeNode(attachedExpr, serviceEnv);
-        }
-
-        for (BLangFunction resourceFunction : serviceNode.resourceFunctions) {
-            analyzeNode(resourceFunction, serviceEnv);
-        }
     }
 
     @Override
@@ -316,7 +312,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        analyzeNode(varNode.typeNode, env);
+        BLangType typeNode = varNode.typeNode;
+        if (typeNode != null &&
+                (typeNode.type == null || typeNode.type.tsymbol.owner.getKind() != SymbolKind.PACKAGE)) {
+            // Only analyze the type node if it is not available at module level, since module level type definitions
+            // have already been analyzed.
+            analyzeNode(typeNode, env);
+        }
 
         BLangExpression expr = varNode.expr;
         if (expr == null) {
@@ -666,8 +668,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
         boolean recordFieldDefaultValue = isRecordFieldDefaultValue(enclType);
 
-        if (inIsolatedFunction && symbol.owner == enclInvokable.symbol) {
-            return;
+        if (inIsolatedFunction) {
+            if (enclInvokable == null) {
+                BLangArrowFunction bLangArrowFunction = (BLangArrowFunction) env.enclEnv.node;
+
+                for (BLangSimpleVariable param : bLangArrowFunction.params) {
+                    if (param.symbol == symbol) {
+                        return;
+                    }
+                }
+            } else if (symbol.owner == enclInvokable.symbol) {
+                return;
+            }
         }
 
         if (Symbols.isFlagOn(symbol.flags, Flags.CONSTANT)) {
@@ -918,10 +930,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        for (BLangSimpleVariable param : bLangArrowFunction.params) {
-            analyzeNode(param, env);
-        }
-        analyzeNode(bLangArrowFunction.body, env);
+        SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
+        analyzeNode(bLangArrowFunction.body, arrowFunctionEnv);
     }
 
     @Override
@@ -1256,7 +1266,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isInIsolatedFunction(BLangInvokableNode enclInvokable) {
         if (enclInvokable == null) {
-            return false;
+            // TODO: 14/11/20 This feels hack-y but cannot think of a different approach without a class variable
+            // maintaining isolated-ness.
+            if (env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY ||
+                    env.enclEnv.node.getKind() != NodeKind.ARROW_EXPR) {
+                return false;
+            }
+            return Symbols.isFlagOn(((BLangArrowFunction) env.enclEnv.node).funcType.flags, Flags.ISOLATED);
         }
 
         return Symbols.isFlagOn(enclInvokable.symbol.flags, Flags.ISOLATED);

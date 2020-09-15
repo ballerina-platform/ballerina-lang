@@ -46,6 +46,11 @@ public class FunctionTypeTest extends AbstractTypesTest {
         testFile("func-type/func_type_source_04.bal", "func-type/func_type_assert_04.json");
     }
 
+    @Test
+    public void testFuncTypeWithIsolatedKeyword() {
+        testFile("func-type/func_type_source_09.bal", "func-type/func_type_assert_09.json");
+    }
+
     // Recovery test
 
     @Test
@@ -61,5 +66,10 @@ public class FunctionTypeTest extends AbstractTypesTest {
     @Test
     public void testRecoveryInFuncTypeUsagesInTypeDescContexts() {
         testFile("func-type/func_type_source_07.bal", "func-type/func_type_assert_07.json");
+    }
+
+    @Test
+    public void testFuncTypeWithIsolatedKeywordRecovery() {
+        testFile("func-type/func_type_source_10.bal", "func-type/func_type_assert_10.json");
     }
 }

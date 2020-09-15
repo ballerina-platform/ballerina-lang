@@ -18,6 +18,10 @@
                   "kind": "FUNCTION_TYPE_DESC",
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FUNCTION_KEYWORD"
                     },
                     {
@@ -98,6 +102,10 @@
                 {
                   "kind": "FUNCTION_TYPE_DESC",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
@@ -306,6 +314,10 @@
                 {
                   "kind": "FUNCTION_TYPE_DESC",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
@@ -551,6 +563,10 @@
                               "kind": "FUNCTION_TYPE_DESC",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
                                     {
@@ -617,6 +633,10 @@
                             {
                               "kind": "FUNCTION_TYPE_DESC",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
@@ -811,6 +831,10 @@
                             {
                               "kind": "FUNCTION_TYPE_DESC",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
@@ -1014,6 +1038,10 @@
                       "kind": "FUNCTION_TYPE_DESC",
                       "children": [
                         {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
                           "kind": "FUNCTION_KEYWORD",
                           "leadingMinutiae": [
                             {
@@ -1128,6 +1156,10 @@
                       "kind": "FUNCTION_TYPE_DESC",
                       "children": [
                         {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
                           "kind": "FUNCTION_KEYWORD",
                           "trailingMinutiae": [
                             {
@@ -1230,6 +1262,10 @@
                 {
                   "kind": "FUNCTION_TYPE_DESC",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD",
                       "trailingMinutiae": [

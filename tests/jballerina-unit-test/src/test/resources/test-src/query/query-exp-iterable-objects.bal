@@ -93,7 +93,7 @@ public function testIterableWithError() returns int[]|error {
 
 class NumberGenerator {
     int i = 0;
-    public function next() returns record {| int value; |}? {
+    public isolated function next() returns record {| int value; |}? {
         self.i += 1;
         if(self.i < 5) {
           return { value: self.i };
@@ -103,7 +103,7 @@ class NumberGenerator {
 
 class NumberStreamGenerator {
     int i = 0;
-    public function next() returns record {| stream<int> value; |}? {
+    public isolated function next() returns record {| stream<int> value; |}? {
          self.i += 1;
          if (self.i < 5) {
              NumberGenerator numGen = new();

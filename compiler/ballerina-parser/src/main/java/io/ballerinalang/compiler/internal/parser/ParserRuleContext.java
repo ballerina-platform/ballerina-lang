@@ -150,6 +150,7 @@ public enum ParserRuleContext {
     LET_CLAUSE_LET_VAR_DECL("let-clause-let-var-decl"),
     LET_VAR_DECL_START("let-var-decl-start"),
     FUNC_TYPE_DESC("func-type-desc"),
+    FUNC_TYPE_DESC_START("func-type-desc-start"),
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
@@ -237,6 +238,7 @@ public enum ParserRuleContext {
     LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER("list-bp-or-list-cons-member"),
     VAR_REF_OR_TYPE_REF("var-ref"),
     FUNC_TYPE_DESC_OR_ANON_FUNC("func-desc-type-or-anon-func"),
+    FUNC_TYPE_DESC_OR_ANON_FUNC_START("func-desc-type-or-anon-func-start"),
     FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY("func-type-desc-rhs-or-anon-func-body"),
     STMT_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS("stmt-level-func-type-desc-rhs"),
     RECORD_FIELD_NAME_OR_TYPE_NAME("record-field-name-or-type-name"),
@@ -509,6 +511,7 @@ public enum ParserRuleContext {
     IMPLICIT_NEW("implicit-new"),
     LET_EXPRESSION("let-expr"),
     ANON_FUNC_EXPRESSION("anon-func-expression"),
+    ANON_FUNC_EXPRESSION_START("anon-func-expression-start"),
     TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION("table-constructor-or-query-expr"),
     TABLE_CONSTRUCTOR_OR_QUERY_START("table-constructor-or-query-start"),
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
@@ -596,6 +599,8 @@ public enum ParserRuleContext {
     ENUM_MEMBER_START("enum-member-start"),
     TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER("tuple-type-desc-or-list-cont-member"),
     TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC("top.level.func.def.or.func.type.desc"),
+    FUNC_DEF_OR_FUNC_TYPE_WITHOUT_TRANSACTIONAL("func-def-or-func-type-without-transactional"),
+    FUNC_DEF_OR_FUNC_TYPE_WITHOUT_ISOLATED("func-def-or-func-type-without-isolated"),
     ;
 
     private String value;

@@ -238,14 +238,16 @@ public function addCookies(WebSocketClientConfiguration|WebSocketFailoverClientC
     string cookieHeader = "";
     var cookiesToAdd = config["cookies"];
     if (cookiesToAdd is Cookie[]) {
-        Cookie[] sortedCookies = cookiesToAdd.sort(array:ASCENDING, function(Cookie c) returns int {
+        var sortFunc = isolated function(Cookie c) returns int {
             var cookiePath = c.path;
             int l = 0;
             if (cookiePath is string) {
-                l = cookiePath.length();
+               l = cookiePath.length();
             }
             return l;
-        });
+        };
+
+        Cookie[] sortedCookies = cookiesToAdd.sort(array:ASCENDING, sortFunc);
         foreach var cookie in sortedCookies {
             var cookieName = cookie.name;
             var cookieValue = cookie.value;
