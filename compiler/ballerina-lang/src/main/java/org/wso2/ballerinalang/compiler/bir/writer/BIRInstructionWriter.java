@@ -510,18 +510,12 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     // Positions
     void writePosition(DiagnosticPos pos) {
-        writePosition(pos, buf);
-    }
-
-    void writePosition(ByteBuf buf, DiagnosticPos pos) {
-        writePosition(pos, buf);
+        BIRWriterUtils.writePosition(pos, this.buf, this.cp);
     }
 
     int addPkgCPEntry(PackageID packageID) {
-        int orgCPIndex = addStringCPEntry(packageID.orgName.value);
-        int nameCPIndex = addStringCPEntry(packageID.name.value);
-        int versionCPIndex = addStringCPEntry(packageID.version.value);
-        return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        return BIRWriterUtils
+                .addPkgCPEntry(packageID.orgName.value, packageID.name.value, packageID.version.value, this.cp);
     }
 
     // private methods
@@ -531,33 +525,10 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     private int addStringCPEntry(String value) {
-        return cp.addCPEntry(new CPEntry.StringCPEntry(value));
+        return BIRWriterUtils.addStringCPEntry(value, this.cp);
     }
 
     private void writeType(BType type) {
         buf.writeInt(cp.addShapeCPEntry(type));
     }
-
-    private void writePosition(DiagnosticPos pos, ByteBuf buf) {
-        int sLine = Integer.MIN_VALUE;
-        int eLine = Integer.MIN_VALUE;
-        int sCol = Integer.MIN_VALUE;
-        int eCol = Integer.MIN_VALUE;
-        String sourceFileName = "";
-        if (pos != null) {
-            sLine = pos.sLine;
-            eLine = pos.eLine;
-            sCol = pos.sCol;
-            eCol = pos.eCol;
-            if (pos.src != null) {
-                sourceFileName = pos.src.cUnitName;
-            }
-        }
-        buf.writeInt(addStringCPEntry(sourceFileName));
-        buf.writeInt(sLine);
-        buf.writeInt(sCol);
-        buf.writeInt(eLine);
-        buf.writeInt(eCol);
-    }
-
 }

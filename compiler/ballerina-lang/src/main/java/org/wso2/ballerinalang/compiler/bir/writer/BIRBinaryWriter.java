@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.AttachPoint;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -69,8 +68,7 @@ public class BIRBinaryWriter {
 
 
         // Write the package details in the form of constant pool entry
-        int pkgIndex = addPkgCPEntry(birPackage.org.value, birPackage.name.value, birPackage.version.value);
-        birbuf.writeInt(pkgIndex);
+        birbuf.writeInt(BIRWriterUtils.addPkgCPEntry(this.birPackage, this.cp));
 
         //Write import module declarations
         writeImportModuleDecls(birbuf, birPackage.importModules);
@@ -467,22 +465,11 @@ public class BIRBinaryWriter {
 
     private void writeAnnotAttachment(ByteBuf annotBuf, BIRAnnotationAttachment annotAttachment) {
         // Write module information of the annotation attachment
-        annotBuf.writeInt(addPkgCPEntry(annotAttachment.packageID));
+        annotBuf.writeInt(BIRWriterUtils.addPkgCPEntry(annotAttachment.packageID, this.cp));
         // Write position
         writePosition(annotBuf, annotAttachment.pos);
         annotBuf.writeInt(addStringCPEntry(annotAttachment.annotTagRef.value));
         writeAnnotAttachValues(annotBuf, annotAttachment.annotValues);
-    }
-
-    private int addPkgCPEntry(PackageID packageID) {
-        return addPkgCPEntry(packageID.orgName.value, packageID.name.value, packageID.version.value);
-    }
-
-    int addPkgCPEntry(String orgName, String name, String version) {
-        int orgCPIndex = addStringCPEntry(orgName);
-        int nameCPIndex = addStringCPEntry(name);
-        int versionCPIndex = addStringCPEntry(version);
-        return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
     }
 
     private void writeAnnotAttachValues(ByteBuf annotBuf, List<BIRAnnotationValue> annotValues) {
@@ -517,24 +504,6 @@ public class BIRBinaryWriter {
     }
 
     private void writePosition(ByteBuf buf, DiagnosticPos pos) {
-        int sLine = Integer.MIN_VALUE;
-        int eLine = Integer.MIN_VALUE;
-        int sCol = Integer.MIN_VALUE;
-        int eCol = Integer.MIN_VALUE;
-        String sourceFileName = "";
-        if (pos != null) {
-            sLine = pos.sLine;
-            eLine = pos.eLine;
-            sCol = pos.sCol;
-            eCol = pos.eCol;
-            if (pos.src != null) {
-                sourceFileName = pos.src.cUnitName;
-            }
-        }
-        buf.writeInt(addStringCPEntry(sourceFileName));
-        buf.writeInt(sLine);
-        buf.writeInt(sCol);
-        buf.writeInt(eLine);
-        buf.writeInt(eCol);
+        BIRWriterUtils.writePosition(pos, buf, this.cp);
     }
 }
