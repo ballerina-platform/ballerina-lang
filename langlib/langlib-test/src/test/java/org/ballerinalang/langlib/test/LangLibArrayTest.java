@@ -477,6 +477,10 @@ public class LangLibArrayTest {
                 "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type", 162, 45);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: 'map<string>?[]' is not an ordered type", 164, 47);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid sort key function return type: '(string[]|int)' is not an ordered type", 166, 58);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid sort key function return type: '(int|string)' is not an ordered type", 173, 52);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -538,5 +542,10 @@ public class LangLibArrayTest {
     @Test
     public void testSort9() {
         BRunUtil.invoke(compileResult, "testSort9");
+    }
+
+    @Test
+    public void testSort10() {
+        BRunUtil.invoke(compileResult, "testSort10");
     }
 }

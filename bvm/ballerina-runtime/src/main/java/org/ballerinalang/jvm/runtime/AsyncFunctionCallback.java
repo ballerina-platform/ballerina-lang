@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.jvm;
+package org.ballerinalang.jvm.runtime;
 
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.scheduling.Strand;

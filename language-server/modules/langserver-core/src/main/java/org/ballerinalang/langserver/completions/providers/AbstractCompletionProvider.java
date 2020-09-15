@@ -237,42 +237,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     /**
-     * Add top level items to the given completionItems List.
-     *
-     * @param context LS Context
-     * @return {@link List}     List of populated completion items
-     */
-    @Deprecated
-    protected List<LSCompletionItem> addTopLevelItems(LSContext context) {
-        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IMPORT.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CONST.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LISTENER.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ENUM.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
-
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_MAIN_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE_WEBSOCKET.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE_WS_CLIENT.get()));
-//        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE_WEBSUB));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE_GRPC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ANNOTATION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_SNIPPET.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR_TYPE_DESC.get()));
-        return completionItems;
-    }
-
-    /**
      * Get the completion item for a package import.
      * If the package is already imported, additional text edit for the import statement will not be added.
      *

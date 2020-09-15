@@ -29,6 +29,7 @@ import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.tools.ExecFileLoader;
 
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +76,12 @@ public class CoverageReport {
      * @throws IOException when file operations are failed
      */
     public void generateReport() throws IOException {
-        CodeCoverageUtils.unzipCompiledSource(sourceJarPath, projectDir, orgName, moduleName, version);
+        try {
+            CodeCoverageUtils.unzipCompiledSource(sourceJarPath, projectDir, orgName, moduleName, version);
+        } catch (NoSuchFileException e) {
+            return;
+        }
+
         execFileLoader.load(executionDataFile.toFile());
 
         final IBundleCoverage bundleCoverage = analyzeStructure();

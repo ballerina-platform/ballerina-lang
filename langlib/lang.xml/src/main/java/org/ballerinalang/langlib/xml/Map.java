@@ -18,8 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.api.BRuntime;
 import org.ballerinalang.jvm.api.values.BXML;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
@@ -63,12 +64,13 @@ public class Map {
         }
         List<BXML> elements = new ArrayList<>();
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
                                                        () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
                                                                true},
                                                        result -> elements.add((XMLValue) result),
-                                                       () -> new XMLSequence(elements));
+                                                       () -> new XMLSequence(elements),
+                                                       Scheduler.getStrand().scheduler);
         return new XMLSequence(elements);
     }
 }
