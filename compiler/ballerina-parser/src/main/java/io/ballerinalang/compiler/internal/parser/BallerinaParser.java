@@ -1709,6 +1709,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTableTypeDescriptor();
             case FUNCTION_KEYWORD:
             case ISOLATED_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
                 return parseFunctionTypeDesc();
             case OPEN_BRACKET_TOKEN:
                 return parseTupleTypeDesc();
@@ -3124,6 +3125,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseStatementStartsWithOpenBracket(getAnnotations(annots), false);
             case FUNCTION_KEYWORD:
             case ISOLATED_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
             case OPEN_PAREN_TOKEN:
             case IDENTIFIER_TOKEN:
                 // Can be a singleton type or expression.
@@ -7697,6 +7699,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
             case DISTINCT_KEYWORD:
             case ISOLATED_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
                 return true;
             default:
                 if (isSingletonTypeDescStart(nodeKind, true)) {
@@ -12361,6 +12364,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypedBPOrExprStartsWithOpenParenthesis();
             case FUNCTION_KEYWORD:
             case ISOLATED_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
                 return parseAnonFuncExprOrTypedBPWithFuncType();
             case IDENTIFIER_TOKEN:
                 typeOrExpr = parseQualifiedIdentifier(ParserRuleContext.TYPE_NAME_OR_VAR_NAME);
