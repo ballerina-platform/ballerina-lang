@@ -511,11 +511,11 @@ public class JvmCodeGenUtil {
         return orgName.equals("ballerina") && moduleName.equals("builtin");
     }
 
-    public static BirScope generateBbInstructions(MethodVisitor mv, LabelGenerator labelGen, JvmInstructionGen instGen,
-                                                  int localVarOffset, AsyncDataCollector asyncDataCollector,
-                                                  String funcName,
-                                                  BIRNode.BIRBasicBlock bb, Set<BirScope> visitedScopesSet,
-                                                  BirScope lastScope) {
+    public static BirScope getLastScopeFromBBInsGen(MethodVisitor mv, LabelGenerator labelGen,
+                                                    JvmInstructionGen instGen, int localVarOffset,
+                                                    AsyncDataCollector asyncDataCollector, String funcName,
+                                                    BIRNode.BIRBasicBlock bb, Set<BirScope> visitedScopesSet,
+                                                    BirScope lastScope) {
 
         int insCount = bb.instructions.size();
         for (int i = 0; i < insCount; i++) {
@@ -523,8 +523,8 @@ public class JvmCodeGenUtil {
             mv.visitLabel(insLabel);
             BIRInstruction inst = bb.instructions.get(i);
             if (inst != null) {
-                lastScope = generateDiagnosticPos((BIRAbstractInstruction) inst, funcName, mv, labelGen,
-                                                  visitedScopesSet, lastScope);
+                lastScope = getLastScopeFromDiagnosticGen((BIRAbstractInstruction) inst, funcName, mv, labelGen,
+                                                          visitedScopesSet, lastScope);
                 instGen.generateInstructions(localVarOffset, asyncDataCollector, inst);
             }
         }
@@ -532,9 +532,9 @@ public class JvmCodeGenUtil {
         return lastScope;
     }
 
-    private static BirScope generateDiagnosticPos(BIRAbstractInstruction instruction, String funcName, MethodVisitor mv,
-                                                  LabelGenerator labelGen, Set<BirScope> visitedScopesSet,
-                                                  BirScope lastScope) {
+    private static BirScope getLastScopeFromDiagnosticGen(BIRAbstractInstruction instruction, String funcName,
+                                                          MethodVisitor mv, LabelGenerator labelGen,
+                                                          Set<BirScope> visitedScopesSet, BirScope lastScope) {
 
         BirScope scope = instruction.scope;
         if (scope != null && scope != lastScope) {

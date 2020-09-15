@@ -78,10 +78,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         this.scopeCount = 0;
     }
 
-    BIRInstructionWriter(ByteBuf buf, ConstantPool cp, BIRBinaryWriter birBinaryWriter) {
-        this(buf, null, cp, birBinaryWriter);
-    }
-
     public int getScopeCount() {
         return scopeCount;
     }
@@ -92,9 +88,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     void writeScopes(BIRAbstractInstruction instruction) {
-        if (scopeBuf == null) {
-            return;
-        }
         this.instructionOffset++;
         BirScope currentScope = instruction.scope;
 
@@ -105,6 +98,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         if (this.completedScopeSet.contains(currentScope)) {
             return;
         }
+
         this.completedScopeSet.add(currentScope);
         this.scopeCount++; // Increment the scope count so we can read the scopes iteratively
 
@@ -262,7 +256,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRTerminator.AsyncCall birAsyncCall) {
         writeCallInstruction(birAsyncCall);
-        binaryWriter.writeAnnotAttachments(buf, this, birAsyncCall.annotAttachments);
+        binaryWriter.writeAnnotAttachments(buf, birAsyncCall.annotAttachments);
         addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 

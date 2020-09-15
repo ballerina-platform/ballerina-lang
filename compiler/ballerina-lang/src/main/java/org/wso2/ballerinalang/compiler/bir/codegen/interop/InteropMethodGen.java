@@ -299,8 +299,8 @@ public class InteropMethodGen {
             Label bbLabel = labelGen.getLabel(funcName + basicBlock.id.value);
             mv.visitLabel(bbLabel);
             lastScope = JvmCodeGenUtil
-                    .generateBbInstructions(mv, labelGen, instGen, -1, asyncDataCollector, funcName, basicBlock,
-                            visitedScopesSet, lastScope);
+                    .getLastScopeFromBBInsGen(mv, labelGen, instGen, -1, asyncDataCollector, funcName, basicBlock,
+                                              visitedScopesSet, lastScope);
             Label bbEndLabel = labelGen.getLabel(funcName + basicBlock.id.value + "beforeTerm");
             mv.visitLabel(bbEndLabel);
             BIRTerminator terminator = basicBlock.terminator;

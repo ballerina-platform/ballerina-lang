@@ -193,15 +193,18 @@ class BIRTestUtils {
                 instructionOffset++;
                 BirScope instructionScope = instruction.scope;
 
-                if (!visitedScopes.contains(instructionScope)) {
-                    visitedScopes.add(instructionScope);
-                    boolean hasParent = instructionScope.parent != null;
-
-                    ExpectedScopeEntry expectedScopeEntry = new ExpectedScopeEntry(instructionScope.id,
-                            instructionOffset,  hasParent ? 1 : 0, hasParent ? instructionScope.parent.id : null);
-                    scopes.put(instructionScope.id, expectedScopeEntry);
-                    putParentScopesAsWell(scopes, instructionScope.parent, instructionOffset);
+                if (visitedScopes.contains(instructionScope)) {
+                    continue;
                 }
+
+                visitedScopes.add(instructionScope);
+                boolean hasParent = instructionScope.parent != null;
+
+                ExpectedScopeEntry expectedScopeEntry = new ExpectedScopeEntry(instructionScope.id,
+                        instructionOffset,  hasParent ? 1 : 0, hasParent ? instructionScope.parent.id : null);
+                scopes.put(instructionScope.id, expectedScopeEntry);
+                putParentScopesAsWell(scopes, instructionScope.parent, instructionOffset);
+
             }
         }
         return instructionOffset;
