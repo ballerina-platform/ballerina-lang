@@ -34,15 +34,18 @@ public class STWhileStatementNode extends STStatementNode {
     public final STNode whileKeyword;
     public final STNode condition;
     public final STNode whileBody;
+    public final STNode onFailClause;
 
     STWhileStatementNode(
             STNode whileKeyword,
             STNode condition,
-            STNode whileBody) {
+            STNode whileBody,
+            STNode onFailClause) {
         this(
                 whileKeyword,
                 condition,
                 whileBody,
+                onFailClause,
                 Collections.emptyList());
     }
 
@@ -50,16 +53,19 @@ public class STWhileStatementNode extends STStatementNode {
             STNode whileKeyword,
             STNode condition,
             STNode whileBody,
+            STNode onFailClause,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.WHILE_STATEMENT, diagnostics);
         this.whileKeyword = whileKeyword;
         this.condition = condition;
         this.whileBody = whileBody;
+        this.onFailClause = onFailClause;
 
         addChildren(
                 whileKeyword,
                 condition,
-                whileBody);
+                whileBody,
+                onFailClause);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -67,17 +73,20 @@ public class STWhileStatementNode extends STStatementNode {
                 this.whileKeyword,
                 this.condition,
                 this.whileBody,
+                this.onFailClause,
                 diagnostics);
     }
 
     public STWhileStatementNode modify(
             STNode whileKeyword,
             STNode condition,
-            STNode whileBody) {
+            STNode whileBody,
+            STNode onFailClause) {
         if (checkForReferenceEquality(
                 whileKeyword,
                 condition,
-                whileBody)) {
+                whileBody,
+                onFailClause)) {
             return this;
         }
 
@@ -85,6 +94,7 @@ public class STWhileStatementNode extends STStatementNode {
                 whileKeyword,
                 condition,
                 whileBody,
+                onFailClause,
                 diagnostics);
     }
 

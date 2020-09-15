@@ -1,10 +1,10 @@
  type   Person   object
 {
-     public   string  name   =   ""  ;
-       public   int  age   =   0 ;public   Person ?   parent   =   (  )  ;    private   string  email   =   "default@abc.com"  ;
+     public   string  name   ;
+       public   int  age   ;public   Person ?   parent     ;    private   string  email   ;
 
 
- string    address    =   "No 20, Palm grove"  ;
+ string    address     ;
 
 }
 

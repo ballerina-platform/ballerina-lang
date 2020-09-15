@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Test the formatting of panic statements.
@@ -41,14 +43,12 @@ public class PanicStatementsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"match_statement_1.bal", this.getTestResourceDir()}
-        };
+    public List<String> skipList() {
+        return Collections.singletonList("panic_statement_1.bal");
     }
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("statements", "match").toString();
+        return Paths.get("statements", "panic").toString();
     }
 }

@@ -33,48 +33,58 @@ import java.util.Collections;
 public class STTransactionStatementNode extends STStatementNode {
     public final STNode transactionKeyword;
     public final STNode blockStatement;
+    public final STNode onFailClause;
 
     STTransactionStatementNode(
             STNode transactionKeyword,
-            STNode blockStatement) {
+            STNode blockStatement,
+            STNode onFailClause) {
         this(
                 transactionKeyword,
                 blockStatement,
+                onFailClause,
                 Collections.emptyList());
     }
 
     STTransactionStatementNode(
             STNode transactionKeyword,
             STNode blockStatement,
+            STNode onFailClause,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.TRANSACTION_STATEMENT, diagnostics);
         this.transactionKeyword = transactionKeyword;
         this.blockStatement = blockStatement;
+        this.onFailClause = onFailClause;
 
         addChildren(
                 transactionKeyword,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTransactionStatementNode(
                 this.transactionKeyword,
                 this.blockStatement,
+                this.onFailClause,
                 diagnostics);
     }
 
     public STTransactionStatementNode modify(
             STNode transactionKeyword,
-            STNode blockStatement) {
+            STNode blockStatement,
+            STNode onFailClause) {
         if (checkForReferenceEquality(
                 transactionKeyword,
-                blockStatement)) {
+                blockStatement,
+                onFailClause)) {
             return this;
         }
 
         return new STTransactionStatementNode(
                 transactionKeyword,
                 blockStatement,
+                onFailClause,
                 diagnostics);
     }
 

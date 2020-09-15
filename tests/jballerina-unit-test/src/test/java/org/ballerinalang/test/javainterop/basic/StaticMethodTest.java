@@ -135,7 +135,7 @@ public class StaticMethodTest {
     public void testMapValueOrErrorReturn() {
         BValue[] returns = BRunUtil.invoke(result, "testUnionReturn");
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"resources\":[{\"path\":\"basePath\", \"method\":\"Method string\"}]}");
+                "{\"resources\":[{\"path\":\"basePath\",\"method\":\"Method string\"}]}");
 
     }
 

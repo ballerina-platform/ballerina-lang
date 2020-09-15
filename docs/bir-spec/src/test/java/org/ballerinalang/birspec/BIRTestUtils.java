@@ -33,7 +33,10 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
@@ -458,6 +461,56 @@ class BIRTestUtils {
         Assert.assertEquals(typeInfo.typeTag().id(), expectedValue.tag);
         Assert.assertEquals(typeInfo.nameAsStr(), expectedValue.name.getValue());
         assertFlags(typeInfo.typeFlag(), expectedValue.flags);
+        KaitaiStruct typeStructure = typeInfo.typeStructure();
+
+        if (typeStructure instanceof Bir.TypeObjectOrService) {
+            Bir.TypeObjectOrService objectOrService = (Bir.TypeObjectOrService) typeStructure;
+            BTypeIdSet expTypeIdSet = ((BObjectType) expectedValue.tsymbol.type).typeIdSet;
+            Bir.TypeId actualTypeIdSet = objectOrService.typeIds();
+            assertDistinctTypeIds(expTypeIdSet, actualTypeIdSet, constantPoolEntry._parent());
+        } else if (typeStructure instanceof Bir.TypeError) {
+            Bir.TypeError errorType = (Bir.TypeError) typeStructure;
+            BTypeIdSet expTypeIdSet = ((BErrorType) expectedValue.tsymbol.type).typeIdSet;
+            Bir.TypeId actualTypeIdSet = errorType.typeIds();
+            assertDistinctTypeIds(expTypeIdSet, actualTypeIdSet, constantPoolEntry._parent());
+        }
+    }
+
+    private static void assertDistinctTypeIds(BTypeIdSet expTypeIdSet, Bir.TypeId actualTypeIdSet,
+                                              Bir.ConstantPoolSet constantPoolSet) {
+        Assert.assertEquals(actualTypeIdSet.primaryTypeIdCount(), expTypeIdSet.primary.size());
+        Assert.assertEquals(actualTypeIdSet.secondaryTypeIdCount(), expTypeIdSet.secondary.size());
+
+        ArrayList<Bir.TypeIdSet> primaryTypeId = actualTypeIdSet.primaryTypeId();
+        for (int i = 0; i < primaryTypeId.size(); i++) {
+            Bir.TypeIdSet typeId = primaryTypeId.get(i);
+            Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.primary, constantPoolSet));
+        }
+
+        ArrayList<Bir.TypeIdSet> secondaryTypeId = actualTypeIdSet.secondaryTypeId();
+        for (int i = 0; i < secondaryTypeId.size(); i++) {
+            Bir.TypeIdSet typeId = secondaryTypeId.get(i);
+            Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.secondary, constantPoolSet));
+        }
+    }
+
+    private static boolean containsTypeId(Bir.TypeIdSet aTypeIdSet, Set<BTypeIdSet.BTypeId> set,
+                                          Bir.ConstantPoolSet constantPoolSet) {
+        for (BTypeIdSet.BTypeId expId : set) {
+            Bir.ConstantPoolEntry typeNameEntry =
+                    constantPoolSet.constantPoolEntries().get(aTypeIdSet.typeIdNameCpIndex());
+            Bir.ConstantPoolEntry pkgIdEntry = constantPoolSet.constantPoolEntries().get(aTypeIdSet.pkgIdCpIndex());
+            boolean samePublicness = expId.publicId == (aTypeIdSet.isPublicId() != 0);
+
+            Bir.StringCpInfo stringCpInfo = (Bir.StringCpInfo) typeNameEntry.cpInfo();
+            boolean sameName = stringCpInfo.value().equals(expId.name);
+
+            if (samePublicness && sameName) {
+                assertConstantPoolEntry(pkgIdEntry, expId.packageID);
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void assertFlags(int actualFlags, int expectedFlags) {
