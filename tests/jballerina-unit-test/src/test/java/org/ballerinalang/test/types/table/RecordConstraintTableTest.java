@@ -74,7 +74,7 @@ public class RecordConstraintTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
                     "find key '18'.*")
     public void testMemberAccessWithInvalidSingleKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidSingleKey");
@@ -82,7 +82,7 @@ public class RecordConstraintTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
                     "find key '18 Mohan'.*")
     public void testMemberAccessWithInvalidMultiKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
@@ -95,7 +95,7 @@ public class RecordConstraintTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
                     "find key '18 Mohan'.*")
     public void testVarTypeTableInvalidMemberAccess() {
         BRunUtil.invoke(result, "testVarTypeTableInvalidMemberAccess");

@@ -41,13 +41,6 @@ public class WhileStatementsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"while_statement_1.bal", this.getTestResourceDir()}
-        };
-    }
-
-    @Override
     public String getTestResourceDir() {
         return Paths.get("statements", "while").toString();
     }

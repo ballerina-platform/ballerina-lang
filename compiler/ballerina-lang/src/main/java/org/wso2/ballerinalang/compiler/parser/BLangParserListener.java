@@ -1915,6 +1915,33 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 ctx.expression(1) == null);
     }
 
+    @Override
+    public void enterDoStatement(BallerinaParser.DoStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startBlock();
+    }
+
+    @Override
+    public void exitDoStatement(BallerinaParser.DoStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addDoStmt(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitFailStatement(BallerinaParser.FailStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addFailStmt(getCurrentPos(ctx), getWS(ctx));
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -2807,15 +2834,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitFailExpression(BallerinaParser.FailExpressionContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.createFailExpr(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
     public void exitCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx) {
         if (isInErrorState) {
             return;
@@ -2984,6 +3002,29 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createLimitClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterOnFailClause(BallerinaParser.OnFailClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startBlock();
+    }
+
+    @Override
+    public void exitOnFailClause(BallerinaParser.OnFailClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        boolean isDeclaredWithVar = ctx.VAR() != null;
+        String identifier = ctx.Identifier().getText();
+        DiagnosticPos identifierPos = getCurrentPos(ctx.Identifier());
+
+        this.pkgBuilder
+                .createOnFailClause(getCurrentPos(ctx), getWS(ctx), identifier, identifierPos, isDeclaredWithVar);
     }
 
     @Override

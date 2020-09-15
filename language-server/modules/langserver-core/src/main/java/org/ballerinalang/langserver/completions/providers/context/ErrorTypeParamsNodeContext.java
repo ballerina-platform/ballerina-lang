@@ -73,7 +73,7 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
         List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
         List<LSCompletionItem> completionItems = this.getCompletionItemList(mappingTypes, context);
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
     }

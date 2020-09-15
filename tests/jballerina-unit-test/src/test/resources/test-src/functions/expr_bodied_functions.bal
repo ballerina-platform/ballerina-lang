@@ -118,7 +118,7 @@ function toEmployee(Person p) returns Employee => {
 
 function testRecordAsAnExpr() {
     Employee e = toEmployee({fname: "John", lname: "Doe", age: 25});
-    assert("name=John Doe", e.toString());
+    assert("{\"name\":\"John Doe\"}", e.toString());
 }
 
 // Test returning param ref

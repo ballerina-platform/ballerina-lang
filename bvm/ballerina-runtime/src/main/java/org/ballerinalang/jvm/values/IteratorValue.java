@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BIterator;
+import org.ballerinalang.jvm.values.api.BLink;
 
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public interface IteratorValue extends RefValue, BIterator {
     }
 
     @Override
-    default String stringValue() {
+    default String stringValue(BLink parent) {
         return "iterator " + getType().toString();
     }
 

@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
@@ -56,11 +57,11 @@ public class Reduce {
         int size = m.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{strand, accum.get(), true,
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
-                                                       accum::set, accum::get);
+                                                       accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
     }
 }
