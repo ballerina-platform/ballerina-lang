@@ -155,6 +155,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -564,6 +565,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         this.uninitializedVars = mergeUninitializedVars(ifResult.uninitializedVars, elseResult.uninitializedVars);
+    }
+
+    @Override
+    public void visit(BLangMatchStatement matchStatement) {
+        if (matchStatement.onFailClause != null) {
+            analyzeNode(matchStatement.onFailClause, env);
+        }
     }
 
     @Override
@@ -1778,7 +1786,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // So global variable assignments happen in functions.
         if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BSymbol owner = this.env.scope.owner;
+            BSymbol owner = this.currDependentSymbol.peek();
             addFunctionToGlobalVarDependency(owner, ((BLangSimpleVarRef) varRef).symbol);
         }
 
