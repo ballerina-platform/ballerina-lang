@@ -65,6 +65,23 @@ function testPredeclaredModules() {
     assertEquality(true, testStartsWithFunctionInString());
 }
 
+function testPredeclaredModules2() {
+    decimal d1 = 10.5;
+    assertEquality(15, testMax(10, 15));
+    assertEquality(10, testMin(10, 15));
+    assertEquality(20, testMax1(15, 20));
+    assertEquality(15, testMin1(15, 20));
+    assertEquality(d1, testSum1(5, 5.5));
+    assertEquality(10, testOneArgMax(10));
+    assertEquality(d1, testSum2(5, 5.5));
+    assertEquality(false, testStartsWith());
+    assertEquality("Hello from Ballerina",testStringConcat());
+    assertEquality("Hi Chiran Sachintha", testStringConcat1());
+    assertEquality(70.35, testSumFunctionInFloat1());
+    assertEquality(true, testFloatConsts1().isNaN());
+    assertEquality(34.56, testMaxFunctionInFloat1());
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

@@ -17,21 +17,43 @@
 import ballerina/lang.'int as 'error;
 import ballerina/lang.'decimal as 'xml;
 import ballerina/lang.'string as 'object;
+import ballerina/lang.'string as 'future;
+import ballerina/lang.'int as 'map;
+import ballerina/lang.'float as 'string;
+import ballerina/lang.'float as 'boolean;
+import ballerina/lang.'int as 'decimal;
+import ballerina/lang.'decimal as 'int;
+import ballerina/lang.'string as 'float;
+import ballerina/lang.'float as 'stream;
+import ballerina/lang.'int as 'table;
+import ballerina/lang.'decimal as 'typedesc;
 
 function testMax(int n, int m) returns int {
     return 'error:max(n, m);
 }
 
 function testMin(int n, int m) returns int {
-    return 'error:min(n, m);
+    return 'map:min(n, m);
 }
 
-function testSum(decimal p1, decimal p2) returns decimal {
+function testMax1(int n, int m) returns int {
+    return 'decimal:max(n, m);
+}
+
+function testMin1(int n, int m) returns int {
+    return 'table:min(n, m);
+}
+
+function testSum1(decimal p1, decimal p2) returns decimal {
     return 'xml:sum(p1, p2);
 }
 
 function testOneArgMax(decimal arg) returns decimal {
-    return 'xml:max(arg);
+    return 'int:max(arg);
+}
+
+function testSum2(decimal p1, decimal p2) returns decimal {
+    return 'typedesc:sum(p1, p2);
 }
 
 function testStartsWith() returns boolean {
@@ -39,5 +61,21 @@ function testStartsWith() returns boolean {
 }
 
 function testStringConcat() returns string {
-    return 'object:concat("Hello ", "from ", "Ballerina");
+    return 'future:concat("Hello ", "from ", "Ballerina");
+}
+
+function testStringConcat1() returns string {
+    return 'float:concat("Hi ", "Chiran ", "Sachintha");
+}
+
+function testSumFunctionInFloat1() returns float {
+    return 'string:sum(12.34, 23.45, 34.56);
+}
+
+function testFloatConsts1() returns float {
+    return 'boolean:NaN;
+}
+
+function testMaxFunctionInFloat1() returns float {
+    return 'stream:max(12.34, 34.56);
 }
