@@ -47,4 +47,10 @@ public class DocumentConfig {
     public Optional<Path> filePath() {
         return Optional.ofNullable(filePath);
     }
+
+    public String name() {
+        // TODO Improve this logic. When a document is created a name has to be there.
+        //  It shouldn't be extracted from the filepath
+        return filePath.getFileName().toString();
+    }
 }
