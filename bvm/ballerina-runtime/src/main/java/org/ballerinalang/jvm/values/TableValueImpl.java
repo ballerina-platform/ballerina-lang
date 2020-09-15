@@ -611,31 +611,37 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return System.identityHashCode(this);
     }
 
-
+    @Override
     public Long getIntValue(BString key) {
         return (Long) get(key);
     }
 
+    @Override
     public Double getFloatValue(BString key) {
         return (Double) get(key);
     }
 
+    @Override
     public BString getStringValue(BString key) {
         return (BString) get(key);
     }
 
+    @Override
     public Boolean getBooleanValue(BString key) {
         return (Boolean) get(key);
     }
 
+    @Override
     public MapValueImpl<?, ?> getMapValue(BString key) {
         return (MapValueImpl<?, ?>) get(key);
     }
 
+    @Override
     public ObjectValue getObjectValue(BString key) {
         return (ObjectValue) get(key);
     }
 
+    @Override
     public ArrayValue getArrayValue(BString key) {
         return (ArrayValue) get(key);
     }
