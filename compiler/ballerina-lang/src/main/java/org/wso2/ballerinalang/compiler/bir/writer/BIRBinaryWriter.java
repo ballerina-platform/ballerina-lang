@@ -65,9 +65,8 @@ public class BIRBinaryWriter {
 
     public byte[] serialize() {
         ByteBuf birbuf = Unpooled.buffer();
-        ByteBuf scopebuf = Unpooled.buffer();
         BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp);
-        BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, scopebuf, cp, this);
+        BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, cp, this);
 
 
         // Write the package details in the form of constant pool entry

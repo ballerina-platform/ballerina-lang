@@ -78,6 +78,10 @@ public class BIRInstructionWriter extends BIRVisitor {
         this.scopeCount = 0;
     }
 
+    BIRInstructionWriter(ByteBuf buf, ConstantPool cp, BIRBinaryWriter birBinaryWriter) {
+        this(buf, null, cp, birBinaryWriter);
+    }
+
     public int getScopeCount() {
         return scopeCount;
     }
@@ -88,6 +92,9 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     void writeScopes(BIRAbstractInstruction instruction) {
+        if (scopeBuf == null) {
+            return;
+        }
         this.instructionOffset++;
         BirScope currentScope = instruction.scope;
 
