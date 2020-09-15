@@ -35,7 +35,7 @@ public class ResourceConfigurationTest {
     public void testDuplicateResourceConfigAnnotations() {
         CompileResult compileResult = BCompileUtil
                 .compile("test-src/services/configuration/resource-config-annotation.bal");
-        Diagnostic[] diag = compileResult.getErrorAndWarnDiagnostics();
+        Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 1);
         Assert.assertEquals(diag[0].getMessage(),
                             "cannot specify more than one annotation value for annotation 'ResourceConfig'");

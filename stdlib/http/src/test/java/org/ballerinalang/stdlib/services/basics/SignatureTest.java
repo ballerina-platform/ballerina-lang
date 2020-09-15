@@ -41,7 +41,7 @@ public class SignatureTest {
                 "test-src/services/signature/no-request-param.bal").getPath()).getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().clone()[0].getMessage(),
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
                 "resource signature parameter count should be >= 2");
     }
 
@@ -51,7 +51,7 @@ public class SignatureTest {
                 "test-src/services/signature/no-con-param.bal").getPath()).getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().clone()[0].getMessage(),
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
                 "first parameter should be of type ballerina/http:1.0.0:Caller");
     }
 
@@ -61,7 +61,7 @@ public class SignatureTest {
                 "test-src/services/signature/with-res-param.bal").getPath()).getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().clone()[0].getMessage(),
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
                 "second parameter should be of type ballerina/http:1.0.0:Request");
     }
 
@@ -71,7 +71,7 @@ public class SignatureTest {
                 "test-src/services/signature/int-param.bal").getPath()).getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().clone()[0].getMessage(),
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
                 "second parameter should be of type ballerina/http:1.0.0:Request");
     }
 
@@ -93,7 +93,7 @@ public class SignatureTest {
     public void testSignatureWithMismatchedBodyParam() {
         CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
                 "test-src/services/signature/mismatched-body-param.bal").getPath()).getAbsolutePath());
-        Diagnostic[] diag = compileResult.getErrorAndWarnDiagnostics();
+        Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 2);
         Assert.assertEquals(diag[0].getMessage(), "invalid resource parameter(s): cannot specify > 2 parameters " +
                 "without specifying path config and/or body config in the resource annotation");
@@ -107,7 +107,7 @@ public class SignatureTest {
                 "test-src/services/signature/invalid-return.bal").getPath()).getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().clone()[0].getMessage(), "invalid resource " +
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(), "invalid resource " +
                 "function return type 'int', expected a subtype of 'error?' containing '()'");
     }
 

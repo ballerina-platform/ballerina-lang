@@ -42,7 +42,7 @@ public class BasicForkTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/basic-fork.bal");
-        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getErrorAndWarnDiagnostics()).toString());
+        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
     }
 
     @Test

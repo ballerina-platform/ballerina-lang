@@ -39,7 +39,7 @@ public class RefTypeNegativeTests {
     public void testInvalidMethodSignaturesForRefTypes() {
         CompileResult compileResult =
                 BCompileUtil.compileInProc("test-src/javainterop/ballerina_ref_types_as_interop_negative.bal");
-        Diagnostic[] diagnostics = compileResult.getErrorAndWarnDiagnostics();
+        Diagnostic[] diagnostics = compileResult.getDiagnostics();
         Assert.assertNotNull(diagnostics);
         Assert.assertEquals(diagnostics.length, 6);
         BAssertUtil.validateError(compileResult, 0,

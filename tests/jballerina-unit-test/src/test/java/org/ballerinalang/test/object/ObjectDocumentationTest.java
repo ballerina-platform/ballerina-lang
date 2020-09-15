@@ -92,7 +92,7 @@ public class ObjectDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_documentation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0,
-                            getErrorString(compileResult.getErrorAndWarnDiagnostics()));
+                            getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 21);
         int i = 0;
         BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 6, 5);

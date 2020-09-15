@@ -51,7 +51,7 @@ public class LangLibValueTest {
 
         compileResult = BCompileUtil.compile("test-src/valuelib_test.bal");
         if (compileResult.getErrorCount() != 0) {
-            Arrays.stream(compileResult.getErrorAndWarnDiagnostics()).forEach(System.out::println);
+            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
             Assert.fail("Compilation contains error");
         }
     }
