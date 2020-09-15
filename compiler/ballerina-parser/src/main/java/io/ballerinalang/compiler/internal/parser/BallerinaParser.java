@@ -1014,11 +1014,11 @@ public class BallerinaParser extends AbstractParser {
         STNode visibilityQualifier = STNodeFactory.createEmptyNode();
         List<STNode> validatedQualifierList = new ArrayList<>();
         // qualifiers are only allowed in the following cases for func type desc.
-        // isolated qualifier allowed.
+        // isolated and transactional qualifiers allowed.
         // public or private qualifier allowed in object field.
         for (int position = 0; position < qualifierList.size(); position++) {
             STNode qualifier = qualifierList.get(position);
-            if (qualifier.kind == SyntaxKind.ISOLATED_KEYWORD) {
+            if (qualifier.kind == SyntaxKind.ISOLATED_KEYWORD || qualifier.kind == SyntaxKind.TRANSACTIONAL_KEYWORD) {
                 validatedQualifierList.add(qualifier);
             } else if (isObjectMember && isVisibilityQualifier(qualifier)) {
                 // public or private qualifier allowed in object field.
@@ -1709,6 +1709,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTableTypeDescriptor();
             case FUNCTION_KEYWORD:
             case ISOLATED_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
                 return parseFunctionTypeDesc();
             case OPEN_BRACKET_TOKEN:
                 return parseTupleTypeDesc();
@@ -3099,6 +3100,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseStatementStartsWithOpenBracket(getAnnotations(annots), false);
             case FUNCTION_KEYWORD:
             case ISOLATED_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
             case OPEN_PAREN_TOKEN:
             case IDENTIFIER_TOKEN:
                 // Can be a singleton type or expression.
@@ -3481,6 +3483,11 @@ public class BallerinaParser extends AbstractParser {
             case COMMIT_KEYWORD:
                 return parseCommitAction();
             case TRANSACTIONAL_KEYWORD:
+                nextNextToken = getNextNextToken(nextToken.kind);
+                if (nextNextToken.kind == SyntaxKind.ISOLATED_KEYWORD ||
+                        nextNextToken.kind == SyntaxKind.FUNCTION_KEYWORD) {
+                    return parseExplicitFunctionExpression(annots, isRhsExpr);
+                }
                 return parseTransactionalExpression();
             case SERVICE_KEYWORD:
                 return parseServiceConstructorExpression(annots);
@@ -3548,6 +3555,8 @@ public class BallerinaParser extends AbstractParser {
             case LEFT_ARROW_TOKEN:
             case WAIT_KEYWORD:
             case SERVICE_KEYWORD:
+            case ISOLATED_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
                 return true;
             default:
                 return isSimpleType(tokenKind);
@@ -4913,11 +4922,6 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             case TRANSACTIONAL_KEYWORD:
-                if (context == ParserRuleContext.FUNC_TYPE_DESC_START ||
-                        context == ParserRuleContext.ANON_FUNC_EXPRESSION_START) {
-                    return DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED;
-                }
-                break;
             case ISOLATED_KEYWORD:
                 break;
             default:// RESOURCE_KEYWORD
@@ -7669,6 +7673,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
             case DISTINCT_KEYWORD:
             case ISOLATED_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
                 return true;
             default:
                 if (isSingletonTypeDescStart(nodeKind, true)) {
@@ -10046,12 +10051,13 @@ public class BallerinaParser extends AbstractParser {
             case BACKTICK_TOKEN:
             case NEW_KEYWORD:
             case LEFT_ARROW_TOKEN:
+            case FUNCTION_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
+            case ISOLATED_KEYWORD:
                 return true;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
                 return isValidExpressionStart(peek(nextTokenIndex).kind, nextTokenIndex);
-            case FUNCTION_KEYWORD:
-
             case TABLE_KEYWORD:
                 return peek(nextTokenIndex).kind == SyntaxKind.FROM_KEYWORD;
             case STREAM_KEYWORD:
@@ -12449,6 +12455,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypedBPOrExprStartsWithOpenParenthesis();
             case FUNCTION_KEYWORD:
             case ISOLATED_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
                 return parseAnonFuncExprOrTypedBPWithFuncType();
             case IDENTIFIER_TOKEN:
                 typeOrExpr = parseQualifiedIdentifier(ParserRuleContext.TYPE_NAME_OR_VAR_NAME);
@@ -14205,6 +14212,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseExpression(false);
             case OPEN_PAREN_TOKEN:
                 return parseTypeDescOrExpr();
+            case FUNCTION_KEYWORD:
+            case ISOLATED_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
+                return parseAnonFuncExprOrFuncTypeDesc();
             default:
                 if (isValidExpressionStart(nextToken.kind, 1)) {
                     return parseExpression(false);
