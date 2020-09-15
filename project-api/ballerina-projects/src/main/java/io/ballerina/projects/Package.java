@@ -66,6 +66,6 @@ public class Package {
     }
 
     public Path packagePath() {
-        return this.packageContext.packageConfig().packagePath();
+        return this.packageContext.packagePath();
     }
 }

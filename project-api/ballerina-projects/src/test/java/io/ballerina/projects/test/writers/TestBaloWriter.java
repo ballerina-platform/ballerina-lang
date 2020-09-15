@@ -25,7 +25,6 @@ import io.ballerina.projects.directory.PackageLoader;
 import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.writers.BaloWriter;
-import io.ballerina.projects.writers.exceptions.NoPermissionException;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -37,6 +36,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -185,9 +185,9 @@ public class TestBaloWriter {
         Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
     }
 
-    @Test(expectedExceptions = NoPermissionException.class,
+    @Test(expectedExceptions = AccessDeniedException.class,
             expectedExceptionsMessageRegExp = "No write access to create balo:.*")
-    public void testBaloWriterAccessDenied() {
+    public void testBaloWriterAccessDenied() throws AccessDeniedException {
 
         Path baloPath = mock(Path.class);
         File file = mock(File.class);

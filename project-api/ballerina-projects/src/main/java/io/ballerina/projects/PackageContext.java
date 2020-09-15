@@ -100,7 +100,7 @@ class PackageContext {
         return this.ballerinaToml;
     }
 
-    PackageConfig packageConfig() {
-        return this.packageConfig;
+    Path packagePath() {
+        return this.packageConfig.packagePath();
     }
 }

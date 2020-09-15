@@ -17,12 +17,16 @@
  */
 package io.ballerina.projects.utils;
 
+import org.wso2.ballerinalang.util.RepoUtils;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 /**
@@ -150,6 +154,21 @@ public class ProjectUtils {
             return packageName.replaceAll("[^a-z0-9_]", "_");
         }
         return packageName;
+    }
+
+    /**
+     * Get the ballerina version the package is built with.
+     *
+     * @return ballerina version
+     */
+    public static String getBallerinaVersion() {
+        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectConstants.PROPERTIES_FILE)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectConstants.BALLERINA_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return "unknown";
     }
 }
 

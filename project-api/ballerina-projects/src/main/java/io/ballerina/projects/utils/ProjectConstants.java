@@ -43,6 +43,7 @@ public class ProjectConstants {
 
     // Balo specific constants
     public static final String MODULES_ROOT = "modules";
+    public static final String LIB_DIR = "lib";
 
     public static final String BALO_CACHE_DIR_NAME = "balo_cache";
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
@@ -50,4 +51,7 @@ public class ProjectConstants {
     public static final String JSON_CACHE_DIR_NAME = "json_cache";
     public static final String TEST_DIR_NAME = "tests";
     public static final String RESOURCE_DIR_NAME = "resources";
+
+    public static final String BALLERINA_VERSION = "ballerina.version";
+    public static final String PROPERTIES_FILE = "/META-INF/tool.properties";
 }
