@@ -517,7 +517,6 @@ public enum ParserRuleContext {
     QUERY_PIPELINE_RHS("query-pipeline-rhs"),
     LET_CLAUSE_END("let-clause-end"),
     CONDITIONAL_EXPRESSION("conditional-expr"),
-    SERVICE_CONSTRUCTOR_EXPRESSION("service-constructor-expression"),
     XML_NAVIGATE_EXPR("xml-navigate-expr"),
     XML_FILTER_EXPR("xml-filter-expr"),
     XML_STEP_EXPR("xml-step-expr"),

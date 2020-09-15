@@ -2667,21 +2667,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stTransactionalExpressionNode.createUnlinkedFacade();
     }
 
-    public static ServiceConstructorExpressionNode createServiceConstructorExpressionNode(
-            NodeList<AnnotationNode> annotations,
-            Token serviceKeyword,
-            Node serviceBody) {
-        Objects.requireNonNull(annotations, "annotations must not be null");
-        Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
-        Objects.requireNonNull(serviceBody, "serviceBody must not be null");
-
-        STNode stServiceConstructorExpressionNode = STNodeFactory.createServiceConstructorExpressionNode(
-                annotations.underlyingListNode().internalNode(),
-                serviceKeyword.internalNode(),
-                serviceBody.internalNode());
-        return stServiceConstructorExpressionNode.createUnlinkedFacade();
-    }
-
     public static ByteArrayLiteralNode createByteArrayLiteralNode(
             Token type,
             Token startBacktick,

@@ -165,7 +165,6 @@ import io.ballerinalang.compiler.syntax.tree.RollbackStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
@@ -3347,22 +3346,6 @@ public class FormattingTreeModifier extends TreeModifier {
         Token transactionalKeyword = getToken(transactionalExpressionNode.transactionalKeyword());
         return transactionalExpressionNode.modify()
                 .withTransactionalKeyword(formatToken(transactionalKeyword, 1, 1, 0, 0))
-                .apply();
-    }
-
-    @Override
-    public ServiceConstructorExpressionNode transform(
-            ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        if (!isInLineRange(serviceConstructorExpressionNode, lineRange)) {
-            return serviceConstructorExpressionNode;
-        }
-        NodeList<AnnotationNode> annotations = this.modifyNodeList(serviceConstructorExpressionNode.annotations());
-        Token serviceKeyword = getToken(serviceConstructorExpressionNode.serviceKeyword());
-        Node serviceBody = this.modifyNode(serviceConstructorExpressionNode.serviceBody());
-        return serviceConstructorExpressionNode.modify()
-                .withAnnotations(annotations)
-                .withServiceKeyword(formatToken(serviceKeyword, 1, 1, 0, 0))
-                .withServiceBody(serviceBody)
                 .apply();
     }
 

@@ -201,14 +201,14 @@ public class BallerinaParser extends AbstractParser {
             case CONST_KEYWORD:
             case ANNOTATION_KEYWORD:
             case XMLNS_KEYWORD:
-            case SERVICE_KEYWORD:
             case ENUM_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
-                // Following are module-class-defn starting tokens
+                // Following are module-class-defn, object-type starting tokens
             case CLASS_KEYWORD:
             case DISTINCT_KEYWORD:
             case CLIENT_KEYWORD:
             case READONLY_KEYWORD:
+            case SERVICE_KEYWORD:
                 metadata = STNodeFactory.createEmptyNode();
                 break;
             case IDENTIFIER_TOKEN:
@@ -270,7 +270,7 @@ public class BallerinaParser extends AbstractParser {
             case XMLNS_KEYWORD:
             case ENUM_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
-                // Following are module-class-defn starting tokens
+                // Following are module-class-defn, object-type starting tokens
             case CLASS_KEYWORD:
             case DISTINCT_KEYWORD:
             case CLIENT_KEYWORD:
@@ -3438,6 +3438,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTemplateExpression();
             case CLIENT_KEYWORD:
             case OBJECT_KEYWORD:
+            case SERVICE_KEYWORD:
                 return parseObjectConstructorExpression(annots);
             case XML_KEYWORD:
                 STToken nextNextToken = getNextNextToken(nextToken.kind);
@@ -3471,8 +3472,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseCommitAction();
             case TRANSACTIONAL_KEYWORD:
                 return parseTransactionalExpression();
-            case SERVICE_KEYWORD:
-                return parseServiceConstructorExpression(annots);
             case BASE16_KEYWORD:
             case BASE64_KEYWORD:
                 return parseByteArrayLiteral();
@@ -3536,7 +3535,6 @@ public class BallerinaParser extends AbstractParser {
             case FLUSH_KEYWORD:
             case LEFT_ARROW_TOKEN:
             case WAIT_KEYWORD:
-            case SERVICE_KEYWORD:
                 return true;
             default:
                 return isSimpleType(tokenKind);
@@ -7667,7 +7665,6 @@ public class BallerinaParser extends AbstractParser {
             case ANY_KEYWORD:
             case ANYDATA_KEYWORD:
             case NEVER_KEYWORD:
-            case SERVICE_KEYWORD:
             case VAR_KEYWORD:
             case ERROR_KEYWORD: // This is for the recovery. <code>error a;</code> scenario recovered here.
             case STREAM_KEYWORD: // This is for recovery logic. <code>stream a;</code> scenario recovered here.
@@ -7708,8 +7705,6 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.READONLY_TYPE_DESC;
             case NEVER_KEYWORD:
                 return SyntaxKind.NEVER_TYPE_DESC;
-            case SERVICE_KEYWORD:
-                return SyntaxKind.SERVICE_TYPE_DESC;
             case VAR_KEYWORD:
                 return SyntaxKind.VAR_TYPE_DESC;
             case ERROR_KEYWORD:
@@ -10032,7 +10027,7 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD:
                 return peek(nextTokenIndex).kind == SyntaxKind.OPEN_PAREN_TOKEN;
             case SERVICE_KEYWORD:
-                return peek(nextTokenIndex).kind == SyntaxKind.OPEN_BRACE_TOKEN;
+                return peek(nextTokenIndex).kind == SyntaxKind.OPEN_BRACE_TOKEN; // TODO: Change
             case XML_KEYWORD:
             case STRING_KEYWORD:
                 return peek(nextTokenIndex).kind == SyntaxKind.BACKTICK_TOKEN;
@@ -11119,28 +11114,6 @@ public class BallerinaParser extends AbstractParser {
             recover(token, ParserRuleContext.TRANSACTIONAL_KEYWORD);
             return parseTransactionalKeyword();
         }
-    }
-
-    /**
-     * Parse service-constructor-expr.
-     * <p>
-     * <code>
-     * service-constructor-expr := [annots] service service-body-block
-     * <br/>
-     * service-body-block := { service-method-defn* }
-     * <br/>
-     * service-method-defn := metadata [resource] function identifier function-signature method-defn-body
-     * </code>
-     *
-     * @param annots Annotations
-     * @return Service constructor expression node
-     */
-    private STNode parseServiceConstructorExpression(STNode annots) {
-        startContext(ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION);
-        STNode serviceKeyword = parseServiceKeyword();
-        STNode serviceBody = parseServiceBody();
-        endContext();
-        return STNodeFactory.createServiceConstructorExpressionNode(annots, serviceKeyword, serviceBody);
     }
 
     /**

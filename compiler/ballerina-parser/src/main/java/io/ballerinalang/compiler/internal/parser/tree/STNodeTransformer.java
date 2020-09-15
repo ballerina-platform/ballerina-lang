@@ -697,10 +697,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(transactionalExpressionNode);
     }
 
-    public T transform(STServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        return transformSyntaxNode(serviceConstructorExpressionNode);
-    }
-
     public T transform(STByteArrayLiteralNode byteArrayLiteralNode) {
         return transformSyntaxNode(byteArrayLiteralNode);
     }

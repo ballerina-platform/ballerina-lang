@@ -708,10 +708,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(transactionalExpressionNode);
     }
 
-    public T transform(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        return transformSyntaxNode(serviceConstructorExpressionNode);
-    }
-
     public T transform(ByteArrayLiteralNode byteArrayLiteralNode) {
         return transformSyntaxNode(byteArrayLiteralNode);
     }

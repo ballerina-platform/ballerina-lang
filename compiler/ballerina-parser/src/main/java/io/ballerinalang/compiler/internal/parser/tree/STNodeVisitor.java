@@ -697,10 +697,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(transactionalExpressionNode);
     }
 
-    public void visit(STServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        visitSyntaxNode(serviceConstructorExpressionNode);
-    }
-
     public void visit(STByteArrayLiteralNode byteArrayLiteralNode) {
         visitSyntaxNode(byteArrayLiteralNode);
     }

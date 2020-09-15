@@ -2165,18 +2165,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STServiceConstructorExpressionNode transform(
-            STServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        STNode annotations = modifyNode(serviceConstructorExpressionNode.annotations);
-        STNode serviceKeyword = modifyNode(serviceConstructorExpressionNode.serviceKeyword);
-        STNode serviceBody = modifyNode(serviceConstructorExpressionNode.serviceBody);
-        return serviceConstructorExpressionNode.modify(
-                annotations,
-                serviceKeyword,
-                serviceBody);
-    }
-
-    @Override
     public STByteArrayLiteralNode transform(
             STByteArrayLiteralNode byteArrayLiteralNode) {
         STNode type = modifyNode(byteArrayLiteralNode.type);

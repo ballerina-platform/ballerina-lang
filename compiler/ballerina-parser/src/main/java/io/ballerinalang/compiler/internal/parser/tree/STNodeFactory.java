@@ -2015,17 +2015,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 transactionalKeyword);
     }
 
-    public static STNode createServiceConstructorExpressionNode(
-            STNode annotations,
-            STNode serviceKeyword,
-            STNode serviceBody) {
-
-        return new STServiceConstructorExpressionNode(
-                annotations,
-                serviceKeyword,
-                serviceBody);
-    }
-
     public static STNode createByteArrayLiteralNode(
             STNode type,
             STNode startBacktick,

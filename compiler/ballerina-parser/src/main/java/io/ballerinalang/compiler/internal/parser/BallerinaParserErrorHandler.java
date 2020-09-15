@@ -253,7 +253,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
             ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD,
-            ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION, ParserRuleContext.OBJECT_CONSTRUCTOR };
+            ParserRuleContext.OBJECT_CONSTRUCTOR };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -2465,8 +2465,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.WORKER_NAME_RHS;
             case FORK_STMT:
                 return ParserRuleContext.FORK_KEYWORD;
-            case SERVICE_CONSTRUCTOR_EXPRESSION:
-                return ParserRuleContext.SERVICE_KEYWORD;
             case XML_FILTER_EXPR:
                 return ParserRuleContext.DOT_LT_TOKEN;
             case DOT_LT_TOKEN:
@@ -2817,10 +2815,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_KEYWORD:
                 return ParserRuleContext.RESOURCE_DEF_START_WITHOUT_RESOURCE;
             case SERVICE_KEYWORD:
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION) {
-                    return ParserRuleContext.LISTENERS_LIST;
-                }
+//                parentCtx = getParentContext();
+//                if (parentCtx == ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION) {
+//                    return ParserRuleContext.LISTENERS_LIST;
+//                }
                 return ParserRuleContext.OPTIONAL_SERVICE_NAME;
             case LISTENER_KEYWORD:
                 return ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER;
@@ -3007,7 +3005,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case CLASS_MEMBER:
                     case OBJECT_MEMBER_DESCRIPTOR:
                         return ParserRuleContext.OBJECT_METHOD_WITHOUT_TRANSACTIONAL;
-                    case SERVICE_CONSTRUCTOR_EXPRESSION:
                     case SERVICE_DECL:
                         return ParserRuleContext.RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL;
                     default:
@@ -3132,7 +3129,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ROLLBACK_STMT:
             case MODULE_ENUM_DECLARATION:
             case ENUM_MEMBER_LIST:
-            case SERVICE_CONSTRUCTOR_EXPRESSION:
             case XML_NAME_PATTERN:
             case XML_ATOMIC_NAME_PATTERN:
             case MATCH_STMT:
@@ -3318,7 +3314,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR:
             case QUERY_EXPRESSION:
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
-            case SERVICE_CONSTRUCTOR_EXPRESSION:
             case ORDER_KEY_LIST:
             case SELECT_CLAUSE:
             case JOIN_CLAUSE:
@@ -3710,7 +3705,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_CONSTRUCTOR:
             case MULTI_RECEIVE_WORKERS:
             case MULTI_WAIT_FIELDS:
-            case SERVICE_CONSTRUCTOR_EXPRESSION:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
             case ENUM_MEMBER_LIST:
@@ -4904,6 +4898,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETURN_KEYWORD:
             case SERVICE_KEYWORD:
             case FIELD_KEYWORD:
+            case CLASS_KEYWORD:
                 return true;
             default:
                 return false;
