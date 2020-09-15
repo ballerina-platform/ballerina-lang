@@ -24,7 +24,6 @@ import org.ballerinalang.model.tree.IdentifiableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -73,7 +72,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -138,6 +136,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -193,7 +192,7 @@ class NodeResolver extends BLangNodeVisitor {
         this.enclosingNode = null;
 
         for (TopLevelNode node : unit.topLevelNodes) {
-            if (!withinBlock(node.getPosition())) {
+            if (!PositionUtil.withinBlock(this.cursorPos, node.getPosition())) {
                 continue;
             }
 
@@ -205,7 +204,7 @@ class NodeResolver extends BLangNodeVisitor {
 
     private void lookupNodes(List<? extends BLangNode> nodes) {
         for (BLangNode node : nodes) {
-            if (!withinBlock(node.pos)) {
+            if (!PositionUtil.withinBlock(this.cursorPos, node.pos)) {
                 continue;
             }
 
@@ -219,7 +218,7 @@ class NodeResolver extends BLangNodeVisitor {
             return;
         }
 
-        if (withinBlock(node.pos)) {
+        if (PositionUtil.withinBlock(this.cursorPos, node.pos)) {
             node.accept(this);
         }
     }
@@ -874,7 +873,7 @@ class NodeResolver extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFailExpr failExpr) {
+    public void visit(BLangFail failExpr) {
         lookupNode(failExpr.expr);
     }
 
@@ -1325,27 +1324,12 @@ class NodeResolver extends BLangNodeVisitor {
     }
 
     private boolean setEnclosingNode(BLangNode node, DiagnosticPos pos) {
-        if (withinBlock(pos)) {
+        if (PositionUtil.withinBlock(this.cursorPos, pos)) {
             this.enclosingNode = node;
             return true;
         }
 
         return false;
-    }
-
-    private boolean withinBlock(Diagnostic.DiagnosticPosition symbolPosition) {
-        int zeroBasedStartLine = symbolPosition.getStartLine();
-        int zeroBasedEndLine = symbolPosition.getEndLine();
-        int zeroBasedStartCol = symbolPosition.getStartColumn();
-        int zeroBasedEndCol = symbolPosition.getEndColumn();
-        int line = this.cursorPos.line();
-        int col = this.cursorPos.offset();
-
-        return (zeroBasedStartLine < line && zeroBasedEndLine > line)
-                || (zeroBasedStartLine < line && zeroBasedEndLine == line && zeroBasedEndCol > col)
-                || (zeroBasedStartLine == line && zeroBasedStartCol < col && zeroBasedEndLine > line)
-                || (zeroBasedStartLine == zeroBasedEndLine && zeroBasedStartLine == line
-                && zeroBasedStartCol <= col && zeroBasedEndCol > col);
     }
 
     private static class BLangIdentifiableNode extends BLangNode implements IdentifiableNode {
@@ -1368,7 +1352,7 @@ class NodeResolver extends BLangNodeVisitor {
 
         @Override
         public void accept(BLangNodeVisitor visitor) {
-            this.accept(visitor);
+            // Ignore. No need to visit this.
         }
 
         @Override

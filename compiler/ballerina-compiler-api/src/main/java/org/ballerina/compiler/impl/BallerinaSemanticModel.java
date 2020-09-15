@@ -146,19 +146,4 @@ public class BallerinaSemanticModel implements SemanticModel {
                 .findFirst()
                 .get();
     }
-
-    private boolean isWithinSymbol(LinePosition cursorPos, DiagnosticPos symbolPos) {
-        int symbolStartLine = symbolPos.getStartLine();
-        int symbolEndLine = symbolPos.getEndLine();
-        int symbolStartCol = symbolPos.getStartColumn();
-        int symbolEndCol = symbolPos.getEndColumn();
-        int cursorLine = cursorPos.line();
-        int cursorCol = cursorPos.offset();
-
-        return (symbolStartLine < cursorLine && symbolEndLine > cursorLine)
-                || (symbolStartLine < cursorLine && symbolEndLine == cursorLine && symbolEndCol > cursorCol)
-                || (symbolStartLine == cursorLine && symbolStartCol < cursorCol && symbolEndLine > cursorLine)
-                || (symbolStartLine == symbolEndLine && symbolStartLine == cursorLine
-                && symbolStartCol <= cursorCol && symbolEndCol > cursorCol);
-    }
 }
