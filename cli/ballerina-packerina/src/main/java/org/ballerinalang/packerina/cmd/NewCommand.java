@@ -18,13 +18,14 @@
 
 package org.ballerinalang.packerina.cmd;
 
-
+import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,14 +51,20 @@ public class NewCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
+            "default: main")
+    private String template = "main";
+
     public NewCommand() {
-        userDir = Paths.get(System.getProperty("user.dir"));
+        userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         errStream = System.err;
+        CommandUtil.initJarFs();
     }
 
     public NewCommand(Path userDir, PrintStream errStream) {
         this.userDir = userDir;
         this.errStream = errStream;
+        CommandUtil.initJarFs();
     }
 
     @Override
@@ -68,6 +75,7 @@ public class NewCommand implements BLauncherCmd {
             errStream.println(commandUsageInfo);
             return;
         }
+
         // Check if the project name is given
         if (null == argList) {
             CommandUtil.printError(errStream,
@@ -77,6 +85,7 @@ public class NewCommand implements BLauncherCmd {
                     true);
             return;
         }
+
         // Check if one argument is given and not more than one argument.
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
@@ -86,7 +95,17 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
-        Path path = userDir.resolve(argList.get(0));
+        // If the current directory is a ballerina project, fail the command.
+        if (ProjectUtils.isBallerinaProject(this.userDir)) {
+            CommandUtil.printError(errStream,
+                    "Directory is already a ballerina project",
+                    null,
+                    false);
+            return;
+        }
+
+        String packageName = argList.get(0);
+        Path path = userDir.resolve(packageName);
         // Check if the directory or file exists with the given project name
         if (Files.exists(path)) {
             CommandUtil.printError(errStream,
@@ -97,29 +116,48 @@ public class NewCommand implements BLauncherCmd {
         }
 
         // Check if the command is executed inside a ballerina project
-        Path projectRoot = ProjectDirs.findProjectRoot(path);
+        Path projectRoot = ProjectUtils.findProjectRoot(path);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
-            "Directory is already within a Ballerina project :" + projectRoot.toString(),
+            "Directory is already within a Ballerina project :" +
+                    projectRoot.resolve(ProjectConstants.BALLERINA_TOML).toString(),
+                    null,
+                    false);
+            return;
+        }
+
+        if (!ProjectUtils.validatePkgName(packageName)) {
+            CommandUtil.printError(errStream,
+                "Invalid project name : '" + packageName + "' :\n" +
+                        "Project name can only contain alphanumerics, underscores and periods " +
+                        "and the maximum length is 256 characters",
+                null,
+                false);
+            return;
+        }
+
+        // Check if the template exists
+        if (!CommandUtil.getTemplates().contains(template)) {
+            CommandUtil.printError(errStream,
+                    "Template not found, use `ballerina new --help` to view available templates.",
                     null,
                     false);
             return;
         }
 
         try {
+            // add argument (package)
             Files.createDirectories(path);
-            CommandUtil.initProject(path);
+            CommandUtil.initProjectByTemplate(path, packageName, template);
         } catch (AccessDeniedException e) {
             errStream.println("error: Error occurred while creating project : " + "Insufficient Permission");
-        } catch (IOException e) {
+            return;
+        } catch (IOException | URISyntaxException e) {
             errStream.println("error: Error occurred while creating project : " + e.getMessage());
             return;
         }
         errStream.println("Created new Ballerina project at " + userDir.relativize(path));
         errStream.println();
-        errStream.println("Next:");
-        errStream.println("    Move into the project directory and use `ballerina add <module-name>` to");
-        errStream.println("    add a new Ballerina module.");
     }
 
     @Override
@@ -140,5 +178,4 @@ public class NewCommand implements BLauncherCmd {
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
     }
-
 }

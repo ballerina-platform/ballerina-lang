@@ -1,13 +1,13 @@
 NAME
-       ballerina-new - Create a new Ballerina project at <project-path>
+       ballerina-init - Create a new Ballerina project inside current directory.
 
 SYNOPSIS
-       ballerina new <project-path>
+       ballerina init
+       ballerina init <package-name>
 
 
 DESCRIPTION
-       New creates a new directory and initializes a Ballerina project inside
-       that directory.
+       Init initializes a Ballerina project inside the current directory.
 
        A project is a set of logically related Ballerina modules that share
        the same 'Ballerina.toml', 'Ballerina.lock' files and the 'target'
@@ -41,25 +41,30 @@ DESCRIPTION
        use the specified versions instead of fetching the latest
        versions of modules.
 
-       A template can also be specified when creating a new project.
-       If a template is not specified, this command creates a package
-       with a 'main' template.
+       A template can also be specified when initialising a new project.
+       If a template is not specified, this command will initialise a project by
+       creating a Ballerina.toml file inside the current directory.
 
       There are three built-in templates named:
-          1. main
-          2. service
-          3. lib
+        1. main
+        2. service
+        3. lib
 
 OPTIONS
      -t <template-name>, --template <template-name>
          Create a package using a predefined template.
 
 EXAMPLES
-     Create a package with a 'main' template.
-        $ ballerina new <package-name>
+     Initialise a package.
+        $ ballerina init
+        $ ballerina init <package-name>
 
-     Create a package with a Ballerina service.
-        $ ballerina new <package-name> -t service
+     Initialise a package with a 'main' template.
+        $ ballerina init --template main
+        $ ballerina init <package-name>
 
-     Create a package with a Ballerina service.
-        $ ballerina new <package-name> -t lib
+     Initialise a package with a Ballerina service.
+        $ ballerina init <package-name> -t service
+
+     Initialise a package with a Ballerina library.
+        $ ballerina init <package-name> -t lib
