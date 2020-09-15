@@ -76,7 +76,7 @@ public class Parser {
         this.dlog = BLangDiagnosticLogHelper.getInstance(context);
     }
 
-    public BLangPackage parseNew(PackageSource pkgSource, Path sourceRootPath) {
+    public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
         PackageID pkgId = pkgSource.getPackageId();
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.pkgCache.put(pkgId, pkgNode);
