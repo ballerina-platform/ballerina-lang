@@ -67,7 +67,19 @@ public class ImportsTest {
 
     @Test(description = "Test auto imports")
     public void testPredeclaredModules() {
-        BCompileUtil.compile("test-src/imports/predeclared-imports", "bar");
-        BCompileUtil.compile("test-src/imports/predeclared-imports", "foo");
+        CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports", "bar");
+        BRunUtil.invoke(result, "testPredeclaredModules");
+    }
+
+    @Test(description = "Test overridden predeclared modules")
+    public void testOverriddenPredeclaredModules() {
+        CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports", "foo");
+        BRunUtil.invoke(result, "testOverriddenPredeclaredModules");
+    }
+
+    @Test(description = "Test overridden predeclared modules using keywords")
+    public void testOverriddenPredeclaredModulesUsingKeywords() {
+        CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports", "bar");
+        BRunUtil.invoke(result, "testPredeclaredModules2");
     }
 }

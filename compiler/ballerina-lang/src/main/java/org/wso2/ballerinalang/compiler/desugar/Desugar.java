@@ -1191,9 +1191,8 @@ public class Desugar extends BLangNodeVisitor {
 
         BType errorType = varNode.type == null ? symTable.errorType : varNode.type;
         // Create a simple var for the error 'error x = ($error$)'.
-        BVarSymbol errorVarSymbol = new BVarSymbol(0, names.fromString("$error$"),
-                this.env.scope.owner.pkgID,
-                errorType, this.env.scope.owner, varNode.pos, VIRTUAL);
+        BVarSymbol errorVarSymbol = new BVarSymbol(0, names.fromString("$error$"), this.env.scope.owner.pkgID,
+                                                   errorType, this.env.scope.owner, varNode.pos, VIRTUAL);
         final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varNode.pos, errorVarSymbol.name.value,
                                                                         errorType, null, errorVarSymbol);
         error.expr = varNode.expr;
