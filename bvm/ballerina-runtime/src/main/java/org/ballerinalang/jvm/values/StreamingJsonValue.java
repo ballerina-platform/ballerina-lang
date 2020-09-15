@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BStreamingJson;
 
 import java.io.IOException;
@@ -140,12 +141,12 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         if (datasource.hasNext()) {
             buildDatasource();
         }
 
-        return super.stringValue();
+        return super.stringValue(parent);
     }
 
     @Override

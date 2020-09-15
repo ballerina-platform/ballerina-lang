@@ -44,10 +44,11 @@ public interface SemanticModel {
     /**
      * Lookup the symbol at the given location.
      *
+     * @param srcFile  path for the file in which we need to look up symbols, relative to the source root path
      * @param position text position in the source
      * @return {@link Symbol} in the given location
      */
-    Optional<Symbol> symbol(LinePosition position);
+    Optional<Symbol> symbol(String srcFile, LinePosition position);
 
     /**
      * Get the diagnostics within the given text Span.

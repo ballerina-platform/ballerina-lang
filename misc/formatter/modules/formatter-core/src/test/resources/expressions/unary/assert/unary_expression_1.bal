@@ -4,3 +4,4 @@ public function foo() {
     boolean k = !false;
     int b = ~789900;
 }
+

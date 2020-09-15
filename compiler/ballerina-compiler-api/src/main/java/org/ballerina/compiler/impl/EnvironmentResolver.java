@@ -1071,6 +1071,6 @@ public class EnvironmentResolver extends BLangNodeVisitor {
                 || (zeroBasedStartLine < line && zeroBasedEndLine == line && zeroBasedEndCol > col)
                 || (zeroBasedStartLine == line && zeroBasedStartCol < col && zeroBasedEndLine > line)
                 || (zeroBasedStartLine == zeroBasedEndLine && zeroBasedStartLine == line
-                && zeroBasedStartCol <= col && zeroBasedEndCol >= col);
+                && zeroBasedStartCol <= col && zeroBasedEndCol > col);
     }
 }

@@ -304,7 +304,7 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
-                    "message=cannot change the length of an array of fixed length '7' to '0'.*")
+                    "\\{\"message\":\"cannot change the length of an array of fixed length '7' to '0'\"\\}.*")
     public void testRemoveAllFixedLengthArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAllFixedLengthArray");
         Assert.fail();
@@ -312,8 +312,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
-                            "message=cannot change the length of a tuple of fixed length '2' to '3'.*")
+                    "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the length"
+                            + " of a tuple of fixed length '2' to '3'\"\\}.*")
     public void testTupleResize() {
         BRunUtil.invoke(compileResult, "testTupleResize");
         Assert.fail();
@@ -321,8 +321,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
-                            "message=cannot change the length of a tuple of fixed length '2' to '0'.*")
+                    "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the " +
+                            "length of a tuple of fixed length '2' to '0'\"\\}.*")
     public void testTupleRemoveAll() {
         BRunUtil.invoke(compileResult, "testTupleRemoveAll");
         Assert.fail();
@@ -330,8 +330,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
-                            "message=cannot change the length of a tuple with '2' mandatory member\\(s\\) to '0'.*")
+                    "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the length"
+                            + " of a tuple with '2' mandatory member\\(s\\) to '0'\"\\}.*")
     public void testTupleRemoveAllForTupleWithRestMemberType() {
         BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithRestMemberType");
         Assert.fail();
@@ -357,8 +357,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
-                          "message=cannot change the length of a tuple with '2' mandatory member\\(s\\) to '1'.*")
+                  "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the length " +
+                          "of a tuple with '2' mandatory member\\(s\\) to '1'\"\\}.*")
     public void testTupleSetLengthIllegal() {
         BRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
         Assert.fail();

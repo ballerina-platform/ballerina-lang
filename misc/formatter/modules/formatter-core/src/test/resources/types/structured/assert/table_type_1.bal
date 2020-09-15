@@ -1,10 +1,10 @@
 type Person record {|
-   readonly int id;
-   string name;
+    readonly int id;
+    string name;
 |};
 type Employee record {
-   readonly int id;
-   string name;
+    readonly int id;
+    string name;
 };
 type EmployeeTable table<Employee> key(id);
 type CustomerTable table<map<any>>;

@@ -632,6 +632,12 @@ types:
         type: taint_table
       - id: doc
         type: markdown
+      - id: dependent_global_var_length
+        type: s4
+      - id: dependent_global_var_cp_entry
+        type: s4
+        repeat: expr
+        repeat-expr: dependent_global_var_length
       - id: scope_table_length
         type: s8
       - id: scope_entry_count
