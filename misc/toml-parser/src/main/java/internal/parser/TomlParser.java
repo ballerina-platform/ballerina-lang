@@ -1,4 +1,3 @@
-package internal.parser;
 /*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -17,10 +16,11 @@ package internal.parser;
  * under the License.
  */
 
+package internal.parser;
+
 import internal.parser.tree.STLiteralValueToken;
 import internal.parser.tree.STNode;
 import internal.parser.tree.STNodeFactory;
-
 import internal.parser.tree.STToken;
 import syntax.tree.SyntaxKind;
 
@@ -30,10 +30,9 @@ import java.util.List;
 import static syntax.tree.SyntaxKind.DOUBLE_OPEN_BRACKET_TOKEN;
 import static syntax.tree.SyntaxKind.EOF_TOKEN;
 import static syntax.tree.SyntaxKind.OPEN_BRACKET_TOKEN;
-import static syntax.tree.SyntaxKind.UNQUOTED_KEY_TOKEN;
 
 /**
- * A LL(k) recursive-descent parser for ballerina.
+ * A LL(k) recursive-descent parser for TOML.
  *
  * @since 1.2.0
  */
@@ -87,10 +86,7 @@ public class TomlParser extends AbstractParser {
                 return parseArrayOfTables();
             case UNQUOTED_KEY_TOKEN:
             case STRING_LITERAL:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case INF:
-            case NAN:
+            case BOOLEAN:
             case DEC_INT:
             case FLOAT://todo check +/- ?
                 return parseKeyValue();
@@ -102,21 +98,53 @@ public class TomlParser extends AbstractParser {
         }
     }
 
+    private STNode parseArrayOfTables() {
+        startContext(ParserRuleContext.TOML_TABLE_ARRAY);
+        STNode openBracket = parseDoubleOpenBracket();
+        STNode identifierToken = parseKey();
+        STNode closedBracket = parseDoubleCloseBracket();
+        List<STNode> fields = parseKeyValues();
+        endContext();
+        return STNodeFactory.createTableArrayNode(openBracket,
+                identifierToken, closedBracket, STNodeFactory.createNodeList(fields));
+    }
+
+    private STNode parseDoubleOpenBracket() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DOUBLE_OPEN_BRACKET_TOKEN) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.DOUBLE_OPEN_BRACKET);
+            return parseDoubleOpenBracket();
+        }
+    }
+
+    private STNode parseDoubleCloseBracket() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DOUBLE_CLOSE_BRACKET_TOKEN) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.DOUBLE_CLOSE_BRACKET);
+            return parseDoubleCloseBracket();
+        }
+    }
+
     private STNode parseTable() {
         startContext(ParserRuleContext.TOML_TABLE);
-        STNode openBracket = parseOpenBracket ();
+        STNode openBracket = parseOpenBracket();
         STNode identifierToken = parseKey();
         STNode closedBracket = parseCloseBracket();
         List<STNode> fields = parseKeyValues();
         endContext();
         return STNodeFactory.createTableNode(openBracket, identifierToken, closedBracket,
-            STNodeFactory.createNodeList(fields));
+                STNodeFactory.createNodeList(fields));
     }
 
     private List<STNode> parseKeyValues() {
         List<STNode> fields = new ArrayList<>();
         STToken nextNode = peek();
-        while (!(nextNode.kind == OPEN_BRACKET_TOKEN || nextNode.kind == DOUBLE_OPEN_BRACKET_TOKEN || nextNode.kind == EOF_TOKEN)){
+        while (!(nextNode.kind == OPEN_BRACKET_TOKEN || nextNode.kind == DOUBLE_OPEN_BRACKET_TOKEN ||
+                nextNode.kind == EOF_TOKEN)) {
             STNode stNode = parseKeyValue();
             fields.add(stNode);
             nextNode = peek();
@@ -124,7 +152,7 @@ public class TomlParser extends AbstractParser {
         return fields;
     }
 
-    private STNode parseOpenBracket () {
+    private STNode parseOpenBracket() {
         STToken token = peek();
         if (token.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
             return consume();
@@ -134,7 +162,7 @@ public class TomlParser extends AbstractParser {
         }
     }
 
-    private STNode parseCloseBracket () {
+    private STNode parseCloseBracket() {
         STToken token = peek();
         if (token.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
             return consume();
@@ -150,7 +178,7 @@ public class TomlParser extends AbstractParser {
         STNode equals = parseEquals();
         STNode value = parseValue();
         endContext();
-        return STNodeFactory.createKeyValue(identifier,equals,value);
+        return STNodeFactory.createKeyValue(identifier, equals, value);
     }
 
     private STNode parseKey() {
@@ -164,10 +192,9 @@ public class TomlParser extends AbstractParser {
     }
 
     public static boolean isKey(STToken token) {
-        switch (token.kind){
+        switch (token.kind) {
             case UNQUOTED_KEY_TOKEN:
-            case FALSE_KEYWORD:
-            case TRUE_KEYWORD:
+            case BOOLEAN:
             case STRING_LITERAL:
                 return true;
             default:
@@ -177,17 +204,15 @@ public class TomlParser extends AbstractParser {
 
     public static boolean isNumberValidKey(STToken token) {
         if (token instanceof STLiteralValueToken) {
-            if (token.kind == SyntaxKind.NAN ||
-                    token.kind == SyntaxKind.INF ||
-                    token.kind == SyntaxKind.DEC_INT ||
-                    token.kind == SyntaxKind.FLOAT){
+            if (token.kind == SyntaxKind.DEC_INT ||
+                    token.kind == SyntaxKind.FLOAT) {
                 return !(token.text().startsWith("+") || token.text().startsWith("-"));
             }
         }
         return false;
     }
 
-    private STNode parseEquals () {
+    private STNode parseEquals() {
         STToken token = peek();
         if (token.kind == SyntaxKind.EQUAL_TOKEN) {
             return consume();
@@ -197,53 +222,104 @@ public class TomlParser extends AbstractParser {
         }
     }
 
-    private STNode parseValue () {
+    private STNode parseValue() {
         STToken token = peek();
         if (isValue(token)) {
-            return consume();
+            return STNodeFactory.createBasicValueNode(token.kind, consume());
+//            STToken consume = consume();
+//            return STNodeFactory.createBasicValueNode(consume.kind,consume);
+        } else if ((token.kind == OPEN_BRACKET_TOKEN)) {
+            return parseArray();
         } else {
             recover(token, ParserRuleContext.VALUE);
             return parseValue();
         }
     }
 
+    private STNode parseArray() {
+        STNode openBracket = parseOpenBracket();
+        STNode values = parseArrayValues();
+        STNode closeBracket = parseCloseBracket();
+        return STNodeFactory.createArray(openBracket, values, closeBracket);
+    }
+
+    private STNode parseArrayValues() {
+        STToken token = peek();
+
+        if (token.kind == SyntaxKind.CLOSE_BRACKET_TOKEN || token.kind == EOF_TOKEN) {
+            STNode args = STNodeFactory.createEmptyNodeList();
+            endContext();
+            return args;
+        }
+
+        STNode firstArg = parseArgument();
+        STNode argsList = parseArgList(firstArg);
+
+        return argsList;
+    }
+
+    private STNode parseArgList(STNode firstArg) {
+        ArrayList<STNode> argsList = new ArrayList<>();
+        argsList.add(firstArg);
+
+        STToken nextToken = peek();
+        while (!(nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN || nextToken.kind == EOF_TOKEN)) {
+            STNode argEnd = parseArgEnd();
+            if (argEnd == null) {
+                // null marks the end of args
+                break;
+            }
+
+            STNode curArg = parseArgument();
+            argsList.add(argEnd);
+            argsList.add(curArg);
+
+            nextToken = peek();
+        }
+        return STNodeFactory.createNodeList(argsList);
+    }
+
+    private STNode parseArgEnd() {
+        switch (peek().kind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACKET_TOKEN:
+                // null marks the end of args
+                return null;
+            default:
+                recover(peek(), ParserRuleContext.ARG_END);
+                return parseArgEnd();
+        }
+    }
+
+    private STNode parseArgument() {
+        STToken nextToken = peek();
+        if (isValue(nextToken)) {
+            return parseValue();
+        } else if (nextToken.kind == OPEN_BRACKET_TOKEN) {
+            return parseArray();
+        } else {
+            recover(peek(), ParserRuleContext.ARG_START);
+            return parseArgument();
+        }
+    }
+
+    private STNode parseComma() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.COMMA_TOKEN) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.COMMA);
+            return parseEquals();
+        }
+    }
+
     private boolean isValue(STToken token) {
-        return token.kind == SyntaxKind.STRING_LITERAL||
-                token.kind == SyntaxKind.ML_STRING_LITERAL||
+        return token.kind == SyntaxKind.STRING_LITERAL ||
+                token.kind == SyntaxKind.ML_STRING_LITERAL ||
                 token.kind == SyntaxKind.DEC_INT ||
                 token.kind == SyntaxKind.FLOAT ||
-                token.kind == SyntaxKind.TRUE_KEYWORD ||
-                token.kind == SyntaxKind.FALSE_KEYWORD ||
+                token.kind == SyntaxKind.BOOLEAN ||
                 token.kind == SyntaxKind.BASIC_LITERAL;
-    }
-
-    private STNode parseArrayOfTables() {
-        startContext(ParserRuleContext.TOML_TABLE_ARRAY);
-        STNode openBracket = parseDoubleOpenBracket();
-        STNode identifierToken = parseKey();
-        STNode closedBracket = parseDoubleCloseBracket();
-        endContext();
-        return STNodeFactory.createTableArrayNode(openBracket,
-                identifierToken,closedBracket);
-    }
-
-    private STNode parseDoubleOpenBracket () {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.DOUBLE_OPEN_BRACKET_TOKEN) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.DOUBLE_OPEN_BRACKET);
-            return parseDoubleOpenBracket();
-        }
-    }
-
-    private STNode parseDoubleCloseBracket () {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.DOUBLE_CLOSE_BRACKET_TOKEN) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.DOUBLE_CLOSE_BRACKET);
-            return parseDoubleCloseBracket();
-        }
     }
 }

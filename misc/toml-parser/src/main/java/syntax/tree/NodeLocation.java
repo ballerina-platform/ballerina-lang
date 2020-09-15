@@ -17,8 +17,8 @@
  */
 package syntax.tree;
 
-import text.LineRange;
-import text.TextRange;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 
 /**
  * The {@code NodeLocation} represent the location of a {@code Node} in source code.

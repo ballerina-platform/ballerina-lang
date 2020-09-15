@@ -21,6 +21,7 @@ import internal.diagnostics.DiagnosticCode;
 import internal.parser.tree.STNode;
 import internal.parser.tree.STNodeDiagnostic;
 import internal.parser.tree.STToken;
+import io.ballerina.tools.text.CharReader;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

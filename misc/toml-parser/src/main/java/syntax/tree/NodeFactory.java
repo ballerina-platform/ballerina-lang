@@ -46,6 +46,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stModulePartNode.createUnlinkedFacade();
     }
 
+    public static BasicValueNode createBasicValueNode(
+            SyntaxKind kind,
+            Token value) {
+        Objects.requireNonNull(value, "value must not be null");
+
+        STNode stBasicValueNode = STNodeFactory.createBasicValueNode(
+                kind,
+                value.internalNode());
+        return stBasicValueNode.createUnlinkedFacade();
+    }
+
     public static TableNode createTableNode(
             Token openBracket,
             IdentifierToken identifier,
@@ -67,22 +78,25 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static TableArrayNode createTableArrayNode(
             Token openBracket,
             IdentifierToken identifier,
-            Token closeBracket) {
+            Token closeBracket,
+            NodeList<Node> fields) {
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+        Objects.requireNonNull(fields, "fields must not be null");
 
         STNode stTableArrayNode = STNodeFactory.createTableArrayNode(
                 openBracket.internalNode(),
                 identifier.internalNode(),
-                closeBracket.internalNode());
+                closeBracket.internalNode(),
+                fields.underlyingListNode().internalNode());
         return stTableArrayNode.createUnlinkedFacade();
     }
 
     public static KeyValue createKeyValue(
             Token identifier,
             Token assign,
-            Token value) {
+            ValueNode value) {
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(assign, "assign must not be null");
         Objects.requireNonNull(value, "value must not be null");
@@ -92,6 +106,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 assign.internalNode(),
                 value.internalNode());
         return stKeyValue.createUnlinkedFacade();
+    }
+
+    public static Array createArray(
+            Token openBracket,
+            SeparatedNodeList<ValueNode> values,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(values, "values must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stArray = STNodeFactory.createArray(
+                openBracket.internalNode(),
+                values.underlyingListNode().internalNode(),
+                closeBracket.internalNode());
+        return stArray.createUnlinkedFacade();
     }
 }
 

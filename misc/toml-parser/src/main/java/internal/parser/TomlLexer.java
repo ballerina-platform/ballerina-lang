@@ -1,4 +1,4 @@
-package internal.parser;/*
+/*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -16,17 +16,20 @@ package internal.parser;/*
  * under the License.
  */
 
+package internal.parser;
+
 import internal.diagnostics.DiagnosticErrorCode;
 import internal.parser.tree.STNode;
 import internal.parser.tree.STNodeFactory;
 import internal.parser.tree.STToken;
+import io.ballerina.tools.text.CharReader;
 import syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A LL(k) lexer for ballerina.
+ * A LL(k) lexer for TOML.
  *
  * @since 1.2.0
  */
@@ -72,7 +75,8 @@ public class TomlLexer extends AbstractLexer {
                 token = processCloseBracket();
                 break;
             case LexerTerminals.DOUBLE_QUOTE:
-                if (this.reader.peek() == LexerTerminals.DOUBLE_QUOTE && this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
+                if (this.reader.peek() == LexerTerminals.DOUBLE_QUOTE &&
+                        this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
                     this.reader.advance(2);
                     token = processMultilineString(LexerTerminals.DOUBLE_QUOTE);
                 } else {
@@ -80,7 +84,8 @@ public class TomlLexer extends AbstractLexer {
                 }
                 break;
             case LexerTerminals.SINGLE_QUOTE:
-                if (this.reader.peek() == LexerTerminals.SINGLE_QUOTE && this.reader.peek(1) == LexerTerminals.SINGLE_QUOTE) {
+                if (this.reader.peek() == LexerTerminals.SINGLE_QUOTE &&
+                        this.reader.peek(1) == LexerTerminals.SINGLE_QUOTE) {
                     this.reader.advance(2);
                     token = processMultilineString(LexerTerminals.SINGLE_QUOTE);
                 } else {
@@ -90,6 +95,9 @@ public class TomlLexer extends AbstractLexer {
             // Arithmetic operators
             case LexerTerminals.EQUAL:
                 token = getSyntaxToken(SyntaxKind.EQUAL_TOKEN);
+                break;
+            case LexerTerminals.COMMA:
+                token = getSyntaxToken(SyntaxKind.COMMA_TOKEN);
                 break;
 
             // Numbers
@@ -178,7 +186,6 @@ public class TomlLexer extends AbstractLexer {
         return token;
     }
 
-
     private STToken processOpenBracket() {
         int nextChar = peek();
         if (nextChar == LexerTerminals.OPEN_BRACKET) {
@@ -242,7 +249,7 @@ public class TomlLexer extends AbstractLexer {
      * <code>syntax-trivia := whitespace | end-of-line | comments</code>
      *
      * @param triviaList List of trivia
-     * @param isLeading Flag indicating whether the currently processing leading trivia or not
+     * @param isLeading  Flag indicating whether the currently processing leading trivia or not
      */
     private void processSyntaxTrivia(List<STNode> triviaList, boolean isLeading) {
         while (!reader.isEOF()) {
@@ -374,7 +381,7 @@ public class TomlLexer extends AbstractLexer {
      */
     private STToken processNumericLiteral(int startChar) {
         int nextChar = peek();
-        if (nextChar == '+' || nextChar == '-'){
+        if (nextChar == '+' || nextChar == '-') {
             reader.advance();
             nextChar = peek();
         }
@@ -383,21 +390,21 @@ public class TomlLexer extends AbstractLexer {
         SyntaxKind type = SyntaxKind.DEC_INT;
         boolean isString = false;
         while (!reader.isEOF()) {
-            if (isDigit(nextChar) || nextChar == '.' ||nextChar == '_') {
-                if (nextChar == '.'){
+            if (isDigit(nextChar) || nextChar == '.' || nextChar == '_') {
+                if (nextChar == '.') {
                     type = SyntaxKind.FLOAT;
                 }
                 reader.advance();
                 len++;
                 nextChar = peek();
                 continue;
-            } else {
+            } else if (Character.isLetter(nextChar)) {
                 isString = true;
             }
             break;
         }
         if (isString) {
-            type = SyntaxKind.STRING_LITERAL;
+            type = SyntaxKind.UNQUOTED_KEY_TOKEN; //TODO change to identiifer
         }
         // Integer cannot have a leading zero
         if (startChar == '0' && len > 1) {
@@ -420,13 +427,11 @@ public class TomlLexer extends AbstractLexer {
         String tokenText = getLexeme();
         switch (tokenText) {
             case LexerTerminals.TRUE:
-                return getLiteral(SyntaxKind.TRUE_KEYWORD);
             case LexerTerminals.FALSE:
-                return getLiteral(SyntaxKind.FALSE_KEYWORD);
+                return getLiteral(SyntaxKind.BOOLEAN);
             case LexerTerminals.INF:
-                return getLiteral(SyntaxKind.INF);
             case LexerTerminals.NAN:
-                return getLiteral(SyntaxKind.NAN);
+                return getLiteral(SyntaxKind.FLOAT);
             default:
                 return getUnquotedKey();
         }
@@ -503,7 +508,7 @@ public class TomlLexer extends AbstractLexer {
             return true;
         }
 
-        if (c == '_' || c == '.') {
+        if (c == '_' || c == '.' || c == '-') {
             return true;
         }
 
@@ -563,9 +568,9 @@ public class TomlLexer extends AbstractLexer {
      * <code>HexIndicator := 0x | 0X</code>
      *
      * @param startChar Starting character of the literal
-     * @param nextChar Second character of the literal
+     * @param nextChar  Second character of the literal
      * @return <code>true</code>, if the current input points to a start of a hex-numeric literal.
-     *         <code>false</code> otherwise.
+     * <code>false</code> otherwise.
      */
     private boolean isHexIndicator(int startChar, int nextChar) {
         return startChar == '0' && (nextChar == 'x' || nextChar == 'X');
@@ -643,8 +648,8 @@ public class TomlLexer extends AbstractLexer {
                     }
                 default:
                     if (nextChar == type) {
-                            this.reader.advance();
-                            break;
+                        this.reader.advance();
+                        break;
                     }
                     this.reader.advance();
                     continue;
@@ -654,7 +659,6 @@ public class TomlLexer extends AbstractLexer {
 
         return getLiteral(SyntaxKind.STRING_LITERAL);
     }
-
 
     private STToken processMultilineString(char type) {
 
@@ -686,7 +690,7 @@ public class TomlLexer extends AbstractLexer {
                     }
                 default:
                     if (nextChar == type) {
-                        if (this.reader.peek(1) == type && this.reader.peek(2) == type){
+                        if (this.reader.peek(1) == type && this.reader.peek(2) == type) {
                             this.reader.advance(3);
                             break;
                         }

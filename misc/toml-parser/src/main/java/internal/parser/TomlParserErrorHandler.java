@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package internal.parser;
 
 import internal.parser.tree.STToken;
@@ -22,12 +23,10 @@ import syntax.tree.SyntaxKind;
 
 import java.util.ArrayDeque;
 
-import javax.swing.text.html.parser.Parser;
-
 /**
  * <p>
  * Responsible for recovering from a parser error.
- *
+ * <p>
  * When an unexpected token is reached, error handler will try inserting/removing a token from the current head, and see
  * how far the parser can successfully progress. After fixing the current head and trying to progress, if it encounters
  * more errors, then it will try to fix those as well. All possible combinations of insertions and deletions will be
@@ -54,8 +53,9 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 //    private static final ParserRuleContext[] TOP_LEVEL_NODE = { ParserRuleContext.EOF, ParserRuleContext.DOC_STRING,
 //            ParserRuleContext.ANNOTATIONS, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA };
 
-    private static final ParserRuleContext[] TOP_LEVEL_NODE = { ParserRuleContext.EOF,
-            ParserRuleContext.KEY_VALUE_PAIR, ParserRuleContext.TOML_TABLE, ParserRuleContext.TOML_TABLE_ARRAY}; //TODO add more
+    private static final ParserRuleContext[] TOP_LEVEL_NODE = {ParserRuleContext.EOF,
+            ParserRuleContext.KEY_VALUE_PAIR, ParserRuleContext.TOML_TABLE, ParserRuleContext.TOML_TABLE_ARRAY};
+            //TODO add more
 
     public TomlParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -180,8 +180,8 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
      * Search for a solution.
      * Terminals are directly matched and Non-terminals which have alternative productions are seekInAlternativesPaths()
      *
-     * @param currentCtx Current context
-     * @param lookahead Position of the next token to consider, relative to the position of the original error.
+     * @param currentCtx   Current context
+     * @param lookahead    Position of the next token to consider, relative to the position of the original error.
      * @param currentDepth Amount of distance traveled so far.
      * @return Recovery result
      */
@@ -255,7 +255,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
     /**
      * Get the next parser rule/context given the current parser context.
      *
-     * @param currentCtx Current parser context
+     * @param currentCtx    Current parser context
      * @param nextLookahead Position of the next token to consider, relative to the position of the original error
      * @return Next parser context
      */
@@ -310,7 +310,6 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 //    private ParserRuleContext getNextRuleForTopLevelNode () {
 //
 //    }
-
 
     /**
      * Get the expected token kind at the given parser rule context. If the parser rule is a terminal,

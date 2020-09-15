@@ -21,9 +21,8 @@ import diagnostics.Diagnostic;
 import internal.parser.ParserFactory;
 import internal.parser.TomlParser;
 import internal.syntax.SyntaxUtils;
-import text.TextDocument;
-import text.TextDocumentChange;
-import text.TextDocuments;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 
 /**
  * The {@code SyntaxTree} represents a parsed Ballerina source file.

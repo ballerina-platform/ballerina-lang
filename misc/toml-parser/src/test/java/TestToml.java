@@ -20,11 +20,15 @@ import api.TOML;
 import internal.parser.ParserFactory;
 import internal.parser.TomlParser;
 import internal.parser.tree.STNode;
-import sementic.analyser.TomlNodeTransformer;
+import sementic.TomlTransformer;
+import sementic.nodes.DiagnosticSource;
+import sementic.nodes.TomlNode;
 import syntax.tree.ModulePartNode;
 import syntax.tree.Node;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -41,7 +45,7 @@ public class TestToml {
         String path = "src/test/resources/basic-toml.toml";
 
         String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
-        //testParser(content);
+//        testParser(content);
         testAPI(path);
     }
 
@@ -54,20 +58,21 @@ public class TestToml {
         OUT.println("__________________________________________________");
         OUT.println("Time: " + (System.currentTimeMillis() - sTime) / 1000.0);
         Node externalNode = node.createUnlinkedFacade();
-        TomlNodeTransformer nodeTransformer = new TomlNodeTransformer();
-        Node transform = nodeTransformer.transform((ModulePartNode) externalNode);
-        System.out.println(transform);
+        DiagnosticSource diagnosticSource = new DiagnosticSource("basic-toml.toml");
+        TomlTransformer nodeTransformer = new TomlTransformer(diagnosticSource);
+        TomlNode transform = nodeTransformer.transform((ModulePartNode) externalNode);
+        OUT.println(transform);
     }
 
-    private static void testAPI (String path) throws IOException {
-
+    private static void testAPI(String path) throws IOException {
         TOML toml = new TOML();
-        TOML read = toml.read(path);
-        String rootKey = read.get("rootKey");
-        System.out.println(rootKey);
-        TOML table = read.getTable("table");
-        System.out.println(table.get("key"));
-        System.out.println(read.get("table.hi.ew"));
+        InputStream inputStream = new FileInputStream(path);
+        TOML read = toml.read(inputStream);
+        Boolean key1 = read.getBoolean("key1");
+        OUT.println(key1);
+
+        Boolean key2 = read.getBoolean("key2");
+        OUT.println(key2);
     }
 
 }

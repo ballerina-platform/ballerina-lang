@@ -40,7 +40,7 @@ public class KeyValue extends ModuleMemberDeclarationNode {
         return childInBucket(1);
     }
 
-    public Token value() {
+    public ValueNode value() {
         return childInBucket(2);
     }
 
@@ -65,7 +65,7 @@ public class KeyValue extends ModuleMemberDeclarationNode {
     public KeyValue modify(
             Token identifier,
             Token assign,
-            Token value) {
+            ValueNode value) {
         if (checkForReferenceEquality(
                 identifier,
                 assign,
@@ -92,7 +92,7 @@ public class KeyValue extends ModuleMemberDeclarationNode {
         private final KeyValue oldNode;
         private Token identifier;
         private Token assign;
-        private Token value;
+        private ValueNode value;
 
         public KeyValueModifier(KeyValue oldNode) {
             this.oldNode = oldNode;
@@ -116,7 +116,7 @@ public class KeyValue extends ModuleMemberDeclarationNode {
         }
 
         public KeyValueModifier withValue(
-                Token value) {
+                ValueNode value) {
             Objects.requireNonNull(value, "value must not be null");
             this.value = value;
             return this;

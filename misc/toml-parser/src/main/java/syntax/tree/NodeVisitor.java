@@ -43,6 +43,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(modulePartNode);
     }
 
+    public void visit(BasicValueNode basicValueNode) {
+        visitSyntaxNode(basicValueNode);
+    }
+
     public void visit(TableNode tableNode) {
         visitSyntaxNode(tableNode);
     }
@@ -53,6 +57,10 @@ public abstract class NodeVisitor {
 
     public void visit(KeyValue keyValue) {
         visitSyntaxNode(keyValue);
+    }
+
+    public void visit(Array array) {
+        visitSyntaxNode(array);
     }
 
     // Tokens
