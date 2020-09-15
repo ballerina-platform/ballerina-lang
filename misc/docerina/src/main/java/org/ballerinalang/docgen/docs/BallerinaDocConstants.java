@@ -34,7 +34,8 @@ public class BallerinaDocConstants {
     public static final String ORG_NAME = "org-name";
     public static final String VERSION = "version";
     public static final String RECORD_TEMPLATE_NAME_KEY = "record.template.name";
-    public static final String OBJECT_TEMPLATE_NAME_KEY = "object.template.name";
+    public static final String CLASS_TEMPLATE_NAME_KEY = "class.template.name";
+    public static final String ABSTRACT_OBJECT_TEMPLATE_NAME_KEY = "abstractObject.template.name";
     public static final String CLIENT_TEMPLATE_NAME_KEY = "client.template.name";
     public static final String LISTENER_TEMPLATE_NAME_KEY = "listener.template.name";
     public static final String FUNCTIONS_TEMPLATE_NAME_KEY = "functions.template.name";

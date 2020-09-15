@@ -25,7 +25,11 @@ import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.docs.utils.PathToJson;
+import org.ballerinalang.docgen.generator.model.AbstractObjectPageContext;
 import org.ballerinalang.docgen.generator.model.AnnotationsPageContext;
+import org.ballerinalang.docgen.generator.model.BAbstractObject;
+import org.ballerinalang.docgen.generator.model.BClass;
+import org.ballerinalang.docgen.generator.model.ClassPageContext;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.ClientPageContext;
 import org.ballerinalang.docgen.generator.model.ConstantsPageContext;
@@ -35,8 +39,6 @@ import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.ListenerPageContext;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModulePageContext;
-import org.ballerinalang.docgen.generator.model.Object;
-import org.ballerinalang.docgen.generator.model.ObjectPageContext;
 import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.ProjectPageContext;
 import org.ballerinalang.docgen.generator.model.Record;
@@ -188,7 +190,9 @@ public class BallerinaDocGenerator {
     public static void writeAPIDocs(Project project, String output, boolean excludeIndex) {
         String moduleTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "module");
         String recordTemplateName = System.getProperty(BallerinaDocConstants.RECORD_TEMPLATE_NAME_KEY, "record");
-        String objectTemplateName = System.getProperty(BallerinaDocConstants.OBJECT_TEMPLATE_NAME_KEY, "object");
+        String classTemplateName = System.getProperty(BallerinaDocConstants.CLASS_TEMPLATE_NAME_KEY, "class");
+        String abstractObjectTemplateName = System.getProperty(BallerinaDocConstants.ABSTRACT_OBJECT_TEMPLATE_NAME_KEY,
+                "abstractObject");
         String clientTemplateName = System.getProperty(BallerinaDocConstants.CLIENT_TEMPLATE_NAME_KEY, "client");
         String listenerTemplateName = System.getProperty(BallerinaDocConstants.LISTENER_TEMPLATE_NAME_KEY,
                 "listener");
@@ -242,15 +246,28 @@ public class BallerinaDocGenerator {
                     }
                 }
 
-                // Create pages for objects
-                if (!module.objects.isEmpty()) {
-                    String objectsDir = modDir + File.separator + "objects";
-                    Files.createDirectories(Paths.get(objectsDir));
-                    for (Object object : module.objects) {
-                        ObjectPageContext objectPageContext = new ObjectPageContext(object, module, project,
-                                rootPathConstructLevel, "API Docs - Object : " + object.name, excludeIndex);
-                        String objectFilePath = objectsDir + File.separator + object.name + HTML;
-                        Writer.writeHtmlDocument(objectPageContext, objectTemplateName, objectFilePath);
+                // Create pages for bClasses
+                if (!module.classes.isEmpty()) {
+                    String classesDir = modDir + File.separator + "classes";
+                    Files.createDirectories(Paths.get(classesDir));
+                    for (BClass bClass : module.classes) {
+                        ClassPageContext classPageContext = new ClassPageContext(bClass, module, project,
+                                rootPathConstructLevel, "API Docs - Class : " + bClass.name, excludeIndex);
+                        String classFilePath = classesDir + File.separator + bClass.name + HTML;
+                        Writer.writeHtmlDocument(classPageContext, classTemplateName, classFilePath);
+                    }
+                }
+
+                // Create pages for Abstract Objects
+                if (!module.abstractObjects.isEmpty()) {
+                    String absObjDir = modDir + File.separator + "abstractobjects";
+                    Files.createDirectories(Paths.get(absObjDir));
+                    for (BAbstractObject absObj : module.abstractObjects) {
+                        AbstractObjectPageContext absObjPageContext = new AbstractObjectPageContext(absObj, module,
+                                project, rootPathConstructLevel, "API Docs - Class : " + absObj.name,
+                                excludeIndex);
+                        String absObjFilePath = absObjDir + File.separator + absObj.name + HTML;
+                        Writer.writeHtmlDocument(absObjPageContext, abstractObjectTemplateName, absObjFilePath);
                     }
                 }
 
@@ -443,7 +460,7 @@ public class BallerinaDocGenerator {
                 searchFunctions.add(new ConstructSearchJson(function.name, module.id,
                         getFirstLine(function.description))));
 
-        module.objects.forEach((object) ->
+        module.classes.forEach((object) ->
                 searchObjects.add(new ConstructSearchJson(object.name, module.id, getFirstLine(object.description))));
 
         module.clients.forEach((client) ->

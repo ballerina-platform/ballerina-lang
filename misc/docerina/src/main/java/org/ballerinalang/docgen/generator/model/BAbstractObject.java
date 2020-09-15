@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,20 @@ import com.google.gson.annotations.Expose;
 import java.util.List;
 
 /**
- * Represent documentation for a Record.
+ * Represent documentation for an Abstract Object.
+ *
+ * @since 2.0
  */
-public class Record extends Construct {
-
+public class BAbstractObject extends Construct {
     @Expose
     public List<DefaultableVariable> fields;
     @Expose
-    public boolean isClosed;
+    public List<Function> methods;
 
-    public Record(String name, String description, boolean isDeprecated, boolean isClosed,
-                  List<DefaultableVariable> fields) {
+    public BAbstractObject(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
+                           List<Function> methods) {
         super(name, description, isDeprecated);
-        this.isClosed = isClosed;
         this.fields = fields;
+        this.methods = methods;
     }
 }

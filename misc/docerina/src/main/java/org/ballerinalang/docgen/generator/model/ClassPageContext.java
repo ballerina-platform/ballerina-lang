@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 package org.ballerinalang.docgen.generator.model;
 
 /**
- * Page context for the object page.
+ * Page context for the bClass page.
+ *
+ * @since 2.0
  */
-public class ObjectPageContext extends ModulePageContext {
-    public Object object;
-    public ObjectPageContext(Object object, Module module, Project project, String rootPath, String title,
-                             boolean excludeIndex) {
+public class ClassPageContext extends ModulePageContext {
+    public BClass bClass;
+    public ClassPageContext(BClass bClass, Module module, Project project, String rootPath, String title,
+                            boolean excludeIndex) {
         super(module, project, rootPath, title, excludeIndex);
-        this.object = object;
+        this.bClass = bClass;
     }
 }

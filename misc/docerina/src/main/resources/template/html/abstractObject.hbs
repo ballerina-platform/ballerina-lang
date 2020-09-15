@@ -1,58 +1,52 @@
 {{#partial "sidebarName" }}
-    Objects
+    Abstract Objects
 {{/partial}}
 
 {{#partial "sidebarLists" }}
-    {{#each module.objects}}
-        <li {{#equals object.name name}}class="active"{{/equals}}>
+    {{#each module.abstractObjects}}
+        <li {{#equals abstractObject.name name}}class="active"{{/equals}}>
             <a href="{{name}}.html" onclick="menuLinkClick()">{{name}}</a>
         </li>
     {{/each}}
 {{/partial}}
 
 {{#partial "titleType" }}
-    Object
+    Abstract Object
 {{/partial}}
 {{#partial "title" }}
-    <span class="objects {{#if object.isDeprecated}}strike{{/if}}">{{ object.name }}</span>
+    <span class="objects {{#if abstractObject.isDeprecated}}strike{{/if}}">{{ abstractObject.name }}</span>
 {{/partial}}
 
 {{#partial "content" }}
     <p>
-        {{#if object.isDeprecated}}
+        {{#if abstractObject.isDeprecated}}
             <span class="stab">Deprecated</span>
         {{/if}}
-        {{{ object.description }}}
+        {{{ abstractObject.description }}}
     </p>
 
     <div class="constants">
         <div class="method-sum">
-            {{#if object.initMethod}}
-                {{#object.initMethod}}
-                {{> initMethod }}
-                {{/object.initMethod}}
-            {{/if}}
 
-        
-            {{#if object.otherMethods}}
+            {{#if abstractObject.methods}}
                 <h2>Methods</h2>
                 <div class="method-list">
-                    {{#each object.otherMethods}}
+                    {{#each abstractObject.methods}}
                         {{> methodSignature }}
                     {{/each}}
                 </div>
             {{/if}}
 
-            {{#if object.fields}}
-                {{#object}}
+            {{#if abstractObject.fields}}
+                {{#bClass}}
                     <h2>Fields</h2>
                         {{> fields }}
-                {{/object}}
+                {{/bClass}}
             {{/if}}
         </div>
 
-        {{#if object.otherMethods }}
-            {{#each object.otherMethods }}
+        {{#if abstractObject.methods }}
+            {{#each abstractObject.methods }}
                 {{> method }}
             {{/each}}
         {{/if}}
