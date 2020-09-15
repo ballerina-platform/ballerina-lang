@@ -822,6 +822,7 @@ public class ASTBuilderUtil {
         }
 
         dupFuncSymbol.type = dupInvokableType;
+        dupFuncSymbol.dependentGlobalVars = invokableSymbol.dependentGlobalVars;
 
         return dupFuncSymbol;
     }

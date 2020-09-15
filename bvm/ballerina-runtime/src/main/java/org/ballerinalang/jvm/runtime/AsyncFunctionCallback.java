@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.jvm;
+package org.ballerinalang.jvm.runtime;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FutureValue;

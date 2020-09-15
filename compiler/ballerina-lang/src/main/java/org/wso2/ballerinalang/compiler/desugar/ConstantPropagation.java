@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
@@ -112,6 +113,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -127,6 +131,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -451,6 +456,37 @@ public class ConstantPropagation extends BLangNodeVisitor {
         compoundAssignNode.modifiedExpr = rewrite(compoundAssignNode.modifiedExpr);
         compoundAssignNode.expr = rewrite(compoundAssignNode.expr);
         result = compoundAssignNode;
+    }
+
+    @Override
+    public void visit(BLangMatchStatement matchStatement) {
+        matchStatement.expr = rewrite(matchStatement.expr);
+        rewrite(matchStatement.matchClauses);
+        matchStatement.onFailClause = rewrite(matchStatement.onFailClause);
+        result = matchStatement;
+    }
+
+    @Override
+    public void visit(BLangMatchClause matchClause) {
+        rewrite(matchClause.matchPatterns);
+        matchClause.blockStmt = rewrite(matchClause.blockStmt);
+        result = matchClause;
+    }
+
+    @Override
+    public void visit(BLangConstPattern constMatchPattern) {
+        constMatchPattern.expr = rewrite(constMatchPattern.expr);
+        result = constMatchPattern;
+    }
+
+    @Override
+    public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
+        result = wildCardMatchPattern;
+    }
+
+    @Override
+    public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
+        result = varBindingPattern;
     }
 
     @Override
