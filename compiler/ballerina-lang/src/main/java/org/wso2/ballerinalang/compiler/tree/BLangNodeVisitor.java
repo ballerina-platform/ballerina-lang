@@ -635,7 +635,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangRawTemplateLiteral stringTemplateLiteral) {
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         throw new AssertionError();
     }
 

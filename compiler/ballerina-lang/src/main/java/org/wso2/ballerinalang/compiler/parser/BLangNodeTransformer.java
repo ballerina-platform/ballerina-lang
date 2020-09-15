@@ -3338,6 +3338,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         bLangTypeDefinition.setName((BLangIdentifier) transform(enumDeclarationNode.identifier()));
+        bLangTypeDefinition.pos = getPosition(enumDeclarationNode);
 
         BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         for (Node member : enumDeclarationNode.enumMemberList()) {
