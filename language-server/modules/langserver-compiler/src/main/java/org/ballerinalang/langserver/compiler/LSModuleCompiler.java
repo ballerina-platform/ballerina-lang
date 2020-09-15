@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.compiler;
 
-import org.antlr.v4.runtime.ANTLRErrorStrategy;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -58,7 +57,6 @@ public class LSModuleCompiler {
      *
      * @param context              Language Server Context
      * @param docManager           Document manager
-     * @param errStrategy          custom error strategy class
      * @param compileFullProject   updateAndCompileFile full project from the source root
      * @param stopOnSemanticErrors whether stop compilation on semantic errors
      * @param enableNewParser      whether enable new parser or not
@@ -66,11 +64,10 @@ public class LSModuleCompiler {
      * @throws CompilationFailedException when compilation fails
      */
     public static BLangPackage getBLangPackage(LSContext context, WorkspaceDocumentManager docManager,
-                                               Class<? extends ANTLRErrorStrategy> errStrategy,
                                                boolean compileFullProject, boolean stopOnSemanticErrors,
                                                boolean enableNewParser)
             throws CompilationFailedException {
-        List<BLangPackage> bLangPackages = getBLangPackages(context, docManager, errStrategy,
+        List<BLangPackage> bLangPackages = getBLangPackages(context, docManager,
                 compileFullProject, false, stopOnSemanticErrors, enableNewParser);
         return bLangPackages.get(0);
     }
@@ -80,7 +77,6 @@ public class LSModuleCompiler {
      *
      * @param context              Language Server Context
      * @param docManager           Document manager
-     * @param errStrategy          Custom error strategy class
      * @param stopOnSemanticErrors Whether stop compilation on semantic errors
      * @param enableNewParser      Whether enable new parser or not
      * @return {@link List}      A list of packages when compile full project
@@ -88,7 +84,6 @@ public class LSModuleCompiler {
      * @throws CompilationFailedException when the compiler throws any error
      */
     public static List<BLangPackage> getBLangModules(LSContext context, WorkspaceDocumentManager docManager,
-                                                     Class<? extends ANTLRErrorStrategy> errStrategy,
                                                      boolean stopOnSemanticErrors, boolean enableNewParser)
             throws URISyntaxException, CompilationFailedException {
         String sourceRoot = Paths.get(new URI(context.get(DocumentServiceKeys.SOURCE_ROOT_KEY))).toString();
@@ -96,7 +91,7 @@ public class LSModuleCompiler {
 
         CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, docManager, stopOnSemanticErrors,
                 enableNewParser);
-        Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext, errStrategy);
+        Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext);
         return compilePackagesSafe(compiler, sourceRoot, false, context);
     }
 
@@ -105,7 +100,6 @@ public class LSModuleCompiler {
      *
      * @param context              Language Server Context
      * @param docManager           Document manager
-     * @param errStrategy          custom error strategy class
      * @param compileFullProject   updateAndCompileFile full project from the source root
      * @param clearProjectModules  whether clear current project modules from ls package cache
      * @param stopOnSemanticErrors whether stop compilation on semantic errors
@@ -114,7 +108,6 @@ public class LSModuleCompiler {
      * @throws CompilationFailedException Whenever compilation fails
      */
     public static List<BLangPackage> getBLangPackages(LSContext context, WorkspaceDocumentManager docManager,
-                                                      Class<? extends ANTLRErrorStrategy> errStrategy,
                                                       boolean compileFullProject, boolean clearProjectModules,
                                                       boolean stopOnSemanticErrors, boolean enableNewParser)
             throws CompilationFailedException {
@@ -162,7 +155,7 @@ public class LSModuleCompiler {
                 // If the flag is set, we remove all the modules in the current project from the LSPackageCache
                 LSPackageCache.getInstance(compilerContext).invalidateProjectModules(sourceDoc.getProjectModules());
             }
-            Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext, errStrategy);
+            Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext);
             List<BLangPackage> projectPackages = compilePackagesSafe(compiler, projectRoot, false, context);
             packages.addAll(projectPackages);
             Optional<BLangPackage> currentPkg = projectPackages.stream().filter(bLangPackage -> {
@@ -173,7 +166,7 @@ public class LSModuleCompiler {
             // No need to check the option is existing since the current package always exist
             LSPackageCache.getInstance(compilerContext).invalidate(currentPkg.get().packageID);
         } else {
-            Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext, errStrategy);
+            Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext);
             BLangPackage bLangPackage = compileSafe(compiler, projectRoot, pkgName, context);
             LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
             packages.add(bLangPackage);
