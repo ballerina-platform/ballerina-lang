@@ -32,12 +32,16 @@ public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
         super(internalNode, position, parent);
     }
 
+    public NodeList<Token> qualifierList() {
+        return new NodeList<>(childInBucket(0));
+    }
+
     public Token functionKeyword() {
-        return childInBucket(0);
+        return childInBucket(1);
     }
 
     public FunctionSignatureNode functionSignature() {
-        return childInBucket(1);
+        return childInBucket(2);
     }
 
     @Override
@@ -53,20 +57,24 @@ public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
     @Override
     protected String[] childNames() {
         return new String[]{
+                "qualifierList",
                 "functionKeyword",
                 "functionSignature"};
     }
 
     public FunctionTypeDescriptorNode modify(
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             FunctionSignatureNode functionSignature) {
         if (checkForReferenceEquality(
+                qualifierList.underlyingListNode(),
                 functionKeyword,
                 functionSignature)) {
             return this;
         }
 
         return NodeFactory.createFunctionTypeDescriptorNode(
+                qualifierList,
                 functionKeyword,
                 functionSignature);
     }
@@ -82,13 +90,22 @@ public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
      */
     public static class FunctionTypeDescriptorNodeModifier {
         private final FunctionTypeDescriptorNode oldNode;
+        private NodeList<Token> qualifierList;
         private Token functionKeyword;
         private FunctionSignatureNode functionSignature;
 
         public FunctionTypeDescriptorNodeModifier(FunctionTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
+            this.qualifierList = oldNode.qualifierList();
             this.functionKeyword = oldNode.functionKeyword();
             this.functionSignature = oldNode.functionSignature();
+        }
+
+        public FunctionTypeDescriptorNodeModifier withQualifierList(
+                NodeList<Token> qualifierList) {
+            Objects.requireNonNull(qualifierList, "qualifierList must not be null");
+            this.qualifierList = qualifierList;
+            return this;
         }
 
         public FunctionTypeDescriptorNodeModifier withFunctionKeyword(
@@ -107,6 +124,7 @@ public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
 
         public FunctionTypeDescriptorNode apply() {
             return oldNode.modify(
+                    qualifierList,
                     functionKeyword,
                     functionSignature);
         }

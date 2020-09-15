@@ -120,11 +120,16 @@ public class MappingConstructorExpressionNodeContext extends
         return completionItems;
     }
 
+    @Override
+    public boolean onPreValidation(LSContext context, MappingConstructorExpressionNode node) {
+        return !node.openBrace().isMissing() && !node.closeBrace().isMissing();
+    }
+
     private boolean withinValueExpression(LSContext context, NonTerminalNode evalNodeAtCursor) {
         Token colon = null;
 
         if (evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD) {
-            colon = ((SpecificFieldNode) evalNodeAtCursor).colon();
+            colon = ((SpecificFieldNode) evalNodeAtCursor).colon().orElse(null);
         } else if (evalNodeAtCursor.kind() == SyntaxKind.COMPUTED_NAME_FIELD) {
             colon = ((ComputedNameFieldNode) evalNodeAtCursor).colonToken();
         }
@@ -302,7 +307,7 @@ public class MappingConstructorExpressionNodeContext extends
                         && !(scopeEntry.symbol instanceof BOperatorSymbol))
                 .collect(Collectors.toList());
         List<LSCompletionItem> completionItems = this.getCompletionItemList(filteredList, context);
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
     }

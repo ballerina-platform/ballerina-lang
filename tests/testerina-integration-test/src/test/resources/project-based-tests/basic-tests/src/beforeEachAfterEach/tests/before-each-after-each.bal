@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/io;
 
 // This tests the functionality of beforeEach and afterEach functions in a test
 // using string concatenation
@@ -44,7 +43,6 @@ public function afterEachFunc() {
     dependsOn:["testFunc"]
 }
 public function testFunc2() {
-    io:println("TestFunc2");
     test:assertEquals(testString, "beforeEachtestafterEachbeforeEach");
 }
 
@@ -53,6 +51,5 @@ public function testFunc2() {
     dependsOn:["testFunc2"]
 }
 public function testFunc3() {
-    io:println("TestFunc3");
     test:assertEquals(testString, "beforeEachtestafterEachbeforeEachafterEachbeforeEach");
 }

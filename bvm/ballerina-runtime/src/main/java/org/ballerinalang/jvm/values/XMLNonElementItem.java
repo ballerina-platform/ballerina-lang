@@ -21,6 +21,7 @@ package org.ballerinalang.jvm.values;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
@@ -174,7 +175,7 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
@@ -190,8 +191,13 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
+    public String informalStringValue(BLink parent) {
+        return "`" + toString() + "`";
+    }
+
+    @Override
     public String toString() {
-        return this.stringValue();
+        return this.stringValue(null);
     }
 
     @Override

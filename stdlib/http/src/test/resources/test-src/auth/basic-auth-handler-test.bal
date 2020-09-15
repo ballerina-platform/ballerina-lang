@@ -61,11 +61,11 @@ function createRequest() returns http:Request {
     return inRequest;
 }
 
-public type CustomAuthProvider object {
+public class CustomAuthProvider {
 
     *auth:InboundAuthProvider;
 
     public function authenticate(string credential) returns boolean|auth:Error {
         return credential == "aXN1cnU6eHh4";
     }
-};
+}

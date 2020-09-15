@@ -19,28 +19,28 @@ type Rec record {
     int j = 10;
 };
 
-type Obj object {
+class Obj {
     int i;
 
     function init() {
         self.i = 1;
     }
-};
+}
 
-type ObjInitNullable object {
+class ObjInitNullable {
     int i;
 
     function init() returns () {
         self.i = 1;
     }
-};
+}
 
-type Age object {
+class Age {
     public int age;
     public function init(int age = 5) {
     	 self.age = age;
     }
-};
+}
 
 // TODO: fix me https://github.com/ballerina-platform/ballerina-lang/issues/20983
 function testObjectDynamicArrayFilling() {

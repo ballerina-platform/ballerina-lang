@@ -134,7 +134,8 @@ public class StaticMethodTest {
     @Test(description = "Test static java method that returns error value or MapValue")
     public void testMapValueOrErrorReturn() {
         BValue[] returns = BRunUtil.invoke(result, "testUnionReturn");
-        Assert.assertEquals(returns[0].stringValue(), "resources=path=basePath method=Method string");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"resources\":[{\"path\":\"basePath\",\"method\":\"Method string\"}]}");
 
     }
 
@@ -170,5 +171,25 @@ public class StaticMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "testDecimalParamAndReturn", args);
         Assert.assertTrue(returns[0] instanceof BDecimal);
         Assert.assertEquals(returns[0].stringValue(), "199.7");
+    }
+
+    @Test
+    public void testBalEnvSlowAsyncVoidSig() {
+        BRunUtil.invoke(result, "testBalEnvSlowAsyncVoidSig");
+    }
+
+    @Test
+    public void testBalEnvFastAsyncVoidSig() {
+        BRunUtil.invoke(result, "testBalEnvFastAsyncVoidSig");
+    }
+
+    @Test
+    public void testBalEnvSlowAsync() {
+        BRunUtil.invoke(result, "testBalEnvSlowAsync");
+    }
+
+    @Test
+    public void testBalEnvFastAsync() {
+        BRunUtil.invoke(result, "testBalEnvFastAsync");
     }
 }

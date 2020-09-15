@@ -68,6 +68,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -563,7 +564,8 @@ public class JvmPackageGen {
         if (isEntry) {
             for (BIRNode.BIRConstant constant : module.constants) {
                 module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.type, null,
-                        constant.name, VarScope.GLOBAL, VarKind.CONSTANT, ""));
+                                                               constant.name, VarScope.GLOBAL, VarKind.CONSTANT, "",
+                                                               constant.origin));
             }
         }
         for (BIRGlobalVariableDcl globalVar : module.globalVars) {
@@ -586,7 +588,7 @@ public class JvmPackageGen {
             BType bType = optionalTypeDef.type;
 
             if ((bType.tag != TypeTags.OBJECT ||
-                    Symbols.isFlagOn(bType.tsymbol.flags, Flags.ABSTRACT)) &&
+                    !Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) &&
                     !(bType instanceof BServiceType)) {
                 continue;
             }
@@ -614,20 +616,20 @@ public class JvmPackageGen {
 
     private void linkModuleStopFunction(String pkgName, String initClass, String orgName, String moduleName,
                                         String version) {
-
-        BIRFunction moduleStopFunction = new BIRFunction(null, new Name(MODULE_STOP), 0,
-                new BInvokableType(Collections.emptyList(), null, new BNilType(), null), new Name(""), 0, null);
+        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, new BNilType(), null);
+        BIRFunction moduleStopFunction = new BIRFunction(null, new Name(MODULE_STOP), 0, funcType, new Name(""), 0,
+                                                         null, VIRTUAL);
         birFunctionMap.put(pkgName + MODULE_STOP, getFunctionWrapper(moduleStopFunction, orgName, moduleName,
-                version, initClass));
+                                                                     version, initClass));
     }
 
     private void linkModuleInitFunction(String pkgName, String initClass, String orgName, String moduleName,
                                         String version) {
-
-        BIRFunction moduleInitFunction = new BIRFunction(null, new Name(CURRENT_MODULE_INIT), 0,
-                new BInvokableType(Collections.emptyList(), null, new BNilType(), null), new Name(""), 0, null);
+        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, new BNilType(), null);
+        BIRFunction moduleInitFunction = new BIRFunction(null, new Name(CURRENT_MODULE_INIT), 0, funcType, new Name(""),
+                                                         0, null, VIRTUAL);
         birFunctionMap.put(pkgName + CURRENT_MODULE_INIT, getFunctionWrapper(moduleInitFunction, orgName, moduleName,
-                version, initClass));
+                                                                             version, initClass));
     }
 
     private void linkModuleFunctions(BIRPackage module, String pkgName, String initClass,

@@ -31,7 +31,8 @@ public class GeneratorConstants {
      */
     public enum GenType {
         GEN_SERVICE("gen_service"),
-        GEN_CLIENT("gen_client");
+        GEN_CLIENT("gen_client"),
+        GEN_BOTH("gen_both");
 
         private String name;
 
@@ -65,6 +66,7 @@ public class GeneratorConstants {
     public static final String OAS_PATH_SEPARATOR = "/";
     public static final String MODULE_MD = "Module.md";
 
+    public static final String USER_DIR = "user.dir";
     public static final String UNTITLED_SERVICE = "UntitledAPI";
     public static final List<String> RESERVED_KEYWORDS = Collections.unmodifiableList(
             Arrays.asList("abort", "aborted", "abstract", "all", "annotation",
@@ -76,4 +78,5 @@ public class GeneratorConstants {
                 "source", "start", "stream", "string", "table", "transaction", "try", "type", "typedesc", "typeof",
                 "trap", "throw", "wait", "while", "with", "worker", "var", "version", "xml", "xmlns", "BOOLEAN_LITERAL",
                 "NULL_LITERAL", "ascending", "descending", "foreach", "map", "group", "from", "default", "field"));
+    public static final String ESCAPE_PATTERN = "([\\[\\]\\\\?!<>@#&~`*\\-=^+();:\\_{}\\s|.$])";
 }

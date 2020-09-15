@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BType;
@@ -61,11 +62,11 @@ public class Reduce {
         GetFunction getFn = getElementAccessFunction(arrType, "reduce()");
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{strand, accum.get(), true,
                                                                getFn.get(arr, index.incrementAndGet()), true},
-                                                       accum::set, accum::get);
+                                                       accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
 
         

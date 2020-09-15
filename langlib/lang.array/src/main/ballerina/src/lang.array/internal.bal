@@ -15,7 +15,7 @@
 // under the License.
 
 # Represent the iterator type returned when `iterator` method is invoked.
-type ArrayIterator object {
+class ArrayIterator {
 
     private Type[] m;
 
@@ -25,7 +25,7 @@ type ArrayIterator object {
 
     # Return next member or nil if end of iteration is reached.
     # + return - iterator result
-    public function next() returns record {|
+    public isolated function next() returns record {|
         Type value;
     |}? = external;
-};
+}

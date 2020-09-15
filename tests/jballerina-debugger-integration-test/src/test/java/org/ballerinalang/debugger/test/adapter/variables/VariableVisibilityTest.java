@@ -50,7 +50,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void parentVariableVisibilityTest() throws BallerinaTestException {
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 154));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
@@ -145,7 +145,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         assertVariable(variables[26], "v27_neverVar", "", "xml");
     }
 
-    @Test(dependsOnMethods = "parentVariableVisibilityTest")
+    @Test(enabled = false, dependsOnMethods = "parentVariableVisibilityTest")
     public void childVariableVisibilityTest() throws BallerinaTestException {
         // xml child variable visibility test
         Variable[] xmlChildVariables = getChildVariable(variables[6]);

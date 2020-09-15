@@ -297,6 +297,8 @@ public class JvmCastGen {
             case TypeTags.HANDLE:
                 mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
                         String.format("()L%s;", OBJECT), false);
+                mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
+                mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
                 break;
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_INT_METHOD, String.format("(L%s;)J", OBJECT),
@@ -433,6 +435,9 @@ public class JvmCastGen {
                         break;
                     case TypeTags.JSON:
                         generateCheckCastJToBJSON(mv, indexMap, sourceType);
+                        break;
+                    case TypeTags.READONLY:
+                        generateCheckCastJToBReadOnly(mv, indexMap, sourceType);
                         break;
                     case TypeTags.FINITE:
                         generateCheckCastJToBFiniteType(mv, indexMap, sourceType, targetType);
@@ -700,6 +705,7 @@ public class JvmCastGen {
             case TypeTags.JSON:
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
+            case TypeTags.READONLY:
                 return true;
             case TypeTags.UNION:
             case TypeTags.INTERSECTION:
@@ -719,6 +725,17 @@ public class JvmCastGen {
 
         // if value types, then ad box instruction
         generateJCastToBAny(mv, indexMap, sourceType, symbolTable.jsonType);
+    }
+
+    private static void generateCheckCastJToBReadOnly(MethodVisitor mv, BIRVarToJVMIndexMap indexMap,
+                                                      JType sourceType) {
+
+        if (sourceType.jTag == JTypeTags.JREF || sourceType.jTag == JTypeTags.JARRAY) {
+            return;
+        }
+
+        // if value types, then add box instruction
+        generateJCastToBAny(mv, indexMap, sourceType, symbolTable.readonlyType);
     }
 
     private static void generateCheckCastJToBFiniteType(MethodVisitor mv, BIRVarToJVMIndexMap indexMap,
@@ -838,6 +855,7 @@ public class JvmCastGen {
             case TypeTags.UNION:
             case TypeTags.DECIMAL:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_INT_METHOD, String.format("(L%s;)J", OBJECT),
                         false);
@@ -869,6 +887,7 @@ public class JvmCastGen {
             case TypeTags.UNION:
             case TypeTags.DECIMAL:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned32", String.format("(L%s;)J", OBJECT),
                         false);
@@ -900,6 +919,7 @@ public class JvmCastGen {
             case TypeTags.UNION:
             case TypeTags.DECIMAL:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned16", String.format("(L%s;)J", OBJECT),
                         false);
@@ -932,6 +952,7 @@ public class JvmCastGen {
             case TypeTags.UNION:
             case TypeTags.DECIMAL:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned8", String.format("(L%s;)J", OBJECT),
                         false);
@@ -963,6 +984,7 @@ public class JvmCastGen {
             case TypeTags.UNION:
             case TypeTags.DECIMAL:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned32", String.format("(L%s;)J", OBJECT),
                         false);
@@ -994,6 +1016,7 @@ public class JvmCastGen {
             case TypeTags.UNION:
             case TypeTags.DECIMAL:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned16", String.format("(L%s;)J", OBJECT),
                         false);
@@ -1025,6 +1048,7 @@ public class JvmCastGen {
             case TypeTags.UNION:
             case TypeTags.DECIMAL:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned8", String.format("(L%s;)J", OBJECT),
                         false);
@@ -1054,6 +1078,7 @@ public class JvmCastGen {
             case TypeTags.UNION:
             case TypeTags.DECIMAL:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT),
                         false);
@@ -1080,6 +1105,7 @@ public class JvmCastGen {
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToDecimal",
                         String.format("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
@@ -1111,6 +1137,7 @@ public class JvmCastGen {
                 case TypeTags.ANYDATA:
                 case TypeTags.UNION:
                 case TypeTags.JSON:
+                case TypeTags.READONLY:
                 case TypeTags.FINITE:
                     checkCast(mv, symbolTable.stringType);
                     mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
@@ -1160,6 +1187,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.READONLY ||
                 sourceType.tag == TypeTags.FINITE ||
                 TypeTags.isIntegerTypeTag(sourceType.tag) ||
                 sourceType.tag == TypeTags.FLOAT ||
@@ -1183,6 +1211,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.READONLY ||
                 sourceType.tag == TypeTags.FINITE) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToBoolean", String.format("(L%s;)Z", OBJECT), false);
         } else {
@@ -1214,6 +1243,7 @@ public class JvmCastGen {
             case TypeTags.UNION:
             case TypeTags.FINITE:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BYTE_METHOD, String.format("(L%s;)I", OBJECT),
                         false);
                 break;
@@ -1239,6 +1269,7 @@ public class JvmCastGen {
         if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.INTERSECTION ||
+                sourceType.tag == TypeTags.READONLY ||
                 sourceType.tag == TypeTags.MAP) {
             checkCast(mv, symbolTable.jsonType);
         } else {
@@ -1363,6 +1394,7 @@ public class JvmCastGen {
                 case TypeTags.ANYDATA:
                 case TypeTags.ANY:
                 case TypeTags.JSON:
+                case TypeTags.READONLY:
                 case TypeTags.FINITE:
                     generateCastToAny(mv, sourceType);
                     return;
@@ -1395,6 +1427,7 @@ public class JvmCastGen {
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_INT_METHOD, String.format("(L%s;)J", OBJECT),
                         false);
                 break;
@@ -1415,7 +1448,8 @@ public class JvmCastGen {
         } else if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.JSON) {
+                sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.READONLY) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT), false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'float'",
@@ -1446,6 +1480,7 @@ public class JvmCastGen {
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
                 mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
                 break;
             default:
@@ -1473,6 +1508,7 @@ public class JvmCastGen {
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
             case TypeTags.JSON:
+            case TypeTags.READONLY:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToDecimal",
                         String.format("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
                 break;
@@ -1491,7 +1527,8 @@ public class JvmCastGen {
         if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.JSON) {
+                sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.READONLY) {
             mv.visitTypeInsn(CHECKCAST, BOOLEAN_VALUE);
             mv.visitMethodInsn(INVOKEVIRTUAL, BOOLEAN_VALUE, "booleanValue", "()Z", false);
         } else {
@@ -1511,7 +1548,8 @@ public class JvmCastGen {
         } else if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.JSON) {
+                sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.READONLY) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BYTE_METHOD, String.format("(L%s;)I", OBJECT), false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'byte'", sourceType));

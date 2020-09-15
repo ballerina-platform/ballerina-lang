@@ -222,7 +222,7 @@ function newInputStream1() returns InputStream {
 // External interop functions for mapping public constructors.
 
 function java_io_InputStream_newInputStream1() returns handle = @java:Constructor {
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: []
 } external;
 
@@ -230,103 +230,103 @@ function java_io_InputStream_newInputStream1() returns handle = @java:Constructo
 
 function java_io_InputStream_available(handle receiver) returns int|error = @java:Method {
     name: "available",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: []
 } external;
 
 function java_io_InputStream_close(handle receiver) returns error? = @java:Method {
     name: "close",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: []
 } external;
 
 function java_io_InputStream_equals(handle receiver, handle arg0) returns boolean = @java:Method {
     name: "equals",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: ["java.lang.Object"]
 } external;
 
 function java_io_InputStream_getClass(handle receiver) returns handle = @java:Method {
     name: "getClass",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: []
 } external;
 
 function java_io_InputStream_hashCode(handle receiver) returns int = @java:Method {
     name: "hashCode",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: []
 } external;
 
 function java_io_InputStream_mark(handle receiver, int arg0) = @java:Method {
     name: "mark",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: ["int"]
 } external;
 
 function java_io_InputStream_markSupported(handle receiver) returns boolean = @java:Method {
     name: "markSupported",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: []
 } external;
 
 function java_io_InputStream_notify(handle receiver) = @java:Method {
     name: "notify",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: []
 } external;
 
 function java_io_InputStream_notifyAll(handle receiver) = @java:Method {
     name: "notifyAll",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: []
 } external;
 
 function java_io_InputStream_read1(handle receiver) returns int|error = @java:Method {
     name: "read",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: []
 } external;
 
 function java_io_InputStream_read2(handle receiver, handle arg0) returns int|error = @java:Method {
     name: "read",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: ["[B"]
 } external;
 
 function java_io_InputStream_read3(handle receiver, handle arg0, int arg1, int arg2) returns int|error = @java:Method {
     name: "read",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: ["[B", "int", "int"]
 } external;
 
 function java_io_InputStream_reset(handle receiver) returns error? = @java:Method {
     name: "reset",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: []
 } external;
 
 function java_io_InputStream_skip(handle receiver, int arg0) returns int|error = @java:Method {
     name: "skip",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: ["long"]
 } external;
 
 function java_io_InputStream_wait1(handle receiver) returns error? = @java:Method {
     name: "wait",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: []
 } external;
 
 function java_io_InputStream_wait2(handle receiver, int arg0) returns error? = @java:Method {
     name: "wait",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: ["long"]
 } external;
 
 function java_io_InputStream_wait3(handle receiver, int arg0, int arg1) returns error? = @java:Method {
     name: "wait",
-    class: "java.io.InputStream",
+    'class: "java.io.InputStream",
     paramTypes: ["long", "int"]
 } external;
 

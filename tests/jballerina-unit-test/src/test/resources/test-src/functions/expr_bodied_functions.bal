@@ -118,7 +118,7 @@ function toEmployee(Person p) returns Employee => {
 
 function testRecordAsAnExpr() {
     Employee e = toEmployee({fname: "John", lname: "Doe", age: 25});
-    assert("name=John Doe", e.toString());
+    assert("{\"name\":\"John Doe\"}", e.toString());
 }
 
 // Test returning param ref
@@ -162,7 +162,7 @@ function testFunctionInvocationAsLambdas() {
 }
 
 // Test expr bodies in object methods
-type PersonObj object {
+class PersonObj {
     string name;
     int age;
 
@@ -176,7 +176,7 @@ type PersonObj object {
     function getAge() returns int => self.age;
 
     function toString() returns string => "[name: " + self.name + ", age: " + self.age.toString() + "]";
-};
+}
 
 function testExprsBodiesInMethods() {
     PersonObj p = new("John Doe", 25);
@@ -194,11 +194,11 @@ function getError(boolean returnErr) returns error? {
     }
 }
 
-type PersonObj2 object {
+class PersonObj2 {
     string name = "Anonymous";
 
     function init(boolean retErr) returns error? =>  check getError(retErr);
-};
+}
 
 function testObjectInitBodyAsAnExpr() {
     PersonObj2|error p1 = new(true);

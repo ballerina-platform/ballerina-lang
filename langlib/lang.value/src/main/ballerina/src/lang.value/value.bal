@@ -23,20 +23,20 @@ type AnydataType anydata;
 # Returns a clone of `v`.
 # A clone is a deep copy that does not copy immutable subtrees.
 # A clone can therefore safely be used concurrently with the original.
-# It corresponds to the Clone(v) abstract operation,
+# It corresponds to the Clone(v) operation,
 # defined in the Ballerina Language Specification.
 #
 # + v - source value
 # + return - clone of `v`
-public function clone(AnydataType v) returns AnydataType = external;
+public isolated function clone(AnydataType v) returns AnydataType = external;
 
 # Returns a clone of `v` that is read-only, i.e. immutable.
-# It corresponds to the ImmutableClone(v) abstract operation,
+# It corresponds to the ImmutableClone(v) operation,
 # defined in the Ballerina Language Specification.
 #
 # + v - source value
 # + return - immutable clone of `v`
-public function cloneReadOnly(AnydataType v) returns AnydataType = external;
+public isolated function cloneReadOnly(AnydataType v) returns AnydataType = external;
 
 # Constructs a value with a specified type by cloning another value.
 # + v - the value to be cloned
@@ -64,14 +64,14 @@ public function cloneReadOnly(AnydataType v) returns AnydataType = external;
 # - numeric values can be converted using the NumericConvert abstract operation
 # - if a record type descriptor specifies default values, these will be used
 #   to supply any missing members
-public function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = external;
+public isolated function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = external;
 
 # Tests whether `v` is read-only, i.e. immutable
 # Returns true if read-only, false otherwise.
 #
 # + v - source value
 # + return - true if read-only, false otherwise
-public function isReadOnly(anydata v) returns boolean = external;
+public isolated function isReadOnly(anydata v) returns boolean = external;
 
 # Performs a minimal conversion of a value to a string.
 # The conversion is minimal in particular in the sense
@@ -111,7 +111,7 @@ public function isReadOnly(anydata v) returns boolean = external;
 #
 # Note that `toString` may produce the same string for two Ballerina values
 # that are not equal (in the sense of the `==` operator).
-public function toString((any|error) v) returns string = external;
+public isolated function toString((any|error) v) returns string = external;
 
 // JSON conversion
 
@@ -130,14 +130,14 @@ public function toString((any|error) v) returns string = external;
 # + v - anydata value
 # + return - representation of `v` as value of type json
 # This panics if `v` has cycles.
-public function toJson(anydata v) returns json = external;
+public isolated function toJson(anydata v) returns json = external;
 
 # Returns the string that represents `v` in JSON format.
 # `v` is first converted to `json` as if by the `toJson` function.
 #
 # + v - anydata value
 # + return - string representation of json
-public function toJsonString(anydata v) returns string = external;
+public isolated function toJsonString(anydata v) returns string = external;
 
 # Parses a string in JSON format and returns the the value that it represents.
 # All numbers in the JSON will be represented as float values.
@@ -145,7 +145,7 @@ public function toJsonString(anydata v) returns string = external;
 #
 # + str - string representation of json
 # + return - `str` parsed to json or error
-public function fromJsonString(string str) returns json|error = external;
+public isolated function fromJsonString(string str) returns json|error = external;
 
 # Converts a value of type json to a user-specified type.
 # This works the same as `cloneWithType`,
@@ -154,7 +154,7 @@ public function fromJsonString(string str) returns json|error = external;
 # + v - json value
 # + t - type to convert to
 # + return - value belonging to `t`, or error if this cannot be done
-public function fromJsonWithType(json v, typedesc<anydata> t)
+public isolated function fromJsonWithType(json v, typedesc<anydata> t)
     returns t|error = external;
 
 # Converts a string in JSON format to a user-specified type.
@@ -163,7 +163,7 @@ public function fromJsonWithType(json v, typedesc<anydata> t)
 # + str - string in JSON format
 # + t - type to convert to
 # + return - value belonging to `t`, or error if this cannot be done
-public function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = external;
+public isolated function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = external;
 
 # Merges two json values.
 #
@@ -181,4 +181,4 @@ public function fromJsonStringWithType(string str, typedesc<anydata> t) returns 
 #     - otherwise, the result is `j1`.
 # - otherwise, the merge fails
 # If the merge fails, then `j1` is unchanged.
-public function mergeJson(json j1, json j2) returns json|error = external;
+public isolated function mergeJson(json j1, json j2) returns json|error = external;

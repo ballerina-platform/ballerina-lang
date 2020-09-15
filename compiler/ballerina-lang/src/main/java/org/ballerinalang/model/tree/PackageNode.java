@@ -38,8 +38,6 @@ public interface PackageNode extends Node {
 
     void addNamespaceDeclaration(XMLNSDeclarationNode xmlnsDecl);
 
-    List<? extends EndpointNode> getGlobalEndpoints();
-
     List<? extends ConstantNode> getConstants();
 
     List<? extends SimpleVariableNode> getGlobalVariables();
@@ -61,5 +59,7 @@ public interface PackageNode extends Node {
     List<? extends AnnotationNode> getAnnotations();
 
     void addAnnotation(AnnotationNode annotation);
+
+    List<? extends ClassDefinition> getClassDefinitions();
 
 }

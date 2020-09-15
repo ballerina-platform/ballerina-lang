@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 17,
+    "character": 31
+  },
+  "source": "expression_context/source/query_expr_ctx_join_clause_source10.bal",
+  "items": [
+    {
+      "label": "equals",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "equals ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

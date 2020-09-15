@@ -3,8 +3,8 @@
 # + a - struct `field a` documentation
 # + b - struct `field b` documentation
 # + c - struct `field c` documentation
-type Test object {
+class Test {
     public int a = 0;
     public int b = 0;
     public int c = 0;
-};
+}

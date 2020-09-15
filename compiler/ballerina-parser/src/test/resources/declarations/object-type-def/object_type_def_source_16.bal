@@ -1,3 +1,3 @@
-type Foo client abstract object {
-    string name;
-};
+client object {
+    int a;
+} student;

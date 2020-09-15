@@ -28,7 +28,6 @@ public class AttachedFunction extends BFunctionType {
 
     public String funcName;
     public BFunctionType type;
-    public int flags;
     public BObjectType parent;
 
     public AttachedFunction(String funcName, BObjectType parent, BFunctionType type, int flags) {

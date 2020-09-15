@@ -84,7 +84,6 @@ dependencies {
     dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
     dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
-    dist 'com.google.api.grpc:proto-google-common-protos:1.17.0'
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
     dist 'org.codehaus.woodstox:stax2-api:3.1.1'
@@ -100,7 +99,8 @@ dependencies {
     dist 'org.ow2.asm:asm-tree:7.1'
     dist 'org.ow2.asm:asm-util:7.1'
     dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
-
+    
+    dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
@@ -121,7 +121,6 @@ dependencies {
     dist project(':openapi-ballerina:openapi-validator')
     dist project(':openapi-ballerina:ballerina-client-generator')
     dist project(':docerina')
-    dist project(':protobuf-ballerina')
     dist project(':observerability-symbol-collector')
     dist project(':testerina:testerina-runtime')
     docerina project(':docerina-gradle-plugin')
@@ -149,45 +148,14 @@ dependencies {
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
-    distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
-
     birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
     // ballerinax module cache
     balxBir project(path: ':ballerina-java', configuration: 'bir')
-    balxBir project(path: ':ballerina-java-arrays', configuration: 'bir')
 
-
-    balDoc project(path: ':ballerina-auth', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-cache', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-config-api', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-crypto', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-email', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-file', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-filepath', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-grpc', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-http', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-io', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-log-api', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-math', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-mime', configuration: 'balDoc')
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-reflect', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-runtime-api', configuration: 'balDoc')
     balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-system', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-task', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-time', configuration: 'balDoc')
     balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-kafka', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-stringutils', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-ldap', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-oauth2', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-xmlutils', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-jsonutils', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-sql', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-jdbc', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-mysql', configuration: 'balDoc')
 
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
@@ -212,7 +180,6 @@ dependencies {
 
     // ballerinax modules
     balDoc project(path: ':ballerina-java', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-java-arrays', configuration: 'balDoc')
 
     // testerina modules
     balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')

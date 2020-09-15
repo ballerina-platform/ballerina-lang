@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.__internal as internal;
 import ballerina/lang.'xml;
 
 function createPipeline(
@@ -37,16 +38,18 @@ function createLetFunction(function(_Frame _frame) returns _Frame|error? letFunc
     return new _LetFunction(letFunc);
 }
 
-function createInnerJoinFunction(_StreamPipeline joinedPipeline,
-                                        function(_Frame _frame) returns boolean onCondition)
-        returns _StreamFunction {
-    return new _InnerJoinFunction(joinedPipeline, onCondition);
+function createInnerJoinFunction(
+        _StreamPipeline joinedPipeline,
+        function (_Frame _frame) returns any lhsKeyFunction,
+        function (_Frame _frame) returns any rhsKeyFunction) returns _StreamFunction {
+    return new _InnerJoinFunction(joinedPipeline, lhsKeyFunction, rhsKeyFunction);
 }
 
-function createOuterJoinFunction(_StreamPipeline joinedPipeline,
-                                        function(_Frame _frame) returns boolean onCondition)
-        returns _StreamFunction {
-    return new _OuterJoinFunction(joinedPipeline, onCondition);
+function createOuterJoinFunction(
+        _StreamPipeline joinedPipeline,
+        function (_Frame _frame) returns any lhsKeyFunction,
+        function (_Frame _frame) returns any rhsKeyFunction, _Frame nilFrame) returns _StreamFunction {
+    return new _OuterJoinFunction(joinedPipeline, lhsKeyFunction, rhsKeyFunction, nilFrame);
 }
 
 function createFilterFunction(function(_Frame _frame) returns boolean filterFunc)
@@ -68,8 +71,8 @@ function createDoFunction(function(_Frame _frame) doFunc) returns _StreamFunctio
     return new _DoFunction(doFunc);
 }
 
-function createLimitFunction(int lmt) returns _StreamFunction {
-    return new _LimitFunction(lmt);
+function createLimitFunction(function (_Frame _frame) returns int limitFunction) returns _StreamFunction {
+    return new _LimitFunction(limitFunction);
 }
 
 function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFunction streamFunction) {
@@ -189,3 +192,32 @@ function checkNaN(float x) returns boolean = external;
 
 // TODO: This for debugging purposes, remove once completed.
 function print(any|error? data) = external;
+
+class IterHelper {
+    public _StreamPipeline pipeline;
+    public typedesc<Type> outputType;
+
+    function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
+      self.pipeline = pipeline;
+      self.outputType = outputType;
+    }
+
+    public isolated function next() returns record {|Type value;|}|error? {
+        _StreamPipeline p = self.pipeline;
+        _Frame|error? f = p.next();
+        if (f is _Frame) {
+            Type v = <Type>f["$value$"];
+            // Add orderKey and orderDirection values to respective arrays.
+            if ((!(f["$orderKey$"] is ())) && (!(f["$orderDirection$"] is ()))) {
+                anydata[] orKey = <anydata[]>f["$orderKey$"];
+                // Need to keep the stream value to sort the stream.
+                orKey.push(<anydata>v);
+                orderFieldValsArr.push(orKey);
+                orderDirectionsArr = <boolean[]>f["$orderDirection$"];
+            }
+            return internal:setNarrowType(self.outputType, {value: v});
+        } else {
+            return f;
+        }
+    }
+}

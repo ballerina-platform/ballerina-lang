@@ -54,21 +54,21 @@ public class BIRLockOptimizer extends BIRVisitor {
         propagateLocks();
     }
 
-    private void propagateLocks() {
-        for (Map.Entry<Integer, List<BIRTerminator.Lock>> entry : setToLockMap.entrySet()) {
-            Integer lockId = entry.getKey();
-            for (BIRTerminator.Lock lock : entry.getValue()) {
-                lock.lockId = lockId;
-            }
-        }
-    }
-
     private void analyzeLocks() {
         for (int lockListIndex = 0; lockListIndex < lockList.size(); lockListIndex++) {
             if (!lockToSetMap.containsKey(lockList.get(lockListIndex))) {
                 analyzeUnvisitedLock(lockListIndex);
             } else {
                 analyzeVisitedLock(lockListIndex);
+            }
+        }
+    }
+
+    private void propagateLocks() {
+        for (Map.Entry<Integer, List<BIRTerminator.Lock>> entry : setToLockMap.entrySet()) {
+            Integer lockId = entry.getKey();
+            for (BIRTerminator.Lock lock : entry.getValue()) {
+                lock.lockId = lockId;
             }
         }
     }

@@ -254,10 +254,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if (serviceNode.attachedExprs != null) {
             serviceNode.attachedExprs.forEach(this::acceptNode);
         }
-        BLangType typeNode = serviceNode.getTypeDefinition().typeNode;
-        if (typeNode instanceof BLangObjectTypeNode) {
-            ((BLangObjectTypeNode) typeNode).functions.forEach(this::acceptNode);
-        }
+        serviceNode.serviceClass.functions.forEach(this::acceptNode);
     }
 
     @Override
@@ -952,7 +949,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        this.acceptNode(onClause.expression);
+        this.acceptNode(onClause.lhsExpr);
+        this.acceptNode(onClause.rhsExpr);
     }
 
     @Override

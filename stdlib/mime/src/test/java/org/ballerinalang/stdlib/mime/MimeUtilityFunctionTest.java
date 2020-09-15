@@ -108,7 +108,7 @@ public class MimeUtilityFunctionTest {
         Object[] args = {StringUtils.fromString("testContentType")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetMediaType", args);
         Assert.assertEquals(returns.length, 1);
-        verifyMimeError(returns[0], "error Unable to find a sub type.");
+        verifyMimeError(returns[0], "error(\"Unable to find a sub type.\")");
     }
 
     @Test(description = "Test 'getBaseType' function in ballerina/mime package")

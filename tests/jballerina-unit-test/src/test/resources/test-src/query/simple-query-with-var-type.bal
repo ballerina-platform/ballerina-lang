@@ -24,9 +24,9 @@ type Employee record {|
     int age;
 |};
 
-type NumberGenerator object {
+class NumberGenerator {
     int i = 0;
-    public function next() returns record {|int value;|}|error? {
+    public isolated function next() returns record {|int value;|}|error? {
         //closes the stream after 5 events
         if (self.i == 5) {
             return ();
@@ -34,7 +34,7 @@ type NumberGenerator object {
         self.i += 1;
         return {value: self.i};
     }
-};
+}
 
 type ResultValue record {|
     Person value;

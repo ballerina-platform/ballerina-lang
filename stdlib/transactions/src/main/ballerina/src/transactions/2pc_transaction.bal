@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/time;
 
-type TwoPhaseCommitTransaction object {
+class TwoPhaseCommitTransaction {
 
     string transactionId;
     string transactionBlockId;
@@ -279,4 +279,4 @@ type TwoPhaseCommitTransaction object {
             log:printError(failedMessage);
         }
     }
-};
+}

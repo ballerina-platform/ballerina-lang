@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -30,7 +31,9 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValue;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
@@ -544,8 +547,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public String stringValue() {
-        StringJoiner sj = new StringJoiner(" ");
+    public String stringValue(BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
         switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.SIGNED32_INT_TAG:
@@ -576,16 +579,36 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(bStringValues[i].getValue());
+                    sj.add(((BValue) (bStringValues[i])).informalStringValue(parent));
                 }
                 break;
             default:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getStringValue(refValues[i]));
+                    if (refValues[i] == null) {
+                        sj.add("null");
+                    } else {
+                        BType type = TypeChecker.getType(refValues[i]);
+                        switch (type.getTag()) {
+                            case TypeTags.STRING_TAG:
+                            case TypeTags.XML_TAG:
+                            case TypeTags.XML_ELEMENT_TAG:
+                            case TypeTags.XML_ATTRIBUTES_TAG:
+                            case TypeTags.XML_COMMENT_TAG:
+                            case TypeTags.XML_PI_TAG:
+                            case TypeTags.XMLNS_TAG:
+                            case TypeTags.XML_TEXT_TAG:
+                                sj.add(((BValue) (refValues[i])).informalStringValue(new CycleUtils
+                                        .Node(this, parent)));
+                                break;
+                            default:
+                                sj.add(StringUtils.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
+                                break;
+                        }
+                    }
                 }
                 break;
         }
-        return sj.toString();
+        return "[" + sj.toString() + "]";
     }
 
     @Override
@@ -713,7 +736,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public String toString() {
-        return stringValue();
+        return stringValue(null);
     }
 
     /**

@@ -55,19 +55,13 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx) {
-
-        return new ArrayList<>();
-    }
-
-    @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ImplicitNewExpressionNode node) {
         /*
         Supports the following
         (1) lhs = new <cursor>
         */
         Optional<BObjectTypeSymbol> objectTypeSymbol = getObjectTypeSymbol(context, node);
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
         objectTypeSymbol.ifPresent(bSymbol -> completionItems.add(this.getExplicitNewCompletionItem(bSymbol, context)));
 
         return completionItems;

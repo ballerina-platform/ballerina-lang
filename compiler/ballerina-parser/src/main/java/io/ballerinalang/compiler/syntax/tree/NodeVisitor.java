@@ -83,6 +83,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(breakStatementNode);
     }
 
+    public void visit(FailStatementNode failStatementNode) {
+        visitSyntaxNode(failStatementNode);
+    }
+
     public void visit(ExpressionStatementNode expressionStatementNode) {
         visitSyntaxNode(expressionStatementNode);
     }
@@ -141,10 +145,6 @@ public abstract class NodeVisitor {
 
     public void visit(CheckExpressionNode checkExpressionNode) {
         visitSyntaxNode(checkExpressionNode);
-    }
-
-    public void visit(FailExpressionNode failExpressionNode) {
-        visitSyntaxNode(failExpressionNode);
     }
 
     public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
@@ -229,6 +229,10 @@ public abstract class NodeVisitor {
 
     public void visit(ObjectTypeDescriptorNode objectTypeDescriptorNode) {
         visitSyntaxNode(objectTypeDescriptorNode);
+    }
+
+    public void visit(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        visitSyntaxNode(objectConstructorExpressionNode);
     }
 
     public void visit(RecordTypeDescriptorNode recordTypeDescriptorNode) {
@@ -519,6 +523,22 @@ public abstract class NodeVisitor {
         visitSyntaxNode(letClauseNode);
     }
 
+    public void visit(JoinClauseNode joinClauseNode) {
+        visitSyntaxNode(joinClauseNode);
+    }
+
+    public void visit(OnClauseNode onClauseNode) {
+        visitSyntaxNode(onClauseNode);
+    }
+
+    public void visit(LimitClauseNode limitClauseNode) {
+        visitSyntaxNode(limitClauseNode);
+    }
+
+    public void visit(OnConflictClauseNode onConflictClauseNode) {
+        visitSyntaxNode(onConflictClauseNode);
+    }
+
     public void visit(QueryPipelineNode queryPipelineNode) {
         visitSyntaxNode(queryPipelineNode);
     }
@@ -529,6 +549,10 @@ public abstract class NodeVisitor {
 
     public void visit(QueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
+    }
+
+    public void visit(QueryActionNode queryActionNode) {
+        visitSyntaxNode(queryActionNode);
     }
 
     public void visit(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
@@ -591,8 +615,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(restBindingPatternNode);
     }
 
-    public void visit(FunctionalBindingPatternNode functionalBindingPatternNode) {
-        visitSyntaxNode(functionalBindingPatternNode);
+    public void visit(ErrorBindingPatternNode errorBindingPatternNode) {
+        visitSyntaxNode(errorBindingPatternNode);
     }
 
     public void visit(NamedArgBindingPatternNode namedArgBindingPatternNode) {
@@ -641,10 +665,6 @@ public abstract class NodeVisitor {
 
     public void visit(AnnotAccessExpressionNode annotAccessExpressionNode) {
         visitSyntaxNode(annotAccessExpressionNode);
-    }
-
-    public void visit(QueryActionNode queryActionNode) {
-        visitSyntaxNode(queryActionNode);
     }
 
     public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
@@ -731,22 +751,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(distinctTypeDescriptorNode);
     }
 
-    public void visit(OnConflictClauseNode onConflictClauseNode) {
-        visitSyntaxNode(onConflictClauseNode);
-    }
-
-    public void visit(LimitClauseNode limitClauseNode) {
-        visitSyntaxNode(limitClauseNode);
-    }
-
-    public void visit(JoinClauseNode joinClauseNode) {
-        visitSyntaxNode(joinClauseNode);
-    }
-
-    public void visit(OnClauseNode onClauseNode) {
-        visitSyntaxNode(onClauseNode);
-    }
-
     public void visit(ListMatchPatternNode listMatchPatternNode) {
         visitSyntaxNode(listMatchPatternNode);
     }
@@ -793,6 +797,18 @@ public abstract class NodeVisitor {
 
     public void visit(OrderKeyNode orderKeyNode) {
         visitSyntaxNode(orderKeyNode);
+    }
+
+    public void visit(OnFailClauseNode onFailClauseNode) {
+        visitSyntaxNode(onFailClauseNode);
+    }
+
+    public void visit(DoStatementNode doStatementNode) {
+        visitSyntaxNode(doStatementNode);
+    }
+
+    public void visit(ClassDefinitionNode classDefinitionNode) {
+        visitSyntaxNode(classDefinitionNode);
     }
 
     // Tokens

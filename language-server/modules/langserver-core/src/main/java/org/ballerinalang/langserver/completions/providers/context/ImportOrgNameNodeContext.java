@@ -104,7 +104,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         item.setKind(CompletionItemKind.Module);
         item.setDetail(ItemResolverConstants.MODULE_TYPE);
 
-        return new StaticCompletionItem(context, item);
+        return new StaticCompletionItem(context, item, StaticCompletionItem.Kind.MODULE);
     }
 
     private boolean isAnnotationLangLib(BallerinaPackage ballerinaPackage) {

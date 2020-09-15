@@ -1,3 +1,0 @@
-function func() {
-   func1()
-}

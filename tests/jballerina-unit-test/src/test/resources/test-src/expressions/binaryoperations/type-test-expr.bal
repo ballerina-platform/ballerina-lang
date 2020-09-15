@@ -226,7 +226,7 @@ function testSealedRecordTypes() returns [boolean, boolean] {
 
 // ========================== Objects ==========================
 
-public type Person object {
+public class Person {
     public int age;
     public string name;
     public string address = "";
@@ -247,9 +247,9 @@ public type Person object {
     public function getAddress() returns (string) {
         return self.address;
     }
-};
+}
 
-public type SameAsPerson object {
+public class SameAsPerson {
     public int age;
     public string name;
     public string address = "";
@@ -270,7 +270,7 @@ public type SameAsPerson object {
     public function getAddress() returns (string) {
         return self.address;
     }
-};
+}
 
 function testObjectWithSameMembersButDifferentAlias() returns [string, string, string, string] {
     Person p1 = new("John", 35);
@@ -303,7 +303,7 @@ function testObjectWithSameMembersButDifferentAlias() returns [string, string, s
     return [s1, s2, s3, s4];
 }
 
-public type PersonInOrder object {
+public class PersonInOrder {
     public int age;
     public string name;
     public string address = "";
@@ -324,9 +324,9 @@ public type PersonInOrder object {
     public function getAddress() returns (string) {
         return self.address;
     }
-};
+}
 
-public type PersonNotInOrder object {
+public class PersonNotInOrder {
 
     public function getName() returns (string) {
         return self.name;
@@ -350,7 +350,7 @@ public type PersonNotInOrder object {
     }
 
     public string address = "";
-};
+}
 
 function testObjectWithUnorderedFields() returns [string, string, string, string] {
     PersonInOrder p1 = new("John", 35);
@@ -383,27 +383,27 @@ function testObjectWithUnorderedFields() returns [string, string, string, string
     return [s1, s2, s3, s4];
 }
 
-public type A4 abstract object {
+public type A4 object {
     public int p;
     public string q;
 };
 
-public type B4 abstract object {
+public type B4 object {
     public float r;
     *A4;
 };
 
-public type C4 object {
+public class C4 {
     *B4;
     public boolean s;
-    
+
     public function init(int p, string q, float r, boolean s) {
         self.p = p;
         self.q = q;
         self.r = r;
         self.s = s;
     }
-};
+}
 
 function testPublicObjectEquivalency() returns [string, string, string] {
     any x = new C4(5, "foo", 6.7, true);
@@ -426,27 +426,27 @@ function testPublicObjectEquivalency() returns [string, string, string] {
     return [s1, s2, s3];
 }
 
-type A5 abstract object {
+type A5 object {
     int p;
     string q;
 };
 
-type B5 abstract object {
+type B5 object {
     float r;
     *A5;
 };
 
-type C5 object {
+class C5 {
     *B5;
     boolean s;
-    
+
     public function init(int p, string q, float r, boolean s) {
         self.p = p;
         self.q = q;
         self.r = r;
         self.s = s;
     }
-};
+}
 
 function testPrivateObjectEquivalency() returns [string, string, string] {
     any x = new C5(5, "foo", 6.7, true);
@@ -475,21 +475,66 @@ function testAnonymousObjectEquivalency() returns [string, string, string] {
     string s2 = "n/a";
     string s3 = "n/a";
 
-    if(x is abstract object { public float r; *A4; }) {
+    if(x is object { public float r; *A4; }) {
         s1 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
-    if(x is object {  public int p = 0;  public string q = "";  public float r = 0;  public boolean s = false;}) {
+    if(x is object {  public int p;  public string q;  public float r;  public boolean s;}) {
         s2 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString() + ", " + x.s.toString();
     }
 
-    if(x is object { public int p = 0;  public boolean q = false;  public float r = 0.0;}) {  // shouldn't match
+    if(x is object { public int p;  public boolean q;  public float r;}) {  // shouldn't match
         s3 = "values: " + x.p.toString() + ", " + x.q.toString() + ", " + x.r.toString();
     }
 
     return [s1, s2, s3];
 }
 
+class Qux {
+    Qux? fn;
+
+    public function init(Qux? fn = ()) {
+        self.fn = fn;
+    }
+}
+
+class Quux {
+    Quux? fn = ();
+}
+
+class Quuz {
+    Quuz? fn = ();
+    int i = 1;
+}
+
+class ABC {
+    Qux f;
+    string s;
+
+    function init(Qux f, string s) {
+        self.f = f;
+        self.s = s;
+    }
+}
+
+function testObjectIsCheckWithCycles() {
+    Qux f1 = new;
+    Qux f2 = new (f1);
+
+    any a1 = <any> f1;
+    assertTrue(a1 is Quux);
+    assertFalse(a1 is Quuz);
+
+    any a2 = <any> f2;
+    assertTrue(a2 is Quux);
+    assertFalse(a2 is Quuz);
+
+    ABC ob = new (f2, "ballerina");
+
+    any a3 = ob;
+    assertTrue(a3 is object { Qux f; });
+    assertFalse(a3 is object { Quuz f; });
+}
 
 // ========================== Arrays ==========================
 
@@ -831,4 +876,20 @@ function testFutureFalse() returns boolean {
 
 function name() returns string {
     return "em";
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(anydata actual) {
+    assertEquality(false, actual);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

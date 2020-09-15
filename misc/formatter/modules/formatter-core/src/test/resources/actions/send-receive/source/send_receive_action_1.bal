@@ -4,8 +4,6 @@ public function foo() {
    }
    worker w2 {
        int lw;
-
-
           lw   =   <-   w1
           ;
    }
