@@ -1843,7 +1843,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkFinalEntityUpdate(DiagnosticPos pos, Object field, BSymbol symbol) {
-        if (!Symbols.isFlagOn(symbol.flags, Flags.FINAL)) {
+        if (symbol == null || !Symbols.isFlagOn(symbol.flags, Flags.FINAL)) {
             return;
         }
 
