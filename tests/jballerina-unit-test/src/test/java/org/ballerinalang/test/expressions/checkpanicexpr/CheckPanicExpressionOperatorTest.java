@@ -52,7 +52,7 @@ public class CheckPanicExpressionOperatorTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: Generic Error \\{\"fatal\":true, " +
+            expectedExceptionsMessageRegExp = "error: Generic Error \\{\"fatal\":true," +
                     "\"message\":\"Something Went Wrong.*")
     public void testSafeAssignmentBasics2() {
         BValue[] arg = {new BInteger(2)};

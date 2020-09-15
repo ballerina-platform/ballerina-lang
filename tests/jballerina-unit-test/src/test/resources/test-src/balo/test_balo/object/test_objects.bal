@@ -1,4 +1,5 @@
 import testorg/foo;
+import testorgtwo/foo as foo2;
 import testorg/utils;
 
 public function testSimpleObjectAsStruct () returns [int, string, int, string] {
@@ -303,4 +304,180 @@ public function testObjectReferingNonAbstractObjLoadedFromBalo() {
     utils:assertEquality((), cemp1.setWorkingFromHomeAllowance(50));
     utils:assertEquality("Contactless hello! John", cemp1.getName());
     utils:assertEquality(20, cemp1.Age());
+}
+
+public class ObjectWithModuleLevelVisibilityField {
+    public int i;
+    boolean b;
+
+    public function init(int i, boolean b) {
+        self.i = i;
+        self.b = b;
+    }
+
+    public function getInt() returns int {
+        return self.i;
+    }
+}
+
+public class ObjectWithModuleLevelVisibilityMethod {
+    public int i;
+    public boolean b;
+
+    public function init(int i, boolean b) {
+        self.i = i;
+        self.b = b;
+    }
+
+    function getInt() returns int {
+        return self.i;
+    }
+}
+
+public class ObjectWithPublicFieldsAndMethods {
+    public int i;
+    public boolean b;
+
+    public function init(int i, boolean b = true) {
+        self.i = i;
+        self.b = b;
+    }
+
+    public function getInt() returns int {
+        return self.i;
+    }
+}
+
+function testSubTypingWithModuleLevelVisibleFields() {
+    foo:ObjectWithModuleLevelVisibilityField f1 = foo:getObjectWithModuleLevelVisibilityField();
+    foo:ObjectWithModuleLevelVisibilityField f2 = new (11, false);
+
+    assertEquals(1, f1.i);
+    assertEquals(11, f2.i);
+
+    assertFalse((<any> f1) is ObjectWithModuleLevelVisibilityField);
+    assertFalse((<object {}> f2) is ObjectWithModuleLevelVisibilityField);
+    assertFalse((<any> f1) is ObjectWithModuleLevelVisibilityMethod);
+    assertFalse((<any> f2) is ObjectWithPublicFieldsAndMethods);
+    assertTrue((<any> f1) is foo:ObjectWithModuleLevelVisibilityField);
+    assertTrue((<any> f2) is foo:ObjectWithModuleLevelVisibilityField);
+
+    ObjectWithModuleLevelVisibilityField ob = new (1, true);
+    assertFalse((<object {}> ob) is foo:ObjectWithModuleLevelVisibilityField);
+    assertFalse((<any> ob) is foo:ObjectWithModuleLevelVisibilityMethod);
+    assertTrue((<any> ob) is ObjectWithModuleLevelVisibilityField);
+}
+
+function testSubTypingWithModuleLevelVisibleMethods() {
+    foo:ObjectWithModuleLevelVisibilityMethod f1 = foo:getObjectWithModuleLevelVisibilityMethod();
+    foo:ObjectWithModuleLevelVisibilityMethod f2 = new (22, true);
+
+    assertEquals(2, f1.i);
+    assertFalse(f1.b);
+    assertEquals(22, f2.i);
+    assertTrue(f2.b);
+
+    assertFalse((<any> f1) is ObjectWithModuleLevelVisibilityMethod);
+    assertFalse((<object {}> f2) is ObjectWithModuleLevelVisibilityMethod);
+    assertFalse((<any> f1) is ObjectWithModuleLevelVisibilityField);
+    assertFalse((<any> f2) is ObjectWithPublicFieldsAndMethods);
+    assertTrue((<any> f1) is foo:ObjectWithModuleLevelVisibilityMethod);
+    assertTrue((<any> f2) is foo:ObjectWithModuleLevelVisibilityMethod);
+
+    ObjectWithModuleLevelVisibilityMethod ob = new (2, false);
+    assertFalse((<object {}> ob) is foo:ObjectWithModuleLevelVisibilityField);
+    assertFalse((<any> ob) is foo:ObjectWithModuleLevelVisibilityMethod);
+    assertTrue((<any> ob) is ObjectWithModuleLevelVisibilityMethod);
+}
+
+function testSubTypingWithAllPublicFields() {
+    foo:ObjectWithPublicFieldsAndMethods f1 = foo:getObjectWithPublicFieldsAndMethods();
+    foo:ObjectWithPublicFieldsAndMethods f2 = new (33, false);
+
+    assertEquals(3, f1.i);
+    assertTrue(f1.b);
+    assertEquals(33, f2.i);
+    assertFalse(f2.b);
+
+    assertFalse((<any> f1) is ObjectWithModuleLevelVisibilityMethod);
+    assertFalse((<object {}> f2) is ObjectWithModuleLevelVisibilityField);
+    assertTrue((<any> f1) is foo:ObjectWithPublicFieldsAndMethods);
+    assertTrue((<any> f1) is ObjectWithPublicFieldsAndMethods);
+    assertTrue((<any> f2) is ObjectWithPublicFieldsAndMethods);
+
+    ObjectWithModuleLevelVisibilityField ob1 = new (1, false);
+    ObjectWithModuleLevelVisibilityMethod ob2 = new (2, false);
+    ObjectWithPublicFieldsAndMethods ob3 = new (3, false);
+    assertFalse((<object {}> ob1) is foo:ObjectWithPublicFieldsAndMethods);
+    assertFalse((<any> ob2) is foo:ObjectWithPublicFieldsAndMethods);
+    assertTrue((<any> ob3) is ObjectWithPublicFieldsAndMethods);
+    assertTrue((<any> ob3) is foo:ObjectWithPublicFieldsAndMethods);
+}
+
+function testSubTypingNegativeForDifferentOrgNameAndVersionWithModuleLevelVisibleFields() {
+    foo:ObjectWithModuleLevelVisibilityField f1 = foo:getObjectWithModuleLevelVisibilityField();
+    foo:ObjectWithModuleLevelVisibilityField f2 = new (11, false);
+
+    assertFalse((<any> f1) is foo2:ObjectWithModuleLevelVisibilityField);
+    assertFalse((<object {}> f2) is foo2:ObjectWithModuleLevelVisibilityField);
+    assertFalse((<any> f1) is foo2:ObjectWithModuleLevelVisibilityMethod);
+    assertFalse((<any> f2) is foo2:ObjectWithPublicFieldsAndMethods);
+    assertTrue((<any> f1) is foo:ObjectWithModuleLevelVisibilityField);
+    assertTrue((<any> f2) is foo:ObjectWithModuleLevelVisibilityField);
+
+    ObjectWithModuleLevelVisibilityField ob = new (1, true);
+    assertFalse((<object {}> ob) is foo2:ObjectWithModuleLevelVisibilityField);
+    assertFalse((<any> ob) is foo2:ObjectWithModuleLevelVisibilityMethod);
+    assertTrue((<any> ob) is ObjectWithModuleLevelVisibilityField);
+}
+
+function testSubTypingNegativeForDifferentOrgNameAndVersionWithModuleLevelVisibleMethods() {
+    foo:ObjectWithModuleLevelVisibilityMethod f1 = foo:getObjectWithModuleLevelVisibilityMethod();
+    foo:ObjectWithModuleLevelVisibilityMethod f2 = new (22, true);
+
+    assertFalse((<any> f1) is foo2:ObjectWithModuleLevelVisibilityMethod);
+    assertFalse((<object {}> f2) is foo2:ObjectWithModuleLevelVisibilityMethod);
+    assertFalse((<any> f1) is foo2:ObjectWithModuleLevelVisibilityField);
+    assertFalse((<any> f2) is foo2:ObjectWithPublicFieldsAndMethods);
+    assertTrue((<any> f1) is foo:ObjectWithModuleLevelVisibilityMethod);
+    assertTrue((<any> f2) is foo:ObjectWithModuleLevelVisibilityMethod);
+
+    ObjectWithModuleLevelVisibilityMethod ob = new (2, false);
+    assertFalse((<object {}> ob) is foo2:ObjectWithModuleLevelVisibilityField);
+    assertFalse((<any> ob) is foo2:ObjectWithModuleLevelVisibilityMethod);
+    assertTrue((<any> ob) is ObjectWithModuleLevelVisibilityMethod);
+}
+
+function testSubTypingForDifferentOrgNameAndVersionWithAllPublicFields() {
+    foo:ObjectWithPublicFieldsAndMethods f1 = foo:getObjectWithPublicFieldsAndMethods();
+    foo:ObjectWithPublicFieldsAndMethods f2 = new (33, false);
+
+    assertFalse((<any> f1) is foo2:ObjectWithModuleLevelVisibilityMethod);
+    assertFalse((<object {}> f2) is foo2:ObjectWithModuleLevelVisibilityField);
+    assertTrue((<any> f1) is foo2:ObjectWithPublicFieldsAndMethods);
+    assertTrue((<any> f2) is foo2:ObjectWithPublicFieldsAndMethods);
+
+    ObjectWithModuleLevelVisibilityField ob1 = new (1, false);
+    ObjectWithModuleLevelVisibilityMethod ob2 = new (2, false);
+    ObjectWithPublicFieldsAndMethods ob3 = new (3, false);
+    assertFalse((<object {}> ob1) is foo2:ObjectWithPublicFieldsAndMethods);
+    assertFalse((<any> ob2) is foo2:ObjectWithPublicFieldsAndMethods);
+    assertTrue((<any> ob3) is ObjectWithPublicFieldsAndMethods);
+    assertTrue((<any> ob3) is foo2:ObjectWithPublicFieldsAndMethods);
+}
+
+function assertTrue(anydata actual) {
+    assertEquals(true, actual);
+}
+
+function assertFalse(anydata actual) {
+    assertEquals(false, actual);
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

@@ -17,10 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 
 /**
  * @since 1.3.0
@@ -29,6 +31,7 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
 
     public BLangBlockStmt transactionBody;
     public boolean statementBlockReturns;
+    public BLangOnFailClause onFailClause;
 
     public BLangTransaction() {
     }
@@ -45,6 +48,16 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     @Override
     public void setTransactionBody(BlockStatementNode body) {
         this.transactionBody = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public OnFailClauseNode getOnFailClause() {
+        return this.onFailClause;
+    }
+
+    @Override
+    public void setOnFailClause(OnFailClauseNode onFailClause) {
+        this.onFailClause = (BLangOnFailClause) onFailClause;
     }
 
     @Override

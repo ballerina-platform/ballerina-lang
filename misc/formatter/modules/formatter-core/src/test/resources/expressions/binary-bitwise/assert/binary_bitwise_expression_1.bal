@@ -3,3 +3,4 @@ public function foo() {
     int o = 6 ^ 0;
     int p = 6 | 0;
 }
+
