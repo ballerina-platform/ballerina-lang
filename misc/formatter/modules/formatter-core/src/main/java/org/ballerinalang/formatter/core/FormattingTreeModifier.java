@@ -33,6 +33,7 @@ import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.CommitActionNode;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
@@ -360,8 +361,11 @@ public class FormattingTreeModifier extends TreeModifier {
             functionDefinitionNode = functionDefinitionNode.modify()
                     .withMetadata(metadata).apply();
         }
+
+        int startColumn = qualifierList.size() == 0 ? getStartColumn(functionDefinitionNode, true) : 0;
+
         return functionDefinitionNode.modify()
-                .withFunctionKeyword(formatToken(functionKeyword, 0, 0, 0, 0))
+                .withFunctionKeyword(formatToken(functionKeyword, startColumn, 0, 0, 0))
                 .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0, 0))
                 .withFunctionSignature(functionSignatureNode)
                 .withQualifierList(qualifierList)
@@ -1728,13 +1732,14 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(typeReferenceNode, lineRange)) {
             return typeReferenceNode;
         }
+        int startColumn = getStartColumn(typeReferenceNode, true);
         Token asteriskToken = getToken(typeReferenceNode.asteriskToken());
         Node typeName = this.modifyNode(typeReferenceNode.typeName());
         Token semicolonToken = getToken(typeReferenceNode.semicolonToken());
         return typeReferenceNode.modify()
                 .withTypeName(typeName)
-                .withAsteriskToken(formatToken(asteriskToken, 0, 0, 0, 0))
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withAsteriskToken(formatToken(asteriskToken, startColumn, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
@@ -3682,6 +3687,34 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         return orderKeyNode.modify()
                 .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public ClassDefinitionNode transform(ClassDefinitionNode classDefinitionNode) {
+        if (!isInLineRange(classDefinitionNode, lineRange)) {
+            return classDefinitionNode;
+        }
+
+        MetadataNode metadata = this.modifyNode(classDefinitionNode.metadata().orElse(null));
+        NodeList<Token> qualifierList = this.modifyNodeList(classDefinitionNode.classTypeQualifiers());
+        Token classKeyword = getToken(classDefinitionNode.classKeyword());
+        Token className = getToken(classDefinitionNode.className());
+        NodeList<Node> members = this.modifyNodeList(classDefinitionNode.members());
+        Token openBrace = getToken(classDefinitionNode.openBrace());
+        Token closeBrace = getToken(classDefinitionNode.closeBrace());
+        if (metadata != null) {
+            classDefinitionNode = classDefinitionNode.modify()
+                    .withMetadata(metadata).apply();
+        }
+
+        return classDefinitionNode.modify()
+                .withClassKeyword(formatToken(classKeyword, 0, 0, 0, 0))
+                .withClassName(formatToken(className, 1, 0, 0, 0))
+                .withOpenBrace(formatToken(openBrace, 1, 0, 0, 1))
+                .withCloseBrace(formatToken(closeBrace, 0, 0, 0, 1))
+                .withClassTypeQualifiers(qualifierList)
+                .withMembers(members)
                 .apply();
     }
 

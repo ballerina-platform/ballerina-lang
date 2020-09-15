@@ -93,7 +93,8 @@ class FormatterUtils {
                 parentKind == (SyntaxKind.WHILE_STATEMENT) ||
                 parentKind == (SyntaxKind.CONST_DECLARATION) ||
                 parentKind == (SyntaxKind.METHOD_DECLARATION) ||
-                parentKind == (SyntaxKind.TYPE_DEFINITION)) {
+                parentKind == (SyntaxKind.TYPE_DEFINITION) ||
+                parentKind == (SyntaxKind.CLASS_DEFINITION)) {
             return parent;
         }
         if (syntaxKind == (SyntaxKind.SIMPLE_NAME_REFERENCE)) {
@@ -151,7 +152,8 @@ class FormatterUtils {
                     parentKind == SyntaxKind.LIST_CONSTRUCTOR ||
                     parentKind == SyntaxKind.TYPE_DEFINITION ||
                     parentKind == SyntaxKind.METHOD_DECLARATION ||
-                    parentKind == SyntaxKind.MAPPING_CONSTRUCTOR) {
+                    parentKind == SyntaxKind.MAPPING_CONSTRUCTOR ||
+                    parentKind == SyntaxKind.CLASS_DEFINITION) {
                 indentation += formattingOptions.getTabSize();
             }
         }
