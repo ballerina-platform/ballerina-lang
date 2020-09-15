@@ -3543,54 +3543,6 @@ public class BallerinaParser extends AbstractParser {
         return parseTerminalExpression(annots, isRhsExpr, allowActions, isInConditionalExpr);
     }
 
-//    private boolean isValidExprStart(SyntaxKind tokenKind) {
-//        switch (tokenKind) {
-//            case DECIMAL_INTEGER_LITERAL_TOKEN:
-//            case HEX_INTEGER_LITERAL_TOKEN:
-//            case STRING_LITERAL_TOKEN:
-//            case NULL_KEYWORD:
-//            case TRUE_KEYWORD:
-//            case FALSE_KEYWORD:
-//            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
-//            case HEX_FLOATING_POINT_LITERAL_TOKEN:
-//            case IDENTIFIER_TOKEN:
-//            case OPEN_PAREN_TOKEN:
-//            case CHECK_KEYWORD:
-//            case CHECKPANIC_KEYWORD:
-//            case FAIL_KEYWORD:
-//            case OPEN_BRACE_TOKEN:
-//            case TYPEOF_KEYWORD:
-//            case PLUS_TOKEN:
-//            case MINUS_TOKEN:
-//            case NEGATION_TOKEN:
-//            case EXCLAMATION_MARK_TOKEN:
-//            case TRAP_KEYWORD:
-//            case OPEN_BRACKET_TOKEN:
-//            case LT_TOKEN:
-//            case TABLE_KEYWORD:
-//            case STREAM_KEYWORD:
-//            case FROM_KEYWORD:
-//            case ERROR_KEYWORD:
-//            case LET_KEYWORD:
-//            case BACKTICK_TOKEN:
-//            case XML_KEYWORD:
-//            case STRING_KEYWORD:
-//            case FUNCTION_KEYWORD:
-//            case AT_TOKEN:
-//            case NEW_KEYWORD:
-//            case START_KEYWORD:
-//            case FLUSH_KEYWORD:
-//            case LEFT_ARROW_TOKEN:
-//            case WAIT_KEYWORD:
-//            case SERVICE_KEYWORD:
-//            case ISOLATED_KEYWORD:
-//            case TRANSACTIONAL_KEYWORD:
-//                return true;
-//            default:
-//                return isSimpleType(tokenKind);
-//        }
-//    }
-
     /**
      * <p>
      * Parse a new expression.
