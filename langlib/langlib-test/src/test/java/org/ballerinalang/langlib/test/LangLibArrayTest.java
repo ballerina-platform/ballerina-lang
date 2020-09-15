@@ -32,7 +32,6 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -44,7 +43,6 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 1.0
  */
-@Ignore // Disable temporarily until https://github.com/ballerina-platform/ballerina-lang/issues/25780 is fixed.
 public class LangLibArrayTest {
 
     private CompileResult compileResult;
