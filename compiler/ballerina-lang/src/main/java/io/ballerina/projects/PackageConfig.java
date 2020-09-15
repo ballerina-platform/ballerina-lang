@@ -18,7 +18,7 @@
 package io.ballerina.projects;
 
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * {@code PackageConfig} contains necessary configuration elements required to
@@ -31,30 +31,34 @@ public class PackageConfig {
 
     // This class should contain Specific project-agnostic information
     private final PackageId packageId;
+    private final PackageName packageName;
     private final Path packagePath;
     // Ballerina toml file config
-    private final ModuleConfig defaultModule;
-    private final List<ModuleConfig> otherModules;
+    private final Collection<ModuleConfig> otherModules;
 
     private PackageConfig(PackageId packageId,
+                          PackageName packageName,
                           Path packagePath,
-                          ModuleConfig defaultModule,
-                          List<ModuleConfig> otherModules) {
+                          Collection<ModuleConfig> moduleConfigs) {
         this.packageId = packageId;
+        this.packageName = packageName;
         this.packagePath = packagePath;
-        this.defaultModule = defaultModule;
-        this.otherModules = otherModules;
+        this.otherModules = moduleConfigs;
     }
 
     public static PackageConfig from(PackageId packageId,
+                                     PackageName packageName,
                                      Path packagePath,
-                                     ModuleConfig defaultModule,
-                                     List<ModuleConfig> otherModules) {
-        return new PackageConfig(packageId, packagePath, defaultModule, otherModules);
+                                     Collection<ModuleConfig> moduleConfigs) {
+        return new PackageConfig(packageId, packageName, packagePath, moduleConfigs);
     }
 
     public PackageId packageId() {
         return packageId;
+    }
+
+    public PackageName packageName() {
+        return packageName;
     }
 
     // TODO Check whether it makes sense to expose Java Path in the API
@@ -63,11 +67,7 @@ public class PackageConfig {
         return packagePath;
     }
 
-    public ModuleConfig defaultModule() {
-        return defaultModule;
-    }
-
-    public List<ModuleConfig> otherModules() {
+    public Collection<ModuleConfig> otherModules() {
         return otherModules;
     }
 }
