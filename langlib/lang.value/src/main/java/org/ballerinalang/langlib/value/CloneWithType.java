@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BString;
@@ -105,7 +105,7 @@ public class CloneWithType {
         } catch (ErrorValue e) {
             return e;
         } catch (BallerinaException e) {
-            return createError(CONSTRUCT_FROM_CONVERSION_ERROR, BStringValues.fromString(e.getDetail()));
+            return createError(CONSTRUCT_FROM_CONVERSION_ERROR, BStringUtils.fromString(e.getDetail()));
         }
     }
 
@@ -303,7 +303,7 @@ public class CloneWithType {
     private static void putToMap(MapValue<BString, Object> map, Map.Entry entry, BType fieldType,
                                  List<TypeValuePair> unresolvedValues, TypedescValue t, Strand strand) {
         Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true, t, strand);
-        map.put(BStringValues.fromString(entry.getKey().toString()), newValue);
+        map.put(BStringUtils.fromString(entry.getKey().toString()), newValue);
     }
 
     private static BError createConversionError(Object inputValue, BType targetType) {
@@ -316,7 +316,7 @@ public class CloneWithType {
         return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
                            BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
                                                                 TypeChecker.getType(inputValue), targetType)
-                                   .concat(BStringValues.fromString(": ".concat(detailMessage))));
+                                   .concat(BStringUtils.fromString(": ".concat(detailMessage))));
     }
 
 }

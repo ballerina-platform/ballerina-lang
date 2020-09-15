@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm.internal;
 
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
@@ -42,9 +42,9 @@ import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_C
 
 public class ErrorUtils {
 
-    private static final BString ERROR_MESSAGE_FIELD = BStringValues.fromString("message");
-    private static final BString ERROR_CAUSE_FIELD = BStringValues.fromString("cause");
-    private static final BString NULL_REF_EXCEPTION = BStringValues.fromString("NullReferenceException");
+    private static final BString ERROR_MESSAGE_FIELD = BStringUtils.fromString("message");
+    private static final BString ERROR_CAUSE_FIELD = BStringUtils.fromString("cause");
+    private static final BString NULL_REF_EXCEPTION = BStringUtils.fromString("NullReferenceException");
 
 
     /**
@@ -56,14 +56,14 @@ public class ErrorUtils {
     public static ErrorValue createInteropError(Throwable e) {
         BMap<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (e.getMessage() != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, BStringValues.fromString(e.getMessage()));
+            detailMap.put(ERROR_MESSAGE_FIELD, BStringUtils.fromString(e.getMessage()));
         }
         if (e.getCause() != null) {
-            detailMap.put(ERROR_CAUSE_FIELD, createError(BStringValues.fromString(e.getCause().getClass().getName()),
-                                                         BStringValues.fromString(e.getCause().getMessage())));
+            detailMap.put(ERROR_CAUSE_FIELD, createError(BStringUtils.fromString(e.getCause().getClass().getName()),
+                                                         BStringUtils.fromString(e.getCause().getMessage())));
         }
 
-        return (ErrorValue) createError(BStringValues.fromString(e.getClass().getName()), detailMap);
+        return (ErrorValue) createError(BStringUtils.fromString(e.getClass().getName()), detailMap);
     }
 
     public static Object handleResourceError(Object returnValue) {

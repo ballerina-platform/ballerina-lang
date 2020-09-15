@@ -18,7 +18,7 @@
 package org.ballerinalang.test.javainterop;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -317,7 +317,7 @@ public class RefTypeWithBValueAPITests {
             case 1:
                 return 25;
             case 2:
-                return BStringValues.fromString("sample value return");
+                return BStringUtils.fromString("sample value return");
             case 3:
                 return 54.88;
             default:
@@ -327,14 +327,14 @@ public class RefTypeWithBValueAPITests {
 
     public static org.ballerinalang.jvm.api.values.BObject
     acceptObjectAndObjectReturn(org.ballerinalang.jvm.api.values.BObject p, int newVal) {
-        p.set(BStringValues.fromString("age"), newVal);
+        p.set(BStringUtils.fromString("age"), newVal);
         return p;
     }
 
     public static org.ballerinalang.jvm.api.values.BMap
     acceptRecordAndRecordReturn(org.ballerinalang.jvm.api.values.BMap e,
                                 org.ballerinalang.jvm.api.values.BString newVal) {
-        e.put(BStringValues.fromString("name"), newVal);
+        e.put(BStringUtils.fromString("name"), newVal);
         return e;
     }
 
@@ -408,7 +408,7 @@ public class RefTypeWithBValueAPITests {
     public static Object getJson() {
         MapValueImpl<org.ballerinalang.jvm.api.values.BString, org.ballerinalang.jvm.api.values.BString> map =
                 new MapValueImpl<>(BTypes.typeJSON);
-        map.put(BStringValues.fromString("name"), BStringValues.fromString("John"));
+        map.put(BStringUtils.fromString("name"), BStringUtils.fromString("John"));
         return map;
     }
 
@@ -417,7 +417,7 @@ public class RefTypeWithBValueAPITests {
         org.ballerinalang.jvm.api.values.BMap<org.ballerinalang.jvm.api.values.BString,
                 org.ballerinalang.jvm.api.values.BString>
                 map = new MapValueImpl<>(BTypes.typeJSON);
-        map.put(BStringValues.fromString("name"), BStringValues.fromString("Doe"));
+        map.put(BStringUtils.fromString("name"), BStringUtils.fromString("Doe"));
         return map;
     }
 
@@ -448,7 +448,7 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static org.ballerinalang.jvm.api.values.BString getStringFromXML(org.ballerinalang.jvm.api.values.BXML x) {
-        return BStringValues.fromString(x.toString());
+        return BStringUtils.fromString(x.toString());
     }
 
     public static int getAllInts() {
@@ -489,7 +489,7 @@ public class RefTypeWithBValueAPITests {
 
     public static org.ballerinalang.jvm.api.values.BString useTypeDesc(
             org.ballerinalang.jvm.api.values.BTypedesc type) {
-        return BStringValues.fromString(type.stringValue(null));
+        return BStringUtils.fromString(type.stringValue(null));
     }
 
     public static org.ballerinalang.jvm.api.values.BTypedesc getTypeDesc() {

@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -228,7 +228,7 @@ public class Sort {
             return c;
         }
         throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                                        BStringValues.fromString("expected an ordered type, but found '" +
+                                        BStringUtils.fromString("expected an ordered type, but found '" +
                                                                        type.toString() + "'"));
     }
 

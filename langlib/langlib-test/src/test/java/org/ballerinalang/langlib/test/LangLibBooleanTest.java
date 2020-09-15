@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BTypes;
@@ -52,7 +52,7 @@ public class LangLibBooleanTest {
 
     @Test(dataProvider = "InputList")
     public void testFromString(String val, Object expectedVal) {
-        BRunUtil.invoke(compileResult, "testFromString", new Object[]{BStringValues.fromString(val), expectedVal});
+        BRunUtil.invoke(compileResult, "testFromString", new Object[]{BStringUtils.fromString(val), expectedVal});
     }
 
     @DataProvider(name = "InputList")

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -54,7 +54,7 @@ public class Next {
     public static Object next(Strand strand, ObjectValue m) {
         StringCharacterIterator stringCharacterIterator = (StringCharacterIterator) m.getNativeData("&iterator&");
         if (stringCharacterIterator == null) {
-            String s = ((BString) m.get(BStringValues.fromString("m"))).getValue();
+            String s = ((BString) m.get(BStringUtils.fromString("m"))).getValue();
             stringCharacterIterator = new StringCharacterIterator(s);
             m.addNativeData("&iterator&", stringCharacterIterator);
         }
@@ -62,7 +62,7 @@ public class Next {
         if (stringCharacterIterator.current() != CharacterIterator.DONE) {
             char character = stringCharacterIterator.current();
             stringCharacterIterator.next();
-            Object charAsStr = BStringValues.fromString(String.valueOf(character));
+            Object charAsStr = BStringUtils.fromString(String.valueOf(character));
             return BValueCreator.createRecordValue(new MapValueImpl<>(BTypes.stringItrNextReturnType), charAsStr);
         }
 

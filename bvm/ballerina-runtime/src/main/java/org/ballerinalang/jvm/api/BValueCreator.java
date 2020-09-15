@@ -385,9 +385,9 @@ import javax.xml.namespace.QName;
          for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
              Object val = fieldEntry.getValue();
              if (val instanceof String) {
-                 val = BStringValues.fromString((String) val);
+                 val = BStringUtils.fromString((String) val);
              }
-             record.put(BStringValues.fromString(fieldEntry.getKey()), val);
+             record.put(BStringUtils.fromString(fieldEntry.getKey()), val);
          }
 
          return record;
@@ -410,8 +410,8 @@ import javax.xml.namespace.QName;
                  continue;
              }
 
-             mapValue.put(BStringValues.fromString(fieldEntry.getKey()), value instanceof String ?
-                     BStringValues.fromString((String) value) : value);
+             mapValue.put(BStringUtils.fromString(fieldEntry.getKey()), value instanceof String ?
+                     BStringUtils.fromString((String) value) : value);
          }
          return mapValue;
      }

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -61,9 +61,9 @@ public class GetInvocationContext {
         MapValue<BString, Object> invocationContextInfo =
                 valueCreator.createRecordValue(STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
-        invocationContextInfo.put(BStringValues.fromString(INVOCATION_ID_KEY),
-                                  BStringValues.fromString(invocationId.toString()));
-        invocationContextInfo.put(BStringValues.fromString(INVOCATION_ATTRIBUTES), new MapValueImpl<BString, Object>());
+        invocationContextInfo.put(BStringUtils.fromString(INVOCATION_ID_KEY),
+                                  BStringUtils.fromString(invocationId.toString()));
+        invocationContextInfo.put(BStringUtils.fromString(INVOCATION_ATTRIBUTES), new MapValueImpl<BString, Object>());
         return invocationContextInfo;
     }
 }

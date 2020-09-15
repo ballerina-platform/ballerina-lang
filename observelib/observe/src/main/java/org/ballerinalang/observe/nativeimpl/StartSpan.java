@@ -20,7 +20,7 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -49,13 +49,13 @@ public class StartSpan {
     public static Object startSpan(Strand strand, BString spanName, Object tags, long parentSpanId) {
         if (parentSpanId < -1) {
             return BErrorCreator.createError(
-                    BStringValues.fromString(("The given parent span ID " + parentSpanId + " " + "is invalid.")));
+                    BStringUtils.fromString(("The given parent span ID " + parentSpanId + " " + "is invalid.")));
         } else {
             long spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(
                     (String) strand.getProperty(ObservabilityConstants.SERVICE_NAME), spanName.getValue(),
                     Utils.toStringMap((MapValue<BString, ?>) tags), parentSpanId, strand);
             if (spanId == -1) {
-                return BErrorCreator.createError(BStringValues.fromString((
+                return BErrorCreator.createError(BStringUtils.fromString((
                         "No parent span for ID " + parentSpanId + " found. Please recheck the parent span Id")));
             }
 

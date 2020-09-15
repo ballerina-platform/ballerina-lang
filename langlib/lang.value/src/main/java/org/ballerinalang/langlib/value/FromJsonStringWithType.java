@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -66,7 +66,7 @@ public class FromJsonStringWithType {
             }
         } catch (BallerinaException e) {
             return BErrorCreator.createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                                             BStringValues.fromString(e.getMessage()));
+                                             BStringUtils.fromString(e.getMessage()));
         }
     }
 }

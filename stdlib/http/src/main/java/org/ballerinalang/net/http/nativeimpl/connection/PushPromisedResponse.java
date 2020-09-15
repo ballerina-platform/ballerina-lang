@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -51,7 +51,7 @@ public class PushPromisedResponse extends ConnectionAction {
 
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
         if (http2PushPromise == null) {
-            throw BErrorCreator.createError(BStringValues.fromString(("invalid push promise")));
+            throw BErrorCreator.createError(BStringUtils.fromString(("invalid push promise")));
         }
 
         HttpCarbonMessage outboundResponseMsg = HttpUtil

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
@@ -76,9 +76,9 @@ public class EntityHeaderHandler {
 
         int index = 0;
         for (final Header header : bodyPartHeaders) {
-            httpHeaders.put(BStringValues.fromString(header.getName().toLowerCase(Locale.getDefault())),
-                            BValueCreator.createArrayValue(new BString[]{BStringValues.fromString(header.getValue())}));
-            headerNames.add(index++, BStringValues.fromString(header.getName()));
+            httpHeaders.put(BStringUtils.fromString(header.getName().toLowerCase(Locale.getDefault())),
+                            BValueCreator.createArrayValue(new BString[]{BStringUtils.fromString(header.getValue())}));
+            headerNames.add(index++, BStringUtils.fromString(header.getName()));
         }
         partStruct.set(MimeConstants.HEADERS_MAP_FIELD, httpHeaders);
         partStruct.set(MimeConstants.HEADER_NAMES_ARRAY_FIELD, headerNames);
@@ -97,7 +97,7 @@ public class EntityHeaderHandler {
         if (headerMap == null) {
             return null;
         }
-        ArrayValue headerValues = (ArrayValue) headerMap.get(BStringValues.fromString(headerName));
+        ArrayValue headerValues = (ArrayValue) headerMap.get(BStringUtils.fromString(headerName));
         if (headerValues == null || headerValues.size() < 1) {
             return null;
         }
@@ -114,12 +114,12 @@ public class EntityHeaderHandler {
      */
     public static void addHeader(BObject entity, BMap<BString, Object> headers, String key,
                                  String value) {
-        headers.put(BStringValues.fromString(key.toLowerCase(Locale.getDefault())),
-                    BValueCreator.createArrayValue(new BString[]{BStringValues.fromString(value)}));
+        headers.put(BStringUtils.fromString(key.toLowerCase(Locale.getDefault())),
+                    BValueCreator.createArrayValue(new BString[]{BStringUtils.fromString(value)}));
 
         // update header name array
         ArrayValue headerNames = getEntityHeaderNameArray(entity);
-        headerNames.add(headerNames.size(), BStringValues.fromString(key));
+        headerNames.add(headerNames.size(), BStringUtils.fromString(key));
     }
 
     /**

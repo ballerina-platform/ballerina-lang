@@ -18,7 +18,7 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
@@ -90,12 +90,12 @@ public class GetAllMetrics {
             if (metricValue != null) {
                 BMap<BString, Object> metricStruct = BValueCreator.createRecordValue(
                         ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC);
-                metricStruct.put(BStringValues.fromString("name"), BStringValues.fromString(metricId.getName()));
-                metricStruct.put(BStringValues.fromString("desc"), BStringValues.fromString(metricId.getDescription()));
-                metricStruct.put(BStringValues.fromString("tags"), getTags(metricId));
-                metricStruct.put(BStringValues.fromString("metricType"), BStringValues.fromString(metricType));
-                metricStruct.put(BStringValues.fromString("value"), metricValue);
-                metricStruct.put(BStringValues.fromString("summary"), summary);
+                metricStruct.put(BStringUtils.fromString("name"), BStringUtils.fromString(metricId.getName()));
+                metricStruct.put(BStringUtils.fromString("desc"), BStringUtils.fromString(metricId.getDescription()));
+                metricStruct.put(BStringUtils.fromString("tags"), getTags(metricId));
+                metricStruct.put(BStringUtils.fromString("metricType"), BStringUtils.fromString(metricType));
+                metricStruct.put(BStringUtils.fromString("value"), metricValue);
+                metricStruct.put(BStringUtils.fromString("summary"), summary);
                 bMetrics.add(metricIndex, metricStruct);
                 metricIndex++;
             }
@@ -108,7 +108,7 @@ public class GetAllMetrics {
         MapValue<BString, Object> bTags = new MapValueImpl<>(new BMapType(BTypes.typeString));
         Set<Tag> tags = metricId.getTags();
         for (Tag tag : tags) {
-            bTags.put(BStringValues.fromString(tag.getKey()), BStringValues.fromString(tag.getValue()));
+            bTags.put(BStringUtils.fromString(tag.getKey()), BStringUtils.fromString(tag.getValue()));
         }
         return bTags;
     }

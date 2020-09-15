@@ -19,7 +19,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
@@ -80,7 +80,7 @@ public class JSONUtils {
         if (!isJSONObject(json)) {
             return false;
         }
-        return ((MapValueImpl<BString, ?>) json).containsKey(BStringValues.fromString(elementName));
+        return ((MapValueImpl<BString, ?>) json).containsKey(BStringUtils.fromString(elementName));
     }
 
     /**
@@ -164,7 +164,7 @@ public class JSONUtils {
     private static Object getMappingElement(Object json, BString elementName, boolean returnNilOnMissingKey) {
         if (!isJSONObject(json)) {
             return BErrorCreator.createError(JSON_OPERATION_ERROR,
-                                             BStringValues.fromString("JSON value is not a mapping"));
+                                             BStringUtils.fromString("JSON value is not a mapping"));
         }
 
         MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
@@ -174,7 +174,7 @@ public class JSONUtils {
                 return null;
             }
 
-            return BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringValues
+            return BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
                     .fromString("Key '" + elementName + "' not found in JSON mapping"));
         }
 
@@ -206,7 +206,7 @@ public class JSONUtils {
         }
 
         try {
-            ((MapValueImpl<BString, Object>) json).put(BStringValues.fromString(elementName), element);
+            ((MapValueImpl<BString, Object>) json).put(BStringUtils.fromString(elementName), element);
         } catch (ErrorValue e) {
             throw e;
         } catch (Throwable t) {
@@ -296,7 +296,7 @@ public class JSONUtils {
         MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
         for (Map.Entry<String, BField> field : structType.getFields().entrySet()) {
             BType fieldType = field.getValue().type;
-            BString fieldName = BStringValues.fromString(field.getValue().name);
+            BString fieldName = BStringUtils.fromString(field.getValue().name);
             try {
                 // If the field does not exists in the JSON, set the default value for that struct field.
                 if (!jsonObject.containsKey(fieldName)) {
@@ -433,14 +433,14 @@ public class JSONUtils {
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
             return BErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                             BStringValues.fromString("Cannot merge JSON values of types '" +
+                                             BStringUtils.fromString("Cannot merge JSON values of types '" +
                                                                             j1Type + "' and '" + j2Type + "'"));
         }
 
         ObjectPair currentPair = new ObjectPair(j1, j2);
         if (visitedPairs.contains(currentPair)) {
             return BErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                             BStringValues
+                                             BStringUtils
                                                      .fromString("Cannot merge JSON values with cyclic references"));
         }
         visitedPairs.add(currentPair);
@@ -463,7 +463,7 @@ public class JSONUtils {
 
             MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
             detailMap.put(TypeConstants.DETAIL_MESSAGE,
-                          BStringValues.fromString("JSON Merge failed for key '" + key + "'"));
+                          BStringUtils.fromString("JSON Merge failed for key '" + key + "'"));
             detailMap.put(TypeConstants.DETAIL_CAUSE, elementMergeNullableError);
             return BErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR, detailMap);
         }
@@ -485,7 +485,7 @@ public class JSONUtils {
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
                 return BErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                                 BStringValues.fromString("Cannot merge JSON values of types '" +
+                                                 BStringUtils.fromString("Cannot merge JSON values of types '" +
                                                                                 j1Type + "' and '" + j2Type + "'"));
             }
         }
@@ -549,7 +549,7 @@ public class JSONUtils {
     }
 
     public static BError createJsonConversionError(Throwable throwable, String prefix) {
-        BString detail = BStringValues.fromString(throwable.getMessage() != null ?
+        BString detail = BStringUtils.fromString(throwable.getMessage() != null ?
                 prefix + ": " + throwable.getMessage() :
                 "error occurred in JSON Conversion");
         return BErrorCreator.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR, detail);

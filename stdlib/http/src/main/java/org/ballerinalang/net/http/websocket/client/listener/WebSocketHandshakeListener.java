@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.client.listener;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.net.http.HttpConstants;
@@ -68,7 +68,7 @@ public class WebSocketHandshakeListener implements ExtendedHandshakeListener {
         if (isFirstConnectionEstablished(webSocketClient)) {
             webSocketConnector = (BObject) webSocketClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD);
             webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD,
-                                BStringValues.fromString(webSocketConnection.getChannelId()));
+                                BStringUtils.fromString(webSocketConnection.getChannelId()));
         } else {
             webSocketConnector = createWebSocketConnector(readyOnConnect);
             WebSocketUtil.populateWebSocketEndpoint(webSocketConnection, webSocketClient);

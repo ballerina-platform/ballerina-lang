@@ -22,7 +22,7 @@ import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BIterator;
 import org.ballerinalang.jvm.api.values.BLink;
@@ -166,8 +166,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                     ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
                 }
             } catch (BLangFreezeException e) {
-                throw BErrorCreator.createError(BStringValues.fromString(e.getMessage()),
-                                                BStringValues.fromString(e.getDetail()));
+                throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
+                                                BStringUtils.fromString(e.getDetail()));
             }
         }
     }
@@ -231,7 +231,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
             throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringValues.fromString("cannot find key '" + key + "'"));
+                                            BStringUtils.fromString("cannot find key '" + key + "'"));
         }
         return this.get(key);
     }
@@ -240,7 +240,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         handleFrozenTableValue();
         if (!containsKey(key)) {
             throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringValues.fromString("cannot find key '" + key + "'"));
+                                            BStringUtils.fromString("cannot find key '" + key + "'"));
         }
         return this.remove(key);
     }
@@ -248,7 +248,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     public long getNextKey() {
         if (!nextKeySupported) {
             throw BErrorCreator.createError(OPERATION_NOT_SUPPORTED_ERROR,
-                                            BStringValues
+                                            BStringUtils
                                                     .fromString("Defined key sequence is not supported with nextKey(). "
                                                                         + "The key sequence should only have an " +
                                                                            "Integer field."));
@@ -271,7 +271,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
             throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringValues.fromString("cannot find key '" + key + "'"));
+                                            BStringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         Object value = expectedType.getZeroValue();
@@ -329,8 +329,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         StringJoiner sj = new StringJoiner(",");
         while (itr.hasNext()) {
             Map.Entry<Long, V> struct = itr.next();
-            sj.add(BStringValues.getStringValue(struct.getValue(),
-                                                new CycleUtils.Node(this, parent)));
+            sj.add(BStringUtils.getStringValue(struct.getValue(),
+                                               new CycleUtils.Node(this, parent)));
         }
         return "[" + sj.toString() + "]";
     }
@@ -403,12 +403,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V getData(K key) {
             throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringValues.fromString("cannot find key '" + key + "'"));
+                                            BStringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         public V putData(K key, V data) {
             throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringValues.fromString("cannot find key '" + key + "'"));
+                                            BStringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         public V putData(V data) {
@@ -422,7 +422,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V remove(K key) {
             throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringValues.fromString("cannot find key '" + key + "'"));
+                                            BStringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         public boolean containsKey(K key) {
@@ -431,7 +431,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public BType getKeyType() {
             throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringValues.fromString("keys are not defined"));
+                                            BStringUtils.fromString("keys are not defined"));
         }
     }
 
@@ -455,7 +455,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             if (containsKey((K) key)) {
                 throw BErrorCreator.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR,
-                                                BStringValues.fromString("A value " + "found for key '" + key + "'"));
+                                                BStringUtils.fromString("A value " + "found for key '" + key + "'"));
             }
 
             if (nextKeySupported && (keys.size() == 0 || maxIntKey < TypeChecker.anyToInt(key))) {
@@ -478,7 +478,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Long hash = TableUtils.hash(key, null);
 
             if (!hash.equals(actualHash)) {
-                throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR, BStringValues.fromString("The key '" +
+                throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR, BStringUtils.fromString("The key '" +
                         key + "' not found in value " + data.toString()));
             }
 
@@ -533,7 +533,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
 
             public K wrapKey(MapValue data) {
-                return (K) data.get(BStringValues.fromString(fieldNames[0]));
+                return (K) data.get(BStringUtils.fromString(fieldNames[0]));
             }
         }
 
@@ -557,7 +557,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 TupleValueImpl arr = (TupleValueImpl) BValueCreator
                         .createTupleValue((BTupleType) keyType);
                 for (int i = 0; i < fieldNames.length; i++) {
-                    arr.add(i, data.get(BStringValues.fromString(fieldNames[i])));
+                    arr.add(i, data.get(BStringUtils.fromString(fieldNames[i])));
                 }
                 return (K) arr;
             }
@@ -577,7 +577,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private void checkInherentTypeViolation(MapValue dataMap, BTableType type) {
         if (!TypeChecker.checkIsType(dataMap.getType(), type.getConstrainedType())) {
             BString reason = getModulePrefixedReason(TABLE_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
-            BString detail = BStringValues.fromString("value type '" + dataMap.getType() + "' inconsistent with the " +
+            BString detail = BStringUtils.fromString("value type '" + dataMap.getType() + "' inconsistent with the " +
                                                             "inherent table type '" + type + "'");
             throw BErrorCreator.createError(reason, detail);
         }

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
@@ -113,11 +113,11 @@ public class HeaderUtil {
                 if (keyValuePair.length != 2 || keyValuePair[0].isEmpty() || keyValuePair[1].isEmpty()) {
                     throw MimeUtil.createError(INVALID_HEADER_PARAM_ERROR, "invalid header parameter: " + param);
                 }
-                paramMap.put(BStringValues.fromString(keyValuePair[0].trim()),
-                             BStringValues.fromString(keyValuePair[1].trim()));
+                paramMap.put(BStringUtils.fromString(keyValuePair[0].trim()),
+                             BStringUtils.fromString(keyValuePair[1].trim()));
             } else {
                 //handle when parameter value is optional
-                paramMap.put(BStringValues.fromString(param.trim()), null);
+                paramMap.put(BStringUtils.fromString(param.trim()), null);
             }
         }
         return paramMap;
@@ -165,8 +165,8 @@ public class HeaderUtil {
      */
     public static String extractBoundaryParameter(String contentType) {
         BMap<BString, Object> paramMap = HeaderUtil.getParamMap(contentType);
-        return paramMap.get(BStringValues.fromString(BOUNDARY)) != null ?
-                paramMap.getStringValue(BStringValues.fromString(BOUNDARY)).getValue() : null;
+        return paramMap.get(BStringUtils.fromString(BOUNDARY)) != null ?
+                paramMap.getStringValue(BStringUtils.fromString(BOUNDARY)).getValue() : null;
     }
 
     public static void setHeaderToEntity(BObject entity, String key, String value) {

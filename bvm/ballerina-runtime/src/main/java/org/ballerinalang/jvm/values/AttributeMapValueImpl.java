@@ -19,7 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -71,7 +71,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         PutAttributeFunction func = onInitialization ? super::populateInitialValue : super:: put;
 
         if (localName == null || localName.isEmpty()) {
-            throw BErrorCreator.createError(BStringValues.fromString(("localname of the attribute cannot be empty")));
+            throw BErrorCreator.createError(BStringUtils.fromString(("localname of the attribute cannot be empty")));
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
@@ -85,29 +85,29 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         if ((namespaceUri == null && prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))
                 || localName.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             String nsNameDecl = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + localName;
-            func.put(BStringValues.fromString(nsNameDecl), BStringValues.fromString(value));
+            func.put(BStringUtils.fromString(nsNameDecl), BStringUtils.fromString(value));
             return;
         }
 
-        BString nsOfPrefix = get(BStringValues.fromString(XMLNS_URL_PREFIX + prefix));
+        BString nsOfPrefix = get(BStringUtils.fromString(XMLNS_URL_PREFIX + prefix));
         if (namespaceUri != null && nsOfPrefix != null && !namespaceUri.equals(nsOfPrefix.getValue())) {
             String errorMsg = String.format(
                     "failed to add attribute '%s:%s'. prefix '%s' is already bound to namespace '%s'",
                     prefix, localName, prefix, nsOfPrefix.getValue());
-            throw BErrorCreator.createError(BStringValues.fromString((errorMsg)));
+            throw BErrorCreator.createError(BStringUtils.fromString((errorMsg)));
         }
 
         if ((namespaceUri == null || namespaceUri.isEmpty())) {
-            func.put(BStringValues.fromString(localName), BStringValues.fromString(value));
+            func.put(BStringUtils.fromString(localName), BStringUtils.fromString(value));
         } else {
             // If the attribute already exists, update the value.
-            func.put(BStringValues.fromString("{" + namespaceUri + "}" + localName), BStringValues.fromString(value));
+            func.put(BStringUtils.fromString("{" + namespaceUri + "}" + localName), BStringUtils.fromString(value));
         }
 
         // If the prefix is 'xmlns' then this is a namespace addition
         if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             String xmlnsPrefix = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + prefix;
-            func.put(BStringValues.fromString(xmlnsPrefix), BStringValues.fromString(namespaceUri));
+            func.put(BStringUtils.fromString(xmlnsPrefix), BStringUtils.fromString(namespaceUri));
         }
     }
 
@@ -124,13 +124,13 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         }
 
         if (localName.isEmpty()) {
-            throw BErrorCreator.createError(BStringValues.fromString(("localname of the attribute cannot be empty")));
+            throw BErrorCreator.createError(BStringUtils.fromString(("localname of the attribute cannot be empty")));
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
         XMLValidator.validateXMLName(localName);
 
-        BString keyToInsert = namespaceUri.isEmpty() ? BStringValues.fromString(localName) : keyBStr;
+        BString keyToInsert = namespaceUri.isEmpty() ? BStringUtils.fromString(localName) : keyBStr;
 
         if (!onInitialization) {
             return super.put(keyToInsert, value);

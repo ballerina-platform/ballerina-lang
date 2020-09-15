@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
@@ -89,8 +89,8 @@ public class URIUtil {
 
         for (Map.Entry<String, List<String>> entry : tempParamMap.entrySet()) {
             List<String> entryValue = entry.getValue();
-            queryParamsMap.put(BStringValues.fromString(entry.getKey()), BValueCreator
-                    .createArrayValue(BStringValues.fromStringArray(entryValue.toArray(new String[0]))));
+            queryParamsMap.put(BStringUtils.fromString(entry.getKey()), BValueCreator
+                    .createArrayValue(BStringUtils.fromStringArray(entryValue.toArray(new String[0]))));
         }
     }
 
@@ -102,8 +102,8 @@ public class URIUtil {
         Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
         if (matrixParamsMap != null) {
             for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
-                matrixParamsBMap.put(BStringValues.fromString(matrixParamEntry.getKey()),
-                                     BStringValues.fromString(matrixParamEntry.getValue()));
+                matrixParamsBMap.put(BStringUtils.fromString(matrixParamEntry.getKey()),
+                                     BStringUtils.fromString(matrixParamEntry.getValue()));
             }
         }
         return matrixParamsBMap;

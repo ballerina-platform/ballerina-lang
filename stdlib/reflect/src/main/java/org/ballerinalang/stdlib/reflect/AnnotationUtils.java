@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.reflect;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -45,7 +45,7 @@ public class AnnotationUtils {
             if (function.funcName.equals(resourceName.getValue())) {
                 Object resourceAnnotation = function.getAnnotation(annot);
                 if (resourceAnnotation instanceof String) {
-                    return BStringValues.fromString((String) resourceAnnotation);
+                    return BStringUtils.fromString((String) resourceAnnotation);
                 }
                 return resourceAnnotation;
             }
@@ -63,7 +63,7 @@ public class AnnotationUtils {
     public static Object externGetServiceAnnotations(BObject service, BString annot) {
         Object serviceAnnotation = service.getType().getAnnotation(annot);
         if (serviceAnnotation instanceof String) {
-            return BStringValues.fromString((String) serviceAnnotation);
+            return BStringUtils.fromString((String) serviceAnnotation);
         }
         return serviceAnnotation;
     }

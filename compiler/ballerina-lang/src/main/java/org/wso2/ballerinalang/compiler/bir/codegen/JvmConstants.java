@@ -117,7 +117,7 @@ public class JvmConstants {
     public static final String WORKER_UTILS = "org/ballerinalang/jvm/scheduling/WorkerUtils";
     public static final String MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
     public static final String TABLE_UTILS = "org/ballerinalang/jvm/TableUtils";
-    public static final String B_STRING_VALUES = "org/ballerinalang/jvm/api/BStringValues";
+    public static final String B_STRING_UTILS = "org/ballerinalang/jvm/api/BStringUtils";
     public static final String ERROR_UTILS = "org/ballerinalang/jvm/internal/ErrorUtils";
     public static final String B_ERROR_CREATOR = "org/ballerinalang/jvm/api/BErrorCreator";
     public static final String RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";

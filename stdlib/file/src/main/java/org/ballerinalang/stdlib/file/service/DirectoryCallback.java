@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.file.service;
 
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

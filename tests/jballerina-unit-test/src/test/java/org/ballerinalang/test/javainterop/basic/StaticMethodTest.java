@@ -18,7 +18,7 @@
 package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.values.BDecimal;
@@ -141,7 +141,7 @@ public class StaticMethodTest {
     }
 
     public static Object returnObjectOrError() {
-        return BErrorCreator.createError(BStringValues.fromString("some reason"),
+        return BErrorCreator.createError(BStringUtils.fromString("some reason"),
                                          new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 

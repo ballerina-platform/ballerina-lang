@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.values.connector;
+package org.ballerinalang.jvm.api.connector;
 
 import org.ballerinalang.jvm.api.values.BError;
 

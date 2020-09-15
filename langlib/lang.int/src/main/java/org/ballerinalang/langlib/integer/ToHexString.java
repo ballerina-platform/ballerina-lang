@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.integer;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
@@ -42,6 +42,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.INT_VERSION;
 public class ToHexString {
 
     public static BString toHexString(Strand strand, long n) {
-        return BStringValues.fromString(Long.toHexString(n));
+        return BStringUtils.fromString(Long.toHexString(n));
     }
 }

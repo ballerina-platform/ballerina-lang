@@ -21,7 +21,7 @@ package org.ballerinalang.net.http.nativeimpl;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -62,7 +62,7 @@ public class ExternHeaders {
             throw MimeUtil.createError(HEADER_NOT_FOUND_ERROR, "Http header does not exist");
         }
         if (httpHeaders.get(headerName.getValue()) != null) {
-            return BStringValues.fromString(httpHeaders.get(headerName.getValue()));
+            return BStringUtils.fromString(httpHeaders.get(headerName.getValue()));
         } else {
             throw MimeUtil.createError(HEADER_NOT_FOUND_ERROR, "Http header does not exist");
         }
@@ -75,7 +75,7 @@ public class ExternHeaders {
         }
         Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         distinctNames.addAll(httpHeaders.names());
-        return new ArrayValueImpl(BStringValues.fromStringArray(distinctNames.toArray(new String[0])));
+        return new ArrayValueImpl(BStringUtils.fromStringArray(distinctNames.toArray(new String[0])));
     }
 
     public static ArrayValue getHeaders(BObject messageObj, BString headerName, Object position) {
@@ -87,7 +87,7 @@ public class ExternHeaders {
         if (headerValueList == null) {
             throw MimeUtil.createError(HEADER_NOT_FOUND_ERROR, "Http header does not exist");
         }
-        return new ArrayValueImpl(BStringValues.fromStringArray(headerValueList.toArray(new String[0])));
+        return new ArrayValueImpl(BStringUtils.fromStringArray(headerValueList.toArray(new String[0])));
     }
 
     public static boolean hasHeader(BObject messageObj, BString headerName, Object position) {
@@ -125,13 +125,13 @@ public class ExternHeaders {
     }
 
     private static HttpHeaders getHeadersBasedOnPosition(BObject messageObj, Object position) {
-        return position.equals(BStringValues.fromString(LEADING_HEADER)) ?
+        return position.equals(BStringUtils.fromString(LEADING_HEADER)) ?
                 (HttpHeaders) messageObj.getNativeData(HTTP_HEADERS) :
                 (HttpHeaders) messageObj.getNativeData(HTTP_TRAILER_HEADERS);
     }
 
     private static HttpHeaders getOrCreateHeadersBasedOnPosition(BObject messageObj, Object position) {
-        return position.equals(BStringValues.fromString(LEADING_HEADER)) ?
+        return position.equals(BStringUtils.fromString(LEADING_HEADER)) ?
                 getHeaders(messageObj) : getTrailerHeaders(messageObj);
     }
 

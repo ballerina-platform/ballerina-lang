@@ -19,7 +19,7 @@
 package org.ballerinalang.jvm.values.utils;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -80,7 +80,7 @@ public class ArrayUtils {
     public static BError createOpNotSupportedError(BType type, String op) {
         return BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                                                                  OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                         BStringValues.fromString(format("%s not supported on type '%s'", op,
-                                                                         type.getQualifiedName())));
+                                         BStringUtils.fromString(format("%s not supported on type '%s'", op,
+                                                                        type.getQualifiedName())));
     }
 }

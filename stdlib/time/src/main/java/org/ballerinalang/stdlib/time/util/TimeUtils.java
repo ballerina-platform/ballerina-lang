@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.time.util;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
@@ -70,7 +70,7 @@ public class TimeUtils {
         ZoneId zoneId;
         if (zoneIDStr.getValue().isEmpty()) {
             zoneId = ZoneId.systemDefault();
-            zoneIDStr = BStringValues.fromString(zoneId.toString());
+            zoneIDStr = BStringUtils.fromString(zoneId.toString());
         } else {
             zoneId = TimeUtils.getTimeZone(zoneIDStr);
         }
@@ -104,7 +104,7 @@ public class TimeUtils {
 
     public static BError getTimeError(String message) {
         return BErrorCreator.createDistinctError(Constants.TIME_ERROR, TIME_PACKAGE_ID,
-                                                 BStringValues.fromString(message));
+                                                 BStringUtils.fromString(message));
     }
 
     public static BMap<BString, Object> getTimeRecord(TemporalAccessor dateTime, BString dateString,
@@ -123,19 +123,19 @@ public class TimeUtils {
             }
             zoneId = ZoneId.systemDefault().toString();
         }
-        return TimeUtils.createTimeRecord(timeZoneRecord, timeRecord, epochTime, BStringValues.fromString(zoneId));
+        return TimeUtils.createTimeRecord(timeZoneRecord, timeRecord, epochTime, BStringUtils.fromString(zoneId));
     }
 
     public static BString getFormattedString(MapValue<BString, Object> timeRecord, BString pattern)
             throws IllegalArgumentException {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern.getValue());
-        return BStringValues.fromString(dateTime.format(dateTimeFormatter));
+        return BStringUtils.fromString(dateTime.format(dateTimeFormatter));
     }
 
     public static BString getDefaultString(MapValue<BString, Object> timeRecord) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return BStringValues.fromString(dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        return BStringUtils.fromString(dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
     }
 
     public static BMap<BString, Object> parseTime(BString dateValue, BString pattern) {
@@ -182,7 +182,7 @@ public class TimeUtils {
             ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
             long timeValue = zonedDateTime.toInstant().toEpochMilli();
             return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), timeValue,
-                                              BStringValues.fromString(zoneId.toString()));
+                                              BStringUtils.fromString(zoneId.toString()));
         } catch (DateTimeParseException e) {
             throw TimeUtils.getTimeError("parse date \"" + dateValue + "\" for the format \"" + pattern + "\" "
                     + "failed:" + e.getMessage());
@@ -197,16 +197,16 @@ public class TimeUtils {
         if (dateTime != null) {
             return dateTime;
         }
-        long timeData = timeRecord.getIntValue(BStringValues.fromString(TIME_FIELD));
+        long timeData = timeRecord.getIntValue(BStringUtils.fromString(TIME_FIELD));
         MapValue<BString, Object> zoneData =
-                (MapValue<BString, Object>) timeRecord.getMapValue(BStringValues.fromString(ZONE_FIELD));
+                (MapValue<BString, Object>) timeRecord.getMapValue(BStringUtils.fromString(ZONE_FIELD));
         ZoneId zoneId;
         if (zoneData != null) {
-            String zoneIdName = zoneData.getStringValue(BStringValues.fromString(ZONE_ID_FIELD)).toString();
+            String zoneIdName = zoneData.getStringValue(BStringUtils.fromString(ZONE_ID_FIELD)).toString();
             if (zoneIdName.isEmpty()) {
                 zoneId = ZoneId.systemDefault();
             } else {
-                zoneId = TimeUtils.getTimeZone(BStringValues.fromString(zoneIdName));
+                zoneId = TimeUtils.getTimeZone(BStringUtils.fromString(zoneIdName));
             }
         } else {
             zoneId = ZoneId.systemDefault();
@@ -218,7 +218,7 @@ public class TimeUtils {
 
     public static BMap<BString, Object> changeTimezone(MapValue<BString, Object> timeRecord, BString zoneId) {
         BMap<BString, Object> timezone = TimeUtils.createTimeZone(TimeUtils.getTimeZoneRecord(), zoneId);
-        timeRecord.put(BStringValues.fromString(ZONE_FIELD), timezone);
+        timeRecord.put(BStringUtils.fromString(ZONE_FIELD), timezone);
         clearRecordCache(timeRecord);
         return timeRecord;
     }
@@ -229,7 +229,7 @@ public class TimeUtils {
 
     public static BString getZoneId(MapValue<BString, Object> timeRecord) {
         MapValue<BString, Object> zoneData =
-                (MapValue<BString, Object>) timeRecord.getMapValue(BStringValues.fromString(ZONE_FIELD));
-        return zoneData.getStringValue(BStringValues.fromString(ZONE_ID_FIELD));
+                (MapValue<BString, Object>) timeRecord.getMapValue(BStringUtils.fromString(ZONE_FIELD));
+        return zoneData.getStringValue(BStringUtils.fromString(ZONE_ID_FIELD));
     }
 }

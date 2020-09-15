@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 
 import java.io.PrintStream;
 
@@ -40,7 +40,7 @@ public class PrintUtils {
         }
         for (Object value : values) {
             if (value != null) {
-                out.print(BStringValues.getStringValue(value, null));
+                out.print(BStringUtils.getStringValue(value, null));
             }
         }
     }
@@ -54,7 +54,7 @@ public class PrintUtils {
         StringBuilder content = new StringBuilder();
         for (Object value : values) {
             if (value != null) {
-                content.append(BStringValues.getStringValue(value, null));
+                content.append(BStringUtils.getStringValue(value, null));
             }
         }
         out.println(content);

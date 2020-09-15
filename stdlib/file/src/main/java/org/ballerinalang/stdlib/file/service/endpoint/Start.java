@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
@@ -39,7 +39,7 @@ public class Start {
             serverConnector.start();
         } catch (LocalFileSystemServerConnectorException e) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
-                                               BStringValues.fromString(e.getMessage()));
+                                               BStringUtils.fromString(e.getMessage()));
         }
         return null;
     }

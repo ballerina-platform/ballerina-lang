@@ -22,7 +22,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -82,7 +82,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testContentType() {
         BObject response = createResponseObject();
         BValue[] returnVals = BRunUtil.invoke(result, "testContentType", new Object[]{response,
-                BStringValues.fromString("application/x-custom-type+json")});
+                BStringUtils.fromString("application/x-custom-type+json")});
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BString) returnVals[0]).value(), "application/x-custom-type+json");
     }
@@ -94,8 +94,8 @@ public class ResponseNativeFunctionSuccessTest {
         String headerName = "header1";
         String headerValue = "abc, xyz";
         BValue[] returnVals = BRunUtil.invoke(result, "testAddHeader", new Object[]{outResponse,
-                BStringValues.fromString(headerName),
-                BStringValues.fromString(headerValue)});
+                BStringUtils.fromString(headerName),
+                BStringUtils.fromString(headerValue)});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         HttpHeaders returnHeaders = (HttpHeaders) ((BMap) returnVals[0]).getNativeData(HTTP_HEADERS);
@@ -177,7 +177,7 @@ public class ResponseNativeFunctionSuccessTest {
         HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
 
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", new Object[]{inResponse,
-                BStringValues.fromString(HttpHeaderNames.CONTENT_TYPE.toString())});
+                BStringUtils.fromString(HttpHeaderNames.CONTENT_TYPE.toString())});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), APPLICATION_FORM);
     }
@@ -208,7 +208,7 @@ public class ResponseNativeFunctionSuccessTest {
         HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
 
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeaders", new Object[]{inResponse,
-                BStringValues.fromString("test-header")});
+                BStringUtils.fromString("test-header")});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertEquals(((BValueArray) returnVals[0]).getString(0), APPLICATION_FORM);
         Assert.assertEquals(((BValueArray) returnVals[0]).getString(1), TEXT_PLAIN);
@@ -394,7 +394,7 @@ public class ResponseNativeFunctionSuccessTest {
         BObject outResponse = createResponseObject();
         String expect = "Expect";
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", new Object[]{outResponse,
-                BStringValues.fromString(expect)});
+                BStringUtils.fromString(expect)});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         HttpHeaders returnHeaders = (HttpHeaders) ((BMap) returnVals[0]).getNativeData(HTTP_HEADERS);
@@ -484,7 +484,7 @@ public class ResponseNativeFunctionSuccessTest {
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD.getValue());
         Object bJson = TestEntityUtils.getMessageDataSource(entity);
         Assert.assertEquals(
-                ((MapValueImpl<BString, Object>) bJson).get(BStringValues.fromString("name"))
+                ((MapValueImpl<BString, Object>) bJson).get(BStringUtils.fromString("name"))
                         .toString(), "wso2", "Payload is not set properly");
     }
 

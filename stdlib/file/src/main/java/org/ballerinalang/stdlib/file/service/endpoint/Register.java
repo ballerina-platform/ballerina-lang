@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.file.service.endpoint;
 
 import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -57,7 +57,7 @@ public class Register {
             listener.addNativeData(DirectoryListenerConstants.FS_SERVER_CONNECTOR, serverConnector);
         } catch (LocalFileSystemServerConnectorException e) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
-                                               BStringValues.fromString("Unable to initialize server connector: " +
+                                               BStringUtils.fromString("Unable to initialize server connector: " +
                                                                                e.getMessage()));
         }
         return null;

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AnnotatableType;
@@ -48,7 +48,7 @@ public class AnnotationUtils {
         }
 
         AnnotatableType type = (AnnotatableType) bType;
-        BString annotationKey = BStringValues.fromString(type.getAnnotationKey());
+        BString annotationKey = BStringUtils.fromString(type.getAnnotationKey());
         if (globalAnnotMap.containsKey(annotationKey)) {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
         }
@@ -58,7 +58,7 @@ public class AnnotationUtils {
         }
         BObjectType objectType = (BObjectType) type;
         for (AttachedFunction attachedFunction : objectType.getAttachedFunctions()) {
-            annotationKey = BStringValues.fromString(attachedFunction.getAnnotationKey());
+            annotationKey = BStringUtils.fromString(attachedFunction.getAnnotationKey());
             if (globalAnnotMap.containsKey(annotationKey)) {
                 attachedFunction.setAnnotations((MapValue<BString, Object>)
                                                         globalAnnotMap.get(annotationKey));
@@ -68,14 +68,14 @@ public class AnnotationUtils {
     }
 
     public static void processServiceAnnotations(MapValue globalAnnotMap, BServiceType bType, Strand strand) {
-        BString annotationKey = BStringValues.fromString(bType.getAnnotationKey());
+        BString annotationKey = BStringUtils.fromString(bType.getAnnotationKey());
         if (globalAnnotMap.containsKey(annotationKey)) {
             bType.setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
                     .call(new Object[]{strand}));
         }
 
         for (AttachedFunction attachedFunction : bType.getAttachedFunctions()) {
-            annotationKey = BStringValues.fromString(attachedFunction.getAnnotationKey());
+            annotationKey = BStringUtils.fromString(attachedFunction.getAnnotationKey());
             if (globalAnnotMap.containsKey(annotationKey)) {
                 attachedFunction.setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(
                         annotationKey)).call(new Object[]{strand}));
@@ -92,7 +92,7 @@ public class AnnotationUtils {
      */
     public static void processFPValueAnnotations(FPValue fpValue, MapValue globalAnnotMap, String name) {
         AnnotatableType type = (AnnotatableType) fpValue.getType();
-        BString nameKey = BStringValues.fromString(name);
+        BString nameKey = BStringUtils.fromString(name);
         if (globalAnnotMap.containsKey(nameKey)) {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(nameKey));
         }

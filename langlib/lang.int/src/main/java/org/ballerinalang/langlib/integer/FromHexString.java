@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.integer;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
@@ -50,7 +50,7 @@ public class FromHexString {
             return Long.parseLong(s.getValue(), 16);
         } catch (NumberFormatException e) {
             return BErrorCreator.createError(getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
-                                             BStringValues.fromString(e.getMessage()));
+                                             BStringUtils.fromString(e.getMessage()));
         }
     }
 }

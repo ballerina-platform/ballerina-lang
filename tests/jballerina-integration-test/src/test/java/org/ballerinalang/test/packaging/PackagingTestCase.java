@@ -20,7 +20,7 @@ package org.ballerinalang.test.packaging;
 import org.awaitility.Duration;
 import org.ballerinalang.cli.module.util.Utils;
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
@@ -204,7 +204,7 @@ public class PackagingTestCase extends BaseTest {
                 }
                 Object payload = JSONParser.parse(result.toString());
                 if (payload instanceof MapValue) {
-                    long pullCount = ((MapValue) payload).getIntValue(BStringValues.fromString("totalPullCount"));
+                    long pullCount = ((MapValue) payload).getIntValue(BStringUtils.fromString("totalPullCount"));
                     Assert.assertEquals(pullCount, totalPullCount);
                 } else {
                     Assert.fail("error: invalid response received");

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.time.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -68,7 +68,7 @@ public class ExternMethods {
         try {
             if ("RFC_1123".equals(pattern.getValue())) {
                 ZonedDateTime zonedDateTime = getZonedDateTime(timeRecord);
-                return BStringValues.fromString(zonedDateTime.format(DateTimeFormatter.RFC_1123_DATE_TIME));
+                return BStringUtils.fromString(zonedDateTime.format(DateTimeFormatter.RFC_1123_DATE_TIME));
             } else {
                 return getFormattedString(timeRecord, pattern);
             }
@@ -94,7 +94,7 @@ public class ExternMethods {
 
     public static BString getWeekday(MapValue<BString, Object> timeRecord) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return BStringValues.fromString(dateTime.getDayOfWeek().toString());
+        return BStringUtils.fromString(dateTime.getDayOfWeek().toString());
     }
 
     public static long getHour(MapValue<BString, Object> timeRecord) {
@@ -167,7 +167,7 @@ public class ExternMethods {
     public static BMap<BString, Object> currentTime() {
         long currentTime = Instant.now().toEpochMilli();
         return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), currentTime,
-                                          BStringValues.fromString(ZoneId.systemDefault().toString()));
+                                          BStringUtils.fromString(ZoneId.systemDefault().toString()));
     }
 
     public static Object createTime(long years, long months, long dates, long hours, long minutes,

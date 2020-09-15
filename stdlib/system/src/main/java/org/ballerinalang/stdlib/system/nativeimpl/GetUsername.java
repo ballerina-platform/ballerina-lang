@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 
@@ -31,6 +31,6 @@ public class GetUsername {
     private static final String PROPERTY_NAME = "user.name";
 
     public static BString getUsername() {
-        return BStringValues.fromString(SystemUtils.getSystemProperty(PROPERTY_NAME));
+        return BStringUtils.fromString(SystemUtils.getSystemProperty(PROPERTY_NAME));
     }
 }

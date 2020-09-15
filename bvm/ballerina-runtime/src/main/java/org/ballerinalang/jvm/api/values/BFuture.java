@@ -17,8 +17,8 @@
   */
  package org.ballerinalang.jvm.api.values;
 
+ import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
  import org.ballerinalang.jvm.scheduling.Strand;
- import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
  /**
   * <p>

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.javainterop;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -349,7 +349,7 @@ public class RefTypeTests {
     }
 
     public static org.ballerinalang.jvm.api.values.BString getStringFromXML(XMLValue x) {
-        return BStringValues.fromString(x.toString());
+        return BStringUtils.fromString(x.toString());
     }
 
     public static int getAllInts() {
@@ -389,7 +389,7 @@ public class RefTypeTests {
     }
 
     public static org.ballerinalang.jvm.api.values.BString useTypeDesc(TypedescValue type) {
-        return BStringValues.fromString(type.stringValue(null));
+        return BStringUtils.fromString(type.stringValue(null));
     }
 
     public static TypedescValue getTypeDesc() {
@@ -412,6 +412,6 @@ public class RefTypeTests {
 
     public static org.ballerinalang.jvm.api.values.BString useHandle(HandleValue h) {
         Map<String, String> m = (Map<String, String>) h.getValue();
-        return BStringValues.fromString(m.get("name"));
+        return BStringUtils.fromString(m.get("name"));
     }
 }

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
@@ -55,7 +55,7 @@ public class SetNarrowType {
         }});
 
         MapValueImpl<BString, Object> newRecord = new MapValueImpl<>(newRecordType);
-        newRecord.put(BStringValues.fromString("value"), value.get(BStringValues.fromString("value")));
+        newRecord.put(BStringUtils.fromString("value"), value.get(BStringUtils.fromString("value")));
         return newRecord;
     }
 }

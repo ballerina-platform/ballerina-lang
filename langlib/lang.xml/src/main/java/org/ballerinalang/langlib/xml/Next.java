@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
@@ -50,7 +50,7 @@ public class Next {
         IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
 
         if (xmlIterator == null) {
-            xmlIterator = ((XMLValue) m.get(BStringValues.fromString("m"))).getIterator();
+            xmlIterator = ((XMLValue) m.get(BStringUtils.fromString("m"))).getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 

@@ -15,8 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.values.connector;
+package org.ballerinalang.jvm.api;
 
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
@@ -51,13 +52,13 @@ import java.util.function.Function;
  *
  * @since 0.995.0
  */
-public class Executor {
+public class BExecutor {
 
     private static final BUnionType OPTIONAL_ERROR_TYPE = new BUnionType(
             new BType[]{BTypes.typeError, BTypes.typeNull},
             TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.PURETYPE));
 
-    private Executor() {
+    private BExecutor() {
     }
 
     /**

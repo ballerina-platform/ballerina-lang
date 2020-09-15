@@ -20,7 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
@@ -116,7 +116,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.size = values.length;
         bStringValues = new BString[size];
         for (int i = 0; i < size; i++) {
-            bStringValues[i] = BStringValues.fromString(values[i]);
+            bStringValues[i] = BStringUtils.fromString(values[i]);
         }
         setArrayType(BTypes.typeString);
     }
@@ -503,7 +503,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Deprecated
     private void addString(long index, String value) {
-        addBString(index, BStringValues.fromString(value));
+        addBString(index, BStringUtils.fromString(value));
     }
 
     private void addBString(long index, BString value) {
@@ -601,7 +601,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                                         .Node(this, parent)));
                                 break;
                             default:
-                                sj.add(BStringValues.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
+                                sj.add(BStringUtils.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
                                 break;
                         }
                     }

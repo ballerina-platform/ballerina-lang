@@ -18,7 +18,7 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLValueUtil;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -48,11 +48,11 @@ public class GetContent {
     public static BString getContent(Strand strand, Object xmlVal) {
         XMLValue value = (XMLValue) xmlVal;
         if (IsText.isText(strand, value)) {
-            return BStringValues.fromString(value.getTextValue());
+            return BStringUtils.fromString(value.getTextValue());
         } else if (IsProcessingInstruction.isProcessingInstruction(strand, value)) {
-            return BStringValues.fromString(XMLValueUtil.getPIContent(value));
+            return BStringUtils.fromString(XMLValueUtil.getPIContent(value));
         } else if (IsComment.isComment(strand, value)) {
-            return BStringValues.fromString(XMLValueUtil.getCommentContent(value));
+            return BStringUtils.fromString(XMLValueUtil.getCommentContent(value));
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getContent",
                                                        "text|processing instruction|comment");

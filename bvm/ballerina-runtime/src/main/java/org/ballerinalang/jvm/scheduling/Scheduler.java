@@ -17,6 +17,7 @@
 package org.ballerinalang.jvm.scheduling;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -26,7 +27,6 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 import java.io.PrintStream;
 import java.util.Map;

@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -57,14 +57,14 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 )
 public class Next {
 
-    private static final BString MUTATED_TABLE_ERROR_DETAIL =  BStringValues.fromString("Table was mutated after the " +
+    private static final BString MUTATED_TABLE_ERROR_DETAIL =  BStringUtils.fromString("Table was mutated after the " +
                                                                                                "iterator was created");
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue t) {
         IteratorValue tableIterator = (IteratorValue) t.getNativeData("&iterator&");
-        TableValueImpl table = (TableValueImpl) t.get(BStringValues.fromString("t"));
-        ArrayValueImpl keys = (ArrayValueImpl) t.get(BStringValues.fromString("keys"));
-        long initialSize = (long) t.get(BStringValues.fromString("size"));
+        TableValueImpl table = (TableValueImpl) t.get(BStringUtils.fromString("t"));
+        ArrayValueImpl keys = (ArrayValueImpl) t.get(BStringUtils.fromString("keys"));
+        long initialSize = (long) t.get(BStringUtils.fromString("size"));
         if (tableIterator == null) {
             tableIterator = table.getIterator();
             t.addNativeData("&iterator&", tableIterator);

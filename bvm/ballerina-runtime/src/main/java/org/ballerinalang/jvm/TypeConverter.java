@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.commons.TypeValuePair;
@@ -91,7 +91,7 @@ public class TypeConverter {
                 return anyToFloat(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, BTypes.typeFloat));
             case TypeTags.STRING_TAG:
-                return BStringValues.fromString(anyToString(inputValue));
+                return BStringUtils.fromString(anyToString(inputValue));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBoolean(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, BTypes.typeBoolean));
@@ -325,7 +325,7 @@ public class TypeConverter {
         for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            if (sourceMapValueImpl.containsKey(BStringValues.fromString(fieldName))) {
+            if (sourceMapValueImpl.containsKey(BStringUtils.fromString(fieldName))) {
                 continue;
             }
             BField targetField = targetType.getFields().get(fieldName);
@@ -571,7 +571,7 @@ public class TypeConverter {
         if (!isCharLiteralValue(sourceVal)) {
             throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeStringChar);
         }
-        return BStringValues.fromString(Objects.toString(sourceVal));
+        return BStringUtils.fromString(Objects.toString(sourceVal));
     }
 
     public static BString anyToChar(Object sourceVal) {

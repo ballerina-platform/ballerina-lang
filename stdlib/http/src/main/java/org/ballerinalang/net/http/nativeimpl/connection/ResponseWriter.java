@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -105,7 +105,7 @@ public class ResponseWriter {
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         } catch (IOException ex) {
-            throw BErrorCreator.createError(SERIALIZATION_ERROR, BStringValues
+            throw BErrorCreator.createError(SERIALIZATION_ERROR, BStringUtils
                     .fromString("error occurred while serializing " + "byte channel content : " + ex.getMessage()));
         }
     }
@@ -129,7 +129,7 @@ public class ResponseWriter {
             }
         } catch (IOException ex) {
             throw BErrorCreator.createError(SERIALIZATION_ERROR,
-                                            BStringValues.fromString("error occurred while serializing message" +
+                                            BStringUtils.fromString("error occurred while serializing message" +
                                                                            " data source : " + ex.getMessage()));
         }
     }

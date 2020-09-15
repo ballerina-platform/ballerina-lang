@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -31,12 +31,12 @@ import java.util.List;
  */
 public class CorsHeaders {
 
-    private static final BString ALLOW_CREDENTIALS_FIELD = BStringValues.fromString("allowCredentials");
-    private static final BString ALLOW_HEADERS_FIELD = BStringValues.fromString("allowHeaders");
-    private static final BString ALLOW_METHODS_FIELD = BStringValues.fromString("allowMethods");
-    private static final BString ALLOWS_ORIGINS_FIELD = BStringValues.fromString("allowOrigins");
-    private static final BString EXPOSE_HEADERS_FIELD = BStringValues.fromString("exposeHeaders");
-    private static final BString MAX_AGE_FIELD = BStringValues.fromString("maxAge");
+    private static final BString ALLOW_CREDENTIALS_FIELD = BStringUtils.fromString("allowCredentials");
+    private static final BString ALLOW_HEADERS_FIELD = BStringUtils.fromString("allowHeaders");
+    private static final BString ALLOW_METHODS_FIELD = BStringUtils.fromString("allowMethods");
+    private static final BString ALLOWS_ORIGINS_FIELD = BStringUtils.fromString("allowOrigins");
+    private static final BString EXPOSE_HEADERS_FIELD = BStringUtils.fromString("exposeHeaders");
+    private static final BString MAX_AGE_FIELD = BStringUtils.fromString("maxAge");
 
     private boolean available;
     private List<String> allowOrigins;

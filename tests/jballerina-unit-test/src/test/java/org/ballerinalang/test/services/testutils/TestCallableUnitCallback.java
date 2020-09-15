@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.services.testutils;
 
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 

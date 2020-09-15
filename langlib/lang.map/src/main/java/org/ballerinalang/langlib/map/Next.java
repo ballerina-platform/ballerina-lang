@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -47,7 +47,7 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
         IteratorValue mapIterator = (IteratorValue) m.getNativeData("&iterator&");
-        MapValueImpl mapValue = (MapValueImpl) m.get(BStringValues.fromString("m"));
+        MapValueImpl mapValue = (MapValueImpl) m.get(BStringUtils.fromString("m"));
         if (mapIterator == null) {
             mapIterator = mapValue.getIterator();
             m.addNativeData("&iterator&", mapIterator);

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BMap;
@@ -135,7 +135,7 @@ public class MultipartDataSource implements RefValue {
                 paramMap = BValueCreator.createMapValue(new org.ballerinalang.jvm.types.BMapType(BTypes.typeString));
             }
 
-            paramMap.put(BStringValues.fromString(BOUNDARY), BStringValues.fromString(childBoundaryString));
+            paramMap.put(BStringUtils.fromString(BOUNDARY), BStringUtils.fromString(childBoundaryString));
             mediaType.set(PARAMETER_MAP_FIELD, paramMap);
         }
         writeBodyPartHeaders(writer, childPart);

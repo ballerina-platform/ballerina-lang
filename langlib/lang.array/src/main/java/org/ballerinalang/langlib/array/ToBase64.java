@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -51,7 +51,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 )
 public class ToBase64 {
 
-    private static final BString NOT_SUPPORT_DETAIL_ERROR = BStringValues
+    private static final BString NOT_SUPPORT_DETAIL_ERROR = BStringUtils
             .fromString("toBase64() is only supported on 'byte[]'");
 
     public static BString toBase64(Strand strand, ArrayValue arr) {
@@ -62,6 +62,6 @@ public class ToBase64 {
                                                                     OPERATION_NOT_SUPPORTED_IDENTIFIER),
                                             NOT_SUPPORT_DETAIL_ERROR);
         }
-        return BStringValues.fromString(Base64.getEncoder().encodeToString(arr.getBytes()));
+        return BStringUtils.fromString(Base64.getEncoder().encodeToString(arr.getBytes()));
     }
 }

@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.java;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BPackage;
@@ -67,7 +67,7 @@ public class JavaUtils {
             return new HandleValue(clazz);
         } catch (ClassNotFoundException e) {
             return BErrorCreator.createDistinctError(BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR,
-                                                     JAVA_PACKAGE_ID, BStringValues.fromString(name));
+                                                     JAVA_PACKAGE_ID, BStringUtils.fromString(name));
         }
     }
 

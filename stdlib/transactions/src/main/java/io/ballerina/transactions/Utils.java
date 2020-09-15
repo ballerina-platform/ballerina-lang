@@ -20,7 +20,7 @@
 package io.ballerina.transactions;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
@@ -175,7 +175,7 @@ public class Utils {
             return 0;
         } else {
             Map<BString, Object> infoRecord = (Map<BString, Object>) prevAttemptInfo;
-            Long retryNumber = (Long) infoRecord.get(BStringValues.fromString("retryNumber"));
+            Long retryNumber = (Long) infoRecord.get(BStringUtils.fromString("retryNumber"));
             return retryNumber + 1;
         }
     }
@@ -193,7 +193,7 @@ public class Utils {
             currentTransactionId = transactionLocalContext.getGlobalTransactionId() + ":" + transactionLocalContext
                     .getCurrentTransactionBlockId();
         }
-        return BStringValues.fromString(currentTransactionId);
+        return BStringUtils.fromString(currentTransactionId);
     }
 
     public static boolean abortResourceManagers(BString transactionId, BString transactionBlockId) {
@@ -244,7 +244,7 @@ public class Utils {
             TransactionLocalContext context = strand.currentTrxContext;
             return (MapValue<BString, Object>) context.getInfoRecord();
         }
-        throw BErrorCreator.createError(BStringValues
+        throw BErrorCreator.createError(BStringUtils
                 .fromString("cannot call info() if the strand is not in transaction mode"));
     }
 
@@ -273,7 +273,7 @@ public class Utils {
     }
 
     public static BString getHostAddress() {
-        return BStringValues.fromString(getLocalHostLANAddress().getHostAddress());
+        return BStringUtils.fromString(getLocalHostLANAddress().getHostAddress());
     }
 
     private static InetAddress getLocalHostLANAddress() throws RuntimeException {

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -59,11 +59,11 @@ public class HttpService implements Cloneable {
 
     private static final Logger log = LoggerFactory.getLogger(HttpService.class);
 
-    protected static final BString BASE_PATH_FIELD = BStringValues.fromString("basePath");
+    protected static final BString BASE_PATH_FIELD = BStringUtils.fromString("basePath");
     private static final String COMPRESSION_FIELD = "compression";
-    private static final BString CORS_FIELD = BStringValues.fromString("cors");
-    private static final BString VERSIONING_FIELD = BStringValues.fromString("versioning");
-    private static final BString HOST_FIELD = BStringValues.fromString("host");
+    private static final BString CORS_FIELD = BStringUtils.fromString("cors");
+    private static final BString VERSIONING_FIELD = BStringUtils.fromString("versioning");
+    private static final BString HOST_FIELD = BStringUtils.fromString("host");
 
     private BObject balService;
     private List<HttpResource> resources;

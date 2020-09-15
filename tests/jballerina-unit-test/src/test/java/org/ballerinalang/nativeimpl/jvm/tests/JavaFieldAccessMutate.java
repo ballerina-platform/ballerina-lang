@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 
 import java.util.Date;
@@ -30,7 +30,7 @@ import java.util.UUID;
  */
 public class JavaFieldAccessMutate {
     // Static fields
-    public static BString contractId = BStringValues.fromString("Ballerina");
+    public static BString contractId = BStringUtils.fromString("Ballerina");
     public static int age = 10;
     public static short aShort = 11;
 

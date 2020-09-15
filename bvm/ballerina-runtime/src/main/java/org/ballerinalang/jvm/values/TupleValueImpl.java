@@ -20,7 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
@@ -396,7 +396,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     public String stringValue(BLink parent) {
         StringJoiner sj = new StringJoiner(" ");
         for (int i = 0; i < this.size; i++) {
-            sj.add(BStringValues.getStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
+            sj.add(BStringUtils.getStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
         }
         return sj.toString();
     }

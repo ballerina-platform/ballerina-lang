@@ -36,7 +36,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
  */
 public class BErrorCreator {
 
-    private static final BString ERROR_MESSAGE_FIELD = BStringValues.fromString("message");
+    private static final BString ERROR_MESSAGE_FIELD = BStringUtils.fromString("message");
 
     /**
      * Create an error with given reason.
@@ -72,7 +72,7 @@ public class BErrorCreator {
      */
     public static BError createError(BString message, Throwable throwable) {
         return new ErrorValue(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage()),
-                              message, createError(BStringValues.fromString(throwable.getMessage())),
+                              message, createError(BStringUtils.fromString(throwable.getMessage())),
                               new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
@@ -126,7 +126,7 @@ public class BErrorCreator {
         if (error instanceof BError) {
             return (BError) error;
         }
-        return createError(BStringValues.fromString(error.getMessage()));
+        return createError(BStringUtils.fromString(error.getMessage()));
     }
 
     /**

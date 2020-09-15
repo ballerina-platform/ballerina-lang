@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm.scheduling;
 
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
@@ -214,7 +214,7 @@ public class Strand {
                     throw future.panic;
                 }
                 ctx.waitCount.decrementAndGet();
-                target.put(BStringValues.fromString(entry.getKey()), future.result);
+                target.put(BStringUtils.fromString(entry.getKey()), future.result);
             } else {
                 this.setState(BLOCK_ON_AND_YIELD);
                 entry.getValue().strand.waitingContexts.add(ctx);

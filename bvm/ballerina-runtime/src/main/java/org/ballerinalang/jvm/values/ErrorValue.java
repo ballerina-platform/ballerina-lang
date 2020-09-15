@@ -19,7 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BLink;
@@ -138,7 +138,7 @@ public class ErrorValue extends BError implements RefValue {
                         sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
                         break;
                     default:
-                        sj.add(key + "=" + BStringValues.getStringValue(value, parent));
+                        sj.add(key + "=" + BStringUtils.getStringValue(value, parent));
                         break;
                 }
             }

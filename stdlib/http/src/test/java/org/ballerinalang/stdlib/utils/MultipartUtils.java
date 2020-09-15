@@ -29,7 +29,7 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.util.internal.StringUtil;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
@@ -299,8 +299,8 @@ public class MultipartUtils {
         if (!contentDisposition.isEmpty()) {
             BMap paramMap = HeaderUtil.getParamMap(contentDisposition);
             if (paramMap != null) {
-                BString bodyPartName = paramMap.get(BStringValues.fromString(CONTENT_DISPOSITION_NAME)) != null ?
-                        (BString) paramMap.get(BStringValues.fromString(CONTENT_DISPOSITION_NAME)) : null;
+                BString bodyPartName = paramMap.get(BStringUtils.fromString(CONTENT_DISPOSITION_NAME)) != null ?
+                        (BString) paramMap.get(BStringUtils.fromString(CONTENT_DISPOSITION_NAME)) : null;
                 if (bodyPartName != null) {
                     return bodyPartName.toString();
                 } else {

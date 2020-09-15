@@ -19,7 +19,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
@@ -275,7 +275,7 @@ public final class XMLSequence extends XMLValue {
         }
 
         if (children.size() != 1) {
-            throw BErrorCreator.createError(BStringValues.fromString(("not an " + XMLNodeType.ELEMENT)));
+            throw BErrorCreator.createError(BStringUtils.fromString(("not an " + XMLNodeType.ELEMENT)));
         }
 
         children.get(0).setChildren(seq);
@@ -288,7 +288,7 @@ public final class XMLSequence extends XMLValue {
     @Deprecated
     public void addChildren(BXML seq) {
         if (children.size() != 1) {
-            throw BErrorCreator.createError(BStringValues.fromString(("not an " + XMLNodeType.ELEMENT)));
+            throw BErrorCreator.createError(BStringUtils.fromString(("not an " + XMLNodeType.ELEMENT)));
         }
 
         children.get(0).addChildren(seq);
@@ -342,7 +342,7 @@ public final class XMLSequence extends XMLValue {
         if (startIndex > this.children.size() || endIndex > this.children.size() || startIndex < -1 || endIndex < -1) {
             throw BErrorCreator
                     .createError(
-                            BStringValues.fromString(("index out of range: [" + startIndex + "," + endIndex + "]")));
+                            BStringUtils.fromString(("index out of range: [" + startIndex + "," + endIndex + "]")));
         }
 
         if (startIndex == -1) {
@@ -359,7 +359,7 @@ public final class XMLSequence extends XMLValue {
 
         if (startIndex > endIndex) {
             throw BErrorCreator
-                    .createError(BStringValues.fromString(("invalid indices: " + startIndex + " < " + endIndex)));
+                    .createError(BStringUtils.fromString(("invalid indices: " + startIndex + " < " + endIndex)));
         }
 
         int j = 0;
@@ -483,7 +483,7 @@ public final class XMLSequence extends XMLValue {
             return (XMLValue) this.children.get(index);
         } catch (Exception e) {
             throw BErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
-                                            BStringValues.fromString(e.getMessage()));
+                                            BStringUtils.fromString(e.getMessage()));
         }
     }
 
@@ -524,7 +524,7 @@ public final class XMLSequence extends XMLValue {
         }
 
         if (children.size() != 1) {
-            throw BErrorCreator.createError(BStringValues.fromString(("not an " + XMLNodeType.ELEMENT)));
+            throw BErrorCreator.createError(BStringUtils.fromString(("not an " + XMLNodeType.ELEMENT)));
         }
 
         children.get(0).removeAttribute(qname);
@@ -538,7 +538,7 @@ public final class XMLSequence extends XMLValue {
         }
 
         if (children.size() != 1) {
-            throw BErrorCreator.createError(BStringValues.fromString(("not an " + XMLNodeType.ELEMENT)));
+            throw BErrorCreator.createError(BStringUtils.fromString(("not an " + XMLNodeType.ELEMENT)));
         }
 
         children.get(0).removeChildren(qname);

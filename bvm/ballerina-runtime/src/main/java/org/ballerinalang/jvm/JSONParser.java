@@ -19,7 +19,7 @@ package org.ballerinalang.jvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -80,7 +80,7 @@ public class JSONParser {
             Object jsonObj = parse(new InputStreamReader(new BufferedInputStream(in), charsetName));
             return changeForBString(jsonObj);
         } catch (IOException e) {
-            throw BErrorCreator.createError(BStringValues
+            throw BErrorCreator.createError(BStringUtils
                                                     .fromString(("Error in parsing JSON data: " + e.getMessage())));
         }
     }
@@ -98,7 +98,7 @@ public class JSONParser {
 
     private static Object changeForBString(Object jsonObj) {
         if (jsonObj instanceof String) {
-            return BStringValues.fromString((String) jsonObj);
+            return BStringUtils.fromString((String) jsonObj);
         }
         return jsonObj;
     }
@@ -275,7 +275,7 @@ public class JSONParser {
 
             Object parentNode = this.nodesStack.pop();
             if (TypeChecker.getType(parentNode).getTag() == TypeTags.MAP_TAG) {
-                ((MapValueImpl<BString, Object>) parentNode).put(BStringValues.fromString(fieldNames.pop()),
+                ((MapValueImpl<BString, Object>) parentNode).put(BStringUtils.fromString(fieldNames.pop()),
                                                                  currentJsonNode);
                 currentJsonNode = parentNode;
                 return FIELD_END_STATE;
@@ -639,7 +639,7 @@ public class JSONParser {
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
                         ((MapValueImpl<BString, Object>) sm.currentJsonNode).put(
-                                BStringValues.fromString(sm.fieldNames.pop()), BStringValues.fromString(sm.value()));
+                                BStringUtils.fromString(sm.fieldNames.pop()), BStringUtils.fromString(sm.value()));
                         state = FIELD_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_FIELD_ESC_CHAR_PROCESSING_STATE;
@@ -817,7 +817,7 @@ public class JSONParser {
                             break;
                         case FIELD:
                             ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    BStringValues.fromString(this.fieldNames.pop()), doubleValue);
+                                    BStringUtils.fromString(this.fieldNames.pop()), doubleValue);
                             break;
                         case VALUE:
                             currentJsonNode = doubleValue;
@@ -837,7 +837,7 @@ public class JSONParser {
                             break;
                         case FIELD:
                             ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    BStringValues.fromString(this.fieldNames.pop()), Boolean.TRUE);
+                                    BStringUtils.fromString(this.fieldNames.pop()), Boolean.TRUE);
                             break;
                         case VALUE:
                             currentJsonNode = Boolean.TRUE;
@@ -852,7 +852,7 @@ public class JSONParser {
                             break;
                         case FIELD:
                             ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    BStringValues.fromString(this.fieldNames.pop()), Boolean.FALSE);
+                                    BStringUtils.fromString(this.fieldNames.pop()), Boolean.FALSE);
                             break;
                         case VALUE:
                             currentJsonNode = Boolean.FALSE;
@@ -867,7 +867,7 @@ public class JSONParser {
                             break;
                         case FIELD:
                             ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    BStringValues.fromString(this.fieldNames.pop()), null);
+                                    BStringUtils.fromString(this.fieldNames.pop()), null);
                             break;
                         case VALUE:
                             currentJsonNode = null;
@@ -884,7 +884,7 @@ public class JSONParser {
                                 break;
                             case FIELD:
                                 ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                        BStringValues.fromString(this.fieldNames.pop()), longValue);
+                                        BStringUtils.fromString(this.fieldNames.pop()), longValue);
                                 break;
                             case VALUE:
                                 currentJsonNode = longValue;

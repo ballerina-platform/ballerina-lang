@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.file.service;
 
 import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
@@ -76,8 +76,8 @@ public class FSListener implements LocalFileSystemListener {
 
     private Object[] getJvmSignatureParameters(LocalFileSystemEvent fileEvent) {
         BMap<BString, Object> eventStruct = BValueCreator.createRecordValue(FILE_PACKAGE_ID, FILE_SYSTEM_EVENT);
-        eventStruct.put(BStringValues.fromString(FILE_EVENT_NAME), BStringValues.fromString(fileEvent.getFileName()));
-        eventStruct.put(BStringValues.fromString(FILE_EVENT_OPERATION), BStringValues.fromString(fileEvent.getEvent()));
+        eventStruct.put(BStringUtils.fromString(FILE_EVENT_NAME), BStringUtils.fromString(fileEvent.getFileName()));
+        eventStruct.put(BStringUtils.fromString(FILE_EVENT_OPERATION), BStringUtils.fromString(fileEvent.getEvent()));
         return new Object[] { eventStruct, true };
     }
 

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.jvm.transactions;
 
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -26,7 +27,6 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
@@ -59,7 +59,7 @@ public class PropertyUtils {
         }
         String value = readableProperties.getProperty(key.getValue(), defaultValue.getValue());
         if (value != null) {
-            return BStringValues.fromString(value);
+            return BStringUtils.fromString(value);
         }
 
         return null;
@@ -82,7 +82,7 @@ public class PropertyUtils {
             String key = (String) e.nextElement();
             String value = readableProperties.getProperty(key);
             MappingInitialValueEntry.KeyValueEntry keyValue = new MappingInitialValueEntry.KeyValueEntry(
-                    BStringValues.fromString(key), BStringValues.fromString(value));
+                    BStringUtils.fromString(key), BStringUtils.fromString(value));
             keyValues[i] = keyValue;
             i++;
         }

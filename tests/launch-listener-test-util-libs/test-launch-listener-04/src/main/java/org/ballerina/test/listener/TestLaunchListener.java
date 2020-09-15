@@ -18,7 +18,7 @@
 package org.ballerina.test.listener;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.launch.LaunchListener;
 /**
  * Test Launcher Listener used for testing purpose.
@@ -35,6 +35,6 @@ public class TestLaunchListener implements LaunchListener {
 
     @Override
     public void afterRunProgram(boolean service) {
-        throw BErrorCreator.createError(BStringValues.fromString("An error in afterRunProgram method"));
+        throw BErrorCreator.createError(BStringUtils.fromString("An error in afterRunProgram method"));
     }
 }

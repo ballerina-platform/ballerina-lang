@@ -24,7 +24,7 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.api.values.BXML;
@@ -81,7 +81,7 @@ public class XMLFactory {
         } catch (BError e) {
             throw e;
         } catch (Throwable e) {
-            throw BErrorCreator.createError(BStringValues.fromString(("failed to parse xml: " + e.getMessage())));
+            throw BErrorCreator.createError(BStringUtils.fromString(("failed to parse xml: " + e.getMessage())));
         }
     }
 
@@ -96,9 +96,9 @@ public class XMLFactory {
             XMLTreeBuilder treeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream));
             return treeBuilder.parse();
         } catch (DeferredParsingException e) {
-            throw BErrorCreator.createError(BStringValues.fromString((e.getCause().getMessage())));
+            throw BErrorCreator.createError(BStringUtils.fromString((e.getCause().getMessage())));
         } catch (Throwable e) {
-            throw BErrorCreator.createError(BStringValues.fromString(("failed to create xml: " + e.getMessage())));
+            throw BErrorCreator.createError(BStringUtils.fromString(("failed to create xml: " + e.getMessage())));
         }
     }
 
@@ -114,9 +114,9 @@ public class XMLFactory {
             XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream, charset));
             return xmlTreeBuilder.parse();
         } catch (DeferredParsingException e) {
-            throw BErrorCreator.createError(BStringValues.fromString((e.getCause().getMessage())));
+            throw BErrorCreator.createError(BStringUtils.fromString((e.getCause().getMessage())));
         } catch (Throwable e) {
-            throw BErrorCreator.createError(BStringValues.fromString(("failed to create xml: " + e.getMessage())));
+            throw BErrorCreator.createError(BStringUtils.fromString(("failed to create xml: " + e.getMessage())));
         }
     }
 
@@ -131,9 +131,9 @@ public class XMLFactory {
             XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(reader);
             return xmlTreeBuilder.parse();
         } catch (DeferredParsingException e) {
-            throw BErrorCreator.createError(BStringValues.fromString(e.getCause().getMessage()));
+            throw BErrorCreator.createError(BStringUtils.fromString(e.getCause().getMessage()));
         } catch (Throwable e) {
-            throw BErrorCreator.createError(BStringValues.fromString("failed to create xml: " + e.getMessage()));
+            throw BErrorCreator.createError(BStringUtils.fromString("failed to create xml: " + e.getMessage()));
         }
     }
 
@@ -223,11 +223,11 @@ public class XMLFactory {
      */
     @Deprecated
     public static XMLValue createXMLElement(XMLQName startTagName, XMLQName endTagName, String defaultNsUri) {
-        if (!BStringValues.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
-                !BStringValues.isEqual(startTagName.getUri(), endTagName.getUri()) ||
-                !BStringValues.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
+        if (!BStringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
+                !BStringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
+                !BStringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
             throw BErrorCreator
-                    .createError(BStringValues.fromString(("start and end tag names mismatch: '" + startTagName + "' " +
+                    .createError(BStringUtils.fromString(("start and end tag names mismatch: '" + startTagName + "' " +
                             "and '" + endTagName + "'")));
         }
         return createXMLElement(startTagName, defaultNsUri);

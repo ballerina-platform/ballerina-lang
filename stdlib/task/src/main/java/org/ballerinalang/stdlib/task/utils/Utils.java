@@ -19,7 +19,7 @@ package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
@@ -66,7 +66,7 @@ public class Utils {
     }
 
     public static BError createTaskError(String reason, String message) {
-        return BErrorCreator.createDistinctError(reason, TASK_PACKAGE_ID, BStringValues.fromString(message));
+        return BErrorCreator.createDistinctError(reason, TASK_PACKAGE_ID, BStringUtils.fromString(message));
     }
 
     @SuppressWarnings("unchecked")

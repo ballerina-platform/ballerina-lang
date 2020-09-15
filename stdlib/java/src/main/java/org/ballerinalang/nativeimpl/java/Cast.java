@@ -18,7 +18,7 @@
 
 package org.ballerinalang.nativeimpl.java;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -67,20 +67,20 @@ public class Cast {
         HandleValue handleObj;
         BObjectType objType = value.getType();
         String valueObjName = objType.getName();
-        handleObj = (HandleValue) value.get(BStringValues.fromString(jObjField));
+        handleObj = (HandleValue) value.get(BStringUtils.fromString(jObjField));
         Object jObj = handleObj.getValue();
         if (jObj == null) {
-            return createError(BStringValues.fromString(moduleName + " Empty handle reference found for `"
+            return createError(BStringUtils.fromString(moduleName + " Empty handle reference found for `"
                     + jObjField + "` field in `" + valueObjName + "`"));
         }
         try {
             MapValue objAnnotation;
             BString objClass;
             try {
-                objAnnotation = (MapValue) objType.getAnnotation(BStringValues.fromString(annotationType));
-                objClass = objAnnotation.getStringValue(BStringValues.fromString(classAttribute));
+                objAnnotation = (MapValue) objType.getAnnotation(BStringUtils.fromString(annotationType));
+                objClass = objAnnotation.getStringValue(BStringUtils.fromString(classAttribute));
             } catch (Exception e) {
-                return createError(BStringValues.fromString(moduleName + " Error while retrieving details of the `" +
+                return createError(BStringUtils.fromString(moduleName + " Error while retrieving details of the `" +
                         annotationName + "` annotation from `" + valueObjName + "` object: " + e));
             }
             BType describingBType = castType.getDescribingType();
@@ -93,19 +93,19 @@ public class Cast {
                 castObjTypeName = castObjType.getName();
                 BField objField = castObjType.getFields().get(jObjField);
                 if (objField == null) {
-                    return createError(BStringValues.fromString(moduleName + " Handle reference field `" + jObjField +
+                    return createError(BStringUtils.fromString(moduleName + " Handle reference field `" + jObjField +
                             "` not found in the typedesc object"));
                 }
             } catch (Exception e) {
-                return createError(BStringValues.fromString(moduleName + " Error while processing the typedesc " +
+                return createError(BStringUtils.fromString(moduleName + " Error while processing the typedesc " +
                         "parameter: " + e));
             }
             try {
                 MapValue castObjAnnotation = (MapValue) castObjType.getAnnotation(
-                        BStringValues.fromString(annotationType));
-                castObjClass = (BString) castObjAnnotation.getStringValue(BStringValues.fromString(classAttribute));
+                        BStringUtils.fromString(annotationType));
+                castObjClass = (BString) castObjAnnotation.getStringValue(BStringUtils.fromString(classAttribute));
             } catch (Exception e) {
-                return createError(BStringValues.fromString(moduleName + " Error while retrieving details of the `" +
+                return createError(BStringUtils.fromString(moduleName + " Error while retrieving details of the `" +
                         annotationName + "` annotation from `" + castObjTypeName + "` typedesc: " + e));
             }
             Class<?> objClassType = Class.forName(objClass.getValue());
@@ -116,16 +116,16 @@ public class Cast {
                 try {
                     bObject = createObjectValue(objType.getPackage(), castObjType.getName(), new HandleValue(jObj));
                 } catch (Exception e) {
-                    return createError(BStringValues.fromString(moduleName + " Error while initializing the new " +
+                    return createError(BStringUtils.fromString(moduleName + " Error while initializing the new " +
                             "object from `" + castObjTypeName + "` type: " + e));
                 }
                 return bObject;
             } else {
-                return createError(BStringValues.fromString(moduleName + " Cannot cast `" + valueObjName + "` to `" +
+                return createError(BStringUtils.fromString(moduleName + " Cannot cast `" + valueObjName + "` to `" +
                         castObjTypeName + "`"));
             }
         } catch (Exception e) {
-            return createError(BStringValues.fromString(moduleName + " Error while casting `" + valueObjName +
+            return createError(BStringUtils.fromString(moduleName + " Error while casting `" + valueObjName +
                     "` object to the typedesc provided: " + e));
         }
     }

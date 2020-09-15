@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
@@ -47,7 +47,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 public class GetHostAddress {
 
     public static BString getHostAddress(Strand strand) {
-        return BStringValues.fromString(getLocalHostLANAddress().getHostAddress());
+        return BStringUtils.fromString(getLocalHostLANAddress().getHostAddress());
     }
 
     private static InetAddress getLocalHostLANAddress() throws RuntimeException {

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.util.exceptions;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
@@ -40,25 +40,25 @@ public class BallerinaErrorReasons {
     private static final String BALLERINA_ORG_PREFIX = "{ballerina/";
     private static final String CLOSING_CURLY_BRACE = "}";
 
-    public static final BString TYPE_CAST_ERROR = BStringValues.fromString(BALLERINA_PREFIX.concat("TypeCastError"));
+    public static final BString TYPE_CAST_ERROR = BStringUtils.fromString(BALLERINA_PREFIX.concat("TypeCastError"));
     public static final BString NUMBER_CONVERSION_ERROR =
-            BStringValues.fromString(BALLERINA_PREFIX.concat("NumberConversionError"));
+            BStringUtils.fromString(BALLERINA_PREFIX.concat("NumberConversionError"));
     public static final BString JSON_OPERATION_ERROR =
-            BStringValues.fromString(BALLERINA_PREFIX.concat("JSONOperationError"));
+            BStringUtils.fromString(BALLERINA_PREFIX.concat("JSONOperationError"));
 
     public static final BString DIVISION_BY_ZERO_ERROR =
-            BStringValues.fromString(BALLERINA_PREFIX.concat("DivisionByZero"));
-    public static final BString NUMBER_OVERFLOW = BStringValues.fromString(BALLERINA_PREFIX.concat("NumberOverflow"));
+            BStringUtils.fromString(BALLERINA_PREFIX.concat("DivisionByZero"));
+    public static final BString NUMBER_OVERFLOW = BStringUtils.fromString(BALLERINA_PREFIX.concat("NumberOverflow"));
     public static final BString ARITHMETIC_OPERATION_ERROR =
-            BStringValues.fromString(BALLERINA_PREFIX.concat("ArithmeticOperationError"));
+            BStringUtils.fromString(BALLERINA_PREFIX.concat("ArithmeticOperationError"));
     public static final BString JAVA_NULL_REFERENCE_ERROR =
-            BStringValues.fromString(BALLERINA_PREFIX.concat("JavaNullReferenceError"));
+            BStringUtils.fromString(BALLERINA_PREFIX.concat("JavaNullReferenceError"));
     public static final String JAVA_CLASS_NOT_FOUND_ERROR = BALLERINA_PREFIX.concat("JavaClassNotFoundError");
 
     public static final BString BALLERINA_PREFIXED_CONVERSION_ERROR =
-            BStringValues.fromString(BALLERINA_PREFIX.concat("ConversionError"));
+            BStringUtils.fromString(BALLERINA_PREFIX.concat("ConversionError"));
     public static final BString ITERATOR_MUTABILITY_ERROR =
-            BStringValues.fromString(BALLERINA_PREFIX.concat("IteratorMutabilityError"));
+            BStringUtils.fromString(BALLERINA_PREFIX.concat("IteratorMutabilityError"));
 
     public static final String NUMBER_PARSING_ERROR_IDENTIFIER = "NumberParsingError";
     public static final String BOOLEAN_PARSING_ERROR_IDENTIFIER = "BooleanParsingError";
@@ -69,15 +69,15 @@ public class BallerinaErrorReasons {
     public static final String KEY_NOT_FOUND_ERROR_IDENTIFIER = "KeyNotFound";
     public static final String INVALID_TYPE_TO_SORT = "InvalidTypeToSort";
 
-    public static final BString INDEX_OUT_OF_RANGE_ERROR = BStringValues
+    public static final BString INDEX_OUT_OF_RANGE_ERROR = BStringUtils
             .fromString(INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER);
     public static final BString OPERATION_NOT_SUPPORTED_ERROR =
-            BStringValues.fromString(OPERATION_NOT_SUPPORTED_IDENTIFIER);
+            BStringUtils.fromString(OPERATION_NOT_SUPPORTED_IDENTIFIER);
 
     public static final BString JSON_CONVERSION_ERROR =
-            BStringValues.fromString(BALLERINA_PREFIX.concat("JSONConversionError"));
+            BStringUtils.fromString(BALLERINA_PREFIX.concat("JSONConversionError"));
     public static final BString STACK_OVERFLOW_ERROR =
-            BStringValues.fromString(BALLERINA_PREFIX.concat("StackOverflow"));
+            BStringUtils.fromString(BALLERINA_PREFIX.concat("StackOverflow"));
 
     public static final BString CONSTRUCT_FROM_CONVERSION_ERROR = getModulePrefixedReason(TYPEDESC_LANG_LIB,
                                                                                           "ConversionError");
@@ -104,10 +104,10 @@ public class BallerinaErrorReasons {
     public static final BString FUTURE_CANCELLED = getModulePrefixedReason(FUTURE_LANG_LIB, "FutureAlreadyCancelled");
 
     public static final BString ASYNC_CALL_INSIDE_LOCK =
-            BStringValues.fromString(BALLERINA_PREFIX.concat("AsyncCallInsideLockError"));
+            BStringUtils.fromString(BALLERINA_PREFIX.concat("AsyncCallInsideLockError"));
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
-        return BStringValues.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)
+        return BStringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)
                                               .concat(CLOSING_CURLY_BRACE).concat(identifier));
     }
 }

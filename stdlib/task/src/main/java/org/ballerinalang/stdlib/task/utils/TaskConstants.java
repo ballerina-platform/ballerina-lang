@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.task.utils;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BPackage;
 
@@ -40,27 +40,27 @@ public class TaskConstants {
     static final String RECORD_APPOINTMENT_DATA = "AppointmentData";
 
     // Member names used in records
-    public static final BString MEMBER_LISTENER_CONFIGURATION = BStringValues.fromString("listenerConfiguration");
-    public static final BString MEMBER_APPOINTMENT_DETAILS = BStringValues.fromString("appointmentDetails");
+    public static final BString MEMBER_LISTENER_CONFIGURATION = BStringUtils.fromString("listenerConfiguration");
+    public static final BString MEMBER_APPOINTMENT_DETAILS = BStringUtils.fromString("appointmentDetails");
 
     // Allowed resource function names
     public static final String RESOURCE_ON_TRIGGER = "onTrigger";
 
     // Common field for TimerConfiguration and AppointmentConfiguration
-    public static final BString FIELD_NO_OF_RUNS = BStringValues.fromString("noOfRecurrences");
+    public static final BString FIELD_NO_OF_RUNS = BStringUtils.fromString("noOfRecurrences");
 
     // Fields used in TimerConfiguration
-    public static final BString FIELD_INTERVAL = BStringValues.fromString("intervalInMillis");
-    public static final BString FIELD_DELAY = BStringValues.fromString("initialDelayInMillis");
+    public static final BString FIELD_INTERVAL = BStringUtils.fromString("intervalInMillis");
+    public static final BString FIELD_DELAY = BStringUtils.fromString("initialDelayInMillis");
 
     // Fields used in AppointmentData
-    static final BString FIELD_SECONDS = BStringValues.fromString("seconds");
-    static final BString FIELD_MINUTES = BStringValues.fromString("minutes");
-    static final BString FIELD_HOURS = BStringValues.fromString("hours");
-    static final BString FIELD_DAYS_OF_MONTH = BStringValues.fromString("daysOfMonth");
-    static final BString FIELD_MONTHS = BStringValues.fromString("months");
-    static final BString FIELD_DAYS_OF_WEEK = BStringValues.fromString("daysOfWeek");
-    static final BString FIELD_YEAR = BStringValues.fromString("year");
+    static final BString FIELD_SECONDS = BStringUtils.fromString("seconds");
+    static final BString FIELD_MINUTES = BStringUtils.fromString("minutes");
+    static final BString FIELD_HOURS = BStringUtils.fromString("hours");
+    static final BString FIELD_DAYS_OF_MONTH = BStringUtils.fromString("daysOfMonth");
+    static final BString FIELD_MONTHS = BStringUtils.fromString("months");
+    static final BString FIELD_DAYS_OF_WEEK = BStringUtils.fromString("daysOfWeek");
+    static final BString FIELD_YEAR = BStringUtils.fromString("year");
 
     // Fields related to TaskError record
     public static final String SCHEDULER_ERROR = "SchedulerError";

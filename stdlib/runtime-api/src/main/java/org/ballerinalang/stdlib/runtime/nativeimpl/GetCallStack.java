@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
 
 /**
@@ -30,6 +30,6 @@ import org.ballerinalang.jvm.values.ArrayValue;
 public class GetCallStack {
 
     public static ArrayValue getCallStack() {
-        return BErrorCreator.createError(BStringValues.fromString("")).getCallStack();
+        return BErrorCreator.createError(BStringUtils.fromString("")).getCallStack();
     }
 }

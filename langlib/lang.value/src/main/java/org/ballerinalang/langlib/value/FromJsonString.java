@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -45,7 +45,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 )
 public class FromJsonString {
 
-    private static final BString JSON_STRING_ERROR = BStringValues.fromString("{ballerina}FromJsonStringError");
+    private static final BString JSON_STRING_ERROR = BStringUtils.fromString("{ballerina}FromJsonStringError");
 
     public static Object fromJsonString(Strand strand, BString value) {
 
@@ -56,7 +56,7 @@ public class FromJsonString {
         try {
             return JSONParser.parse(str);
         } catch (BallerinaException e) {
-            return BErrorCreator.createError(JSON_STRING_ERROR, BStringValues.fromString(e.getMessage()));
+            return BErrorCreator.createError(JSON_STRING_ERROR, BStringUtils.fromString(e.getMessage()));
         }
     }
 }

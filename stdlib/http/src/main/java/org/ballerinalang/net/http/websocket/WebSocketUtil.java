@@ -25,7 +25,7 @@ import io.netty.handler.codec.http.websocketx.CorruptedWebSocketFrameException;
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
@@ -79,8 +79,8 @@ import javax.net.ssl.SSLException;
 public class WebSocketUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketUtil.class);
-    private static final BString CLIENT_ENDPOINT_CONFIG = BStringValues.fromString("config");
-    private static final BString HANDSHAKE_TIME_OUT = BStringValues.fromString("handShakeTimeoutInSeconds");
+    private static final BString CLIENT_ENDPOINT_CONFIG = BStringUtils.fromString("config");
+    private static final BString HANDSHAKE_TIME_OUT = BStringUtils.fromString("handShakeTimeoutInSeconds");
     private static final String WEBSOCKET_FAILOVER_CLIENT_NAME = WebSocketConstants.PACKAGE_HTTP +
             WebSocketConstants.SEPARATOR + WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
     public static final String ERROR_MESSAGE = "Error occurred: ";
@@ -110,9 +110,9 @@ public class WebSocketUtil {
 
     public static void populateWebSocketEndpoint(WebSocketConnection webSocketConnection, BObject webSocketClient) {
         webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD,
-                            BStringValues.fromString(webSocketConnection.getChannelId()));
+                            BStringUtils.fromString(webSocketConnection.getChannelId()));
         webSocketClient.set(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD,
-                            BStringValues.fromString(webSocketConnection.getNegotiatedSubProtocol()));
+                            BStringUtils.fromString(webSocketConnection.getNegotiatedSubProtocol()));
         webSocketClient.set(WebSocketConstants.LISTENER_IS_SECURE_FIELD, webSocketConnection.isSecure());
         webSocketClient.set(WebSocketConstants.LISTENER_IS_OPEN_FIELD, webSocketConnection.isOpen());
     }
@@ -262,7 +262,7 @@ public class WebSocketUtil {
     }
 
     private static BError createErrorCause(String message, String errorIdName, BPackage packageName) {
-        return BErrorCreator.createDistinctError(errorIdName, packageName, BStringValues.fromString(message));
+        return BErrorCreator.createDistinctError(errorIdName, packageName, BStringUtils.fromString(message));
     }
 
     /**

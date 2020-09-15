@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -49,7 +49,7 @@ public class ExternPushPromise {
     public static BString getHeader(BObject pushPromiseObj, BString headerName) {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
-        return BStringValues.fromString(http2PushPromise.getHeader(headerName.getValue()));
+        return BStringUtils.fromString(http2PushPromise.getHeader(headerName.getValue()));
     }
 
     public static ArrayValue getHeaderNames(BObject pushPromiseObj) {
@@ -61,14 +61,14 @@ public class ExternPushPromise {
         }
         Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         distinctNames.addAll(httpHeaderNames);
-        return new ArrayValueImpl(BStringValues.fromStringSet(distinctNames));
+        return new ArrayValueImpl(BStringUtils.fromStringSet(distinctNames));
     }
 
     public static ArrayValue getHeaders(BObject pushPromiseObj, BString headerName) {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
         String[] headers = http2PushPromise.getHeaders(headerName.getValue());
-        return new ArrayValueImpl(BStringValues.fromStringArray(headers));
+        return new ArrayValueImpl(BStringUtils.fromStringArray(headers));
     }
 
     public static boolean hasHeader(BObject pushPromiseObj, BString headerName) {

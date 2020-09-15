@@ -1008,7 +1008,7 @@ class JvmValueGen {
 
             // field name as key
             mv.visitLdcInsn(fieldName);
-            mv.visitMethodInsn(INVOKESTATIC, JvmConstants.B_STRING_VALUES, "fromString",
+            mv.visitMethodInsn(INVOKESTATIC, JvmConstants.B_STRING_UTILS, "fromString",
                                String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
             // field value as the map-entry value
             mv.visitVarInsn(ALOAD, 0);
@@ -1296,7 +1296,7 @@ class JvmValueGen {
 
             mv.visitVarInsn(ALOAD, keysVarIndex);
             mv.visitLdcInsn(fieldName);
-                mv.visitMethodInsn(INVOKESTATIC, JvmConstants.B_STRING_VALUES, "fromString",
+                mv.visitMethodInsn(INVOKESTATIC, JvmConstants.B_STRING_UTILS, "fromString",
                                    String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
             mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
             mv.visitInsn(POP);

@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.websocket;
 
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
@@ -52,13 +52,13 @@ public class WebSocketException extends ErrorValue {
 
     public WebSocketException(String message, BMap<BString, Object> details, String typeIdName) {
         super(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
-              BStringValues.fromString(message), null, details, typeIdName, WebSocketConstants.PROTOCOL_HTTP_PKG_ID);
+              BStringUtils.fromString(message), null, details, typeIdName, WebSocketConstants.PROTOCOL_HTTP_PKG_ID);
         this.message = message;
     }
 
     public WebSocketException(String message, BError cause, BMap<BString, Object> details, String typeIdName) {
         super(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
-              BStringValues.fromString(message), cause, details, typeIdName, WebSocketConstants.PROTOCOL_HTTP_PKG_ID);
+              BStringUtils.fromString(message), cause, details, typeIdName, WebSocketConstants.PROTOCOL_HTTP_PKG_ID);
         this.message = message;
     }
 

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -187,8 +187,8 @@ public class XMLTreeBuilder {
         int count = xmlStreamReader.getAttributeCount();
         for (int i = 0; i < count; i++) {
             QName attributeName = xmlStreamReader.getAttributeName(i);
-            attributesMap.put(BStringValues.fromString(attributeName.toString()),
-                              BStringValues.fromString(xmlStreamReader.getAttributeValue(i)));
+            attributesMap.put(BStringUtils.fromString(attributeName.toString()),
+                              BStringUtils.fromString(xmlStreamReader.getAttributeValue(i)));
             if (!attributeName.getPrefix().isEmpty()) {
                 usedNS.add(attributeName);
             }
@@ -204,8 +204,8 @@ public class XMLTreeBuilder {
                 namespaceURI = namespaces.getOrDefault(prefix, "");
             }
 
-            BString xmlnsPrefix = BStringValues.fromString(XMLItem.XMLNS_URL_PREFIX + prefix);
-            attributesMap.put(xmlnsPrefix, BStringValues.fromString(namespaceURI));
+            BString xmlnsPrefix = BStringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + prefix);
+            attributesMap.put(xmlnsPrefix, BStringUtils.fromString(namespaceURI));
         }
 
         int namespaceCount = xmlStreamReader.getNamespaceCount();
@@ -213,11 +213,11 @@ public class XMLTreeBuilder {
             String uri = xmlStreamReader.getNamespaceURI(i);
             String prefix = xmlStreamReader.getNamespacePrefix(i);
             if (prefix == null || prefix.isEmpty()) {
-                attributesMap.put(BStringValues.fromString(XMLItem.XMLNS_URL_PREFIX + "xmlns"),
-                                  BStringValues.fromString(uri));
+                attributesMap.put(BStringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + "xmlns"),
+                                  BStringUtils.fromString(uri));
             } else {
-                attributesMap.put(BStringValues.fromString(XMLItem.XMLNS_URL_PREFIX + prefix),
-                                  BStringValues.fromString(uri));
+                attributesMap.put(BStringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + prefix),
+                                  BStringUtils.fromString(uri));
             }
         }
     }

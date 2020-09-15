@@ -21,7 +21,7 @@ package org.ballerinalang.mime.util;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
@@ -176,7 +176,7 @@ public class EntityBodyHandler {
         try {
             byteData = MimeUtil.getByteArray(inputStream);
         } catch (IOException ex) {
-            throw BErrorCreator.createError(BStringValues.fromString(("Error occurred while reading input stream :" +
+            throw BErrorCreator.createError(BStringUtils.fromString(("Error occurred while reading input stream :" +
                     ex.getMessage())));
         }
         return (ArrayValue) BValueCreator.createArrayValue(byteData);
@@ -196,7 +196,7 @@ public class EntityBodyHandler {
         try {
             return constructJsonDataSource(entityObj, byteChannel.getInputStream());
         } catch (IOException e) {
-            throw BErrorCreator.createError(BStringValues.fromString((e.getMessage())));
+            throw BErrorCreator.createError(BStringUtils.fromString((e.getMessage())));
         } finally {
             closeByteChannel(byteChannel);
         }
@@ -234,12 +234,12 @@ public class EntityBodyHandler {
     public static XMLValue constructXmlDataSource(BObject entityObj) {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
-            throw BErrorCreator.createError(BStringValues.fromString(("Empty xml payload")));
+            throw BErrorCreator.createError(BStringUtils.fromString(("Empty xml payload")));
         }
         try {
             return constructXmlDataSource(entityObj, byteChannel.getInputStream());
         } catch (IOException e) {
-            throw BErrorCreator.createError(BStringValues.fromString((e.getMessage())));
+            throw BErrorCreator.createError(BStringUtils.fromString((e.getMessage())));
         } finally {
             closeByteChannel(byteChannel);
         }
@@ -277,12 +277,12 @@ public class EntityBodyHandler {
     public static BString constructStringDataSource(BObject entityObj) {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
-            throw BErrorCreator.createError(BStringValues.fromString(("String payload is null")));
+            throw BErrorCreator.createError(BStringUtils.fromString(("String payload is null")));
         }
         try {
             return constructStringDataSource(entityObj, byteChannel.getInputStream());
         } catch (IOException e) {
-            throw BErrorCreator.createError(BStringValues.fromString((e.getMessage())));
+            throw BErrorCreator.createError(BStringUtils.fromString((e.getMessage())));
         } finally {
             closeByteChannel(byteChannel);
         }
@@ -301,12 +301,12 @@ public class EntityBodyHandler {
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
-                textContent = BStringValues.getStringFromInputStream(inputStream, charsetValue);
+                textContent = BStringUtils.getStringFromInputStream(inputStream, charsetValue);
             } else {
-                textContent = BStringValues.getStringFromInputStream(inputStream);
+                textContent = BStringUtils.getStringFromInputStream(inputStream);
             }
         } else {
-            textContent = BStringValues.getStringFromInputStream(inputStream);
+            textContent = BStringUtils.getStringFromInputStream(inputStream);
         }
         return textContent;
     }

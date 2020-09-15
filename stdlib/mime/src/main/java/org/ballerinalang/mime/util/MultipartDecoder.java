@@ -18,7 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.jvnet.mimepull.MIMEConfig;
@@ -157,7 +157,7 @@ public class MultipartDecoder {
     }
 
     private static void populateContentId(MIMEPart mimePart, BObject partStruct) {
-        partStruct.set(CONTENT_ID_FIELD, BStringValues.fromString(mimePart.getContentId()));
+        partStruct.set(CONTENT_ID_FIELD, BStringUtils.fromString(mimePart.getContentId()));
     }
 
     private static void populateContentLength(MIMEPart mimePart, BObject partStruct) {

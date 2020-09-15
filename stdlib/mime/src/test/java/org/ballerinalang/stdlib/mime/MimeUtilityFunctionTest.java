@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.mime;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.types.BMapType;
@@ -89,7 +89,7 @@ public class MimeUtilityFunctionTest {
 
     @Test(description = "Test 'getMediaType' function in ballerina/mime package")
     public void testGetMediaType() {
-        Object[] args = {BStringValues.fromString("multipart/form-data; boundary=032a1ab685934650abbe059cb45d6ff3")};
+        Object[] args = {BStringUtils.fromString("multipart/form-data; boundary=032a1ab685934650abbe059cb45d6ff3")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetMediaType", args);
         Assert.assertEquals(returns.length, 1);
         BMap<String, BValue> mediaType = (BMap<String, BValue>) returns[0];
@@ -103,7 +103,7 @@ public class MimeUtilityFunctionTest {
     @Test(description = "Test whether an error is returned while constructing MediaType object with an " +
             "incorrect content type value")
     public void getMediaTypeWithIncorrectContentType() {
-        Object[] args = {BStringValues.fromString("testContentType")};
+        Object[] args = {BStringUtils.fromString("testContentType")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetMediaType", args);
         Assert.assertEquals(returns.length, 1);
         verifyMimeError(returns[0], "error(\"Unable to find a sub type.\")");
@@ -112,8 +112,8 @@ public class MimeUtilityFunctionTest {
     @Test(description = "Test 'getBaseType' function in ballerina/mime package")
     public void testGetBaseTypeOnMediaType() {
         BObject mediaType = BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
-        mediaType.set(PRIMARY_TYPE_FIELD, BStringValues.fromString("application"));
-        mediaType.set(SUBTYPE_FIELD, BStringValues.fromString("test+xml"));
+        mediaType.set(PRIMARY_TYPE_FIELD, BStringUtils.fromString("application"));
+        mediaType.set(SUBTYPE_FIELD, BStringUtils.fromString("test+xml"));
         Object[] args = {mediaType};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetBaseTypeOnMediaType", args);
         Assert.assertEquals(returns.length, 1);
@@ -123,11 +123,11 @@ public class MimeUtilityFunctionTest {
     @Test(description = "Test 'testToStringOnMediaType' function in ballerina/mime package")
     public void testToStringOnMediaType() {
         BObject mediaType = BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
-        mediaType.set(PRIMARY_TYPE_FIELD, BStringValues.fromString("application"));
-        mediaType.set(SUBTYPE_FIELD, BStringValues.fromString("test+xml"));
+        mediaType.set(PRIMARY_TYPE_FIELD, BStringUtils.fromString("application"));
+        mediaType.set(SUBTYPE_FIELD, BStringUtils.fromString("test+xml"));
         org.ballerinalang.jvm.api.values.BMap<org.ballerinalang.jvm.api.values.BString, Object> mapValue =
                 BValueCreator.createMapValue(new BMapType(BTypes.typeString));;
-        mapValue.put(BStringValues.fromString("charset"), BStringValues.fromString("utf-8"));
+        mapValue.put(BStringUtils.fromString("charset"), BStringUtils.fromString("utf-8"));
         mediaType.set(PARAMETER_MAP_FIELD, mapValue);
         Object[] args = {mediaType};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnMediaType", args);
@@ -137,7 +137,7 @@ public class MimeUtilityFunctionTest {
 
     @Test(description = "Test 'getContentDispositionObject' function in ballerina/mime package")
     public void testGetContentDispositionObject() {
-        Object[] args = {BStringValues.fromString("form-data; name=\"filepart\"; filename=\"file-01.txt\"")};
+        Object[] args = {BStringUtils.fromString("form-data; name=\"filepart\"; filename=\"file-01.txt\"")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetContentDispositionObject", args);
         Assert.assertEquals(returns.length, 1);
         BMap<String, BValue> contentDisposition = (BMap<String, BValue>) returns[0];
@@ -154,9 +154,9 @@ public class MimeUtilityFunctionTest {
     public void testToStringOnContentDisposition() {
         BObject contentDisposition = BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID,
                                                                              CONTENT_DISPOSITION_STRUCT);
-        contentDisposition.set(CONTENT_DISPOSITION_FILENAME_FIELD, BStringValues.fromString("file-01.txt"));
-        contentDisposition.set(DISPOSITION_FIELD, BStringValues.fromString("form-data"));
-        contentDisposition.set(CONTENT_DISPOSITION_NAME_FIELD, BStringValues.fromString("test"));
+        contentDisposition.set(CONTENT_DISPOSITION_FILENAME_FIELD, BStringUtils.fromString("file-01.txt"));
+        contentDisposition.set(DISPOSITION_FIELD, BStringUtils.fromString("form-data"));
+        contentDisposition.set(CONTENT_DISPOSITION_NAME_FIELD, BStringUtils.fromString("test"));
         Object[] args = {contentDisposition};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnContentDisposition", args);
         Assert.assertEquals(returns.length, 1);
@@ -223,7 +223,7 @@ public class MimeUtilityFunctionTest {
 
     @Test(description = "Set text data to entity and get the content back from entity as text")
     public void testGetAndSetText() {
-        Object[] args = {BStringValues.fromString("Hello Ballerina !")};
+        Object[] args = {BStringUtils.fromString("Hello Ballerina !")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetText", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina !");
@@ -231,7 +231,7 @@ public class MimeUtilityFunctionTest {
 
     @Test(description = "Test whether the text content can be retrieved properly when it is called multiple times")
     public void testGetTextMoreThanOnce() {
-        Object[] args = {BStringValues.fromString("Hello Ballerina !")};
+        Object[] args = {BStringUtils.fromString("Hello Ballerina !")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetTextMultipleTimes", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
@@ -264,7 +264,7 @@ public class MimeUtilityFunctionTest {
     public void testSetFileAsEntityBody() {
         try {
             File file = getTemporaryFile("testFile", ".tmp", "Hello Ballerina!");
-            Object[] args = {BStringValues.fromString(file.getAbsolutePath())};
+            Object[] args = {BStringUtils.fromString(file.getAbsolutePath())};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetFileAsEntityBody", args);
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), "Hello Ballerina!",
@@ -305,7 +305,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns.length, 1);
             BMap<String, BValue> returnByteChannelStruct = (BMap<String, BValue>) returns[0];
             Channel channel = (Channel) returnByteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            Assert.assertEquals(BStringValues.getStringFromInputStream(channel.getInputStream()).getValue(),
+            Assert.assertEquals(BStringUtils.getStringFromInputStream(channel.getInputStream()).getValue(),
                                 "Hello Ballerina!");
         } catch (IOException e) {
             log.error("Error occurred in testSetByteChannel", e.getMessage());
@@ -320,7 +320,7 @@ public class MimeUtilityFunctionTest {
                                                                           READABLE_BYTE_CHANNEL_STRUCT);
             byteChannel.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
                                             EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath()));
-            Object[] args = {byteChannel, BStringValues.fromString("Hello Ballerina!")};
+            Object[] args = {byteChannel, BStringUtils.fromString("Hello Ballerina!")};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetEntityBodyMultipleTimes", args);
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(returns[0].stringValue(), "File Content");
@@ -532,7 +532,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns.length, 1);
             BMap<String, BValue> returnByteChannelStruct = (BMap<String, BValue>) returns[0];
             Channel channel = (Channel) returnByteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            Assert.assertEquals(BStringValues.getStringFromInputStream(channel.getInputStream()).getValue(),
+            Assert.assertEquals(BStringUtils.getStringFromInputStream(channel.getInputStream()).getValue(),
                                 "Hello Ballerina!");
         } catch (IOException e) {
             log.error("Error occurred in testSetBodyAndGetByteChannel", e.getMessage());
@@ -617,7 +617,7 @@ public class MimeUtilityFunctionTest {
                                                                           READABLE_BYTE_CHANNEL_STRUCT);
             byteChannel.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
                                             EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath()));
-            Object[] args = {byteChannel, BStringValues.fromString("application/json")};
+            Object[] args = {byteChannel, BStringUtils.fromString("application/json")};
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetAnyStreamAsString", args);
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(returns[0].stringValue(), "{'code':'123'}");
@@ -634,7 +634,7 @@ public class MimeUtilityFunctionTest {
                                                                           READABLE_BYTE_CHANNEL_STRUCT);
             byteChannel.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
                                             EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath()));
-            Object[] args = {byteChannel, BStringValues.fromString("application/json")};
+            Object[] args = {byteChannel, BStringUtils.fromString("application/json")};
             BValue[] returns = BRunUtil.invoke(compileResult, "testByteArrayWithContentType", args);
             Assert.assertEquals(returns.length, 1);
             //Change this accordingly when https://github.com/ballerina-platform/ballerina-lang/issues/10079 is fixed
@@ -654,7 +654,7 @@ public class MimeUtilityFunctionTest {
                                                                           READABLE_BYTE_CHANNEL_STRUCT);
             byteChannel.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
                                             EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath()));
-            Object[] args = {byteChannel, BStringValues.fromString("application/json; charset=utf8")};
+            Object[] args = {byteChannel, BStringUtils.fromString("application/json; charset=utf8")};
             BValue[] returns = BRunUtil.invoke(compileResult, "testByteArrayWithContentType", args);
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), "{\"test\":\"菜鸟驿站\"}",
@@ -717,7 +717,7 @@ public class MimeUtilityFunctionTest {
                                                                           READABLE_BYTE_CHANNEL_STRUCT);
             byteChannel.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
                                             EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath()));
-            Object[] args = {byteChannel, BStringValues.fromString("application/json")};
+            Object[] args = {byteChannel, BStringUtils.fromString("application/json")};
             BValue[] returns = BRunUtil.invoke(compileResult, "getAnyStreamAsStringFromCache", args);
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(returns[0].stringValue(), "{'code':'123'}{'code':'123'}");
@@ -735,7 +735,7 @@ public class MimeUtilityFunctionTest {
                                                                           READABLE_BYTE_CHANNEL_STRUCT);
             byteChannel.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
                                             EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath()));
-            Object[] args = {byteChannel, BStringValues.fromString("application/xml; charset=utf8")};
+            Object[] args = {byteChannel, BStringUtils.fromString("application/xml; charset=utf8")};
             BValue[] returns = BRunUtil.invoke(compileResult, "testXmlWithByteArrayContent", args);
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(returns[0].stringValue(), "<name>Ballerina xml content</name>");
@@ -753,7 +753,7 @@ public class MimeUtilityFunctionTest {
                                                                           READABLE_BYTE_CHANNEL_STRUCT);
             byteChannel.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
                                             EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath()));
-            Object[] args = {byteChannel, BStringValues.fromString("multipart/form-data")};
+            Object[] args = {byteChannel, BStringUtils.fromString("multipart/form-data")};
             BValue[] returns = BRunUtil.invoke(compileResult, "getPartsFromInvalidChannel", args);
             Assert.assertEquals(returns.length, 1);
             verifyMimeError(returns[0], "Error occurred while extracting body parts from entity: Missing start " +

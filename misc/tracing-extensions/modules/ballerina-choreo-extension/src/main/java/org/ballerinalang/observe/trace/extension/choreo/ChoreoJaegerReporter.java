@@ -22,7 +22,7 @@ import io.jaegertracing.internal.Reference;
 import io.jaegertracing.spi.Reporter;
 import io.opentracing.References;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClient;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolder;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
@@ -59,9 +59,9 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
             choreoClient = ChoreoClientHolder.getChoreoClient(this);
         } catch (ChoreoClientException e) {
             throw BErrorCreator.createError(
-                    BStringValues
+                    BStringUtils
                             .fromString("Choreo client is not initialized. Please check Ballerina configurations."),
-                    BStringValues.fromString(e.getMessage()));
+                    BStringUtils.fromString(e.getMessage()));
         }
         if (Objects.isNull(choreoClient)) {
             throw new IllegalStateException("Choreo client is not initialized");

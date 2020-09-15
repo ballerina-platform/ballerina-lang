@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.api.BRuntime;
 import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;

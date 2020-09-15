@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.commons.TypeValuePair;
@@ -133,7 +133,7 @@ public class ToJson {
         MapValueImpl<BString, Object> newMap = new MapValueImpl<>(new BMapType(BTypes.typeJSON));
         for (Map.Entry entry : map.entrySet()) {
             Object newValue = convert(entry.getValue(), unresolvedValues, strand);
-            newMap.put(BStringValues.fromString(entry.getKey().toString()), newValue);
+            newMap.put(BStringUtils.fromString(entry.getKey().toString()), newValue);
         }
         return newMap;
     }
@@ -157,6 +157,6 @@ public class ToJson {
     private static BError createConversionError(Object inputValue, BType targetType, String detailMessage) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
-                .concat(BStringValues.fromString(": ".concat(detailMessage))));
+                .concat(BStringUtils.fromString(": ".concat(detailMessage))));
     }
 }

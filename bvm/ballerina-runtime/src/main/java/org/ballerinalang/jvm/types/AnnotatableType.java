@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
@@ -47,6 +47,6 @@ public abstract class AnnotatableType extends BType {
     }
 
     public Object getAnnotation(String pkg, String annotName) {
-        return this.annotations.get(BStringValues.fromString(pkg + ":" + annotName));
+        return this.annotations.get(BStringUtils.fromString(pkg + ":" + annotName));
     }
 }

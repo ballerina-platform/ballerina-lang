@@ -18,12 +18,12 @@
 
 package org.ballerinalang.jvm.runtime;
 
+import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 
@@ -74,7 +74,7 @@ public class AsyncUtils {
             }
 
             @Override
-            public void notifyFailure(ErrorValue error) {
+            public void notifyFailure(BError error) {
                 handleRuntimeErrors(error);
             }
         };
@@ -153,7 +153,7 @@ public class AsyncUtils {
             }
 
             @Override
-            public void notifyFailure(ErrorValue error) {
+            public void notifyFailure(BError error) {
                 handleRuntimeErrors(error);
             }
         };

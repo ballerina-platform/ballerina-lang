@@ -18,7 +18,7 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
@@ -74,23 +74,23 @@ public class LookupMetric {
             MetricId metricId = metric.getId();
             if (metric instanceof Counter) {
                 BObject counter = BValueCreator.createObjectValue(
-                        OBSERVE_PACKAGE_ID, COUNTER, BStringValues.fromString(metricId.getName()),
-                        BStringValues.fromString(metricId.getDescription()), getTags(metricId));
+                        OBSERVE_PACKAGE_ID, COUNTER, BStringUtils.fromString(metricId.getName()),
+                        BStringUtils.fromString(metricId.getDescription()), getTags(metricId));
                 counter.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
                 return counter;
             } else if (metric instanceof Gauge) {
                 Gauge gauge = (Gauge) metric;
                 ArrayValue statisticConfigs = Utils.createBStatisticConfig(gauge.getStatisticsConfig());
                 BObject bGauge = BValueCreator.createObjectValue(
-                        OBSERVE_PACKAGE_ID, GAUGE, BStringValues.fromString(metricId.getName()),
-                        BStringValues.fromString(metricId.getDescription()), getTags(metricId), statisticConfigs);
+                        OBSERVE_PACKAGE_ID, GAUGE, BStringUtils.fromString(metricId.getName()),
+                        BStringUtils.fromString(metricId.getDescription()), getTags(metricId), statisticConfigs);
                 bGauge.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
                 return bGauge;
             } else if (metric instanceof PolledGauge) {
                 ArrayValue statisticConfigs = Utils.createBStatisticConfig(null);
                 BObject bGauge = BValueCreator.createObjectValue(
-                        OBSERVE_PACKAGE_ID, GAUGE, BStringValues.fromString(metricId.getName()),
-                        BStringValues.fromString(metricId.getDescription()), getTags(metricId), statisticConfigs);
+                        OBSERVE_PACKAGE_ID, GAUGE, BStringUtils.fromString(metricId.getName()),
+                        BStringUtils.fromString(metricId.getDescription()), getTags(metricId), statisticConfigs);
                 bGauge.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
                 return bGauge;
             }
@@ -103,7 +103,7 @@ public class LookupMetric {
         BMap<BString, Object> bTags = BValueCreator.createMapValue(new BMapType(BTypes.typeString));
         Set<Tag> tags = metricId.getTags();
         for (Tag tag : tags) {
-            bTags.put(BStringValues.fromString(tag.getKey()), BStringValues.fromString(tag.getValue()));
+            bTags.put(BStringUtils.fromString(tag.getKey()), BStringUtils.fromString(tag.getValue()));
         }
         return bTags;
     }

@@ -18,7 +18,7 @@
 package org.ballerinalang.stdlib.file.utils;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
@@ -42,7 +42,7 @@ import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeZoneRecord;
  */
 public class FileUtils {
 
-    private static final BString UNKNOWN_MESSAGE = BStringValues.fromString("Unknown Error");
+    private static final BString UNKNOWN_MESSAGE = BStringUtils.fromString("Unknown Error");
 
     /**
      * Returns error object for input reason.
@@ -55,7 +55,7 @@ public class FileUtils {
      * @return Ballerina error object.
      */
     public static BError getBallerinaError(String error, Throwable ex) {
-        BString errorMsg = error != null && ex.getMessage() != null ? BStringValues.fromString(ex.getMessage()) :
+        BString errorMsg = error != null && ex.getMessage() != null ? BStringUtils.fromString(ex.getMessage()) :
                 UNKNOWN_MESSAGE;
         return getBallerinaError(error, errorMsg);
     }
@@ -78,12 +78,12 @@ public class FileUtils {
         FileTime lastModified = Files.getLastModifiedTime(inputFile.toPath());
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
-                                                lastModified.toMillis(), BStringValues
+                                                lastModified.toMillis(), BStringUtils
                                                         .fromString(zonedDateTime.getZone().toString()));
         return BValueCreator.createObjectValue(FILE_PACKAGE_ID, FILE_INFO_TYPE,
-                                               BStringValues.fromString(inputFile.getName()), inputFile.length(),
+                                               BStringUtils.fromString(inputFile.getName()), inputFile.length(),
                                                lastModifiedInstance,
-                                               inputFile.isDirectory(), BStringValues
+                                               inputFile.isDirectory(), BStringUtils
                                                        .fromString(inputFile.getAbsolutePath()));
     }
 

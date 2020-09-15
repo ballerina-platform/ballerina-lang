@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.internal.ErrorUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -47,6 +47,6 @@ public class Trim {
         if (str == null) {
             throw ErrorUtils.createNullReferenceError();
         }
-        return BStringValues.fromString(str.getValue().trim());
+        return BStringUtils.fromString(str.getValue().trim());
     }
 }

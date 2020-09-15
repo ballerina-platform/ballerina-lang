@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.api.values.BValue;
 import org.ballerinalang.jvm.api.values.BXML;
@@ -554,7 +554,7 @@ public class TypeChecker {
         if (!(describingType instanceof AnnotatableType)) {
             return null;
         }
-        return ((AnnotatableType) describingType).getAnnotation(BStringValues.fromString(annotTag));
+        return ((AnnotatableType) describingType).getAnnotation(BStringUtils.fromString(annotTag));
     }
 
     public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
@@ -837,7 +837,7 @@ public class TypeChecker {
                 continue;
             }
 
-            BString name = BStringValues.fromString(field.name);
+            BString name = BStringUtils.fromString(field.name);
 
             if (Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !sourceVal.containsKey(name)) {
                 continue;
@@ -1104,7 +1104,7 @@ public class TypeChecker {
             String fieldName = field.getFieldName();
 
             if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
-                BString fieldNameBString = BStringValues.fromString(fieldName);
+                BString fieldNameBString = BStringUtils.fromString(fieldName);
 
                 if (Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !sourceVal.containsKey(fieldNameBString)) {
                     continue;
@@ -1170,7 +1170,7 @@ public class TypeChecker {
             boolean optionalSourceField = Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL);
 
             if (Flags.isFlagOn(sourceField.flags, Flags.READONLY)) {
-                BString fieldNameBString = BStringValues.fromString(fieldName);
+                BString fieldNameBString = BStringUtils.fromString(fieldName);
 
                 if (optionalSourceField && !sourceRecordValue.containsKey(fieldNameBString)) {
                     if (!optionalTargetField) {
@@ -1203,7 +1203,7 @@ public class TypeChecker {
             }
 
             if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
-                if (!checkIsLikeType(sourceRecordValue.get(BStringValues.fromString(field.name)),
+                if (!checkIsLikeType(sourceRecordValue.get(BStringUtils.fromString(field.name)),
                                      targetType.restFieldType)) {
                     return false;
                 }
@@ -1422,7 +1422,7 @@ public class TypeChecker {
             }
 
             if (Flags.isFlagOn(rhsField.flags, Flags.READONLY)) {
-                if (!checkIsLikeType(sourceObjVal.get(BStringValues.fromString(name)), lhsField.type)) {
+                if (!checkIsLikeType(sourceObjVal.get(BStringUtils.fromString(name)), lhsField.type)) {
                     return false;
                 }
             } else if (!checkIsType(rhsField.type, lhsField.type, unresolvedTypes)) {
@@ -2169,7 +2169,7 @@ public class TypeChecker {
         }
 
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
-            Object fieldName = BStringValues.fromString(targetTypeEntry.getKey().toString());
+            Object fieldName = BStringUtils.fromString(targetTypeEntry.getKey().toString());
             if (!(((MapValueImpl) sourceValue).containsKey(fieldName)) &&
                     !Flags.isFlagOn(targetType.getFields().get(fieldName.toString()).flags, Flags.OPTIONAL)) {
                 return false;

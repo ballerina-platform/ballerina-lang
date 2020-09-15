@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -41,7 +41,7 @@ public class Hash {
 
         checksum.update(bytes, 0, bytes.length);
         checksumVal = checksum.getValue();
-        return BStringValues.fromString(Long.toHexString(checksumVal));
+        return BStringUtils.fromString(Long.toHexString(checksumVal));
     }
 
     public static ArrayValue hashMd5(ArrayValue inputValue) {

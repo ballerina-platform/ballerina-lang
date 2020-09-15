@@ -21,7 +21,7 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
@@ -75,10 +75,10 @@ public abstract class MimeDataSourceBuilder {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
                 return BValueCreator.createArrayValue(
-                        BStringValues.getJsonString(messageDataSource).getBytes(charsetValue));
+                        BStringUtils.getJsonString(messageDataSource).getBytes(charsetValue));
             }
             return BValueCreator.createArrayValue(
-                    BStringValues.getJsonString(messageDataSource).getBytes(Charset.defaultCharset()));
+                    BStringUtils.getJsonString(messageDataSource).getBytes(Charset.defaultCharset()));
         }
         return BValueCreator.createArrayValue(new byte[0]);
     }
@@ -123,7 +123,7 @@ public abstract class MimeDataSourceBuilder {
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                return BStringValues.fromString(MimeUtil.getMessageAsString(dataSource));
+                return BStringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
             }
             result = EntityBodyHandler.constructStringDataSource(entityObj);
             updateDataSource(entityObj, result);

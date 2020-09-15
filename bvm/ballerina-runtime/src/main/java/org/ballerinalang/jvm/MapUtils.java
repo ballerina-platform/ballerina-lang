@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BField;
@@ -121,8 +121,8 @@ public class MapUtils {
     public static BError createOpNotSupportedError(BType type, String op) {
         return BErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                  OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                         BStringValues.fromString(String.format("%s not supported on type '%s'", op,
-                                                                                type.getQualifiedName())));
+                                         BStringUtils.fromString(String.format("%s not supported on type '%s'", op,
+                                                                               type.getQualifiedName())));
     }
 
     public static void checkIsMapOnlyOperation(BType mapType, String op) {
@@ -165,7 +165,7 @@ public class MapUtils {
 
     private static BError createOpNotSupportedErrorForRecord(BType type, String field) {
         return BErrorCreator.createError(getModulePrefixedReason(
-                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), BStringValues.fromString(
+                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), BStringUtils.fromString(
                 String.format("failed to remove field: '%s' is a required field in '%s'", field,
                               type.getQualifiedName())));
     }

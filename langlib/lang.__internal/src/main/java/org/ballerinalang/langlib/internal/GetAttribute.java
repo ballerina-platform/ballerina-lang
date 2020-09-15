@@ -18,7 +18,7 @@
 package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLQName;
@@ -52,13 +52,13 @@ public class GetAttribute {
         }
         if (!IsElement.isElement(xmlVal)) {
             return createError(XML_OPERATION_ERROR,
-                               BStringValues.fromString("Invalid xml attribute access on xml " +
+                               BStringUtils.fromString("Invalid xml attribute access on xml " +
                                                                xmlVal.getNodeType().value()));
         }
         XMLQName qname = new XMLQName(attrName);
         BString attrVal = xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
         if (attrVal == null && !optionalFiledAccess) {
-            return createError(XML_OPERATION_ERROR, BStringValues.fromString("attribute '" + attrName + "' not found"));
+            return createError(XML_OPERATION_ERROR, BStringUtils.fromString("attribute '" + attrName + "' not found"));
         }
         return attrVal;
     }

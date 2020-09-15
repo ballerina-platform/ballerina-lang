@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.jvm.transactions;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.BLangConstants;
@@ -57,10 +57,10 @@ public class TransactionConstants {
 
     // TransactionContext struct field names
     public static final String CONTEXT_VERSION = "contextVersion";
-    public static final BString TRANSACTION_BLOCK_ID = BStringValues.fromString("transactionBlockId");
-    public static final BString TRANSACTION_ID = BStringValues.fromString("transactionId");
-    public static final BString CORDINATION_TYPE = BStringValues.fromString("coordinationType");
-    public static final BString REGISTER_AT_URL = BStringValues.fromString("registerAtURL");
+    public static final BString TRANSACTION_BLOCK_ID = BStringUtils.fromString("transactionBlockId");
+    public static final BString TRANSACTION_ID = BStringUtils.fromString("transactionId");
+    public static final BString CORDINATION_TYPE = BStringUtils.fromString("coordinationType");
+    public static final BString REGISTER_AT_URL = BStringUtils.fromString("registerAtURL");
 
     public static final String ANN_NAME_TRX_PARTICIPANT_CONFIG = "Participant";
 }

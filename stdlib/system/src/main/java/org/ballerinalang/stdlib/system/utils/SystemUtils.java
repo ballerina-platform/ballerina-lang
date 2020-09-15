@@ -18,7 +18,7 @@
 package org.ballerinalang.stdlib.system.utils;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
@@ -70,7 +70,7 @@ public class SystemUtils {
      * @return Ballerina error object.
      */
     public static BError getBallerinaError(String typeId, String message) {
-        return BErrorCreator.createDistinctError(typeId, SYSTEM_PACKAGE_ID, BStringValues.fromString(message));
+        return BErrorCreator.createDistinctError(typeId, SYSTEM_PACKAGE_ID, BStringUtils.fromString(message));
     }
 
     public static BObject getFileInfo(File inputFile) throws IOException {
@@ -78,10 +78,10 @@ public class SystemUtils {
         FileTime lastModified = Files.getLastModifiedTime(inputFile.toPath());
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
-                                                lastModified.toMillis(), BStringValues
+                                                lastModified.toMillis(), BStringUtils
                                                         .fromString(zonedDateTime.getZone().toString()));
         return BValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE,
-                                               BStringValues.fromString(inputFile.getName()), inputFile.length(),
+                                               BStringUtils.fromString(inputFile.getName()), inputFile.length(),
                                                lastModifiedInstance, inputFile.isDirectory());
     }
 

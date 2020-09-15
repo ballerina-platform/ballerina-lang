@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.types.BField;
@@ -62,7 +62,7 @@ public class GetTable {
     public static Object getTable(BObject csvChannel, TypedescValue typedescValue, ArrayValue key) {
         try {
             final BObject delimitedObj =
-                    (ObjectValue) csvChannel.get(BStringValues.fromString(CSV_CHANNEL_DELIMITED_STRUCT_FIELD));
+                    (ObjectValue) csvChannel.get(BStringUtils.fromString(CSV_CHANNEL_DELIMITED_STRUCT_FIELD));
             DelimitedRecordChannel delimitedChannel = (DelimitedRecordChannel) delimitedObj
                     .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             if (delimitedChannel.hasReachedEnd()) {

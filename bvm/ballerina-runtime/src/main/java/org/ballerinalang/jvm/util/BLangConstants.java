@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.jvm.util;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BPackage;
 
@@ -122,7 +122,7 @@ public class BLangConstants {
     public static final BString BSTRING_NULL_VALUE = null;
 
     // Empty value for string
-    public static final BString STRING_EMPTY_VALUE = BStringValues.fromString("");
+    public static final BString STRING_EMPTY_VALUE = BStringUtils.fromString("");
 
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;

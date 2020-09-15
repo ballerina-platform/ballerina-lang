@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -50,6 +50,6 @@ public class Join {
         for (int i = 0; i < size; i++) {
             stringJoiner.add(strs.getBString(i).getValue());
         }
-        return BStringValues.fromString(stringJoiner.toString());
+        return BStringUtils.fromString(stringJoiner.toString());
     }
 }

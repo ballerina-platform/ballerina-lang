@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -51,13 +51,13 @@ public class HttpResource {
 
     private static final Logger log = LoggerFactory.getLogger(HttpResource.class);
 
-    private static final BString METHODS_FIELD = BStringValues.fromString("methods");
-    private static final BString PATH_FIELD = BStringValues.fromString("path");
-    private static final BString BODY_FIELD = BStringValues.fromString("body");
-    private static final BString CONSUMES_FIELD = BStringValues.fromString("consumes");
-    private static final BString PRODUCES_FIELD = BStringValues.fromString("produces");
-    private static final BString CORS_FIELD = BStringValues.fromString("cors");
-    private static final BString TRANSACTION_INFECTABLE_FIELD = BStringValues.fromString("transactionInfectable");
+    private static final BString METHODS_FIELD = BStringUtils.fromString("methods");
+    private static final BString PATH_FIELD = BStringUtils.fromString("path");
+    private static final BString BODY_FIELD = BStringUtils.fromString("body");
+    private static final BString CONSUMES_FIELD = BStringUtils.fromString("consumes");
+    private static final BString PRODUCES_FIELD = BStringUtils.fromString("produces");
+    private static final BString CORS_FIELD = BStringUtils.fromString("cors");
+    private static final BString TRANSACTION_INFECTABLE_FIELD = BStringUtils.fromString("transactionInfectable");
 
     private AttachedFunction balResource;
     private List<String> methods;

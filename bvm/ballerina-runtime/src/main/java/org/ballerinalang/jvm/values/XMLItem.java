@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
@@ -118,8 +118,8 @@ public final class XMLItem extends XMLValue {
             prefix = XMLNS;
         }
 
-        attributes.populateInitialValue(BStringValues.fromString(XMLNS_URL_PREFIX + prefix),
-                                        BStringValues.fromString(namespace));
+        attributes.populateInitialValue(BStringUtils.fromString(XMLNS_URL_PREFIX + prefix),
+                                        BStringUtils.fromString(namespace));
     }
 
     /**
@@ -192,16 +192,16 @@ public final class XMLItem extends XMLValue {
     @Override
     public BString getAttribute(String localName, String namespace, String prefix) {
         if (prefix != null && !prefix.isEmpty()) {
-            String ns = attributes.get(BStringValues.fromString(XMLNS_URL_PREFIX + prefix)).getValue();
-            BString attrVal = attributes.get(BStringValues.fromString("{" + ns + "}" + localName));
+            String ns = attributes.get(BStringUtils.fromString(XMLNS_URL_PREFIX + prefix)).getValue();
+            BString attrVal = attributes.get(BStringUtils.fromString("{" + ns + "}" + localName));
             if (attrVal != null) {
                 return attrVal;
             }
         }
         if (namespace != null && !namespace.isEmpty()) {
-            return attributes.get(BStringValues.fromString("{" + namespace + "}" + localName));
+            return attributes.get(BStringUtils.fromString("{" + namespace + "}" + localName));
         }
-        return attributes.get(BStringValues.fromString(localName));
+        return attributes.get(BStringUtils.fromString(localName));
     }
 
     /**
@@ -425,9 +425,9 @@ public final class XMLItem extends XMLValue {
             throw e;
         } catch (OMException | XMLStreamException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
-            throw BErrorCreator.createError(BStringValues.fromString((cause.getMessage())));
+            throw BErrorCreator.createError(BStringUtils.fromString((cause.getMessage())));
         } catch (Throwable e) {
-            throw BErrorCreator.createError(BStringValues.fromString(("failed to parse xml: " + e.getMessage())));
+            throw BErrorCreator.createError(BStringUtils.fromString(("failed to parse xml: " + e.getMessage())));
         }
     }
 

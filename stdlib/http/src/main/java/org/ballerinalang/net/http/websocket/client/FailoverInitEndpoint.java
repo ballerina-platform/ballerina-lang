@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.client;
 
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -43,7 +43,7 @@ import java.util.List;
 public class FailoverInitEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(FailoverInitEndpoint.class);
-    private static final BString FAILOVER_INTERVAL = BStringValues.fromString("failoverIntervalInMillis");
+    private static final BString FAILOVER_INTERVAL = BStringUtils.fromString("failoverIntervalInMillis");
 
     public static void initEndpoint(BObject failoverClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
@@ -51,7 +51,7 @@ public class FailoverInitEndpoint {
                 WebSocketConstants.CLIENT_ENDPOINT_CONFIG);
         List<String> newTargetUrls = getValidUrls(clientEndpointConfig.getArrayValue(WebSocketConstants.TARGET_URLS));
         // Sets the failover config values.
-        failoverClient.set(WebSocketConstants.CLIENT_URL_CONFIG, BStringValues.fromString(newTargetUrls.get(0)));
+        failoverClient.set(WebSocketConstants.CLIENT_URL_CONFIG, BStringUtils.fromString(newTargetUrls.get(0)));
         FailoverContext failoverContext = new FailoverContext();
         populateFailoverContext(clientEndpointConfig, failoverContext, newTargetUrls);
         failoverClient.addNativeData(WebSocketConstants.FAILOVER_CONTEXT, failoverContext);

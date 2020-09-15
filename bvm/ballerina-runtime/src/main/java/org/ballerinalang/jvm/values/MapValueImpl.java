@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.MapUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BMap;
@@ -153,7 +153,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
-            throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringValues
+            throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
                     .fromString("cannot find key '" + key + "'"));
         }
         return this.get(key);
@@ -183,7 +183,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             } else {
                 if (recordType.sealed) {
                     // Panic if this record type does not contain a key by the specified name.
-                    throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringValues
+                    throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
                             .fromString("cannot find key '" + key + "'"));
                 }
                 expectedType = recordType.restFieldType;
@@ -194,7 +194,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
-            throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringValues
+            throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
                     .fromString("cannot find key '" + key + "'"));
         }
 
@@ -236,7 +236,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 break;
         }
         throw BErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                        BStringValues
+                                        BStringUtils
                                                 .fromString(errMessage).concat(BLangExceptionHelper.getErrorMessage(
                                                   INVALID_READONLY_VALUE_UPDATE)));
     }
@@ -438,7 +438,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                         sj.add("\"" + key + "\":" + ((BValue) value).informalStringValue(mapParent));
                         break;
                     default:
-                        sj.add("\"" + key + "\":" + BStringValues.getStringValue(value, mapParent));
+                        sj.add("\"" + key + "\":" + BStringUtils.getStringValue(value, mapParent));
                         break;
                 }
             }

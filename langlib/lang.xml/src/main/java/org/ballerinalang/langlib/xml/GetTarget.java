@@ -18,7 +18,7 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLValueUtil;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -52,6 +52,6 @@ public class GetTarget {
                     "getTarget", "processing instruction");
         }
 
-        return BStringValues.fromString(XMLValueUtil.getTarget(xmlValue));
+        return BStringUtils.fromString(XMLValueUtil.getTarget(xmlValue));
     }
 }

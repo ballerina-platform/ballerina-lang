@@ -19,7 +19,7 @@ package org.ballerinalang.stdlib.io.utils;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BObject;
@@ -55,7 +55,7 @@ public class Utils {
 
     private static BError createBase64Error(String errorType, String msg, boolean isMimeSpecific) {
         if (isMimeSpecific) {
-            return BErrorCreator.createDistinctError(errorType, PACKAGE_ID_MIME, BStringValues.fromString(msg));
+            return BErrorCreator.createDistinctError(errorType, PACKAGE_ID_MIME, BStringUtils.fromString(msg));
         }
         return IOUtils.createError(IOConstants.ErrorCode.GenericError, msg);
     }

@@ -18,7 +18,7 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.jvm.api.BStringValues;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
@@ -196,7 +196,7 @@ public class HttpDispatcher {
                         paramValues[paramIndex++] = Boolean.parseBoolean(argumentValue);
                         break;
                     default:
-                        paramValues[paramIndex++] = BStringValues.fromString(argumentValue);
+                        paramValues[paramIndex++] = BStringUtils.fromString(argumentValue);
                 }
                 paramValues[paramIndex] = true;
             } catch (Exception ex) {
