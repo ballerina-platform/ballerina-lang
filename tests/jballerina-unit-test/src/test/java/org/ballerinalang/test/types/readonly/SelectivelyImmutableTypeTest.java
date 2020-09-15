@@ -41,12 +41,12 @@ public class SelectivelyImmutableTypeTest {
         result = BCompileUtil.compile("test-src/types/readonly/test_selectively_immutable_type.bal");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testImmutableTypes() {
         BRunUtil.invoke(result, "testImmutableTypes");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testImmutableTypesNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/types/readonly/test_selectively_immutable_type_negative.bal");

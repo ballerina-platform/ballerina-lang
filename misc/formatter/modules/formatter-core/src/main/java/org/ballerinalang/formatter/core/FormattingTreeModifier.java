@@ -2257,7 +2257,7 @@ public class FormattingTreeModifier extends TreeModifier {
         int startColumn = getStartColumn(objectFieldNode, true);
         MetadataNode metadata = this.modifyNode(objectFieldNode.metadata().orElse(null));
         Token visibilityQualifier = getToken(objectFieldNode.visibilityQualifier().orElse(null));
-        Token readonlyKeyword = getToken(objectFieldNode.readonlyKeyword().orElse(null));
+        Token finalKeyword = getToken(objectFieldNode.finalKeyword().orElse(null));
         Node typeName = this.modifyNode(objectFieldNode.typeName());
         Token fieldName = getToken(objectFieldNode.fieldName());
         Token equalsToken = getToken(objectFieldNode.equalsToken().orElse(null));
@@ -2271,9 +2271,9 @@ public class FormattingTreeModifier extends TreeModifier {
             objectFieldNode = objectFieldNode.modify()
                     .withVisibilityQualifier(formatToken(visibilityQualifier, startColumn, 1, 0, 0)).apply();
         }
-        if (readonlyKeyword != null) {
+        if (finalKeyword != null) {
             objectFieldNode = objectFieldNode.modify()
-                    .withReadonlyKeyword(formatToken(readonlyKeyword, 0, 1, 0, 0)).apply();
+                    .withFinalKeyword(formatToken(finalKeyword, 0, 1, 0, 0)).apply();
         }
         if (equalsToken != null) {
             objectFieldNode = objectFieldNode.modify()

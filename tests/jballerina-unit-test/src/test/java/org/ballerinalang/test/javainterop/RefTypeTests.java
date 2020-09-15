@@ -57,6 +57,7 @@ import javax.xml.namespace.QName;
  *
  * @since 1.0.0
  */
+@Test(groups = { "brokenOnOldParser",  "brokenOnNewParser" })
 public class RefTypeTests {
 
     private CompileResult result;

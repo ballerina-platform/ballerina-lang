@@ -753,7 +753,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STObjectFieldNode objectFieldNode) {
         STNode metadata = modifyNode(objectFieldNode.metadata);
         STNode visibilityQualifier = modifyNode(objectFieldNode.visibilityQualifier);
-        STNode readonlyKeyword = modifyNode(objectFieldNode.readonlyKeyword);
+        STNode finalKeyword = modifyNode(objectFieldNode.finalKeyword);
         STNode typeName = modifyNode(objectFieldNode.typeName);
         STNode fieldName = modifyNode(objectFieldNode.fieldName);
         STNode equalsToken = modifyNode(objectFieldNode.equalsToken);
@@ -762,7 +762,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return objectFieldNode.modify(
                 metadata,
                 visibilityQualifier,
-                readonlyKeyword,
+                finalKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
