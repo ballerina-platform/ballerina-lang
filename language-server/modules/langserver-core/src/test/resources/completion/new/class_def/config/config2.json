@@ -6,66 +6,17 @@
   "source": "class_def/source/source2.bal",
   "items": [
     {
-      "label": "xmlns",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "xmlns \"${1}\" as ${2:ns};",
+      "label": "private",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "private ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "xmlns",
+      "label": "public",
       "kind": "Keyword",
       "detail": "Keyword",
-      "insertText": "xmlns ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "var ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "wait",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "wait ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "start",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "start ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "flush",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "flush ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "checkpanic",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "checkpanic ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "check",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "check ",
+      "insertText": "public ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -76,73 +27,212 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "if",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "if (${1:true}) {\n\t${2}\n}",
+      "label": "remote",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "remote",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "while",
+      "label": "remote function",
       "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "while (${1:true}) {\n\t${2}\n}",
+      "detail": "Snippet",
+      "insertText": "public remote function ${1:name}(${2}) {\n\t${3}\n}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lock",
+      "label": "function",
       "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "lock {\n\t${1}\n}",
+      "detail": "Snippet",
+      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "foreach",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fork",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "fork {\n\t${1}\n}",
+      "label": "float",
+      "kind": "Unit",
+      "detail": "Float",
+      "insertText": "float",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "transaction",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "transaction {\n\t${1}\n}",
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "Readonly",
+      "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "retry transaction",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "retry transaction {\n\t${1}\n}",
+      "label": "xml",
+      "kind": "Unit",
+      "detail": "Xml",
+      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "match",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "match ",
+      "label": "testClass",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "testClass",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "return",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "return ",
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "Byte",
+      "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "panic",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "panic ",
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "Handle",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ArgsData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defaultable argument names. This is for internal use.\n"
+      },
+      "insertText": "ArgsData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "Never",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Unit",
+      "detail": "Nil",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "decimal",
+      "kind": "Unit",
+      "detail": "Decimal",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "Unit",
+      "detail": "String",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "Stream",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "Json",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Unit",
+      "detail": "Map",
+      "insertText": "map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Unit",
+      "detail": "Table",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Unit",
+      "detail": "Anydata",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Unit",
+      "detail": "Any",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "int",
+      "kind": "Unit",
+      "detail": "Int",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Finite",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "boolean",
+      "kind": "Unit",
+      "detail": "Boolean",
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "future",
+      "kind": "Unit",
+      "detail": "Future",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Unit",
+      "detail": "Service",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "Unit",
+      "detail": "Typedesc",
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Event",
+      "detail": "error",
+      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
@@ -525,200 +615,6 @@
           "newText": "import ballerina/lang.'int;\n"
         }
       ]
-    },
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "Float",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "readonly",
-      "kind": "Unit",
-      "detail": "Readonly",
-      "insertText": "readonly",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "Xml",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "Unit",
-      "detail": "Byte",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "handle",
-      "kind": "Unit",
-      "detail": "Handle",
-      "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ArgsData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Defaultable argument names. This is for internal use.\n"
-      },
-      "insertText": "ArgsData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "never",
-      "kind": "Unit",
-      "detail": "Never",
-      "insertText": "never",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "null",
-      "kind": "Unit",
-      "detail": "Nil",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "Decimal",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "String",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "Stream",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "json",
-      "kind": "Unit",
-      "detail": "Json",
-      "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "Map",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "Table",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "anydata",
-      "kind": "Unit",
-      "detail": "Anydata",
-      "insertText": "anydata",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "any",
-      "kind": "Unit",
-      "detail": "Any",
-      "insertText": "any",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "Int",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Finite",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "Boolean",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "Future",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "Service",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "Typedesc",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Event",
-      "detail": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "insertText": "testFunction();",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "worker",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "worker ${1:name} {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -47,29 +47,16 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ObjectFieldNode node) {
-        if (this.onTypeDescriptorsOnly(context, node)) {
-            return this.getTypeDescriptors(context);
+        if (this.onExpressionContext(context, node)) {
+            return this.getExpressionContextCompletions(context);
         }
-
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getTypeDescriptors(context));
-        completionItems.addAll(this.getClassBodyCompletions(context));
-
-        return completionItems;
-    }
-
-    private List<LSCompletionItem> getTypeDescriptors(LSContext context) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (this.onModuleTypeDescriptorsOnly(context, node)) {
+            NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
         }
 
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getTypeItems(context));
-
-        return completionItems;
+        return this.getClassBodyCompletions(context);
     }
 
     private List<LSCompletionItem> getClassBodyCompletions(LSContext context) {
@@ -88,10 +75,29 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         return completionItems;
     }
 
-    private boolean onTypeDescriptorsOnly(LSContext context, ObjectFieldNode node) {
+    private List<LSCompletionItem> getExpressionContextCompletions(LSContext ctx) {
+        NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
+        }
+
+        return this.expressionCompletions(ctx);
+    }
+
+    private boolean onModuleTypeDescriptorsOnly(LSContext context, ObjectFieldNode node) {
         int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         Optional<Token> qualifier = node.visibilityQualifier();
 
-        return qualifier.isPresent() && qualifier.get().textRange().endOffset() < cursor;
+        return qualifier.isPresent() && qualifier.get().textRange().endOffset() < cursor
+                && nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE;
+    }
+
+    private boolean onExpressionContext(LSContext context, ObjectFieldNode node) {
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        Optional<Token> equalsToken = node.equalsToken();
+
+        return equalsToken.isPresent() && equalsToken.get().textRange().endOffset() <= cursor;
     }
 }

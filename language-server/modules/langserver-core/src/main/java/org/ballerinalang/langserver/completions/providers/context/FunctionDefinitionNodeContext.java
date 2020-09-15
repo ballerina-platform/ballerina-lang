@@ -82,8 +82,10 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
     public boolean onPreValidation(LSContext context, FunctionDefinitionNode node) {
         Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
         Token functionKeyword = node.functionKeyword();
+        if (functionKeyword.isMissing()) {
+            return true;
+        }
         TextRange textRange = functionKeyword.textRange();
-        
-        return !functionKeyword.isMissing() && textRange.endOffset() <= textPosition;
+        return textRange.endOffset() <= textPosition;
     }
 }

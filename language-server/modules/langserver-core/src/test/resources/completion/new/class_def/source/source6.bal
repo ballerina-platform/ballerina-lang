@@ -1,5 +1,5 @@
 import ballerina/module1;
 
 public class testClass {
-    public final int field1 = 
+    public int field1 = 
 }
