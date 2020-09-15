@@ -163,10 +163,10 @@ function testArrSortNegativeScenarios() {
 
     (map<string>)?[] sortedArr13 = array:sort(arr3);
 
-    int[] sortedArr14 = array:sort(arr, array:ASCENDING, function(int x) returns string[]|int => [x.toString(),
+    int[] sortedArr14 = array:sort(arr, array:ASCENDING, isolated function(int x) returns string[]|int => [x.toString(),
     "World"]);
 
-    var addFunc1 = function (int funcInt1) returns (int|string) {
+    var addFunc1 = isolated function (int funcInt1) returns (int|string) {
         return funcInt1;
     };
 
