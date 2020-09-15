@@ -30,6 +30,7 @@ import java.util.Set;
 public class BallerinaMetricsObserver implements BallerinaObserver {
 
     private static final String PROPERTY_START_TIME = "_observation_start_time_";
+    private static final String PROPERTY_IN_PROGRESS_COUNTER = "_observation_in_progress_counter_";
 
     private static final PrintStream consoleError = System.err;
 
@@ -82,19 +83,26 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         observerContext.addProperty(PROPERTY_START_TIME, System.nanoTime());
         Set<Tag> mainTags = observerContext.getMainTags();
         try {
-            getInprogressGauge(mainTags).increment();
+            Gauge inProgressGauge = metricRegistry.gauge(new MetricId("inprogress_requests", "In-progress requests",
+                    mainTags));
+            inProgressGauge.increment();
+            /*
+             * The in progress counter is stored so that the same counter can be decremted when the observation
+             * ends. This is needed as the the program may add tags to the context causing the tags to be
+             * different at the end compared to the start.
+             */
+            observerContext.addProperty(PROPERTY_IN_PROGRESS_COUNTER, inProgressGauge);
         } catch (RuntimeException e) {
             handleError("inprogress_requests", mainTags, e);
         }
     }
 
     private void stopObservation(ObserverContext observerContext) {
-        Set<Tag> mainTags = observerContext.getMainTags();
         Set<Tag> allTags = observerContext.getAllTags();
         try {
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;
-            getInprogressGauge(mainTags).decrement();
+            ((Gauge) observerContext.getProperty(PROPERTY_IN_PROGRESS_COUNTER)).decrement();
             metricRegistry.gauge(new MetricId("response_time_seconds", "Response time",
                     allTags), responseTimeStatisticConfigs).setValue(duration / 1E9);
             metricRegistry.counter(new MetricId("response_time_nanoseconds_total",
@@ -104,10 +112,6 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         } catch (RuntimeException e) {
             handleError("multiple metrics", allTags, e);
         }
-    }
-
-    private Gauge getInprogressGauge(Set<Tag> tags) {
-        return metricRegistry.gauge(new MetricId("inprogress_requests", "In-progress requests", tags));
     }
 
     private void handleError(String metricName, Set<Tag> tags, RuntimeException e) {
