@@ -2990,8 +2990,10 @@ public class Desugar extends BLangNodeVisitor {
                 env, onFailClause.body.scope);
         onFailFunc.capturedClosureEnv = env;
         BLangSimpleVarRef thrownErrorRef = ASTBuilderUtil.createVariableRef(onFailClause.pos, errorVar.symbol);
-        onFailErrorVariableDef.var.expr = thrownErrorRef;
+        onFailErrorVariableDef.var.expr = addConversionExprIfRequired(thrownErrorRef, onFailErrorVariableDef.var.type);
         ((BLangBlockFunctionBody) onFailFunc.function.body).stmts.add(0, onFailErrorVariableDef);
+        ((BLangBlockFunctionBody) onFailFunc.function.body).scope.define(onFailErrorVariableDef.var.symbol.name,
+                onFailErrorVariableDef.var.symbol);
         env.enclPkg.lambdaFunctions.add(onFailFunc);
 
         //  var $onFailFunc$ = function (error $thrownError$) returns any|error {
