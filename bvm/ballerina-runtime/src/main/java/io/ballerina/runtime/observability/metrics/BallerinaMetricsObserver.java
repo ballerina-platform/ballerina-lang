@@ -81,10 +81,10 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
     private void startObservation(ObserverContext observerContext) {
         observerContext.addProperty(PROPERTY_START_TIME, System.nanoTime());
-        Set<Tag> mainTags = observerContext.getMainTags();
+        Set<Tag> tags = observerContext.getAllTags();
         try {
             Gauge inProgressGauge = metricRegistry.gauge(new MetricId("inprogress_requests", "In-progress requests",
-                    mainTags));
+                    tags));
             inProgressGauge.increment();
             /*
              * The in progress counter is stored so that the same counter can be decremted when the observation
@@ -93,24 +93,24 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
              */
             observerContext.addProperty(PROPERTY_IN_PROGRESS_COUNTER, inProgressGauge);
         } catch (RuntimeException e) {
-            handleError("inprogress_requests", mainTags, e);
+            handleError("inprogress_requests", tags, e);
         }
     }
 
     private void stopObservation(ObserverContext observerContext) {
-        Set<Tag> allTags = observerContext.getAllTags();
+        Set<Tag> tags = observerContext.getAllTags();
         try {
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;
             ((Gauge) observerContext.getProperty(PROPERTY_IN_PROGRESS_COUNTER)).decrement();
-            metricRegistry.gauge(new MetricId("response_time_seconds", "Response time",
-                    allTags), responseTimeStatisticConfigs).setValue(duration / 1E9);
+            metricRegistry.gauge(new MetricId("response_time_seconds",
+                    "Response time", tags), responseTimeStatisticConfigs).setValue(duration / 1E9);
             metricRegistry.counter(new MetricId("response_time_nanoseconds_total",
-                    "Total response response time for all requests", allTags)).increment(duration);
+                    "Total response response time for all requests", tags)).increment(duration);
             metricRegistry.counter(new MetricId("requests_total",
-                    "Total number of requests", allTags)).increment();
+                    "Total number of requests", tags)).increment();
         } catch (RuntimeException e) {
-            handleError("multiple metrics", allTags, e);
+            handleError("multiple metrics", tags, e);
         }
     }
 
