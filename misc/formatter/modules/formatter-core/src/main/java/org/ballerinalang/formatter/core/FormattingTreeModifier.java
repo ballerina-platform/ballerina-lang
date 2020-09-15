@@ -228,11 +228,13 @@ import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
 import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.addNewTrailingLine;
 import static org.ballerinalang.formatter.core.FormatterUtils.formatToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.getChildLocation;
 import static org.ballerinalang.formatter.core.FormatterUtils.getParent;
 import static org.ballerinalang.formatter.core.FormatterUtils.getPosition;
 import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
+import static org.ballerinalang.formatter.core.FormatterUtils.getTrailingNewLines;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
 import static org.ballerinalang.formatter.core.FormatterUtils.preserveNewLine;
 import static org.ballerinalang.formatter.core.NodeIndentation.blockStatementNode;
@@ -257,6 +259,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(importDeclarationNode, lineRange)) {
             return importDeclarationNode;
         }
+        boolean addNewTrailingLine = addNewTrailingLine(importDeclarationNode.parent(), importDeclarationNode);
         int trailingNewLines = 1;
         NodeList importStatements = ((ModulePartNode) importDeclarationNode.parent()).imports();
         if (importStatements.get(importStatements.size() - 1).equals(importDeclarationNode)) {
@@ -284,7 +287,8 @@ public class FormattingTreeModifier extends TreeModifier {
         return importDeclarationNode.modify()
                 .withImportKeyword(formatToken(importKeyword, 0, 0, 0, 0))
                 .withModuleName(moduleNames)
-                .withSemicolon(formatToken(semicolon, 0, 0, 0, trailingNewLines))
+                .withSemicolon(formatToken(semicolon, 0, 0, 0,
+                        addNewTrailingLine ? trailingNewLines : trailingNewLines - 1))
                 .apply();
     }
 
@@ -483,8 +487,12 @@ public class FormattingTreeModifier extends TreeModifier {
                 functionBodyBlockNode.parent().parent().kind() == (SyntaxKind.SERVICE_BODY)) {
             trailingNewLines = 1;
         }
+        int openingTrailingNewLines = 1;
+        if (statements.size() == 0 && namedWorkerDeclarator == null) {
+            openingTrailingNewLines = 2;
+        }
         return functionBodyBlockNode.modify()
-                .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0, 1))
+                .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0, openingTrailingNewLines))
                 .withCloseBraceToken(formatToken(functionBodyCloseBrace, startColumn, 0, 0, trailingNewLines))
                 .withStatements(statements)
                 .apply();
@@ -616,9 +624,10 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBraceToken = getToken(serviceBodyNode.openBraceToken());
         Token closeBraceToken = getToken(serviceBodyNode.closeBraceToken());
         NodeList<Node> resources = this.modifyNodeList(serviceBodyNode.resources());
+        int trailing = getTrailingNewLines(serviceBodyNode, serviceBodyNode.openBraceToken());
         return serviceBodyNode.modify()
-                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 2))
-                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 1))
+                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, trailing))
+                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, trailing))
                 .withResources(resources)
                 .apply();
     }

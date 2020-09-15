@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory.createMinutiaeList;
 import static io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory.createWhitespaceMinutiae;
 
 /**
@@ -84,7 +83,7 @@ class FormatterUtils {
             return parent;
         }
         if (parentKind == SyntaxKind.FUNCTION_CALL && grandParent != null &&
-                        grandParent.kind() == SyntaxKind.PANIC_STATEMENT) {
+                grandParent.kind() == SyntaxKind.PANIC_STATEMENT) {
             return null;
         }
         if (parentKind == (SyntaxKind.FUNCTION_DEFINITION) ||
@@ -244,15 +243,88 @@ class FormatterUtils {
         if (token == null) {
             return token;
         }
-        MinutiaeList newLeadingMinutiaeList = modifyMinutiaeList(leadingSpaces, leadingNewLines);
-        MinutiaeList newTrailingMinutiaeList = modifyMinutiaeList(trailingSpaces, trailingNewLines);
+        MinutiaeList newLeadingMinutiaeList = preserveComments(token.leadingMinutiae())
+                .add(createWhitespaceMinutiae(getWhiteSpaces(leadingSpaces, leadingNewLines)));
+        MinutiaeList newTrailingMinutiaeList = preserveComments(token.trailingMinutiae())
+                .add(createWhitespaceMinutiae(getWhiteSpaces(trailingSpaces, trailingNewLines)));
 
         return token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
     }
 
-    private static MinutiaeList modifyMinutiaeList(int spaces, int newLines) {
-        Minutiae minutiae = createWhitespaceMinutiae(getWhiteSpaces(spaces, newLines));
-        return createMinutiaeList(minutiae);
+    private static MinutiaeList preserveComments(MinutiaeList minutiaeList) {
+        MinutiaeList minutiaes = AbstractNodeFactory.createEmptyMinutiaeList();
+        if (minutiaeList.size() > 0) {
+            int count = commentCount(minutiaeList);
+            if (count > 0) {
+                int processedCount = 0;
+                for (int i = 0; i < minutiaeList.size(); i++) {
+                    Minutiae minutiae = minutiaeList.get(i);
+                    minutiaes = minutiaes.add(minutiae);
+                    if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE) {
+                        processedCount++;
+                        if (processedCount == count) {
+                            minutiaes = minutiaes.add(AbstractNodeFactory
+                                    .createEndOfLineMinutiae(System.getProperty(LINE_SEPARATOR)));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return minutiaes;
+    }
+
+    private static int commentCount(MinutiaeList minutiaeList) {
+        int count = 0;
+        for (int i = 0; i < minutiaeList.size(); i++) {
+            if (minutiaeList.get(i).kind() == SyntaxKind.COMMENT_MINUTIAE) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static int leadingNewLines(NonTerminalNode parent, Token node) {
+        int count = 0;
+        if (parent != null) {
+            int childLocation = getChildLocation(parent, node);
+            if (parent.children().size() > childLocation + 1) {
+                Token nextToken = getFirstToken(parent.children().get(childLocation + 1));
+                if (nextToken != null && nextToken.containsLeadingMinutiae()) {
+                    MinutiaeList minutiaes = nextToken.leadingMinutiae();
+                    if (commentCount(minutiaes) > 0) {
+                        for (Minutiae minutiae : minutiaes) {
+                            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                                count++;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
+    static int getTrailingNewLines(NonTerminalNode node, Token token) {
+        int leadingCount;
+        leadingCount = leadingNewLines(node, token);
+        if (leadingCount == 0) {
+            return 2;
+        } else if (leadingCount == 1) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    private static Token getFirstToken(Node node) {
+        if (node instanceof Token) {
+            return (Token) node;
+        }
+        NonTerminalNode parent = (NonTerminalNode) node;
+        return getFirstToken(parent.children().get(0));
     }
 
     static int getChildLocation(NonTerminalNode parent, Node child) {
@@ -410,6 +482,18 @@ class FormatterUtils {
         return new Indentation(null, false);
     }
 
+    static boolean addNewTrailingLine(NonTerminalNode parent, NonTerminalNode node) {
+        if (parent != null) {
+            int childLocation = getChildLocation(parent, node);
+            if (parent.children().size() > childLocation + 1) {
+                Token nextToken = getFirstToken(parent.children().get(childLocation + 1));
+                if (nextToken != null && nextToken.containsLeadingMinutiae()) {
+                    return (nextToken.leadingMinutiae().get(0).kind() != SyntaxKind.END_OF_LINE_MINUTIAE);
+                }
+            }
+        }
+        return true;
+    }
 
     private static final class Indentation {
         private final Node parent;
