@@ -1006,7 +1006,8 @@ public class TypeChecker {
                 return targetType.getState() == ArrayState.UNSEALED || targetType.getSize() == 0;
             }
 
-            if (sourceTupleType.getRestType() != null && targetType.getState() == ArrayState.UNSEALED) {
+            if (sourceTupleType.getRestType() != null && targetType.getState() == ArrayState.UNSEALED &&
+                    targetType.getTag() != TypeTags.UNION_TAG) {
                 return targetType.getElementType().getTag() == sourceTupleType.getRestType().getTag();
             }
 

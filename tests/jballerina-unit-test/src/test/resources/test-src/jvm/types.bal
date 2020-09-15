@@ -181,7 +181,7 @@ public function testClosedArrayType(){
       assertEquality(y is [string, string, int...], false);
 }
 
-public function testInferredArrayType(){
+public function testInferredArrayType() {
     int[*] b=[1,2];
     any y = b;
     assertEquality(y is [int, int], true);
