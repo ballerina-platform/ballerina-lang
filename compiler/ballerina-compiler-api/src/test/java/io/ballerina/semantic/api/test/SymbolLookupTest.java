@@ -236,11 +236,11 @@ public class SymbolLookupTest {
     @Test(dataProvider = "PositionProvider5")
     public void testSymbolLookupAtPosition(int line, int column, String expSymbolName) {
         CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/var_symbol_lookup_test.bal", context);
+        CompileResult result = compile("test-src/symbol_at_cursor_lookup_test.bal", context);
         BLangPackage pkg = (BLangPackage) result.getAST();
         BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
-        Optional<Symbol> symbol = model.symbol("var_symbol_lookup_test.bal", LinePosition.from(line, column));
+        Optional<Symbol> symbol = model.symbol("symbol_at_cursor_lookup_test.bal", LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
 
         if (!symbol.isPresent()) {
@@ -256,12 +256,29 @@ public class SymbolLookupTest {
                 {17, 10, "aString"},
                 {17, 15, null},
                 {20, 9, null},
-//                {20, 10, "test"},
-//                {20, 12, "test"},
+                {20, 10, "test"},
+                {20, 12, "test"},
                 {20, 14, null},
                 {27, 12, null},
                 {27, 13, "a"},
                 {27, 14, null},
+                {24, 8, "greet"},
+                {41, 8, "Person"},
+                {42, 8, "PersonObj"},
+                {43, 21, "pObj"},
+                {43, 30, "PersonObj.getFullName"},
+                {44, 12, "p"},
+                {44, 17, "name"},
+                {45, 20, "p"},
+                {45, 23, "name"},
+                {50, 5, null},
+                {50, 9, "Person"},
+                {50, 15, null},
+                {51, 15, "name"},
+                {54, 11, "PersonObj"},
+                {55, 15, "fname"},
+                {56, 15, "lname"},
+                {59, 16, "fname"},
         };
     }
 
