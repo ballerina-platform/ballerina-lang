@@ -19,7 +19,7 @@ import ballerina/java;
 const string assertFailureErrorCategory = "assert-failure";
 const string arraysNotEqualMessage = "Arrays are not equal";
 const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
-const int maxArgLength = 2048;
+const int maxArgLength = 80;
 
 # The error struct for assertion errors.
 #
