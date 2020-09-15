@@ -314,7 +314,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         BLangType typeNode = varNode.typeNode;
         if (typeNode != null &&
-                (typeNode.type == null || typeNode.type.tsymbol.owner.getKind() != SymbolKind.PACKAGE)) {
+                (typeNode.type == null || typeNode.type.tsymbol == null ||
+                         typeNode.type.tsymbol.owner.getKind() != SymbolKind.PACKAGE)) {
             // Only analyze the type node if it is not available at module level, since module level type definitions
             // have already been analyzed.
             analyzeNode(typeNode, env);
