@@ -116,3 +116,62 @@ function testTypeConstants() returns ACTION {
     return GET;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+distinct class DistinctFoo {
+    int i = 0;
+}
+
+distinct class DistinctBar {
+    *DistinctFoo;
+
+    function init(int i) {
+        self.i = i;
+    }
+}
+
+distinct class ClassA {
+    *ClassB;
+
+    function init(int i, int j) {
+        self.i = i;
+        self.j = j;
+    }
+}
+
+distinct class ClassB {
+    int i = 0;
+    int j = 0;
+}
+
+distinct class ClassY {
+    *ClassX;
+
+    function init(int i) {
+        self.i = i;
+    }
+}
+
+class ClassX {
+    int i;
+
+    function init(int i) {
+        self.i = i;
+    }
+}
+
+class Baz {
+    *DistinctFoo;
+
+    function init(int i) {
+        self.i = i;
+    }
+}
+
+class Claz {
+
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+type DistinctError distinct error;
+
+type DistinctCustomError distinct error<record { int i; }>;

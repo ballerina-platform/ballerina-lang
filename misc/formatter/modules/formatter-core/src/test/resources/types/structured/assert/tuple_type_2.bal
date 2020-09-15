@@ -4,3 +4,4 @@ function foo() {
     string astr;
     [aint, astr] = tuple2;
 }
+

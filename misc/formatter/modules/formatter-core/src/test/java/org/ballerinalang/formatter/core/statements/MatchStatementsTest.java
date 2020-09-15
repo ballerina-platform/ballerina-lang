@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Test the formatting of match statements.
@@ -41,14 +43,12 @@ public class MatchStatementsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"panic_statement_1.bal", this.getTestResourceDir()}
-        };
+    public List<String> skipList() {
+        return Collections.singletonList("match_statement_1.bal");
     }
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("statements", "panic").toString();
+        return Paths.get("statements", "match").toString();
     }
 }

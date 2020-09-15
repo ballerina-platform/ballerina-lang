@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -52,6 +53,10 @@ public class MatchStatementNode extends StatementNode {
         return childInBucket(4);
     }
 
+    public Optional<OnFailClauseNode> onFailClause() {
+        return optionalChildInBucket(5);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -69,7 +74,8 @@ public class MatchStatementNode extends StatementNode {
                 "condition",
                 "openBrace",
                 "matchClauses",
-                "closeBrace"};
+                "closeBrace",
+                "onFailClause"};
     }
 
     public MatchStatementNode modify(
@@ -77,13 +83,15 @@ public class MatchStatementNode extends StatementNode {
             ExpressionNode condition,
             Token openBrace,
             NodeList<MatchClauseNode> matchClauses,
-            Token closeBrace) {
+            Token closeBrace,
+            OnFailClauseNode onFailClause) {
         if (checkForReferenceEquality(
                 matchKeyword,
                 condition,
                 openBrace,
                 matchClauses.underlyingListNode(),
-                closeBrace)) {
+                closeBrace,
+                onFailClause)) {
             return this;
         }
 
@@ -92,7 +100,8 @@ public class MatchStatementNode extends StatementNode {
                 condition,
                 openBrace,
                 matchClauses,
-                closeBrace);
+                closeBrace,
+                onFailClause);
     }
 
     public MatchStatementNodeModifier modify() {
@@ -111,6 +120,7 @@ public class MatchStatementNode extends StatementNode {
         private Token openBrace;
         private NodeList<MatchClauseNode> matchClauses;
         private Token closeBrace;
+        private OnFailClauseNode onFailClause;
 
         public MatchStatementNodeModifier(MatchStatementNode oldNode) {
             this.oldNode = oldNode;
@@ -119,6 +129,7 @@ public class MatchStatementNode extends StatementNode {
             this.openBrace = oldNode.openBrace();
             this.matchClauses = oldNode.matchClauses();
             this.closeBrace = oldNode.closeBrace();
+            this.onFailClause = oldNode.onFailClause().orElse(null);
         }
 
         public MatchStatementNodeModifier withMatchKeyword(
@@ -156,13 +167,21 @@ public class MatchStatementNode extends StatementNode {
             return this;
         }
 
+        public MatchStatementNodeModifier withOnFailClause(
+                OnFailClauseNode onFailClause) {
+            Objects.requireNonNull(onFailClause, "onFailClause must not be null");
+            this.onFailClause = onFailClause;
+            return this;
+        }
+
         public MatchStatementNode apply() {
             return oldNode.modify(
                     matchKeyword,
                     condition,
                     openBrace,
                     matchClauses,
-                    closeBrace);
+                    closeBrace,
+                    onFailClause);
         }
     }
 }

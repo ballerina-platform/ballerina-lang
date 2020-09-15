@@ -173,6 +173,7 @@ public enum NodeKind {
     DO_ACTION,
     COMMIT,
     ROLLBACK,
+    DO_STMT,
 
     /* Clauses */
     SELECT,
@@ -186,6 +187,7 @@ public enum NodeKind {
     LIMIT,
     ORDER_BY,
     ORDER_KEY,
+    ON_FAIL,
 
     /* Types */
     ARRAY_TYPE,
