@@ -86,6 +86,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "class",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "A",
+      "insertText": "class ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -239,6 +247,14 @@
       "detail": "Snippet",
       "sortText": "A",
       "insertText": "type ${1:ErrorName} error<${2:map<anydata>}>;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "class",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "insertText": "class ${1:className} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {

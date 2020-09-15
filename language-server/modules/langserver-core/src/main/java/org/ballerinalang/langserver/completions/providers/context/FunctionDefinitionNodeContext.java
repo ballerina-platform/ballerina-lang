@@ -19,6 +19,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -80,7 +81,11 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
     @Override
     public boolean onPreValidation(LSContext context, FunctionDefinitionNode node) {
         Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
-        TextRange functionKW = node.functionKeyword().textRange();
-        return functionKW.endOffset() <= textPosition;
+        Token functionKeyword = node.functionKeyword();
+        if (functionKeyword.isMissing()) {
+            return true;
+        }
+        TextRange textRange = functionKeyword.textRange();
+        return textRange.endOffset() <= textPosition;
     }
 }
