@@ -569,7 +569,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStatement matchStatement) {
-
+        if (matchStatement.onFailClause != null) {
+            analyzeNode(matchStatement.onFailClause, env);
+        }
     }
 
     @Override

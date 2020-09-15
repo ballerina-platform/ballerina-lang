@@ -18,11 +18,13 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.clauses.MatchClauseNode;
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.MatchStatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ import java.util.List;
 public class BLangMatchStatement extends BLangStatement implements MatchStatementNode {
     public BLangExpression expr; // TODO : replace with new node `action|expression`
     public List<BLangMatchClause> matchClauses = new ArrayList<>();
+    public BLangOnFailClause onFailClause;
 
     @Override
     public ExpressionNode getExpression() {
@@ -53,6 +56,16 @@ public class BLangMatchStatement extends BLangStatement implements MatchStatemen
     @Override
     public void addMatchClause(MatchClauseNode matchClauseNode) {
         matchClauses.add((BLangMatchClause) matchClauseNode);
+    }
+
+    @Override
+    public OnFailClauseNode getOnFailClause() {
+        return this.onFailClause;
+    }
+
+    @Override
+    public void setOnFailClause(OnFailClauseNode onFailClause) {
+        this.onFailClause = (BLangOnFailClause) onFailClause;
     }
 
     @Override

@@ -2305,6 +2305,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangMatchClause matchClause : matchStatement.matchClauses) {
             analyzeNode(matchClause, env);
         }
+
+        if (matchStatement.onFailClause != null) {
+            this.analyzeNode(matchStatement.onFailClause, env);
+        }
     }
 
     @Override

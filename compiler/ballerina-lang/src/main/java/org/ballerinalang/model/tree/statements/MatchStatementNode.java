@@ -18,6 +18,7 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.clauses.MatchClauseNode;
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 import java.util.List;
@@ -35,4 +36,8 @@ public interface MatchStatementNode extends StatementNode {
     List<? extends MatchClauseNode> getMatchClauses();
 
     void addMatchClause(MatchClauseNode matchClauseNode);
+
+    OnFailClauseNode getOnFailClause();
+
+    void setOnFailClause(OnFailClauseNode onFailClause);
 }

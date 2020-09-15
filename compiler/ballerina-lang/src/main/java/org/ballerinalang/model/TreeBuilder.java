@@ -62,7 +62,6 @@ import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
 import org.ballerinalang.model.tree.expressions.ElvisExpressionNode;
 import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.FailExpressionNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.GroupExpressionNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;

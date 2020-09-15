@@ -58,9 +58,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -68,7 +65,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -793,6 +789,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatchStatement matchStatement) {
         analyzeExpr(matchStatement.expr);
+        if (!this.failureHandled) {
+            this.failureHandled = matchStatement.onFailClause != null;
+        }
         matchExprType = matchStatement.expr.type;
 
         boolean matchStmtReturns = false;
@@ -802,6 +801,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.statementReturns = matchStmtReturns;
         hasLastPattern = false;
+        analyzeOnFailClause(matchStatement.onFailClause);
     }
 
     @Override
