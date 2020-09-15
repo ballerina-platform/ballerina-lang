@@ -72,11 +72,6 @@ class BIRTestUtils {
 
         Object[][] data = new Object[testSources.size()][];
         for (int i = 0; i < data.length; i++) {
-            if (testSources.get(i).endsWith("arraylib_test.bal")) {
-                // Skip temporarily until https://github.com/ballerina-platform/ballerina-lang/issues/25780 is fixed.
-                continue;
-            }
-
             data[i] = new Object[]{testSources.get(i)};
         }
         return data;

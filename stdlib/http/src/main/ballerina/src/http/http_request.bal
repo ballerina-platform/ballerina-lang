@@ -536,16 +536,15 @@ public class Request {
     public function addCookies(Cookie[] cookiesToAdd) {
         string cookieheader = "";
 
-        var sortFunc = isolated function(Cookie c) returns int {
-            var cookiePath = c.path;
-            int l = 0;
-            if (cookiePath is string) {
-                l = cookiePath.length();
-            }
-            return l;
-        };
+        Cookie[] sortedCookies = cookiesToAdd.sort(array:ASCENDING, isolated function(Cookie c) returns int {
+                var cookiePath = c.path;
+                int l = 0;
+                if (cookiePath is string) {
+                    l = cookiePath.length();
+                }
+                return l;
+            });
 
-        Cookie[] sortedCookies = cookiesToAdd.sort(array:ASCENDING, sortFunc);
         foreach var cookie in sortedCookies {
             var cookieName = cookie.name;
             var cookieValue = cookie.value;
