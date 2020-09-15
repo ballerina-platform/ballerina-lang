@@ -320,7 +320,7 @@ function testInvalidRollingWindowConfiguration() returns error? {
 
 int actualRequestNumber = 0;
 
-public type MockClient client object {
+public client class MockClient {
     public string url = "";
     public http:ClientConfiguration config = {};
     public http:HttpClient httpClient;
@@ -456,7 +456,7 @@ public type MockClient client object {
 
     public remote function rejectPromise(http:PushPromise promise) {
     }
-};
+}
 
 function handleBackendFailureScenario(int requesetNo) returns http:Response|http:ClientError {
     // Deliberately fail a request

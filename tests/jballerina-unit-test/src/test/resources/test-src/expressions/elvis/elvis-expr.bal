@@ -71,7 +71,7 @@ function testElvisRecordTypeNegative() returns [string, int] {
     return [b.name, b.age];
 }
 
-public type Student object {
+public class Student {
     public string name;
     public int age;
     public string favSubject;
@@ -81,7 +81,7 @@ public type Student object {
         self.age = a;
         self.favSubject = favSub;
     }
-};
+}
 
 function testElvisObjectTypePositive() returns [string, int, string] {
     Student|() stu1 = new Student("Alice", 15);

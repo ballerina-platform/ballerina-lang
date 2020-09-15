@@ -94,9 +94,9 @@ function testUnionTypeArrayWithValueTypeArrayAssignment() returns int {
     return globalParamArray.length();
 }
 
-public type Person object {
+public class Person {
     string name = "";
-};
+}
 
 public type RecPerson record {
     string name;
@@ -167,7 +167,7 @@ function testUnionLhsWithDiscriminatedFloatDecimalLiterals() returns [(float|dec
     return [a, b, c];
 }
 
-type Employee abstract object {
+type Employee object {
     public int age;
     public string firstName;
     public string lastName;
@@ -175,7 +175,7 @@ type Employee abstract object {
     function getFullName() returns string;
 };
 
-type Engineer object {
+class Engineer {
     public int age;
     public string firstName;
     public string lastName;
@@ -190,7 +190,7 @@ type Engineer object {
         return self.firstName + self.lastName;
     }
 
-};
+}
 
 function testUnionTypeWithFunctionPointerAccess() {
     Engineer engineer = new Engineer(20, "John", "Doe");

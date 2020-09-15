@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test the formatting of for each statements.
@@ -41,10 +43,8 @@ public class ForEachStatementsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"foreach_statement_1.bal", this.getTestResourceDir()}
-        };
+    public List<String> skipList() {
+        return Arrays.asList("foreach_statement_1.bal", "foreach_statement_2.bal", "foreach_statement_3.bal");
     }
 
     @Override

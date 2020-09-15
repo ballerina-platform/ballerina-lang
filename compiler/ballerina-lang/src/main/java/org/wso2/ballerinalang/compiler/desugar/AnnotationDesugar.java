@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -48,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -87,6 +89,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
  * Desugar annotations into executable entries.
@@ -147,8 +151,63 @@ public class AnnotationDesugar {
         BLangFunction initFunction = pkgNode.initFunction;
 
         defineTypeAnnotations(pkgNode, env, initFunction);
+        defineClassAnnotations(pkgNode, env, initFunction);
         defineServiceAnnotations(pkgNode, env, initFunction);
         defineFunctionAnnotations(pkgNode, env, initFunction);
+    }
+
+    private void defineClassAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
+        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
+        for (int i = 0, topLevelNodesSize = topLevelNodes.size(); i < topLevelNodesSize; i++) {
+            TopLevelNode topLevelNode = topLevelNodes.get(i);
+            if (topLevelNode.getKind() != NodeKind.CLASS_DEFN) {
+                continue;
+            }
+
+            BLangClassDefinition classDefinition = (BLangClassDefinition) topLevelNode;
+
+            PackageID pkgID = classDefinition.symbol.pkgID;
+            BSymbol owner = classDefinition.symbol.owner;
+
+            SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, initFunction.symbol.scope, env);
+            BLangLambdaFunction lambdaFunction = defineAnnotations(classDefinition, pkgNode, classEnv, pkgID, owner);
+            if (lambdaFunction != null) {
+                addInvocationToGlobalAnnotMap(classDefinition.name.value, lambdaFunction, initFunction.body);
+            }
+        }
+    }
+
+    private BLangLambdaFunction defineAnnotations(BLangClassDefinition classDefinition, BLangPackage pkgNode,
+                                                  SymbolEnv env, PackageID pkgID, BSymbol owner) {
+        BLangFunction function = null;
+        BLangRecordLiteral mapLiteral = null;
+
+        if (!classDefinition.annAttachments.isEmpty()) {
+            function = defineFunction(classDefinition.pos, pkgID, owner);
+            mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
+            addAnnotsToLiteral(classDefinition.annAttachments, mapLiteral, function, env);
+        }
+
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            BLangLambdaFunction paramAnnotLambda =
+                    defineAnnotations(field.annAttachments, field.pos, pkgNode, env, pkgID, owner);
+            if (paramAnnotLambda == null) {
+                continue;
+            }
+
+            if (function == null) {
+                function = defineFunction(classDefinition.pos, pkgID, owner);
+                mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
+            }
+
+            String fieldName = FIELD + DOT + field.name.value;
+            addInvocationToLiteral(mapLiteral, fieldName, field.annAttachments.get(0).pos, paramAnnotLambda);
+        }
+
+        if (function != null && !mapLiteral.fields.isEmpty()) {
+            return addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
+        }
+        return null;
     }
 
     void defineStatementAnnotations(List<BLangAnnotationAttachment> attachments, DiagnosticPos pos, PackageID pkgID,
@@ -193,7 +252,7 @@ public class AnnotationDesugar {
                 BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                 target.pos = initFnBody.pos;
 
-                addLambdaToGlobalAnnotMap(service.serviceTypeDefinition.name.value, lambdaFunction, target);
+                addLambdaToGlobalAnnotMap(service.serviceClass.name.value, lambdaFunction, target);
 
                 // Add the annotation assignment to immediately before the service init.
                 int index = calculateIndex(initFnBody.stmts, service);
@@ -500,7 +559,7 @@ public class AnnotationDesugar {
 
         BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.asMask(function.flagSet),
                                                                new Name(funcName), pkgID, function.type, owner,
-                                                               function.name.pos);
+                                                               function.name.pos, VIRTUAL);
         functionSymbol.bodyExist = true;
         functionSymbol.kind = SymbolKind.FUNCTION;
 
@@ -611,7 +670,8 @@ public class AnnotationDesugar {
     private BInvokableSymbol createInvokableSymbol(BLangFunction function, PackageID pkgID, BSymbol owner) {
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
                                                                        new Name(function.name.value),
-                                                                       pkgID, function.type, owner, true, function.pos);
+                                                                       pkgID, function.type, owner, true, function.pos,
+                                                                       VIRTUAL);
         functionSymbol.retType = function.returnTypeNode.type;
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)

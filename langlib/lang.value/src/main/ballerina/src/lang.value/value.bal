@@ -23,7 +23,7 @@ type AnydataType anydata;
 # Returns a clone of `v`.
 # A clone is a deep copy that does not copy immutable subtrees.
 # A clone can therefore safely be used concurrently with the original.
-# It corresponds to the Clone(v) abstract operation,
+# It corresponds to the Clone(v) operation,
 # defined in the Ballerina Language Specification.
 #
 # + v - source value
@@ -31,7 +31,7 @@ type AnydataType anydata;
 public function clone(AnydataType v) returns AnydataType = external;
 
 # Returns a clone of `v` that is read-only, i.e. immutable.
-# It corresponds to the ImmutableClone(v) abstract operation,
+# It corresponds to the ImmutableClone(v) operation,
 # defined in the Ballerina Language Specification.
 #
 # + v - source value

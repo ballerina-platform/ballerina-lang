@@ -41,12 +41,12 @@ public function getResourceAnnotations(service serviceType, string resourceName,
 }
 
 function externGetServiceAnnotations(service serviceType, string annot) returns any = @java:Method {
-    class: "org.ballerinalang.stdlib.reflect.AnnotationUtils"
+    'class: "org.ballerinalang.stdlib.reflect.AnnotationUtils"
 } external;
 
 function externGetResourceAnnotations(service serviceType, string resourceName, string annot)
                                       returns any = @java:Method {
-    class: "org.ballerinalang.stdlib.reflect.AnnotationUtils"
+    'class: "org.ballerinalang.stdlib.reflect.AnnotationUtils"
 } external;
 
 function getAnnotQualifiedIdentifier(string annotName, string? moduleName = ()) returns string {

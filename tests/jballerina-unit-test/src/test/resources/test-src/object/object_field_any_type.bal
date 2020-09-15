@@ -15,13 +15,13 @@
 // under the License.package internal;
 import ballerina/io;
 
-public type TypeA object {
+public class TypeA {
     public any attribA = "";
 
     function init(any attribA) {
     self.attribA = attribA;
     }
-};
+}
 
 function testObjectWithAnyTypeField() returns string {
     TypeA a = new TypeA("grainier");

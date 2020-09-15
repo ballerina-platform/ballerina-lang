@@ -65,7 +65,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -93,6 +95,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED16_MAX_VALUE;
@@ -280,6 +283,73 @@ public class Types {
         }
 
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BLangConstPattern constMatchPattern) {
+        BLangExpression constPatternExpr = constMatchPattern.expr;
+        BType constMatchPatternExprType = constPatternExpr.type;
+
+        if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef constVarRef = (BLangSimpleVarRef) constPatternExpr;
+            if (constVarRef.symbol == null) {
+                return symTable.noType;
+            }
+            BType constVarRefSymbolType = constVarRef.symbol.type;
+            if (isAssignable(constVarRefSymbolType, matchExprType)) {
+                return constVarRefSymbolType;
+            }
+            return symTable.noType;
+        }
+
+        // After the above check, according to spec all other const-patterns should be literals.
+        BLangLiteral constPatternLiteral = (BLangLiteral) constPatternExpr;
+
+        if (containsAnyType(constMatchPatternExprType)) {
+            return matchExprType;
+        } else if (containsAnyType(matchExprType)) {
+            return constMatchPatternExprType;
+        }
+
+        // This should handle specially
+        if (matchExprType.tag == TypeTags.BYTE && constMatchPatternExprType.tag == TypeTags.INT) {
+            return matchExprType;
+        }
+
+        if (isAssignable(constMatchPatternExprType, matchExprType)) {
+            return constMatchPatternExprType;
+        }
+
+        if (matchExprType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) matchExprType).getMemberTypes()) {
+                if (memberType.tag == TypeTags.FINITE) {
+                    if (isAssignableToFiniteType(memberType, constPatternLiteral)) {
+                        return memberType;
+                    }
+                } else {
+                    if (isAssignable(constMatchPatternExprType, matchExprType)) {
+                        return constMatchPatternExprType;
+                    }
+                }
+            }
+        } else if (matchExprType.tag == TypeTags.FINITE) {
+            if (isAssignableToFiniteType(matchExprType, constPatternLiteral)) {
+                return matchExprType;
+            }
+        }
+        return symTable.noType;
+    }
+
+    public boolean containsAnyType(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return type.tag == TypeTags.ANY;
+        }
+
+        for (BType memberTypes : ((BUnionType) type).getMemberTypes()) {
+            if (memberTypes.tag == TypeTags.ANY) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isSubTypeOfMapping(BType type) {
@@ -1056,7 +1126,7 @@ public class Types {
             case TypeTags.OBJECT:
                 BObjectType objectType = (BObjectType) type;
 
-                if (!Symbols.isFlagOn(objectType.tsymbol.flags, Flags.ABSTRACT) &&
+                if (Symbols.isFlagOn(objectType.tsymbol.flags, Flags.CLASS) &&
                         (disallowReadOnlyObjects || !Symbols.isFlagOn(objectType.flags, Flags.READONLY))) {
                     return false;
                 }
@@ -1236,7 +1306,7 @@ public class Types {
             }
         }
 
-        return true;
+        return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
@@ -1595,7 +1665,8 @@ public class Types {
 
         if (unionType.getMemberTypes().size() > 1) {
             unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                    Names.EMPTY, recordType.tsymbol.pkgID, null, recordType.tsymbol.owner, symTable.builtinPos);
+                                                         Names.EMPTY, recordType.tsymbol.pkgID, null,
+                                                         recordType.tsymbol.owner, symTable.builtinPos, VIRTUAL);
             return unionType;
         }
 
@@ -2574,7 +2645,8 @@ public class Types {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
                                                                 names.fromString("$anonType$" + finiteTypeCount++),
                                                                 finiteType.tsymbol.pkgID, null,
-                                                                finiteType.tsymbol.owner, finiteType.tsymbol.pos);
+                                                                finiteType.tsymbol.owner, finiteType.tsymbol.pos,
+                                                                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3050,7 +3122,8 @@ public class Types {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
                                                                 names.fromString("$anonType$" + finiteTypeCount++),
                                                                 originalType.tsymbol.pkgID, null,
-                                                                originalType.tsymbol.owner, originalType.tsymbol.pos);
+                                                                originalType.tsymbol.owner, originalType.tsymbol.pos,
+                                                                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3267,7 +3340,7 @@ public class Types {
     }
 
     private boolean checkFillerValue(BObjectType type) {
-        if ((type.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+        if ((type.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
             return false;
         }
 
@@ -3467,30 +3540,41 @@ public class Types {
         }
     }
 
-    /**
-     * Check whether a order-key expression type is a basic type.
-     *
-     * @param type type of the order-key expression.
-     * @return boolean whether the type is basic type or not.
-     */
-    public boolean isBasicType(BType type) {
-        switch (type.tag) {
-            case TypeTags.INT:
+    private boolean isSimpleBasicType(int tag) {
+        switch (tag) {
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
-            case TypeTags.STRING:
             case TypeTags.BOOLEAN:
             case TypeTags.NIL:
                 return true;
-            case TypeTags.UNION:
-                if (((BUnionType) type).getMemberTypes().contains(symTable.nilType)) {
-                    return true;
-                } else {
-                    return false;
-                }
             default:
-                return false;
+                return (TypeTags.isIntegerTypeTag(tag)) || (TypeTags.isStringTypeTag(tag));
+        }
+    }
+
+    /**
+     * Check whether a type is an ordered type.
+     *
+     * @param type type.
+     * @return boolean whether the type is an ordered type or not.
+     */
+    public boolean isOrderedType(BType type) {
+        switch (type.tag) {
+            case TypeTags.UNION:
+                Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+                for (BType memType : memberTypes) {
+                    if (!isOrderedType(memType)) {
+                        return false;
+                    }
+                }
+                // can not sort (string?|int)/(string|int)/(string|int)[]/(string?|int)[], can sort string?/string?[]
+                return memberTypes.size() <= 2 && memberTypes.contains(symTable.nilType);
+            case TypeTags.ARRAY:
+                BType elementType = ((BArrayType) type).eType;
+                return isOrderedType(elementType);
+            default:
+                return isSimpleBasicType(type.tag);
         }
     }
 }

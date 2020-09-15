@@ -47,6 +47,7 @@ public enum DiagnosticCode {
     ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
     DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED("missing.error.reason"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
+    OBJECT_TYPE_REQUIRED("object.type.required"),
     UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
@@ -68,6 +69,7 @@ public enum DiagnosticCode {
     ABSTRACT_OBJECT_CONSTRUCTOR("abstract.object.constructor"),
     CANNOT_INITIALIZE_ABSTRACT_OBJECT("cannot.initialize.abstract.object"),
     INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("invalid.interface.of.non.abstract.object"),
+    UNIMPLEMENTED_REFERENCED_METHOD_IN_CLASS("unimplemented.referenced.method.in.class"),
     PRIVATE_FUNCTION_VISIBILITY("private.function.visibility"),
     CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT("cannot.attach.functions.to.abstract.object"),
     ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY("abstract.object.function.cannot.have.body"),
@@ -89,6 +91,8 @@ public enum DiagnosticCode {
     REST_ARG_DEFINED_AFTER_NAMED_ARG("rest.arg.defined.after.named.arg"),
     MISSING_REQUIRED_PARAMETER("missing.required.parameter"),
     MISSING_REQUIRED_ARG_ERROR_MESSAGE("missing.required.parameter.error.message"),
+    OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS("object.constructor.init.function.cannot.have.parameters"),
+    OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS("object.constructor.does.not.support.type.reference.members"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_SPREAD_OP("incompatible.types.spread.op"),
@@ -168,7 +172,6 @@ public enum DiagnosticCode {
     ROLLBACK_NOT_ALLOWED("rollback.not.allowed"),
 
     // Service, endpoint related errors codes
-    SERVICE_OBJECT_TYPE_REQUIRED("service.object.type.required"),
     SERVICE_INVALID_OBJECT_TYPE("service.invalid.object.type"),
     SERVICE_INVALID_ENDPOINT_TYPE("service.invalid.endpoint.type"),
     SERVICE_FUNCTION_INVALID_MODIFIER("service.function.invalid.modifier"),
@@ -302,6 +305,8 @@ public enum DiagnosticCode {
     INVALID_LIST_INDEX_EXPR("invalid.list.index.expr"),
     INVALID_ARRAY_INDEX_EXPR("invalid.array.index.expr"),
     SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("sealed.array.type.can.not.infer.size"),
+    INVALID_SORT_FUNC_RETURN_TYPE("invalid.key.func.return.type"),
+    INVALID_SORT_ARRAY_MEMBER_TYPE("invalid.sort.array.member.type"),
     // TODO Maryam remove list array tuple and use first only
     INDEX_OUT_OF_RANGE("index.out.of.range"),
     LIST_INDEX_OUT_OF_RANGE("list.index.out.of.range"),
@@ -325,6 +330,7 @@ public enum DiagnosticCode {
     INVALID_ERROR_MATCH_PATTERN("invalid.error.match.pattern"),
     DUPLICATE_VARIABLE_IN_BINDING_PATTERN("duplicate.variable.in.binding.pattern"),
     INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN("invalid.variable.reference.in.binding.pattern"),
+    MISSING_REQUIRED_ARG_BINDING_PATTERN_ERROR_MESSAGE("missing.error.arg.binding.pattern.error.message"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -394,6 +400,8 @@ public enum DiagnosticCode {
     MATCH_STMT_UNREACHABLE_PATTERN("match.stmt.unreachable.pattern"),
     MATCH_STMT_UNMATCHED_PATTERN("match.stmt.unmatched.pattern"),
     MATCH_STMT_PATTERN_ALWAYS_MATCHES("match.stmt.pattern.always.matches"),
+    MATCH_STMT_PATTERN_UNREACHABLE("match.stmt.unreachable.pattern.available"),
+    MATCH_PATTERN_NOT_SUPPORTED("match.pattern.not.supported"),
     MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
 
     THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),
@@ -412,6 +420,7 @@ public enum DiagnosticCode {
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.matching.error.return.in.encl.invokable"),
 
     FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("fail.expr.no.matching.error.return.in.encl.invokable"),
+    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("on.fail.no.matching.error"),
 
     START_REQUIRE_INVOCATION("start.require.invocation"),
     INVALID_EXPR_STATEMENT("invalid.expr.statement"),

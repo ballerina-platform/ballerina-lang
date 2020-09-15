@@ -46,9 +46,9 @@ public class IncrementalParser extends BallerinaParser {
     }
 
     @Override
-    protected STNode parseFunctionBody(boolean isObjectMethod) {
+    protected STNode parseFunctionBody() {
         STNode funcBodyNode = getIfReusable(subtreeSupplier.peek(), isFunctionBody);
-        return funcBodyNode != null ? funcBodyNode : super.parseFunctionBody(isObjectMethod);
+        return funcBodyNode != null ? funcBodyNode : super.parseFunctionBody();
     }
 
     @Override

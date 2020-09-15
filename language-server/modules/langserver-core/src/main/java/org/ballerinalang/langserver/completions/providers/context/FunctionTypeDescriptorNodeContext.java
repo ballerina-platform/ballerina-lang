@@ -62,7 +62,7 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
                 return this.getCompletionItemList(typesInModule, context);
             }
 
-            List<LSCompletionItem> completionItems = this.getPackagesCompletionItems(context);
+            List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
             completionItems.addAll(this.getTypeItems(context));
 
             return completionItems;

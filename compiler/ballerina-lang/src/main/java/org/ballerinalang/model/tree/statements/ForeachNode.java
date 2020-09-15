@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
@@ -44,4 +45,8 @@ public interface ForeachNode extends StatementNode {
     VariableDefinitionNode getVariableDefinitionNode();
 
     void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode);
+
+    OnFailClauseNode getOnFailClause();
+
+    void setOnFailClause(OnFailClauseNode onFailClause);
 }

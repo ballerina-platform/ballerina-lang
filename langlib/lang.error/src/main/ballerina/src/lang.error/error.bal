@@ -66,6 +66,6 @@ public type CallStackElement record {|
 # Represent error call stack.
 #
 # + callStack - call stack
-public type CallStack object {
+public class CallStack {
     public CallStackElement[] callStack = [];
-};
+}

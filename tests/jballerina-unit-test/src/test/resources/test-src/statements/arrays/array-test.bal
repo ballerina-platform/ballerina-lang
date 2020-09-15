@@ -66,14 +66,14 @@ function testArrayFieldInRecord() returns BarRec {
     return rec;
 }
 
-type BarObj object {
+class BarObj {
     Foo[] fArr;
 
     function init() {
         Foo[*] arr = [1, 2];
         self.fArr = arr;
     }
-};
+}
 
 function testArrayFieldInObject() returns BarObj {
     BarObj obj = new;
@@ -112,7 +112,7 @@ function testArraysOfCyclicDependentTypes2() returns B1[] {
     return arr;
 }
 
-type P1 object {
+class P1 {
     Q1 q;
     string p1;
 
@@ -120,9 +120,9 @@ type P1 object {
         self.q = new;
         self.p1 = "P1";
     }
-};
+}
 
-type Q1 object {
+class Q1 {
     P1 p;
     string q1;
 
@@ -130,7 +130,7 @@ type Q1 object {
         self.p = new;
         self.q1 = "Q1";
     }
-};
+}
 
 function testArraysOfCyclicDependentTypes3() returns P1[] {
     P1[] arr = [];
@@ -154,12 +154,12 @@ function testGetFromFrozenArray() returns int {
     return -1;
 }
 
-type Age object {
+class Age {
     public int age;
     public function init(int age) {
     	 self.age = age;
     }
-};
+}
 
 function testObjectDynamicArrayFilling() {
     Age[] y = [];
@@ -168,13 +168,13 @@ function testObjectDynamicArrayFilling() {
     assertArrayLengthPanic(2, y);
 }
 
-type AbstractPersonObject abstract object {
+type AbstractPersonObject object {
     public string fName;
     public string lName;
     function getFullName() returns string;
 };
 
-type Employee object {
+class Employee {
     *AbstractPersonObject;
     function init(string fname, string lname) {
         self.fName = fname;
@@ -183,7 +183,7 @@ type Employee object {
     function getFullName() returns string {
         return self.fName + " " + self.lName;
     }
-};
+}
 
 function createAbstractObjectEmptyArray() {
     AbstractPersonObject[5][] y = [];

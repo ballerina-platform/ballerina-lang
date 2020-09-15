@@ -23,17 +23,17 @@ import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * Service scope position resolver.
@@ -68,26 +68,27 @@ public class ServiceScopeResolver extends CursorPositionResolver {
 
     /**
      * Check whether the given node is within the scope and located after the last child node.
-     * @param node          Current Node to evaluate
-     * @param treeVisitor   Operation Tree Visitor
-     * @param curLine       line of the cursor                     
-     * @param curCol        column of the cursor                     
-     * @return              {@link Boolean} whether the last child node or not
+     *
+     * @param node        Current Node to evaluate
+     * @param treeVisitor Operation Tree Visitor
+     * @param curLine     line of the cursor
+     * @param curCol      column of the cursor
+     * @return {@link Boolean} whether the last child node or not
      */
     private boolean isWithinScopeAfterLastChildNode(Node node, TreeVisitor treeVisitor, int curLine, int curCol) {
-        BLangObjectTypeNode bLangService = (BLangObjectTypeNode) treeVisitor.getBlockOwnerStack().peek();
-        DiagnosticPos serviceNodePos = CommonUtil.toZeroBasedPosition(bLangService.getPosition());
+        Optional<BLangClassDefinition> enclosingClassDef = this.getEnclosingClassDef(node);
+        if (!enclosingClassDef.isPresent()) {
+            return false;
+        }
+        BLangClassDefinition classDefinition = enclosingClassDef.get();
+        DiagnosticPos classNodePos = CommonUtil.toZeroBasedPosition(classDefinition.getPosition());
         DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition((DiagnosticPos) node.getPosition());
-        List<BLangFunction> serviceFunctions = bLangService.getFunctions();
-        List<BLangSimpleVariable> serviceFields = bLangService.getFields().stream()
-                .map(simpleVar -> (BLangSimpleVariable) simpleVar)
-                .collect(Collectors.toList());
+        List<BLangFunction> serviceFunctions = classDefinition.getFunctions();
         List<BLangNode> serviceContent = new ArrayList<>(serviceFunctions);
-        serviceContent.addAll(serviceFields);
         serviceContent.sort(new CommonUtil.BLangNodeComparator());
-        
-        int serviceEndLine = serviceNodePos.getEndLine();
-        int serviceEndCol = serviceNodePos.getEndColumn();
+
+        int serviceEndLine = classNodePos.getEndLine();
+        int serviceEndCol = classNodePos.getEndColumn();
         int nodeEndLine = nodePos.getEndLine();
         int nodeEndCol = nodePos.getEndColumn();
         boolean isLastChildNode;
@@ -97,5 +98,17 @@ public class ServiceScopeResolver extends CursorPositionResolver {
         return (isLastChildNode
                 && (curLine < serviceEndLine || (curLine == serviceEndLine && curCol < serviceEndCol))
                 && (nodeEndLine < curLine || (nodeEndLine == curLine && nodeEndCol < curCol)));
+    }
+
+    private Optional<BLangClassDefinition> getEnclosingClassDef(Node node) {
+        BLangNode tempNode = (BLangNode) node;
+        while (!(tempNode instanceof BLangClassDefinition) && !(tempNode instanceof BLangPackage) && tempNode != null) {
+            tempNode = tempNode.parent;
+        }
+
+        if (tempNode instanceof BLangClassDefinition) {
+            return Optional.of((BLangClassDefinition) tempNode);
+        }
+        return Optional.empty();
     }
 }

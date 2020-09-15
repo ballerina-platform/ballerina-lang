@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
  */
 public class NewExpressionTest extends AbstractExpressionsTest {
 
+    // Valid syntax
+
     @Test
     public void testImplicitNewWithoutArgs() {
         test("new();", "new-expr/implicit-new-without-args.json");
@@ -71,6 +73,8 @@ public class NewExpressionTest extends AbstractExpressionsTest {
         testFile("new-expr/explicit-new-with-object-keyword-with-multiple-args.bal",
                 "new-expr/explicit-new-with-object-keyword-with-multiple-args.json");
     }
+
+    // Invalid syntax
 
     @Test
     public void testImplicitNewWithoutArgsNegative() {

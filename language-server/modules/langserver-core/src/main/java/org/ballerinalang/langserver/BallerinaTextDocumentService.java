@@ -15,12 +15,14 @@
  */
 package org.ballerinalang.langserver;
 
-import com.google.gson.JsonObject;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
@@ -41,9 +43,6 @@ import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
-import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
-import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -109,8 +108,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
@@ -264,7 +261,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         sKind != SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
                         sKind != SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
                     sNode = sNode.parent();
-                    sKind = sNode.kind();
+                    sKind = (sNode != null) ? sNode.kind() : null;
+                }
+
+                if (sNode == null) {
+                    throw new Exception("Couldn't find the invocation symbol!");
                 }
 
                 // Find parameter index
@@ -524,7 +525,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            String textEditContent;
             TextEdit textEdit = new TextEdit();
 
             String fileUri = params.getTextDocument().getUri();
@@ -536,34 +536,15 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath.get());
             Optional<Lock> lock = docManager.lockFile(compilationPath);
             try {
-                LSContext formatCtx = new DocumentServiceOperationContext
-                        .ServiceOperationContextBuilder(LSContextOperation.TXT_FORMATTING)
-                        .withFormattingParams(fileUri)
-                        .build();
+                CommonUtil.getPathFromURI(fileUri);
+                SyntaxTree syntaxTree = docManager.getTree(formattingFilePath.get());
+                String formattedSource = Formatter.format(syntaxTree).toSourceCode();
 
-                // Build the given ast.
-                JsonObject ast = TextDocumentFormatUtil.getAST(formattingFilePath.get(), docManager, formatCtx);
-                JsonObject model = ast.getAsJsonObject("model");
-                FormattingSourceGen.build(model, "CompilationUnit");
+                TextRange originalTextRange = syntaxTree.rootNode().textRangeWithMinutiae();
+                LinePosition originalPos = syntaxTree.textDocument().linePositionFrom(originalTextRange.endOffset());
 
-                // Format the given ast.
-                FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-                formattingUtil.accept(model);
-
-                //Generate source for the ast.
-                textEditContent = FormattingSourceGen.getSourceOf(model);
-                Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(textEditContent);
-                int totalLines = 0;
-                while (matcher.find()) {
-                    totalLines++;
-                }
-
-                int lastNewLineCharIndex = Math.max(textEditContent.lastIndexOf('\n'),
-                        textEditContent.lastIndexOf('\r'));
-                int lastCharCol = textEditContent.substring(lastNewLineCharIndex + 1).length();
-
-                Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
-                textEdit = new TextEdit(range, textEditContent);
+                Range range = new Range(new Position(0, 0), new Position(originalPos.line(), originalPos.offset()));
+                textEdit = new TextEdit(range, formattedSource);
                 return Collections.singletonList(textEdit);
             } catch (UserErrorException e) {
                 notifyUser("Formatting", e);

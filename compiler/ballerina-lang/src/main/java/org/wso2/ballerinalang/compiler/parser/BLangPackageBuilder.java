@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -94,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -109,7 +111,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -171,9 +172,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -297,6 +300,8 @@ public class BLangPackageBuilder {
     private Stack<BLangNode> queryClauseStack = new Stack<>();
 
     private Stack<BLangNode> inputClauseStack = new Stack<>();
+
+    private Stack<OnFailClauseNode> onFailClauseNodeStack = new Stack<>();
 
     private Stack<ForkJoinNode> forkJoinNodesStack = new Stack<>();
 
@@ -1966,14 +1971,6 @@ public class BLangPackageBuilder {
         addExpressionNode(checkPanicExpr);
     }
 
-    void createFailExpr(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangFailExpr failExpr = (BLangFailExpr) TreeBuilder.createFailExpressionNode();
-        failExpr.pos = pos;
-        failExpr.addWS(ws);
-        failExpr.expr = (BLangExpression) exprNodeStack.pop();
-        addExpressionNode(failExpr);
-    }
-
     void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
         trapExpr.pos = pos;
@@ -2160,6 +2157,22 @@ public class BLangPackageBuilder {
         doClause.setBody(blockNode);
         doClause.addWS(ws);
         queryClauseStack.push(doClause);
+    }
+
+    void createOnFailClause(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                            DiagnosticPos identifierPos, boolean isDeclaredWithVar) {
+        BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, null, identifier, identifierPos,
+                false, false, isDeclaredWithVar);
+
+        BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
+        onFailClause.pos = pos;
+        onFailClause.isDeclaredWithVar = isDeclaredWithVar;
+        markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
+        onFailClause.variableDefinitionNode = variableDefinitionNode;
+        BLangBlockStmt blockNode = (BLangBlockStmt) blockNodeStack.pop();
+        blockNode.pos = pos;
+        onFailClause.body = blockNode;
+        onFailClauseNodeStack.push(onFailClause);
     }
 
     void createQueryActionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2583,10 +2596,6 @@ public class BLangPackageBuilder {
                        boolean isReadOnly, boolean isClient, boolean isService, boolean isDistinct) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
-
-        if (isAbstract) {
-            objectTypeNode.flagSet.add(Flag.ABSTRACT);
-        }
 
         if (isReadOnly) {
             objectTypeNode.flagSet.add(Flag.READONLY);
@@ -3147,6 +3156,11 @@ public class BLangPackageBuilder {
         BLangBlockStmt foreachBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         foreachBlock.pos = pos;
         foreach.setBody(foreachBlock);
+
+        if (onFailClauseNodeStack.size() > 0) {
+            foreach.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
+
         addStmtToCurrentBlock(foreach);
     }
 
@@ -3162,7 +3176,34 @@ public class BLangPackageBuilder {
         BLangBlockStmt whileBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         whileBlock.pos = pos;
         whileNode.setBody(whileBlock);
+        if (onFailClauseNodeStack.size() > 0) {
+            whileNode.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
         addStmtToCurrentBlock(whileNode);
+    }
+
+    void addDoStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangDo doNode = (BLangDo) TreeBuilder.createDoNode();
+        doNode.pos = pos;
+        doNode.addWS(ws);
+        BLangBlockStmt doBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        doBlock.pos = pos;
+        doNode.setBody(doBlock);
+
+        if (onFailClauseNodeStack.size() > 0) {
+            doNode.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
+
+        addStmtToCurrentBlock(doNode);
+    }
+
+    void addFailStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangFail failNode = (BLangFail) TreeBuilder.createFailNode();
+        failNode.pos = pos;
+        failNode.addWS(ws);
+        failNode.expr = (BLangExpression) exprNodeStack.pop();
+
+        addStmtToCurrentBlock(failNode);
     }
 
     void startBlockStmt() {
@@ -3187,6 +3228,9 @@ public class BLangPackageBuilder {
         BLangBlockStmt lockBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         lockBlock.pos = pos;
         lockNode.setBody(lockBlock);
+        if (onFailClauseNodeStack.size() > 0) {
+            lockNode.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
         addStmtToCurrentBlock(lockNode);
     }
 
@@ -3225,6 +3269,11 @@ public class BLangPackageBuilder {
         transaction.pos = pos;
         transaction.addWS(ws);
         transaction.setTransactionBody((BLangBlockStmt) this.blockNodeStack.pop());
+
+        if (onFailClauseNodeStack.size() > 0) {
+            transaction.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
+
         addStmtToCurrentBlock(transaction);
     }
 
@@ -3255,6 +3304,9 @@ public class BLangPackageBuilder {
         BLangBlockStmt retryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         retryBlock.pos = pos;
         retryNode.setRetryBody(retryBlock);
+        if (onFailClauseNodeStack.size() > 0) {
+            retryNode.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
         addStmtToCurrentBlock(retryNode);
     }
 
@@ -3335,6 +3387,9 @@ public class BLangPackageBuilder {
         matchStmt.pos = pos;
         matchStmt.addWS(ws);
         matchStmt.expr = (BLangExpression) this.exprNodeStack.pop();
+        if (onFailClauseNodeStack.size() > 0) {
+            matchStmt.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
         addStmtToCurrentBlock(matchStmt);
     }
 
@@ -3513,7 +3568,8 @@ public class BLangPackageBuilder {
         typeDef.flagSet.add(Flag.SERVICE);
         typeDef.typeNode = (BLangType) this.typeNodeStack.pop();
         typeDef.pos = pos;
-        serviceNode.serviceTypeDefinition = typeDef;
+        // todo: Services will not be supported in old parser due to this
+//        serviceNode.bLangClassDefinition = typeDef;
         this.compUnit.addTopLevelNode(typeDef);
 
         // 2) Create service constructor.

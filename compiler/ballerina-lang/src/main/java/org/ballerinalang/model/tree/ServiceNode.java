@@ -37,6 +37,6 @@ public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevel
 
     List<? extends ExpressionNode> getAttachedExprs();
 
-    TypeDefinition getTypeDefinition();
+    ClassDefinition getServiceClass();
 
 }

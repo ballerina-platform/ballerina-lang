@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test the formatting of behavioural type descriptors.
@@ -34,17 +36,15 @@ public class BehaviouralTypesTest extends FormatterTest {
         super.test(source, sourcePath);
     }
 
+    @Override
+    public List<String> skipList() {
+        return Arrays.asList("object_initialization_type_1.bal", "object_method_type_1.bal", "service_type_1.bal");
+    }
+
     @DataProvider(name = "test-file-provider")
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
-    }
-
-    @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"error_type_2.bal", this.getTestResourceDir()}
-        };
     }
 
     @Override

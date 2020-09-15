@@ -1,4 +1,4 @@
-type Person object {
+class Person {
     public string name = "default first name";
     public string lname = "";
     public map<any> adrs = {};
@@ -9,15 +9,15 @@ type Person object {
         self.age = age;
         self.adrs = adrs;
     }
-};
+}
 
-type ObjectField object {
+class ObjectField {
     public string key = "";
 
     function init (string key) {
         self.key = key;
     }
-};
+}
 
 function testExpressionAsStructIndex () returns (string) {
     ObjectField nameField = new ("name");

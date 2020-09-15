@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type XML object {
+class XML {
         xml person = xml `<employees>
                         <employee id="1">
                           <name>Parakum</name>
@@ -473,4 +473,4 @@ type XML object {
                           </address>
                         </employee>
                       </employees>`;
-};
+}
