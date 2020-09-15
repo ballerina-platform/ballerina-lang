@@ -33,14 +33,14 @@ public class ListenerServiceTaintedStatusPropagationTest {
     public void testUntaintedListernBasedService() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/listener-taintedness-propagation-untainted-listener.bal");
-        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
     public void testTaintednessPropagationFromTaintedListener() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/listener-taintedness-propagation-tainted-listener.bal");
-        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 3);
+        Assert.assertEquals(result.getDiagnostics().length, 3);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'p'", 26, 23);
         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'p'", 27, 23);
         BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'p'", 40, 23);

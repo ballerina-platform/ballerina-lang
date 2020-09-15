@@ -41,7 +41,7 @@ public class VarMutabilityWithWorkersTest {
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/workers/var-mutability-with-workers.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0,
-                            Arrays.asList(compileResult.getErrorAndWarnDiagnostics()).toString());
+                            Arrays.asList(compileResult.getDiagnostics()).toString());
     }
 
     @Test(description = "Test variable mutability with basic types")

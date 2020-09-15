@@ -59,7 +59,7 @@ public class CommonTestUtils {
     }
 
     public static void printDiagnostics(CompileResult timerCompileResult, Log log) {
-        Arrays.asList(timerCompileResult.getErrorAndWarnDiagnostics()).
+        Arrays.asList(timerCompileResult.getDiagnostics()).
                 forEach(e -> log.info(e.getMessage() + " : " + e.getPosition()));
     }
 }
