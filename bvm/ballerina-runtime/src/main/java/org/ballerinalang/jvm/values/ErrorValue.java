@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BString;
@@ -81,25 +82,42 @@ public class ErrorValue extends BError implements RefValue {
     public String stringValue(BLink parent) {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
-            return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue(linkParent) + ")";
+            return "error" + getModuleName(true) + "(" + ((StringValue) message).informalStringValue(linkParent) + ")";
         }
-        return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue(linkParent) +
-                getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
+        return "error" + getModuleName(true) + "(" + ((StringValue) message).informalStringValue(linkParent) +
+                getCauseToString(linkParent, true) + getDetailsToString(linkParent, true) + ")";
     }
 
-    private String getCauseToString(BLink parent) {
+    @Override
+    public String toBalString(BLink parent) {
+        CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
+        if (isEmptyDetail()) {
+            return "error" + getModuleName(false) + "(" + ((StringValue) message)
+                    .informalStringValue(linkParent) + ")";
+        }
+        return "error" + getModuleName(false) + "(" + ((StringValue) message).toBalString(linkParent) +
+                getCauseToString(linkParent, false) + getDetailsToString(linkParent, false) + ")";
+    }
+
+    private String getCauseToString(BLink parent, boolean isInformal) {
         if (cause != null) {
-            return "," + cause.informalStringValue(parent);
+            if (isInformal) {
+                return "," + cause.informalStringValue(parent);
+            }
+            return "," + cause.toBalString(parent);
         }
         return "";
     }
 
-    private String getDetailsToString(BLink parent) {
+    private String getDetailsToString(BLink parent, boolean isInformal) {
         StringJoiner sj = new StringJoiner(",");
         for (Object key : ((MapValue) details).getKeys()) {
             Object value = ((MapValue) details).get(key);
             if (value == null) {
-                sj.add(key + "=null");
+                if (isInformal) {
+                    sj.add(key + "=null");
+                }
+                sj.add(key + "=()");
             } else {
                 BType type = TypeChecker.getType(value);
                 switch (type.getTag()) {
@@ -111,10 +129,22 @@ public class ErrorValue extends BError implements RefValue {
                     case TypeTags.XML_PI_TAG:
                     case TypeTags.XMLNS_TAG:
                     case TypeTags.XML_TEXT_TAG:
-                        sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
+                        if (isInformal) {
+                            sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
+                        } else {
+                            sj.add(key + "=" + ((BValue) value).toBalString(parent));
+                        }
                         break;
+                    case TypeTags.DECIMAL_TAG:
+                        if (!isInformal) {
+                            sj.add(key + "=" + ((BValue) value).toBalString(parent));
+                        }
                     default:
-                        sj.add(key + "=" + StringUtils.getStringValue(value, parent));
+                        if (isInformal) {
+                            sj.add(key + "=" + StringUtils.getStringValue(value, parent));
+                        } else {
+                            sj.add(key + "=" + StringUtils.getToBalStringValue(value, parent));
+                        }
                         break;
                 }
             }
@@ -122,8 +152,13 @@ public class ErrorValue extends BError implements RefValue {
         return "," + sj.toString();
     }
 
-    private String getModuleName() {
-        return type.getPackage().name == null ? "" : " " + type.getName() + " ";
+    private String getModuleName(boolean isInformal) {
+        if (isInformal) {
+            return type.getPackage().name == null ? "" : " " + type.getName() + " ";
+        }
+        return (type.getPackage().org != null && type.getPackage().org.equals("$anon")) ||
+                type.getPackage().name == null ? type.getName() :
+                BallerinaErrorReasons.getModulePrefixedReason(type.getPackage().name, type.getName());
     }
 
     @Override

@@ -196,6 +196,11 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
+    public String toBalString(BLink parent) {
+        return "xml`" + toString() + "`";
+    }
+
+    @Override
     public String toString() {
         return this.stringValue(null);
     }

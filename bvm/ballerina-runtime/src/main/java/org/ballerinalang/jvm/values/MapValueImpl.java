@@ -442,6 +442,38 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
+    public String toBalString(BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
+        for (Map.Entry<K, V> kvEntry : this.entrySet()) {
+            K key = kvEntry.getKey();
+            V value = kvEntry.getValue();
+            if (value == null) {
+                sj.add("\"" + key + "\":()");
+            } else {
+                BType type = TypeChecker.getType(value);
+                CycleUtils.Node mapParent = new CycleUtils.Node(this, parent);
+                switch (type.getTag()) {
+                    case TypeTags.STRING_TAG:
+                    case TypeTags.DECIMAL_TAG:
+                    case TypeTags.XML_TAG:
+                    case TypeTags.XML_ELEMENT_TAG:
+                    case TypeTags.XML_ATTRIBUTES_TAG:
+                    case TypeTags.XML_COMMENT_TAG:
+                    case TypeTags.XML_PI_TAG:
+                    case TypeTags.XMLNS_TAG:
+                    case TypeTags.XML_TEXT_TAG:
+                        sj.add("\"" + key + "\":" + ((BValue) value).toBalString(mapParent));
+                        break;
+                    default:
+                        sj.add("\"" + key + "\":" + StringUtils.getToBalStringValue(value, mapParent));
+                        break;
+                }
+            }
+        }
+        return "{" + sj.toString() + "}";
+    }
+
+    @Override
     public BType getType() {
         return type;
     }

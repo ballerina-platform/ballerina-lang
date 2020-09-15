@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.ArrayList;
@@ -160,5 +161,10 @@ public class GenericMockObjectValue extends AbstractObjectValue {
             i += 2;
         }
         return newArgs.toArray();
+    }
+
+    @Override
+    public String toBalString(BLink parent) {
+        return stringValue(parent);
     }
 }

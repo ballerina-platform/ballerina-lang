@@ -612,6 +612,88 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
+    public String toBalString(BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
+        switch (this.elementType.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(Long.toString(intValues[i]));
+                }
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(Boolean.toString(booleanValues[i]));
+                }
+                break;
+            case TypeTags.BYTE_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
+                }
+                break;
+            case TypeTags.FLOAT_TAG:
+                for (int i = 0; i < size; i++) {
+                    if (Double.isNaN(floatValues[i])) {
+                        sj.add("float:" + Double.toString(floatValues[i]));
+                    } else if (Double.isInfinite(floatValues[i])) {
+                        sj.add("float:" + Double.toString(floatValues[i]));
+                    } else {
+                        sj.add(Double.toString(floatValues[i]));
+                    }
+                }
+                break;
+            case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(((BValue) (bStringValues[i])).toBalString(parent));
+                }
+                break;
+            default:
+                for (int i = 0; i < size; i++) {
+                    if (refValues[i] == null) {
+                        sj.add("()");
+                    } else {
+                        BType type = TypeChecker.getType(refValues[i]);
+                        switch (type.getTag()) {
+                            case TypeTags.DECIMAL_TAG:
+                            case TypeTags.STRING_TAG:
+                            case TypeTags.XML_TAG:
+                            case TypeTags.XML_ELEMENT_TAG:
+                            case TypeTags.XML_ATTRIBUTES_TAG:
+                            case TypeTags.XML_COMMENT_TAG:
+                            case TypeTags.XML_PI_TAG:
+                            case TypeTags.XMLNS_TAG:
+                            case TypeTags.XML_TEXT_TAG:
+                                sj.add(((BValue) (refValues[i])).toBalString(new CycleUtils
+                                        .Node(this, parent)));
+                                break;
+                            case TypeTags.FLOAT_TAG:
+                                if (Double.isNaN((Double) refValues[i])) {
+                                    sj.add("float:" + refValues[i].toString());
+                                } else if (Double.isInfinite((Double) refValues[i])) {
+                                    sj.add("float:" + refValues[i].toString());
+                                } else {
+                                    sj.add(refValues[i].toString());
+                                }
+                                break;
+                            default:
+                                sj.add(StringUtils.getToBalStringValue(refValues[i],
+                                        new CycleUtils.Node(this, parent)));
+                                break;
+                        }
+                    }
+                }
+                break;
+        }
+        return "[" + sj.toString() + "]";
+    }
+
+    @Override
     public BType getType() {
         return this.arrayType;
     }

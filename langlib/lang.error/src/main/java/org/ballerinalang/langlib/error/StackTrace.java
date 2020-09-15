@@ -34,6 +34,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -121,6 +122,11 @@ public class StackTrace {
         @Override
         public void set(BString fieldName, Object value) {
             throw new BLangRuntimeException("No such field or method: callStack");
+        }
+
+        @Override
+        public String toBalString(BLink parent) {
+            return stringValue(parent);
         }
     }
 }

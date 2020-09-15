@@ -402,6 +402,11 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
+    public String toBalString(BLink parent) {
+        return stringValue(parent);
+    }
+
+    @Override
     public BType getType() {
         return this.tupleType;
     }

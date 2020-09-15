@@ -49,6 +49,11 @@ public interface IteratorValue extends RefValue, BIterator {
     }
 
     @Override
+    default String toBalString(BLink parent) {
+        return stringValue(parent);
+    }
+
+    @Override
     default Object copy(Map<Object, Object> refs) {
         throw new UnsupportedOperationException();
     }

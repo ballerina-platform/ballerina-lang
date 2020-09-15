@@ -113,6 +113,15 @@ public function isReadOnly(anydata v) returns boolean = external;
 # that are not equal (in the sense of the `==` operator).
 public function toString((any|error) v) returns string = external;
 
+// TODO: CHANGE THIS
+# Performs a minimal conversion of a value to a string.
+# The conversion is minimal in particular in the sense
+# that the conversion applied to a value that is already
+# a string does nothing.
+# + v - the value to be converted to a string
+# + return - a string resulting from the conversion
+public function toBalString((any|error) v) returns string = external;
+
 // JSON conversion
 
 # Converts a value of type `anydata` to `json`.

@@ -72,6 +72,11 @@ package org.ballerinalang.jvm.values;
      }
 
     @Override
+    public String toBalString(BLink parent) {
+        return stringValue(parent);
+    }
+
+    @Override
      public BType getType() {
          return this.type;
      }

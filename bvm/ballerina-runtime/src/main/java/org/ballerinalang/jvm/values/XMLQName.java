@@ -100,6 +100,11 @@ public final class XMLQName implements RefValue, BXMLQName {
     }
 
     @Override
+    public String toBalString(BLink parent) {
+        return "xml`" + toString() + "`";
+    }
+
+    @Override
     public BType getType() {
         return BTypes.typeXMLAttributes;
     }
