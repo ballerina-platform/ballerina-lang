@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
+import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -48,8 +49,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.packerina.cmd.Constants.DOC_COMMAND;
-
-import picocli.CommandLine;
 
 /**
  * This class represents the "ballerina doc" command.
