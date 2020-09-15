@@ -246,8 +246,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_DUPLICATE_CLASS_TYPE_QUALIFIER("BCE209", "error.duplicate.class.type.qualifier"),
     ERROR_DUPLICATE_OBJECT_METHOD_QUALIFIER("BCE210", "error.duplicate.object.method.qualifier"),
     ERROR_QUALIFIER_NOT_ALLOWED("BCE211", "error.qualifier.not.allowed"),
-    ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT("BCE212", "error.abstract.qualifier.not.allowed.in.object"),
-    ERROR_READONLY_QUALIFIER_NOT_ALLOWED_IN_OBJECT("BCE213", "error.readonly.qualifier.not.allowed.in.object"),
     // Cannot have type inclusions in object constructor
     ERROR_TYPE_INCLUSION_IN_OBJECT_CONSTRUCTOR("BCE214", "error.type.inclusion.in.object.constructor"),
     ERROR_SAME_OBJECT_TYPE_QUALIFIER("BCE215", "error.same.object.type.qualifier"),
