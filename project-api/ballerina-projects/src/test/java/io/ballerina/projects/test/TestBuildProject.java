@@ -17,9 +17,11 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.BuildProject;
@@ -53,6 +55,14 @@ public class TestBuildProject {
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
         Assert.assertEquals(defaultModule.documentIds().size(), 2);
+
+        // 4) Resolve the dependencies of the current package and its modules
+        currentPackage.resolveDependencies();
+        DependencyGraph<ModuleId> moduleDependencyGraph = currentPackage.moduleDependencyGraph();
+        Assert.assertEquals(moduleDependencyGraph.getDirectDependencies(defaultModule.moduleId()).size(), 3);
+
+        // 5) Compile the module
+        ModuleCompilation compilation = defaultModule.getCompilation();
 
         // TODO find an easy way to test the project structure. e.g. serialize the structure in a json file.
         int noOfSrcDocuments = 0;
@@ -115,7 +125,7 @@ public class TestBuildProject {
         }
     }
 
-    @Test (description = "tests loading a valid build project and set build options")
+    @Test(enabled = false, description = "tests loading a valid build project and set build options")
     public void testSetBuildOptions() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
         // 1) Initialize the project instance
@@ -152,7 +162,7 @@ public class TestBuildProject {
         Assert.assertFalse(project.getBuildOptions().isExperimental());
     }
 
-    @Test (description = "tests loading a valid build project with build options from toml")
+    @Test(enabled = false, description = "tests loading a valid build project with build options from toml")
     public void testSetBuildOptionsFromToml() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
         // 1) Initialize the project instance

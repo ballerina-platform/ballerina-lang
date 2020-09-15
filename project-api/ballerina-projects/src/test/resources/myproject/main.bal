@@ -1,5 +1,7 @@
-import ballerina/io;
+import myproject.services;
+import myproject/myproject.storage;
 
 public function main() {
-    io:println("Sameera Jayasoma");
+services:runServices();
+storage:initDatabase();
 }
