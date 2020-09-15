@@ -40,7 +40,7 @@ public class ForwardReferencingGlobalDefinitionTest {
     public void globalDefinitionsWithCyclicReferences() {
         CompileResult resultNegativeCycleFound = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/",
                 "simple");
-        Diagnostic[] diagnostics = resultNegativeCycleFound.getDiagnostics();
+        Diagnostic[] diagnostics = resultNegativeCycleFound.getErrorAndWarnDiagnostics();
         Assert.assertTrue(diagnostics.length > 0);
         BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 35, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep1, dep2]'", 54, 1);
@@ -51,7 +51,7 @@ public class ForwardReferencingGlobalDefinitionTest {
     public void globalDefinitionsReOrdering() {
         CompileResult resultReOrdered = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj/",
                 "multiFileReference");
-        Diagnostic[] diagnostics = resultReOrdered.getDiagnostics();
+        Diagnostic[] diagnostics = resultReOrdered.getErrorAndWarnDiagnostics();
         Assert.assertEquals(diagnostics.length, 0);
 
         BValue[] employee = BRunUtil.invoke(resultReOrdered, "getEmployee");
@@ -90,7 +90,7 @@ public class ForwardReferencingGlobalDefinitionTest {
         CompileResult cycle = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/",
                                                    "viafunc");
 
-        Assert.assertTrue(cycle.getDiagnostics().length > 0);
+        Assert.assertTrue(cycle.getErrorAndWarnDiagnostics().length > 0);
         BAssertUtil.validateError(cycle, 0, "illegal cyclic reference '[fromFuncA, fromFunc, getPersonOuter, " +
                 "getPersonInner, getfromFuncA]'", 22, 1);
     }
@@ -100,7 +100,7 @@ public class ForwardReferencingGlobalDefinitionTest {
     public void globalDefinitionsListenerDef() {
         CompileResult resultNegativeCycleFound = BCompileUtil.compile(this,
                 "test-src/statements/variabledef/globalcycle/", "viaservice");
-        Assert.assertEquals(resultNegativeCycleFound.getDiagnostics().length, 1);
+        Assert.assertEquals(resultNegativeCycleFound.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[port, o, Obj]'", 22, 1);
     }
 }

@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.util.Flags;
+
 import java.util.Arrays;
 
 /**
@@ -29,18 +31,21 @@ public class BFunctionType extends AnnotatableType {
     public BType[] paramTypes;
     public BType restType;
     public BType retType;
+    public int flags;
 
     public BFunctionType() {
         super("function ()", null, Object.class);
         this.paramTypes = new BType[0];
         this.retType = BTypes.typeNull;
+        this.flags = 0;
     }
 
-    public BFunctionType(BType[] paramTypes, BType restType, BType retType) {
+    public BFunctionType(BType[] paramTypes, BType restType, BType retType, int flags) {
         super("function ()", null, Object.class);
         this.paramTypes = paramTypes;
         this.restType = restType;
         this.retType = retType;
+        this.flags = flags;
     }
 
     public BType[] getParameterType() {
@@ -64,11 +69,6 @@ public class BFunctionType extends AnnotatableType {
     @Override
     public int getTag() {
         return TypeTags.FUNCTION_POINTER_TAG;
-    }
-
-    public static String getTypeName(BType[] parameterType, BType retType) {
-        return "function (" + (parameterType != null ? getBTypeListAsString(parameterType) : "") + ")" +
-                (retType != null ? " returns (" + retType + ")" : "");
     }
 
     private static String getBTypeListAsString(BType[] typeNames) {
@@ -96,6 +96,11 @@ public class BFunctionType extends AnnotatableType {
         }
 
         BFunctionType that = (BFunctionType) o;
+
+        if (Flags.isFlagOn(that.flags, Flags.ISOLATED) != Flags.isFlagOn(this.flags, Flags.ISOLATED)) {
+            return false;
+        }
+
         if (!Arrays.equals(paramTypes, that.paramTypes)) {
             return false;
         }
@@ -112,7 +117,13 @@ public class BFunctionType extends AnnotatableType {
 
     @Override
     public String toString() {
-        return getTypeName(paramTypes, retType);
+        String stringRep = "function (" + (paramTypes != null ? getBTypeListAsString(paramTypes) : "") + ")" +
+                (retType != null ? " returns (" + retType + ")" : "");
+
+        if (Flags.isFlagOn(flags, Flags.ISOLATED)) {
+            return "isolated " + stringRep;
+        }
+        return stringRep;
     }
 
     @Override

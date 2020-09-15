@@ -94,7 +94,7 @@ public class FunctionCallTest {
         BAssertUtil.validateError(negativeResult, i++, TAINTED_VALUE_FOR_I, 38, 9);
         BAssertUtil.validateError(negativeResult, i++, TAINTED_VALUE_FOR_S, 38, 9);
 
-        Assert.assertEquals(i, negativeResult.getDiagnostics().length);
+        Assert.assertEquals(i, negativeResult.getErrorAndWarnDiagnostics().length);
     }
 
 }

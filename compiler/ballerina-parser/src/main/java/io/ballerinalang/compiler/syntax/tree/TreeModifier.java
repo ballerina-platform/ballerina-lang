@@ -1855,11 +1855,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public FunctionTypeDescriptorNode transform(
             FunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        NodeList<Token> qualifierList =
+                modifyNodeList(functionTypeDescriptorNode.qualifierList());
         Token functionKeyword =
                 modifyToken(functionTypeDescriptorNode.functionKeyword());
         FunctionSignatureNode functionSignature =
                 modifyNode(functionTypeDescriptorNode.functionSignature());
         return functionTypeDescriptorNode.modify(
+                qualifierList,
                 functionKeyword,
                 functionSignature);
     }
@@ -1887,6 +1890,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(explicitAnonymousFunctionExpressionNode.annotations());
+        NodeList<Token> qualifierList =
+                modifyNodeList(explicitAnonymousFunctionExpressionNode.qualifierList());
         Token functionKeyword =
                 modifyToken(explicitAnonymousFunctionExpressionNode.functionKeyword());
         FunctionSignatureNode functionSignature =
@@ -1895,6 +1900,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(explicitAnonymousFunctionExpressionNode.functionBody());
         return explicitAnonymousFunctionExpressionNode.modify(
                 annotations,
+                qualifierList,
                 functionKeyword,
                 functionSignature,
                 functionBody);
