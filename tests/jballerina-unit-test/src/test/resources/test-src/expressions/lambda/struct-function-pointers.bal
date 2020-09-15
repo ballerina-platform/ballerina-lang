@@ -52,3 +52,40 @@ function test3() returns (string){
     string x = bob.getPersonName(bob);
     return x;
 }
+
+class Context {
+    function getJsonVal(anydata a) returns json|error {
+        json j = { j: a.toString() };
+        return ;
+    }
+}
+
+type FunctionType function (Context, anydata) returns json|error;
+type FunctionEntry [FunctionType, typedesc<anydata>];
+map<FunctionEntry> functions = { };
+
+function testClassTypeAsParamtype() {
+    FunctionType func = (c, d) => c.getJsonVal(d);
+    functions["func"] = [func, int];
+    var f = <[FunctionType, typedesc<anydata>]> functions["func"];
+    FunctionType f1 = f[0];
+    json|error j = f1(new(), 1);
+    var k = <map<json>>j;
+    string q = <string> k["j"];
+    assertEquality("1", q);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError("Assertion Error",
+            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
+
+type AssertionError error;
