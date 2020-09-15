@@ -1786,7 +1786,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // So global variable assignments happen in functions.
         if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BSymbol owner = this.env.scope.owner;
+            BSymbol owner = this.currDependentSymbol.peek();
             addFunctionToGlobalVarDependency(owner, ((BLangSimpleVarRef) varRef).symbol);
         }
 
