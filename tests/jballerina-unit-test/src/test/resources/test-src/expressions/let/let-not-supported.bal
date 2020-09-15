@@ -18,6 +18,6 @@ type Student record {
     int marks = let int x = 3, int z = 5 in z * x;
 };
 
-type Person object {
+class Person {
     public int age = let int x = 3, int z = 5 in z * x;
-};
+}

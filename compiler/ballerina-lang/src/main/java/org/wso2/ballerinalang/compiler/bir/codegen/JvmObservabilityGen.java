@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -78,6 +79,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
@@ -88,7 +90,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPORT_ER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CALLABLE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 
 /**
  * BIR desugar to inject observations class.
@@ -140,7 +141,7 @@ class JvmObservabilityGen {
             }
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
-            if ((typeDef.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+            if ((typeDef.flags & Flags.CLASS) != Flags.CLASS && typeDef.type.tag == TypeTags.OBJECT) {
                 continue;
             }
             boolean isService = typeDef.type instanceof BServiceType;
@@ -208,9 +209,9 @@ class JvmObservabilityGen {
             Name lambdaName = new Name(String.format("$lambda$observability%d$%s", lambdaIndex++,
                     asyncCallIns.name.value.replace(".", "_")));
             BInvokableType bInvokableType = new BInvokableType(argTypes, null,
-                    returnType, null);
+                                                               returnType, null);
             BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
-                    func.workerName, 0, null);
+                                                        func.workerName, 0, null, VIRTUAL);
             desugaredFunc.receiver = func.receiver;
             scopeFunctionsList.add(desugaredFunc);
 
@@ -223,12 +224,13 @@ class JvmObservabilityGen {
 
             // Creating and adding invokable symbol to the relevant scope
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, lambdaName,
-                    currentPkgId, bInvokableType, functionOwner);
+                                                                    currentPkgId, bInvokableType, functionOwner,
+                                                                    desugaredFunc.pos, VIRTUAL);
             invokableSymbol.retType = funcReturnVariableDcl.type;
             invokableSymbol.kind = SymbolKind.FUNCTION;
             invokableSymbol.params = asyncCallIns.args.stream()
                     .map(arg -> new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
-                            invokableSymbol))
+                                               invokableSymbol, arg.pos, VIRTUAL))
                     .collect(Collectors.toList());
             invokableSymbol.scope = new Scope(invokableSymbol);
             invokableSymbol.params.forEach(param -> invokableSymbol.scope.define(param.name, param));
@@ -703,9 +705,10 @@ class JvmObservabilityGen {
     private BIROperand generateGlobalConstantOperand(BIRPackage pkg, BType constantType, Object constantValue) {
         return compileTimeConstants.computeIfAbsent(constantValue, k -> {
             PackageID pkgId = new PackageID(pkg.org, pkg.name, pkg.version);
-            BIRGlobalVariableDcl constLoadVariableDcl = new BIRGlobalVariableDcl(COMPILE_TIME_CONST_POS, 0,
-                    constantType, pkgId, new Name("$observabilityConst" + constantIndex++), VarScope.GLOBAL,
-                    VarKind.CONSTANT, "");
+            BIRGlobalVariableDcl constLoadVariableDcl =
+                    new BIRGlobalVariableDcl(COMPILE_TIME_CONST_POS, 0,
+                                             constantType, pkgId, new Name("$observabilityConst" + constantIndex++),
+                                             VarScope.GLOBAL, VarKind.CONSTANT, "", VIRTUAL);
             pkg.globalVars.add(constLoadVariableDcl);
             return new BIROperand(constLoadVariableDcl);
         });
@@ -778,8 +781,9 @@ class JvmObservabilityGen {
         boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
         boolean isObservableAnnotationPresent = false;
         for (BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
-            if (OBSERVABLE_ANNOTATION.equals(getPackageName(annot.packageID.orgName, annot.packageID.name, Names.EMPTY)
-                    + annot.annotTagRef.value)) {
+            if (OBSERVABLE_ANNOTATION.equals(
+                    JvmCodeGenUtil.getPackageName(annot.packageID.orgName, annot.packageID.name, Names.EMPTY) +
+                            annot.annotTagRef.value)) {
                 isObservableAnnotationPresent = true;
                 break;
             }

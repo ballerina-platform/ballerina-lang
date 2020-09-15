@@ -14,15 +14,6 @@
           "kind": "CONST_DECLARATION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "CONST_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -54,7 +45,7 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "STRING_LITERAL_TOKEN",
                   "value": "http://hello3.com"
                 }
               ]
@@ -74,15 +65,6 @@
           "kind": "CONST_DECLARATION",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "CONST_KEYWORD",
               "leadingMinutiae": [
@@ -105,7 +87,7 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
+                      "kind": "STRING_LITERAL_TOKEN",
                       "value": "http://hello3.com"
                     }
                   ]
@@ -157,15 +139,6 @@
           "kind": "CONST_DECLARATION",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "CONST_KEYWORD",
               "leadingMinutiae": [

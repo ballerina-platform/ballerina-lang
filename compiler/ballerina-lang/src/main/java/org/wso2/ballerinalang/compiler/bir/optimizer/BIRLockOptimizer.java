@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -35,9 +36,9 @@ import java.util.Set;
  */
 public class BIRLockOptimizer extends BIRVisitor {
 
-    private List<BIRTerminator.Lock> lockList = new ArrayList<>();
-    private Map<BIRTerminator.Lock, Integer> lockToSetMap = new HashMap<>();
-    private Map<Integer, List<BIRTerminator.Lock>> setToLockMap = new HashMap<>();
+    private final List<BIRTerminator.Lock> lockList = new ArrayList<>();
+    private final Map<BIRTerminator.Lock, Integer> lockToSetMap = new HashMap<>();
+    private final Map<Integer, List<BIRTerminator.Lock>> setToLockMap = new HashMap<>();
     private int setId = -1;
 
     public void optimizeNode(BIRNode node) {
@@ -53,21 +54,21 @@ public class BIRLockOptimizer extends BIRVisitor {
         propagateLocks();
     }
 
-    private void propagateLocks() {
-        for (Map.Entry<Integer, List<BIRTerminator.Lock>> entry : setToLockMap.entrySet()) {
-            Integer lockId = entry.getKey();
-            for (BIRTerminator.Lock lock : entry.getValue()) {
-                lock.lockId = lockId;
-            }
-        }
-    }
-
     private void analyzeLocks() {
         for (int lockListIndex = 0; lockListIndex < lockList.size(); lockListIndex++) {
             if (!lockToSetMap.containsKey(lockList.get(lockListIndex))) {
                 analyzeUnvisitedLock(lockListIndex);
             } else {
                 analyzeVisitedLock(lockListIndex);
+            }
+        }
+    }
+
+    private void propagateLocks() {
+        for (Map.Entry<Integer, List<BIRTerminator.Lock>> entry : setToLockMap.entrySet()) {
+            Integer lockId = entry.getKey();
+            for (BIRTerminator.Lock lock : entry.getValue()) {
+                lock.lockId = lockId;
             }
         }
     }

@@ -15,15 +15,13 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.text.LinePosition;
-import io.ballerinalang.compiler.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -35,24 +33,18 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
-import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Common utility methods for the completion operation.
@@ -82,13 +74,19 @@ public class CompletionUtil {
             throws WorkspaceDocumentException, LSCompletionException {
         fillTokenInfoAtCursor(ctx);
         NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-
         List<LSCompletionItem> items = route(ctx, nodeAtCursor);
-        return getPreparedCompletionItems(ctx, items);
+
+        return items.stream()
+                .map(LSCompletionItem::getCompletionItem)
+                .collect(Collectors.toList());
     }
 
     /**
      * Get the nearest matching provider for the context node.
+     * Router can be called recursively. Therefore, if there is an already checked resolver in the resolver chain,
+     * that means the particular resolver could not handle the completions request. Therefore skip the particular node
+     * and traverse the parent ladder to find the nearest matching resolver. In order to handle this, the particular
+     * resolver chain check has been added.
      *
      * @param node node to evaluate
      * @return {@link Optional} provider which resolved
@@ -105,7 +103,9 @@ public class CompletionUtil {
 
         while ((reference != null)) {
             provider = providers.get(reference.getClass());
-            if (provider != null) {
+            // Resolver chain check has been added to cover the use-case in the documentation of the method
+            if (provider != null && provider.onPreValidation(ctx, reference)
+                    && !ctx.get(CompletionKeys.RESOLVER_CHAIN).contains(provider.getClass())) {
                 break;
             }
             reference = reference.parent();
@@ -114,52 +114,9 @@ public class CompletionUtil {
         if (provider == null) {
             return completionItems;
         }
+        ctx.get(CompletionKeys.RESOLVER_CHAIN).add(provider.getClass());
+
         return provider.getCompletions(ctx, reference);
-    }
-
-    private static List<CompletionItem> getPreparedCompletionItems(LSContext context, List<LSCompletionItem> items) {
-        List<CompletionItem> completionItems = new ArrayList<>();
-        boolean isSnippetSupported = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
-                .getSnippetSupport();
-        List<CompletionItem> sortedItems = ItemSorters.get(context.get(CompletionKeys.SCOPE_NODE_KEY).getClass())
-                .sortItems(context, items);
-
-        // TODO: Remove this
-        for (CompletionItem item : sortedItems) {
-            if (!isSnippetSupported) {
-                item.setInsertText(CommonUtil.getPlainTextSnippet(item.getInsertText()));
-                item.setInsertTextFormat(InsertTextFormat.PlainText);
-            } else {
-                item.setInsertTextFormat(InsertTextFormat.Snippet);
-            }
-            completionItems.add(item);
-        }
-
-        return completionItems;
-    }
-
-    /**
-     * Prune source if syntax errors exists.
-     *
-     * @param lsContext {@link LSContext}
-     * @throws SourcePruneException       when file uri is invalid
-     * @throws WorkspaceDocumentException when document read error occurs
-     */
-    @Deprecated
-    public static void pruneSource(LSContext lsContext) throws SourcePruneException, WorkspaceDocumentException {
-        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
-        if (uri == null) {
-            throw new SourcePruneException("fileUri cannot be null!");
-        }
-
-        Path filePath = Paths.get(URI.create(uri));
-        TokenTraverserFactory tokenTraverserFactory = new CompletionsTokenTraverserFactory(filePath, documentManager,
-                SourcePruner.newContext());
-        SourcePruner.pruneSource(lsContext, tokenTraverserFactory);
-
-        // Update document manager
-        documentManager.setPrunedContent(filePath, tokenTraverserFactory.getTokenStream().getText());
     }
 
     /**
@@ -178,24 +135,26 @@ public class CompletionUtil {
 
         Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
-        Token tokenAtCursor = ((ModulePartNode) syntaxTree.rootNode()).findToken(txtPos);
+        context.put(CompletionKeys.TEXT_POSITION_IN_TREE, txtPos);
+        TextRange range = TextRange.from(txtPos, 0);
+        NonTerminalNode nonTerminalNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(range);
 
-        context.put(CompletionKeys.TOKEN_AT_CURSOR_KEY, tokenAtCursor);
-        context.put(CompletionKeys.NODE_AT_CURSOR_KEY, getNodeAtCursor(tokenAtCursor, context));
-    }
-
-    private static NonTerminalNode getNodeAtCursor(Token tokenAtCursor, LSContext context) {
-        NonTerminalNode parent = tokenAtCursor.parent();
-        int cursorLine = context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
-
-        while (parent.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
-                || parent.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
-                || parent.kind() == SyntaxKind.NIL_LITERAL
-                || parent instanceof BasicLiteralNode
-                || cursorLine < parent.lineRange().startLine().line()) {
-            parent = parent.parent();
+        while (true) {
+            if (!withinTextRange(txtPos, nonTerminalNode)) {
+                nonTerminalNode = nonTerminalNode.parent();
+                continue;
+            }
+            break;
         }
 
-        return parent;
+        context.put(CompletionKeys.NODE_AT_CURSOR_KEY, nonTerminalNode);
+    }
+
+    private static boolean withinTextRange(int position, NonTerminalNode node) {
+        TextRange rangeWithMinutiae = node.textRangeWithMinutiae();
+        TextRange textRange = node.textRange();
+        TextRange leadingMinutiaeRange = TextRange.from(rangeWithMinutiae.startOffset(),
+                textRange.startOffset() - rangeWithMinutiae.startOffset());
+        return leadingMinutiaeRange.endOffset() <= position;
     }
 }

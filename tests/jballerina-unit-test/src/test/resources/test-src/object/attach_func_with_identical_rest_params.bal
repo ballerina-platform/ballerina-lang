@@ -1,4 +1,4 @@
-type Person object {
+class Person {
     public string name = "";
 
     public function foo(string... names) returns string {
@@ -8,7 +8,7 @@ type Person object {
     public function bar(string... names) returns string {
         return names[0] + " bar";
     }
-};
+}
 
 public function testAttachFunctionsWithIdenticalRestParams() returns string {
     Person p = new;

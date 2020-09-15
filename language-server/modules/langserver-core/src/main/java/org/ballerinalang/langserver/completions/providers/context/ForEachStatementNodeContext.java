@@ -15,11 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.LinePosition;
 import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -41,8 +41,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForEachStatementNode> {
     public ForEachStatementNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ForEachStatementNode.class);
+        super(ForEachStatementNode.class);
     }
 
     @Override
@@ -51,7 +50,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (withinTypeDescContext(context, node)) {
-            completionItems.addAll(this.getPackagesCompletionItems(context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.addAll(this.getTypeItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         } else if (node.inKeyword().isMissing()) {

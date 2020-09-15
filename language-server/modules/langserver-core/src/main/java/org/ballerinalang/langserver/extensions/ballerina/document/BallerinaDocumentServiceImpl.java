@@ -20,10 +20,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
@@ -38,7 +38,6 @@ import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
@@ -49,6 +48,7 @@ import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.cmd.Filter;
 import org.ballerinalang.openapi.model.GenSrcFile;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -97,7 +97,6 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     public static final LSContext.Key<String> UPDATED_SOURCE = new LSContext.Key<>();
-//    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
 
     public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
@@ -152,8 +151,13 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             //Generate compilation unit for provided Open Api Sep JSON
             File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
             CodeGenerator generator = new CodeGenerator();
+
+            List<String> tag = new ArrayList<>();
+            List<String> operation = new ArrayList<>();
+            Filter filter = new Filter(tag, operation);
+
             List<GenSrcFile> oasSources = generator.generateBalSource(GeneratorConstants.GenType.GEN_SERVICE,
-                    tempOasJsonFile.getPath(), "", null);
+                    tempOasJsonFile.getPath(), "", null, filter);
 
             Optional<GenSrcFile> oasServiceFile = oasSources.stream()
                     .filter(genSrcFile -> genSrcFile.getType().equals(GenSrcFile.GenFileType.GEN_SRC)).findAny();
@@ -280,8 +284,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                     .withCommonParams(null, fileUri, documentManager)
                     .build();
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class,
-                    false, false, true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));
         } catch (Throwable e) {
@@ -301,7 +304,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
                 diagnostics = ((CollectDiagnosticListener) compilerContext
-                            .get(DiagnosticListener.class)).getDiagnostics();
+                        .get(DiagnosticListener.class)).getDiagnostics();
             }
             return !diagnostics.stream().anyMatch(diagnostic -> {
                 DiagnosticCode code = diagnostic.getCode();
@@ -390,9 +393,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             oldContent = documentManager.getFileContent(compilationPath);
             LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(),
                     fileUri, compilationPath, documentManager);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
-                    LSCustomErrorStrategy.class, false, false,
-                    true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));
@@ -431,9 +432,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             oldContent = documentManager.getFileContent(compilationPath);
             LSContext astContext = BallerinaTriggerModifyUtil.modifyTrigger(request.getType(), request.getConfig(),
                     fileUri, compilationPath, documentManager);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
-                    LSCustomErrorStrategy.class, false,
-                    false, true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));

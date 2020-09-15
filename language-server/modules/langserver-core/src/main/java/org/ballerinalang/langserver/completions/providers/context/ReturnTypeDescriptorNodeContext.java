@@ -15,11 +15,12 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -39,9 +40,9 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<ReturnTypeDescriptorNode> {
+
     public ReturnTypeDescriptorNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(ReturnTypeDescriptorNode.class);
+        super(ReturnTypeDescriptorNode.class);
     }
 
     @Override
@@ -49,15 +50,15 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (node.type().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
+        if (this.onQualifiedNameIdentifier(context, node.type())
                 && withinIdentifierContext(context, (QualifiedNameReferenceNode) node.type())) {
             /*
             Covers the following cases.
             (1) function test() returns moduleName:<cursor>
             (2) function test() returns moduleName:F<cursor>
             */
-            String modulePrefix = ((QualifiedNameReferenceNode) node.type()).modulePrefix().text();
-            Optional<Scope.ScopeEntry> moduleSymbol = this.getPackageSymbolFromAlias(context, modulePrefix);
+            String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) node.type()));
+            Optional<Scope.ScopeEntry> moduleSymbol = CommonUtil.packageSymbolFromAlias(context, modulePrefix);
             if (moduleSymbol.isPresent()) {
                 moduleSymbol.ifPresent(scopeEntry -> {
                     List<Scope.ScopeEntry> entries = this.filterTypesInModule(moduleSymbol.get().symbol);
@@ -70,7 +71,7 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
             (1) function test() returns <cursor>
             (2) function test() returns i<cursor>
             */
-            completionItems.addAll(this.getPackagesCompletionItems(context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.addAll(this.getTypeItems(context));
         }
 

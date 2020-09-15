@@ -39,6 +39,7 @@ public abstract class AbstractParser {
     protected final AbstractParserErrorHandler errorHandler;
     protected final AbstractTokenReader tokenReader;
     private final Deque<InvalidNodeInfo> invalidNodeInfoStack = new ArrayDeque<>(5);
+    protected STToken insertedToken = null;
 
     public AbstractParser(AbstractTokenReader tokenReader, AbstractParserErrorHandler errorHandler) {
         this.tokenReader = tokenReader;
@@ -52,17 +53,37 @@ public abstract class AbstractParser {
 
     public abstract STNode parse();
 
-    public abstract STNode resumeParsing(ParserRuleContext context, Object... args);
-
     protected STToken peek() {
+        if (this.insertedToken != null) {
+            return this.insertedToken;
+        }
+
         return this.tokenReader.peek();
     }
 
     protected STToken peek(int k) {
+        if (this.insertedToken == null) {
+            return this.tokenReader.peek(k);
+        }
+
+        if (k == 1) {
+            return this.insertedToken;
+        }
+
+        if (k > 0) {
+            k = k - 1;
+        }
+
         return this.tokenReader.peek(k);
     }
 
     protected STToken consume() {
+        if (this.insertedToken != null) {
+            STToken nextToken = this.insertedToken;
+            this.insertedToken = null;
+            return nextToken;
+        }
+
         if (invalidNodeInfoStack.isEmpty()) {
             return this.tokenReader.read();
         }
@@ -86,9 +107,15 @@ public abstract class AbstractParser {
         // If the action is to remove, then re-parse the same rule.
         if (sol.action == Action.REMOVE) {
             addInvalidTokenToNextToken(sol.removedToken);
-            sol.recoveredNode = resumeParsing(currentCtx, args);
+        } else if (sol.action == Action.INSERT) {
+            this.insertedToken = (STToken) sol.recoveredNode;
         }
+
         return sol;
+    }
+
+    protected void insertToken(SyntaxKind kind) {
+        this.insertedToken = SyntaxErrors.createMissingTokenWithDiagnostics(kind);
     }
 
     protected void startContext(ParserRuleContext context) {
@@ -110,8 +137,7 @@ public abstract class AbstractParser {
     }
 
     protected STToken getNextNextToken(SyntaxKind tokenKind) {
-        STToken nextToken = peek(1);
-        return nextToken.kind == tokenKind ? peek(2) : nextToken;
+        return peek(2);
     }
 
     /**
@@ -153,15 +179,17 @@ public abstract class AbstractParser {
      * @param nodeList       node list to be updated
      * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
      * @param diagnosticCode diagnostic code related to the invalid node
+     * @param args           additional arguments used in diagnostic message
      */
     protected void updateLastNodeInListWithInvalidNode(List<STNode> nodeList,
                                                        STNode invalidParam,
-                                                       DiagnosticCode diagnosticCode) {
+                                                       DiagnosticCode diagnosticCode,
+                                                       Object... args) {
         int lastIndex = nodeList.size() - 1;
         STNode prevNode = nodeList.remove(lastIndex);
         STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam);
         if (diagnosticCode != null) {
-            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode);
+            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
         }
         nodeList.add(newNode);
     }

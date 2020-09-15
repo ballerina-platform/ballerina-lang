@@ -31,6 +31,7 @@ import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -45,6 +46,7 @@ public class ObjectInBaloTest {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "utils");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project_two", "testorgtwo", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_objects.bal");
     }
 
@@ -574,7 +576,31 @@ public class ObjectInBaloTest {
         BRunUtil.invoke(result, "testObjectReferingNonAbstractObjLoadedFromBalo");
     }
 
+    @Test(dataProvider = "objectSubTypingTests")
+    public void testObjectSubTyping(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "objectSubTypingTests")
+    public static Object[][] objectSubTypingTests() {
+        return new Object[][]{
+                {"testSubTypingWithModuleLevelVisibleFields"},
+                {"testSubTypingWithModuleLevelVisibleMethods"},
+                {"testSubTypingWithAllPublicFields"},
+                {"testSubTypingNegativeForDifferentOrgNameAndVersionWithModuleLevelVisibleFields"},
+                {"testSubTypingNegativeForDifferentOrgNameAndVersionWithModuleLevelVisibleMethods"},
+                {"testSubTypingForDifferentOrgNameAndVersionWithAllPublicFields"}
+        };
+    }
+
     @Test
+    public void testDistinctAssignability() {
+        CompileResult compile =
+                BCompileUtil.compile("test-src/balo/test_balo/object/test_distinct_class_assignability.bal");
+        BRunUtil.invoke(compile, "testDistinctAssignability");
+    }
+
+    @Test(enabled = false) // disabled as with the class change objects would not have implementations.
     public void testObjectReferingTypeFromBaloNegative() {
         CompileResult result =
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");
@@ -600,5 +626,6 @@ public class ObjectInBaloTest {
     public void tearDown() {
         BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
         BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "utils");
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project_two", "testorgtwo", "foo");
     }
 }

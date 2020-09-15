@@ -85,6 +85,7 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V1_8;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERRORS;
@@ -111,7 +112,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
@@ -122,22 +123,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrichWithDefaultableParamInits;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupTypeName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateStrandMetadata;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunctions;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecordField;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.visitStrandMetadataField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.lookupBIRFunctionWrapper;
@@ -178,15 +164,10 @@ class JvmValueGen {
 
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BIRNode.BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
-            BType bType = typeDef.type;
-            if (bType instanceof BServiceType) {
-                desugarObjectMethods(module, bType, typeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
-            } else if (bType.tag == TypeTags.OBJECT &&
-                    !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) {
-                desugarObjectMethods(module, bType, typeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
-            } else if (bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(module, bType, typeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
+            BType bType = optionalTypeDef.type;
+            if (bType instanceof BServiceType || (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
+                    bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
+                desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
             }
         }
     }
@@ -202,7 +183,7 @@ class JvmValueGen {
             if (birFunc == null) {
                 continue;
             }
-            if (isExternFunc(birFunc)) {
+            if (JvmCodeGenUtil.isExternFunc(birFunc)) {
                 BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, bType, jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
                     desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
@@ -215,7 +196,7 @@ class JvmValueGen {
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
             }
-            enrichWithDefaultableParamInits(JvmMethodGen.getFunction(birFunc), jvmMethodGen);
+            enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
         }
     }
 
@@ -265,13 +246,13 @@ class JvmValueGen {
     static String getTypeDescClassName(Object module, String typeName) {
 
         String packageName = calculateJavaPkgName(module);
-        return packageName + TYPEDESC_CLASS_PREFIX + cleanupTypeName(typeName);
+        return packageName + TYPEDESC_CLASS_PREFIX + JvmCodeGenUtil.cleanupTypeName(typeName);
     }
 
     static String getTypeValueClassName(Object module, String typeName) {
 
         String packageName = calculateJavaPkgName(module);
-        return packageName + VALUE_CLASS_PREFIX + cleanupTypeName(typeName);
+        return packageName + VALUE_CLASS_PREFIX + JvmCodeGenUtil.cleanupTypeName(typeName);
     }
 
     private static String calculateJavaPkgName(Object module) {
@@ -279,10 +260,10 @@ class JvmValueGen {
         String packageName;
         if (module instanceof BIRNode.BIRPackage) {
             BIRNode.BIRPackage birPackage = (BIRNode.BIRPackage) module;
-            packageName = getPackageName(birPackage.org.value, birPackage.name.value, birPackage.version.value);
+            packageName = JvmCodeGenUtil.getPackageName(birPackage);
         } else if (module instanceof PackageID) {
             PackageID packageID = (PackageID) module;
-            packageName = getPackageName(packageID.orgName, packageID.name, packageID.version);
+            packageName = JvmCodeGenUtil.getPackageName(packageID);
         } else {
             throw new ClassCastException("module should be PackageID or BIRPackage but is : "
                     + (module == null ? "null" : module.getClass()));
@@ -347,14 +328,14 @@ class JvmValueGen {
     }
 
     private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs,
-                                     String moduleClassName, String typeName, BObjectType currentObjectType,
+                                     String moduleClassName, BObjectType currentObjectType,
                                      AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName, typeName,
+            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
                                         asyncDataCollector);
         }
     }
@@ -396,10 +377,8 @@ class JvmValueGen {
     private void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
                                   boolean isService) {
 
-        List<BIRNode.BIRFunction> funcs = getFunctions(functions);
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call",
-                String.format("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT), null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call", String.format(
+                "(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), null, null);
         mv.visitCode();
 
         int funcNameRegIndex = 2;
@@ -407,15 +386,15 @@ class JvmValueGen {
         Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
-        funcs.sort(NAME_HASH_COMPARATOR);
+        functions.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, funcNameRegIndex, funcs, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels,
-                defaultCaseLabel);
+        List<Label> labels = createLabelsForSwitch(mv, funcNameRegIndex, functions, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, functions, labels,
+                                                             defaultCaseLabel);
 
         // case body
         int i = 0;
-        for (BIRNode.BIRFunction optionalFunc : funcs) {
+        for (BIRNode.BIRFunction optionalFunc : functions) {
             BIRNode.BIRFunction func = getFunction(optionalFunc);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
@@ -426,7 +405,7 @@ class JvmValueGen {
             String methodSig;
 
             // use index access, since retType can be nil.
-            methodSig = getMethodDesc(paramTypes, retType, null, false);
+            methodSig = JvmCodeGenUtil.getMethodDesc(paramTypes, retType);
 
             // load self
             mv.visitVarInsn(ALOAD, 0);
@@ -435,7 +414,6 @@ class JvmValueGen {
             mv.visitVarInsn(ALOAD, 1);
             int j = 0;
             for (BType paramType : paramTypes) {
-                BType pType = getType(paramType);
                 // load parameters
                 mv.visitVarInsn(ALOAD, 3);
 
@@ -443,18 +421,20 @@ class JvmValueGen {
                 mv.visitLdcInsn((long) j);
                 mv.visitInsn(L2I);
                 mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, pType);
+                JvmCastGen.addUnboxInsn(mv, paramType);
                 j += 1;
             }
 
-            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value, methodSig, false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, JvmCodeGenUtil.cleanupFunctionName(func.name.value),
+                               methodSig, false);
             if (retType == null || retType.tag == TypeTags.NIL || retType.tag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
             } else {
-                addBoxInsn(mv, retType);
+                JvmCastGen.addBoxInsn(mv, retType);
                 if (isService) {
                     mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "handleResourceError", String.format("(L%s;)L%s;",
-                            OBJECT, OBJECT), false);
+                                                                                                      OBJECT, OBJECT),
+                                       false);
                 }
             }
             mv.visitInsn(ARETURN);
@@ -462,7 +442,7 @@ class JvmValueGen {
         }
 
         createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex);
-        mv.visitMaxs(funcs.size() + 10, funcs.size() + 10);
+        mv.visitMaxs(functions.size() + 10, functions.size() + 10);
         mv.visitEnd();
     }
 
@@ -490,12 +470,11 @@ class JvmValueGen {
 
         int i = 0;
         for (BField optionalField : sortedFields) {
-            BField field = getObjectField(optionalField);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, field.name.value, getTypeDesc(field.type));
-            addBoxInsn(mv, field.type);
+            mv.visitFieldInsn(GETFIELD, className, optionalField.name.value, getTypeDesc(optionalField.type));
+            JvmCastGen.addBoxInsn(mv, optionalField.type);
             mv.visitInsn(ARETURN);
             i += 1;
         }
@@ -548,14 +527,13 @@ class JvmValueGen {
         // case body
         int i = 0;
         for (BField optionalField : sortedFields) {
-            BField field = getObjectField(optionalField);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
-            addUnboxInsn(mv, field.type);
-            String filedName = field.name.value;
-            mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(field.type));
+            JvmCastGen.addUnboxInsn(mv, optionalField.type);
+            String filedName = optionalField.name.value;
+            mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(optionalField.type));
             mv.visitInsn(RETURN);
             i += 1;
         }
@@ -587,7 +565,8 @@ class JvmValueGen {
     private void createInstantiateMethod(ClassWriter cw, BRecordType recordType,
                                          BIRNode.BIRTypeDefinition typeDef) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "instantiate",
-                String.format("(L%s;[L%s;)L%s;", STRAND, BINITIAL_VALUE_ENTRY, OBJECT), null, null);
+                                          String.format("(L%s;[L%s;)L%s;", STRAND_CLASS, BINITIAL_VALUE_ENTRY, OBJECT),
+                                          null, null);
         mv.visitCode();
 
         String className = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
@@ -612,7 +591,7 @@ class JvmValueGen {
                 String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
                 mv.visitInsn(DUP2);
                 mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
-                                   String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+                                   String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), false);
             }
         }
 
@@ -646,11 +625,11 @@ class JvmValueGen {
         } else {
             // record type is the original record-type of this type-label
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
-            initFuncName = cleanupFunctionName(recordType.name + "__init_");
+            initFuncName = JvmCodeGenUtil.cleanupFunctionName(recordType.name + "__init_");
         }
 
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,
-                           String.format("(L%s;L%s;%s)L%s;", STRAND, MAP_VALUE, closureParamSignature, OBJECT),
+                           String.format("(L%s;L%s;%s)L%s;", STRAND_CLASS, MAP_VALUE, closureParamSignature, OBJECT),
                            false);
 
         mv.visitInsn(POP);
@@ -713,7 +692,7 @@ class JvmValueGen {
         this.createRecordConstructor(cw, BTYPE);
         this.createRecordInitWrapper(cw, className, typeDef);
         this.createLambdas(cw, asyncDataCollector);
-        visitStrandMetadataField(cw, asyncDataCollector);
+        JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
         this.generateStaticInitializer(cw, className, module, asyncDataCollector);
         cw.visitEnd();
 
@@ -727,7 +706,7 @@ class JvmValueGen {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, this.module, null, moduleClassName, "", asyncDataCollector);
+            jvmMethodGen.generateMethod(func, cw, this.module, null, moduleClassName, asyncDataCollector);
         }
     }
 
@@ -776,7 +755,7 @@ class JvmValueGen {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-        generateStrandMetadata(mv, moduleClass, module, asyncDataCollector);
+        JvmCodeGenUtil.generateStrandMetadata(mv, moduleClass, module, asyncDataCollector);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -786,7 +765,7 @@ class JvmValueGen {
     private void createRecordInitWrapper(ClassWriter cw, String className, BIRNode.BIRTypeDefinition typeDef) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init",
-                                          String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), null, null);
+                                          String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), null, null);
         mv.visitCode();
         // load strand
         mv.visitVarInsn(ALOAD, 0);
@@ -804,7 +783,7 @@ class JvmValueGen {
                                                             toNameString(typeRef));
             mv.visitInsn(DUP2);
             mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
-                               String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+                               String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), false);
         }
 
         // Invoke the init-function of this type.
@@ -820,11 +799,11 @@ class JvmValueGen {
             // record type is the original record-type of this type-label
             BRecordType recordType = (BRecordType) typeDef.type;
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
-            initFuncName = cleanupFunctionName(recordType.name + "__init_");
+            initFuncName = JvmCodeGenUtil.cleanupFunctionName(recordType.name + "__init_");
         }
 
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,
-                           String.format("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
+                           String.format("(L%s;L%s;)L%s;", STRAND_CLASS, MAP_VALUE, OBJECT), false);
         mv.visitInsn(POP);
 
         mv.visitInsn(RETURN);
@@ -886,14 +865,13 @@ class JvmValueGen {
 
         int i = 0;
         for (BField optionalField : sortedFields) {
-            BField field = getRecordField(optionalField);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
 
             // if the field is an optional-field, first check the 'isPresent' flag of that field.
             Label ifPresentLabel = new Label();
-            String fieldName = field.name.value;
-            if (this.isOptionalRecordField(field)) {
+            String fieldName = optionalField.name.value;
+            if (this.isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
                         getTypeDesc(booleanType));
@@ -905,8 +883,8 @@ class JvmValueGen {
             mv.visitLabel(ifPresentLabel);
             // return the value of the field
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
-            addBoxInsn(mv, field.type);
+            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
+            JvmCastGen.addBoxInsn(mv, optionalField.type);
             mv.visitInsn(ARETURN);
             i += 1;
         }
@@ -946,23 +924,22 @@ class JvmValueGen {
         // case body
         int i = 0;
         for (BField optionalField : sortedFields) {
-            BField field = getRecordField(optionalField);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
 
             // load the existing value to return
-            String fieldName = field.name.value;
+            String fieldName = optionalField.name.value;
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
-            addBoxInsn(mv, field.type);
+            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
+            JvmCastGen.addBoxInsn(mv, optionalField.type);
 
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
-            addUnboxInsn(mv, field.type);
-            mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.type));
+            JvmCastGen.addUnboxInsn(mv, optionalField.type);
+            mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(optionalField.type));
 
             // if the field is an optional-field, then also set the isPresent flag of that field to true.
-            if (this.isOptionalRecordField(field)) {
+            if (this.isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInsn(ICONST_1);
                 mv.visitFieldInsn(PUTFIELD, className, this.getFieldIsPresentFlagName(fieldName),
@@ -1015,12 +992,11 @@ class JvmValueGen {
         mv.visitVarInsn(ASTORE, entrySetVarIndex);
 
         for (BField optionalField : fields.values()) {
-            BField field = getRecordField(optionalField);
             Label ifNotPresent = new Label();
 
             // If its an optional field, generate if-condition to check the presense of the field.
-            String fieldName = field.name.value;
-            if (this.isOptionalRecordField(field)) {
+            String fieldName = optionalField.name.value;
+            if (this.isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
                         getTypeDesc(booleanType));
@@ -1037,8 +1013,8 @@ class JvmValueGen {
                     String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
             // field value as the map-entry value
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
-            addBoxInsn(mv, field.type);
+            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
+            JvmCastGen.addBoxInsn(mv, optionalField.type);
 
             mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, JVM_INIT_METHOD,
                     String.format("(L%s;L%s;)V", OBJECT, OBJECT), false);
@@ -1088,12 +1064,11 @@ class JvmValueGen {
 
         int i = 0;
         for (BField optionalField : sortedFields) {
-            BField field = getObjectField(optionalField);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
 
-            String fieldName = field.name.value;
-            if (this.isOptionalRecordField(field)) {
+            String fieldName = optionalField.name.value;
+            if (this.isOptionalRecordField(optionalField)) {
                 // if the field is optional, then return the value is the 'isPresent' flag.
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
@@ -1131,12 +1106,11 @@ class JvmValueGen {
         mv.visitVarInsn(ASTORE, valuesVarIndex);
 
         for (BField optionalField : fields.values()) {
-            BField field = getRecordField(optionalField);
             Label ifNotPresent = new Label();
 
             // If its an optional field, generate if-condition to check the presense of the field.
-            String fieldName = field.name.value;
-            if (this.isOptionalRecordField(field)) {
+            String fieldName = optionalField.name.value;
+            if (this.isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0); // this
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
                                   getTypeDesc(booleanType));
@@ -1145,8 +1119,8 @@ class JvmValueGen {
 
             mv.visitVarInsn(ALOAD, valuesVarIndex);
             mv.visitVarInsn(ALOAD, 0); // this
-            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
-            addBoxInsn(mv, field.type);
+            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
+            JvmCastGen.addBoxInsn(mv, optionalField.type);
             mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", String.format("(L%s;)Z", OBJECT), true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
@@ -1176,9 +1150,8 @@ class JvmValueGen {
 
         int requiredFieldsCount = 0;
         for (BField optionalField : fields.values()) {
-            BField field = getObjectField(optionalField);
-            String fieldName = field.name.value;
-            if (this.isOptionalRecordField(field)) {
+            String fieldName = optionalField.name.value;
+            if (this.isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
                                   getTypeDesc(booleanType));
@@ -1241,13 +1214,12 @@ class JvmValueGen {
 
         int i = 0;
         for (BField optionalField : sortedFields) {
-            BField field = getObjectField(optionalField);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
 
             //Setting isPresent as zero
-            if (this.isOptionalRecordField(field)) {
-                String fieldName = field.name.value;
+            if (this.isOptionalRecordField(optionalField)) {
+                String fieldName = optionalField.name.value;
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInsn(ICONST_0);
                 mv.visitFieldInsn(PUTFIELD, className, this.getFieldIsPresentFlagName(fieldName),
@@ -1255,14 +1227,14 @@ class JvmValueGen {
 
                 // load the existing value to return
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
-                addBoxInsn(mv, field.type);
+                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
+                JvmCastGen.addBoxInsn(mv, optionalField.type);
 
                 // Set default value for reference types
-                if (checkIfValueIsJReferenceType(field.type)) {
+                if (checkIfValueIsJReferenceType(optionalField.type)) {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitInsn(ACONST_NULL);
-                    mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.type));
+                    mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(optionalField.type));
                 }
 
                 mv.visitInsn(ARETURN);
@@ -1312,12 +1284,11 @@ class JvmValueGen {
         mv.visitVarInsn(ASTORE, keysVarIndex);
 
         for (BField optionalField : fields.values()) {
-            BField field = getRecordField(optionalField);
             Label ifNotPresent = new Label();
 
             // If its an optional field, generate if-condition to check the presense of the field.
-            String fieldName = field.name.value;
-            if (this.isOptionalRecordField(field)) {
+            String fieldName = optionalField.name.value;
+            if (this.isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0); // this
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
                                   getTypeDesc(booleanType));
@@ -1369,27 +1340,26 @@ class JvmValueGen {
     void generateValueClasses(Map<String, byte[]> jarEntries) {
 
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
-            BIRNode.BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
-            BType bType = typeDef.type;
+            BType bType = optionalTypeDef.type;
             if (bType instanceof BServiceType) {
                 BServiceType serviceType = (BServiceType) bType;
-                String className = getTypeValueClassName(this.module, typeDef.name.value);
-                byte[] bytes = this.createObjectValueClass(serviceType, className, typeDef, true);
+                String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
+                byte[] bytes = this.createObjectValueClass(serviceType, className, optionalTypeDef, true);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.OBJECT &&
-                    !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) {
+                    Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
-                String className = getTypeValueClassName(this.module, typeDef.name.value);
-                byte[] bytes = this.createObjectValueClass(objectType, className, typeDef, false);
+                String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
+                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, false);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
-                String className = getTypeValueClassName(this.module, typeDef.name.value);
-                byte[] bytes = this.createRecordValueClass(recordType, className, typeDef);
+                String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
+                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef);
                 jarEntries.put(className + ".class", bytes);
 
-                String typedescClass = getTypeDescClassName(this.module, typeDef.name.value);
-                bytes = this.createRecordTypeDescClass(recordType, typedescClass, typeDef);
+                String typedescClass = getTypeDescClassName(this.module, optionalTypeDef.name.value);
+                bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef);
                 jarEntries.put(typedescClass + ".class", bytes);
             }
         });
@@ -1409,7 +1379,7 @@ class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, className, typeDef.name.value, objectType,
+            this.createObjectMethods(cw, attachedFuncs, className, objectType,
                                      asyncDataCollector);
         }
 
@@ -1419,7 +1389,7 @@ class JvmValueGen {
         this.createObjectSetMethod(cw, fields, className);
         this.createObjectSetOnInitializationMethod(cw, fields, className);
         this.createLambdas(cw, asyncDataCollector);
-        visitStrandMetadataField(cw, asyncDataCollector);
+        JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
         this.generateStaticInitializer(cw, className, module, asyncDataCollector);
 
         cw.visitEnd();

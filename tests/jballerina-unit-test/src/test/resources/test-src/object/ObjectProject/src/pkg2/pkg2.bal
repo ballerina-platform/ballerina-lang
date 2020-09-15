@@ -42,20 +42,20 @@ function testObjectInitFunctionWithDefaultableParams() returns [int, int, int, i
     return [0, 0, 0, 0, 0];
 }
 
-type InitObjOne object {
+class InitObjOne {
     float f;
 
     public function init(float i) {
         self.f = i;
     }
-};
+}
 
-type InitObjTwo object {
+class InitObjTwo {
     int f;
     public function init(int i) {
         self.f = i;
     }
-};
+}
 
 function testObjectInitFunctionWithDefaultableParams2() returns [float, int] {
     InitObjOne|InitObjTwo|int f1 = new(1.1);

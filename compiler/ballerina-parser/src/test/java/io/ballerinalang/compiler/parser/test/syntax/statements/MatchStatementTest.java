@@ -58,6 +58,11 @@ public class MatchStatementTest extends AbstractStatementTest {
         testFile("match-stmt/match_stmt_source_12.bal", "match-stmt/match_stmt_assert_12.json");
     }
 
+    @Test
+    public void testSimpleMatchStatementWithOnFailClause() {
+        testFile("match-stmt/match_stmt_source_14.bal", "match-stmt/match_stmt_assert_14.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -80,7 +85,7 @@ public class MatchStatementTest extends AbstractStatementTest {
         testFile("match-stmt/match_stmt_source_07.bal", "match-stmt/match_stmt_assert_07.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMatchStmtRecoveryInvalidListMatchPatterns() {
         testFile("match-stmt/match_stmt_source_09.bal", "match-stmt/match_stmt_assert_09.json");
     }
@@ -90,8 +95,13 @@ public class MatchStatementTest extends AbstractStatementTest {
         testFile("match-stmt/match_stmt_source_11.bal", "match-stmt/match_stmt_assert_11.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMatchStmtRecoveryInvalidFunctionalMatchPatterns() {
         testFile("match-stmt/match_stmt_source_13.bal", "match-stmt/match_stmt_assert_13.json");
+    }
+
+    @Test
+    public void testMatchStatementOnFailClauseRecovery() {
+        testFile("match-stmt/match_stmt_source_15.bal", "match-stmt/match_stmt_assert_15.json");
     }
 }

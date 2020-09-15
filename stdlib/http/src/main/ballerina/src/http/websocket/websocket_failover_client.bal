@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # A WebSocket client endpoint, which provides failover support for multiple WebSocket targets.
-public type WebSocketFailoverClient client object {
+public client class WebSocketFailoverClient {
 
     private string id = "";
     private string? negotiatedSubProtocol = ();
@@ -33,7 +33,7 @@ public type WebSocketFailoverClient client object {
     # Initializes the   failover client, which provides failover capabilities to a WebSocket client endpoint.
     #
     # + config - The `WebSocketFailoverClientConfiguration` of the endpoint
-    public function init(public WebSocketFailoverClientConfiguration config) {
+    public function init(WebSocketFailoverClientConfiguration config) {
         self.url = config.targetUrls[0];
         addCookies(config);
         self.config = config;
@@ -47,7 +47,7 @@ public type WebSocketFailoverClient client object {
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - An `error` if an error occurs when sending
     public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data,
-    public boolean finalFrame = true) returns WebSocketError? {
+    boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushText(data, finalFrame);
     }
 
@@ -57,7 +57,7 @@ public type WebSocketFailoverClient client object {
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - An `error` if an error occurs when sending
-    public remote function pushBinary(byte[] data, public boolean finalFrame = true) returns WebSocketError? {
+    public remote function pushBinary(byte[] data, boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushBinary(data, finalFrame);
     }
 
@@ -88,8 +88,8 @@ public type WebSocketFailoverClient client object {
     #                   waits until a close frame is received. If the WebSocket frame is received from the remote
     #                   endpoint within the waiting period, the connection is terminated immediately.
     # + return - An `error` if an error occurs while closing the webSocket connection
-    public remote function close(public int? statusCode = 1000, public string? reason = (),
-    public int timeoutInSeconds = 60) returns WebSocketError? {
+    public remote function close(int? statusCode = 1000, string? reason = (),
+    int timeoutInSeconds = 60) returns WebSocketError? {
         return self.conn.close(statusCode, reason, timeoutInSeconds);
     }
 
@@ -160,7 +160,7 @@ public type WebSocketFailoverClient client object {
         return self.response;
     }
 
-};
+}
 
 # Configurations for the WebSocket client endpoint.
 #
@@ -185,6 +185,6 @@ public type WebSocketFailoverClientConfiguration record {|
 |};
 
 function externFailoverInit(WebSocketFailoverClient wsClient) = @java:Method {
-    class: "org.ballerinalang.net.http.websocket.client.FailoverInitEndpoint",
+    'class: "org.ballerinalang.net.http.websocket.client.FailoverInitEndpoint",
     name: "initEndpoint"
 } external;

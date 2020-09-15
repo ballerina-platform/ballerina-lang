@@ -34,16 +34,16 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLNamespaceDeclarationNode> {
+    
     public XMLNSDeclarationNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(XMLNamespaceDeclarationNode.class);
+        super(XMLNamespaceDeclarationNode.class);
     }
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, XMLNamespaceDeclarationNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (node.asKeyword() == null || node.asKeyword().isMissing()) {
+        if (!node.asKeyword().isPresent() || node.asKeyword().orElse(null).isMissing()) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_AS.get()));
         }
 

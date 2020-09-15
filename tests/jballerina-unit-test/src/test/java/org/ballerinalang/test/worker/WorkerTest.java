@@ -110,13 +110,13 @@ public class WorkerTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: err message=err msg.*")
+            expectedExceptionsMessageRegExp = ".*error: err \\{\"message\":\"err msg.*")
     public void receiveWithCheckpanic() {
         BRunUtil.invoke(result, "receiveWithCheckpanic");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: err message=sync send err msg.*")
+            expectedExceptionsMessageRegExp = ".*error: err \\{\"message\":\"sync send err msg.*")
     public void syncSendReceiveWithCheckpanic() {
         BRunUtil.invoke(result, "syncSendReceiveWithCheckpanic");
     }
@@ -274,8 +274,7 @@ public class WorkerTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.future\\}FutureAlreadyCancelled.*",
-          enabled = false)
+          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.future\\}FutureAlreadyCancelled.*")
     public void workerWithFutureTest1() {
         BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest1");
         Assert.assertEquals(returns.length, 1);

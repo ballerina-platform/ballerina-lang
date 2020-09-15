@@ -3,7 +3,7 @@ import ballerina/test;
 import ballerina/java;
 
 public function getString() returns handle = @java:Method {
-    class:"org.wso2.test.StaticMethods"
+    'class:"org.wso2.test.StaticMethods"
 } external;
 
 # Before Suite Function
@@ -39,7 +39,7 @@ function afterFunc() {
 
 # After Suite Function
 
-@test:AfterSuite
+@test:AfterSuite {}
 function afterSuiteFunc() {
     io:println("I'm the after suite function!");
 }

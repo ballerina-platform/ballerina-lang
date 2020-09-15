@@ -36,12 +36,7 @@ function testBasicReadOnlyObject() {
     object {
         public ro:Details details;
         public ro:Department dept;
-        public int id = 4532;
-
-        public function init(ro:Details details, ro:Department dept) {
-            self.details = details;
-            self.dept = dept;
-        }
+        public int id;
     } obj = emp;
 
     assertTrue(<any> obj.details is readonly);
@@ -61,12 +56,7 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     object {
         public ro:Details details;
         public ro:Department dept;
-        public int id = 4532;
-
-        function init(ro:Details details, ro:Department dept) {
-            self.details = details;
-            self.dept = dept;
-        }
+        public int id;
     } obj = emp;
 
     var fn = function () {

@@ -11,7 +11,20 @@ type Teacher record {|
     string teacherId;
 |};
 
-type NumberGenerator object {
+type EmployeeEntity record {
+    int id;
+    string fname;
+    string lname;
+    int age;
+};
+
+type Employee record {|
+    string fname;
+    string lname;
+    int age;
+|};
+
+class NumberGenerator {
     int i = 0;
     public function next() returns record {|int value;|}|error? {
         //closes the stream after 5 events
@@ -21,7 +34,7 @@ type NumberGenerator object {
         self.i += 1;
         return {value: self.i};
     }
-};
+}
 
 type ResultValue record {|
     Person value;
@@ -275,5 +288,47 @@ function testSimpleSelectQueryReturnStream() returns boolean {
 
     returnedVal = getRecordValue(outputPersonStream.next());
     testPassed = testPassed && (returnedVal is Person) && (returnedVal == p3);
+    return testPassed;
+}
+
+string fname = "";
+
+function testVariableShadowingWithQueryExpressions1() returns boolean {
+
+    EmployeeEntity[] entities = [
+            {id: 1232, fname: "Sameera", lname: "Jayasoma", age: 30},
+            {id: 1232, fname: "Asanthi", lname: "Kulasinghe", age: 30},
+            {id: 1232, fname: "Khiana", lname: "Jayasoma", age: 2}
+        ];
+
+    Employee[] records = from var {fname, lname, age} in entities select {fname, lname, age};
+    boolean testPassed = true;
+    Employee e = records[0];
+    testPassed = testPassed && e.fname == "Sameera" && e.lname == "Jayasoma" && e.age == 30;
+    e = records[1];
+    testPassed = testPassed && e.fname == "Asanthi" && e.lname == "Kulasinghe" && e.age == 30;
+    e = records[2];
+    testPassed = testPassed && e.fname == "Khiana" && e.lname == "Jayasoma" && e.age == 2;
+    return testPassed;
+}
+
+function testVariableShadowingWithQueryExpressions2() returns boolean {
+
+    EmployeeEntity[] entities = [
+            {id: 1232, fname: "Sameera", lname: "Jayasoma", age: 30},
+            {id: 1232, fname: "Asanthi", lname: "Kulasinghe", age: 30},
+            {id: 1232, fname: "Khiana", lname: "Jayasoma", age: 2}
+        ];
+
+    Employee[] records = from var {fname, lname, age} in entities select {fname, lname, age};
+    var lname = 5;
+    boolean testPassed = true;
+    Employee e = records[0];
+    testPassed = testPassed && e.fname == "Sameera" && e.lname == "Jayasoma" && e.age == 30;
+    e = records[1];
+    testPassed = testPassed && e.fname == "Asanthi" && e.lname == "Kulasinghe" && e.age == 30;
+    e = records[2];
+    testPassed = testPassed && e.fname == "Khiana" && e.lname == "Jayasoma" && e.age == 2;
+    testPassed = testPassed && lname == 5;
     return testPassed;
 }

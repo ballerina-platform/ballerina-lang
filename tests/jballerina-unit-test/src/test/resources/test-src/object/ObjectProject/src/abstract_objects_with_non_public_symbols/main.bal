@@ -14,19 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Foo abstract object {
+public type Foo object {
     int a;
 
     function m();
 };
 
-public type Bar abstract object {
+public type Bar object {
     public int b;
 
     function n();
 };
 
-public type Baz abstract object {
+public type Baz object {
     int c;
 
     public function o();

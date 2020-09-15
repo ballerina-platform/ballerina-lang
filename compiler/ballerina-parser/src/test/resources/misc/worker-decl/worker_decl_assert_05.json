@@ -15,13 +15,8 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -138,10 +133,10 @@
                               ]
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "4"
                                 }
                               ]
@@ -347,7 +342,7 @@
                               "kind": "OPEN_PAREN_TOKEN"
                             },
                             {
-                              "kind": "TRUE_KEYWORD",
+                              "kind": "BOOLEAN_LITERAL",
                               "children": [
                                 {
                                   "kind": "TRUE_KEYWORD"
@@ -543,10 +538,10 @@
                           ]
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "4"
                             }
                           ]

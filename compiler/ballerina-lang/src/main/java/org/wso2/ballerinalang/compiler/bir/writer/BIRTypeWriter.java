@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -82,12 +84,12 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private final ConstantPool cp;
 
-    BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
+    public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
         this.cp = cp;
     }
 
-    void visitType(BType type) {
+    public void visitType(BType type) {
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
         buff.writeInt(type.flags);
@@ -181,7 +183,7 @@ public class BIRTypeWriter implements TypeVisitor {
         boolean restTypeExist = bInvokableType.restType != null;
         buff.writeBoolean(restTypeExist);
         if (restTypeExist) {
-           writeTypeCpIndex(bInvokableType.restType);
+            writeTypeCpIndex(bInvokableType.restType);
         }
         writeTypeCpIndex(bInvokableType.retType);
     }
@@ -260,6 +262,7 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeByte(1);
 
         writeObjectAndServiceTypes(bServiceType);
+        writeTypeIds(bServiceType.typeIdSet);
     }
 
     @Override
@@ -304,7 +307,13 @@ public class BIRTypeWriter implements TypeVisitor {
         BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) bRecordType.tsymbol;
 
         // Write the package details in the form of constant pool entry TODO find a better approach
-        writePkgCPInfo(tsymbol);
+        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
+
+        buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
         writeTypeCpIndex(bRecordType.restFieldType);
 
@@ -313,7 +322,7 @@ public class BIRTypeWriter implements TypeVisitor {
             BSymbol symbol = field.symbol;
             buff.writeInt(addStringCPEntry(symbol.name.value));
             buff.writeInt(symbol.flags);
-            DocAttachmentWriter.writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation, cp);
+            writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
 
@@ -335,24 +344,30 @@ public class BIRTypeWriter implements TypeVisitor {
         // ideal fix would be to use the type tag to
         // differentiate. TODO fix later
         buff.writeByte(0);
-
         writeObjectAndServiceTypes(bObjectType);
+        writeTypeIds(bObjectType.typeIdSet);
     }
 
     private void writeObjectAndServiceTypes(BObjectType bObjectType) {
         BTypeSymbol tSymbol = bObjectType.tsymbol;
 
         // Write the package details in the form of constant pool entry TODO find a better approach
-        writePkgCPInfo(tSymbol);
+        int orgCPIndex = addStringCPEntry(tSymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(tSymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(tSymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
+
+        buff.writeInt(addStringCPEntry(tSymbol.name.value));
         //TODO below two line are a temp solution, introduce a generic concept
-        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.ABSTRACT)); // Abstract object or not
+        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)); // Abstract object or not
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields.values()) {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
             buff.writeInt(field.symbol.flags);
-            DocAttachmentWriter.writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation, cp);
+            writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
         List<BAttachedFunction> attachedFuncs;
@@ -380,15 +395,6 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BAttachedFunction attachedFunc : attachedFuncs) {
             writeAttachFunction(attachedFunc);
         }
-    }
-
-    private void writePkgCPInfo(BTypeSymbol tSymbol) {
-        int orgCPIndex = addStringCPEntry(tSymbol.pkgID.orgName.value);
-        int nameCPIndex = addStringCPEntry(tSymbol.pkgID.name.value);
-        int versionCPIndex = addStringCPEntry(tSymbol.pkgID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
-        buff.writeInt(pkgIndex);
-        buff.writeInt(addStringCPEntry(tSymbol.name.value));
     }
 
     private void writeAttachFunction(BAttachedFunction attachedFunc) {
@@ -423,6 +429,30 @@ public class BIRTypeWriter implements TypeVisitor {
         }
     }
 
+    public void writeMarkdownDocAttachment(ByteBuf buf, MarkdownDocAttachment markdownDocAttachment) {
+        ByteBuf birbuf = Unpooled.buffer();
+        if (markdownDocAttachment == null) {
+            birbuf.writeBoolean(false);
+        } else {
+            birbuf.writeBoolean(true);
+
+            birbuf.writeInt(markdownDocAttachment.description == null ? -1
+                    : addStringCPEntry(markdownDocAttachment.description));
+            birbuf.writeInt(markdownDocAttachment.returnValueDescription == null ? -1
+                    : addStringCPEntry(markdownDocAttachment.returnValueDescription));
+            birbuf.writeInt(markdownDocAttachment.parameters.size());
+            for (MarkdownDocAttachment.Parameter parameter : markdownDocAttachment.parameters) {
+                birbuf.writeInt(parameter.name == null ? -1
+                        : addStringCPEntry(parameter.name));
+                birbuf.writeInt(parameter.description == null ? -1
+                        : addStringCPEntry(parameter.description));
+            }
+        }
+        int length = birbuf.nioBuffer().limit();
+        buf.writeInt(length);
+        buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+    }
+
     private void throwUnimplementedError(BType bType) {
         throw new AssertionError("Type serialization is not implemented for " + bType.getClass());
     }
@@ -444,6 +474,7 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     private void writeValue(Object value, BType typeOfValue) {
+        ByteBuf byteBuf = Unpooled.buffer();
         switch (typeOfValue.tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
@@ -452,30 +483,34 @@ public class BIRTypeWriter implements TypeVisitor {
             case TypeTags.UNSIGNED32_INT:
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED8_INT:
-                buff.writeInt(addIntCPEntry((Long) value));
+                byteBuf.writeInt(addIntCPEntry((Long) value));
                 break;
             case TypeTags.BYTE:
                 int byteValue = ((Number) value).intValue();
-                buff.writeInt(addByteCPEntry(byteValue));
+                byteBuf.writeInt(addByteCPEntry(byteValue));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
                 double doubleVal =
                         value instanceof String ? Double.parseDouble((String) value) : ((Number) value).doubleValue();
-                buff.writeInt(addFloatCPEntry(doubleVal));
+                byteBuf.writeInt(addFloatCPEntry(doubleVal));
                 break;
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
-                buff.writeInt(addStringCPEntry(String.valueOf(value)));
+                byteBuf.writeInt(addStringCPEntry(String.valueOf(value)));
                 break;
             case TypeTags.BOOLEAN:
-                buff.writeByte((Boolean) value ? 1 : 0);
+                byteBuf.writeBoolean((Boolean) value);
                 break;
             case TypeTags.NIL:
                 break;
             default:
                 throw new UnsupportedOperationException("finite type value is not supported for type: " + typeOfValue);
         }
+
+        int length = byteBuf.nioBuffer().limit();
+        buff.writeInt(length);
+        buff.writeBytes(byteBuf.nioBuffer().array(), 0, length);
     }
 }

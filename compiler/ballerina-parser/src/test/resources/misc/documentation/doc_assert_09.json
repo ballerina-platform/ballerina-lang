@@ -12,15 +12,6 @@
           "kind": "SERVICE_DECLARATION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "SERVICE_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -42,20 +33,15 @@
               "kind": "LIST",
               "children": [
                 {
-                  "kind": "EXPRESSION_LIST_ITEM",
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "listner1",
+                      "trailingMinutiae": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "listner1",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ]
                     }
@@ -132,6 +118,10 @@
                               "children": []
                             }
                           ]
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
                         },
                         {
                           "kind": "FUNCTION_KEYWORD",
@@ -264,17 +254,22 @@
                           ]
                         },
                         {
-                          "kind": "RESOURCE_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "LIST",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "RESOURCE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },

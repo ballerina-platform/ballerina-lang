@@ -28,8 +28,11 @@ import org.ballerinalang.jvm.types.BType;
  */
 public interface BValue {
 
-    @Deprecated
-    String stringValue();
+    String stringValue(BLink parent);
+
+    default String informalStringValue(BLink parent) {
+        return toString();
+    }
 
     BType getType();
 }

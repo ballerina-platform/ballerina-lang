@@ -40,42 +40,48 @@ type Employee record {
 
 type EmployeeTable table<Employee> key(id);
 
-type Person object {
+class Person {
     public string name = "";
     public int age = 0;
     public Person? parent = ();
     private string email = "default@abc.com";
     string address = "No 20, Palm grove";
-};
+
+    public function getSum(int a, int b) returns int {
+        return a + b;
+    }
+}
+
+class Address {
+   public string city;
+   public string country;
+
+   public function init(string city, string country) {
+       self.city = city;
+       self.country = country;
+   }
+
+   public function value() returns string {
+       return self.city + ", " + self.country;
+   }
+}
 
 public type AnonPerson record {
     string name;
     int age;
-    object {
-        public string city;
-        public string country;
-
-        public function init(string city, string country) {
-            self.city = city;
-            self.country = country;
-        }
-
-        public function value() returns string {
-            return self.city + ", " + self.country;
-        }
-    } address;
+    Address address;
 };
 
 type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
 
-type OddNumberGenerator object {
+class OddNumberGenerator {
     int i = 1;
 
     public function next() returns record {|int value;|}|error? {
         self.i += 2;
         return {value: self.i};
     }
-};
+}
 
 public function main() {
     //------------------------ basic, simple type variables ------------------------//

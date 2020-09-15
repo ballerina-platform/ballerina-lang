@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,8 +33,8 @@ public class TemplateExpressionNode extends ExpressionNode {
         super(internalNode, position, parent);
     }
 
-    public Token type() {
-        return childInBucket(0);
+    public Optional<Token> type() {
+        return optionalChildInBucket(0);
     }
 
     public Token startBacktick() {
@@ -107,7 +108,7 @@ public class TemplateExpressionNode extends ExpressionNode {
 
         public TemplateExpressionNodeModifier(TemplateExpressionNode oldNode) {
             this.oldNode = oldNode;
-            this.type = oldNode.type();
+            this.type = oldNode.type().orElse(null);
             this.startBacktick = oldNode.startBacktick();
             this.content = oldNode.content();
             this.endBacktick = oldNode.endBacktick();

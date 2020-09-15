@@ -16,11 +16,16 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.List;
 
@@ -32,13 +37,19 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ListConstructorExpressionNodeContext extends AbstractCompletionProvider<ListConstructorExpressionNode> {
     public ListConstructorExpressionNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(ListConstructorExpressionNode.class);
+        super(ListConstructorExpressionNode.class);
     }
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ListConstructorExpressionNode node)
             throws LSCompletionException {
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            List<Scope.ScopeEntry> entries = QNameReferenceUtil.getExpressionContextEntries(context,
+                    (QualifiedNameReferenceNode) nodeAtCursor);
+
+            return this.getCompletionItemList(entries, context);
+        }
         return this.expressionCompletions(context);
     }
 }

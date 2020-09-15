@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,7 @@ import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -44,13 +45,7 @@ import java.util.stream.Collectors;
 public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider<ExplicitNewExpressionNode> {
 
     public ExplicitNewExpressionNodeContext() {
-        super(Kind.EXPRESSION);
-        this.attachmentPoints.add(ExplicitNewExpressionNode.class);
-    }
-
-    @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx) {
-        return new ArrayList<>();
+        super(ExplicitNewExpressionNode.class);
     }
 
     @Override
@@ -72,11 +67,11 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
             for (BObjectTypeSymbol objectTypeSymbol : filteredList) {
                 completionItems.add(this.getExplicitNewCompletionItem(objectTypeSymbol, context));
             }
-            completionItems.addAll(this.getPackagesCompletionItems(context));
-        } else if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            completionItems.addAll(this.getModuleCompletionItems(context));
+        } else if (this.onQualifiedNameIdentifier(context, typeDescriptor)) {
             QualifiedNameReferenceNode referenceNode = (QualifiedNameReferenceNode) typeDescriptor;
-            String moduleName = referenceNode.modulePrefix().text();
-            Optional<Scope.ScopeEntry> module = this.getPackageSymbolFromAlias(context, moduleName);
+            String moduleName = QNameReferenceUtil.getAlias(referenceNode);
+            Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, moduleName);
             if (!module.isPresent()) {
                 return completionItems;
             }

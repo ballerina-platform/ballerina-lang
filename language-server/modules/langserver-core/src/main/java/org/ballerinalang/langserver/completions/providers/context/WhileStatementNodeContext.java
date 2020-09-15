@@ -37,9 +37,9 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class WhileStatementNodeContext extends AbstractCompletionProvider<WhileStatementNode> {
+    
     public WhileStatementNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(WhileStatementNode.class);
+        super(WhileStatementNode.class);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class WhileStatementNodeContext extends AbstractCompletionProvider<WhileS
                         && !(scopeEntry.symbol instanceof BOperatorSymbol))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
     }

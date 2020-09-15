@@ -20,9 +20,9 @@ function foo(int i, string k) returns int {
 }
 
 @icon { path: "/barIconPath.icon" }
-type Bar object {
+class Bar {
     @icon { path: "/kMemberFuncIconPath.icon" }
     function k() {
 
     }
-};
+}

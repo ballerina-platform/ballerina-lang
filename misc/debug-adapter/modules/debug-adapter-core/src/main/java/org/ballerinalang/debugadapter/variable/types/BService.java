@@ -17,10 +17,9 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
-import org.eclipse.lsp4j.debug.Variable;
 
 /**
  * Ballerina service variable type.
@@ -29,8 +28,8 @@ public class BService extends BSimpleVariable {
 
     private static final String ANON_SERVICE = "anonymous service";
 
-    public BService(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.SERVICE, value, dapVariable);
+    public BService(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.SERVICE, value);
     }
 
     @Override

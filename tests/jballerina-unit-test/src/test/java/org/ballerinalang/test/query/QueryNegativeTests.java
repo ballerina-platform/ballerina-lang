@@ -35,7 +35,7 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 23);
+        Assert.assertEquals(compileResult.getErrorCount(), 26);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -66,6 +66,9 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "a type compatible with mapping constructor expressions " +
                 "not found in type 'string'", 311, 24);
         validateError(compileResult, index++, "ambiguous type '[xml, xml]'", 333, 24);
-        validateError(compileResult, index, "ambiguous type '[string, string]'", 346, 24);
+        validateError(compileResult, index++, "ambiguous type '[string, string]'", 346, 24);
+        validateError(compileResult, index++, "redeclared symbol 'fname'", 370, 36);
+        validateError(compileResult, index++, "redeclared symbol 'age'", 383, 21);
+        validateError(compileResult, index++, "redeclared symbol 'age'", 400, 44);
     }
 }

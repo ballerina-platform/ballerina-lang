@@ -40,22 +40,24 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
  */
 class JMethod {
 
-    static final JMethod NO_SUCH_METHOD = new JMethod(null, null);
+    static final JMethod NO_SUCH_METHOD = new JMethod(null, null, null);
 
     JMethodKind kind;
     private Executable method;
     private BType receiverType;
 
-    private JMethod(JMethodKind kind, Executable executable) {
+    private JMethod(JMethodKind kind, Executable executable, BType receiverType) {
 
         this.kind = kind;
         this.method = executable;
+        this.receiverType = receiverType;
     }
 
-    static JMethod build(JMethodKind kind, Executable executable) {
+    static JMethod build(JMethodKind kind, Executable executable, BType receiverType) {
 
-        return new JMethod(kind, executable);
+        return new JMethod(kind, executable, receiverType);
     }
+
 
     String getClassName() {
 

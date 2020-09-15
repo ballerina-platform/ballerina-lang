@@ -15,21 +15,23 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerinalang.compiler.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,21 +40,22 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class ModuleVariableDeclarationNodeContext extends AbstractCompletionProvider<ModuleVariableDeclarationNode> {
+public class ModuleVariableDeclarationNodeContext extends VariableDeclarationProvider<ModuleVariableDeclarationNode> {
     public ModuleVariableDeclarationNodeContext() {
-        super(Kind.MODULE_MEMBER);
-        this.attachmentPoints.add(ModuleVariableDeclarationNode.class);
+        super(ModuleVariableDeclarationNode.class);
     }
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ModuleVariableDeclarationNode node) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (this.withinInitializerContext(context, node)) {
+            return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
+        }
 
         if (withinServiceOnKeywordContext(context, node)) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
         }
-        
-        return completionItems;
+
+        return new ArrayList<>();
     }
 
     private boolean withinServiceOnKeywordContext(LSContext context, ModuleVariableDeclarationNode node) {
@@ -68,5 +71,19 @@ public class ModuleVariableDeclarationNodeContext extends AbstractCompletionProv
         return (position.getLine() == lineRange.endLine().line()
                 && position.getCharacter() > lineRange.endLine().offset())
                 || position.getLine() > lineRange.endLine().line();
+    }
+
+    private boolean withinInitializerContext(LSContext context, ModuleVariableDeclarationNode node) {
+        if (node.equalsToken() == null || node.equalsToken().isMissing()) {
+            return false;
+        }
+        Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        TextRange equalTokenRange = node.equalsToken().textRange();
+        return equalTokenRange.endOffset() <= textPosition;
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, ModuleVariableDeclarationNode node) {
+        return node.equalsToken() != null && !node.equalsToken().isMissing();
     }
 }

@@ -1,0 +1,209 @@
+{
+  "kind": "MODULE_PART",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "CLASS_DEFINITION",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "CLASS_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "Foo",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "OPEN_BRACE_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "OBJECT_FIELD",
+                  "children": [
+                    {
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INT_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    },
+                    {
+                      "kind": "SEMICOLON_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "METADATA",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "LIST",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "ANNOTATION",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "AT_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_AT_TOKEN"
+                          ]
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_TOKEN"
+                      ],
+                      "value": "d",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
+                              {
+                                "kind": "SEMICOLON_TOKEN"
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
+}

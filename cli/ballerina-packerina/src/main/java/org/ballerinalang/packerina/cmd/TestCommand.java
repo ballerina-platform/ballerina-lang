@@ -159,6 +159,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--old-parser", description = "Enable old parser.", hidden = true)
     private boolean useOldParser;
 
+    @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
+    private boolean rerunTests;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
@@ -202,6 +205,28 @@ public class TestCommand implements BLauncherCmd {
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
+        }
+
+        if (this.rerunTests) {
+            // Cannot rerun failed tests using -a | -all flags
+            if (this.buildAll) {
+                CommandUtil.printError(this.errStream,
+                                       "Cannot specify --rerun-failed and -a | --all flags at the same time",
+                                       "ballerina test --rerun-failed <module-name>",
+                                       true);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+
+            // Cannot rerun failed tests for single bal files
+            if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+                CommandUtil.printError(this.errStream,
+                                       "--rerun-failed not supported for single bal files",
+                                       "ballerina test --rerun-failed <module-name>",
+                                       true);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         }
 
         // validation and decide source root and source full path
@@ -403,8 +428,8 @@ public class TestCommand implements BLauncherCmd {
                 // skip the task or to execute
                 .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
                 // run tests
-                .addTask(new RunTestsTask(testReport, coverage, args, groupList, disableGroupList, testList),
-                        listGroups)
+                .addTask(new RunTestsTask(testReport, coverage, rerunTests, args, groupList, disableGroupList,
+                                testList), listGroups)
                 .build();
 
         taskExecutor.executeTasks(buildContext);

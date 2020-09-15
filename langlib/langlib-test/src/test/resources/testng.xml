@@ -66,6 +66,7 @@
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachTupleTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachRecordTypedBindingPatternsTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachIterableObjectTest"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachOnFailTests"/>
         </classes>
     </test>
 </suite>

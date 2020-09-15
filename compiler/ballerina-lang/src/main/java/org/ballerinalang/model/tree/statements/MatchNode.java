@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -80,4 +81,8 @@ public interface MatchNode {
     List<? extends MatchStaticBindingPatternNode> getStaticPatternClauses();
 
     List<? extends MatchStructuredBindingPatternNode> getStructuredPatternClauses();
+
+    OnFailClauseNode getOnFailClause();
+
+    void setOnFailClause(OnFailClauseNode onFailClause);
 }

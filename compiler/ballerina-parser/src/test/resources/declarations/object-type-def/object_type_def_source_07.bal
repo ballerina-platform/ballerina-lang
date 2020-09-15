@@ -1,8 +1,7 @@
 type Student {
-    
-    function foo() {
-    
-    }
+
+    function foo();
+
     int a;
     int b;
 };

@@ -142,7 +142,6 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         for (TopLevelNode topLevelNode : cUnit.topLevelNodes) {
             if (topLevelNode.getPosition().getEndLine() > eLine) {
                 eLine = topLevelNode.getPosition().getEndLine();
-                eCol = topLevelNode.getPosition().getEndColumn();
             }
         }
 
@@ -175,7 +174,6 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                 prependLineFeed = false;
             }
             eLine = nodeLocation.getLeft().eLine - 1;
-            eCol = 0;
             String cUnitName = nodeLocation.getLeft().src.cUnitName;
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
             String pkgName = nodeLocation.getLeft().src.pkgID.name.toString();

@@ -2,15 +2,6 @@
   "kind": "TYPE_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -61,15 +52,6 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
                   "kind": "INT_TYPE_DESC",
                   "children": [
                     {
@@ -91,60 +73,7 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "age",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "BINARY_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
-                      "children": [
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "10",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "ASTERISK_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
-                      "children": [
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "2"
-                        }
-                      ]
-                    }
-                  ]
+                  "value": "age"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -160,15 +89,6 @@
             {
               "kind": "OBJECT_FIELD",
               "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
                 {
                   "kind": "STRING_TYPE_DESC",
                   "children": [
@@ -208,15 +128,6 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
                   "kind": "PUBLIC_KEYWORD",
                   "leadingMinutiae": [
                     {
@@ -247,31 +158,7 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "status",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "0"
-                    }
-                  ]
+                  "value": "status"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -288,16 +175,7 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "kind": "PRIVATE_KEYWORD",
+                  "kind": "PUBLIC_KEYWORD",
                   "leadingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",

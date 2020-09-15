@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BHandle;
+import org.ballerinalang.jvm.values.api.BLink;
 
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class HandleValue implements BHandle, RefValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         return String.valueOf(value);
     }
 

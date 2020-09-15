@@ -33,12 +33,12 @@ public class MethodDeclarationNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
-        return childInBucket(0);
+    public Optional<MetadataNode> metadata() {
+        return optionalChildInBucket(0);
     }
 
-    public Optional<Token> visibilityQualifier() {
-        return optionalChildInBucket(1);
+    public NodeList<Token> qualifierList() {
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token functionKeyword() {
@@ -71,7 +71,7 @@ public class MethodDeclarationNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
-                "visibilityQualifier",
+                "qualifierList",
                 "functionKeyword",
                 "methodName",
                 "methodSignature",
@@ -80,14 +80,14 @@ public class MethodDeclarationNode extends NonTerminalNode {
 
     public MethodDeclarationNode modify(
             MetadataNode metadata,
-            Token visibilityQualifier,
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken methodName,
             FunctionSignatureNode methodSignature,
             Token semicolon) {
         if (checkForReferenceEquality(
                 metadata,
-                visibilityQualifier,
+                qualifierList.underlyingListNode(),
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -97,7 +97,7 @@ public class MethodDeclarationNode extends NonTerminalNode {
 
         return NodeFactory.createMethodDeclarationNode(
                 metadata,
-                visibilityQualifier,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -116,7 +116,7 @@ public class MethodDeclarationNode extends NonTerminalNode {
     public static class MethodDeclarationNodeModifier {
         private final MethodDeclarationNode oldNode;
         private MetadataNode metadata;
-        private Token visibilityQualifier;
+        private NodeList<Token> qualifierList;
         private Token functionKeyword;
         private IdentifierToken methodName;
         private FunctionSignatureNode methodSignature;
@@ -124,8 +124,8 @@ public class MethodDeclarationNode extends NonTerminalNode {
 
         public MethodDeclarationNodeModifier(MethodDeclarationNode oldNode) {
             this.oldNode = oldNode;
-            this.metadata = oldNode.metadata();
-            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
+            this.metadata = oldNode.metadata().orElse(null);
+            this.qualifierList = oldNode.qualifierList();
             this.functionKeyword = oldNode.functionKeyword();
             this.methodName = oldNode.methodName();
             this.methodSignature = oldNode.methodSignature();
@@ -139,10 +139,10 @@ public class MethodDeclarationNode extends NonTerminalNode {
             return this;
         }
 
-        public MethodDeclarationNodeModifier withVisibilityQualifier(
-                Token visibilityQualifier) {
-            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
-            this.visibilityQualifier = visibilityQualifier;
+        public MethodDeclarationNodeModifier withQualifierList(
+                NodeList<Token> qualifierList) {
+            Objects.requireNonNull(qualifierList, "qualifierList must not be null");
+            this.qualifierList = qualifierList;
             return this;
         }
 
@@ -177,7 +177,7 @@ public class MethodDeclarationNode extends NonTerminalNode {
         public MethodDeclarationNode apply() {
             return oldNode.modify(
                     metadata,
-                    visibilityQualifier,
+                    qualifierList,
                     functionKeyword,
                     methodName,
                     methodSignature,

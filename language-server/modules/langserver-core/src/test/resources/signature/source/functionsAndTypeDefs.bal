@@ -118,7 +118,7 @@ public function bar2(float a, boolean b) returns Child {
     return new Child();
 }
 
-public type Stub client object {
+public client class Stub {
 
     public Child obj = new Child();
 
@@ -156,7 +156,7 @@ public type Stub client object {
     public function optionalBar(float a, boolean b) returns Child? {
         return ();
     }
-};
+}
 
 type Employee record {
     int id;

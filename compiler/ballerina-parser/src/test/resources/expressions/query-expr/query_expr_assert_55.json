@@ -171,44 +171,39 @@
                       ]
                     },
                     {
-                      "kind": "BINARY_EXPRESSION",
+                      "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "e",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "EQUALS_KEYWORD",
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "e",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": " "
                             }
                           ]
-                        },
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUALS_KEYWORD",
+                      "trailingMinutiae": [
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "f",
+                          "trailingMinutiae": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "f",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         }

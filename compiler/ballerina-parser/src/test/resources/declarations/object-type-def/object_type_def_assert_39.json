@@ -2,15 +2,6 @@
   "kind": "TYPE_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -61,15 +52,6 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
                   "kind": "READONLY_KEYWORD",
                   "leadingMinutiae": [
                     {
@@ -139,65 +121,7 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "x",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "LIST_CONSTRUCTOR",
-                  "children": [
-                    {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
-                          "children": [
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "1"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "COMMA_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
-                          "children": [
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "2"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN"
-                    }
-                  ]
+                  "value": "x"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -214,15 +138,6 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
                   "kind": "READONLY_KEYWORD",
                   "leadingMinutiae": [
                     {
@@ -292,65 +207,7 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "y",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "LIST_CONSTRUCTOR",
-                  "children": [
-                    {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
-                          "children": [
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "1"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "COMMA_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
-                          "children": [
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "2"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN"
-                    }
-                  ]
+                  "value": "y"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",

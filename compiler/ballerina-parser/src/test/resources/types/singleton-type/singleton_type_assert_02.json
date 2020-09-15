@@ -2,20 +2,16 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -74,7 +70,7 @@
                   "kind": "STRING_LITERAL",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
+                      "kind": "STRING_LITERAL_TOKEN",
                       "value": "dulmina",
                       "trailingMinutiae": [
                         {

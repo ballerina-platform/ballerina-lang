@@ -216,10 +216,10 @@
                       ]
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "5"
                         }
                       ]
@@ -256,10 +256,10 @@
                       ]
                     },
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "kind": "NUMERIC_LITERAL",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                           "value": "7",
                           "leadingMinutiae": [
                             {
@@ -319,15 +319,6 @@
           "kind": "ENUM_DECLARATION",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "PUBLIC_KEYWORD",
               "leadingMinutiae": [
@@ -688,7 +679,7 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "STRING_LITERAL_TOKEN",
                           "value": "read-color"
                         }
                       ]
@@ -736,7 +727,7 @@
                       "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "STRING_LITERAL_TOKEN",
                           "value": "green-color"
                         }
                       ]
@@ -781,7 +772,7 @@
                       ]
                     },
                     {
-                      "kind": "TRUE_KEYWORD",
+                      "kind": "BOOLEAN_LITERAL",
                       "children": [
                         {
                           "kind": "TRUE_KEYWORD"
@@ -823,10 +814,10 @@
                       "kind": "BINARY_EXPRESSION",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "22",
                               "trailingMinutiae": [
                                 {
@@ -987,10 +978,10 @@
                           "kind": "PLUS_TOKEN"
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "5"
                             }
                           ]
@@ -1037,7 +1028,7 @@
                       ]
                     },
                     {
-                      "kind": "NULL_KEYWORD",
+                      "kind": "NULL_LITERAL",
                       "children": [
                         {
                           "kind": "NULL_KEYWORD"

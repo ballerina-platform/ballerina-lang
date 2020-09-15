@@ -33,8 +33,8 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
-        return childInBucket(0);
+    public Optional<MetadataNode> metadata() {
+        return optionalChildInBucket(0);
     }
 
     public Optional<Token> readonlyKeyword() {
@@ -133,7 +133,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
 
         public RecordFieldWithDefaultValueNodeModifier(RecordFieldWithDefaultValueNode oldNode) {
             this.oldNode = oldNode;
-            this.metadata = oldNode.metadata();
+            this.metadata = oldNode.metadata().orElse(null);
             this.readonlyKeyword = oldNode.readonlyKeyword().orElse(null);
             this.typeName = oldNode.typeName();
             this.fieldName = oldNode.fieldName();

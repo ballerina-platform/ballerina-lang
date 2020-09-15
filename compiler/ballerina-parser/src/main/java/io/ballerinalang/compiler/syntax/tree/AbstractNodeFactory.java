@@ -86,6 +86,42 @@ public abstract class AbstractNodeFactory {
         return token.createUnlinkedFacade();
     }
 
+    public static LiteralValueToken createLiteralValueToken(SyntaxKind kind,
+                                                            String text,
+                                                            MinutiaeList leadingMinutiae,
+                                                            MinutiaeList trailingMinutiae) {
+        STNode leadingMinutiaeSTNode = leadingMinutiae.internalNode();
+        if (!NodeListUtils.isSTNodeList(leadingMinutiaeSTNode)) {
+            leadingMinutiaeSTNode = STNodeFactory.createNodeList(leadingMinutiaeSTNode);
+        }
+
+        STNode trailingMinutiaeSTNode = trailingMinutiae.internalNode();
+        if (!NodeListUtils.isSTNodeList(trailingMinutiaeSTNode)) {
+            trailingMinutiaeSTNode = STNodeFactory.createNodeList(trailingMinutiaeSTNode);
+        }
+
+        STToken token =
+                STNodeFactory.createLiteralValueToken(kind, text, leadingMinutiaeSTNode, trailingMinutiaeSTNode);
+        return token.createUnlinkedFacade();
+    }
+
+    public static DocumentationLineToken createDocumentationLineToken(String text,
+                                                                      MinutiaeList leadingMinutiae,
+                                                                      MinutiaeList trailingMinutiae) {
+        STNode leadingMinutiaeSTNode = leadingMinutiae.internalNode();
+        if (!NodeListUtils.isSTNodeList(leadingMinutiaeSTNode)) {
+            leadingMinutiaeSTNode = STNodeFactory.createNodeList(leadingMinutiaeSTNode);
+        }
+
+        STNode trailingMinutiaeSTNode = trailingMinutiae.internalNode();
+        if (!NodeListUtils.isSTNodeList(trailingMinutiaeSTNode)) {
+            trailingMinutiaeSTNode = STNodeFactory.createNodeList(trailingMinutiaeSTNode);
+        }
+
+        STToken token = STNodeFactory.createDocumentationLineToken(text, leadingMinutiaeSTNode, trailingMinutiaeSTNode);
+        return token.createUnlinkedFacade();
+    }
+
     public static MinutiaeList createEmptyMinutiaeList() {
         return EMPTY_MINUTIAE_LIST;
     }

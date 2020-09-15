@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -36,40 +27,51 @@
       "children": [
         {
           "kind": "LIST",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "ABSTRACT_KEYWORD",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_SAME_OBJECT_TYPE_QUALIFIER"
-              ],
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                },
-                {
-                  "kind": "INVALID_NODE_MINUTIAE",
-                  "invalidNode": {
-                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                    "children": [
-                      {
-                        "kind": "ABSTRACT_KEYWORD"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            }
-          ]
+          "children": []
         },
         {
           "kind": "OBJECT_KEYWORD",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT"
+          ],
+          "leadingMinutiae": [
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "ABSTRACT_KEYWORD"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "hasDiagnostics": true,
+                "children": [
+                  {
+                    "kind": "ABSTRACT_KEYWORD",
+                    "hasDiagnostics": true,
+                    "diagnostics": [
+                      "ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ],
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
@@ -92,15 +94,6 @@
             {
               "kind": "OBJECT_FIELD",
               "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
                 {
                   "kind": "STRING_TYPE_DESC",
                   "children": [

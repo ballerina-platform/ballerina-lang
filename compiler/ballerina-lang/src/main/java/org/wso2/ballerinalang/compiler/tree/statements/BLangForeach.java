@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
@@ -24,6 +25,7 @@ import org.ballerinalang.model.tree.statements.ForeachNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
@@ -35,6 +37,7 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
 
     public BLangExpression collection;
     public BLangBlockStmt body;
+    public BLangOnFailClause onFailClause;
 
     public VariableDefinitionNode variableDefinitionNode;
     public BType varType; // T
@@ -80,6 +83,16 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
     @Override
     public void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode) {
         this.variableDefinitionNode = variableDefinitionNode;
+    }
+
+    @Override
+    public OnFailClauseNode getOnFailClause() {
+        return this.onFailClause;
+    }
+
+    @Override
+    public void setOnFailClause(OnFailClauseNode onFailClause) {
+        this.onFailClause = (BLangOnFailClause) onFailClause;
     }
 
     @Override

@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo object {
+class Foo {
     public function init() {
         self.init();
     }
-};
+}
 
 public function main() {
     Foo foo = new;

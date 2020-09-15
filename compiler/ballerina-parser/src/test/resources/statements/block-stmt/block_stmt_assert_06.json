@@ -3,20 +3,16 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -170,10 +166,6 @@
                                   "kind": "OBJECT_KEYWORD",
                                   "leadingMinutiae": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "        "
-                                    },
-                                    {
                                       "kind": "END_OF_LINE_MINUTIAE",
                                       "value": "\n"
                                     },
@@ -206,15 +198,6 @@
                                       "kind": "OBJECT_FIELD",
                                       "hasDiagnostics": true,
                                       "children": [
-                                        {
-                                          "kind": "METADATA",
-                                          "children": [
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            }
-                                          ]
-                                        },
                                         {
                                           "kind": "INT_TYPE_DESC",
                                           "children": [
@@ -260,21 +243,12 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "METADATA",
-                                          "children": [
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            }
-                                          ]
+                                          "kind": "LIST",
+                                          "children": []
                                         },
                                         {
                                           "kind": "FUNCTION_KEYWORD",
                                           "leadingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "            "
-                                            },
                                             {
                                               "kind": "END_OF_LINE_MINUTIAE",
                                               "value": "\n"
@@ -312,10 +286,6 @@
                                             {
                                               "kind": "CLOSE_PAREN_TOKEN",
                                               "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                },
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
                                                   "value": "\n"

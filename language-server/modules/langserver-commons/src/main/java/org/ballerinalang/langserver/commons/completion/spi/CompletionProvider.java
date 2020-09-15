@@ -22,13 +22,11 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Interface for completion item providers.
- * 
+ *
  * @param <T> generic syntax tree node
  * @since 1.2.0
  */
@@ -45,28 +43,6 @@ public interface CompletionProvider<T extends Node> {
     }
 
     /**
-     * Provider kind.
-     *
-     * @since 2.0.0
-     */
-    enum Kind {
-        STATEMENT,
-        MODULE_MEMBER,
-        EXPRESSION,
-        OTHER
-    }
-
-    /**
-     * Get Completion items for the scope/ context.
-     *
-     * @param context Language Server Context
-     * @return {@link List}     List of calculated Completion Items
-     * @throws LSCompletionException when completion fails
-     */
-    @Deprecated
-    List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException;
-
-    /**
      * Get Completion items for the scope/ context.
      *
      * @param context Language Server Context
@@ -74,9 +50,26 @@ public interface CompletionProvider<T extends Node> {
      * @return {@link List}     List of calculated Completion Items
      * @throws LSCompletionException when completion fails
      */
-    default List<LSCompletionItem> getCompletions(LSContext context, T node) throws LSCompletionException {
-        return new ArrayList<>();
-    }
+    List<LSCompletionItem> getCompletions(LSContext context, T node) throws LSCompletionException;
+
+    /**
+     * Sort a given list of completion Items.
+     *
+     * @param context         Language Server completion context.
+     * @param node            Node instance for the parser context
+     * @param completionItems list of completion items to sort
+     * @param metaData        Meta data for further processing the sorting
+     */
+    void sort(LSContext context, T node, List<LSCompletionItem> completionItems, Object... metaData);
+
+    /**
+     * Sort a given list of completion Items.
+     *
+     * @param context         Language Server completion context.
+     * @param node            Node instance for the parser context
+     * @param completionItems list of completion items to sort
+     */
+    void sort(LSContext context, T node, List<LSCompletionItem> completionItems);
 
     /**
      * Get the attachment points where the current provider attached to.
@@ -93,13 +86,15 @@ public interface CompletionProvider<T extends Node> {
     Precedence getPrecedence();
 
     /**
-     * Get the Context Provider.
-     * Ex: When a given scope is resolved then the context can be resolved by parsing a sub rule or token analyzing
+     * Pre-validation is used during the completion provider selection phase.
+     * Based on the node type, specific providers can add validation checks to fine tune the selection. With the parser
+     * recovery phase there are predefined heuristics which might not optimal for the auto completion phase. Therefore
+     * further validations (if needed) for the node can be added here. If this validation has not met, corresponding
+     * provider will be skipped
      *
-     * @param ctx Language Server Context
-     * @return {@link Optional} Context Completion provider
+     * @param node    Node to evaluate
+     * @param context Language server completion operation context
+     * @return {@link Boolean} pre-validation status
      */
-    Optional<CompletionProvider<T>> getContextProvider(LSContext ctx);
-
-    Kind getKind();
+    boolean onPreValidation(LSContext context, T node);
 }

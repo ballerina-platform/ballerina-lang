@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -130,7 +125,7 @@
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                     "children": [
                                       {
-                                        "kind": "DECIMAL_INTEGER_LITERAL",
+                                        "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                         "value": "5"
                                       }
                                     ]
@@ -262,7 +257,7 @@
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                     "children": [
                                       {
-                                        "kind": "DECIMAL_INTEGER_LITERAL",
+                                        "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                         "value": "6"
                                       }
                                     ]

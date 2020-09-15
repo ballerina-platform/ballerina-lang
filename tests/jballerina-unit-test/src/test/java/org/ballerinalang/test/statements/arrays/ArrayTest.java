@@ -112,31 +112,31 @@ public class ArrayTest {
     public void testArrayStringRepresentationWithANilElement() {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testArrayWithNilElement");
         String str = returnVals[0].stringValue();
-        Assert.assertEquals(str, "abc d  s");
+        Assert.assertEquals(str, "[\"abc\",\"d\",null,\"s\"]");
     }
 
     @Test
     public void testArrayToString() {
         String[] strArray = { "aaa", "bbb", "ccc" };
         ArrayValue bStringArray = new ArrayValueImpl(strArray);
-        Assert.assertEquals(bStringArray.stringValue(), "aaa bbb ccc");
+        Assert.assertEquals(bStringArray.stringValue(null), "[\"aaa\",\"bbb\",\"ccc\"]");
 
         long[] longArray = { 6, 3, 8, 4 };
         ArrayValue bIntArray = new ArrayValueImpl(longArray);
-        Assert.assertEquals(bIntArray.stringValue(), "6 3 8 4");
+        Assert.assertEquals(bIntArray.stringValue(null), "[6,3,8,4]");
 
         double[] doubleArray = { 6.4, 3.7, 8.8, 7.4 };
         ArrayValue bFloatArray = new ArrayValueImpl(doubleArray);
-        Assert.assertEquals(bFloatArray.stringValue(), "6.4 3.7 8.8 7.4");
+        Assert.assertEquals(bFloatArray.stringValue(null), "[6.4,3.7,8.8,7.4]");
 
         boolean[] boolArray = { true, true, false };
         ArrayValue bBooleanArray = new ArrayValueImpl(boolArray);
-        Assert.assertEquals(bBooleanArray.stringValue(), "true true false");
+        Assert.assertEquals(bBooleanArray.stringValue(null), "[true,true,false]");
 
         XMLValue[] xmlArray = { XMLFactory.parse("<foo> </foo>"), XMLFactory.parse("<bar>hello</bar>") };
         ArrayValue bXmlArray = new ArrayValueImpl(xmlArray,
                 new org.ballerinalang.jvm.types.BArrayType(org.ballerinalang.jvm.types.BTypes.typeXML));
-        Assert.assertEquals(bXmlArray.stringValue(), "<foo> </foo> <bar>hello</bar>");
+        Assert.assertEquals(bXmlArray.stringValue(null), "[`<foo> </foo>`,`<bar>hello</bar>`]");
     }
 
     @Test

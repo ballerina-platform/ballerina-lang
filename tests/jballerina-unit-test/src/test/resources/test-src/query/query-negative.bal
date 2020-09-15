@@ -345,3 +345,62 @@ function testQueryExprWithAmbigousTypeForString() {
                 from var person in personList
                 select person.firstName;
 }
+
+type EmployeeEntity record {
+    int id;
+    string fname;
+    string lname;
+    int age;
+};
+
+type Employee record {|
+    string fname;
+    string lname;
+    int age;
+|};
+
+function testVariableShadowingWithQueryExpressions() {
+    string fname = "";
+    EmployeeEntity[] entities = [
+            {id: 1232, fname: "Sameera", lname: "Jayasoma", age: 30},
+            {id: 1232, fname: "Asanthi", lname: "Kulasinghe", age: 30},
+            {id: 1232, fname: "Khiana", lname: "Jayasoma", age: 2}
+        ];
+
+    Employee[] records = from var {fname, lname, age} in entities select {fname, lname, age};
+}
+
+public function testMethodParamWithLet(int age) {
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    Person[] outputPersonList =
+            from var person in personList
+            let int age = 35
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   age: age
+             };
+}
+
+public function testMethodParamInQuery(int age) {
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    Person[] outputPersonList =
+            from var {firstName, lastName, age} in personList
+            select {
+                   firstName: firstName,
+                   lastName: lastName,
+                   age: age
+             };
+}

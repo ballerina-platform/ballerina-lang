@@ -15,12 +15,15 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +35,21 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ReturnStatementNodeContext extends AbstractCompletionProvider<ReturnStatementNode> {
+
     public ReturnStatementNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(ReturnStatementNode.class);
+        super(ReturnStatementNode.class);
     }
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ReturnStatementNode node)
             throws LSCompletionException {
+        if (node.expression().isPresent() && this.onQualifiedNameIdentifier(context, node.expression().get())) {
+            List<Scope.ScopeEntry> entries = QNameReferenceUtil.getExpressionContextEntries(context,
+                    (QualifiedNameReferenceNode) node.expression().get());
+
+            return this.getCompletionItemList(entries, context);
+        }
+
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.actionKWCompletions(context));
         completionItems.addAll(this.expressionCompletions(context));

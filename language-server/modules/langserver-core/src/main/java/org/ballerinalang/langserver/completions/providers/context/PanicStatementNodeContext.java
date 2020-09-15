@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class PanicStatementNodeContext extends AbstractCompletionProvider<PanicStatementNode> {
+    
     public PanicStatementNodeContext() {
-        super(Kind.OTHER);
-        this.attachmentPoints.add(PanicStatementNode.class);
+        super(PanicStatementNode.class);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class PanicStatementNodeContext extends AbstractCompletionProvider<PanicS
                 .filter(scopeEntry -> scopeEntry.symbol.type instanceof BErrorType)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
         return completionItems;
     }
 }

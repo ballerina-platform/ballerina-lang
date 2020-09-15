@@ -161,9 +161,9 @@ type Foo record {
     function (int) returns int lambda = (i) => i * k;
 };
 
-type Bar object {
+class Bar {
     function (int) returns int lambda = (i) => i * k;
-};
+}
 
 function testArrowExprInRecord() returns int {
     Foo f = {};
@@ -218,6 +218,20 @@ function testNestedArrowExpressionWithOneParameter() {
     var newFunction = sum(7);
     var result = newFunction(5);
     assertEquality(12, result);
+}
+
+function testTypeNarrowingInArrowExpression() {
+    var expected = "Hello World";
+    var result = "Wrong Text Here";
+
+    string|int s1 = "World";
+    if (s1 is string) {
+        string s2 = s1;
+        function() returns string arrowFun = () => "Hello " + s2;
+        result = arrowFun();
+    }
+
+    assertEquality(expected, result);
 }
 
 const ASSERTION_ERR_REASON = "AssertionError";

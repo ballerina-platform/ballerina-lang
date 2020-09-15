@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,20 +33,20 @@ public class EnumMemberNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
-        return childInBucket(0);
+    public Optional<MetadataNode> metadata() {
+        return optionalChildInBucket(0);
     }
 
     public IdentifierToken identifier() {
         return childInBucket(1);
     }
 
-    public Token equalToken() {
-        return childInBucket(2);
+    public Optional<Token> equalToken() {
+        return optionalChildInBucket(2);
     }
 
-    public ExpressionNode constExprNode() {
-        return childInBucket(3);
+    public Optional<ExpressionNode> constExprNode() {
+        return optionalChildInBucket(3);
     }
 
     @Override
@@ -105,10 +106,10 @@ public class EnumMemberNode extends NonTerminalNode {
 
         public EnumMemberNodeModifier(EnumMemberNode oldNode) {
             this.oldNode = oldNode;
-            this.metadata = oldNode.metadata();
+            this.metadata = oldNode.metadata().orElse(null);
             this.identifier = oldNode.identifier();
-            this.equalToken = oldNode.equalToken();
-            this.constExprNode = oldNode.constExprNode();
+            this.equalToken = oldNode.equalToken().orElse(null);
+            this.constExprNode = oldNode.constExprNode().orElse(null);
         }
 
         public EnumMemberNodeModifier withMetadata(

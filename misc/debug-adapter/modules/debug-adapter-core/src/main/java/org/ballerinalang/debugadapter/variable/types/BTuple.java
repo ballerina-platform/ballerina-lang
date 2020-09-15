@@ -21,11 +21,10 @@ import com.sun.jdi.Field;
 import com.sun.jdi.IntegerValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,8 +43,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
  */
 public class BTuple extends BCompoundVariable {
 
-    public BTuple(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.TUPLE, value, dapVariable);
+    public BTuple(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.TUPLE, value);
     }
 
     @Override

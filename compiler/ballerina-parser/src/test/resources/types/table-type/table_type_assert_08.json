@@ -3,20 +3,16 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -166,11 +162,11 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "TYPE_DESC",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "TYPE_DESC",
+                                  "kind": "IDENTIFIER_TOKEN",
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
@@ -578,21 +574,15 @@
                       ]
                     },
                     {
-                      "kind": "FUNCTIONAL_BINDING_PATTERN",
+                      "kind": "ERROR_BINDING_PATTERN",
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "ERROR_KEYWORD",
+                          "isMissing": true,
                           "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
-                              ]
-                            }
+                          "diagnostics": [
+                            "ERROR_MISSING_ERROR_KEYWORD"
                           ]
                         },
                         {
@@ -605,13 +595,8 @@
                               "kind": "CAPTURE_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "id"
-                                    }
-                                  ]
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "id"
                                 }
                               ]
                             }

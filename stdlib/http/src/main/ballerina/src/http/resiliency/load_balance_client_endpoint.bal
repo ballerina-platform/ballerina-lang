@@ -22,7 +22,7 @@ import ballerina/mime;
 # + loadBalanceClientsArray - Array of HTTP clients for load balancing
 # + lbRule - Load balancing rule
 # + failover - Whether to fail over in case of a failure
-public type LoadBalanceClient client object {
+public client class LoadBalanceClient {
 
     public LoadBalanceClientConfiguration loadBalanceClientConfig;
     public Client?[] loadBalanceClientsArray;
@@ -67,7 +67,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function head(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_HEAD);
     }
@@ -100,7 +100,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function options(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
     }
@@ -133,7 +133,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function delete(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_DELETE);
     }
@@ -144,7 +144,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function get(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_GET);
     }
@@ -197,7 +197,7 @@ public type LoadBalanceClient client object {
     #
     # + promise - The Push Promise to be rejected
     public remote function rejectPromise(PushPromise promise) {}
-};
+}
 
 # Represents the error attributes in addition to the message and the cause of the `LoadBalanceActionError`.
 #

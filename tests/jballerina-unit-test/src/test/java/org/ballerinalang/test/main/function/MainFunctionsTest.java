@@ -87,7 +87,7 @@ public class MainFunctionsTest {
         assertTrue(result.consoleOutput.startsWith("error? returning main invoked"),
                             "expected the main function to be invoked");
         assertTrue(result.errorOutput.contains("const error reason"), "invalid error reason");
-        assertTrue(result.errorOutput.contains("message=error message"), "invalid error message");
+        assertTrue(result.errorOutput.contains("{\"message\":\"error message\""), "invalid error message");
     }
 
     @Test(groups = { "disableOnOldParser" })
@@ -98,9 +98,9 @@ public class MainFunctionsTest {
         validateError(negativeResult, 1,
                 "invalid type 'typedesc' as 'main' function parameter, expected anydata", 17, 15);
         validateError(negativeResult, 2,
-                "invalid type '(int|typedesc)' as 'main' function parameter, expected anydata", 17, 30);
+                "invalid type '(int|typedesc)' as 'main' function parameter, expected anydata", 17, 32);
         validateError(negativeResult, 3,
-                "invalid type 'FooObject[]' as 'main' function parameter, expected anydata", 17, 55);
+                "invalid type 'FooObject[]' as 'main' function parameter, expected anydata", 17, 57);
         validateError(negativeResult, 4, "invalid 'main' function return type 'string', expected a subtype of " +
                               "'error?' containing '()'", 17, 81);
     }

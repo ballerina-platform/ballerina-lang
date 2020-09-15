@@ -9,7 +9,7 @@
       "label": "test",
       "kind": "Variable",
       "detail": "module1:Listener",
-      "sortText": "150",
+      "sortText": "B",
       "insertText": "test",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "mod",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "B",
       "insertText": "mod",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +25,7 @@
       "label": "lang",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "B",
       "insertText": "lang",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +33,7 @@
       "label": "ballerina/lang.boolean",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'boolean",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -56,7 +56,7 @@
       "label": "ballerina/lang.xml",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'xml",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -79,7 +79,7 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -99,33 +99,10 @@
       ]
     },
     {
-      "label": "ballerina/test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "130",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/test;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.transaction",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'transaction",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -148,7 +125,7 @@
       "label": "ballerina/lang.string",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'string",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -171,7 +148,7 @@
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'future",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -194,7 +171,7 @@
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -217,7 +194,7 @@
       "label": "ballerina/lang.float",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'float",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -240,7 +217,7 @@
       "label": "ballerina/lang.decimal",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'decimal",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -263,7 +240,7 @@
       "label": "ballerina/lang.table",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'table",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -286,7 +263,7 @@
       "label": "ballerina/lang.stream",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'stream",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -309,7 +286,7 @@
       "label": "ballerina/lang.error",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'error",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -332,7 +309,7 @@
       "label": "ballerina/lang.typedesc",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'typedesc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -355,7 +332,7 @@
       "label": "ballerina/lang.map",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'map",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -378,7 +355,7 @@
       "label": "ballerina/lang.query",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'query",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -401,7 +378,7 @@
       "label": "ballerina/lang.int",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "130",
+      "sortText": "C",
       "insertText": "'int",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -424,7 +401,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "120",
+      "sortText": "A",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
     },
@@ -435,10 +412,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ls_org1/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` port"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` port"
         }
       },
-      "sortText": "150",
+      "sortText": "B",
       "insertText": "new(${1});",
       "insertTextFormat": "Snippet",
       "command": {

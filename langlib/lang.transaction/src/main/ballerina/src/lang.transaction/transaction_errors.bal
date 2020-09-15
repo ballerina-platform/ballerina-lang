@@ -15,10 +15,10 @@
 // under the License.
 
 # Represents the Transaction error.
-public type TransactionError distinct error;
+type TransactionError distinct error;
 
 # Represents the Transaction module related error.
-public type Error TransactionError;
+type Error TransactionError;
 
 # Log and prepare `error` as a `Error`.
 #

@@ -63,7 +63,6 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -71,7 +70,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_MODULE_DEPENDEN
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
-import static org.ballerinalang.test.util.TestConstant.ENABLE_OLD_PARSER_FOR_TESTS;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -423,7 +421,6 @@ public class BCompileUtil {
      */
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
                                         boolean enableExpFeatures) {
-
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
@@ -431,7 +428,6 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
         options.put(OFFLINE, "true");
-
         return compile(context, packageName, compilerPhase, false);
     }
 
@@ -537,7 +533,6 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
         options.put(OFFLINE, "true");
-
         CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
 
@@ -614,8 +609,8 @@ public class BCompileUtil {
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, false);
     }
 
-    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-                                                     boolean temp, boolean init, boolean withTests) {
+    public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
+                                                    boolean temp, boolean init, boolean withTests) {
 
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, withTests);
     }
@@ -640,13 +635,12 @@ public class BCompileUtil {
         URLClassLoader classLoader = compileResult.classLoader;
 
         try {
-            Class<?> initClazz = classLoader.loadClass(initClassName);
             final List<String> actualArgs = new ArrayList<>();
             actualArgs.add(0, "java");
             actualArgs.add(1, "-cp");
             String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
             actualArgs.add(2, classPath);
-            actualArgs.add(3, initClazz.getCanonicalName());
+            actualArgs.add(3, initClassName);
             actualArgs.addAll(Arrays.asList(args));
 
             final Runtime runtime = Runtime.getRuntime();
@@ -656,7 +650,7 @@ public class BCompileUtil {
             process.waitFor();
             int exitValue = process.exitValue();
             return new ExitDetails(exitValue, consoleInput, consoleError);
-        } catch (ClassNotFoundException | InterruptedException | IOException e) {
+        } catch (InterruptedException | IOException e) {
             throw new RuntimeException("Main method invocation failed", e);
         }
     }

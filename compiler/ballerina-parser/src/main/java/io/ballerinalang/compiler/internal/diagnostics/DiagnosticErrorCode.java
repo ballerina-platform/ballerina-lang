@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.diagnostics;
 
-import io.ballerinalang.compiler.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 /**
  * Represents a diagnostic error code.
@@ -137,6 +137,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_DESCENDING_KEYWORD("BCE02072", "error.missing.descending.keyword"),
     ERROR_MISSING_JOIN_KEYWORD("BCE02073", "error.missing.join.keyword"),
     ERROR_MISSING_OUTER_KEYWORD("BCE02074", "error.missing.outer.keyword"),
+    ERROR_MISSING_CLASS_KEYWORD("BCE02075", "error.missing.class.keyword"),
+    ERROR_MISSING_FAIL_KEYWORD("BCE02075", "error.missing.fail.keyword"),
+    ERROR_MISSING_EQUALS_KEYWORD("BCE02076", "error.missing.equals.keyword"),
 
     // Type keywords
     ERROR_MISSING_INT_KEYWORD("BCE02101", "error.missing.int.keyword"),
@@ -239,35 +242,43 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     // Expression followed by the start keyword must be a func-call, a method-call or a remote-method-call
     ERROR_INVALID_EXPRESSION_IN_START_ACTION("BCE207", "error.invalid.expression.in.start.action"),
     // Cannot have the  same qualifier twice
-    ERROR_SAME_OBJECT_TYPE_QUALIFIER("BCE208", "error.same.object.type.qualifier"),
+    ERROR_DUPLICATE_OBJECT_TYPE_QUALIFIER("BCE208", "error.duplicate.object.type.qualifier"),
+    ERROR_DUPLICATE_CLASS_TYPE_QUALIFIER("BCE209", "error.duplicate.class.type.qualifier"),
+    ERROR_DUPLICATE_OBJECT_METHOD_QUALIFIER("BCE210", "error.duplicate.object.method.qualifier"),
+    ERROR_QUALIFIER_NOT_ALLOWED("BCE211", "error.qualifier.not.allowed"),
+    ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT("BCE212", "error.abstract.qualifier.not.allowed.in.object"),
+    ERROR_READONLY_QUALIFIER_NOT_ALLOWED_IN_OBJECT("BCE213", "error.readonly.qualifier.not.allowed.in.object"),
+    // Cannot have type inclusions in object constructor
+    ERROR_TYPE_INCLUSION_IN_OBJECT_CONSTRUCTOR("BCE214", "error.type.inclusion.in.object.constructor"),
+    ERROR_SAME_OBJECT_TYPE_QUALIFIER("BCE215", "error.same.object.type.qualifier"),
+    ERROR_DUPLICATE_QUALIFIER("BCE216", "error.duplicate.qualifier"),
     // Mapping constructor expression cannot be used as a wait expression
-    ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR("BCE209",
-            "error.mapping.constructor.expr.as.a.wait.expr"),
+    ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR("BCE217", "error.mapping.constructor.expr.as.a.wait.expr"),
     // lhs must be an identifier or a param list
-    ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR("BCE210",
+    ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR("BCE218",
             "error.invalid.param.list.in.infer.anonymous.function.expr"),
     // Cannot have more fields after the rest type descriptor
-    ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD("BCE211", "error.more.record.fields.after.rest.field"),
-    ERROR_INVALID_XML_NAMESPACE_URI("BCE212", "error.invalid.xml.namespace.uri"),
-    ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES("BCE213",
+    ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD("BCE219", "error.more.record.fields.after.rest.field"),
+    ERROR_INVALID_XML_NAMESPACE_URI("BCE220", "error.invalid.xml.namespace.uri"),
+    ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES("BCE221",
             "error.interpolation.is.not.allowed.for.xml.tag.names"),
-    ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_ELEMENT_TAGS("BCE214",
+    ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_ELEMENT_TAGS("BCE222",
             "error.interpolation.is.not.allowed.within.element.tags"),
-    ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_COMMENTS("BCE215",
+    ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_COMMENTS("BCE223",
             "error.interpolation.is.not.allowed.within.xml.comments"),
-    ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_PI("BCE216",
+    ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_PI("BCE224",
             "error.interpolation.is.not.allowed.within.xml.pi"),
-    ERROR_INVALID_EXPR_IN_ASSIGNMENT_LHS("BCE217", "error.invalid.expr.in.assignment.lhs"),
-    ERROR_INVALID_EXPR_IN_COMPOUND_ASSIGNMENT_LHS("BCE217",
+    ERROR_INVALID_EXPR_IN_ASSIGNMENT_LHS("BCE225", "error.invalid.expr.in.assignment.lhs"),
+    ERROR_INVALID_EXPR_IN_COMPOUND_ASSIGNMENT_LHS("BCE226",
             "error.invalid.expr.in.compound.assignment.lhs"),
-    ERROR_INVALID_METADATA("BCE218", "error.invalid.metadata"),
-    ERROR_INVALID_QUALIFIER("BCE219", "error.invalid.qualifier"),
-    ERROR_INVALID_ANNOTATIONS("BCE220", "error.invalid.annotations"),
-    ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD("BCE221",
+    ERROR_INVALID_METADATA("BCE227", "error.invalid.metadata"),
+    ERROR_INVALID_QUALIFIER("BCE228", "error.invalid.qualifier"),
+    ERROR_INVALID_ANNOTATIONS("BCE229", "error.invalid.annotations"),
+    ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD("BCE230",
             "error.more.field.match.patterns.after.rest.field"),
-    ERROR_ACTION_AS_A_WAIT_EXPR("BCE222", "error.action.as.a.wait.expr"),
-    ERROR_INVALID_USAGE_OF_VAR("BCE223", "error.invalid.usage.of.var"),
-    ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN("BCE224",
+    ERROR_ACTION_AS_A_WAIT_EXPR("BCE231", "error.action.as.a.wait.expr"),
+    ERROR_INVALID_USAGE_OF_VAR("BCE232", "error.invalid.usage.of.var"),
+    ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN("BCE233",
             "error.more.match.patterns.after.rest.match.pattern"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300", "error.parameter.after.the.rest.parameter"),
@@ -275,6 +286,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.required.parameter.after.the.defaultable.parameter"),
     ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG("BCE302", "error.named.arg.followed.by.positional.arg"),
     ERROR_ARG_FOLLOWED_BY_REST_ARG("BCE303", "error.arg.followed.by.rest.arg"),
+    ERROR_BINDING_PATTERN_NOT_ALLOWED("BCE304", "error.binding.pattern.not.allowed"),
 
     ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL("BCE401",
             "error.invalid.base16.content.in.byte.array.literal"),
@@ -293,6 +305,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_NO_WHITESPACES_ALLOWED_IN_UNSIGNED_RIGHT_SHIFT_OP("BCE602",
             "error.no.whitespaces.allowed.in.unsigned.right.shift.op"),
     ERROR_INVALID_WHITESPACE_IN_SLASH_LT_TOKEN("BCE603", "error.invalid.whitespace.in.slash.lt.token"),
+    ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED("BCE604", "error.local.type.definition.not.allowed"),
 
     // Lexer errors
     ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS("BCE1000", "error.leading.zeros.in.numeric.literals"),

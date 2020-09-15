@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BLink;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXMLQName;
 
@@ -85,12 +86,17 @@ public final class XMLQName implements RefValue, BXMLQName {
 
     @Override
     public String toString() {
-        return stringValue();
+        return stringValue(null);
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         return (uri == null || uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
+    }
+
+    @Override
+    public String informalStringValue(BLink parent) {
+        return "`" + toString() + "`";
     }
 
     @Override
