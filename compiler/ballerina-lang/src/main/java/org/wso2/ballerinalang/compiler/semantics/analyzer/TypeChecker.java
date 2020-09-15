@@ -4382,18 +4382,20 @@ public class TypeChecker extends BLangNodeVisitor {
         //checks whether iterable collection's next() method returns an error
         BType nextMethodReturnType = null;
         BType errorType = null;
-        switch (collectionType.tag) {
-            case TypeTags.STREAM:
-                errorType = ((BStreamType) collectionType).error;
-                break;
-            case TypeTags.OBJECT:
-                nextMethodReturnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
-                break;
-            default:
-                BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                        names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
-                nextMethodReturnType =
-                        (BUnionType) types.getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+        if (collectionType.tag != TypeTags.SEMANTIC_ERROR) {
+            switch (collectionType.tag) {
+                case TypeTags.STREAM:
+                    errorType = ((BStreamType) collectionType).error;
+                    break;
+                case TypeTags.OBJECT:
+                    nextMethodReturnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
+                    break;
+                default:
+                    BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
+                            names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                    nextMethodReturnType =
+                            types.getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+            }
         }
 
         if (nextMethodReturnType != null) {
@@ -5412,6 +5414,10 @@ public class TypeChecker extends BLangNodeVisitor {
         if (keyFunction.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             pos = keyFunction.pos;
             returnType = ((BLangSimpleVarRef) keyFunction).type.getReturnType();
+        } else if (keyFunction.getKind() == NodeKind.ARROW_EXPR) {
+            BLangArrowFunction arrowFunction = ((BLangArrowFunction) keyFunction);
+            pos = arrowFunction.params.get(0).pos;
+            returnType = arrowFunction.params.get(0).type;
         } else {
             BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
             pos = keyLambdaFunction.function.pos;

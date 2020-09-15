@@ -1013,6 +1013,36 @@ function testSort9() {
     assertValueEquality(sortedArr8, arr8);
 }
 
+function testSort10() {
+    int[] arr = [10, 1, 3, 2, 0, 6];
+
+    int[] sortedArr = arr.sort(array:ASCENDING, (i) => i);
+
+    assertValueEquality(sortedArr.toString(), "[0,1,2,3,6,10]");
+    assertValueEquality(sortedArr, arr);
+
+    int methodInt1 = 2;
+    var addFunc1 = function (int funcInt1) returns (int) {
+        int methodInt2 = 23;
+        var addFunc2 = function (int funcInt2) returns (int) {
+            int methodInt3 = 7;
+            function (int) returns (int) addFunc3 = funcInt3 => funcInt3 + methodInt1 + methodInt2 + methodInt3;
+            return addFunc3(8) + funcInt2;
+        };
+        return addFunc2(4) + funcInt1;
+    };
+
+    int[] sortedArr2 = arr.sort(array:DESCENDING, addFunc1);
+
+    assertValueEquality(sortedArr2.toString(), "[10,6,3,2,1,0]");
+    assertValueEquality(sortedArr2, arr);
+
+    int[] sortedArr3 = array:sort(arr, array:ASCENDING, function(int x) returns string[] => [x.toString(), "World"]);
+
+    assertValueEquality(sortedArr3.toString(), "[0,1,10,2,3,6]");
+    assertValueEquality(sortedArr3, arr);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
