@@ -44,6 +44,10 @@ public class TableArrayNode extends ModuleMemberDeclarationNode {
         return childInBucket(2);
     }
 
+    public NodeList<Node> fields() {
+        return new NodeList<>(childInBucket(3));
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -59,24 +63,28 @@ public class TableArrayNode extends ModuleMemberDeclarationNode {
         return new String[]{
                 "openBracket",
                 "identifier",
-                "closeBracket"};
+                "closeBracket",
+                "fields"};
     }
 
     public TableArrayNode modify(
             Token openBracket,
             IdentifierToken identifier,
-            Token closeBracket) {
+            Token closeBracket,
+            NodeList<Node> fields) {
         if (checkForReferenceEquality(
                 openBracket,
                 identifier,
-                closeBracket)) {
+                closeBracket,
+                fields.underlyingListNode())) {
             return this;
         }
 
         return NodeFactory.createTableArrayNode(
                 openBracket,
                 identifier,
-                closeBracket);
+                closeBracket,
+                fields);
     }
 
     public TableArrayNodeModifier modify() {
@@ -93,12 +101,14 @@ public class TableArrayNode extends ModuleMemberDeclarationNode {
         private Token openBracket;
         private IdentifierToken identifier;
         private Token closeBracket;
+        private NodeList<Node> fields;
 
         public TableArrayNodeModifier(TableArrayNode oldNode) {
             this.oldNode = oldNode;
             this.openBracket = oldNode.openBracket();
             this.identifier = oldNode.identifier();
             this.closeBracket = oldNode.closeBracket();
+            this.fields = oldNode.fields();
         }
 
         public TableArrayNodeModifier withOpenBracket(
@@ -122,11 +132,19 @@ public class TableArrayNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
+        public TableArrayNodeModifier withFields(
+                NodeList<Node> fields) {
+            Objects.requireNonNull(fields, "fields must not be null");
+            this.fields = fields;
+            return this;
+        }
+
         public TableArrayNode apply() {
             return oldNode.modify(
                     openBracket,
                     identifier,
-                    closeBracket);
+                    closeBracket,
+                    fields);
         }
     }
 }

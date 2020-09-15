@@ -19,9 +19,9 @@ package syntax.tree;
 
 import internal.parser.tree.STMinutiae;
 import internal.parser.tree.STNode;
-import text.LineRange;
-import text.TextDocument;
-import text.TextRange;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 
 /**
  * Represents whitespaces, comments, newline characters attached to a {@code Token}.

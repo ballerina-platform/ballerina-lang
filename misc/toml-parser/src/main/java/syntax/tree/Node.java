@@ -21,9 +21,9 @@ import diagnostics.Diagnostic;
 import internal.diagnostics.SyntaxDiagnostic;
 import internal.parser.tree.STNode;
 import internal.parser.tree.STNodeDiagnostic;
-import text.LineRange;
-import text.TextDocument;
-import text.TextRange;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 
 import java.util.ArrayList;
 import java.util.List;

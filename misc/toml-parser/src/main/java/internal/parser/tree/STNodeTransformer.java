@@ -33,6 +33,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(modulePartNode);
     }
 
+    public T transform(STBasicValueNode basicValueNode) {
+        return transformSyntaxNode(basicValueNode);
+    }
+
     public T transform(STTableNode tableNode) {
         return transformSyntaxNode(tableNode);
     }
@@ -43,6 +47,10 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STKeyValue keyValue) {
         return transformSyntaxNode(keyValue);
+    }
+
+    public T transform(STArray array) {
+        return transformSyntaxNode(array);
     }
 
     // Tokens

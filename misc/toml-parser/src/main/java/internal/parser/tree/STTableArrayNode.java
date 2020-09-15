@@ -34,15 +34,18 @@ public class STTableArrayNode extends STModuleMemberDeclarationNode {
     public final STNode openBracket;
     public final STNode identifier;
     public final STNode closeBracket;
+    public final STNode fields;
 
     STTableArrayNode(
             STNode openBracket,
             STNode identifier,
-            STNode closeBracket) {
+            STNode closeBracket,
+            STNode fields) {
         this(
                 openBracket,
                 identifier,
                 closeBracket,
+                fields,
                 Collections.emptyList());
     }
 
@@ -50,16 +53,19 @@ public class STTableArrayNode extends STModuleMemberDeclarationNode {
             STNode openBracket,
             STNode identifier,
             STNode closeBracket,
+            STNode fields,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.TABLE_ARRAY, diagnostics);
         this.openBracket = openBracket;
         this.identifier = identifier;
         this.closeBracket = closeBracket;
+        this.fields = fields;
 
         addChildren(
                 openBracket,
                 identifier,
-                closeBracket);
+                closeBracket,
+                fields);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -67,17 +73,20 @@ public class STTableArrayNode extends STModuleMemberDeclarationNode {
                 this.openBracket,
                 this.identifier,
                 this.closeBracket,
+                this.fields,
                 diagnostics);
     }
 
     public STTableArrayNode modify(
             STNode openBracket,
             STNode identifier,
-            STNode closeBracket) {
+            STNode closeBracket,
+            STNode fields) {
         if (checkForReferenceEquality(
                 openBracket,
                 identifier,
-                closeBracket)) {
+                closeBracket,
+                fields)) {
             return this;
         }
 
@@ -85,6 +94,7 @@ public class STTableArrayNode extends STModuleMemberDeclarationNode {
                 openBracket,
                 identifier,
                 closeBracket,
+                fields,
                 diagnostics);
     }
 

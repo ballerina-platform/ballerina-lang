@@ -44,6 +44,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(modulePartNode);
     }
 
+    public T transform(BasicValueNode basicValueNode) {
+        return transformSyntaxNode(basicValueNode);
+    }
+
     public T transform(TableNode tableNode) {
         return transformSyntaxNode(tableNode);
     }
@@ -54,6 +58,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(KeyValue keyValue) {
         return transformSyntaxNode(keyValue);
+    }
+
+    public T transform(Array array) {
+        return transformSyntaxNode(array);
     }
 
     // Tokens

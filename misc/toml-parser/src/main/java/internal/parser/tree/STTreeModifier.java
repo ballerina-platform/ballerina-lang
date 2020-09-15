@@ -38,6 +38,15 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STBasicValueNode transform(
+            STBasicValueNode basicValueNode) {
+        STNode value = modifyNode(basicValueNode.value);
+        return basicValueNode.modify(
+                basicValueNode.kind,
+                value);
+    }
+
+    @Override
     public STTableNode transform(
             STTableNode tableNode) {
         STNode openBracket = modifyNode(tableNode.openBracket);
@@ -57,10 +66,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode openBracket = modifyNode(tableArrayNode.openBracket);
         STNode identifier = modifyNode(tableArrayNode.identifier);
         STNode closeBracket = modifyNode(tableArrayNode.closeBracket);
+        STNode fields = modifyNode(tableArrayNode.fields);
         return tableArrayNode.modify(
                 openBracket,
                 identifier,
-                closeBracket);
+                closeBracket,
+                fields);
     }
 
     @Override
@@ -73,6 +84,18 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 identifier,
                 assign,
                 value);
+    }
+
+    @Override
+    public STArray transform(
+            STArray array) {
+        STNode openBracket = modifyNode(array.openBracket);
+        STNode values = modifyNode(array.values);
+        STNode closeBracket = modifyNode(array.closeBracket);
+        return array.modify(
+                openBracket,
+                values,
+                closeBracket);
     }
 
     // Tokens

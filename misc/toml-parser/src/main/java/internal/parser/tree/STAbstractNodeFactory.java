@@ -32,6 +32,7 @@ import java.util.Collection;
  * @since 1.3.0
  */
 public abstract class STAbstractNodeFactory {
+
     private static final STNodeList EMPTY_LIST = new STNodeList();
 
     public static STToken createIdentifierToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
@@ -39,9 +40,9 @@ public abstract class STAbstractNodeFactory {
     }
 
     public static STToken createIdentifierToken(String text,
-                                                                                               STNode leadingTrivia,
-                                                                                               STNode trailingTrivia,
-                                                                                               Collection<STNodeDiagnostic> diagnostics) {
+                                                STNode leadingTrivia,
+                                                STNode trailingTrivia,
+                                                Collection<STNodeDiagnostic> diagnostics) {
         return new STIdentifierToken(text, leadingTrivia, trailingTrivia, diagnostics);
     }
 
@@ -87,24 +88,24 @@ public abstract class STAbstractNodeFactory {
     }
 
     public static STToken createToken(SyntaxKind kind,
-                                                                                     STNode leadingTrivia,
-                                                                                     STNode trailingTrivia,
-                                                                                     Collection<STNodeDiagnostic> diagnostics) {
+                                      STNode leadingTrivia,
+                                      STNode trailingTrivia,
+                                      Collection<STNodeDiagnostic> diagnostics) {
         return new STToken(kind, kind.stringValue().length(), leadingTrivia, trailingTrivia, diagnostics);
     }
 
     public static STToken createLiteralValueToken(SyntaxKind kind,
-                                                                                                 String text,
-                                                                                                 STNode leadingTrivia,
-                                                                                                 STNode trailingTrivia) {
+                                                  String text,
+                                                  STNode leadingTrivia,
+                                                  STNode trailingTrivia) {
         return new STLiteralValueToken(kind, text, leadingTrivia, trailingTrivia);
     }
 
     public static STToken createLiteralValueToken(SyntaxKind kind,
-                                                                                                 String text,
-                                                                                                 STNode leadingTrivia,
-                                                                                                 STNode trailingTrivia,
-                                                                                                 Collection<STNodeDiagnostic> diagnostics) {
+                                                  String text,
+                                                  STNode leadingTrivia,
+                                                  STNode trailingTrivia,
+                                                  Collection<STNodeDiagnostic> diagnostics) {
         return new STLiteralValueToken(kind, text, leadingTrivia, trailingTrivia, diagnostics);
     }
 
@@ -136,9 +137,9 @@ public abstract class STAbstractNodeFactory {
     }
 
     public static STToken createDocumentationLineToken(String text,
-                                                                                                      STNode leadingTrivia,
-                                                                                                      STNode trailingTrivia,
-                                                                                                      Collection<STNodeDiagnostic> diagnostics) {
+                                                       STNode leadingTrivia,
+                                                       STNode trailingTrivia,
+                                                       Collection<STNodeDiagnostic> diagnostics) {
         return new STDocumentationLineToken(text, leadingTrivia, trailingTrivia, diagnostics);
     }
 }
