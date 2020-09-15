@@ -26,7 +26,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
-import static org.ballerinalang.test.util.BAssertUtil.validateNote;
+import static org.ballerinalang.test.util.BAssertUtil.validateWarning;
 
 /**
  * Test cases related to isolation analysis.
@@ -65,8 +65,10 @@ public class IsolationAnalysisTest {
                 "testIsolatedFunctionAccessingImmutableGlobalStorage",
                 "testIsolatedObjectMethods",
                 "testNonIsolatedMethodAsIsolatedMethodRuntimeNegative",
-//                "testIsolatedFunctionAsIsolatedFunctionRuntime",
-//                "testIsolatedFunctionAsIsolatedFunctionRuntimeNegative",
+                "testIsolatedFunctionPointerInvocation",
+                "testIsolatedFunctionAsIsolatedFunctionRuntime",
+                "testIsolatedFunctionAsIsolatedFunctionRuntimeNegative",
+                "testIsolatedArrowFunctions",
                 "testConstantRefsInIsolatedFunctions",
                 "testIsolatedClosuresAsRecordDefaultValues"
         };
@@ -80,8 +82,8 @@ public class IsolationAnalysisTest {
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'Qux', found 'object { int i; function qux () " +
                 "returns (int); }'", 37, 13);
-//        validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
-//                "'function () returns (int)'", 38, 40);
+        validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
+                "'function () returns (int)'", 42, 40);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -129,12 +131,15 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 27);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 30);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 39);
-//        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 168, 13);
-//        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 168, 29);
-//        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 169, 16);
-//        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 174, 17);
-//        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 174, 33);
-//        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 175, 20);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 168, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 168, 29);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 169, 16);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 174, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 174, 33);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 175, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 182, 34);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 185, 34);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 188, 56);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -143,13 +148,13 @@ public class IsolationAnalysisTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/isolated_record_field_default_negative.bal");
         int i = 0;
-        validateNote(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 22, 13);
-        validateNote(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 23, 13);
-        validateNote(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 30, 17);
-        validateNote(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 31, 20);
-        validateNote(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 32, 20);
-        validateNote(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 32, 24);
-        Assert.assertEquals(result.getNoteCount(), i);
+        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 22, 13);
+        validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 23, 13);
+        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 30, 17);
+        validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 31, 20);
+        validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 32, 20);
+        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 32, 24);
+        Assert.assertEquals(result.getWarnCount(), i);
 
     }
 }

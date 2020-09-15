@@ -81,27 +81,27 @@ public const int UNSIGNED8_MAX_VALUE = 255;
 #
 # + n - int value to be operated on
 # + return - absolute value of `n`
-public function abs(int n) returns int = external;
+public isolated function abs(int n) returns int = external;
 
 # Returns sum of zero or more int values.
 #
 # + ns - int values to sum
 # + return - sum of all the `ns`; 0 is `ns` is empty
-public function sum(int... ns) returns int = external;
+public isolated function sum(int... ns) returns int = external;
 
 # Maximum of one or more int values.
 #
 # + n - first int value
 # + ns - other int values
 # + return - maximum value of value of `x` and all the `xs`
-public function max(int n, int... ns) returns int = external;
+public isolated function max(int n, int... ns) returns int = external;
 
 # Minimum of one or more int values
 #
 # + n - first int value
 # + ns - other int values
 # + return - minimum value of `n` and all the `ns`
-public function min(int n, int... ns) returns int = external;
+public isolated function min(int n, int... ns) returns int = external;
 
 # Returns the integer that `s` represents in decimal.
 # Returns error if `s` is not the decimal representation of an integer.
@@ -110,7 +110,7 @@ public function min(int n, int... ns) returns int = external;
 #
 # + s - string representation of a integer value
 # + return - int representation of the argument or error
-public function fromString(string s) returns int|error = external;
+public isolated function fromString(string s) returns int|error = external;
 
 # Returns representation of `n` as hexdecimal string.
 # There is no `0x` prefix. Lowercase letters a-f are used.
@@ -119,7 +119,7 @@ public function fromString(string s) returns int|error = external;
 #
 # + n - int value
 # + return - hexadecimal string representation of int value
-public function toHexString(int n) returns string = external;
+public isolated function toHexString(int n) returns string = external;
 
 # Returns the integer that `s` represents in hexadecimal.
 # Both uppercase A-F and lowercase a-f are allowed.
@@ -129,4 +129,4 @@ public function toHexString(int n) returns string = external;
 #
 # + s - hexadecimal string representation of int value
 # + return - int value or error
-public function fromHexString(string s) returns int|error = external;
+public isolated function fromHexString(string s) returns int|error = external;

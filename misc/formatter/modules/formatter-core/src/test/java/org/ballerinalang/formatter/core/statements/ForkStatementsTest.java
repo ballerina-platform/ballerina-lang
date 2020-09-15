@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Test the formatting of fork statements.
@@ -41,10 +43,8 @@ public class ForkStatementsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"fork_statement_1.bal", this.getTestResourceDir()}
-        };
+    public List<String> skipList() {
+        return Collections.singletonList("fork_statement_1.bal");
     }
 
     @Override

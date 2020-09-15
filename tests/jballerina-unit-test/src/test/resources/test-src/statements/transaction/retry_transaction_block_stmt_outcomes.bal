@@ -33,7 +33,7 @@ function testCommitSuccessWithNoRetryFailOutcome() returns error? {
 
     retry transaction {
         str += "trx started ";
-        err = fail error("Error in block statement");
+        err = error("Error in block statement");
         transactions:onCommit(onCommitFunc);
         check commit;
     }
@@ -310,7 +310,7 @@ function testPanicFromCommitWithUnusualFailOutcome() returns string|error {
             var c = check incrementCount(2);
         } else {
             setRollbackOnlyError();
-            fail <error>trap checkpanic commit;
+            check commit;
         }
         str += "-> end of trx block ";
     }

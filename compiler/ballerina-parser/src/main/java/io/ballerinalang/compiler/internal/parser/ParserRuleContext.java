@@ -276,6 +276,8 @@ public enum ParserRuleContext {
     ON_CLAUSE("on-clause"),
     INTERMEDIATE_CLAUSE("intermediate-clause"),
     INTERMEDIATE_CLAUSE_START("intermediate-clause-start"),
+    ON_FAIL_CLAUSE("on_fail_clause"),
+    ON_FA("on_fail_clause"),
 
     // Statements
     STATEMENT("statement"),
@@ -291,6 +293,7 @@ public enum ParserRuleContext {
     ELSE_BLOCK("else-block"),
     ELSE_BODY("else-body"),
     WHILE_BLOCK("while-block"),
+    DO_BLOCK("do-block"),
     CALL_STMT("call-statement"),
     CALL_STMT_START("call-statement-start"),
     CONTINUE_STATEMENT("continue-statement"),
@@ -298,7 +301,7 @@ public enum ParserRuleContext {
     PANIC_STMT("panic-statement"),
     RETURN_STMT("return-stmt"),
     RETURN_STMT_RHS("return-stmt-rhs"),
-    COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
+    REGULAR_COMPOUND_STMT_RHS("regular-compound-statement-rhs"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
     BINDING_PATTERN_OR_EXPR_RHS("binding-pattern-or-expr-rhs"),
     TYPE_DESC_OR_EXPR_RHS("type-desc-or-expr-rhs"),
@@ -315,6 +318,7 @@ public enum ParserRuleContext {
     ROLLBACK_STMT("rollback-stmt"),
     AMBIGUOUS_STMT("ambiguous-stmt"),
     MATCH_STMT("match-stmt"),
+    FAIL_STATEMENT("fail-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),

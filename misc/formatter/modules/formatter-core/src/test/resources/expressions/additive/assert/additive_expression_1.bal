@@ -4,3 +4,4 @@ public function foo() {
     string b = "he" + "llo";
     decimal r = 4 - 2;
 }
+

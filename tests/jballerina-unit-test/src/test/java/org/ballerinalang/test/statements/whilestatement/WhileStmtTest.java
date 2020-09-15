@@ -38,11 +38,13 @@ public class WhileStmtTest {
 
     private CompileResult positiveCompileResult;
     private CompileResult negativeCompileResult;
+    private CompileResult onfailCompileResult;
 
     @BeforeClass
     public void setup() {
         positiveCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt.bal");
         negativeCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-negative.bal");
+        onfailCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-on-fail.bal");
     }
 
     @Test(description = "Test while loop with a condition which evaluates to true")
@@ -184,6 +186,41 @@ public class WhileStmtTest {
 
         String actual = returns[0].stringValue();
         String expected = "foo1foo2foo3";
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test while loop with a condition which evaluates to true")
+    public void testWhileStmtWithOnFail() {
+        BValue[] args = {new BInteger(5)};
+        BValue[] returns = BRunUtil.invoke(onfailCompileResult, "testWhileStmtWithFail", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), " Value: 1 Value: 2 Value: 3-> error caught. " +
+                "Hence value returning", "mismatched output value");
+    }
+
+    @Test(description = "Test while loop with a condition which evaluates to true")
+    public void testWhileStmtWithCheck() {
+        BValue[] args = {new BInteger(5)};
+        BValue[] returns = BRunUtil.invoke(onfailCompileResult, "testWhileStmtWithCheck", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), " Value: 1 Value: 2 Value: 3-> error caught. " +
+                "Hence value returning", "mismatched output value");
+    }
+
+    @Test(description = "Test nested while loop with break 2")
+    public void testNestedWhileStmtWithFail() {
+        BValue[] returns = BRunUtil.invoke(onfailCompileResult, "testNestedWhileStmtWithFail");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+
+        String actual = returns[0].stringValue();
+        String expected = "level3-> error caught at level 3, level2-> error caught at level 2, " +
+                "level1-> error caught at level 1.";
         Assert.assertEquals(actual, expected);
     }
 }

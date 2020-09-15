@@ -1,2 +1,3 @@
 public type Student object {
 };
+

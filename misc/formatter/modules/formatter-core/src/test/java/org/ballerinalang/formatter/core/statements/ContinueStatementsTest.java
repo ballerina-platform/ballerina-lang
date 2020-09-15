@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Test the formatting of continue statements.
@@ -41,10 +43,8 @@ public class ContinueStatementsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"continue_statement_1.bal", this.getTestResourceDir()}
-        };
+    public List<String> skipList() {
+        return Collections.singletonList("continue_statement_1.bal");
     }
 
     @Override

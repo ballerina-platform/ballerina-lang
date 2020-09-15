@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -547,6 +548,15 @@ public class ASTBuilderUtil {
         return checkExpr;
     }
 
+    static BLangCheckPanickedExpr createCheckPanickedExpr(DiagnosticPos pos, BLangExpression expr, BType returnType) {
+        final BLangCheckPanickedExpr checkExpr = (BLangCheckPanickedExpr) TreeBuilder.createCheckPanicExpressionNode();
+        checkExpr.pos = pos;
+        checkExpr.expr = expr;
+        checkExpr.type = returnType;
+        checkExpr.equivalentErrorTypeList = new ArrayList<>();
+        return checkExpr;
+    }
+
     static BLangBinaryExpr createBinaryExpr(DiagnosticPos pos,
                                             BLangExpression lhsExpr,
                                             BLangExpression rhsExpr,
@@ -802,8 +812,18 @@ public class ASTBuilderUtil {
         dupFuncSymbol.strandName = invokableSymbol.strandName;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
-                                                prevFuncType.restType, prevFuncType.retType, prevFuncType.tsymbol);
+        BInvokableType dupInvokableType = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
+                                                          prevFuncType.restType, prevFuncType.retType,
+                                                          prevFuncType.tsymbol);
+
+        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
+            dupFuncSymbol.flags |= Flags.ISOLATED;
+            dupInvokableType.flags |= Flags.ISOLATED;
+        }
+
+        dupFuncSymbol.type = dupInvokableType;
+        dupFuncSymbol.dependentGlobalVars = invokableSymbol.dependentGlobalVars;
+
         return dupFuncSymbol;
     }
 

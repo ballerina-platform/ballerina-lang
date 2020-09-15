@@ -4,3 +4,4 @@ public function foo() {
     float s = 4.0 / 2;
     int b = 5 % 2;
 }
+
