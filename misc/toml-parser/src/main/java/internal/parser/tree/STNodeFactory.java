@@ -45,6 +45,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 eofToken);
     }
 
+    public static STNode createBasicValueNode(
+            SyntaxKind kind,
+            STNode value) {
+
+        return new STBasicValueNode(
+                kind,
+                value);
+    }
+
     public static STNode createTableNode(
             STNode openBracket,
             STNode identifier,
@@ -61,12 +70,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createTableArrayNode(
             STNode openBracket,
             STNode identifier,
-            STNode closeBracket) {
+            STNode closeBracket,
+            STNode fields) {
 
         return new STTableArrayNode(
                 openBracket,
                 identifier,
-                closeBracket);
+                closeBracket,
+                fields);
     }
 
     public static STNode createKeyValue(
@@ -78,6 +89,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 identifier,
                 assign,
                 value);
+    }
+
+    public static STNode createArray(
+            STNode openBracket,
+            STNode values,
+            STNode closeBracket) {
+
+        return new STArray(
+                openBracket,
+                values,
+                closeBracket);
     }
 }
 

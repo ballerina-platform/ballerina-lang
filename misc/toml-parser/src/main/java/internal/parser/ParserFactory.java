@@ -17,10 +17,10 @@
  */
 package internal.parser;
 
-import syntax.tree.SyntaxTree;
-import text.TextDocument;
-import text.TextDocumentChange;
-import text.TextDocuments;
+import io.ballerina.tools.text.CharReader;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
+
 
 /**
  * A factory for creating {@code BallerinaParser} instances.
@@ -57,26 +57,7 @@ public class ParserFactory {
         return new TomlParser(tokenReader);
     }
 
-//    /**
-//     * Creates an incremental {@code BallerinaParser} instance from
-//     * the old {@code SyntaxTree} and text modifications.
-//     *
-//     * @param oldTree            previous syntax tree
-//     * @param newTextDocument    new source code
-//     * @param textDocumentChange a collection of text edits applied to the previous source code
-//     * @return an incremental {@code BallerinaParser} instance
-//     */
-//    public static BallerinaParser getParser(SyntaxTree oldTree,
-//                                            TextDocument newTextDocument,
-//                                            TextDocumentChange textDocumentChange) {
-//        HybridNodeStorage hybridNodeStorage = new HybridNodeStorage(oldTree,
-//                getLexer(newTextDocument), textDocumentChange);
-//        AbstractTokenReader tokeReader = new HybridTokenReader(hybridNodeStorage);
-//        UnmodifiedSubtreeSupplier subtreeReader = new UnmodifiedSubtreeSupplier(hybridNodeStorage);
-//        return new IncrementalParser(tokeReader, subtreeReader);
-//    }
-
     private static TomlLexer getLexer(TextDocument textDocument) {
-        return new TomlLexer(textDocument.getCharacterReader());
+        return new TomlLexer(CharReader.from(textDocument));
     }
 }

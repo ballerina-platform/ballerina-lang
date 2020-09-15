@@ -29,26 +29,121 @@
       ]
     },
     {
-      "name": "MetadataNode",
+      "name": "ModuleMemberDeclarationNode",
       "base": "Node",
-      "kind": "METADATA",
+      "isAbstract": true
+    },
+    {
+      "name": "ValueNode",
+      "base": "Node",
+      "isAbstract": true
+    },
+    {
+      "name": "BasicValueNode",
+      "base": "ValueNode",
       "attributes": [
         {
-          "name": "documentationString",
-          "type": "Node",
-          "isOptional": true
+          "name": "value",
+          "type": "Token",
+          "isOptional": false
         }
       ]
     },
     {
       "name": "TableNode",
-      "base": "Node",
+      "base": "ModuleMemberDeclarationNode",
       "kind": "TABLE",
       "attributes": [
         {
-          "name": "tableName",
+          "name": "openBracket",
+          "type": "Token",
+          "isOptional": false
+        },
+        {
+          "name": "identifier",
+          "type": "IdentifierToken",
+          "isOptional": false
+        },
+        {
+          "name": "closeBracket",
+          "type": "Token",
+          "isOptional": false
+        },
+        {
+          "name": "fields",
           "type": "Node",
-          "isOptional": true
+          "occurrences": "MULTIPLE"
+        }
+      ]
+    },
+    {
+      "name": "TableArrayNode",
+      "base": "ModuleMemberDeclarationNode",
+      "kind": "TABLE_ARRAY",
+      "attributes": [
+        {
+          "name": "openBracket",
+          "type": "Token",
+          "isOptional": false
+        },
+        {
+          "name": "identifier",
+          "type": "IdentifierToken",
+          "isOptional": false
+        },
+        {
+          "name": "closeBracket",
+          "type": "Token",
+          "isOptional": false
+        },
+        {
+          "name": "fields",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        }
+      ]
+    },
+    {
+      "name": "KeyValue",
+      "base": "ModuleMemberDeclarationNode",
+      "kind": "KEY_VALUE",
+      "attributes": [
+        {
+          "name": "identifier",
+          "type": "Token",
+          "isOptional": false
+        },
+        {
+          "name": "assign",
+          "type": "Token",
+          "isOptional": false
+        },
+        {
+          "name": "value",
+          "type": "ValueNode",
+          "isOptional": false
+        }
+      ]
+    },
+    {
+      "name": "Array",
+      "base": "ValueNode",
+      "kind": "ARRAY",
+      "attributes": [
+        {
+          "name": "openBracket",
+          "type": "Token",
+          "isOptional": false
+        },
+        {
+          "name": "values",
+          "type": "ValueNode",
+          "occurrences": "MULTIPLE_SEPARATED"
+        },
+        {
+          "name": "closeBracket",
+          "type": "Token",
+          "isOptional": false
         }
       ]
     }

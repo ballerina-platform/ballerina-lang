@@ -33,6 +33,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(modulePartNode);
     }
 
+    public void visit(STBasicValueNode basicValueNode) {
+        visitSyntaxNode(basicValueNode);
+    }
+
     public void visit(STTableNode tableNode) {
         visitSyntaxNode(tableNode);
     }
@@ -43,6 +47,10 @@ public abstract class STNodeVisitor {
 
     public void visit(STKeyValue keyValue) {
         visitSyntaxNode(keyValue);
+    }
+
+    public void visit(STArray array) {
+        visitSyntaxNode(array);
     }
 
     // STNodeList

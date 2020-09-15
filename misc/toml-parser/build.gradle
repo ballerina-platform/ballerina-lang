@@ -15,10 +15,16 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+configurations.all {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
 
 dependencies {
-//    implementation project(':ballerina-parser')
+    implementation project(':ballerina-tools-api')
     testImplementation 'org.testng:testng'
     testImplementation 'com.google.code.gson:gson'
     testCompile 'org.testng:testng'
