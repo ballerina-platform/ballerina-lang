@@ -157,6 +157,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -569,6 +570,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         this.uninitializedVars = mergeUninitializedVars(ifResult.uninitializedVars, elseResult.uninitializedVars);
+    }
+
+    @Override
+    public void visit(BLangMatchStatement matchStatement) {
+        if (matchStatement.onFailClause != null) {
+            analyzeNode(matchStatement.onFailClause, env);
+        }
     }
 
     @Override
@@ -1804,8 +1812,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             BSymbol symbol = ((BLangSimpleVarRef) varRef).symbol;
             checkFinalEntityUpdate(varRef.pos, varRef, symbol);
 
-            BSymbol owner = this.env.scope.owner;
-            addFunctionToGlobalVarDependency(owner, symbol);
+            BSymbol owner = this.currDependentSymbol.peek();
+            addFunctionToGlobalVarDependency(owner, ((BLangSimpleVarRef) varRef).symbol);
         }
 
         this.uninitializedVars.remove(((BLangVariableReference) varRef).symbol);

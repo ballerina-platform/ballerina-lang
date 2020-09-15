@@ -236,6 +236,8 @@ public class BIRBinaryWriter {
 
         typeWriter.writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
 
+        writeFunctionsGlobalVarDependency(buf, birFunction);
+
         ByteBuf birbuf = Unpooled.buffer();
         BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, cp, this);
 
@@ -300,6 +302,14 @@ public class BIRBinaryWriter {
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeFunctionsGlobalVarDependency(ByteBuf buf, BIRNode.BIRFunction birFunction) {
+        buf.writeInt(birFunction.dependentGlobalVars.size());
+
+        for (BIRNode.BIRVariableDcl var : birFunction.dependentGlobalVars) {
+            buf.writeInt(addStringCPEntry(var.name.value));
+        }
     }
 
     private void writeTaintTable(ByteBuf buf, TaintTable taintTable) {
