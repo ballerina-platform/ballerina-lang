@@ -540,7 +540,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ERROR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
 
         List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
                 .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol

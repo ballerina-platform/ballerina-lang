@@ -514,10 +514,31 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
       "insertText": "error(\"${1}\")",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object constructor",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "object {\n\t\n};",
       "insertTextFormat": "Snippet"
     },
     {

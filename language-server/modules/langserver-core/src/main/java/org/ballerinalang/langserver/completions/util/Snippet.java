@@ -124,6 +124,8 @@ public enum Snippet {
 
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
 
+    EXPR_OBJECT_CONSTRUCTOR(SnippetGenerator.getObjectConstructorSnippet()),
+
 
     // Keyword Snippets
     KW_ON(SnippetGenerator.getOnSnippet()),
