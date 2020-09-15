@@ -298,6 +298,8 @@ public class JvmCastGen {
             case TypeTags.HANDLE:
                 mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
                         String.format("()L%s;", OBJECT), false);
+                mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
+                mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
                 break;
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_INT_METHOD, String.format("(L%s;)J", OBJECT),
