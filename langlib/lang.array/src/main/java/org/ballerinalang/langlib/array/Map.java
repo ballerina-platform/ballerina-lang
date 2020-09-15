@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -76,12 +77,12 @@ public class Map {
                 throw createOpNotSupportedError(arrType, "map()");
         }
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{strand,
                                                                getFn.get(arr, index.incrementAndGet()), true},
                                                        result -> retArr.add(index.get(), result),
-                                                       () -> retArr);
+                                                       () -> retArr, Scheduler.getStrand().scheduler);
 
         return retArr;
     }

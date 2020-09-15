@@ -5,18 +5,10 @@ public function foo() {
         int status = 0;
         float score;
 
-        type typeN object {
-            *A;
-            int age;
-            string name;
-            public int status;
-            public float score;
+        int[] myArray = [1, 2, 3, 4, 5, 6, 7, 8];
 
-            public function init();
-
-            *B;
-
-            function getName();
-        };
+        foreach int i in myArray {
+            io:println(i);
+        }
     }
 }
