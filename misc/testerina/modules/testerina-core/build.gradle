@@ -30,6 +30,7 @@ dependencies {
     implementation project(':ballerina-java')
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.testng:testng'
+    implementation "io.github.java-diff-utils:java-diff-utils:4.5"
 
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.swagger.core.v3:swagger-models'

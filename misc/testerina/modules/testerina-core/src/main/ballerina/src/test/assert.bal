@@ -148,8 +148,9 @@ function getInequalityErrorMsg(any|error actual, any|error expected, string msg 
             }
             errorMsg = string `${msg}` + "\nexpected: " + string `<${expectedType}> '${expectedStr}'` + "\nactual\t: " + string `<${actualType}> '${actualStr}'`;
         } else {
+            string diff = getStringDiff(actualStr, expectedStr);
             errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
-            + string `'${actualStr}'`;
+            + string `'${actualStr}'` + "\n" + string `${diff}`;
         }
         return errorMsg;
 }
@@ -163,3 +164,9 @@ function getBallerinaType((any|error) value) returns string = @java:Method {
     name : "getBallerinaType",
     'class : "org.ballerinalang.testerina.core.BallerinaTypeCheck"
 } external;
+
+function getStringDiff((any|error) actual, (any|error) expected) returns string = @java:Method {
+    name : "getStringDiff",
+    'class : "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
+} external;
+
