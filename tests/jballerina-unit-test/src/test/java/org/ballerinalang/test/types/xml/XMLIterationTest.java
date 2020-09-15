@@ -149,7 +149,7 @@ public class XMLIterationTest {
             description = "Test iterating over xml elements where some elements are characters")
     public void testXMLCompoundCharacterSequenceIteration() {
         BValue[] results = BRunUtil.invoke(result, "xmlSequenceIter");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 0);
         String str = results[0].stringValue();
         Assert.assertEquals(str, "<book>the book</book>\nbit of text\\u2702\\u2705\n");
     }
@@ -158,7 +158,7 @@ public class XMLIterationTest {
             description = "Test iterating over xml sequence where all elements are character items")
     public void testXMLCharacterSequenceIteration() {
         BValue[] results = BRunUtil.invoke(result, "xmlCharItemIter");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 0);
         String str = results[0].stringValue();
         Assert.assertEquals(str, "bit of text\\u2702\\u2705\n");
     }

@@ -2288,6 +2288,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(invokableNode.name.pos, funcSymbol);
         invokableEnv.scope = funcSymbol.scope;
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
+
+        if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.ISOLATED)) {
+            funcSymbol.type.flags |= Flags.ISOLATED;
+        }
     }
 
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
@@ -2431,6 +2435,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (safeType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
                                              env.scope.owner, pos, isInternal ? VIRTUAL : SOURCE);
+            if (Symbols.isFlagOn(safeType.flags, Flags.ISOLATED)) {
+                varSymbol.flags |= Flags.ISOLATED;
+            }
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
             varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, pos,
@@ -2863,9 +2870,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveAndSetFunctionTypeFromRHSLambda(BLangSimpleVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
-        variable.type = symResolver.createInvokableType(function.getParameters(),
-                                                        function.restParam, function.returnTypeNode,
-                                                        Flags.asMask(variable.flagSet), env, function.pos);
+        BInvokableType invokableType = symResolver.createInvokableType(function.getParameters(),
+                                                                       function.restParam, function.returnTypeNode,
+                                                                       Flags.asMask(variable.flagSet), env,
+                                                                       function.pos);
+
+        if (function.flagSet.contains(Flag.ISOLATED)) {
+            invokableType.flags |= Flags.ISOLATED;
+            invokableType.tsymbol.flags |= Flags.ISOLATED;
+        }
+
+        variable.type = invokableType;
     }
 
     /**

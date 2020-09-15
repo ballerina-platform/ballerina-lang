@@ -196,6 +196,6 @@ public class WebSocketCompilationTest {
     }
 
     private void assertExpectedDiagnosticsLength(CompileResult compileResult, int expectedLength) {
-        Assert.assertEquals(compileResult.getDiagnostics().length, expectedLength);
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, expectedLength);
     }
 }

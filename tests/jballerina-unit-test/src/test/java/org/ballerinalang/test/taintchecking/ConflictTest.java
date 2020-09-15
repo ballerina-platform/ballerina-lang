@@ -35,14 +35,14 @@ public class ConflictTest {
     @Test
     public void testRecursion() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/recursion.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 0);
     }
 
     @Test
     public void testRecursionWithinAttachedExternalFunctions() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/recursions/recursion-within-attached-external-function.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 0);
     }
 
     // Test cyclic function invocations.
@@ -50,19 +50,19 @@ public class ConflictTest {
     @Test
     public void testCyclicCall() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/cyclic-call.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 0);
     }
 
     @Test
     public void testMultipleCyclicCalls() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/multiple-cyclic-calls.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 0);
     }
 
     @Test
     public void testMultipleCyclicCallsComplex() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/" +
                 "multiple-cyclic-calls-complex.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 0);
     }
 }

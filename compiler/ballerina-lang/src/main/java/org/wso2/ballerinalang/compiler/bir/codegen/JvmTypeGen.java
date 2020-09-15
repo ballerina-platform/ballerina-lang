@@ -1578,9 +1578,11 @@ class JvmTypeGen {
         // load return type type
         loadType(mv, retType);
 
+        mv.visitLdcInsn(bType.flags);
+
         // initialize the function type using the param types array and the return type
         mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, JVM_INIT_METHOD,
-                String.format("([L%s;L%s;L%s;)V", BTYPE, BTYPE, BTYPE), false);
+                String.format("([L%s;L%s;L%s;I)V", BTYPE, BTYPE, BTYPE), false);
     }
 
     static String getTypeDesc(BType bType) {

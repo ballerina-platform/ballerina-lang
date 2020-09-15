@@ -20,4 +20,4 @@
 # and terminate abnormally if the flag is set.
 #
 # + f - the future to be cancelled
-public function cancel(future<any|error> f) returns () = external;
+public isolated function cancel(future<any|error> f) returns () = external;

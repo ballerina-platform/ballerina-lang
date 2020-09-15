@@ -37,7 +37,7 @@ public class NegativeValidationTest {
 
         String path = "test-src/javainterop/ballerina_types_as_interop_types_negative.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 12);
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 12);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class NegativeValidationTest {
 
         String path = "test-src/javainterop/negative/class_not_found.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}CLASS_NOT_FOUND 'org.ballerinalang.nativeimpl.jvm.tests.PublicStaticMethods'",
                 "class_not_found.bal", 25, 1);
@@ -56,8 +56,8 @@ public class NegativeValidationTest {
 
         String path = "test-src/javainterop/negative/method_not_found1.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'acceptStringOrErrorReturn' found in " +
                         "class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
@@ -70,8 +70,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_not_found2.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'acceptObjectAndObjectReturn' with '3' " +
                         "parameter(s) found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
@@ -84,8 +84,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_not_found3.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'acceptRecordAndRecordReturn' with '3' " +
                         "parameter(s) found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
@@ -98,8 +98,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_not_found4.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'acceptIntAndUnionReturn' found in class " +
                         "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
@@ -112,8 +112,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_not_found5.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'acceptIntStringAndUnionReturn' found in " +
                         "class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
@@ -127,7 +127,7 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/" + testFileName;
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 4);
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 4);
 
         String message = "{ballerina/java}METHOD_NOT_FOUND 'No such public method '%s' that matches with " +
                 "parameter types '(%s)' found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''";
@@ -156,8 +156,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_sig_not_match1.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
                         "'acceptIntReturnIntThrowsCheckedException' which throws checked exception found in class " +
@@ -171,8 +171,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_sig_not_match2.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
                         "'acceptRecordAndRecordReturnWhichThrowsCheckedException' which throws checked exception " +
@@ -186,8 +186,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_sig_not_match3.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
                         "'acceptIntUnionReturnWhichThrowsCheckedException' which throws checked exception found in " +
@@ -201,8 +201,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_sig_not_match4.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
                         "'acceptRefTypesAndReturnMapWhichThrowsCheckedException' which throws checked exception " +
@@ -216,8 +216,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_sig_not_match5.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
                         "'acceptStringErrorReturnWhichThrowsCheckedException' which throws checked exception found " +
@@ -231,8 +231,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_sig_not_match6.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
                         "'getArrayValueFromMapWhichThrowsCheckedException' which throws checked exception found in " +
@@ -246,8 +246,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_sig_not_match7.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method 'split' in " +
                         "class 'java.lang.String': Java type 'java.lang.String' will not be matched to ballerina " +
@@ -261,8 +261,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_sig_not_match8.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Parameter count does not match with Java method " +
                         "'split' found in class 'java.lang.String''",
@@ -275,8 +275,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_sig_not_match9.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method " +
                         "'decimalParamAsObjectAndReturn' in class " +
@@ -291,8 +291,8 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_sig_not_match10.bal";
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible return type for method " +
                         "'decimalParamAndReturnAsObject' in class " +
@@ -306,8 +306,8 @@ public class NegativeValidationTest {
 
         String path = "test-src/javainterop/negative/method_sig_not_match11.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible return type for method " +
                         "'returnStringForBUnionFromJava' in class " +
@@ -321,8 +321,8 @@ public class NegativeValidationTest {
 
         String path = "test-src/javainterop/negative/method_sig_not_match12.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method " +
                         "'getIntFromJsonInt' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
@@ -335,8 +335,8 @@ public class NegativeValidationTest {
 
         String path = "test-src/javainterop/negative/method_sig_not_match13.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method " +
                         "'getIntFromJsonInt' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
@@ -349,8 +349,8 @@ public class NegativeValidationTest {
 
         String path = "test-src/javainterop/negative/method_sig_not_match14.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        compileResult.getErrorAndWarnDiagnostics();
+        Assert.assertEquals(compileResult.getErrorAndWarnDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method " +
                         "'decimalParamAndWithBigDecimal' in class " +

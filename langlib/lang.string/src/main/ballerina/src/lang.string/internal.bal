@@ -25,7 +25,7 @@ class StringIterator {
 
     # Return the next member in string iterator, nil if end of iterator is reached.
     # + return - iterator result
-    public function next() returns record {|
+    public isolated function next() returns record {|
         string value;
     |}? = external;
 }
