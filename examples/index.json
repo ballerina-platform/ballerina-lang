@@ -502,35 +502,43 @@
         "category": "Language concepts",
         "samples": [{
                 "name": "Byte I/O",
-                "url": "byte-io"
+                "url": "byte-io",
+                "disablePlayground": true
             },
             {
                 "name": "Data I/O",
-                "url": "data-io"
+                "url": "data-io",
+                "disablePlayground": true
             },
             {
                 "name": "Record I/O",
-                "url": "record-io"
+                "url": "record-io",
+                "disablePlayground": true
             },
             {
                 "name": "CSV I/O",
-                "url": "csv-io"
+                "url": "csv-io",
+                "disablePlayground": true
             },
             {
                 "name": "JSON I/O",
-                "url": "json-io"
+                "url": "json-io",
+                "disablePlayground": true
             },
             {
                 "name": "XML I/O",
-                "url": "xml-io"
+                "url": "xml-io",
+                "disablePlayground": true
             },
             {
                 "name": "Read/Write Files",
-                "url": "character-io"
+                "url": "character-io",
+                "disablePlayground": true
             },
             {
                 "name": "JSON to CSV Transform",
-                "url": "json-csv"
+                "url": "json-csv",
+                "disablePlayground": true
             }
         ]
     },
@@ -583,7 +591,8 @@
             },
             {
                 "name": "Config",
-                "url": "config-api"
+                "url": "config-api",
+                "disablePlayground": true
             },
             {
                 "name": "Log",
@@ -607,23 +616,28 @@
             },
             {
                 "name": "Task Scheduler Appointment",
-                "url": "task-scheduler-appointment"
+                "url": "task-scheduler-appointment",
+                "disablePlayground": true
             },
             {
                 "name": "Task Scheduler Timer",
-                "url": "task-scheduler-timer"
+                "url": "task-scheduler-timer",
+                "disablePlayground": true
             },
             {
                 "name": "Task Service Appointment",
-                "url": "task-service-appointment"
+                "url": "task-service-appointment",
+                "disablePlayground": true
             },
             {
                 "name": "Task Service Timer",
-                "url": "task-service-timer"
+                "url": "task-service-timer",
+                "disablePlayground": true
             },
             {
                 "name": "XSLT Transformation",
-                "url": "xslt-transformation"
+                "url": "xslt-transformation",
+                "disablePlayground": true
             }
         ]
     },
@@ -637,11 +651,13 @@
             },
             {
                 "name": "Cryptographic Operations",
-                "url": "crypto"
+                "url": "crypto",
+                "disablePlayground": true
             },
             {
                 "name": "JWT Issue/Validate",
-                "url": "jwt-issue-validate"
+                "url": "jwt-issue-validate",
+                "disablePlayground": true
             },
             {
                 "name": "URL Encode/Decode Operations",
@@ -655,39 +671,48 @@
         "category": "Language concepts",
         "samples": [{
                 "name": "Assertions",
-                "url": "testerina-assertions"
+                "url": "testerina-assertions",
+                "disablePlayground": true
             },
             {
                 "name": "Before and After Test",
-                "url": "testerina-before-and-after-test"
+                "url": "testerina-before-and-after-test",
+                "disablePlayground": true
             },
             {
                 "name": "Before and After Each",
-                "url": "testerina-before-and-after-each"
+                "url": "testerina-before-and-after-each",
+                "disablePlayground": true
             },
             {
                 "name": "Before and After Suite",
-                "url": "testerina-before-and-after-suite"
+                "url": "testerina-before-and-after-suite",
+                "disablePlayground": true
             },
             {
                 "name": "Data Driven Tests",
-                "url": "testerina-data-driven-tests"
+                "url": "testerina-data-driven-tests",
+                "disablePlayground": true
             },
             {
                 "name": "Guarantee Test Execution Order",
-                "url": "testerina-guarantee-test-execution-order"
+                "url": "testerina-guarantee-test-execution-order",
+                "disablePlayground": true
             },
             {
                 "name": "Function Mocks",
-                "url": "testerina-mocking-functions"
+                "url": "testerina-mocking-functions",
+                "disablePlayground": true
             },
             {
                 "name": "Object Mocks",
-                "url": "testerina-mocking-objects"
+                "url": "testerina-mocking-objects",
+                "disablePlayground": true
             },
             {
                 "name": "Group Tests",
-                "url": "testerina-group-tests"
+                "url": "testerina-group-tests",
+                "disablePlayground": true
             }        
         ]
     },
@@ -698,32 +723,38 @@
         "samples": [{
             "name": "Docker Deployment",
             "url": "docker-deployment",
-            "githubLink": "https://github.com/ballerina-platform/module-ballerina-docker/tree/ballerina-1.2.x/docker-extension-examples/examples/docker-deployment"
+            "githubLink": "https://github.com/ballerina-platform/module-ballerina-docker/tree/ballerina-1.2.x/docker-extension-examples/examples/docker-deployment",
+            "disablePlayground": true
         },
         {
             "name": "Kubernetes Deployment",
             "url": "kubernetes-deployment",
-            "githubLink": "https://github.com/ballerina-platform/module-ballerina-kubernetes/tree/ballerina-1.2.x/kubernetes-extension-examples/examples/kubernetes-deployment"
+            "githubLink": "https://github.com/ballerina-platform/module-ballerina-kubernetes/tree/ballerina-1.2.x/kubernetes-extension-examples/examples/kubernetes-deployment",
+            "disablePlayground": true
         },
         {
             "name": "OpenShift Deployment",
             "url": "openshift-deployment",
-            "githubLink": "https://github.com/ballerina-platform/module-ballerina-kubernetes/tree/ballerina-1.2.x/kubernetes-extension-examples/examples/openshift-deployment"
+            "githubLink": "https://github.com/ballerina-platform/module-ballerina-kubernetes/tree/ballerina-1.2.x/kubernetes-extension-examples/examples/openshift-deployment",
+            "disablePlayground": true
         },
         {
             "name": "AWS Lambda Deployment",
             "url": "aws-lambda-deployment",
-            "githubLink": "https://github.com/ballerina-platform/module-ballerinax-aws.lambda/tree/ballerina-1.2.x/awslambda-examples/examples/aws-lambda-deployment"
+            "githubLink": "https://github.com/ballerina-platform/module-ballerinax-aws.lambda/tree/ballerina-1.2.x/awslambda-examples/examples/aws-lambda-deployment",
+            "disablePlayground": true
         },
         {
             "name": "Knative Deployment",
             "url": "knative-deployment",
-            "githubLink": "https://github.com/ballerina-platform/module-ballerina-kubernetes/tree/ballerina-1.2.x/kubernetes-extension-examples/examples/knative-deployment"
+            "githubLink": "https://github.com/ballerina-platform/module-ballerina-kubernetes/tree/ballerina-1.2.x/kubernetes-extension-examples/examples/knative-deployment",
+            "disablePlayground": true
         },
         {
             "name": "Azure Functions Deployment",
             "url": "azure-functions-deployment",
-            "githubLink": "https://github.com/ballerina-platform/module-ballerinax-azure.functions/tree/ballerina-1.2.x/azurefunctions-extension-examples/examples/azure-functions-deployment"
+            "githubLink": "https://github.com/ballerina-platform/module-ballerinax-azure.functions/tree/ballerina-1.2.x/azurefunctions-extension-examples/examples/azure-functions-deployment",
+            "disablePlayground": true
         }
     ]
     },
@@ -737,87 +768,108 @@
             },
             {
                 "name": "Redirects",
-                "url": "http-redirects"
+                "url": "http-redirects",
+                "disablePlayground": true
             },
             {
                 "name": "Base Path and Path",
-                "url": "base-path-and-path"
+                "url": "base-path-and-path",
+                "disablePlayground": true
             },
             {
                 "name": "Query Path Matrix Param",
-                "url": "query-path-matrix-param"
+                "url": "query-path-matrix-param",
+                "disablePlayground": true
             },
             {
                 "name": "Restrict By Media Type",
-                "url": "restrict-by-media-type"
+                "url": "restrict-by-media-type",
+                "disablePlayground": true
             },
             {
                 "name": "HTTP Caching",
-                "url": "http-caching-client"
+                "url": "http-caching-client",
+                "disablePlayground": true
             },
             {
                 "name": "Disable Chunking",
-                "url": "http-disable-chunking"
+                "url": "http-disable-chunking",
+                "disablePlayground": true
             },
             {
                 "name": "Trace Logs",
-                "url": "http-trace-logs"
+                "url": "http-trace-logs",
+                "disablePlayground": true
             },
             {
                 "name": "HTTPS Listener",
-                "url": "https-listener"
+                "url": "https-listener",
+                "disablePlayground": true
             },
             {
                 "name": "Basic HTTPS Listener Client",
-                "url": "basic-https-listener-client"
+                "url": "basic-https-listener-client",
+                "disablePlayground": true
             },
             {
                 "name": "Mutual SSL",
-                "url": "mutual-ssl"
+                "url": "mutual-ssl",
+                "disablePlayground": true
             },
             {
                 "name": "Request With Multiparts",
-                "url": "request-with-multiparts"
+                "url": "request-with-multiparts",
+                "disablePlayground": true
             },
             {
                 "name": "Response With Multiparts",
-                "url": "response-with-multiparts"
+                "url": "response-with-multiparts",
+                "disablePlayground": true
             },
             {
                 "name": "CORS",
-                "url": "http-cors"
+                "url": "http-cors",
+                "disablePlayground": true
             },
             {
                 "name": "Access Logs",
-                "url": "http-access-logs"
+                "url": "http-access-logs",
+                "disablePlayground": true
             },
             {
                 "name": "Data Binding",
-                "url": "http-data-binding"
+                "url": "http-data-binding",
+                "disablePlayground": true
             },
             {
                 "name": "100 Continue",
-                "url": "http-100-continue"
+                "url": "http-100-continue",
+                "disablePlayground": true
             },
             {
                 "name": "Handling Different Payload Types",
-                "url": "different-payload-types"
+                "url": "different-payload-types",
+                "disablePlayground": true
             },
             {
                 "name": "HTTP Streaming",
-                "url": "http-streaming"
+                "url": "http-streaming",
+                "disablePlayground": true
             },
             {
                 "name": "HTTP Compression",
-                "url": "http-compression"
+                "url": "http-compression",
+                "disablePlayground": true
             },
             {
                 "name": "HTTP Interceptors/Filters",
-                "url": "http-filters"
+                "url": "http-filters",
+                "disablePlayground": true
             },
             {
                 "name": "HTTP Cookies",
-                "url": "http-cookies"
+                "url": "http-cookies",
+                "disablePlayground": true
             }
         ]
     },
@@ -827,11 +879,13 @@
         "category": "Working over the network",
         "samples": [{
                 "name": "HTTP 1.1 to 2.0 Protocol Switch",
-                "url": "http-1-1-to-2-0-protocol-switch"
+                "url": "http-1-1-to-2-0-protocol-switch",
+                "disablePlayground": true
             },
             {
                 "name": "HTTP 2.0 Server Push",
-                "url": "http-2-0-server-push"
+                "url": "http-2-0-server-push",
+                "disablePlayground": true
             }
         ]
     },
@@ -841,31 +895,38 @@
         "category": "Working over the network",
         "samples": [{
                 "name": "Client Endpoint",
-                "url": "websocket-client"
+                "url": "websocket-client",
+                "disablePlayground": true
             },
             {
                 "name": "Basic Server Functionalities",
-                "url": "websocket-basic-sample"
+                "url": "websocket-basic-sample",
+                "disablePlayground": true
             },
             {
                 "name": "HTTP To WebSocket Upgrade",
-                "url": "http-to-websocket-upgrade"
+                "url": "http-to-websocket-upgrade",
+                "disablePlayground": true
             },
             {
                 "name": "Proxy Server",
-                "url": "websocket-proxy-server"
+                "url": "websocket-proxy-server",
+                "disablePlayground": true
             },
             {
                 "name": "Chat Application",
-                "url": "websocket-chat-application"
+                "url": "websocket-chat-application",
+                "disablePlayground": true
             },
             {
                 "name": "Failover",
-                "url": "websocket-failover"
+                "url": "websocket-failover",
+                "disablePlayground": true
             },
             {
                 "name": "Retry",
-                "url": "websocket-retry"
+                "url": "websocket-retry",
+                "disablePlayground": true
             }
         ]
     },
@@ -875,15 +936,18 @@
         "category": "Working over the network",
         "samples": [{
                 "name": "Header-Based Routing",
-                "url": "header-based-routing"
+                "url": "header-based-routing",
+                "disablePlayground": true
             },
             {
                 "name": "Passthrough",
-                "url": "passthrough"
+                "url": "passthrough",
+                "disablePlayground": true
             },
             {
                 "name": "Content-Based Routing",
-                "url": "content-based-routing"
+                "url": "content-based-routing",
+                "disablePlayground": true
             }
         ]
     },
@@ -893,23 +957,28 @@
         "category": "Working over the network",
         "samples": [{
                 "name": "Circuit Breaker",
-                "url": "http-circuit-breaker"
+                "url": "http-circuit-breaker",
+                "disablePlayground": true
             },
             {
                 "name": "Load Balancing",
-                "url": "http-load-balancer"
+                "url": "http-load-balancer",
+                "disablePlayground": true
             },
             {
                 "name": "Failover",
-                "url": "http-failover"
+                "url": "http-failover",
+                "disablePlayground": true
             },
             {
                 "name": "Retry",
-                "url": "http-retry"
+                "url": "http-retry",
+                "disablePlayground": true
             },
             {
                 "name": "Timeout",
-                "url": "http-timeout"
+                "url": "http-timeout",
+                "disablePlayground": true
             }
         ]
     },
@@ -919,19 +988,23 @@
         "category": "Working over the network",
         "samples": [{
             "name": "Internal Hub Sample",
-            "url": "websub-internal-hub-sample"
+            "url": "websub-internal-hub-sample",
+            "disablePlayground": true
         },
             {
                 "name": "Remote Hub Sample",
-                "url": "websub-remote-hub-sample"
+                "url": "websub-remote-hub-sample",
+                "disablePlayground": true
             },
             {
                 "name": "Hub Client Sample",
-                "url": "websub-hub-client-sample"
+                "url": "websub-hub-client-sample",
+                "disablePlayground": true
             },
             {
                 "name": "Service Integration Sample",
-                "url": "websub-service-integration-sample"
+                "url": "websub-service-integration-sample",
+                "disablePlayground": true
             }
         ]
     },
@@ -941,7 +1014,8 @@
         "category": "Working over the network",
         "samples": [{
             "name": "Directory Listener",
-            "url": "directory-listener"
+            "url": "directory-listener",
+            "disablePlayground": true
         }]
     },
     {
@@ -951,19 +1025,23 @@
         "samples": [
             {
                 "name": "JDBC Client CRUD Operations",
-                "url": "jdbc-client-crud-operations"
+                "url": "jdbc-client-crud-operations",
+                "disablePlayground": true
             },
             {
                 "name": "JDBC Client Batch Update",
-                "url": "jdbc-client-batch-update"
+                "url": "jdbc-client-batch-update",
+                "disablePlayground": true
             },
             {
                 "name": "JDBC Client Call Procedures",
-                "url": "jdbc-client-call-procedures"
+                "url": "jdbc-client-call-procedures",
+                "disablePlayground": true
             },
             {
                 "name": "Streaming a Big Dataset",
-                "url": "jdbc-streaming-big-dataset"
+                "url": "jdbc-streaming-big-dataset",
+                "disablePlayground": true
             }
         ]
     },
@@ -973,31 +1051,38 @@
         "category": "Working over the network",
         "samples": [{
                 "name": "Unary Blocking",
-                "url": "grpc-unary-blocking"
+                "url": "grpc-unary-blocking",
+                "disablePlayground": true
             },
             {
                 "name": "Unary Non-Blocking",
-                "url": "grpc-unary-non-blocking"
+                "url": "grpc-unary-non-blocking",
+                "disablePlayground": true
             },
             {
                 "name": "Server Streaming",
-                "url": "grpc-server-streaming"
+                "url": "grpc-server-streaming",
+                "disablePlayground": true
             },
             {
                 "name": "Client Streaming",
-                "url": "grpc-client-streaming"
+                "url": "grpc-client-streaming",
+                "disablePlayground": true
             },
             {
                 "name": "Bidirectional Streaming",
-                "url": "grpc-bidirectional-streaming"
+                "url": "grpc-bidirectional-streaming",
+                "disablePlayground": true
             },
             {
                 "name": "Secured Unary",
-                "url": "grpc-secured-unary"
+                "url": "grpc-secured-unary",
+                "disablePlayground": true
             },
             {
                 "name": "Proto To Ballerina",
-                "url": "proto-to-ballerina"
+                "url": "proto-to-ballerina",
+                "disablePlayground": true
             }
         ]
     },
@@ -1007,15 +1092,18 @@
         "category": "Working over the network",
         "samples": [{
                 "name": "Distributed Tracing",
-                "url": "tracing"
+                "url": "tracing",
+                "disablePlayground": true
             },
             {
                 "name": "Counter-Based Metrics",
-                "url": "counter-metrics"
+                "url": "counter-metrics",
+                "disablePlayground": true
             },
             {
                 "name": "Gauge-Based Metrics",
-                "url": "gauge-metrics"
+                "url": "gauge-metrics",
+                "disablePlayground": true
             }
         ]
     },
@@ -1025,15 +1113,18 @@
         "category": "Working over the network",
         "samples": [{
                 "name": "Client Generation",
-                "url": "client-generation"
+                "url": "client-generation",
+                "disablePlayground": true
             },
             {
                 "name": "Ballerina To OpenAPI",
-                "url": "ballerina-to-openapi"
+                "url": "ballerina-to-openapi",
+                "disablePlayground": true
             },
             {
                 "name": "OpenAPI To Ballerina",
-                "url": "openapi-to-ballerina"
+                "url": "openapi-to-ballerina",
+                "disablePlayground": true
             }
         ]
     },
@@ -1044,27 +1135,33 @@
         "samples": [
             {
                 "name": "Basic Publisher and Subscriber",
-                "url": "nats-basic-client"
+                "url": "nats-basic-client",
+                "disablePlayground": true
             },
             {
                 "name": "Basic Streaming Publisher and Subscriber",
-                "url": "nats-streaming-client"
+                "url": "nats-streaming-client",
+                "disablePlayground": true
             },
             {
                 "name": "Streaming Publisher and Subscriber With Data Binding",
-                "url": "nats-streaming-consumer-with-data-binding"
+                "url": "nats-streaming-consumer-with-data-binding",
+                "disablePlayground": true
             },
             {
                 "name": "Durable Subscriptions",
-                "url": "nats-streaming-durable-subscriptions"
+                "url": "nats-streaming-durable-subscriptions",
+                "disablePlayground": true
             },
             {
                 "name": "Queue Groups",
-                "url": "nats-streaming-queue-group"
+                "url": "nats-streaming-queue-group",
+                "disablePlayground": true
             },
             {
                 "name": "Historical Message Replay",
-                "url": "nats-streaming-start-position"
+                "url": "nats-streaming-start-position",
+                "disablePlayground": true
             }
         ]
     },
@@ -1075,31 +1172,38 @@
         "samples": [
             {
                 "name": "Producer",
-                "url": "kafka-producer"
+                "url": "kafka-producer",
+                "disablePlayground": true
             },
             {
                 "name": "Consumer Service",
-                "url": "kafka-consumer-service"
+                "url": "kafka-consumer-service",
+                "disablePlayground": true
             },
             {
                 "name": "Consumer Client",
-                "url": "kafka-consumer-client"
+                "url": "kafka-consumer-client",
+                "disablePlayground": true
             },
             {
                 "name": "Transactional Producer",
-                "url": "kafka-producer-transactional"
+                "url": "kafka-producer-transactional",
+                "disablePlayground": true
             },
             {
                 "name": "Consumer Groups",
-                "url": "kafka-group-service"
+                "url": "kafka-group-service",
+                "disablePlayground": true
             },
             {
                 "name": "SASL Authentication - Consumer",
-                "url": "kafka-authentication-sasl-plain-consumer"
+                "url": "kafka-authentication-sasl-plain-consumer",
+                "disablePlayground": true
             },
             {
                 "name": "SASL Authentication - Producer",
-                "url": "kafka-authentication-sasl-plain-producer"
+                "url": "kafka-authentication-sasl-plain-producer",
+                "disablePlayground": true
             }
         ]
     },
@@ -1110,23 +1214,28 @@
         "samples": [
             {
                 "name": "Producer",
-                "url": "rabbitmq-producer"
+                "url": "rabbitmq-producer",
+                "disablePlayground": true
             },
             {
                 "name": "Consumer",
-                "url": "rabbitmq-consumer"
+                "url": "rabbitmq-consumer",
+                "disablePlayground": true
             },
             {
                 "name": "Client Acknowledgements",
-                "url": "rabbitmq-consumer-with-client-acknowledgement"
+                "url": "rabbitmq-consumer-with-client-acknowledgement",
+                "disablePlayground": true
             },
             {
                 "name": "Data Binding",
-                "url": "rabbitmq-consumer-with-data-binding"
+                "url": "rabbitmq-consumer-with-data-binding",
+                "disablePlayground": true
             },
             {
                 "name": "QoS Settings",
-                "url": "rabbitmq-consumer-with-qos-settings"
+                "url": "rabbitmq-consumer-with-qos-settings",
+                "disablePlayground": true
             }
         ]
     },
@@ -1136,11 +1245,13 @@
         "category": "Working over the network",
         "samples": [{
                 "name": "Basic TCP Socket",
-                "url": "tcp-socket-listener-client"
+                "url": "tcp-socket-listener-client",
+                "disablePlayground": true
             },
             {
                 "name": "Basic UDP Client Socket",
-                "url": "udp-socket-client"
+                "url": "udp-socket-client",
+                "disablePlayground": true
             }
         ]
     },
@@ -1150,31 +1261,38 @@
         "category": "Working over the network",
         "samples": [{
                 "name": "Secured Service with Basic Auth",
-                "url": "secured-service-with-basic-auth"
+                "url": "secured-service-with-basic-auth",
+                "disablePlayground": true
             },
             {
                 "name": "Secured Service with JWT Auth",
-                "url": "secured-service-with-jwt-auth"
+                "url": "secured-service-with-jwt-auth",
+                "disablePlayground": true
             },
             {
                 "name": "Secured Service with OAuth2",
-                "url": "secured-service-with-oauth2"
+                "url": "secured-service-with-oauth2",
+                "disablePlayground": true
             },
             {
                 "name": "Secured Service with LDAP",
-                "url": "secured-service-with-ldap"
+                "url": "secured-service-with-ldap",
+                "disablePlayground": true
             },
             {
                 "name": "Secured Client with Basic Auth",
-                "url": "secured-client-with-basic-auth"
+                "url": "secured-client-with-basic-auth",
+                "disablePlayground": true
             },
             {
                 "name": "Secured Client with JWT Auth",
-                "url": "secured-client-with-jwt-auth"
+                "url": "secured-client-with-jwt-auth",
+                "disablePlayground": true
             },
             {
                 "name": "Secured Client with OAuth2",
-                "url": "secured-client-with-oauth2"
+                "url": "secured-client-with-oauth2",
+                "disablePlayground": true
             }
         ]
     },
@@ -1184,7 +1302,8 @@
         "category": "Working over the network",
         "samples": [{
                 "name": "Send and Receive Emails",
-                "url": "send-and-receive-emails"
+                "url": "send-and-receive-emails",
+                "disablePlayground": true
             }
         ]
     },
@@ -1195,19 +1314,23 @@
         "samples": [
             {
                 "name": "JDBC Client Initialization",
-                "url": "jdbc2-init-options"
+                "url": "jdbc2-init-options",
+                "disablePlayground": true
             },
             {
                 "name": "JDBC Select Query Operations",
-                "url": "jdbc2-query-operation"
+                "url": "jdbc2-query-operation",
+                "disablePlayground": true
             },
             {
                 "name": "JDBC Query with Complex Types",
-                "url": "jdbc2-complex-type-queries"
+                "url": "jdbc2-complex-type-queries",
+                "disablePlayground": true
             },
             {
                 "name": "JDBC DDL and DML Operations",
-                "url": "jdbc2-execute-operation"
+                "url": "jdbc2-execute-operation",
+                "disablePlayground": true
             }
         ]
     },
@@ -1218,19 +1341,23 @@
         "samples": [
             {
                 "name": "MySQL Client Initialization",
-                "url": "mysql-init-options"
+                "url": "mysql-init-options",
+                "disablePlayground": true
             },
             {
                 "name": "MySQL Select Query Operations",
-                "url": "mysql-query-operation"
+                "url": "mysql-query-operation",
+                "disablePlayground": true
             },
             {
                 "name": "MySQL Query with Complex Types",
-                "url": "mysql-complex-type-queries"
+                "url": "mysql-complex-type-queries",
+                "disablePlayground": true
             },
             {
                 "name": "MySQL DDL and DML Operations",
-                "url": "mysql-execute-operation"
+                "url": "mysql-execute-operation",
+                "disablePlayground": true
             }
         ]
     },
@@ -1240,19 +1367,23 @@
         "category": "Experimental features",
         "samples": [{
                 "name": "Local Transactions",
-                "url": "local-transactions"
+                "url": "local-transactions",
+                "disablePlayground": true
             },
             {
                 "name": "Local Transactions with participants",
-                "url": "local-transactions-with-participants"
+                "url": "local-transactions-with-participants",
+                "disablePlayground": true
             },
             {
                 "name": "XA Transactions",
-                "url": "xa-transactions"
+                "url": "xa-transactions",
+                "disablePlayground": true
             },
             {
                 "name": "Distributed Transactions",
-                "url": "transactions-distributed"
+                "url": "transactions-distributed",
+                "disablePlayground": true
             }
         ]
     }
