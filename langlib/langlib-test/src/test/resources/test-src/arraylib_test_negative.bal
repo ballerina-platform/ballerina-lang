@@ -162,4 +162,13 @@ function testArrSortNegativeScenarios() {
     (string|int)[] sortedArr12 = array:sort(arr2, array:DESCENDING, ());
 
     (map<string>)?[] sortedArr13 = array:sort(arr3);
+
+    int[] sortedArr14 = array:sort(arr, array:ASCENDING, function(int x) returns string[]|int => [x.toString(),
+    "World"]);
+
+    var addFunc1 = function (int funcInt1) returns (int|string) {
+        return funcInt1;
+    };
+
+    int[] sortedArr15 = arr.sort(array:DESCENDING, addFunc1);
 }
