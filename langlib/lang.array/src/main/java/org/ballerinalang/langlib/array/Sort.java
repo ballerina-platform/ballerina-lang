@@ -68,7 +68,11 @@ public class Sort {
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];
         if (function != null) {
-            elemType = ((BFunctionType) function.getType()).retType;
+            BType elementType = ((BFunctionType) function.getType()).retType;
+            if (!(elementType.getTag() == TypeTags.UNION_TAG &&
+                    ((BUnionType) elementType).getMemberTypes().size() > 2)) {
+                elemType = elementType;
+            }
             for (int i = 0; i < arr.size(); i++) {
                 sortArr[i][0] = function.call(new Object[]{strand, arr.get(i), true});
                 sortArr[i][1] = arr.get(i);
