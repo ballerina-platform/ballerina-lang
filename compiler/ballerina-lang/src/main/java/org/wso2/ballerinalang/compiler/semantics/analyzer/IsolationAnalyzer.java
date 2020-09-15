@@ -128,6 +128,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -464,12 +465,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatchStatement matchStatement) {
         analyzeNode(matchStatement.expr, env);
 
-        if (matchStatement.onFailClause != null) {
-            analyzeNode(matchStatement.onFailClause, env);
-        }
-
         for (BLangMatchClause matchClause : matchStatement.matchClauses) {
             analyzeNode(matchClause, env);
+        }
+
+        if (matchStatement.onFailClause != null) {
+            analyzeNode(matchStatement.onFailClause, env);
         }
     }
 
@@ -485,12 +486,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
-        analyzeNode(wildCardMatchPattern.matchExpr, env);
     }
 
     @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
-        analyzeNode(varBindingPattern.matchExpr, env);
+        analyzeNode(varBindingPattern.getBindingPattern(), env);
     }
 
     @Override
@@ -506,7 +506,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
-        analyzeNode(matchClause.expr, env);
+        for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
+            analyzeNode(matchPattern, env);
+        }
+
+        BLangMatchGuard matchGuard = matchClause.matchGuard;
+        if (matchGuard != null) {
+            analyzeNode(matchGuard, env);
+        }
+
         analyzeNode(matchClause.blockStmt, env);
     }
 
@@ -1263,7 +1271,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause matchStaticBindingPatternClause) {
-        analyzeNode(matchStaticBindingPatternClause.literal, env);
         analyzeNode(matchStaticBindingPatternClause.body, env);
     }
 
