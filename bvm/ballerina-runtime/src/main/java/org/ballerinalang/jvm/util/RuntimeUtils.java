@@ -110,6 +110,7 @@ public class RuntimeUtils {
 
     /**
      * Decode the encoded Type name for runtime name calls.
+     *
      * @param typeName Name of the defined type
      * @return decoded name String
      */

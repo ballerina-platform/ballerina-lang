@@ -136,8 +136,8 @@ public class JvmCodeGenUtil {
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
     }
 
-    static String rewriteCallInsTerminator(String value) {
-        return value.contains("\\") ? StringEscapeUtils.unescapeJava(value) : value;
+    static String rewriteVirtualCallTypeName(String value) {
+        return StringEscapeUtils.unescapeJava(cleanupObjectTypeName(value));
     }
 
     private static String cleanupBalExt(String name) {

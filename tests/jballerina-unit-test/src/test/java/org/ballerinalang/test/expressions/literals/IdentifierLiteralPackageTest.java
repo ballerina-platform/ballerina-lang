@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 /**
  * Identifier literal test cases with package.
  */
-@Test(groups = { "disableOnOldParser", "brokenOnNewParser" })
+@Test(groups = {"disableOnOldParser"})
 public class IdentifierLiteralPackageTest {
 
     private CompileResult result;

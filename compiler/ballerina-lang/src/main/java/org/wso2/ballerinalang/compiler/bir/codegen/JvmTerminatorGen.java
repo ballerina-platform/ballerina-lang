@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.IdentifierEncoder;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -426,7 +427,6 @@ public class JvmTerminatorGen {
         String orgName = calleePkgId.orgName.value;
         String moduleName = calleePkgId.name.value;
         String version = calleePkgId.version.value;
-        callIns.name.value = JvmCodeGenUtil.rewriteCallInsTerminator(callIns.name.value);
 
         // invoke the function
         this.genCall(callIns, orgName, moduleName, version, localVarOffset);
@@ -664,6 +664,7 @@ public class JvmTerminatorGen {
         }
     }
 
+
     private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName,
                              String version, int localVarOffset) {
 
@@ -684,7 +685,7 @@ public class JvmTerminatorGen {
     private void genFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName, String version,
                              int localVarOffset) {
 
-        String methodName = callIns.name.value;
+        String methodName = IdentifierEncoder.encodeIdentifier(callIns.name.value);
         this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodName);
     }
 
@@ -757,7 +758,7 @@ public class JvmTerminatorGen {
         this.mv.visitVarInsn(ALOAD, localVarOffset);
 
         // load the function name as the second argument
-        this.mv.visitLdcInsn(JvmCodeGenUtil.cleanupObjectTypeName(callIns.name.value));
+        this.mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(callIns.name.value));
 
         // create an Object[] for the rest params
         int argsCount = callIns.args.size() - 1;
