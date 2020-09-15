@@ -105,7 +105,7 @@ WAIT        : 'wait' ;
 DEFAULT     : 'default' ;
 FROM        : 'from' { inQueryExpression = true; } ;
 SELECT      : {inQueryExpression}? 'select' { inQueryExpression = false; } ;
-DO          : {inQueryExpression}? 'do' { inQueryExpression = false; } ;
+DO          : 'do' ;
 WHERE       : {inQueryExpression}? 'where' ;
 LET         : 'let' ;
 CONFLICT    : 'conflict' ;
