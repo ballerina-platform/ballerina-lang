@@ -185,7 +185,8 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
         DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
 
         BallerinaDiagnosticLocation diagnosticLocation =
-                new BallerinaDiagnosticLocation(pos.getSource().cUnitName, pos.sLine, pos.eLine, pos.sCol, pos.eCol);
+                new BallerinaDiagnosticLocation(pos.src.pkgID.name.value, pos.src.pkgID.version.value,
+                        pos.getSource().cUnitName, pos.sLine, pos.eLine, pos.sCol, pos.eCol);
         BallerinaDiagnostic diagnostic = new BallerinaDiagnostic(diagnosticLocation, msg, diagInfo);
         storeDiagnosticInPackage(pos.src.pkgID, diagnostic);
 

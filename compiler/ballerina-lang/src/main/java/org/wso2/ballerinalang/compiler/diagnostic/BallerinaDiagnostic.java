@@ -24,10 +24,10 @@ import io.ballerina.tools.diagnostics.Location;
 /**
  * Represent a diagnostic in the ballerina compiler front-end. A diagnostic can be a semantic
  * error, a warning or a info.
- * 
+ *
  * @since 2.0.0
  */
-public class BallerinaDiagnostic extends Diagnostic {
+public class BallerinaDiagnostic extends Diagnostic implements Comparable<BallerinaDiagnostic> {
 
     private Location location;
     private String msg;
@@ -61,6 +61,16 @@ public class BallerinaDiagnostic extends Diagnostic {
     @Override
     public String message() {
         return msg;
+    }
+
+    @Override
+    public int compareTo(BallerinaDiagnostic otherDiagnostic) {
+        int value = ((BallerinaDiagnosticLocation) this.location)
+                .compareTo((BallerinaDiagnosticLocation) otherDiagnostic.location);
+        if (value == 0) {
+            return message().compareTo(otherDiagnostic.message());
+        }
+        return value;
     }
 
     public String toString() {

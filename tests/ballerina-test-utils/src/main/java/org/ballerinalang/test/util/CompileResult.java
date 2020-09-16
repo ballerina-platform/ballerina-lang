@@ -21,7 +21,6 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.net.URLClassLoader;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -40,8 +39,6 @@ public class CompileResult {
 
     public Diagnostic[] getDiagnostics() {
         List<Diagnostic> diagnostics = ((BLangPackage) this.pkgNode).getDiagnostics();
-        diagnostics.sort(Comparator.comparing((Diagnostic d) -> d.location().lineRange().filePath()).
-                thenComparingInt((Diagnostic d) -> d.location().lineRange().startLine().line()));
         return diagnostics.toArray(new Diagnostic[diagnostics.size()]);
     }
 
