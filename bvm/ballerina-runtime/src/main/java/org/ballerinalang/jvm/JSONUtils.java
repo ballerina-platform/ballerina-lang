@@ -583,6 +583,8 @@ public class JSONUtils {
             return ((Integer) json).longValue();
         } else if (json instanceof Double) {
             return (Double) json;
+        } else if (json instanceof DecimalValue) {
+            return ((DecimalValue) json).floatValue();
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeFloat, getTypeName(json));
@@ -603,6 +605,8 @@ public class JSONUtils {
             decimal = BigDecimal.valueOf((Double) json);
         } else if (json instanceof BigDecimal) {
             decimal = (BigDecimal) json;
+        } else if (json instanceof DecimalValue) {
+            return (DecimalValue) json;
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeDecimal, getTypeName(json));

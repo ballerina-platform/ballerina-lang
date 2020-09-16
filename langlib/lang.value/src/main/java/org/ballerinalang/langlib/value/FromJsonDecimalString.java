@@ -18,12 +18,11 @@
 
 package org.ballerinalang.langlib.value;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -33,31 +32,29 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
  * Parse a string in JSON format and return the the value that it represents.
- *
- * @since 1.0
+ * All numbers in the JSON will be represented as decimal values.
  */
+
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "fromJsonString",
+        functionName = "fromJsonDecimalString",
         args = {@Argument(name = "str", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.ERROR)},
         isPublic = true
 )
-public class FromJsonString {
 
-    private static final BString JSON_STRING_ERROR = BStringUtils.fromString("{ballerina}FromJsonStringError");
+public class FromJsonDecimalString {
 
-    public static Object fromJsonString(Strand strand, BString value) {
+    public static Object fromJsonDecimalString(Strand strand, BString value) {
 
         String str = value.getValue();
         if (str.equals("null")) {
             return null;
         }
         try {
-            return JSONParser.parse(str);
+            return JSONParser.parse(str, JSONParser.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING);
         } catch (BallerinaException e) {
-            return BErrorCreator.createError(BStringUtils.fromString("{ballerina/lang.value}FromJsonStringError"),
-                                             BStringUtils.fromString(e.getMessage()));
+            return BallerinaErrors.createError("{ballerina/lang.value}FromJsonDecimalStringError", e.getMessage());
         }
     }
 }
