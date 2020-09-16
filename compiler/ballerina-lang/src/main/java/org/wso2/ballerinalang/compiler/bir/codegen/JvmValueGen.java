@@ -86,6 +86,7 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V1_8;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.cleanupReadOnlyTypeName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
@@ -247,13 +248,13 @@ class JvmValueGen {
     static String getTypeDescClassName(Object module, String typeName) {
 
         String packageName = calculateJavaPkgName(module);
-        return packageName + TYPEDESC_CLASS_PREFIX + typeName;
+        return packageName + TYPEDESC_CLASS_PREFIX + cleanupReadOnlyTypeName(typeName);
     }
 
     static String getTypeValueClassName(Object module, String typeName) {
 
         String packageName = calculateJavaPkgName(module);
-        return packageName + VALUE_CLASS_PREFIX + typeName;
+        return packageName + VALUE_CLASS_PREFIX + cleanupReadOnlyTypeName(typeName);
     }
 
     private static String calculateJavaPkgName(Object module) {

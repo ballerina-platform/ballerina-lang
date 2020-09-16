@@ -1229,7 +1229,7 @@ public class JvmMethodGen {
         String frameClassName = pkgName;
         if (attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType instanceof BServiceType ||
                 attachedType.tag == TypeTags.RECORD)) {
-            frameClassName += JvmCodeGenUtil.toNameString(attachedType) + "_";
+            frameClassName += JvmCodeGenUtil.cleanupReadOnlyTypeName(JvmCodeGenUtil.toNameString(attachedType)) + "_";
         }
 
         return frameClassName + JvmCodeGenUtil.cleanupFunctionName(funcName) + "Frame";

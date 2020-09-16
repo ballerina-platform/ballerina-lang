@@ -32,17 +32,14 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.IdentifierEncoder;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -258,7 +255,9 @@ public class JvmDesugarPhase {
 
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
+//            String typeName = encodeIdentifier(typeDefinition.type.tsymbol.name.value);
             typeDefinition.type.tsymbol.name.value = encodeIdentifier(typeDefinition.type.tsymbol.name.value);
+//                    isRewritableReadonlyType(typeDefinition.type) ? typeName.replaceAll("[/.]", "_") : typeName;
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs);
             BType bType = typeDefinition.type;
             if (bType.tag == TypeTags.OBJECT) {
@@ -278,15 +277,6 @@ public class JvmDesugarPhase {
                 }
             }
         }
-    }
-
-    private static String checkAndRewriteTypeName(BIRTypeDefinition typeDefinition) {
-        String typeName = IdentifierEncoder.encodeIdentifier(typeDefinition.type.tsymbol.name.value);
-        if (typeDefinition.type.tag == TypeTags.RECORD || (typeDefinition.type.tag == TypeTags.OBJECT &&
-                Symbols.isFlagOn(typeDefinition.type.flags, Flags.READONLY))) {
-            return typeName.replaceAll("[/.]", "_");
-        }
-        return typeName;
     }
 
     private static void encodeFunctionIdentifiers(List<BIRFunction> functions) {

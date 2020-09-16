@@ -131,6 +131,16 @@ public class JvmCodeGenUtil {
                            String.format("(L%s;L%s;L%s;Z)V", FUNCTION, BTYPE, STRING_VALUE), false);
     }
 
+    /**
+     * Cleanup type name for readonly types by replacing '. /' with '_'.
+     *
+     * @param name type name to be replaced and cleaned
+     * @return cleaned name
+     */
+    static String cleanupReadOnlyTypeName(String name) {
+        return name.replaceAll("[/.]", "_");
+    }
+
     static String cleanupPathSeparators(String name) {
         name = cleanupBalExt(name);
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
