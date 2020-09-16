@@ -32,28 +32,29 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
  * Parse a string in JSON format and return the the value that it represents.
- *
- * @since 1.0
+ * All numbers in the JSON will be represented as float values.
  */
+
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "fromJsonString",
+        functionName = "fromJsonFloatString",
         args = {@Argument(name = "str", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.ERROR)},
         isPublic = true
 )
-public class FromJsonString {
 
-    public static Object fromJsonString(Strand strand, BString value) {
+public class FromJsonFloatString {
+
+    public static Object fromJsonFloatString(Strand strand, BString value) {
 
         String str = value.getValue();
         if (str.equals("null")) {
             return null;
         }
         try {
-            return JSONParser.parse(str);
+            return JSONParser.parse(str, JSONParser.NonStringValueProcessingMode.FROM_JSON_FLOAT_STRING);
         } catch (BallerinaException e) {
-            return BallerinaErrors.createError("{ballerina/lang.value}FromJsonStringError", e.getMessage());
+            return BallerinaErrors.createError("{ballerina/lang.value}FromJsonFloatStringError", e.getMessage());
         }
     }
 }
