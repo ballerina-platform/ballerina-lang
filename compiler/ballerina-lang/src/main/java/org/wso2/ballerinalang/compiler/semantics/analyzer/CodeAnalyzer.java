@@ -256,7 +256,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private boolean statementReturns;
     private boolean failureHandled;
-    private boolean matchClauseReturns;
+    private boolean matchClauseReturns = false;
     private boolean lastStatement;
     private boolean hasLastPattern = false;
     private boolean withinLockBlock;
@@ -795,6 +795,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         matchExprType = matchStatement.expr.type;
 
         boolean matchStmtReturns = false;
+        this.matchClauseReturns = false;
         for (BLangMatchClause matchClause : matchStatement.matchClauses) {
             analyzeNode(matchClause, env);
             matchStmtReturns = this.matchClauseReturns && matchClause.matchGuard == null && hasLastPattern;
@@ -816,6 +817,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             this.isJSONContext = types.isJSONContext(matchExprType);
             analyzeNode(matchPattern, env);
+            matchPattern.isLastPattern = hasLastPattern;
         }
 
         analyzeNode(matchClause.blockStmt, env);

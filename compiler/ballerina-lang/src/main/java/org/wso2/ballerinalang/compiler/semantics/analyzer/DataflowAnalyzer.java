@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
@@ -137,6 +138,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -569,9 +571,53 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStatement matchStatement) {
+
+        analyzeNode(matchStatement.expr, env);
         if (matchStatement.onFailClause != null) {
             analyzeNode(matchStatement.onFailClause, env);
         }
+
+        Map<BSymbol, InitStatus> uninitVars = new HashMap<>();
+        BranchResult lastPatternResult = null;
+        for (int i = 0; i < matchStatement.getMatchClauses().size(); i++) {
+            BLangMatchClause matchClause = matchStatement.getMatchClauses().get(i);
+            if (isLastPatternContainsIn(matchClause)) {
+                lastPatternResult = analyzeBranch(matchClause, env);
+            } else {
+                BranchResult result = analyzeBranch(matchClause, env);
+                // If the flow was terminated within the block, then that branch should not be considered for
+                // analyzing the data-flow for the downstream code.
+                if (result.flowTerminated) {
+                    continue;
+                }
+                uninitVars = mergeUninitializedVars(uninitVars, result.uninitializedVars);
+            }
+        }
+
+        if (lastPatternResult != null) {
+            // only if last pattern is present, uninitializedVars should be updated
+            uninitVars = mergeUninitializedVars(uninitVars, lastPatternResult.uninitializedVars);
+            this.uninitializedVars = uninitVars;
+            return;
+        }
+        uninitVars = mergeUninitializedVars(new HashMap<>(), this.uninitializedVars);
+        this.uninitializedVars = uninitVars;
+    }
+
+    @Override
+    public void visit(BLangMatchClause matchClause) {
+
+        analyzeNode(matchClause.blockStmt, env);
+    }
+
+    private boolean isLastPatternContainsIn(BLangMatchClause matchClause) {
+
+        for (BLangMatchPattern pattern : matchClause.matchPatterns) {
+            if (pattern.isLastPattern) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
