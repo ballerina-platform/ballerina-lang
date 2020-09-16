@@ -186,6 +186,8 @@ public enum Snippet {
 
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
+    KW_ISOLATED(SnippetGenerator.getIsolatedKeywordSnippet()),
+
     KW_PRIVATE(SnippetGenerator.getPrivateKeywordSnippet()),
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),

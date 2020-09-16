@@ -479,6 +479,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",

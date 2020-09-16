@@ -562,6 +562,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code isolated} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getIsolatedKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ISOLATED_KEYWORD, "isolated ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
      * Get Private Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

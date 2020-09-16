@@ -535,6 +535,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         // to support start of xml template expression
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XML.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LET.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));

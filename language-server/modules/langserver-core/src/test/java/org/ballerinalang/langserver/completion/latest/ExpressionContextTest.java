@@ -58,7 +58,8 @@ public class ExpressionContextTest extends CompletionTestNew {
                 "query_expr_ctx_onconflict_clause_config1.json",
                 "query_expr_ctx_onconflict_clause_config1a.json", // LS fix needed
                 "object_constructor_expr_ctx_config12a.json",
-                "object_constructor_expr_ctx_config6.json" // LS fix needed
+                "object_constructor_expr_ctx_config6.json", // LS fix needed
+                "object_constructor_expr_ctx_config11.json" // LS fix needed
         );
     }
 }
