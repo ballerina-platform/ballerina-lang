@@ -117,6 +117,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
         // Add the function keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        // Add the function keyword
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         // Add the checkpanic keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         // Add the check keyword

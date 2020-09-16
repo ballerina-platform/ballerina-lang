@@ -115,6 +115,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
     @Override
     public boolean onPreValidation(LSContext context, FunctionSignatureNode node) {
         // If the signature belongs to the function type descriptor, we skip this resolver
-        return node.parent().kind() != SyntaxKind.FUNCTION_TYPE_DESC;
+        return !node.openParenToken().isMissing() && !node.closeParenToken().isMissing()
+                && node.parent().kind() != SyntaxKind.FUNCTION_TYPE_DESC;
     }
 }
