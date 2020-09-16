@@ -55,7 +55,7 @@ public class SemanticHighlightProvider {
     public static SemanticHighlightingParams getHighlights(LSContext context, WorkspaceDocumentManager docManager)
             throws CompilationFailedException, HighlightingFailedException {
 
-        LSModuleCompiler.getBLangPackages(context, docManager, null, true, true, true, true);
+        LSModuleCompiler.getBLangPackages(context, docManager, true, true, true);
 
         List<SemanticHighlightProvider.HighlightInfo> highlights = new ArrayList<>();
         context.put(SemanticHighlightingKeys.SEMANTIC_HIGHLIGHTING_KEY, highlights);

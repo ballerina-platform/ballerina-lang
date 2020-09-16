@@ -30,8 +30,6 @@ public enum CompilerOptionName {
 
     PRESERVE_WHITESPACE("preserveWhitespace"),
 
-    NEW_PARSER_ENABLED("newParserEnabled"),
-
     OFFLINE("offline"),
 
     SKIP_TESTS("skipTests"),

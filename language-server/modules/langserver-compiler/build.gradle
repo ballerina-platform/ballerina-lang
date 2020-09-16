@@ -31,7 +31,6 @@ dependencies {
     implementation 'com.google.code.findbugs:jsr305'
     implementation 'commons-io:commons-io'
     implementation 'org.apache.commons:commons-lang3'
-    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang:annotations')
