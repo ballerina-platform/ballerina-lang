@@ -578,8 +578,17 @@ public enum DiagnosticCode {
 
     INVALID_MUTABLE_ACCESS_IN_ISOLATED_FUNCTION("invalid.mutable.access.in.isolated.function"),
     INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("invalid.mutable.access.as.record.default"),
+    INVALID_MUTABLE_ACCESS_AS_OBJECT_DEFAULT("invalid.mutable.access.as.object.default"),
+
     INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION("invalid.non.isolated.invocation.in.isolated.function"),
     INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT("invalid.non.isolated.invocation.as.record.default"),
+    INVALID_NON_ISOLATED_INVOCATION_AS_OBJECT_DEFAULT("invalid.non.isolated.invocation.as.object.default"),
+
+    INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_ISOLATED_FUNCTION(
+            "invalid.non.isolated.init.expression.in.isolated.function"),
+    INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT("invalid.non.isolated.init.expression.as.record.default"),
+    INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_DEFAULT("invalid.non.isolated.init.expression.as.object.default"),
+
     INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION("invalid.async.invocation.in.isolated.function"),
     INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION("invalid.worker.declaration.in.isolated.function"),
     FUNCTION_CAN_BE_MARKED_ISOLATED("function.can.be.marked.isolated"),

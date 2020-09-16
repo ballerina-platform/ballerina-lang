@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.ballerinalang.compiler.JarResolver.JAR_RESOLVER_KEY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.encodeModuleIdentifiers;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 
 /**
@@ -149,6 +150,10 @@ public class CodeGenerator {
 
         ClassLoader interopValidationClassLoader = makeClassLoader(moduleDependencies);
         InteropValidator interopValidator = new InteropValidator(interopValidationClassLoader, symbolTable);
+
+        //Rewrite identiifier names with encoding special characters
+        encodeModuleIdentifiers(packageSymbol.bir);
+
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, interopValidator, true);
     }
 

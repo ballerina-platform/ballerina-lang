@@ -747,6 +747,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
                 reportInvalidQualifier(qualifier);
+                reportInvalidMetaData(metadata);
                 return null;
             case ISOLATED_KEYWORD:
             case CLIENT_KEYWORD:
@@ -782,11 +783,11 @@ public class BallerinaParser extends AbstractParser {
                 return parseAnnotationDeclaration(metadata, getQualifier(qualifier), constKeyword);
             case IMPORT_KEYWORD:
                 reportInvalidQualifier(qualifier);
-                // TODO log error for metadata
+                reportInvalidMetaData(metadata);
                 return parseImportDecl();
             case XMLNS_KEYWORD:
                 reportInvalidQualifier(qualifier);
-                // TODO log error for metadata
+                reportInvalidMetaData(metadata);
                 return parseXMLNamespaceDeclaration(true);
             case FINAL_KEYWORD:
                 reportInvalidQualifier(qualifier);
@@ -846,6 +847,12 @@ public class BallerinaParser extends AbstractParser {
         if (qualifier != null && qualifier.kind != SyntaxKind.NONE) {
             addInvalidNodeToNextToken(qualifier, DiagnosticErrorCode.ERROR_INVALID_QUALIFIER,
                     ((STToken) qualifier).text());
+        }
+    }
+
+    private void reportInvalidMetaData(STNode metadata) {
+        if (metadata != null && metadata.kind != SyntaxKind.NONE) {
+            addInvalidNodeToNextToken(metadata, DiagnosticErrorCode.ERROR_INVALID_METADATA);
         }
     }
 
@@ -2897,7 +2904,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case ELLIPSIS_TOKEN:
-                // TODO: report error for invalid metadata
+                reportInvalidMetaData(metadata);
                 STNode ellipsis = parseEllipsis();
                 STNode semicolonToken = parseSemicolon();
                 return STNodeFactory.createRecordRestDescriptorNode(type, ellipsis, semicolonToken);
@@ -3011,7 +3018,7 @@ public class BallerinaParser extends AbstractParser {
      */
     protected STNode parseStatement() {
         STToken nextToken = peek();
-        STNode annots = null;
+        STNode annots = STNodeFactory.createEmptyNodeList();
         switch (nextToken.kind) {
             case CLOSE_BRACE_TOKEN:
                 // Returning null marks the end of statements
@@ -3055,11 +3062,13 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseStatement(STNode annots) {
-        // TODO: validate annotations: not every statement supports annots
         STToken nextToken = peek();
+        // Validate annotations if present.
+        if (!isNodeListEmpty(annots)) {
+            validateStatementAnnotations(nextToken, annots);
+        }
         switch (nextToken.kind) {
             case CLOSE_BRACE_TOKEN:
-                addInvalidNodeToNextToken(annots, DiagnosticErrorCode.ERROR_INVALID_ANNOTATIONS);
                 // Returning null marks the end of statements
                 return null;
             case SEMICOLON_TOKEN:
@@ -3169,6 +3178,34 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 return parseStatement(annots);
+        }
+    }
+
+    private void validateStatementAnnotations(STToken nextToken, STNode annots) {
+        switch (nextToken.kind) {
+            // Statements in which annotations are not allowed.
+            case CLOSE_BRACE_TOKEN:
+            case IF_KEYWORD:
+            case WHILE_KEYWORD:
+            case DO_KEYWORD:
+            case PANIC_KEYWORD:
+            case CONTINUE_KEYWORD:
+            case BREAK_KEYWORD:
+            case RETURN_KEYWORD:
+            case FAIL_KEYWORD:
+            case LOCK_KEYWORD:
+            case OPEN_BRACE_TOKEN:
+            case FORK_KEYWORD:
+            case FOREACH_KEYWORD:
+            case XMLNS_KEYWORD:
+            case TRANSACTION_KEYWORD:
+            case RETRY_KEYWORD:
+            case ROLLBACK_KEYWORD:
+            case MATCH_KEYWORD:
+                addInvalidNodeToNextToken(annots, DiagnosticErrorCode.ERROR_INVALID_ANNOTATIONS);
+                break;
+            default:
+                break;
         }
     }
 
@@ -3394,20 +3431,11 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseTerminalExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
-        STNode annots;
+        STNode annots = STNodeFactory.createEmptyNodeList();
         if (peek().kind == SyntaxKind.AT_TOKEN) {
             annots = parseOptionalAnnotations();
-        } else {
-            annots = STNodeFactory.createEmptyNodeList();
         }
-
-        STNode expr = parseTerminalExpression(annots, isRhsExpr, allowActions, isInConditionalExpr);
-        if (!isNodeListEmpty(annots) && expr.kind != SyntaxKind.START_ACTION) {
-            expr = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(expr, annots,
-                    DiagnosticErrorCode.ERROR_ANNOTATIONS_ATTACHED_TO_EXPRESSION);
-        }
-
-        return expr;
+        return parseTerminalExpression(annots, isRhsExpr, allowActions, isInConditionalExpr);
     }
 
     /**
@@ -3424,6 +3452,10 @@ public class BallerinaParser extends AbstractParser {
         // Whenever a new expression start is added, make sure to
         // add it to all the other places as well.
         STToken nextToken = peek();
+        // Validate annotations if present.
+        if (!isNodeListEmpty(annots)) {
+            validateExpressionAnnotations(nextToken, annots);
+        }
         switch (nextToken.kind) {
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case HEX_INTEGER_LITERAL_TOKEN:
@@ -3537,6 +3569,27 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return parseTerminalExpression(annots, isRhsExpr, allowActions, isInConditionalExpr);
+    }
+
+    private void validateExpressionAnnotations(STToken nextToken, STNode annots) {
+        switch (nextToken.kind) {
+            case CLIENT_KEYWORD:
+            case OBJECT_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case ISOLATED_KEYWORD:
+            case START_KEYWORD:
+            case SERVICE_KEYWORD:
+                break;
+            case TRANSACTIONAL_KEYWORD:
+                STToken nextNextToken = getNextNextToken(nextToken.kind);
+                if (nextNextToken.kind == SyntaxKind.ISOLATED_KEYWORD ||
+                        nextNextToken.kind == SyntaxKind.FUNCTION_KEYWORD) {
+                    break;
+                }
+                // fall through
+            default:
+                addInvalidNodeToNextToken(annots, DiagnosticErrorCode.ERROR_ANNOTATIONS_ATTACHED_TO_EXPRESSION);
+        }
     }
 
     private boolean isValidExprStart(SyntaxKind tokenKind) {
@@ -4866,7 +4919,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
-                // TODO report metadata
+                reportInvalidMetaData(metadata);
                 return null;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
@@ -4887,6 +4940,7 @@ public class BallerinaParser extends AbstractParser {
                 member = parseObjectMethod(metadata, new ArrayList<>(), isObjectTypeDesc);
                 break;
             case ASTERISK_TOKEN:
+                reportInvalidMetaData(metadata);
                 STNode asterisk = consume();
                 STNode type = parseTypeReference();
                 STNode semicolonToken = parseSemicolon();
@@ -12545,7 +12599,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypedBindingPatternOrExprRhs(basicLiteral, allowAssignment);
             default:
                 if (isValidExpressionStart(nextToken.kind, 1)) {
-                    return parseActionOrExpressionInLhs(null);
+                    return parseActionOrExpressionInLhs(STNodeFactory.createEmptyNodeList());
                 }
 
                 return parseTypedBindingPattern(ParserRuleContext.VAR_DECL_STMT);
@@ -12749,7 +12803,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeDescOrExprRhs(basicLiteral);
             default:
                 if (isValidExpressionStart(nextToken.kind, 1)) {
-                    return parseActionOrExpressionInLhs(null);
+                    return parseActionOrExpressionInLhs(STNodeFactory.createEmptyNodeList());
                 }
 
                 return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);

@@ -191,6 +191,11 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns[0].stringValue(), "truetest6");
     }
 
+    @Test(description = "Test global function type defs with closures")
+    public void testGlobalFunctionTypeDefWithClosures() {
+        BRunUtil.invoke(globalProgram, "testGlobalFunctionTypeDefWithClosures");
+    }
+
     @Test
     public void testStructFP() {
         BValue[] returns = BRunUtil.invoke(structProgram, "test1");
