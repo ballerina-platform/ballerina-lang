@@ -256,7 +256,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private boolean statementReturns;
     private boolean failureHandled;
-    private boolean matchClauseReturns = false;
+    private boolean matchClauseReturns;
     private boolean lastStatement;
     private boolean hasLastPattern = false;
     private boolean withinLockBlock;
