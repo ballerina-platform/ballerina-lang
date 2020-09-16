@@ -10,3 +10,9 @@ target = "java8"
         version = "0.0.0"
         path = "./lib/testerina-core-2.0.0-Preview4-SNAPSHOT.jar"
         groupId = "ballerina"
+
+    [[platform.libraries]]
+        modules = ["test"]
+        groupId = "io.github.java-diff-utils"
+        artifactId = "java-diff-utils"
+        version = "4.5"
