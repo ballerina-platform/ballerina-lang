@@ -109,56 +109,6 @@ public class RuntimeUtils {
     }
 
     /**
-     * Decode the encoded Type name for runtime name calls.
-     *
-     * @param typeName Name of the defined type
-     * @return decoded name String
-     */
-    public static String decodeTypeName(String typeName) {
-        if (typeName == null) {
-            return typeName;
-        }
-        StringBuilder sb = new StringBuilder();
-        int index = 0;
-        while (index < typeName.length()) {
-            if (typeName.charAt(index) == '$' && index + 4 < typeName.length()) {
-                if (isDollarHashPattern(typeName, index)) {
-                    sb.append("$").append(typeName, index + 2, index + 6);
-                    index += 6;
-                } else if (isUnicodePoint(typeName, index)) {
-                    sb.append((char) Integer.parseInt(typeName.substring(index + 1, index + 5)));
-                    index += 5;
-                } else {
-                    sb.append(typeName.charAt(index));
-                    index++;
-                }
-            } else {
-                sb.append(typeName.charAt(index));
-                index++;
-            }
-        }
-        return sb.toString();
-    }
-
-    private static boolean isUnicodePoint(String encodedName, int index) {
-        return (containsOnlyDigits(encodedName.substring(index + 1, index + 5)));
-    }
-
-    private static boolean isDollarHashPattern(String encodedName, int index) {
-        return encodedName.charAt(index + 1) == '#' && index + 5 < encodedName.length() &&
-                containsOnlyDigits(encodedName.substring(index + 2, index + 6));
-    }
-
-    private static boolean containsOnlyDigits(String digitString) {
-        for (int i = 0; i < digitString.length(); i++) {
-            if (!Character.isDigit(digitString.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Keep a function parameter info, required for argument parsing.
      */
     public static class ParamInfo {

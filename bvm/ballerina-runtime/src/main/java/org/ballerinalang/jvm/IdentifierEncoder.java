@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.util;
+package org.ballerinalang.jvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -52,26 +52,55 @@ public class IdentifierEncoder {
         return sb.toString();
     }
 
-    public static String decodeIdentifiers(String encodedName) {
-        if (encodedName == null) {
-            return encodedName;
+    public static String escapeSpecialCharacters(String identifier) {
+        String specialCharSet = "([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])";
+        return identifier.replaceAll("(?<!\\\\)(?:\\\\\\\\)*" + specialCharSet, "\\\\$1");
+    }
+
+    /**
+     * Encode the identifiers to avoid using jvm reserved characters.
+     *
+     * @param identifier identifier string
+     * @return encoded identifier
+     */
+    public static String encodeIdentifier(String identifier) {
+        if (identifier == null) {
+            return identifier;
+        }
+        if (identifier.contains(ESCAPE_PREFIX)) {
+            identifier = encodeSpecialCharacters(identifier);
+        } else {
+            identifier = identifier.replaceAll(ENCODING_PATTERN, "\\$#$1");
+        }
+        return StringEscapeUtils.unescapeJava(identifier);
+    }
+
+    /**
+     * Decode the encoded identifiers for runtime calls.
+     *
+     * @param encodedIdentifier encoded identifier string
+     * @return decoded identifier
+     */
+    public static String decodeIdentifier(String encodedIdentifier) {
+        if (encodedIdentifier == null) {
+            return encodedIdentifier;
         }
         StringBuilder sb = new StringBuilder();
         int index = 0;
-        while (index < encodedName.length()) {
-            if (encodedName.charAt(index) == '$' && index + 4 < encodedName.length()) {
-                if (isDollarHashPattern(encodedName, index)) {
-                    sb.append("$").append(encodedName, index + 2, index + 6);
+        while (index < encodedIdentifier.length()) {
+            if (encodedIdentifier.charAt(index) == '$' && index + 4 < encodedIdentifier.length()) {
+                if (isDollarHashPattern(encodedIdentifier, index)) {
+                    sb.append("$").append(encodedIdentifier, index + 2, index + 6);
                     index += 6;
-                } else if (isUnicodePoint(encodedName, index)) {
-                    sb.append((char) Integer.parseInt(encodedName.substring(index + 1, index + 5)));
+                } else if (isUnicodePoint(encodedIdentifier, index)) {
+                    sb.append((char) Integer.parseInt(encodedIdentifier.substring(index + 1, index + 5)));
                     index += 5;
                 } else {
-                    sb.append(encodedName.charAt(index));
+                    sb.append(encodedIdentifier.charAt(index));
                     index++;
                 }
             } else {
-                sb.append(encodedName.charAt(index));
+                sb.append(encodedIdentifier.charAt(index));
                 index++;
             }
         }
@@ -94,22 +123,5 @@ public class IdentifierEncoder {
             }
         }
         return true;
-    }
-
-    public static String escapeSpecialCharacters(String identifier) {
-        String specialCharSet = "([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])";
-        return identifier.replaceAll("(?<!\\\\)(?:\\\\\\\\)*" + specialCharSet, "\\\\$1");
-    }
-
-    public static String encodeIdentifier(String identifier) {
-        if (identifier == null) {
-            return identifier;
-        }
-        if (identifier.contains(ESCAPE_PREFIX)) {
-            identifier = encodeSpecialCharacters(identifier);
-        } else {
-            identifier = identifier.replaceAll(ENCODING_PATTERN, "\\$#$1");
-        }
-        return StringEscapeUtils.unescapeJava(identifier);
     }
 }

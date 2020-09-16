@@ -60,7 +60,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.util.IdentifierEncoder;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -72,6 +71,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static org.ballerinalang.jvm.IdentifierEncoder.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -680,7 +680,7 @@ class JvmTypeGen {
             mv.visitInsn(DUP);
 
             // Load field name
-            mv.visitLdcInsn(IdentifierEncoder.decodeIdentifiers(optionalField.name.value));
+            mv.visitLdcInsn(decodeIdentifier(optionalField.name.value));
 
             // create and load field type
             createRecordField(mv, optionalField);
@@ -757,7 +757,7 @@ class JvmTypeGen {
 
         // Load type name
         BTypeSymbol typeSymbol = objectType.tsymbol;
-        mv.visitLdcInsn(IdentifierEncoder.decodeIdentifiers(typeSymbol.name.getValue()));
+        mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
 
         // Load package path
         mv.visitTypeInsn(NEW, PACKAGE_TYPE);
@@ -793,7 +793,7 @@ class JvmTypeGen {
         // Load type name
         BTypeSymbol typeSymbol = objectType.tsymbol;
 
-        mv.visitLdcInsn(IdentifierEncoder.decodeIdentifiers(typeSymbol.name.getValue()));
+        mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
 
         // Load package path
         mv.visitTypeInsn(NEW, PACKAGE_TYPE);
@@ -866,7 +866,7 @@ class JvmTypeGen {
             mv.visitInsn(DUP);
 
             // Load field name
-            mv.visitLdcInsn(IdentifierEncoder.decodeIdentifiers(optionalField.name.value));
+            mv.visitLdcInsn(decodeIdentifier(optionalField.name.value));
 
             // create and load field type
             createObjectField(mv, optionalField);
@@ -899,7 +899,7 @@ class JvmTypeGen {
         loadType(mv, field.type);
 
         // Load field name
-        mv.visitLdcInsn(IdentifierEncoder.decodeIdentifiers(field.name.value));
+        mv.visitLdcInsn(decodeIdentifier(field.name.value));
 
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
@@ -988,7 +988,7 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load function name
-        mv.visitLdcInsn(IdentifierEncoder.decodeIdentifiers(attachedFunc.funcName.value));
+        mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.value));
 
         // Load the parent object type
         loadType(mv, objType);

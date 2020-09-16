@@ -17,8 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
+import org.ballerinalang.jvm.IdentifierEncoder;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
-import org.wso2.ballerinalang.compiler.util.IdentifierEncoder;
 
 import java.util.Comparator;
 
@@ -31,8 +31,8 @@ public class NameHashComparator implements Comparator<NamedNode> {
 
     @Override
     public int compare(NamedNode o1, NamedNode o2) {
-        String name1 = IdentifierEncoder.decodeIdentifiers(o1.getName().value);
-        String name2 = IdentifierEncoder.decodeIdentifiers(o2.getName().value);
+        String name1 = IdentifierEncoder.decodeIdentifier(o1.getName().value);
+        String name2 = IdentifierEncoder.decodeIdentifier(o2.getName().value);
         return Integer.compare(name1.hashCode(), name2.hashCode());
     }
 }

@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
-import org.wso2.ballerinalang.compiler.util.IdentifierEncoder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -49,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.jvm.IdentifierEncoder.decodeIdentifier;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -215,7 +215,7 @@ class JvmValueGen {
         for (NamedNode node : nodes) {
             if (node != null) {
                 labels.add(i, new Label());
-                hashCodes[i] = IdentifierEncoder.decodeIdentifiers(getName(node)).hashCode();
+                hashCodes[i] = decodeIdentifier(getName(node)).hashCode();
                 i += 1;
             }
         }
@@ -285,7 +285,7 @@ class JvmValueGen {
             }
             mv.visitLabel(labels.get(i));
             mv.visitVarInsn(ALOAD, nameRegIndex);
-            mv.visitLdcInsn(IdentifierEncoder.decodeIdentifiers(getName(node)));
+            mv.visitLdcInsn(decodeIdentifier(getName(node)));
             mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
                     String.format("(L%s;)Z", OBJECT), false);
             Label targetLabel = new Label();
@@ -1001,7 +1001,7 @@ class JvmValueGen {
             if (this.isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className,
-                        this.getFieldIsPresentFlagName(IdentifierEncoder.decodeIdentifiers(fieldName)),
+                        this.getFieldIsPresentFlagName(decodeIdentifier(fieldName)),
                         getTypeDesc(booleanType));
                 mv.visitJumpInsn(IFEQ, ifNotPresent);
             }
@@ -1011,7 +1011,7 @@ class JvmValueGen {
             mv.visitInsn(DUP);
 
             // field name as key
-            mv.visitLdcInsn(IdentifierEncoder.decodeIdentifiers(fieldName));
+            mv.visitLdcInsn(decodeIdentifier(fieldName));
             mv.visitMethodInsn(INVOKESTATIC, JvmConstants.B_STRING_UTILS, "fromString",
                                String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
 
@@ -1291,7 +1291,7 @@ class JvmValueGen {
             Label ifNotPresent = new Label();
 
             // If its an optional field, generate if-condition to check the presense of the field.
-            String fieldName = IdentifierEncoder.decodeIdentifiers(optionalField.name.value);
+            String fieldName = decodeIdentifier(optionalField.name.value);
             if (this.isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0); // this
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
