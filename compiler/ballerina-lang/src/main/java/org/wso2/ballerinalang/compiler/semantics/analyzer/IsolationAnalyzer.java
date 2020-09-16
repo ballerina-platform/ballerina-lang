@@ -1328,7 +1328,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isBallerinaModule(BLangPackage module) {
-        return module.packageID.orgName.value.equals("ballerina");
+        String orgName = module.packageID.orgName.value;
+        return orgName.equals("ballerina") || orgName.equals("ballerinax");
     }
 
     private boolean isInIsolatedFunction(BLangInvokableNode enclInvokable) {
