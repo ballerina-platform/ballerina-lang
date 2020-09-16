@@ -17,40 +17,26 @@
 
 package io.ballerina.semantic.api.test;
 
-import io.ballerina.tools.text.LinePosition;
 import org.ballerina.compiler.api.ModuleID;
 import org.ballerina.compiler.api.symbols.Symbol;
 import org.ballerina.compiler.impl.BallerinaModuleID;
 import org.ballerina.compiler.impl.BallerinaSemanticModel;
-import org.ballerina.compiler.impl.symbols.BallerinaModule;
-import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolsInFile;
 import static java.util.Arrays.asList;
-import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -62,12 +48,6 @@ import static org.testng.Assert.assertTrue;
 public class SymbolLookupTest {
 
     private final Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
-
-    @BeforeClass
-    public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/test-project", "testorg", "foo");
-    }
 
     @Test(dataProvider = "PositionProvider1")
     public void testVarSymbolLookup(int line, int column, int expSymbols, List<String> expSymbolNames) {
@@ -170,41 +150,6 @@ public class SymbolLookupTest {
         };
     }
 
-    @Test
-    public void testSymbolLookupInBIR() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_lookup_with_imports_test.bal", context);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        BPackageSymbol fooPkgSymbol = pkg.imports.get(0).symbol;
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
-
-        List<String> annotationModuleSymbols = asList("deprecated", "untainted", "tainted", "icon", "strand",
-                                                      "StrandData", "typeParam", "Thread", "builtinSubtype");
-        List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes");
-        List<String> moduleSymbols = asList("xml", "foo", "object", "error", "boolean", "decimal", "typedesc", "float",
-                "future", "int", "map", "stream", "string", "table");
-        List<String> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
-
-        Map<String, Symbol> symbolsInScope =
-                model.visibleSymbols("symbol_lookup_with_imports_test.bal", LinePosition.from(19, 1))
-                        .stream().collect(Collectors.toMap(Symbol::name, s -> s));
-        assertList(symbolsInScope, expSymbolNames);
-
-        BallerinaModule fooModule = (BallerinaModule) symbolsInScope.get("foo");
-        List<String> fooFunctions = getSymbolNames(fooPkgSymbol, SymTag.FUNCTION);
-        assertList(fooModule.functions(), fooFunctions);
-
-        List<String> fooConstants = getSymbolNames(fooPkgSymbol, SymTag.CONSTANT);
-        assertList(fooModule.constants(), fooConstants);
-
-        List<String> fooTypeDefs = getSymbolNames(getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF), "FileNotFoundError",
-                                                  "EofError", "Digit");
-        assertList(fooModule.typeDefinitions(), fooTypeDefs);
-
-        List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
-        assertList(fooModule.allSymbols(), allSymbols);
-    }
-
     @Test(dataProvider = "PositionProvider4")
     public void testSymbolLookupForComplexExpressions(int line, int column, List<String> expSymbolNames) {
         CompilerContext context = new CompilerContext();
@@ -232,58 +177,10 @@ public class SymbolLookupTest {
         };
     }
 
-    @AfterClass
-    public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/test-project", "testorg", "foo");
-    }
-
-    private void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {
-        Map<String, Symbol> symbols = actualValues.stream().collect(Collectors.toMap(Symbol::name, s -> s));
-        assertList(symbols, expectedValues);
-    }
-
-    private void assertList(Map<String, Symbol> actualValues, List<String> expectedValues) {
-        assertEquals(actualValues.size(), expectedValues.size());
-
-        for (String val : expectedValues) {
-            assertTrue(actualValues.containsKey(val), "Symbol not found: " + val);
-        }
-    }
-
-    private Map<String, Symbol> getSymbolsInFile(BallerinaSemanticModel model, String srcFile, int line,
-                                                 int column, ModuleID moduleID) {
-        List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(line, column));
-        return allInScopeSymbols.stream()
-                .filter(s -> s.moduleID().equals(moduleID))
-                .collect(Collectors.toMap(Symbol::name, s -> s));
-    }
-
     private CompileResult compile(String path, CompilerContext context) {
         Path sourcePath = Paths.get(path);
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         return BCompileUtil.compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, false);
-    }
-
-    private List<String> getSymbolNames(List<String> mainList, String... args) {
-        return Stream.concat(mainList.stream(), Stream.of(args)).collect(Collectors.toList());
-    }
-
-    private List<String> getSymbolNames(List<String>... lists) {
-        return Arrays.stream(lists).flatMap(Collection::stream).collect(Collectors.toList());
-    }
-
-    private List<String> getSymbolNames(BPackageSymbol pkgSymbol, int symTag) {
-        List<String> symbolNames = new ArrayList<>();
-        for (Map.Entry<Name, Scope.ScopeEntry> entry : pkgSymbol.scope.entries.entrySet()) {
-            Name name = entry.getKey();
-            Scope.ScopeEntry value = entry.getValue();
-
-            if (value.symbol != null && (value.symbol.tag & symTag) == symTag
-                    && Symbols.isFlagOn(value.symbol.flags, Flags.PUBLIC) && value.symbol.origin == COMPILED_SOURCE) {
-                symbolNames.add(name.value);
-            }
-        }
-        return symbolNames;
     }
 }

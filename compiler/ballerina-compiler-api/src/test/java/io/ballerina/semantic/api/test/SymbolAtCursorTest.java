@@ -20,11 +20,8 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerina.compiler.api.symbols.Symbol;
 import org.ballerina.compiler.impl.BallerinaSemanticModel;
-import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -45,12 +42,6 @@ import static org.testng.Assert.assertNull;
 public class SymbolAtCursorTest {
 
     private final Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
-
-    @BeforeClass
-    public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/test-project", "testorg", "foo");
-    }
 
     @Test(dataProvider = "BasicsPosProvider")
     public void testBasics(int line, int column, String expSymbolName) {
@@ -132,36 +123,6 @@ public class SymbolAtCursorTest {
         };
     }
 
-    @Test(dataProvider = "ImportSymbolPosProvider")
-    public void testImportSymbols(int line, int column, String expSymbolName) {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_at_cursor_import_test.bal", context);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
-
-        Optional<Symbol> symbol = model.symbol("symbol_at_cursor_import_test.bal", LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
-
-        if (!symbol.isPresent()) {
-            assertNull(expSymbolName);
-        }
-    }
-
-    @DataProvider(name = "ImportSymbolPosProvider")
-    public Object[][] getImportSymbolPos() {
-        return new Object[][]{
-                {17, 7, null},
-                {17, 11, "foo"},
-                {17, 17, "foo"},
-                {17, 19, null},
-//                {20, 18, "foo"}, // TODO: issue #25841
-                {21, 14, "foo"},
-                {23, 6, "foo"},
-//                {27, 13, "foo"}, // TODO: issue #25841
-                {32, 21, "PersonObj.getName"},
-        };
-    }
-
     @Test(dataProvider = "WorkerSymbolPosProvider")
     public void testWorkers(int line, int column, String expSymbolName) {
         CompilerContext context = new CompilerContext();
@@ -188,11 +149,6 @@ public class SymbolAtCursorTest {
                 {37, 21, "w1"},
                 {40, 21, "w2"},
         };
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/test-project", "testorg", "foo");
     }
 
     private CompileResult compile(String path, CompilerContext context) {
