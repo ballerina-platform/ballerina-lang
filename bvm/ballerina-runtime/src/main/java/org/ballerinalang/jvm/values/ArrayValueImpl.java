@@ -682,7 +682,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                                 }
                                 break;
                             default:
-                                sj.add(StringUtils.getToBalStringValue(refValues[i],
+                                sj.add(BStringUtils.getToBalStringValue(refValues[i],
                                         new CycleUtils.Node(this, parent)));
                                 break;
                         }

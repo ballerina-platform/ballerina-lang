@@ -317,7 +317,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     public String stringValue(BLink parent) {
         Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
-        return createStringValueDataEntry(itr, parent);
+        return createStringValueDataEntry(itr, parent, true);
     }
 
     @Override
@@ -325,14 +325,35 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return stringValue(parent);
     }
 
-    private String createStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent) {
+    @Override
+    public String toBalString(BLink parent) {
+        Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
+        return createStringValueDataEntry(itr, parent, false);
+    }
+
+    private String createStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent, boolean isInformal) {
+        String tableToStringVal = "";
         StringJoiner sj = new StringJoiner(",");
         while (itr.hasNext()) {
             Map.Entry<Long, V> struct = itr.next();
-            sj.add(BStringUtils.getStringValue(struct.getValue(),
-                                               new CycleUtils.Node(this, parent)));
+            if (isInformal) {
+                sj.add(BStringUtils.getStringValue(struct.getValue(),
+                        new CycleUtils.Node(this, parent)));
+                tableToStringVal = "[" + sj.toString() + "]";
+            } else {
+                StringJoiner keyJoiner = new StringJoiner(",");
+                String[] keysList = type.getFieldNames();
+                if (keysList.length > 0) {
+                    for (int i = 0; i < keysList.length; i++) {
+                        keyJoiner.add(keysList[i]);
+                    }
+                }
+                sj.add(BStringUtils.getToBalStringValue(struct.getValue(),
+                        new CycleUtils.Node(this, parent)));
+                tableToStringVal = "table key(" + keyJoiner.toString() + ") [" + sj.toString() + "]";
+            }
         }
-        return "[" + sj.toString() + "]";
+        return tableToStringVal;
     }
 
     private BType getTableConstraintField(BType constraintType, String fieldName) {

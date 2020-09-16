@@ -239,6 +239,75 @@ public class LangLibValueTest {
         Assert.assertEquals((returns[0]).stringValue(), "<def>DEF</def><ghi>1</ghi>");
     }
 
+    @Test
+    public void testToBalString() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testToBalStringMethod");
+        BValueArray array = (BValueArray) returns[0];
+        assertEquals(array.getRefValue(0).stringValue(), "4");
+        assertEquals(array.getRefValue(1).stringValue(), "4");
+        assertEquals(array.getRefValue(2).stringValue(), "4");
+        assertEquals(array.getRefValue(3).stringValue(), "4");
+
+        returns = BRunUtil.invokeFunction(compileResult, "testToBalString");
+        array = (BValueArray) returns[0];
+        int i = 0;
+        Assert.assertEquals(array.getString(i++), "6");
+        Assert.assertEquals(array.getString(i++), "6.0");
+        Assert.assertEquals(array.getString(i++), "\"toString\"");
+        Assert.assertEquals(array.getString(i++), "()");
+        Assert.assertEquals(array.getString(i++), "true");
+        Assert.assertEquals(array.getString(i++), "345.2425341d");
+        Assert.assertEquals(array.getString(i++), "{\"a\":\"STRING\",\"b\":12,\"c\":12.4,\"d\":true," +
+                "\"e\":{\"x\":\"x\",\"y\":()}}");
+        Assert.assertEquals(array.getString(i++),
+                "xml`<CATALOG>" +
+                        "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
+                        "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
+                        "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
+                        "</CATALOG>`");
+        Assert.assertEquals(array.getString(i++), "[\"str\",23,23.4,true]");
+        Assert.assertEquals(array.getString(i++), "error FirstError (\"Reason1\",message=\"Test passing error " +
+                "union to a function\")");
+        Assert.assertEquals(array.getString(i++), "object Student -214492645");
+        Assert.assertEquals(array.getString(i++), "object Rola from MMV");
+        Assert.assertEquals(array.getString(i++), "[object Student -214492645,object Rola from MMV]");
+        Assert.assertEquals(array.getString(i++),
+                "{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\",\"city\":\"Colombo\"," +
+                        "\"street\":\"Palm Grove\"},\"age\":12}");
+        Assert.assertEquals(array.getString(i),
+                "{\"varInt\":6," +
+                        "\"varFloat\":6.0," +
+                        "\"varStr\":\"toString\"," +
+                        "\"varNil\":()," +
+                        "\"varBool\":true," +
+                        "\"varDecimal\":345.2425341d," +
+                        "\"varjson\":{\"a\":\"STRING\",\"b\":12,\"c\":12.4,\"d\":true," +
+                        "\"e\":{\"x\":\"x\",\"y\":()}}," +
+                        "\"varXml\":xml`<CATALOG><CD><TITLE>Empire Burlesque</TITLE>" +
+                        "<ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE>" +
+                        "<ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
+                        "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`," +
+                        "\"varArr\":[\"str\",23,23.4,true]," +
+                        "\"varErr\":error FirstError (\"Reason1\"," +
+                        "message=\"Test passing error union to a function\")," +
+                        "\"varObj\":object Student -214492645," +
+                        "\"varObj2\":object Rola from MMV," +
+                        "\"varObjArr\":[object Student -214492645,object Rola from MMV]," +
+                        "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
+                        "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}}");
+    }
+
+    @Test
+    public void testToBalStringMethodForTable() {
+        BRunUtil.invokeFunction(compileResult, "testToBalStringMethodForTable");
+    }
+
+    @Test
+    public void xmlSequenceFragmentToBalString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToBalString");
+        Assert.assertEquals((returns[0]).stringValue(), "xml`<def>DEF</def><ghi>1</ghi>`");
+    }
+
     @DataProvider(name = "mergeJsonFunctions")
     public Object[][] mergeJsonFunctions() {
         return new Object[][] {

@@ -470,7 +470,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                         sj.add("\"" + key + "\":" + ((BValue) value).toBalString(mapParent));
                         break;
                     default:
-                        sj.add("\"" + key + "\":" + StringUtils.getToBalStringValue(value, mapParent));
+                        sj.add("\"" + key + "\":" + BStringUtils.getToBalStringValue(value, mapParent));
                         break;
                 }
             }

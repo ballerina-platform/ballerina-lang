@@ -459,6 +459,69 @@ public function xmlSequenceFragmentToString() returns string {
    return (x/*).toString();
 }
 
+function testToBalStringMethod() returns [string, string, string, string] {
+    int a = 4;
+    anydata b = a;
+    any c = b;
+    var d = c.toString();
+    return [a.toBalString(), b.toBalString(), c.toBalString(), d];
+}
+
+function testToBalString() returns string[] {
+    int varInt = 6;
+    float varFloat = 6.0;
+    string varStr = "toString";
+    () varNil = ();
+    Address addr = {country : "Sri Lanka", city: "Colombo", street: "Palm Grove"};
+    Person p = {name : "Gima", address: addr, age: 12};
+    boolean varBool = true;
+    decimal varDecimal = 345.2425341;
+    map<any|error> varMap = {};
+    json varJson = {a: "STRING", b: 12, c: 12.4, d: true, e: {x:"x", y: ()}};
+    any[] varArr = ["str", 23, 23.4, true];
+    FirstError varErr = FirstError(REASON_1, message = "Test passing error union to a function");
+    Student varObj = new("Alaa", "MMV");
+    Teacher varObj2 = new("Rola", "MMV");
+    any[] varObjArr = [varObj, varObj2];
+    xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
+
+    varMap["varInt"] = varInt;
+    varMap["varFloat"] = varFloat;
+    varMap["varStr"] = varStr;
+    varMap["varNil"] = varNil;
+    varMap["varBool"] = varBool;
+    varMap["varDecimal"] = varDecimal;
+    varMap["varjson"] = varJson;
+    varMap["varXml"] = varXml;
+    varMap["varArr"] = varArr;
+    varMap["varErr"] = varErr;
+    varMap["varObj"] = varObj;
+    varMap["varObj2"] = varObj2;
+    varMap["varObjArr"] = varObjArr;
+    varMap["varRecord"] = p;
+
+    return [varInt.toBalString(), varFloat.toBalString(), varStr.toBalString(), varNil.toBalString(),
+    varBool.toBalString(), varDecimal.toBalString(), varJson.toBalString(), varXml.toBalString(), varArr.toBalString(),
+    varErr.toBalString(), varObj.toBalString(), varObj2.toBalString(), varObjArr.toBalString(), p.toBalString(),
+    varMap.toBalString()];
+}
+
+function testToBalStringMethodForTable() {
+    table<Employee> employeeTable = table key(id) [
+            { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
+            { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
+        ];
+
+    assertEquality("table key(id) [{\"id\":1,\"age\":30,\"salary\":300.5d,\"name\":\"Mary\",\"married\":true},"
+    + "{\"id\":2,\"age\":20,\"salary\":300.5d,\"name\":\"John\",\"married\":true}]", employeeTable.toBalString());
+}
+
+public function xmlSequenceFragmentToBalString() returns string {
+   xml x = xml `<abc><def>DEF</def><ghi>1</ghi></abc>`;
+
+   return (x/*).toBalString();
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

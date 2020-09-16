@@ -239,7 +239,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      */
     public String toBalString(BLink parent) {
         if (this.valueKind != DecimalValueKind.OTHER) {
-            return this.valueKind.getValue();
+            return this.valueKind.getValue()+"d";
         }
         return value.toString()+"d";
     }

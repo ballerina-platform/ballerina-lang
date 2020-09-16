@@ -20,6 +20,7 @@ import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BValue;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BObjectType;
@@ -29,6 +30,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.BmpStringValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.NonBmpStringValue;
 import org.ballerinalang.jvm.values.RefValue;
@@ -242,6 +244,74 @@ public class BStringUtils {
 
         RefValue refValue = (RefValue) value;
         return refValue.stringValue(parent);
+    }
+
+    /**
+     * Returns the human-readable string value of Ballerina values.
+     *
+     * @param value The value on which the function is invoked
+     * @param parent The link to the parent node
+     * @return String value of the value
+     */
+    public static String getToBalStringValue(Object value, BLink parent) {
+        if (value == null) {
+            return "()";
+        }
+
+        BType type = TypeChecker.getType(value);
+
+        //TODO: bstring - change to type tag check
+        if (value instanceof BString) {
+            return "\"" + ((BString) value).getValue() + "\"";
+        }
+
+        if (type.getTag() == TypeTags.DECIMAL_TAG) {
+            DecimalValue decimalValue = (DecimalValue) value;
+            return decimalValue.toBalString(parent);
+        }
+
+        if (type.getTag() < TypeTags.JSON_TAG) {
+            return String.valueOf(value);
+        }
+
+        CycleUtils.Node node = new CycleUtils.Node(value, parent);
+
+        if (node.hasCyclesSoFar()) {
+            return STR_CYCLE + "[" + node.getIndex() + "]";
+        }
+
+        if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            MapValueImpl mapValue = (MapValueImpl) value;
+            return mapValue.toBalString(parent);
+        }
+
+        if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
+            ArrayValue arrayValue = (ArrayValue) value;
+            return arrayValue.toBalString(parent);
+        }
+
+        if (type.getTag() == TypeTags.TABLE_TAG) {
+            return ((RefValue) value).toBalString(parent);
+        }
+
+        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            AbstractObjectValue objectValue = (AbstractObjectValue) value;
+            BObjectType objectType = objectValue.getType();
+            for (AttachedFunction func : objectType.getAttachedFunctions()) {
+                if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
+                        func.type.retType.getTag() == TypeTags.STRING_TAG) {
+                    return "object " + objectValue.call(Scheduler.getStrand(), "toString").toString();
+                }
+            }
+        }
+
+        if (type.getTag() == TypeTags.ERROR_TAG) {
+            RefValue errorValue = (RefValue) value;
+            return errorValue.toBalString(parent);
+        }
+
+        RefValue refValue = (RefValue) value;
+        return refValue.toBalString(parent);
     }
 
     /**
