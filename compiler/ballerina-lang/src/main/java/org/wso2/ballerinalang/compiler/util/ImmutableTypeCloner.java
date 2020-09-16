@@ -541,9 +541,9 @@ public class ImmutableTypeCloner {
                                                                Names names, Types types, Set<BType> unresolvedTypes) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol =
-                Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY, getImmutableTypeName(names,
-                        origRecordType.tsymbol.toString()), pkgID, null,
-                        env.scope.owner, pos, SOURCE);
+                Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY,
+                        getImmutableTypeName(names, origRecordType.tsymbol.toString()),
+                        pkgID, null, env.scope.owner, pos, SOURCE);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
@@ -584,11 +584,6 @@ public class ImmutableTypeCloner {
                                                                                     recordTypeNode, env);
         typeDefinition.pos = pos;
         return immutableRecordIntersectionType;
-    }
-
-    private static String cleanUpSymbolName(BTypeSymbol typeSymbol, String typeName) {
-        String pkgName = typeSymbol.pkgID.toString();
-        return typeName.replace(pkgName, pkgName.replaceAll("[/ .]", "_"));
     }
 
     private static BIntersectionType defineImmutableObjectType(DiagnosticPos pos,

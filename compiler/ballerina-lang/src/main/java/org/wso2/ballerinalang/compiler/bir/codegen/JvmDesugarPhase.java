@@ -255,9 +255,7 @@ public class JvmDesugarPhase {
 
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
-//            String typeName = encodeIdentifier(typeDefinition.type.tsymbol.name.value);
             typeDefinition.type.tsymbol.name.value = encodeIdentifier(typeDefinition.type.tsymbol.name.value);
-//                    isRewritableReadonlyType(typeDefinition.type) ? typeName.replaceAll("[/.]", "_") : typeName;
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs);
             BType bType = typeDefinition.type;
             if (bType.tag == TypeTags.OBJECT) {
