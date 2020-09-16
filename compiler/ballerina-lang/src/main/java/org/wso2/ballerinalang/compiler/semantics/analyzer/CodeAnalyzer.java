@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -153,6 +154,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
@@ -220,6 +222,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -843,6 +846,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
+        Map<String, BVarSymbol> declaredVarsInMatchPattern = new HashMap<>();
+        boolean patternListContainsSameVars = true;
+
         for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
             if (this.hasLastPatternInClause && matchClause.matchGuard == null) {
                 dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_PATTERN_UNREACHABLE);
@@ -850,14 +856,52 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (matchPattern.type == symTable.noType) {
                 dlog.error(matchClause.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
             }
+            if (patternListContainsSameVars) {
+                patternListContainsSameVars = containsAllDeclaredVars(declaredVarsInMatchPattern, matchPattern);
+            }
 
             this.isJSONContext = types.isJSONContext(matchExprType);
             analyzeNode(matchPattern, env);
             matchPattern.isLastPattern = this.hasLastPatternInClause;
         }
 
+        if (!patternListContainsSameVars) {
+            dlog.error(matchClause.pos, DiagnosticCode.MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES);
+        }
+
         analyzeNode(matchClause.blockStmt, env);
         resetStatementReturns();
+    }
+
+    private boolean containsAllDeclaredVars(Map<String, BVarSymbol> varsInPreviousMatchPattern,
+                                                      BLangMatchPattern matchPattern) {
+        NodeKind patternKind = matchPattern.getKind();
+        Map<String, BVarSymbol> varsInCurrentMatchPattern;
+        switch (patternKind) {
+            case VAR_BINDING_PATTERN_MATCH_PATTERN:
+                varsInCurrentMatchPattern = ((BLangVarBindingPatternMatchPattern) matchPattern).declaredVars;
+                break;
+            case LIST_MATCH_PATTERN:
+                varsInCurrentMatchPattern = ((BLangListMatchPattern) matchPattern).declaredVars;
+                break;
+
+            default:
+                return true;
+        }
+
+        if (varsInPreviousMatchPattern.size() == 0) {
+            varsInPreviousMatchPattern.putAll(varsInCurrentMatchPattern);
+            return true;
+        }
+        if (varsInPreviousMatchPattern.size() != varsInCurrentMatchPattern.size()) {
+            return false;
+        }
+        for (String identifier : varsInPreviousMatchPattern.keySet()) {
+            if (!varsInCurrentMatchPattern.containsKey(identifier)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -877,6 +921,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeNode(bindingPattern, env);
         this.hasLastPatternInClause = this.hasLastPatternInClause && !varBindingPattern.matchGuardIsAvailable;
     }
+
+    @Override
+    public void visit(BLangListMatchPattern listMatchPattern) {}
 
     @Override
     public void visit(BLangCaptureBindingPattern captureBindingPattern) {

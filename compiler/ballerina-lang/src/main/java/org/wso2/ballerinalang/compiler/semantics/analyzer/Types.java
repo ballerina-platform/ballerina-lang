@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -284,6 +285,18 @@ public class Types {
         }
 
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BType listMatchPatternType,
+                                                 BLangListMatchPattern listMatchPattern) {
+
+        if (isAssignable(listMatchPatternType, matchExprType)) {
+            return listMatchPatternType;
+        }
+        if (isAssignable(matchExprType, listMatchPatternType)) {
+            return matchExprType;
+        }
+        return symTable.noType;
     }
 
     public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BLangConstPattern constMatchPattern) {

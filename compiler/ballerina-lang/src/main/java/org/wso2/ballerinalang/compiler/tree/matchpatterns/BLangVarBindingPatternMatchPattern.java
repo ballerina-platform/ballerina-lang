@@ -20,8 +20,12 @@ package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.VarBindingPatternMatchPatternNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @since Swan Lake
@@ -29,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implements VarBindingPatternMatchPatternNode {
 
     BLangBindingPattern bindingPattern;
+    public Map<String, BVarSymbol> declaredVars = new HashMap<>();
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -37,7 +42,6 @@ public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implem
 
     @Override
     public NodeKind getKind() {
-
         return NodeKind.VAR_BINDING_PATTERN_MATCH_PATTERN;
     }
 

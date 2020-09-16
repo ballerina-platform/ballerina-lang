@@ -106,6 +106,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -214,6 +217,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     // Stack holding the fall-back environments. fall-back env is the env to go back
     // after visiting the current env.
     private Stack<SymbolEnv> prevEnvs = new Stack<>();
+
+    private Map<String, BVarSymbol> declaredVarsInMatchClause = new HashMap<>();
+    private Map<String, BVarSymbol> declaredVarsInMatchPattern = new HashMap<>();
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -2320,8 +2326,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatchClause matchClause) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(matchClause.blockStmt, env);
 
-        SymbolEnv finalBlockEnv = blockEnv;
-        matchClause.matchPatterns.forEach(matchPattern -> analyzeNode(matchPattern, finalBlockEnv));
+        for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
+            analyzeNode(matchPattern, blockEnv);
+            this.declaredVarsInMatchPattern.clear();
+        }
+        this.declaredVarsInMatchClause.clear();
 
         if (matchClause.matchGuard != null) {
             typeChecker.checkExpr(matchClause.matchGuard.expr, blockEnv);
@@ -2338,13 +2347,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         NodeKind patternKind = varBindingPattern.getBindingPattern().getKind();
-        BType matchExprType = varBindingPattern.matchExpr.type;
+        BType matchExprType;
+        if (varBindingPattern.matchExpr != null) {
+            matchExprType = varBindingPattern.matchExpr.type;
+        } else {
+            matchExprType = getMatchPatternType(varBindingPattern);
+        }
 
         analyzeNode(varBindingPattern.getBindingPattern(), env);
         switch (patternKind) {
             case CAPTURE_BINDING_PATTERN:
                 varBindingPattern.type = matchExprType;
                 ((BLangCaptureBindingPattern) varBindingPattern.getBindingPattern()).symbol.type = matchExprType;
+                defineSymbolForCaptureBindingPattern((BLangCaptureBindingPattern) varBindingPattern.getBindingPattern(),
+                        matchExprType);
+                varBindingPattern.declaredVars.putAll(this.declaredVarsInMatchPattern);
                 break;
         }
     }
@@ -2353,8 +2370,45 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangConstPattern constMatchPattern) {
         BLangExpression constPatternExpr = constMatchPattern.expr;
         typeChecker.checkExpr(constPatternExpr, env);
-        constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern.matchExpr.type,
-                constMatchPattern);
+        if (constMatchPattern.matchExpr != null) {
+            constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern.matchExpr.type,
+                    constMatchPattern);
+        } else {
+            if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                constMatchPattern.type = ((BLangSimpleVarRef) constPatternExpr).symbol.type;
+            } else {
+                constMatchPattern.type = constPatternExpr.type;
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangRestMatchPattern restMatchPattern) {
+        dlog.error(restMatchPattern.pos, DiagnosticCode.REST_MATCH_PATTERN_NOT_SUPPORTED);
+    }
+
+    @Override
+    public void visit(BLangListMatchPattern listMatchPattern) {
+        BLangExpression listMatchExpr = listMatchPattern.matchExpr;
+        for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
+            memberMatchPattern.accept(this);
+        }
+        BTupleType matchPatternType = (BTupleType) getMatchPatternType(listMatchPattern);
+
+        if (listMatchPattern.getRestMatchPattern() != null) {
+            BLangRestMatchPattern restMatchPattern = (BLangRestMatchPattern) listMatchPattern.getRestMatchPattern();
+            restMatchPattern.accept(this);
+            matchPatternType.restType = getMatchPatternType(restMatchPattern);
+        }
+
+        if (listMatchExpr != null) {
+            listMatchPattern.type = types.resolvePatternTypeFromMatchExpr(listMatchExpr.type, matchPatternType,
+                    listMatchPattern);
+        } else {
+            listMatchPattern.type = matchPatternType;
+        }
+
+        listMatchPattern.declaredVars.putAll(this.declaredVarsInMatchPattern);
     }
 
     @Override
@@ -2367,11 +2421,51 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(patternClause.body, this.env);
     }
 
-    @Override
-    public void visit(BLangCaptureBindingPattern captureBindingPattern) {
+    private void defineSymbolForCaptureBindingPattern(BLangCaptureBindingPattern captureBindingPattern,
+                                                      BType identifierType) {
+
+        String captureBindingPatternIdentifier = captureBindingPattern.getIdentifier().getValue();
+
+        if (this.declaredVarsInMatchPattern.containsKey(captureBindingPatternIdentifier)) {
+            dlog.error(captureBindingPattern.pos, DiagnosticCode.REDECLARED_SYMBOL, captureBindingPatternIdentifier);
+            return;
+        }
+
         captureBindingPattern.symbol = new BVarSymbol(0, new Name(captureBindingPattern.getIdentifier().getValue()),
                 env.enclPkg.packageID, symTable.anyType, env.scope.owner, captureBindingPattern.pos, SOURCE);
+
+        declaredVarsInMatchPattern.put(captureBindingPatternIdentifier, captureBindingPattern.symbol);
+
+        if (this.declaredVarsInMatchClause.containsKey(captureBindingPatternIdentifier)) {
+            return;
+        }
         symbolEnter.defineSymbol(captureBindingPattern.pos, captureBindingPattern.symbol, env);
+        declaredVarsInMatchClause.put(captureBindingPatternIdentifier, captureBindingPattern.symbol);
+    }
+
+    private BType getMatchPatternType(BLangMatchPattern matchPattern) {
+
+        NodeKind matchPatternKind = matchPattern.getKind();
+        switch (matchPatternKind) {
+            case WILDCARD_MATCH_PATTERN:
+                return symTable.anyType;
+            case REST_MATCH_PATTERN:
+            case VAR_BINDING_PATTERN_MATCH_PATTERN:
+                return symTable.anyOrErrorType;
+            case CONST_MATCH_PATTERN:
+                BLangConstPattern constPattern = (BLangConstPattern) matchPattern;
+                return constPattern.type;
+            case LIST_MATCH_PATTERN:
+                List<BType> results = new ArrayList<>();
+
+                BLangListMatchPattern listMatchPattern = (BLangListMatchPattern) matchPattern;
+                for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
+                    BType memberMatchPatternType = getMatchPatternType(memberMatchPattern);
+                    results.add(memberMatchPatternType);
+                }
+                return new BTupleType(results);
+        }
+        return symTable.noType;
     }
 
     private BType checkStaticMatchPatternLiteralType(BLangExpression expression) {
