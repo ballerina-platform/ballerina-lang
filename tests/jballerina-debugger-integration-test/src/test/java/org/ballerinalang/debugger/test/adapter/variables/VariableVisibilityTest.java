@@ -38,26 +38,27 @@ import java.util.Comparator;
  * Test class for variable visibility.
  */
 public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
+
     Variable[] variables;
     Comparator<Variable> compareByName = Comparator.comparing(Variable::getName);
 
     @BeforeClass
-    public void setup() {
+    public void setup() throws BallerinaTestException {
         testProjectName = "basic-project";
         testModuleName = "advanced";
         testModuleFileName = "main.bal";
         testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
-    }
 
-    @Test
-    public void parentVariableVisibilityTest() throws BallerinaTestException {
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 154));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
-
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
         variables = fetchDebugHitVariables(debugHitInfo.getRight());
         Arrays.sort(variables, compareByName);
+    }
+
+    @Test
+    public void parentVariableVisibilityTest() {
 
         // var variable visibility test
         assertVariable(variables[0], "v01_varVariable", "()", "nil");
@@ -137,14 +138,13 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         assertVariable(variables[24], "v25_tableVar", "table<Employee>", "table");
 
         // stream variable visibility test
-        assertVariable(variables[25], "v26_oddNumberStream", "stream<int>",
-                "stream");
+        assertVariable(variables[25], "v26_oddNumberStream", "stream<int>", "stream");
 
         // never variable visibility test
         assertVariable(variables[26], "v27_neverVar", "", "xml");
     }
 
-    @Test(dependsOnMethods = "parentVariableVisibilityTest")
+    @Test
     public void childVariableVisibilityTest() throws BallerinaTestException {
         // xml child variable visibility test
         Variable[] xmlChildVariables = getChildVariable(variables[6]);
