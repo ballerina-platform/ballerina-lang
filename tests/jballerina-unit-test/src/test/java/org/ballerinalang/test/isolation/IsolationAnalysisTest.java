@@ -119,7 +119,7 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 50, 7);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 55, 13);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 68, 13);
-        validateError(result, i++, "invalid worker declaration in an 'isolated' function", 74, 5);
+        validateError(result, i++, "invalid worker declaration in an 'isolated' function", 74, 12);
         validateError(result, i++, "invalid async invocation in an 'isolated' function", 80, 28);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 94, 13);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 101, 22);
