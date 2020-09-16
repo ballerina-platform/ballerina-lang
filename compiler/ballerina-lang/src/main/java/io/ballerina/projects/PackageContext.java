@@ -162,33 +162,42 @@ class PackageContext {
         Map<ModuleId, Set<ModuleId>> moduleDependencyIdMap = new HashMap<>();
         Set<PackageDependency> packageDependencies = new HashSet<>(this.packageDependencies);
         for (ModuleContext moduleContext : this.moduleContextMap.values()) {
-            ModuleId moduleId = moduleContext.moduleId();
-            Set<ModuleId> moduleDependencyIds;
-            if (moduleContext.resolveDependencies()) {
-                // Update package dependencies
-                moduleDependencyIds = new HashSet<>();
-                for (ModuleDependency moduleDependency : moduleContext.dependencies()) {
-                    // Check whether this dependency is in this package
-                    if (moduleDependency.packageDependency().packageId() == this.packageId()) {
-                        // Module dependency graph contains only the modules in this package
-                        moduleDependencyIds.add(moduleDependency.moduleId());
-                    } else {
-                        // Capture the package dependency if it is different from this package
-                        packageDependencies.add(moduleDependency.packageDependency());
-                    }
-                }
-            } else {
-                Collection<ModuleId> moduleDependencies = moduleDependencyGraph.getDirectDependencies(
-                        moduleId);
-                moduleDependencyIds = new HashSet<>(moduleDependencies);
-            }
-            moduleDependencyIdMap.put(moduleId, moduleDependencyIds);
+            populateModuleDependencies(moduleContext, moduleDependencyIdMap, packageDependencies);
         }
 
         DependencyGraph<ModuleId> moduleDependencyGraph = new DependencyGraph<>(moduleDependencyIdMap);
         this.packageDependencies = packageDependencies;
         this.moduleDependencyGraph = moduleDependencyGraph;
         this.dependenciesResolved = true;
+    }
+
+    private void populateModuleDependencies(ModuleContext moduleContext,
+                                            Map<ModuleId, Set<ModuleId>> moduleDependencyIdMap,
+                                            Set<PackageDependency> packageDependencies) {
+        ModuleId moduleId = moduleContext.moduleId();
+        Set<ModuleId> moduleDependencyIds;
+
+        // The following variable gets the value 'false' if the dependencies were already resolved
+        boolean dependenciesResolved = moduleContext.resolveDependencies();
+        if (dependenciesResolved) {
+            // Update package dependencies
+            moduleDependencyIds = new HashSet<>();
+            for (ModuleDependency moduleDependency : moduleContext.dependencies()) {
+                // Check whether this dependency is in this package
+                if (moduleDependency.packageDependency().packageId() == this.packageId()) {
+                    // Module dependency graph contains only the modules in this package
+                    moduleDependencyIds.add(moduleDependency.moduleId());
+                } else {
+                    // Capture the package dependency if it is different from this package
+                    packageDependencies.add(moduleDependency.packageDependency());
+                }
+            }
+        } else {
+            Collection<ModuleId> moduleDependencies = moduleDependencyGraph.getDirectDependencies(
+                    moduleId);
+            moduleDependencyIds = new HashSet<>(moduleDependencies);
+        }
+        moduleDependencyIdMap.put(moduleId, moduleDependencyIds);
     }
 
 //    BallerinaToml ballerinaToml() {
