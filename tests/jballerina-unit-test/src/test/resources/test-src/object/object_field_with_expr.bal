@@ -15,7 +15,7 @@ class Employee {
     public int pp = 0;
     public string name = "";
 
-    function init (int pp, string name) {
+    isolated function init (int pp, string name) {
         self.pp = pp;
         self.name = name;
     }
