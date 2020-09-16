@@ -51,7 +51,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 /**
  * Visit ballerina types and maps them to instances T.
  *
- * @since slp4
+ * @param <R> return type of visit methods
+ * @since Swan Lake
  */
 public interface UniqueTypeVisitor<R> {
 

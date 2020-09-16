@@ -306,6 +306,8 @@ public class Types {
     private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
+        // TODO: when duplicate logics are met we cannot return true unless this is a local optimization. Ideally we
+        //  should cache and return actual result
         TypePair pair = new TypePair(source, target);
         if (unresolvedTypes.contains(pair)) {
             return true;
@@ -693,23 +695,9 @@ public class Types {
                 return true;
             }
 
-            if (sourceTag == TypeTags.UNION) {
-                return isAssignableToUnionType(source, target, unresolvedTypes);
-            }
-
-//            if (sourceTag == TypeTags.ARRAY) {
-//                return isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
+//            if (isAssignableToUnionType(source, target, unresolvedTypes)) {
+//                return true;
 //            }
-//
-            if (sourceTag == TypeTags.MAP) {
-                return isAssignable(((BMapType) source).constraint, target, unresolvedTypes);
-            }
-//
-//            if (sourceTag == TypeTags.TABLE) {
-//                return isAssignableTableType((BTableType) source, (BTableType) target, unresolvedTypes);
-//            }
-
-            return false;
         }
 
         if (targetTag == TypeTags.READONLY &&
@@ -774,8 +762,8 @@ public class Types {
                 return isAssignableRecordType((BRecordType) source, target, unresolvedTypes);
             }
 
-//            if (sourceTag == TypeTags.UNION) {
-//                return isAssignableToUnionType(source, target, unresolvedTypes);
+//            if (isAssignableToUnionType(source, target, unresolvedTypes)) {
+//                return true;
 //            }
         }
 

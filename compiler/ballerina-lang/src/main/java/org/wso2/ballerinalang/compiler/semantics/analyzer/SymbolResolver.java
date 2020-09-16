@@ -122,7 +122,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -926,7 +925,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             entry.symbol.origin = BUILTIN;
             symTable.errorType = new BErrorType(null, symTable.detailType);
             symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
-                    symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
+                    symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos,
+                    BUILTIN);
             symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
             symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
             symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);

@@ -42,19 +42,13 @@ public class BAnydataType extends BUnionType implements SelectivelyImmutableRefe
     public BAnydataType(BTypeSymbol tsymbol, boolean nullable) {
         super(tsymbol, new LinkedHashSet<>(), nullable, false);
         this.tag = TypeTags.ANYDATA;
-        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
-            System.out.println("#### KRV 56");
-        }
     }
 
     public BAnydataType(BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
         super(tsymbol, new LinkedHashSet<>(), nullable, false);
         this.tag = TypeTags.ANYDATA;
-        this.name = name;
         this.flags = flags;
-        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
-            System.out.println("#### KRV 66");
-        }
+        this.name = name;
     }
 
     public BAnydataType(BUnionType type) {
@@ -62,17 +56,11 @@ public class BAnydataType extends BUnionType implements SelectivelyImmutableRefe
                 Flags.READONLY));
         this.immutableType = type.immutableType;
         this.tag = TypeTags.ANYDATA;
-        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
-            System.out.println("#### KRV 74");
-        }
     }
 
     public BAnydataType(BAnydataType type, boolean nullable) {
         super(type.tsymbol, type.getMemberTypes(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
         this.tag = TypeTags.ANYDATA;
-        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
-            System.out.println("#### KRV 77");
-        }
     }
 
     @Override
