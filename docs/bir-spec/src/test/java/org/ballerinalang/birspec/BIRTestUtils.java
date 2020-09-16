@@ -667,10 +667,10 @@ class BIRTestUtils {
     }
 
     static class ExpectedScopeEntry {
-        public int id;
-        public int instructionOffset;
-        public int hasParent;
-        public Integer parentId;
+        public final int id;
+        public final int instructionOffset;
+        public final int hasParent;
+        public final Integer parentId;
 
         ExpectedScopeEntry(int id, int instructionOffset, int hasParent, Integer parentId) {
             this.id = id;

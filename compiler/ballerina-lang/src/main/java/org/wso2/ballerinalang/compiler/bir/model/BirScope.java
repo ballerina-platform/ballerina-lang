@@ -25,8 +25,8 @@ package org.wso2.ballerinalang.compiler.bir.model;
  * @since 2.0.0
  */
 public class BirScope {
-    public int id;
-    public BirScope parent;
+    public final int id;
+    public final BirScope parent;
 
     public BirScope(int id, BirScope parent) {
         this.id = id;
