@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 3,
+    "character": 38
+  },
+  "source": "class_def/source/source9.bal",
+  "items": [
+    {
+      "label": "returns",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "returns ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

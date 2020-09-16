@@ -764,6 +764,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public Integer hash(Node node) {
         int result = 0;
 
+        if (node == null) {
+            return result;
+        }
+
         if (node.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
             BLangRecordLiteral recordLiteral = (BLangRecordLiteral) node;
             for (RecordLiteralNode.RecordField entry : recordLiteral.fields) {

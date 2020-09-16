@@ -1490,6 +1490,10 @@ public class TypeChecker {
 
     private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,
                                                                   List<TypePair> unresolvedTypes) {
+        if (hasIncompatibleIsolatedFlags(target, source)) {
+            return false;
+        }
+
         if (source.paramTypes.length != target.paramTypes.length) {
             return false;
         }
@@ -1515,6 +1519,10 @@ public class TypeChecker {
         }
 
         BFunctionType source = (BFunctionType) sourceType;
+        if (hasIncompatibleIsolatedFlags(targetType, source)) {
+            return false;
+        }
+
         if (source.paramTypes.length != targetType.paramTypes.length) {
             return false;
         }
@@ -1526,6 +1534,10 @@ public class TypeChecker {
         }
 
         return checkIsType(source.retType, targetType.retType, new ArrayList<>());
+    }
+
+    private static boolean hasIncompatibleIsolatedFlags(BFunctionType target, BFunctionType source) {
+        return Flags.isFlagOn(target.flags, Flags.ISOLATED) && !Flags.isFlagOn(source.flags, Flags.ISOLATED);
     }
 
     private static boolean checkIsServiceType(BType sourceType) {
