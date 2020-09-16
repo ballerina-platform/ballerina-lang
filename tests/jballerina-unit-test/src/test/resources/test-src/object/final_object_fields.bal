@@ -15,25 +15,28 @@
 // under the License.
 
 const INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.object}InherentTypeViolation";
+const INVALID_UPDATE_REASON = "{ballerina/lang.object}InvalidUpdate";
 
-function testReadonlyObjectFields() {
-    testObjectWithSimpleReadonlyFields();
-    testInvalidObjectSimpleReadonlyFieldUpdate();
-    testValidUpdateOfPossiblyReadonlyFieldInUnion();
-    testInvalidUpdateOfPossiblyReadonlyFieldInUnion();
-    testObjectWithStructuredReadonlyFields();
-    testReadOnlyFieldWithDefaultValue();
-    testTypeReadOnlyFlagForAllReadOnlyFields();
-    testSubTypingWithReadOnlyFields();
-    testSubTypingWithReadOnlyFieldsViaReadOnlyType();
-    testSubTypingWithReadOnlyFieldsNegative();
+function testFinalObjectFields() {
+    testObjectWithSimpleFinalFields();
+    testInvalidObjectSimpleFinalFieldUpdate();
+    testValidUpdateOfPossiblyFinalFieldInUnion();
+    testInvalidUpdateOfPossiblyFinalFieldInUnion();
+    testObjectWithStructuredFinalFields();
+    testFinalFieldWithDefaultValue();
+    testTypeReadOnlyFlagForAllFinalFields();
+    testSubTypingWithFinalFields();
+    testSubTypingWithFinalFieldsViaReadOnlyType();
+    testSubTypingWithFinalFieldsNegative();
     testSubTypingWithReadOnlyFieldsPositiveComposite();
     testSubTypingWithReadOnlyFieldsNegativeComposite();
+    testSubTypingWithMutableFinalFields();
+    testSubTypingWithMutableFinalFieldsNegative();
 }
 
 public class Student {
-    readonly string name;
-    readonly int id;
+    final string name;
+    final int id;
     float avg = 80.0;
     public function init(string n, int i) {
         self.name = n;
@@ -53,13 +56,13 @@ public class NonReadOnlyStudent {
     }
 }
 
-function testObjectWithSimpleReadonlyFields() {
+function testObjectWithSimpleFinalFields() {
     Student|NonReadOnlyStudent st = new ("Maryam", 1234);
     assertEquality("Maryam", st.name);
     assertEquality(1234, st.id);
 }
 
-function testInvalidObjectSimpleReadonlyFieldUpdate() {
+function testInvalidObjectSimpleFinalFieldUpdate() {
     Student st1 = new("Maryam", 1234);
 
     // Invalid updates.
@@ -71,12 +74,12 @@ function testInvalidObjectSimpleReadonlyFieldUpdate() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'name' in object of type 'Student'", err.detail()["message"]);
+    assertEquality(INVALID_UPDATE_REASON, err.message());
+    assertEquality("cannot update 'final' field 'name' in object of type 'Student'", err.detail()["message"]);
 }
 
 class ReadonlyNamedPerson {
-    readonly string name;
+    final string name;
     int id;
 
     function init(string name, int id) {
@@ -95,7 +98,7 @@ class NonReadonlyNamedPerson {
     }
 }
 
-function testValidUpdateOfPossiblyReadonlyFieldInUnion() {
+function testValidUpdateOfPossiblyFinalFieldInUnion() {
     NonReadonlyNamedPerson a = new ("Jo", 1234);
 
     assertEquality("Jo", a.name);
@@ -119,7 +122,7 @@ function testValidUpdateOfPossiblyReadonlyFieldInUnion() {
     assertEquality(2525, d.id);
 }
 
-function testInvalidUpdateOfPossiblyReadonlyFieldInUnion() {
+function testInvalidUpdateOfPossiblyFinalFieldInUnion() {
     ReadonlyNamedPerson c = new ("Emma", 1234);
 
     assertEquality("Emma", c.name);
@@ -134,13 +137,13 @@ function testInvalidUpdateOfPossiblyReadonlyFieldInUnion() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'name' in object of type 'ReadonlyNamedPerson'",
+    assertEquality(INVALID_UPDATE_REASON, err.message());
+    assertEquality("cannot update 'final' field 'name' in object of type 'ReadonlyNamedPerson'",
                    err.detail()["message"]);
 }
 
 class Employee {
-    readonly Details details;
+    final Details details;
     string department = "IT";
 
     function init(Details & readonly details) {
@@ -153,7 +156,7 @@ type Details record {
     int id;
 };
 
-function testObjectWithStructuredReadonlyFields() {
+function testObjectWithStructuredFinalFields() {
     Details & readonly details = {
         name: "Maryam",
         id: 1234
@@ -183,12 +186,12 @@ function testObjectWithStructuredReadonlyFields() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'details' in object of type 'Employee'", err.detail()["message"]);
+    assertEquality(INVALID_UPDATE_REASON, err.message());
+    assertEquality("cannot update 'final' field 'details' in object of type 'Employee'", err.detail()["message"]);
 }
 
 class Identifier {
-    readonly string id = "Identifier";
+    final string id;
     string code;
 
     function init(string code, string? id = ()) {
@@ -196,11 +199,13 @@ class Identifier {
 
         if id is string {
             self.id = id;
+        } else {
+            self.id = "Identifier";
         }
     }
 }
 
-function testReadOnlyFieldWithDefaultValue() {
+function testFinalFieldWithDefaultValue() {
     string k = "id";
 
     Identifier i1 = new ("ABC", "new id");
@@ -220,8 +225,8 @@ function testReadOnlyFieldWithDefaultValue() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'id' in object of type 'Identifier'", err.detail()["message"]);
+    assertEquality(INVALID_UPDATE_REASON, err.message());
+    assertEquality("cannot update 'final' field 'id' in object of type 'Identifier'", err.detail()["message"]);
 }
 
 type Foo object {
@@ -232,16 +237,16 @@ type Foo object {
 };
 
 class Bar {
-    readonly string name = "str";
-    readonly int id = 1234;
-    readonly int? oth = ();
+    final string name = "str";
+    final int id = 1234;
+    final int? oth = ();
 
     function baz() returns string {
         return string `${self.id}: ${self.name}`;
     }
 }
 
-function testTypeReadOnlyFlagForAllReadOnlyFields() {
+function testTypeReadOnlyFlagForAllFinalFields() {
     Bar st = new;
 
     Foo & readonly pr = st;
@@ -255,7 +260,7 @@ function testTypeReadOnlyFlagForAllReadOnlyFields() {
 }
 
 class Person {
-    readonly Particulars particulars;
+    final readonly & Particulars particulars;
     int id;
 
     function init(Particulars & readonly particulars) {
@@ -287,10 +292,10 @@ type Particulars record {|
     string name;
 |};
 
-function testSubTypingWithReadOnlyFields() {
+function testSubTypingWithFinalFields() {
     Person p1 = new ({name: "Jo"});
     Undergraduate u = p1;
-    assertTrue(u is Person);
+    assertTrue(<any> u is Person);
 
     var fn1 = function () {
         u.particulars = {name: "May"};
@@ -298,7 +303,7 @@ function testSubTypingWithReadOnlyFields() {
     error? res = trap fn1();
     assertTrue(res is error);
     error err = <error> res;
-    assertEquality("cannot update 'readonly' field 'particulars' in object of type 'Person'", err.detail()["message"]);
+    assertEquality("cannot update 'final' field 'particulars' in object of type 'Person'", err.detail()["message"]);
 
     Person p2 = new ({name: "Amy"});
     Graduate g = p2;
@@ -309,7 +314,7 @@ function testSubTypingWithReadOnlyFields() {
     res = trap fn2();
     assertTrue(res is error);
     err = <error> res;
-    assertEquality("cannot update 'readonly' field 'particulars' in object of type 'Person'", err.detail()["message"]);
+    assertEquality("cannot update 'final' field 'particulars' in object of type 'Person'", err.detail()["message"]);
 
     assertTrue(g is Person);
     var fn3 = function () {
@@ -320,6 +325,10 @@ function testSubTypingWithReadOnlyFields() {
     err = <error> res;
     assertEquality("cannot update 'readonly' field 'name' in record of type '(Particulars & readonly)'",
                    err.detail()["message"]);
+
+    Undergraduate u2 = new ({name: "Jo"});
+    Person p3 = u2; // also valid since `final` fields don't affect subtyping.
+    assertTrue(<any> p3 is Undergraduate);
 }
 
 type AbstractPerson object {
@@ -337,12 +346,12 @@ readonly class ReadOnlyPerson {
     }
 }
 
-function testSubTypingWithReadOnlyFieldsViaReadOnlyType() {
+function testSubTypingWithFinalFieldsViaReadOnlyType() {
     var lrp = object {
-        readonly Particulars particulars = {
+        final Particulars & readonly particulars = {
             name: "Jo"
         };
-        readonly int id = 1234;
+        final int id = 1234;
     };
 
     AbstractPerson & readonly ap = lrp;
@@ -353,17 +362,19 @@ function testSubTypingWithReadOnlyFieldsViaReadOnlyType() {
     assertTrue(p2 is ReadOnlyPerson);
 }
 
-function testSubTypingWithReadOnlyFieldsNegative() {
-    Undergraduate u = new ({name: "Jo"});
-    any undergrad = u;
+class StringOrIntIdUndergraduate {
+    Particulars & readonly particulars;
+    final int|string id;
 
-    Graduate g = new ({name: "Amy"}, 1121);
-    any grad = g;
+    function init(Particulars & readonly particulars, string|int id) {
+        self.particulars = particulars;
+        self.id = id;
+    }
+}
 
-    assertTrue(undergrad is Undergraduate);
-    assertTrue(grad is Graduate);
-    assertFalse(undergrad is Person);
-    assertFalse(grad is Person);
+function testSubTypingWithFinalFieldsNegative() {
+    StringOrIntIdUndergraduate u = new ({name: "Jo"}, "string ID");
+    assertFalse(u is Undergraduate);
 }
 
 const HUNDRED = 100;
@@ -376,22 +387,22 @@ type Baz object {
     decimal? d;
     () ad;
     map<int>|boolean[] u;
-    readonly readonly r;
+    readonly r;
     Quuz q;
     int z;
 };
 
 class Qux {
-    readonly string|int i;
+    final string|int i;
     float f;
-    readonly int|Quux a1;
-    readonly any a2;
-    readonly int[]? d;
-    readonly anydata ad;
-    readonly map<any> u;
-    readonly int[] r;
-    readonly anydata|object {} q;
-    readonly json z = 1111;
+    final readonly & int|Quux a1;
+    final readonly & any a2;
+    final readonly & int[]? d;
+    final readonly & anydata ad;
+    final readonly & map<any> u;
+    final readonly & int[] r;
+    final readonly & anydata|object {} q;
+    final readonly & json z = 1111;
 
     function init(string|int i, float f, readonly & int|Quux a1, readonly & anydata ad, map<any> & readonly u,
                   readonly & int[] r, readonly & anydata|object {} q, readonly & (int[]?) d = ()) {
@@ -497,6 +508,82 @@ function testSubTypingWithReadOnlyFieldsNegativeComposite() {
     a = b6; // doesn't match, invalid `d`, expected `decimal?`
     assertTrue(a is Qux);
     assertFalse(a is Baz);
+}
+
+type Controller object {
+    map<int> config;
+
+    function getConfig() returns map<json>;
+};
+
+class MyController {
+    final map<int>|map<float> config;
+
+    function init(map<int>|map<float> config) {
+        self.config = config;
+    }
+
+    function getConfig() returns map<json> {
+        return self.config;
+    }
+}
+
+function testSubTypingWithMutableFinalFields() {
+    map<int> c1 = {
+        factor: 1,
+        pressure: 2
+    };
+    MyController mc = new (c1);
+    assertTrue(<any> mc is Controller);
+
+    object {
+        map<json> config;
+
+        function getConfig() returns map<json>;
+    } ob = object {
+        final map<json> config;
+
+        function init() {
+            self.config = <map<int>> {
+                factor: 10,
+                pressure: 5
+            };
+        }
+
+        function getConfig() returns map<json> {
+            return self.config;
+        }
+    };
+    assertTrue(ob is Controller);
+}
+
+function testSubTypingWithMutableFinalFieldsNegative() {
+    map<float> c1 = {
+        factor: 1.1,
+        pressure: 2.3
+    };
+    MyController mc = new (c1);
+    assertFalse(<any> mc is Controller);
+
+    object {
+        map<json> config;
+
+        function getConfig() returns map<json>;
+    } ob = object {
+        final map<json> config;
+
+        function init() {
+            self.config = <map<json>> {
+                factor: 10,
+                pressure: 5
+            };
+        }
+
+        function getConfig() returns map<json> {
+            return self.config;
+        }
+    };
+    assertFalse(ob is Controller);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

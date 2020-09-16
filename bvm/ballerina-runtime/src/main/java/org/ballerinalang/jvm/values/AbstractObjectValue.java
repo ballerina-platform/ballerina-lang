@@ -35,6 +35,7 @@ import java.util.StringJoiner;
 
 import static org.ballerinalang.jvm.util.BLangConstants.OBJECT_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
@@ -174,10 +175,10 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
         BField field = type.getFields().get(fieldName);
 
-        if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
+        if (Flags.isFlagOn(field.flags, Flags.FINAL)) {
             throw BErrorCreator.createError(
-                    getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.OBJECT_INVALID_READONLY_FIELD_UPDATE,
+                    getModulePrefixedReason(OBJECT_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.OBJECT_INVALID_FINAL_FIELD_UPDATE,
                                                          fieldName, type));
         }
         checkFieldUpdateType(fieldName, value);

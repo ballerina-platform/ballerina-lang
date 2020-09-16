@@ -1,13 +1,5 @@
 import ballerina/http;
 
-final int globalFinalInt = 10;
-
-
-public function testFinalGlobalVariable() {
-    int v1 = globalFinalInt;
-    globalFinalInt = 20;
-}
-
 public function testFieldAsFinalParameter() returns (int) {
     int i = 50;
     int x = bar(i);
@@ -45,31 +37,6 @@ service FooService on new http:Listener(9090) {
 function testCompound(int a) returns int {
     a += 10;
     return a;
-}
-
-
-function testLocalFinalValueWithType() {
-    final string name = "Ballerina";
-    name = "ABC";
-}
-
-function testLocalFinalValueWithoutType() {
-    final var name = "Ballerina";
-    name = "ABC";
-}
-
-function testLocalFinalValueWithTypeInitializedFromFunction() {
-    final string name = getName();
-    name = "ABC";
-}
-
-function testLocalFinalValueWithoutTypeInitializedFromFunction() {
-    final var name = getName();
-    name = "ABC";
-}
-
-function getName() returns string {
-    return "Ballerina";
 }
 
 listener http:MockListener ml = new http:MockListener(8080);

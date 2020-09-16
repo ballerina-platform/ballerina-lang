@@ -33,6 +33,7 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 2.0.0
  */
+@Test(groups = { "brokenOnOldParser" })
 public class SelectivelyImmutableTypeBaloTest {
 
     private CompileResult result;

@@ -33,7 +33,7 @@ import java.util.Collections;
 public class STObjectFieldNode extends STNode {
     public final STNode metadata;
     public final STNode visibilityQualifier;
-    public final STNode readonlyKeyword;
+    public final STNode finalKeyword;
     public final STNode typeName;
     public final STNode fieldName;
     public final STNode equalsToken;
@@ -43,7 +43,7 @@ public class STObjectFieldNode extends STNode {
     STObjectFieldNode(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode readonlyKeyword,
+            STNode finalKeyword,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -52,7 +52,7 @@ public class STObjectFieldNode extends STNode {
         this(
                 metadata,
                 visibilityQualifier,
-                readonlyKeyword,
+                finalKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -64,7 +64,7 @@ public class STObjectFieldNode extends STNode {
     STObjectFieldNode(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode readonlyKeyword,
+            STNode finalKeyword,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -74,7 +74,7 @@ public class STObjectFieldNode extends STNode {
         super(SyntaxKind.OBJECT_FIELD, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
-        this.readonlyKeyword = readonlyKeyword;
+        this.finalKeyword = finalKeyword;
         this.typeName = typeName;
         this.fieldName = fieldName;
         this.equalsToken = equalsToken;
@@ -84,7 +84,7 @@ public class STObjectFieldNode extends STNode {
         addChildren(
                 metadata,
                 visibilityQualifier,
-                readonlyKeyword,
+                finalKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -96,7 +96,7 @@ public class STObjectFieldNode extends STNode {
         return new STObjectFieldNode(
                 this.metadata,
                 this.visibilityQualifier,
-                this.readonlyKeyword,
+                this.finalKeyword,
                 this.typeName,
                 this.fieldName,
                 this.equalsToken,
@@ -108,7 +108,7 @@ public class STObjectFieldNode extends STNode {
     public STObjectFieldNode modify(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode readonlyKeyword,
+            STNode finalKeyword,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -117,7 +117,7 @@ public class STObjectFieldNode extends STNode {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
-                readonlyKeyword,
+                finalKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -129,7 +129,7 @@ public class STObjectFieldNode extends STNode {
         return new STObjectFieldNode(
                 metadata,
                 visibilityQualifier,
-                readonlyKeyword,
+                finalKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
