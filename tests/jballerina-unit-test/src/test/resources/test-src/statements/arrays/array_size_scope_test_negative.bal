@@ -50,5 +50,3 @@ function arraySizeReferenceInDifferentScopeTest() {
         int[length] p = [1, 2];
     }
 }
-
-

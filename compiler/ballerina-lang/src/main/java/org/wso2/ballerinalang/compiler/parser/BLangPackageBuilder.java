@@ -555,6 +555,10 @@ public class BLangPackageBuilder {
         }
     }
 
+    void addArrayType(DiagnosticPos pos, Set<Whitespace> ws, int dimensions) {
+        addArrayType (pos, ws, dimensions, new BLangExpression[0]);
+    }
+
     void addArrayType(DiagnosticPos pos, Set<Whitespace> ws, int dimensions, BLangExpression[] sizes) {
         BLangType eType = (BLangType) this.typeNodeStack.pop();
         BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();

@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTempl
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.VariableReferenceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -849,7 +848,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             }
         }
         Collections.reverse(sizes);
-        this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), dimensions, new BLangExpression[0]);
+        this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), dimensions);
     }
 
     @Override

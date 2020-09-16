@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Array size definition test.
  *
+ * @since Swan Lake
  */
 public class ArraySizeDefinitionTest {
 

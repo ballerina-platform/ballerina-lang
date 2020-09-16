@@ -926,6 +926,13 @@ public class SymbolResolver extends BLangNodeVisitor {
                     }
                     arrType =  new BArrayType(resultType, arrayTypeSymbol,  sizeIndicator, arrayState);
                 } else {
+                    if (size.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                        dlog.error(size.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.intType,
+                                ((BLangTypedescExpr) size).getTypeNode());
+                        isError = true;
+                        continue;
+                    }
+
                     BLangSimpleVarRef sizeReference = (BLangSimpleVarRef) size;
                     Name pkgAlias = names.fromIdNode(sizeReference.pkgAlias);
                     Name typeName = names.fromIdNode(sizeReference.variableName);
@@ -948,9 +955,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     BType lengthLiteralType = sizeConstSymbol.literalType;
 
                     if (lengthLiteralType.tag != TypeTags.INT) {
-                        dlog.error(size.pos,
-                                DiagnosticCode.INCOMPATIBLE_TYPES,
-                                symTable.intType,
+                        dlog.error(size.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.intType,
                                 sizeConstSymbol.literalType);
                         isError = true;
                         continue;

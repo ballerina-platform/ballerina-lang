@@ -36,5 +36,3 @@ function arraySizeReferenceInDifferentScopeTest() {
         int[constLength] m = [1, 2];
     }
 }
-
-

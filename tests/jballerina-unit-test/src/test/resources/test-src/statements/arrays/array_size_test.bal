@@ -22,4 +22,3 @@ function arraySizeTest() {
     int[constLength][2] k = [[1,2],[1,2]];
     int[2][constLength][2] p = [[[1,2],[1,2]],[[1,2],[1,2]]];
 }
-
