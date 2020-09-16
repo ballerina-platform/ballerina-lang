@@ -358,7 +358,7 @@ public class RunTestsTask implements Task {
                         + targetDir.resolve(TesterinaConstants.COVERAGE_DIR)
                         .resolve(TesterinaConstants.EXEC_FILE_NAME).toString();
                 if (!TesterinaConstants.DOT.equals(packageName)) {
-                    agentCommand += ",includes=" + orgName + "." + packageName + ".*";
+                    agentCommand += ",includes=" + orgName + ".*";
                 }
                 cmdArgs.add(agentCommand);
             }
