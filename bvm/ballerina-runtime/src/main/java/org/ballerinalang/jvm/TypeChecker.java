@@ -993,6 +993,9 @@ public class TypeChecker {
             return false;
         }
 
+        BType targetElementType = targetType.getElementType();
+        int targetElementTypeTag = targetElementType.getTag();
+
         BArrayType sourceArrayType;
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
             sourceArrayType = (BArrayType) sourceType;
@@ -1006,17 +1009,15 @@ public class TypeChecker {
                 return targetType.getState() == ArrayState.UNSEALED || targetType.getSize() == 0;
             }
 
-            if (sourceTupleType.getRestType() != null && targetType.getState() == ArrayState.UNSEALED &&
-                    targetType.getElementType().getTag() != TypeTags.UNION_TAG) {
-                return targetType.getElementType().getTag() == sourceTupleType.getRestType().getTag();
+            if (sourceTupleType.getRestType() != null && targetType.getState() == ArrayState.UNSEALED) {
+                BType sourceRestType = sourceTupleType.getRestType();
+                return checkIsType (sourceRestType, targetElementType, unresolvedTypes);
             }
 
             sourceArrayType =
                     new BArrayType(new BUnionType(new ArrayList<>(tupleTypes), sourceTupleType.getTypeFlags()));
         }
 
-        BType targetElementType = targetType.getElementType();
-        int targetElementTypeTag = targetElementType.getTag();
         BType sourceElementType = sourceArrayType.getElementType();
 
         switch (sourceArrayType.getState()) {
@@ -1066,34 +1067,34 @@ public class TypeChecker {
             sourceTupleType = (BTupleType) sourceType;
         } else {
             BArrayType sourceArrayType = (BArrayType) sourceType;
+            BType sourceElementType = sourceArrayType.getElementType();
 
             switch (sourceArrayType.getState()) {
                 case UNSEALED:
                     if (targetRestType == null) {
                         return false;
                     } else {
-                        return sourceArrayType.getElementType().getTag() == targetRestType.getTag();
+                        return checkIsType (sourceElementType, targetRestType, unresolvedTypes);
                     }
                 case CLOSED_SEALED:
                     if (sourceArrayType.getSize() >= targetTypes.size()) {
                         if (targetTypes.isEmpty()) {
                             if (targetRestType != null) {
-                                return sourceArrayType.getElementType().getTag() == targetRestType.getTag();
+                                return checkIsType (sourceElementType, targetRestType, unresolvedTypes);
                             }
                             return true;
                         }
 
                         boolean isSameType = true;
 
-                        for (int i = 0; i < targetTypes.size(); i++) {
-                            if (sourceArrayType.getElementType().getTag() != targetTypes.get(i).getTag()) {
+                        for (BType targetElementType : targetTypes) {
+                            if (!(checkIsType(sourceElementType, targetElementType, unresolvedTypes))) {
                                 isSameType = false;
                             }
                         }
                         if (sourceArrayType.getSize() > targetTypes.size()) {
                             if (targetRestType != null) {
-                                return (sourceArrayType.getElementType().getTag() == targetRestType.getTag()
-                                        && isSameType);
+                                return (checkIsType (sourceElementType, targetRestType, unresolvedTypes) && isSameType);
                             } else {
                                 return false;
                             }
