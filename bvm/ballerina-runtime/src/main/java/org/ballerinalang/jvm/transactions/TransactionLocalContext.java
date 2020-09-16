@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.jvm.transactions;
 
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.HashMap;
 import java.util.Map;

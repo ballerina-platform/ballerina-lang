@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.IteratorValue;
@@ -50,13 +50,13 @@ public class Next {
         IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
 
         if (xmlIterator == null) {
-            xmlIterator = ((XMLValue) m.get(StringUtils.fromString("m"))).getIterator();
+            xmlIterator = ((XMLValue) m.get(BStringUtils.fromString("m"))).getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            return BallerinaValues.createRecord(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
+            return BValueCreator.createRecordValue(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
         }
 
         return null;

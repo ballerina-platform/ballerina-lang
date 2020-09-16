@@ -17,8 +17,13 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BValue;
+import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.internal.ErrorUtils;
 import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BAnydataType;
@@ -60,9 +65,6 @@ import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValue;
-import org.ballerinalang.jvm.values.api.BXML;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -121,102 +123,102 @@ public class TypeChecker {
             }
         }
 
-        throw BallerinaErrors.createTypeCastError(sourceVal, targetType);
+        throw ErrorUtils.createTypeCastError(sourceVal, targetType);
     }
 
     public static long anyToInt(Object sourceVal) {
         return TypeConverter.anyToIntCast(sourceVal,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeInt));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeInt));
     }
 
     public static long anyToSigned32(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntSigned32,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntSigned32));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntSigned32));
     }
 
     public static long anyToSigned16(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntSigned16,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntSigned16));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntSigned16));
     }
 
     public static long anyToSigned8(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntSigned8,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntSigned8));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntSigned8));
     }
 
     public static long anyToUnsigned32(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntUnsigned32,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntUnsigned32));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntUnsigned32));
     }
 
     public static long anyToUnsigned16(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntUnsigned16,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntUnsigned16));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntUnsigned16));
     }
 
     public static long anyToUnsigned8(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, BTypes.typeIntUnsigned8,
-                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeIntUnsigned8));
+                () -> ErrorUtils.createTypeCastError(sourceVal, BTypes.typeIntUnsigned8));
     }
 
     public static double anyToFloat(Object sourceVal) {
-        return TypeConverter.anyToFloatCast(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
-                BTypes.typeFloat));
+        return TypeConverter.anyToFloatCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
+                                                                                            BTypes.typeFloat));
     }
 
     public static boolean anyToBoolean(Object sourceVal) {
-        return TypeConverter.anyToBooleanCast(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
-                BTypes.typeBoolean));
+        return TypeConverter.anyToBooleanCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
+                                                                                              BTypes.typeBoolean));
     }
 
     public static int anyToByte(Object sourceVal) {
-        return TypeConverter.anyToByteCast(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
-                                                                                            BTypes.typeByte));
+        return TypeConverter.anyToByteCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
+                                                                                           BTypes.typeByte));
     }
 
     public static DecimalValue anyToDecimal(Object sourceVal) {
-        return TypeConverter.anyToDecimal(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
-                                                                                               BTypes.typeDecimal));
+        return TypeConverter.anyToDecimal(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
+                                                                                             BTypes.typeDecimal));
     }
 
     public static byte anyToJByte(Object sourceVal) {
         return TypeConverter.anyToJByteCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "byte"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "byte"));
     }
 
     public static char anyToJChar(Object sourceVal) {
         return TypeConverter.anyToJCharCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "char"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "char"));
     }
 
     public static short anyToJShort(Object sourceVal) {
         return TypeConverter.anyToJShortCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "short"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "short"));
     }
 
     public static int anyToJInt(Object sourceVal) {
         return TypeConverter.anyToJIntCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "int"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "int"));
     }
 
     public static long anyToJLong(Object sourceVal) {
         return TypeConverter.anyToJLongCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "long"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "long"));
     }
 
     public static float anyToJFloat(Object sourceVal) {
         return TypeConverter.anyToJFloatCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "float"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "float"));
     }
 
     public static double anyToJDouble(Object sourceVal) {
         return TypeConverter.anyToJDoubleCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "double"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "double"));
     }
 
     public static boolean anyToJBoolean(Object sourceVal) {
         return TypeConverter.anyToJBooleanCast(sourceVal,
-                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "boolean"));
+                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "boolean"));
     }
 
     /**
@@ -552,7 +554,7 @@ public class TypeChecker {
         if (!(describingType instanceof AnnotatableType)) {
             return null;
         }
-        return ((AnnotatableType) describingType).getAnnotation(StringUtils.fromString(annotTag));
+        return ((AnnotatableType) describingType).getAnnotation(BStringUtils.fromString(annotTag));
     }
 
     public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
@@ -648,7 +650,7 @@ public class TypeChecker {
         int targetTypeTag = targetType.getTag();
 
         // If the source type is neither a record type nor an object type, check `is` type by looking only at the types.
-        // Else, since records and objects may have `readonly` fields, need to use the value also.
+        // Else, since records and objects may have `readonly` or `final` fields, need to use the value also.
         // e.g.,
         //      const HUNDRED = 100;
         //
@@ -835,7 +837,7 @@ public class TypeChecker {
                 continue;
             }
 
-            BString name = StringUtils.fromString(field.name);
+            BString name = BStringUtils.fromString(field.name);
 
             if (Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !sourceVal.containsKey(name)) {
                 continue;
@@ -1102,7 +1104,7 @@ public class TypeChecker {
             String fieldName = field.getFieldName();
 
             if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
-                BString fieldNameBString = StringUtils.fromString(fieldName);
+                BString fieldNameBString = BStringUtils.fromString(fieldName);
 
                 if (Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !sourceVal.containsKey(fieldNameBString)) {
                     continue;
@@ -1168,7 +1170,7 @@ public class TypeChecker {
             boolean optionalSourceField = Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL);
 
             if (Flags.isFlagOn(sourceField.flags, Flags.READONLY)) {
-                BString fieldNameBString = StringUtils.fromString(fieldName);
+                BString fieldNameBString = BStringUtils.fromString(fieldName);
 
                 if (optionalSourceField && !sourceRecordValue.containsKey(fieldNameBString)) {
                     if (!optionalTargetField) {
@@ -1201,7 +1203,7 @@ public class TypeChecker {
             }
 
             if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
-                if (!checkIsLikeType(sourceRecordValue.get(StringUtils.fromString(field.name)),
+                if (!checkIsLikeType(sourceRecordValue.get(BStringUtils.fromString(field.name)),
                                      targetType.restFieldType)) {
                     return false;
                 }
@@ -1419,8 +1421,18 @@ public class TypeChecker {
                 return false;
             }
 
-            if (Flags.isFlagOn(rhsField.flags, Flags.READONLY)) {
-                if (!checkIsLikeType(sourceObjVal.get(StringUtils.fromString(name)), lhsField.type)) {
+            if (Flags.isFlagOn(rhsField.flags, Flags.FINAL)) {
+                Object fieldValue = sourceObjVal.get(BStringUtils.fromString(name));
+                BType fieldValueType = getType(fieldValue);
+
+                if (fieldValueType.isReadOnly()) {
+                    if (!checkIsLikeType(fieldValue, lhsField.type)) {
+                        return false;
+                    }
+                    continue;
+                }
+
+                if (!checkIsType(fieldValueType, lhsField.type, unresolvedTypes)) {
                     return false;
                 }
             } else if (!checkIsType(rhsField.type, lhsField.type, unresolvedTypes)) {
@@ -2179,7 +2191,7 @@ public class TypeChecker {
         }
 
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
-            Object fieldName = StringUtils.fromString(targetTypeEntry.getKey().toString());
+            Object fieldName = BStringUtils.fromString(targetTypeEntry.getKey().toString());
             if (!(((MapValueImpl) sourceValue).containsKey(fieldName)) &&
                     !Flags.isFlagOn(targetType.getFields().get(fieldName.toString()).flags, Flags.OPTIONAL)) {
                 return false;

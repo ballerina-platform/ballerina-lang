@@ -18,13 +18,12 @@
 
 package org.ballerinalang.stdlib.utils;
 
-
 import io.netty.handler.codec.http.HttpContent;
+import org.ballerinalang.jvm.api.BExecutor;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
@@ -94,9 +93,9 @@ public class Services {
                 request, registryHolder.getEndpointConfig());
         callback.setRequestStruct(signatureParams[0]);
 
-        ObjectValue service = resource.getParentService().getBalService();
+        BObject service = resource.getParentService().getBalService();
         Scheduler scheduler = registryHolder.getRegistry().getScheduler();
-        Executor.submit(scheduler, service, resource.getName(), null, null, callback, properties, signatureParams);
+        BExecutor.submit(scheduler, service, resource.getName(), null, null, callback, properties, signatureParams);
         Executors.newSingleThreadExecutor().submit(scheduler::start);
         callback.sync();
 

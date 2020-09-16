@@ -62,7 +62,6 @@ dependencies {
     implementation 'com.h2database:h2'
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc'
     implementation 'org.apache.commons:commons-lang3'
-    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'commons-io:commons-io'
     implementation 'io.swagger:swagger-core'
     implementation 'io.swagger:swagger-models'

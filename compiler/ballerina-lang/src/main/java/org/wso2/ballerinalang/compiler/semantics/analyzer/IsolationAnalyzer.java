@@ -745,9 +745,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                         return;
                     }
                 }
-            } else if (symbol.owner == enclInvokable.symbol) {
-                return;
             }
+        }
+
+        if (!recordFieldDefaultValue && enclInvokable != null && symbol.owner == enclInvokable.symbol) {
+            return;
         }
 
         if (Symbols.isFlagOn(symbol.flags, Flags.CONSTANT)) {
@@ -1328,7 +1330,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isBallerinaModule(BLangPackage module) {
-        return module.packageID.orgName.value.equals("ballerina");
+        String orgName = module.packageID.orgName.value;
+        return orgName.equals("ballerina") || orgName.equals("ballerinax");
     }
 
     private boolean isInIsolatedFunction(BLangInvokableNode enclInvokable) {

@@ -52,17 +52,16 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testObjectFieldsWithReadonlyQualifier() {
-        testFile("class-def/class_def_source_37.bal", "class-def/class_def_assert_37.json");
+    public void testObjectFieldsWithFinalQualifier() {
+        test("class-def/class_def_source_11.bal", "class-def/class_def_assert_11.json");
     }
 
     @Test
     public void testObjectFieldsWithComplexTypeDescHavingReadonlyTypeDescWithin() {
         testFile("class-def/class_def_source_38.bal", "class-def/class_def_assert_38.json");
-        testFile("class-def/class_def_source_39.bal", "class-def/class_def_assert_39.json");
     }
 
-    // Test object type qualifiers
+    // Test class type qualifiers
 
      @Test
     public void testClientQualifierOnly() {
@@ -145,5 +144,11 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testDuplicateClientQualifiers() {
         testFile("class-def/class_def_source_35.bal", "class-def/class_def_assert_35.json");
+    }
+
+    @Test
+    public void testObjectFieldsWithReadonlyQualifier() {
+        testFile("class-def/class_def_source_37.bal", "class-def/class_def_assert_37.json");
+        testFile("class-def/class_def_source_39.bal", "class-def/class_def_assert_39.json");
     }
 }

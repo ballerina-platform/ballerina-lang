@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.api.values.BFunctionPointer;
+import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.values.api.BFunctionPointer;
-import org.ballerinalang.jvm.values.api.BLink;
 
 import java.util.Map;
 import java.util.function.Consumer;

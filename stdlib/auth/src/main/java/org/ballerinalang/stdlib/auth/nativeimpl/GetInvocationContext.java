@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.auth.nativeimpl;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ValueCreator;
-import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_AUTH_PKG_ID;
 
