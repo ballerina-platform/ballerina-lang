@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -91,6 +93,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
 public class JvmCodeGenUtil {
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
     public static final String INITIAL_MEHOD_DESC = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
+    private static final Pattern IMMUTABLE_TYPE_CHAR_PATTERN = Pattern.compile("[/.]");
+    private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
 
     private JvmCodeGenUtil() {
 
@@ -138,7 +142,7 @@ public class JvmCodeGenUtil {
      * @return cleaned name
      */
     static String cleanupReadOnlyTypeName(String name) {
-        return name.replaceAll("[/.]", "_");
+        return IMMUTABLE_TYPE_CHAR_PATTERN.matcher(name).replaceAll("_");
     }
 
     static String cleanupPathSeparators(String name) {
@@ -263,8 +267,8 @@ public class JvmCodeGenUtil {
 
     //TODO:Remove this method after fixing issue #25745
     public static String cleanupFunctionName(String functionName) {
-        return functionName.matches("(.*)[\\.:/<>](.*)") ? "$" + functionName.replaceAll("[\\.:/<>]", "_") :
-                functionName;
+        return StringUtils.containsAny(functionName, "\\.:/<>") ?
+                "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;
     }
 
     static boolean isExternFunc(BIRNode.BIRFunction func) {

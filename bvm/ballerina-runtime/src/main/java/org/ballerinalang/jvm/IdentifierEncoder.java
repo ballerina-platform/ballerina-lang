@@ -20,6 +20,8 @@ package org.ballerinalang.jvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import java.util.regex.Pattern;
+
 /**
  * Identifier encoder to encode user defined identifiers with special characters.
  *
@@ -30,7 +32,9 @@ public class IdentifierEncoder {
     private static final String CHAR_PREFIX = "$";
     private static final String ESCAPE_PREFIX = "\\";
     private static final String ENCODABLE_CHAR_SET = "\\.:;[]/<>$";
-    private static final String ENCODING_PATTERN = "\\$(\\d{4})";
+    private static final Pattern ENCODING_PATTERN = Pattern.compile("\\$(\\d{4})");
+    private static final Pattern UNESCAPED_SPECIAL_CHAR_SET =
+            Pattern.compile("(?<!\\\\)(?:\\\\\\\\)*([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])");
 
     private IdentifierEncoder() {
     }
@@ -53,8 +57,7 @@ public class IdentifierEncoder {
     }
 
     public static String escapeSpecialCharacters(String identifier) {
-        String specialCharSet = "([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])";
-        return identifier.replaceAll("(?<!\\\\)(?:\\\\\\\\)*" + specialCharSet, "\\\\$1");
+        return UNESCAPED_SPECIAL_CHAR_SET.matcher(identifier).replaceAll("\\\\$1");
     }
 
     /**
@@ -70,7 +73,7 @@ public class IdentifierEncoder {
         if (identifier.contains(ESCAPE_PREFIX)) {
             identifier = encodeSpecialCharacters(identifier);
         } else {
-            identifier = identifier.replaceAll(ENCODING_PATTERN, "\\$#$1");
+            identifier = ENCODING_PATTERN.matcher(identifier).replaceAll("\\$#$1");
         }
         return StringEscapeUtils.unescapeJava(identifier);
     }
