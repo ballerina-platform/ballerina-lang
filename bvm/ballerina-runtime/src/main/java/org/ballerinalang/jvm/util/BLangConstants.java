@@ -42,11 +42,11 @@ public class BLangConstants {
     public static final String TEST_INIT_FUNCTION_SUFFIX = ".<testinit>";
     public static final String TEST_START_FUNCTION_SUFFIX = ".<teststart>";
     public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>"; 
-    public static final String MODULE_INIT_CLASS_NAME = "___init";
+    public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String GENERATE_PKG_INIT = "___init_";
     public static final String GENERATE_PKG_START = "___start_";
     public static final String GENERATE_PKG_STOP = "___stop_";
-    
+
     // Configs
     public static final String BALLERINA_ARGS_INIT_PREFIX = "--";
     public static final int BALLERINA_ARGS_INIT_PREFIX_LENGTH = BALLERINA_ARGS_INIT_PREFIX.length();

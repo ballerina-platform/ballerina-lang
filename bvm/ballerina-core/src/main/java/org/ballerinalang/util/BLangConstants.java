@@ -99,5 +99,5 @@ public class BLangConstants {
 
     public static final String JVM_TARGET = "jvm";
 
-    public static final String MODULE_INIT_CLASS_NAME = "___init";
+    public static final String MODULE_INIT_CLASS_NAME = "$_init";
 }
