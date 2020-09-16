@@ -273,14 +273,14 @@ public class SignatureHelpUtil {
                 BTypeSymbol returnTypeSymbol = invokableSymbol.getReturnType().tsymbol;
                 if (returnTypeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) returnTypeSymbol;
-                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
+                    visibleSymbols = new ArrayList<>(objectTypeSymbol.scope.entries.values());
                 }
             } else if (isObject && hasNextNameComp) {
                 BObjectTypeSymbol bObjectTypeSymbol = (BObjectTypeSymbol) searchSymbol.symbol;
                 BTypeSymbol typeSymbol = bObjectTypeSymbol.type.tsymbol;
                 if (typeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
-                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
+                    visibleSymbols = new ArrayList<>(objectTypeSymbol.scope.entries.values());
                 }
             } else if (isVariable && hasNextNameComp) {
                 BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.symbol;
@@ -300,7 +300,7 @@ public class SignatureHelpUtil {
                 }
                 if (typeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
-                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
+                    visibleSymbols = new ArrayList<>(objectTypeSymbol.scope.entries.values());
                     visibleSymbols.addAll(objectTypeSymbol.scope.entries.values());
                 } else if (typeSymbol instanceof BRecordTypeSymbol) {
                     BRecordTypeSymbol bRecordTypeSymbol = (BRecordTypeSymbol) typeSymbol;

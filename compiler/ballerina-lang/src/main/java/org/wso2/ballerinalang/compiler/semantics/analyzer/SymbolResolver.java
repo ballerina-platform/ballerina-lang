@@ -435,7 +435,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolveObjectMethod(DiagnosticPos pos, SymbolEnv env, Name fieldName,
                                        BObjectTypeSymbol objectSymbol) {
-        return lookupMemberSymbol(pos, objectSymbol.methodScope, env, fieldName, SymTag.VARIABLE);
+        return lookupMemberSymbol(pos, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
@@ -1313,7 +1313,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                          functionTypeNode.pos);
     }
 
-    public BInvokableType createInvokableType(List<? extends BLangVariable> paramVars, BLangVariable restVariable,
+    public BType createInvokableType(List<? extends BLangVariable> paramVars, BLangVariable restVariable,
                                               BLangType retTypeVar, int flags, SymbolEnv env, DiagnosticPos pos) {
         List<BType> paramTypes = new ArrayList<>();
         List<BVarSymbol> params = new ArrayList<>();
@@ -1331,6 +1331,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
             }
             BType type = resolveTypeNode(param.getTypeNode(), env);
+            if (type == symTable.noType) {
+                return symTable.noType;
+            }
             paramNode.type = type;
             paramTypes.add(type);
 
@@ -1362,12 +1365,18 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         BType retType = resolveTypeNode(retTypeVar, this.env);
+        if (retType == symTable.noType) {
+            return symTable.noType;
+        }
 
         BVarSymbol restParam = null;
         BType restType = null;
 
         if (restVariable != null) {
             restType = resolveTypeNode(restVariable.typeNode, env);
+            if (restType == symTable.noType) {
+                return symTable.noType;
+            }
             restVariable.type = restType;
             restParam = new BVarSymbol(restType.flags, names.fromIdNode(((BLangSimpleVariable) restVariable).name),
                                        env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, SOURCE);

@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -110,7 +109,7 @@ public class ServiceDesugar {
         final Name functionName = names
                 .fromString(Symbols.getAttachedFuncSymbolName(variable.type.tsymbol.name.value, method));
         BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
-                .lookupMemberSymbol(pos, ((BObjectTypeSymbol) variable.type.tsymbol).methodScope, env, functionName,
+                .lookupMemberSymbol(pos, variable.type.tsymbol.scope, env, functionName,
                         SymTag.INVOKABLE);
 
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, variable.symbol);
@@ -160,7 +159,7 @@ public class ServiceDesugar {
             final Name functionName = names
                     .fromString(Symbols.getAttachedFuncSymbolName(attachExpr.type.tsymbol.name.value, ATTACH_METHOD));
             BInvokableSymbol methodRef = (BInvokableSymbol) symResolver
-                    .lookupMemberSymbol(pos, ((BObjectTypeSymbol) listenerVarRef.type.tsymbol).methodScope, env,
+                    .lookupMemberSymbol(pos, listenerVarRef.type.tsymbol.scope, env,
                             functionName, SymTag.INVOKABLE);
 
             // Create method invocation

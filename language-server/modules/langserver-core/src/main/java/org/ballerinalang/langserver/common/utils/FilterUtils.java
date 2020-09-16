@@ -58,7 +58,7 @@ public class FilterUtils {
      * @return {@link List} List of extracted actions as Symbol Info
      */
     public static List<Scope.ScopeEntry> getClientActions(BObjectTypeSymbol objectTypeSymbol) {
-        return objectTypeSymbol.methodScope.entries.values().stream()
+        return objectTypeSymbol.scope.entries.values().stream()
                 .filter(scopeEntry -> (scopeEntry.symbol.flags & Flags.REMOTE) == Flags.REMOTE)
                 .collect(Collectors.toList());
     }
@@ -86,7 +86,7 @@ public class FilterUtils {
         boolean symbolInCurrentModule = currentModule.equals(objectOwnerModule);
 
         // Extract the method entries
-        Map<Name, Scope.ScopeEntry> entries = objectSymbol.methodScope.entries.entrySet().stream()
+        Map<Name, Scope.ScopeEntry> entries = objectSymbol.scope.entries.entrySet().stream()
                 .filter(entry -> {
                     BSymbol entrySymbol = entry.getValue().symbol;
                     boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;

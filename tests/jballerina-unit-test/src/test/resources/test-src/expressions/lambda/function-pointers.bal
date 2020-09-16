@@ -208,3 +208,37 @@ public function testDefaultParams() {
         panic error("Returned string should equal 'Anne'");
     }
 }
+
+class A {
+    int i;
+    function init() {
+        self.i = 1;
+    }
+
+    function getI() returns int {
+        return self.i;
+    }
+}
+
+public function testGetMemberFunctionAsAField() {
+    A a = new();
+    function () returns int func = a.getI;
+    int i = func();
+    assertEquality(1, i);
+}
+
+type AssertionError distinct error;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
