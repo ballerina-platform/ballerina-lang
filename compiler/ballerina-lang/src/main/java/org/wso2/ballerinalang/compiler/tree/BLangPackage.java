@@ -267,7 +267,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
      *
      * @param diagnostic Diagnostic to be added
      */
-    public void addDiagnostic(BallerinaDiagnostic diagnostic) {
+    public void addDiagnostic(Diagnostic diagnostic) {
         this.diagnostics.add(diagnostic);
         if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
             this.errorCount++;

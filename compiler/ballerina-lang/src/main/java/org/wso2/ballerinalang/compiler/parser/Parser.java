@@ -18,10 +18,6 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -29,7 +25,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
@@ -145,31 +140,7 @@ public class Parser {
 
     private void reportSyntaxDiagnostics(BDiagnosticSource diagnosticSource, SyntaxTree tree) {
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
-            DiagnosticPos pos = getPosition(syntaxDiagnostic.location(), diagnosticSource);
-
-            // TODO This is the temporary mechanism
-            // We need to merge the diagnostic reporting mechanisms of the new parser and the semantic analyzer
-            DiagnosticCode code;
-
-            DiagnosticSeverity severity = syntaxDiagnostic.diagnosticInfo().severity();
-            if (severity == DiagnosticSeverity.WARNING) {
-                code = DiagnosticCode.SYNTAX_WARNING;
-                dlog.warning(pos, code, syntaxDiagnostic.message());
-            } else {
-                code = DiagnosticCode.SYNTAX_ERROR;
-                dlog.error(pos, code, syntaxDiagnostic.message());
-            }
+            dlog.logDiagnostic(diagnosticSource.pkgID, syntaxDiagnostic);
         }
-    }
-
-    private DiagnosticPos getPosition(Location location, BDiagnosticSource diagnosticSource) {
-        if (location == null) {
-            return null;
-        }
-        LineRange lineRange = location.lineRange();
-        LinePosition startPos = lineRange.startLine();
-        LinePosition endPos = lineRange.endLine();
-        return new DiagnosticPos(diagnosticSource, startPos.line() + 1, endPos.line() + 1,
-                startPos.offset() + 1, endPos.offset() + 1);
     }
 }

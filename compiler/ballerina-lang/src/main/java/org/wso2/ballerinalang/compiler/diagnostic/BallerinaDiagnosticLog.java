@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.diagnostic;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.model.elements.PackageID;
@@ -150,6 +151,20 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
         reportDiagnostic((DiagnosticPos) pos, message.toString(), severity);
     }
 
+    /**
+     * Report a diagnostic for a given package.
+     * 
+     * @param pkgId Package ID of the diagnostic associated with
+     * @param diagnostic
+     */
+    public void logDiagnostic(PackageID pkgId, Diagnostic diagnostic) {
+        if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+            this.errorCount++;
+        }
+
+        storeDiagnosticInPackage(pkgId, diagnostic);
+    }
+
     // private helper methods
 
     private String formatMessage(String prefix, DiagnosticCode code, Object[] args) {
@@ -157,7 +172,7 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
         return MessageFormat.format(msgKey, args);
     }
 
-    protected void reportDiagnostic(DiagnosticPos pos, String msg, DiagnosticSeverity severity) {
+    private void reportDiagnostic(DiagnosticPos pos, String msg, DiagnosticSeverity severity) {
         if (severity == DiagnosticSeverity.ERROR) {
             this.errorCount++;
         }
@@ -176,7 +191,7 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
 
     }
 
-    private void storeDiagnosticInPackage(PackageID pkgId, BallerinaDiagnostic diagnostic) {
+    private void storeDiagnosticInPackage(PackageID pkgId, Diagnostic diagnostic) {
         BLangPackage pkgNode = this.packageCache.get(pkgId);
         pkgNode.addDiagnostic(diagnostic);
     }
