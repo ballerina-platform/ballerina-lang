@@ -41,10 +41,10 @@ type Employee record {
 type EmployeeTable table<Employee> key(id);
 
 class Person {
-    public string name = "";
+    public string name = "John";
     public int age = 0;
     public Person? parent = ();
-    private string email = "default@abc.com";
+    string email = "default@abc.com";
     string address = "No 20, Palm grove";
 
     public function getSum(int a, int b) returns int {
@@ -52,7 +52,7 @@ class Person {
     }
 }
 
-class Address {
+public class Location {
    public string city;
    public string country;
 
@@ -66,10 +66,12 @@ class Address {
    }
 }
 
-public type AnonPerson record {
-    string name;
-    int age;
-    Address address;
+public type AnonPerson object {
+    public string name;
+    public int age;
+    public Person? parent;
+    string email;
+    string address;
 };
 
 type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
@@ -135,11 +137,7 @@ public function main() {
 
     Person v16_objectVar = new;
 
-    AnonPerson v17_anonObjectVar = {
-        name: "John Doe",
-        age: 25,
-        address: new ("Colombo", "Sri Lanka")
-    };
+    AnonPerson v17_anonObjectVar = new Person();
 
     typedesc<int> v18_typedescVar = int;
     stream<int, error> v26_oddNumberStream = new stream<int, error>(new OddNumberGenerator());

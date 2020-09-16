@@ -32,7 +32,7 @@ class TableIterator {
 
     # Return the next member in table iterator, nil if end of iterator is reached.
     # + return - iterator result
-    public function next() returns record {|
+    public isolated function next() returns record {|
         Type value;
     |}? = external;
 }

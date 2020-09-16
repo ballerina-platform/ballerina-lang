@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.compiler.backend.jvm;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.objectweb.asm.ClassReader;
@@ -103,7 +104,7 @@ public class ClassVerifier {
             try {
                 analyzer.analyze(classNode.name, method);
             } catch (AnalyzerException e) {
-                return Optional.of(BallerinaErrors.createError(e.getMessage()));
+                return Optional.of(BErrorCreator.createError(StringUtils.fromString((e.getMessage())));
             }
         }
 

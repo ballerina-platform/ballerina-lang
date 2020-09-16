@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.internal.ErrorUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,8 +45,8 @@ public class Trim {
 
     public static BString trim(Strand strand, BString str) {
         if (str == null) {
-            throw BallerinaErrors.createNullReferenceError();
+            throw ErrorUtils.createNullReferenceError();
         }
-        return StringUtils.fromString(str.getValue().trim());
+        return BStringUtils.fromString(str.getValue().trim());
     }
 }

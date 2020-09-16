@@ -423,8 +423,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.model.elements.Flag.SERVICE;
-import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
-import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
@@ -1357,6 +1357,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 case RESOURCE_KEYWORD:
                     bLFunction.flagSet.add(Flag.RESOURCE);
                     break;
+                case ISOLATED_KEYWORD:
+                    bLFunction.flagSet.add(Flag.ISOLATED);
+                    break;
                 default:
                     continue;
             }
@@ -1391,6 +1394,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
+
+        setFunctionQualifiers(bLFunction, anonFuncExprNode.qualifierList());
+
         addToTop(bLFunction);
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
@@ -2940,6 +2946,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         functionTypeNode.flagSet.add(Flag.PUBLIC);
+
+        for (Token token : functionTypeDescriptorNode.qualifierList()) {
+            if (token.kind() == SyntaxKind.ISOLATED_KEYWORD) {
+                functionTypeNode.flagSet.add(Flag.ISOLATED);
+                break;
+            }
+        }
+
         return functionTypeNode;
     }
 
@@ -3264,24 +3278,24 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         int dimensions = 1;
-        List<Integer> sizes = new ArrayList<>();
+        List<BLangExpression> sizes = new ArrayList<>();
         DiagnosticPos position = getPosition(arrayTypeDescriptorNode);
         while (true) {
             if (!arrayTypeDescriptorNode.arrayLength().isPresent()) {
-                sizes.add(UNSEALED_ARRAY_INDICATOR);
+                sizes.add(new BLangLiteral(Integer.valueOf(OPEN_ARRAY_INDICATOR), symTable.intType));
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
                     BasicLiteralNode numericLiteralNode = (BasicLiteralNode) keyExpr;
                     if (numericLiteralNode.literalToken().kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-                        sizes.add(Integer.parseInt(keyExpr.toString()));
+                        sizes.add(new BLangLiteral(Integer.parseInt(keyExpr.toString()), symTable.intType));
                     } else {
-                        sizes.add(Integer.parseInt(keyExpr.toString(), 16));
+                        sizes.add(new BLangLiteral(Integer.parseInt(keyExpr.toString(), 16), symTable.intType));
                     }
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_LITERAL) {
-                    sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
+                    sizes.add(new BLangLiteral(Integer.valueOf(INFERRED_ARRAY_INDICATOR), symTable.intType));
                 } else {
-                    // TODO : should handle the const-reference-expr
+                    sizes.add(createExpression(keyExpr));
                 }
             }
 
@@ -3297,7 +3311,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         arrayTypeNode.pos = position;
         arrayTypeNode.elemtype = createTypeNode(arrayTypeDescriptorNode.memberTypeDesc());
         arrayTypeNode.dimensions = dimensions;
-        arrayTypeNode.sizes = sizes.stream().mapToInt(val -> val).toArray();
+        arrayTypeNode.sizes = sizes.toArray(new BLangExpression[0]);
         return arrayTypeNode;
     }
 

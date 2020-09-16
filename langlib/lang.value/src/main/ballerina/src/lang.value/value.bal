@@ -28,7 +28,7 @@ type AnydataType anydata;
 #
 # + v - source value
 # + return - clone of `v`
-public function clone(AnydataType v) returns AnydataType = external;
+public isolated function clone(AnydataType v) returns AnydataType = external;
 
 # Returns a clone of `v` that is read-only, i.e. immutable.
 # It corresponds to the ImmutableClone(v) operation,
@@ -36,7 +36,7 @@ public function clone(AnydataType v) returns AnydataType = external;
 #
 # + v - source value
 # + return - immutable clone of `v`
-public function cloneReadOnly(AnydataType v) returns AnydataType = external;
+public isolated function cloneReadOnly(AnydataType v) returns AnydataType = external;
 
 # Constructs a value with a specified type by cloning another value.
 # + v - the value to be cloned
@@ -64,37 +64,54 @@ public function cloneReadOnly(AnydataType v) returns AnydataType = external;
 # - numeric values can be converted using the NumericConvert abstract operation
 # - if a record type descriptor specifies default values, these will be used
 #   to supply any missing members
-public function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = external;
+public isolated function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = external;
 
 # Tests whether `v` is read-only, i.e. immutable
 # Returns true if read-only, false otherwise.
 #
 # + v - source value
 # + return - true if read-only, false otherwise
-public function isReadOnly(anydata v) returns boolean = external;
+public isolated function isReadOnly(anydata v) returns boolean = external;
 
-# Performs a direct conversion of a value to a string.
-# The conversion is direct in the sense that when applied to a value that is already
-# a string it leaves the value unchanged.
-#
+# Performs a minimal conversion of a value to a string.
+# The conversion is minimal in particular in the sense
+# that the conversion applied to a value that is already
+# a string does nothing.
 # + v - the value to be converted to a string
 # + return - a string resulting from the conversion
 #
-# The details of the conversion are specified by the ToString abstract operation
-# defined in the Ballerina Language Specification, using the direct style.
-public function toString((any|error) v) returns string = external;
-
-# Converts a value to a string that describes the value in Ballerina syntax.
-# + v - the value to be converted to a string
-# + return - a string resulting from the conversion
+# The result of `toString(v)` is as follows:
 #
-# If `v` is anydata and does not have cycles, then the result will
-# conform to the grammar for a Ballerina expression and when evaluated
-# will result in a value that is == to v.
+# - if `v` is a string, then returns `v`
+# - if `v` is `()`, then returns an empty string
+# - if `v` is boolean, then the string `true` or `false`
+# - if `v` is an int, then return `v` represented as a decimal string
+# - if `v` is a float or decimal, then return `v` represented as a decimal string,
+#   with a decimal point only if necessary, but without any suffix indicating the type of `v`;
+#   return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity
+# - if `v` is a list, then returns the results toString on each member of the list
+#   separated by a space character
+# - if `v` is a map, then returns key=value for each member separated by a space character
+# - if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)
+# - if `v` is table, TBD
+# - if `v` is an error, then a string consisting of the following in order
+#     1. the string `error`
+#     2. a space character
+#     3. the reason string
+#     4. if the detail record is non-empty
+#         1. a space character
+#         2. the result of calling toString on the detail record
+# - if `v` is an object, then
+#     - if `v` provides a `toString` method with a string return type and no required methods,
+#       then the result of calling that method on `v`
+#     - otherwise, `object` followed by some implementation-dependent string
+# - if `v` is any other behavioral type, then the identifier for the behavioral type
+#   (`function`, `future`, `service`, `typedesc` or `handle`)
+#   followed by some implementation-dependent string
 #
-# The details of the conversion are specified by the ToString abstract operation
-# defined in the Ballerina Language Specification, using the expression style.
-public function toBalString((any|error) v) returns string = external;
+# Note that `toString` may produce the same string for two Ballerina values
+# that are not equal (in the sense of the `==` operator).
+public isolated function toString((any|error) v) returns string = external;
 
 // JSON conversion
 
@@ -113,22 +130,40 @@ public function toBalString((any|error) v) returns string = external;
 # + v - anydata value
 # + return - representation of `v` as value of type json
 # This panics if `v` has cycles.
-public function toJson(anydata v) returns json = external;
+public isolated function toJson(anydata v) returns json = external;
 
 # Returns the string that represents `v` in JSON format.
 # `v` is first converted to `json` as if by the `toJson` function.
 #
 # + v - anydata value
 # + return - string representation of json
-public function toJsonString(anydata v) returns string = external;
+public isolated function toJsonString(anydata v) returns string = external;
 
 # Parses a string in JSON format and returns the the value that it represents.
+# All integer numbers in the JSON will be represented as integer values.
+# All decimal numbers except -0.0 in the JSON will be represent as decimal values.
+# -0.0 in the JSON will be represent as float value.
+# Returns an error if the string cannot be parsed.
+#
+# + str - string representation of json
+# + return - `str` parsed to json or error
+public isolated function fromJsonString(string str) returns json|error = external;
+
+# Parses a string in JSON format and returns the value that it represents.
 # All numbers in the JSON will be represented as float values.
 # Returns an error if the string cannot be parsed.
 #
 # + str - string representation of json
 # + return - `str` parsed to json or error
-public function fromJsonString(string str) returns json|error = external;
+public function fromJsonFloatString(string str) returns json|error = external;
+
+# Parses a string in JSON format and returns the value that it represents.
+# All numbers in the JSON will be represented as decimal values.
+# Returns an error if the string cannot be parsed.
+#
+# + str - string representation of json
+# + return - `str` parsed to json or error
+public function fromJsonDecimalString(string str) returns json|error = external;
 
 # Converts a value of type json to a user-specified type.
 # This works the same as `cloneWithType`,
@@ -137,7 +172,7 @@ public function fromJsonString(string str) returns json|error = external;
 # + v - json value
 # + t - type to convert to
 # + return - value belonging to `t`, or error if this cannot be done
-public function fromJsonWithType(json v, typedesc<anydata> t)
+public isolated function fromJsonWithType(json v, typedesc<anydata> t)
     returns t|error = external;
 
 # Converts a string in JSON format to a user-specified type.
@@ -146,7 +181,7 @@ public function fromJsonWithType(json v, typedesc<anydata> t)
 # + str - string in JSON format
 # + t - type to convert to
 # + return - value belonging to `t`, or error if this cannot be done
-public function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = external;
+public isolated function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = external;
 
 # Merges two json values.
 #
@@ -164,4 +199,4 @@ public function fromJsonStringWithType(string str, typedesc<anydata> t) returns 
 #     - otherwise, the result is `j1`.
 # - otherwise, the merge fails
 # If the merge fails, then `j1` is unchanged.
-public function mergeJson(json j1, json j2) returns json|error = external;
+public isolated function mergeJson(json j1, json j2) returns json|error = external;

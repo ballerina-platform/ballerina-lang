@@ -322,6 +322,10 @@ public class InteropMethodGen {
         Class<?>[] jMethodParamTypes = jMethod.getParamTypes();
         JType jMethodRetType = JInterop.getJType(jMethod.getReturnType());
 
+        if (jMethodRetType == JType.jVoid && jMethod.isBalEnvAcceptingMethod()) {
+            jMethodRetType = JType.getPrimitiveJTypeForBType(birFunc.returnVariable.type);
+        }
+
         jvmMethodGen.resetIds();
         String bbPrefix = WRAPPER_GEN_BB_ID_NAME;
 
@@ -346,6 +350,11 @@ public class InteropMethodGen {
             jMethodParamIndex++;
             args.add(new BIROperand(birFunc.receiver));
         }
+
+        if (jMethod.isBalEnvAcceptingMethod()) {
+            jMethodParamIndex++;
+        }
+
         int paramCount = birFuncParams.size();
         while (birFuncParamIndex < paramCount) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);

@@ -17,18 +17,18 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.values.BArray;
+import org.ballerinalang.jvm.api.values.BLink;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BLink;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -366,8 +366,8 @@ public abstract class AbstractArrayValue implements ArrayValue {
             return;
         }
 
-        throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                          BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+        throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                        BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
     }
 
     /**

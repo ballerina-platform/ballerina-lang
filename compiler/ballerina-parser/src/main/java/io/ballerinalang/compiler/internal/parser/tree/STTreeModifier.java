@@ -1463,9 +1463,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STFunctionTypeDescriptorNode transform(
             STFunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        STNode qualifierList = modifyNode(functionTypeDescriptorNode.qualifierList);
         STNode functionKeyword = modifyNode(functionTypeDescriptorNode.functionKeyword);
         STNode functionSignature = modifyNode(functionTypeDescriptorNode.functionSignature);
         return functionTypeDescriptorNode.modify(
+                qualifierList,
                 functionKeyword,
                 functionSignature);
     }
@@ -1488,11 +1490,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STExplicitAnonymousFunctionExpressionNode transform(
             STExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
         STNode annotations = modifyNode(explicitAnonymousFunctionExpressionNode.annotations);
+        STNode qualifierList = modifyNode(explicitAnonymousFunctionExpressionNode.qualifierList);
         STNode functionKeyword = modifyNode(explicitAnonymousFunctionExpressionNode.functionKeyword);
         STNode functionSignature = modifyNode(explicitAnonymousFunctionExpressionNode.functionSignature);
         STNode functionBody = modifyNode(explicitAnonymousFunctionExpressionNode.functionBody);
         return explicitAnonymousFunctionExpressionNode.modify(
                 annotations,
+                qualifierList,
                 functionKeyword,
                 functionSignature,
                 functionBody);

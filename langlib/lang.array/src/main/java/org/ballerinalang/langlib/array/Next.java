@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.AbstractArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
@@ -48,7 +48,7 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
         IteratorValue arrIterator = (IteratorValue) m.getNativeData("&iterator&");
-        AbstractArrayValue arr = (AbstractArrayValue) m.get(StringUtils.fromString("m"));
+        AbstractArrayValue arr = (AbstractArrayValue) m.get(BStringUtils.fromString("m"));
         if (arrIterator == null) {
             arrIterator = arr.getIterator();
             m.addNativeData("&iterator&", arrIterator);
@@ -56,7 +56,7 @@ public class Next {
 
         if (arrIterator.hasNext()) {
             Object element = arrIterator.next();
-            return BallerinaValues.createRecord(new MapValueImpl<>(arr.getIteratorNextReturnType()), element);
+            return BValueCreator.createRecordValue(new MapValueImpl<>(arr.getIteratorNextReturnType()), element);
         }
 
         return null;

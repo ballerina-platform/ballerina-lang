@@ -20,6 +20,9 @@ package org.wso2.ballerinalang.compiler.tree.types;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,7 +35,7 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
 
     public int dimensions;
 
-    public int[] sizes = new int[0];
+    public BLangExpression[] sizes = new BLangExpression[0];
 
     public BLangArrayType() {
     }
@@ -48,7 +51,7 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
     }
 
     @Override
-    public int[] getSizes() {
+    public BLangExpression[] getSizes() {
         return sizes;
     }
 
@@ -62,10 +65,15 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
         final StringBuilder[] sb = {new StringBuilder(getTypeName())};
         if (sizes.length == 0) {
             Arrays.stream(sizes).forEach(size -> {
-                if (size == -1) {
-                    sb[0].append("[]");
+                if (size.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    Integer sizeIndicator = (Integer) (((BLangLiteral) size).getValue());
+                    if (sizeIndicator == -1) {
+                        sb[0].append("[]");
+                    } else {
+                        sb[0].append("[").append(sizeIndicator).append("]");
+                    }
                 } else {
-                    sb[0].append("[").append(size).append("]");
+                    sb[0].append("[").append(((BLangSimpleVarRef) size).variableName).append("]");
                 }
             });
         } else {

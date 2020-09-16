@@ -16,11 +16,11 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -38,7 +38,7 @@ import java.nio.ByteBuffer;
 public class WebSocketConnector {
     private static final Logger log = LoggerFactory.getLogger(WebSocketConnector.class);
 
-    public static Object externPushText(ObjectValue wsConnection, BString text, boolean finalFrame) {
+    public static Object externPushText(BObject wsConnection, BString text, boolean finalFrame) {
         Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
@@ -61,7 +61,7 @@ public class WebSocketConnector {
         return null;
     }
 
-    public static Object pushBinary(ObjectValue wsConnection, ArrayValue binaryData,
+    public static Object pushBinary(BObject wsConnection, ArrayValue binaryData,
                                     boolean finalFrame) {
         Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
@@ -86,7 +86,7 @@ public class WebSocketConnector {
         return null;
     }
 
-    public static Object ping(ObjectValue wsConnection, ArrayValue binaryData) {
+    public static Object ping(BObject wsConnection, ArrayValue binaryData) {
         Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
@@ -109,7 +109,7 @@ public class WebSocketConnector {
         return null;
     }
 
-    public static Object pong(ObjectValue wsConnection, ArrayValue binaryData) {
+    public static Object pong(BObject wsConnection, ArrayValue binaryData) {
         Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection

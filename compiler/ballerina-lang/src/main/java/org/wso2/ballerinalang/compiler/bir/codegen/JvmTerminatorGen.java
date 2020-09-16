@@ -92,6 +92,7 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
@@ -100,6 +101,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -531,6 +533,17 @@ public class JvmTerminatorGen {
             argIndex += 1;
         }
 
+        String jMethodVMSig = callIns.jMethodVMSig;
+        boolean hasBalEnvParam = jMethodVMSig.startsWith(String.format("(L%s;", BAL_ENV));
+
+        if (hasBalEnvParam) {
+            mv.visitTypeInsn(NEW, BAL_ENV);
+            mv.visitInsn(DUP);
+            this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
+            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, CONSTRUCTOR_INIT_METHOD, String.format("(L%s;)V", STRAND_CLASS),
+                               false);
+        }
+
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
         while (argIndex < argsCount) {
             BIROperand arg = callIns.args.get(argIndex);
@@ -545,11 +558,27 @@ public class JvmTerminatorGen {
 
         String jClassName = callIns.jClassName;
         String jMethodName = callIns.name;
-        String jMethodVMSig = callIns.jMethodVMSig;
         this.mv.visitMethodInsn(callIns.invocationType, jClassName, jMethodName, jMethodVMSig, isInterface);
 
+        boolean isVoidMethod = jMethodVMSig.endsWith(")V");
         if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
-            this.storeToVar(callIns.lhsOp.variableDcl);
+            if (hasBalEnvParam && isVoidMethod) {
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
+                this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "returnValue", "Ljava/lang/Object;");
+
+                Label doNotStoreReturn = new Label();
+                mv.visitJumpInsn(IFNULL, doNotStoreReturn);
+
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
+                this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "returnValue", "Ljava/lang/Object;");
+                BIROperand lhsOpVarDcl = callIns.lhsOp;
+                addJUnboxInsn(this.mv, ((JType) lhsOpVarDcl.variableDcl.type));
+                this.storeToVar(lhsOpVarDcl.variableDcl);
+
+                mv.visitLabel(doNotStoreReturn);
+            } else {
+                this.storeToVar(callIns.lhsOp.variableDcl);
+            }
         }
 
         this.mv.visitLabel(notBlockedOnExternLabel);
