@@ -130,7 +130,7 @@ public class StringUtils {
         CycleUtils.Node node = new CycleUtils.Node(value, parent);
 
         if (node.hasCyclesSoFar()) {
-            return STR_CYCLE;
+            return STR_CYCLE + "[" + node.getIndex() + "]";
         }
 
         if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {

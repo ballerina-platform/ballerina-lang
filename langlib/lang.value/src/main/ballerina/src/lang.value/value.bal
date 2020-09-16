@@ -73,53 +73,27 @@ public function cloneWithType(anydata v, typedesc<AnydataType> t) returns Anydat
 # + return - true if read-only, false otherwise
 public function isReadOnly(anydata v) returns boolean = external;
 
-# Performs a minimal conversion of a value to a string.
-# The conversion is minimal in particular in the sense
-# that the conversion applied to a value that is already
-# a string does nothing.
+# Performs a direct conversion of a value to a string.
+# The conversion is direct in the sense that when applied to a value that is already
+# a string it leaves the value unchanged.
+#
 # + v - the value to be converted to a string
 # + return - a string resulting from the conversion
 #
-# The result of `toString(v)` is as follows:
-#
-# - if `v` is a string, then returns `v`
-# - if `v` is `()`, then returns an empty string
-# - if `v` is boolean, then the string `true` or `false`
-# - if `v` is an int, then return `v` represented as a decimal string
-# - if `v` is a float or decimal, then return `v` represented as a decimal string,
-#   with a decimal point only if necessary, but without any suffix indicating the type of `v`;
-#   return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity
-# - if `v` is a list, then returns the results toString on each member of the list
-#   separated by a space character
-# - if `v` is a map, then returns key=value for each member separated by a space character
-# - if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)
-# - if `v` is table, TBD
-# - if `v` is an error, then a string consisting of the following in order
-#     1. the string `error`
-#     2. a space character
-#     3. the reason string
-#     4. if the detail record is non-empty
-#         1. a space character
-#         2. the result of calling toString on the detail record
-# - if `v` is an object, then
-#     - if `v` provides a `toString` method with a string return type and no required methods,
-#       then the result of calling that method on `v`
-#     - otherwise, `object` followed by some implementation-dependent string
-# - if `v` is any other behavioral type, then the identifier for the behavioral type
-#   (`function`, `future`, `service`, `typedesc` or `handle`)
-#   followed by some implementation-dependent string
-#
-# Note that `toString` may produce the same string for two Ballerina values
-# that are not equal (in the sense of the `==` operator).
+# The details of the conversion are specified by the ToString abstract operation
+# defined in the Ballerina Language Specification, using the direct style.
 public function toString((any|error) v) returns string = external;
 
-// TODO: CHANGE THIS
-# Performs a minimal conversion of a value to a string.
-# The conversion is minimal in particular in the sense
-# that the conversion applied to a value that is already
-# a string does nothing.
+# Converts a value to a string that describes the value in Ballerina syntax.
 # + v - the value to be converted to a string
 # + return - a string resulting from the conversion
+#
+# If `v` is anydata and does not have cycles, then the result will
+# conform to the grammar for a Ballerina expression and when evaluated
+# will result in a value that is == to v.
+#
+# The details of the conversion are specified by the ToString abstract operation
+# defined in the Ballerina Language Specification, using the expression style.
 public function toBalString((any|error) v) returns string = external;
 
 // JSON conversion
