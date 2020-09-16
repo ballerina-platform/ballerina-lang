@@ -71,7 +71,7 @@ public class BallerinaTriggerModifyUtil {
                 .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
-        LSModuleCompiler.getBLangPackage(astContext, documentManager, false, false, false);
+        LSModuleCompiler.getBLangPackage(astContext, documentManager, false, false);
         BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         String fileName = compilationPath.toFile().getName();
 
@@ -88,7 +88,7 @@ public class BallerinaTriggerModifyUtil {
                 .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
 
         //remove unused imports
-        LSModuleCompiler.getBLangPackage(astContext, documentManager, false, false, false);
+        LSModuleCompiler.getBLangPackage(astContext, documentManager, false, false);
         BLangPackage updatedTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
 
         UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor(fileName, new HashMap<>());

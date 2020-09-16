@@ -284,7 +284,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                     .withCommonParams(null, fileUri, documentManager)
                     .build();
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false, true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));
         } catch (Throwable e) {
@@ -393,7 +393,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             oldContent = documentManager.getFileContent(compilationPath);
             LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(),
                     fileUri, compilationPath, documentManager);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false, true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));
@@ -432,7 +432,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             oldContent = documentManager.getFileContent(compilationPath);
             LSContext astContext = BallerinaTriggerModifyUtil.modifyTrigger(request.getType(), request.getConfig(),
                     fileUri, compilationPath, documentManager);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false, true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));

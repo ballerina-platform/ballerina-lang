@@ -59,16 +59,14 @@ public class LSModuleCompiler {
      * @param docManager           Document manager
      * @param compileFullProject   updateAndCompileFile full project from the source root
      * @param stopOnSemanticErrors whether stop compilation on semantic errors
-     * @param enableNewParser      whether enable new parser or not
      * @return {@link List}      A list of packages when compile full project
      * @throws CompilationFailedException when compilation fails
      */
     public static BLangPackage getBLangPackage(LSContext context, WorkspaceDocumentManager docManager,
-                                               boolean compileFullProject, boolean stopOnSemanticErrors,
-                                               boolean enableNewParser)
+                                               boolean compileFullProject, boolean stopOnSemanticErrors)
             throws CompilationFailedException {
         List<BLangPackage> bLangPackages = getBLangPackages(context, docManager,
-                compileFullProject, false, stopOnSemanticErrors, enableNewParser);
+                compileFullProject, false, stopOnSemanticErrors);
         return bLangPackages.get(0);
     }
 
@@ -78,19 +76,17 @@ public class LSModuleCompiler {
      * @param context              Language Server Context
      * @param docManager           Document manager
      * @param stopOnSemanticErrors Whether stop compilation on semantic errors
-     * @param enableNewParser      Whether enable new parser or not
      * @return {@link List}      A list of packages when compile full project
      * @throws URISyntaxException         when the uri of the source root is invalid
      * @throws CompilationFailedException when the compiler throws any error
      */
     public static List<BLangPackage> getBLangModules(LSContext context, WorkspaceDocumentManager docManager,
-                                                     boolean stopOnSemanticErrors, boolean enableNewParser)
+                                                     boolean stopOnSemanticErrors)
             throws URISyntaxException, CompilationFailedException {
         String sourceRoot = Paths.get(new URI(context.get(DocumentServiceKeys.SOURCE_ROOT_KEY))).toString();
         PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
 
-        CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, docManager, stopOnSemanticErrors,
-                enableNewParser);
+        CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, docManager, stopOnSemanticErrors);
         Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext);
         return compilePackagesSafe(compiler, sourceRoot, false, context);
     }
@@ -103,13 +99,12 @@ public class LSModuleCompiler {
      * @param compileFullProject   updateAndCompileFile full project from the source root
      * @param clearProjectModules  whether clear current project modules from ls package cache
      * @param stopOnSemanticErrors whether stop compilation on semantic errors
-     * @param enableNewParser      whether enable new parser or not
      * @return {@link List}      A list of packages when compile full project
      * @throws CompilationFailedException Whenever compilation fails
      */
     public static List<BLangPackage> getBLangPackages(LSContext context, WorkspaceDocumentManager docManager,
                                                       boolean compileFullProject, boolean clearProjectModules,
-                                                      boolean stopOnSemanticErrors, boolean enableNewParser)
+                                                      boolean stopOnSemanticErrors)
             throws CompilationFailedException {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Optional<String> unsavedFileId = LSCompilerUtil.getUntitledFileId(uri);
@@ -143,7 +138,7 @@ public class LSModuleCompiler {
         }
         context.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, relativeFilePath);
         CompilerContext compilerContext = prepareCompilerContext(pkgID, pkgRepo, sourceDoc, docManager,
-                stopOnSemanticErrors, enableNewParser);
+                stopOnSemanticErrors);
 
         context.put(DocumentServiceKeys.SOURCE_ROOT_KEY, projectRoot);
         context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, pkgID.getNameComps().stream()

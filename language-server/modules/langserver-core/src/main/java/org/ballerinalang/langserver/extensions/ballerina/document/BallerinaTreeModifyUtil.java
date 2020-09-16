@@ -189,7 +189,7 @@ public class BallerinaTreeModifyUtil {
                 .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
-        LSModuleCompiler.getBLangPackage(astContext, documentManager, false, false, false);
+        LSModuleCompiler.getBLangPackage(astContext, documentManager, false, false);
         BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         String fileName = compilationPath.toFile().getName();
 

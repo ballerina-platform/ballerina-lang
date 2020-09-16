@@ -71,11 +71,10 @@ public class LSContextManager {
      * @param packageID       package ID or null
      * @param projectDir      project directory path
      * @param documentManager {@link WorkspaceDocumentManager} Document Manager
-     * @param enableNewParser Whether enable new parser or not
      * @return compiler context
      */
     public CompilerContext getCompilerContext(@Nullable PackageID packageID, String projectDir,
-                                              WorkspaceDocumentManager documentManager, boolean enableNewParser) {
+                                              WorkspaceDocumentManager documentManager) {
         CompilerContext compilerContext = contextMap.get(projectDir);
 
         // TODO: Remove this fix once proper compiler fix is introduced
@@ -87,14 +86,12 @@ public class LSContextManager {
         }
 
         // TODO: Remove the enable new parser check later.
-        if (compilerContext == null || !enableNewParser) {
+        if (compilerContext == null) {
             synchronized (LSContextManager.class) {
                 compilerContext = contextMap.get(projectDir);
-                if (compilerContext == null || !enableNewParser) {
-                    compilerContext = this.createNewCompilerContext(projectDir, documentManager, enableNewParser);
-                    if (enableNewParser) {
-                        contextMap.put(projectDir, compilerContext);
-                    }
+                if (compilerContext == null) {
+                    compilerContext = this.createNewCompilerContext(projectDir, documentManager);
+                    contextMap.put(projectDir, compilerContext);
                 }
             }
         }
@@ -136,11 +133,10 @@ public class LSContextManager {
      */
     public CompilerContext getBuiltInPackagesCompilerContext() {
         //TODO: Revisit explicitly retrieving WorkspaceDocumentManagerImpl as doc manager
-        return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR, WorkspaceDocumentManagerImpl.getInstance(), true);
+        return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR, WorkspaceDocumentManagerImpl.getInstance());
     }
 
-    public CompilerContext createNewCompilerContext(String projectDir, WorkspaceDocumentManager documentManager,
-                                                    boolean enableNewParser) {
+    public CompilerContext createNewCompilerContext(String projectDir, WorkspaceDocumentManager documentManager) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, projectDir);
