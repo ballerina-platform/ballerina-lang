@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,22 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.syntax.declarations;
 
-import org.testng.annotations.Test;
+package org.ballerinalang.testerina.core;
+
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
- * Test parsing transactional resource function declaration.
- * 
- * @since Swan Lake
+ * Type check function ballerina/test#getBallerinaType.
  */
-public class TransactionalResourceFuncTest extends AbstractDeclarationTest {
+public class BallerinaTypeCheck {
+    private BallerinaTypeCheck() {
+    }
 
-    // Valid syntax tests
-
-    @Test
-    public void testTransactionalResourceFunctionName() {
-        test("transactional-resource/transaction_resource_func_source_01.bal",
-                "transactional-resource/transaction_resource_func_assert_01.json");
+    public static BString getBallerinaType(Object value) {
+        BType bType = TypeChecker.getType(value);
+        return org.ballerinalang.jvm.StringUtils.fromString(bType.getName());
     }
 }

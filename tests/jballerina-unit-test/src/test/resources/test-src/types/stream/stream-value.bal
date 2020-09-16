@@ -20,7 +20,7 @@ type ResultValue record {|
 
 class NumberGenerator {
     int i = 0;
-    public function next() returns record {| int value; |}? {
+    public isolated function next() returns record {| int value; |}? {
         self.i += 1;
         return { value: self.i };
     }
@@ -28,7 +28,7 @@ class NumberGenerator {
 
 class EvenNumberGenerator {
     int i = 0;
-    public function next() returns record {| int value; |}|error? {
+    public isolated function next() returns record {| int value; |}|error? {
         self.i += 2;
         return { value: self.i };
     }
@@ -36,7 +36,7 @@ class EvenNumberGenerator {
 
 class OddNumberGenerator {
     int i = 1;
-    public function next() returns record {| int value; |}|error? {
+    public isolated function next() returns record {| int value; |}|error? {
         self.i += 2;
         return { value: self.i };
     }
@@ -174,7 +174,7 @@ boolean closed = false;
 class IteratorWithCustomError {
     int i = 0;
 
-    public function next() returns record {| int value; |}|CustomError? {
+    public isolated function next() returns record {| int value; |}|CustomError? {
         self.i += 1;
         if (self.i == 2) {
             CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 1);
@@ -215,7 +215,7 @@ function testIteratorWithCustomError() returns boolean {
 class IteratorWithGenericError {
     int i = 0;
 
-    public function next() returns record {| int value; |}|error? {
+    public isolated function next() returns record {| int value; |}|error? {
         self.i += 1;
         if (self.i == 2) {
             return error("GenericError", message = "generic error occured");
@@ -250,7 +250,7 @@ function testIteratorWithGenericError() returns boolean {
 class IteratorWithOutError {
     int i = 0;
 
-    public function next() returns record {| int value; |}? {
+    public isolated function next() returns record {| int value; |}? {
         self.i += 1;
         return { value: self.i };
     }
@@ -284,7 +284,7 @@ type Error CustomError | CustomError1;
 class IteratorWithErrorUnion {
     int i = 0;
 
-    public function next() returns record {| int value; |}|Error? {
+    public isolated function next() returns record {| int value; |}|Error? {
         self.i += 1;
         if (self.i == 2) {
             CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 2);
@@ -322,7 +322,7 @@ function testIteratorWithErrorUnion() returns boolean {
 
 class NeverNumberGenerator {
     int i = 0;
-    public function next() returns record {| int value; |}?|never {
+    public isolated function next() returns record {| int value; |}?|never {
         self.i += 1;
         if (self.i < 3) {
             return { value: self.i };
@@ -355,7 +355,7 @@ function testStreamConstructWithNever() returns boolean {
 }
 
 class NumberStreamGenerator {
-    public function next() returns record {| stream<int> value; |}? {
+    public isolated function next() returns record {| stream<int> value; |}? {
          NumberGenerator numGen = new();
          stream<int> numberStream = new (numGen);
          return { value: numberStream};
