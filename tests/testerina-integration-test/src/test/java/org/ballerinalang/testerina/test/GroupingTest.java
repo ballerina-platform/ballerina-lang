@@ -106,18 +106,18 @@ public class GroupingTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = false)
+    @Test
     public void beforeGroupsAfterGroups1() throws BallerinaTestException {
-        String msg = "Value of a is 12345672869";
+        String msg = "2 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"before-groups-after-groups-test.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = false)
+    @Test
     public void beforeGroupsAfterGroups2() throws BallerinaTestException {
-        String msg = "Value of a is 123456787";
+        String msg = "5 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"before-groups-after-groups-test2.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
