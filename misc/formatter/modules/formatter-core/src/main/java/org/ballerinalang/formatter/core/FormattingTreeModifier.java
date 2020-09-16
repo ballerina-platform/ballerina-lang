@@ -126,6 +126,7 @@ import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
@@ -364,9 +365,15 @@ public class FormattingTreeModifier extends TreeModifier {
             functionDefinitionNode = functionDefinitionNode.modify()
                     .withMetadata(metadata).apply();
         }
+        boolean addSpaces = false;
+        if (functionDefinitionNode.parent() != null &&
+                functionDefinitionNode.parent().kind().equals(SyntaxKind.OBJECT_CONSTRUCTOR)) {
+            addSpaces = true;
+        }
+        int startColumn = getStartColumn(functionDefinitionNode, addSpaces);
         return functionDefinitionNode.modify()
-                .withFunctionKeyword(formatToken(functionKeyword, 0, 0, 0, 0))
-                .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0, 0))
+                .withFunctionKeyword(formatToken(functionKeyword, startColumn, 1, 0, 0))
+                .withFunctionName((IdentifierToken) formatToken(functionName, 0, 0, 0, 0))
                 .withFunctionSignature(functionSignatureNode)
                 .withQualifierList(qualifierList)
                 .withFunctionBody(functionBodyNode)
@@ -485,6 +492,10 @@ public class FormattingTreeModifier extends TreeModifier {
         int trailingNewLines = 2;
         if (functionBodyBlockNode.parent() != null && functionBodyBlockNode.parent().parent() != null &&
                 functionBodyBlockNode.parent().parent().kind() == (SyntaxKind.SERVICE_BODY)) {
+            trailingNewLines = 1;
+        }
+        if (functionBodyBlockNode.parent() != null &&
+                functionBodyBlockNode.parent().kind() == (SyntaxKind.OBJECT_METHOD_DEFINITION)) {
             trailingNewLines = 1;
         }
         int openingTrailingNewLines = 1;
@@ -2236,6 +2247,37 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
+    public ObjectConstructorExpressionNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        NodeList<AnnotationNode> annotations = this.modifyNodeList(objectConstructorExpressionNode.annotations());
+        NodeList<Token> objectTypeQualifiers = this.modifyNodeList(objectConstructorExpressionNode
+                .objectTypeQualifiers());
+        Token objectKeyword = getToken(objectConstructorExpressionNode.objectKeyword());
+        TypeDescriptorNode typeReference = this.modifyNode(objectConstructorExpressionNode
+                .typeReference().orElse(null));
+        Token openBraceToken = getToken(objectConstructorExpressionNode.openBraceToken());
+        NodeList<Node> members = this.modifyNodeList(objectConstructorExpressionNode.members());
+        Token closeBraceToken = getToken(objectConstructorExpressionNode.closeBraceToken());
+        if (typeReference != null) {
+            objectConstructorExpressionNode = objectConstructorExpressionNode.modify()
+                    .withTypeReference(typeReference).apply();
+        }
+        int trailingNewLines = 1;
+        if (objectConstructorExpressionNode.parent() != null &&
+                objectConstructorExpressionNode.parent().kind() == SyntaxKind.LOCAL_VAR_DECL) {
+            trailingNewLines = 0;
+        }
+        int startColumn = getStartColumn(objectConstructorExpressionNode, false);
+        return objectConstructorExpressionNode.modify()
+                .withAnnotations(annotations)
+                .withObjectTypeQualifiers(objectTypeQualifiers)
+                .withObjectKeyword(formatToken(objectKeyword, 0, 0, 0, 0))
+                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 1))
+                .withMembers(members)
+                .withCloseBraceToken(formatToken(closeBraceToken, startColumn, 0, 0, trailingNewLines))
+                .apply();
+    }
+
+    @Override
     public RecordTypeDescriptorNode transform(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         if (!isInLineRange(recordTypeDescriptorNode, lineRange)) {
             return recordTypeDescriptorNode;
@@ -2966,6 +3008,10 @@ public class FormattingTreeModifier extends TreeModifier {
             methodDeclarationNode = methodDeclarationNode.modify()
                     .withQualifierList(qualifierList).apply();
             addSpaces = false;
+        }
+        if (methodDeclarationNode.parent() != null && methodDeclarationNode.parent().parent() != null &&
+                methodDeclarationNode.parent().parent().kind() == SyntaxKind.TYPE_DEFINITION) {
+            addSpaces = true;
         }
         int startColumn = getStartColumn(methodDeclarationNode, addSpaces);
         FunctionSignatureNode methodSignature = this.modifyNode(methodDeclarationNode.methodSignature());

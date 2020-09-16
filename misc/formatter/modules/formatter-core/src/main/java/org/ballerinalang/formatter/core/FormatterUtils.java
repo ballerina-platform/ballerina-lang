@@ -114,6 +114,10 @@ class FormatterUtils {
                 grandParent.kind() == (SyntaxKind.RECORD_TYPE_DESC)) {
             return getParent(parent, syntaxKind);
         }
+        if (syntaxKind == (SyntaxKind.OBJECT_CONSTRUCTOR) &&
+                parentKind == (SyntaxKind.LOCAL_VAR_DECL)) {
+            return parent;
+        }
         if (parentKind == (SyntaxKind.SERVICE_DECLARATION) ||
                 parentKind == (SyntaxKind.BINARY_EXPRESSION)) {
             if (syntaxKind == (SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
@@ -132,6 +136,10 @@ class FormatterUtils {
             } else {
                 return parent;
             }
+        }
+        if (parentKind == (SyntaxKind.OBJECT_CONSTRUCTOR) && grandParent != null &&
+                grandParent.kind() == (SyntaxKind.LOCAL_VAR_DECL)) {
+            return grandParent;
         }
         if (grandParent != null) {
             return getParent(parent, syntaxKind);
