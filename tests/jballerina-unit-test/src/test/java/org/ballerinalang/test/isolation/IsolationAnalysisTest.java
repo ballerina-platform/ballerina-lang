@@ -39,11 +39,22 @@ public class IsolationAnalysisTest {
             "invalid access of mutable storage in an 'isolated' function";
     private static final String INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR =
             "invalid invocation of a non-isolated function in an 'isolated' function";
+    private static final String INVALID_NON_ISOLATED_INIT_EXPR_IN_ISOLATED_FUNC_ERROR =
+            "invalid non-isolated initialization expression in an 'isolated' function";
 
     private static final String INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT =
             "invalid access of mutable storage as the default value of a record field";
     private static final String INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT =
             "invalid invocation of a non-isolated function as the default value of a record field";
+    private static final String INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_FIELD_DEFAULT =
+            "invalid non-isolated initialization expression as the default value of a record field";
+
+    private static final String INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT =
+            "invalid access of mutable storage as the initializer of an object field";
+    private static final String INVALID_NON_ISOLATED_FUNCTION_CALL_AS_OBJECT_FIELD_DEFAULT =
+            "invalid invocation of a non-isolated function as the initializer of an object field";
+    private static final String INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_FIELD_DEFAULT =
+            "invalid non-isolated initialization expression as the initializer of an object field";
 
     private CompileResult result;
 
@@ -70,7 +81,8 @@ public class IsolationAnalysisTest {
                 "testIsolatedFunctionAsIsolatedFunctionRuntimeNegative",
                 "testIsolatedArrowFunctions",
                 "testConstantRefsInIsolatedFunctions",
-                "testIsolatedClosuresAsRecordDefaultValues"
+                "testIsolatedClosuresAsRecordDefaultValues",
+                "testIsolatedObjectFieldInitializers"
         };
     }
 
@@ -150,11 +162,31 @@ public class IsolationAnalysisTest {
         int i = 0;
         validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 22, 13);
         validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 23, 13);
-        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 30, 17);
-        validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 31, 20);
+        validateWarning(result, i++, INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_FIELD_DEFAULT, 24, 13);
+        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 31, 17);
         validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 32, 20);
-        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 32, 24);
+        validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 33, 20);
+        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 33, 24);
+        validateError(result, i, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 39, 25);
         Assert.assertEquals(result.getWarnCount(), i);
+        Assert.assertEquals(result.getErrorCount(), 1);
+
+    }
+
+    @Test
+    public void testNonIsolatedObjectFieldDefaultsNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/isolation-analysis/isolated_object_field_default_negative.bal");
+        int i = 0;
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 20, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 24, 13);
+        validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPR_IN_ISOLATED_FUNC_ERROR, 44, 14);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 47, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 51, 17);
+        validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPR_IN_ISOLATED_FUNC_ERROR, 58, 15);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_OBJECT_FIELD_DEFAULT, 68, 14);
+        validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_FIELD_DEFAULT, 74, 12);
+        Assert.assertEquals(result.getErrorCount(), i);
 
     }
 }
