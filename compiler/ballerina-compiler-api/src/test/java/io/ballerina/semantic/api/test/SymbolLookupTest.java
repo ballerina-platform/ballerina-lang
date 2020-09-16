@@ -234,7 +234,7 @@ public class SymbolLookupTest {
 
     @AfterClass
     public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/test_project", "testorg", "foo");
+        BaloCreator.clearPackageFromRepository("test-src/test-project", "testorg", "foo");
     }
 
     private void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {

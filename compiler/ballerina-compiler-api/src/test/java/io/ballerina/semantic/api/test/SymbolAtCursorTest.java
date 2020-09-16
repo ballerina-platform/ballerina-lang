@@ -192,7 +192,7 @@ public class SymbolAtCursorTest {
 
     @AfterClass
     public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/test_project", "testorg", "foo");
+        BaloCreator.clearPackageFromRepository("test-src/test-project", "testorg", "foo");
     }
 
     private CompileResult compile(String path, CompilerContext context) {
