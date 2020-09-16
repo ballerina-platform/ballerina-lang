@@ -140,12 +140,30 @@ public isolated function toJson(anydata v) returns json = external;
 public isolated function toJsonString(anydata v) returns string = external;
 
 # Parses a string in JSON format and returns the the value that it represents.
-# All numbers in the JSON will be represented as float values.
+# All integer numbers in the JSON will be represented as integer values.
+# All decimal numbers except -0.0 in the JSON will be represent as decimal values.
+# -0.0 in the JSON will be represent as float value.
 # Returns an error if the string cannot be parsed.
 #
 # + str - string representation of json
 # + return - `str` parsed to json or error
 public isolated function fromJsonString(string str) returns json|error = external;
+
+# Parses a string in JSON format and returns the value that it represents.
+# All numbers in the JSON will be represented as float values.
+# Returns an error if the string cannot be parsed.
+#
+# + str - string representation of json
+# + return - `str` parsed to json or error
+public function fromJsonFloatString(string str) returns json|error = external;
+
+# Parses a string in JSON format and returns the value that it represents.
+# All numbers in the JSON will be represented as decimal values.
+# Returns an error if the string cannot be parsed.
+#
+# + str - string representation of json
+# + return - `str` parsed to json or error
+public function fromJsonDecimalString(string str) returns json|error = external;
 
 # Converts a value of type json to a user-specified type.
 # This works the same as `cloneWithType`,
