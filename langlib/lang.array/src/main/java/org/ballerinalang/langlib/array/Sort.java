@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -69,14 +70,14 @@ public class Sort {
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];
         if (function != null) {
-            BType elementType = ((BFunctionType) function.getType()).retType;
-            if (!(elementType.getTag() == TypeTags.UNION_TAG &&
-                    ((BUnionType) elementType).getMemberTypes().size() > 2)) {
-                elemType = elementType;
-            }
+            elemType = ((BFunctionType) function.getType()).retType;
             for (int i = 0; i < arr.size(); i++) {
                 sortArr[i][0] = function.call(new Object[]{strand, arr.get(i), true});
                 sortArr[i][1] = arr.get(i);
+            }
+            if (elemType.getTag() == TypeTags.UNION_TAG &&
+                    ((BUnionType) elemType).getMemberTypes().size() > 2) {
+                elemType = TypeChecker.getType(sortArr[0][0]);
             }
         } else {
             for (int i = 0; i < arr.size(); i++) {

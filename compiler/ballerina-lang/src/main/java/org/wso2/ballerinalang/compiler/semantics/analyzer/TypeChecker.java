@@ -5388,6 +5388,9 @@ public class TypeChecker extends BLangNodeVisitor {
             BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
             pos = keyLambdaFunction.function.pos;
             returnType = keyLambdaFunction.function.type.getReturnType();
+            if (returnType.tag == TypeTags.SEMANTIC_ERROR) {
+                return;
+            }
         }
 
         if (!types.isOrderedType(returnType)) {
