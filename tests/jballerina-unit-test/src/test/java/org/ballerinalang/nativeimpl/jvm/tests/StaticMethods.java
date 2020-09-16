@@ -21,6 +21,8 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BalEnv;
+import org.ballerinalang.jvm.api.BalFuture;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -437,6 +439,50 @@ public class StaticMethods {
 
     public static boolean echoImmutableRecordField(MapValue value, BString key) {
         return value.getBooleanValue(key);
+    }
+
+    public static void addTwoNumbersSlowAsyncVoidSig(BalEnv env, long a, long b) {
+        BalFuture balFuture = env.markAsync();
+        new Thread(() -> {
+            sleep();
+            balFuture.complete(a + b);
+        }).start();
+    }
+
+    public static void addTwoNumbersFastAsyncVoidSig(BalEnv env, long a, long b) {
+        BalFuture balFuture = env.markAsync();
+        balFuture.complete(a + b);
+    }
+
+
+    public static long addTwoNumbersSlowAsync(BalEnv env, long a, long b) {
+        BalFuture balFuture = env.markAsync();
+        new Thread(() -> {
+            sleep();
+            balFuture.complete(a + b);
+        }).start();
+
+        return -38263;
+    }
+
+    public static long addTwoNumbersFastAsync(BalEnv env, long a, long b) {
+        BalFuture balFuture = env.markAsync();
+        balFuture.complete(a + b);
+
+        return -282619;
+    }
+
+    public static void addTwoNumbersBuggy(BalEnv env, long a, long b) {
+        // Buggy because env.markAsync() is not called
+        // TODO: see if we can verify this
+    }
+
+    private static void sleep() {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            assert false;
+        }
     }
 
     public static Object acceptAndReturnReadOnly(Object value) {

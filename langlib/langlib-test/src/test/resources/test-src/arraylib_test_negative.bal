@@ -139,7 +139,7 @@ function testArrSortNegativeScenarios() {
 
     (string|int)[] sortedArr5 = arr2.sort(array:DESCENDING, ());
 
-    (string|int)[] sortedArr6 = arr2.sort(array:DESCENDING, function((string|int) val) returns string|int {
+    (string|int)[] sortedArr6 = arr2.sort(array:DESCENDING, isolated function((string|int) val) returns string|int {
         return val;
     });
 
@@ -147,11 +147,11 @@ function testArrSortNegativeScenarios() {
 
     (map<string>)?[] sortedArr7 = arr3.sort();
 
-    (map<string>)?[] sortedArr8 = arr3.sort(array:ASCENDING, function((map<string>)? x) returns (map<string>)? {
+    (map<string>)?[] sortedArr8 = arr3.sort(array:ASCENDING, isolated function((map<string>)? x) returns (map<string>)? {
         return x;
     });
 
-    int[] sortedArr9 = arr.sort(array:ASCENDING, function(int x) returns int {
+    int[] sortedArr9 = arr.sort(array:ASCENDING, isolated function(int x) returns int {
             return x;
     }, "descending");
 
@@ -162,4 +162,13 @@ function testArrSortNegativeScenarios() {
     (string|int)[] sortedArr12 = array:sort(arr2, array:DESCENDING, ());
 
     (map<string>)?[] sortedArr13 = array:sort(arr3);
+
+    int[] sortedArr14 = array:sort(arr, array:ASCENDING, isolated function(int x) returns string[]|int => [x.toString(),
+    "World"]);
+
+    var addFunc1 = isolated function (int funcInt1) returns (int|string) {
+        return funcInt1;
+    };
+
+    int[] sortedArr15 = arr.sort(array:DESCENDING, addFunc1);
 }
