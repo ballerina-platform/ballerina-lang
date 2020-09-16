@@ -23,4 +23,4 @@
 #
 # + s - string representing a boolean value
 # + return - boolean that `s` represents, or an error if there is no such boolean
-public function fromString(string s) returns boolean|error = external;
+public isolated function fromString(string s) returns boolean|error = external;

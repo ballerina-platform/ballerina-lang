@@ -65,7 +65,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -281,6 +283,73 @@ public class Types {
         }
 
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BLangConstPattern constMatchPattern) {
+        BLangExpression constPatternExpr = constMatchPattern.expr;
+        BType constMatchPatternExprType = constPatternExpr.type;
+
+        if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef constVarRef = (BLangSimpleVarRef) constPatternExpr;
+            if (constVarRef.symbol == null) {
+                return symTable.noType;
+            }
+            BType constVarRefSymbolType = constVarRef.symbol.type;
+            if (isAssignable(constVarRefSymbolType, matchExprType)) {
+                return constVarRefSymbolType;
+            }
+            return symTable.noType;
+        }
+
+        // After the above check, according to spec all other const-patterns should be literals.
+        BLangLiteral constPatternLiteral = (BLangLiteral) constPatternExpr;
+
+        if (containsAnyType(constMatchPatternExprType)) {
+            return matchExprType;
+        } else if (containsAnyType(matchExprType)) {
+            return constMatchPatternExprType;
+        }
+
+        // This should handle specially
+        if (matchExprType.tag == TypeTags.BYTE && constMatchPatternExprType.tag == TypeTags.INT) {
+            return matchExprType;
+        }
+
+        if (isAssignable(constMatchPatternExprType, matchExprType)) {
+            return constMatchPatternExprType;
+        }
+
+        if (matchExprType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) matchExprType).getMemberTypes()) {
+                if (memberType.tag == TypeTags.FINITE) {
+                    if (isAssignableToFiniteType(memberType, constPatternLiteral)) {
+                        return memberType;
+                    }
+                } else {
+                    if (isAssignable(constMatchPatternExprType, matchExprType)) {
+                        return constMatchPatternExprType;
+                    }
+                }
+            }
+        } else if (matchExprType.tag == TypeTags.FINITE) {
+            if (isAssignableToFiniteType(matchExprType, constPatternLiteral)) {
+                return matchExprType;
+            }
+        }
+        return symTable.noType;
+    }
+
+    public boolean containsAnyType(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return type.tag == TypeTags.ANY;
+        }
+
+        for (BType memberTypes : ((BUnionType) type).getMemberTypes()) {
+            if (memberTypes.tag == TypeTags.ANY) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isSubTypeOfMapping(BType type) {
@@ -913,6 +982,10 @@ public class Types {
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
                                              Set<TypePair> unresolvedTypes) {
+        if (hasIncompatibleIsolatedFlags(source, target)) {
+            return false;
+        }
+
         // For invokable types with typeParam parameters, we have to check whether the source param types are
         // covariant with the target param types.
         if (containsTypeParams(target)) {
@@ -1117,6 +1190,10 @@ public class Types {
 
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
                                               Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
+        if (hasIncompatibleIsolatedFlags(source, target)) {
+            return false;
+        }
+
         if (source.paramTypes.size() != target.paramTypes.size()) {
             return false;
         }
@@ -1142,6 +1219,10 @@ public class Types {
 
         // Source return type should be covariant with target return type
         return isAssignable(source.retType, target.retType, unresolvedTypes);
+    }
+
+    private boolean hasIncompatibleIsolatedFlags(BInvokableType source, BInvokableType target) {
+        return Symbols.isFlagOn(target.flags, Flags.ISOLATED) && !Symbols.isFlagOn(source.flags, Flags.ISOLATED);
     }
 
     public boolean isSameArrayType(BType source, BType target, Set<TypePair> unresolvedTypes) {

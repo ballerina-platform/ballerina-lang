@@ -400,6 +400,8 @@ public enum DiagnosticCode {
     MATCH_STMT_UNREACHABLE_PATTERN("match.stmt.unreachable.pattern"),
     MATCH_STMT_UNMATCHED_PATTERN("match.stmt.unmatched.pattern"),
     MATCH_STMT_PATTERN_ALWAYS_MATCHES("match.stmt.pattern.always.matches"),
+    MATCH_STMT_PATTERN_UNREACHABLE("match.stmt.unreachable.pattern.available"),
+    MATCH_PATTERN_NOT_SUPPORTED("match.pattern.not.supported"),
     MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
 
     THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),
@@ -571,6 +573,14 @@ public enum DiagnosticCode {
     INVALID_RAW_TEMPLATE_ASSIGNMENT("invalid.raw.template.assignment"),
     INVALID_NUM_FIELDS("invalid.number.of.fields"),
     METHODS_NOT_ALLOWED("methods.not.allowed"),
+
+    INVALID_MUTABLE_ACCESS_IN_ISOLATED_FUNCTION("invalid.mutable.access.in.isolated.function"),
+    INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("invalid.mutable.access.as.record.default"),
+    INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION("invalid.non.isolated.invocation.in.isolated.function"),
+    INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT("invalid.non.isolated.invocation.as.record.default"),
+    INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION("invalid.async.invocation.in.isolated.function"),
+    INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION("invalid.worker.declaration.in.isolated.function"),
+    FUNCTION_CAN_BE_MARKED_ISOLATED("function.can.be.marked.isolated"),
 
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;
