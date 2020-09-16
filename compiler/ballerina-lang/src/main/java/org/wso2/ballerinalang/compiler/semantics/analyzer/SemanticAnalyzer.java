@@ -2333,12 +2333,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         NodeKind patternKind = varBindingPattern.getBindingPattern().getKind();
         BType matchExprType = varBindingPattern.matchExpr.type;
 
+        analyzeNode(varBindingPattern.getBindingPattern(), env);
         switch (patternKind) {
             case CAPTURE_BINDING_PATTERN:
                 varBindingPattern.type = matchExprType;
+                ((BLangCaptureBindingPattern) varBindingPattern.getBindingPattern()).symbol.type = matchExprType;
                 break;
         }
-        analyzeNode(varBindingPattern.getBindingPattern(), env);
     }
 
     @Override
