@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.nativeimpl.java;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**

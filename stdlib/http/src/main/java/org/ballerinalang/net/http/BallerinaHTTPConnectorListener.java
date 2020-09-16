@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.api.BExecutor;
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.runtime.RuntimeConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -52,9 +52,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private final HTTPServicesRegistry httpServicesRegistry;
 
-    protected final MapValue endpointConfig;
+    protected final BMap endpointConfig;
 
-    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry, MapValue endpointConfig) {
+    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry, BMap endpointConfig) {
         this.httpServicesRegistry = httpServicesRegistry;
         this.endpointConfig = endpointConfig;
     }
@@ -113,9 +113,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
         }
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
-        ObjectValue service = httpResource.getParentService().getBalService();
-        Executor.submit(httpServicesRegistry.getScheduler(), service, httpResource.getName(), null,
-                        ON_MESSAGE_METADATA, callback, properties, signatureParams);
+        BObject service = httpResource.getParentService().getBalService();
+        BExecutor.submit(httpServicesRegistry.getScheduler(), service, httpResource.getName(), null,
+                         ON_MESSAGE_METADATA, callback, properties, signatureParams);
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {

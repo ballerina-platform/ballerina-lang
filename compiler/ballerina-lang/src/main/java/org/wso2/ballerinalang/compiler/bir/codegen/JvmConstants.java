@@ -25,7 +25,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 public class JvmConstants {
 
     // jvm values public API classes
-    public static final String BXML_QNAME = "org/ballerinalang/jvm/values/api/BXMLQName";
+    public static final String BXML_QNAME = "org/ballerinalang/jvm/api/values/BXMLQName";
 
     // jvm runtime values related classes
     public static final String MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
@@ -37,9 +37,9 @@ public class JvmConstants {
     public static final String ABSTRACT_OBJECT_VALUE = "org/ballerinalang/jvm/values/AbstractObjectValue";
     public static final String REF_VALUE = "org/ballerinalang/jvm/values/RefValue";
     public static final String ERROR_VALUE = "org/ballerinalang/jvm/values/ErrorValue";
-    public static final String B_ERROR = "org/ballerinalang/jvm/values/api/BError";
+    public static final String B_ERROR = "org/ballerinalang/jvm/api/values/BError";
     public static final String STRING_VALUE = "java/lang/String";
-    public static final String B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
+    public static final String B_STRING_VALUE = "org/ballerinalang/jvm/api/values/BString";
     public static final String NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
     public static final String BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
     public static final String LONG_VALUE = "java/lang/Long";
@@ -64,9 +64,9 @@ public class JvmConstants {
     public static final String TABLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TableValueImpl";
     public static final String SIMPLE_VALUE = "org/ballerinalang/jvm/values/SimpleValue";
 
-    public static final String BHANDLE = "org/ballerinalang/jvm/values/api/BHandle";
+    public static final String BHANDLE = "org/ballerinalang/jvm/api/values/BHandle";
 
-    public static final String BINITIAL_VALUE_ENTRY = "org/ballerinalang/jvm/values/api/BInitialValueEntry";
+    public static final String BINITIAL_VALUE_ENTRY = "org/ballerinalang/jvm/api/values/BInitialValueEntry";
     public static final String MAPPING_INITIAL_VALUE_ENTRY = "org/ballerinalang/jvm/values/MappingInitialValueEntry";
     public static final String MAPPING_INITIAL_KEY_VALUE_ENTRY =
             "org/ballerinalang/jvm/values/MappingInitialValueEntry$KeyValueEntry";
@@ -119,8 +119,9 @@ public class JvmConstants {
     public static final String WORKER_UTILS = "org/ballerinalang/jvm/scheduling/WorkerUtils";
     public static final String MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
     public static final String TABLE_UTILS = "org/ballerinalang/jvm/TableUtils";
-    public static final String STRING_UTILS = "org/ballerinalang/jvm/StringUtils";
-    public static final String BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
+    public static final String B_STRING_UTILS = "org/ballerinalang/jvm/api/BStringUtils";
+    public static final String ERROR_UTILS = "org/ballerinalang/jvm/internal/ErrorUtils";
+    public static final String B_ERROR_CREATOR = "org/ballerinalang/jvm/api/BErrorCreator";
     public static final String RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
     public static final String ARGUMENT_PARSER = "org/ballerinalang/jvm/util/ArgumentParser";
     public static final String LAUNCH_UTILS = "org/ballerinalang/jvm/launch/LaunchUtils";
