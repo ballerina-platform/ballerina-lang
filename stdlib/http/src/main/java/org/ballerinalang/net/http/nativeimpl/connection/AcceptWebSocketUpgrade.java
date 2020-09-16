@@ -17,10 +17,10 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
@@ -40,7 +40,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 public class AcceptWebSocketUpgrade {
     private static final Logger log = LoggerFactory.getLogger(AcceptWebSocketUpgrade.class);
 
-    public static Object acceptWebSocketUpgrade(ObjectValue httpCaller,
+    public static Object acceptWebSocketUpgrade(BObject httpCaller,
                                                 MapValue<BString, BString> headers) {
         NonBlockingCallback callback = new NonBlockingCallback(Scheduler.getStrand());
         try {
@@ -102,7 +102,7 @@ public class AcceptWebSocketUpgrade {
 
         @Override
         public void onSuccess(WebSocketConnection webSocketConnection) {
-            ObjectValue webSocketEndpoint = WebSocketUtil.createAndPopulateWebSocketCaller(
+            BObject webSocketEndpoint = WebSocketUtil.createAndPopulateWebSocketCaller(
                     webSocketConnection, webSocketService, connectionManager);
             callback.setReturnValues(webSocketEndpoint);
             callback.notifySuccess();

@@ -975,7 +975,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private Name getFuncName(BInvokableSymbol symbol) {
         if (symbol.receiverSymbol == null) {
-            return symbol.name;
+            return names.fromString(symbol.name.value);
         }
 
         int offset = symbol.receiverSymbol.type.tsymbol.name.value.length() + 1;

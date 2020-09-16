@@ -206,21 +206,6 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "READONLY_KEYWORD",
-                  "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
                   "kind": "UNION_TYPE_DESC",
                   "children": [
                     {
@@ -228,7 +213,13 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "Foo"
+                          "value": "Foo",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -271,21 +262,6 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "READONLY_KEYWORD",
-                  "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
                   "kind": "UNION_TYPE_DESC",
                   "children": [
                     {
@@ -293,7 +269,13 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "Foo"
+                          "value": "Foo",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         }
                       ]
                     },

@@ -301,5 +301,5 @@ function externCancelWebSocketUpgrade(Caller caller, int status, string reason) 
 @java:Method {
     'class: "org.ballerinalang.net.http.nativeimpl.connection.CancelWebSocketUpgrade",
     name: "cancelWebSocketUpgrade",
-    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "org.ballerinalang.jvm.values.api.BString"]
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "org.ballerinalang.jvm.api.values.BString"]
 } external;

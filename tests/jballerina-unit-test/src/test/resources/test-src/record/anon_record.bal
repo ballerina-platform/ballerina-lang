@@ -71,7 +71,7 @@ function testCodeAnalyzerRunningOnAnonymousRecordsForDeprecatedFunctionAnnotatio
 }
 
 @deprecated
-function Test() returns int { return 0;}
+isolated function Test() returns int { return 0;}
 
 function testAnonRecordAsRestFieldOfAnonRecord() {
     record {|

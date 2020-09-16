@@ -1273,7 +1273,7 @@
                     "isOptional": true
                 },
                 {
-                    "name": "readonlyKeyword",
+                    "name": "finalKeyword",
                     "type": "Token",
                     "isOptional": true
                 },
@@ -2483,6 +2483,11 @@
             "kind": "FUNCTION_TYPE_DESC",
             "attributes": [
                 {
+                    "name": "qualifierList",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
+                },
+                {
                     "name": "functionKeyword",
                     "type": "Token"
                 },
@@ -2530,6 +2535,11 @@
                 {
                     "name": "annotations",
                     "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "qualifierList",
+                    "type": "Token",
                     "occurrences": "MULTIPLE"
                 },
                 {

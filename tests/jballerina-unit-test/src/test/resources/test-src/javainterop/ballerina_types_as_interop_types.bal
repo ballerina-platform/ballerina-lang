@@ -611,8 +611,8 @@ function testNarrowerTypesAsReadOnlyReturnTypes() {
 }
 
 readonly class Bar {
-    readonly int i;
-    readonly string s = "hello world";
+    final int i;
+    final string s = "hello world";
 
     function init(int i) {
         self.i = i;

@@ -18,6 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -46,6 +48,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -93,6 +96,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
 public class JvmCodeGenUtil {
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
     public static final String INITIAL_MEHOD_DESC = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
+    private static final Pattern IMMUTABLE_TYPE_CHAR_PATTERN = Pattern.compile("[/.]");
+    private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
 
     public static final String SCOPE_PREFIX = "_SCOPE_";
 
@@ -132,18 +137,22 @@ public class JvmCodeGenUtil {
     }
 
     /**
-     * Cleanup type name by replacing '$' with '_'.
+     * Cleanup type name for readonly types by replacing '. /' with '_'.
      *
-     * @param name name to be replaced and cleaned
+     * @param name type name to be replaced and cleaned
      * @return cleaned name
      */
-    static String cleanupTypeName(String name) {
-        return name.replaceAll("[/$ .]", "_");
+    static String cleanupReadOnlyTypeName(String name) {
+        return IMMUTABLE_TYPE_CHAR_PATTERN.matcher(name).replaceAll("_");
     }
 
     static String cleanupPathSeparators(String name) {
         name = cleanupBalExt(name);
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
+    }
+
+    static String rewriteVirtualCallTypeName(String value) {
+        return StringEscapeUtils.unescapeJava(cleanupObjectTypeName(value));
     }
 
     private static String cleanupBalExt(String name) {
@@ -257,8 +266,10 @@ public class JvmCodeGenUtil {
         return STRAND_METADATA_VAR_PREFIX + parentFunction + "$";
     }
 
+    //TODO:Remove this method after fixing issue #25745
     public static String cleanupFunctionName(String functionName) {
-        return functionName.replaceAll("[\\.:/<>]", "_");
+        return StringUtils.containsAny(functionName, "\\.:/<>") ?
+                "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;
     }
 
     static boolean isExternFunc(BIRNode.BIRFunction func) {

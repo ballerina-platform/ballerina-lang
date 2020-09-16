@@ -26,6 +26,7 @@ public class Flags {
 
     public static final int PUBLIC = 1;
     public static final int NATIVE = 2;
+    public static final int FINAL = 4;
     public static final int ATTACHED = 8;
     public static final int READONLY = 32;
     public static final int REQUIRED = 256;
@@ -35,6 +36,7 @@ public class Flags {
     public static final int RESOURCE = 131072;
     public static final int SERVICE = 262144;
     public static final int CLASS = 268435456;
+    public static final int ISOLATED = 536870912;
 
     public static boolean isFlagOn(int bitmask, int flag) {
         return (bitmask & flag) == flag;

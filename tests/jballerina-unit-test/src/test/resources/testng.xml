@@ -44,6 +44,7 @@
 
             <!-- has complex match stmt usages -->
             <!-- <package name="org.ballerinalang.test.dataflow.analysis.*"/> -->
+            <package name="org.ballerinalang.test.isolation.*"/>
 
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.net.*"/>

@@ -45,6 +45,8 @@ import java.util.function.Function;
 @JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
 public class JVMEmbeddedExecutor implements EmbeddedExecutor {
 
+    private static final String MODULE_INIT_CLASS = ".$_init";
+
     /**
      * {@inheritDoc}
      */
@@ -96,7 +98,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +
-                                                       moduleVersion.replace(".", "_") + ".___init");
+                                                       moduleVersion.replace(".", "_") + MODULE_INIT_CLASS);
             final Method initMethod = initClazz.getDeclaredMethod("$moduleStart", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
@@ -205,7 +207,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +
-                                                       moduleVersion.replace(".", "_") + ".___init");
+                                                       moduleVersion.replace(".", "_") + MODULE_INIT_CLASS);
             final Method initMethod = initClazz.getDeclaredMethod("$moduleInit", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
