@@ -26,6 +26,7 @@ import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
@@ -64,6 +65,8 @@ import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE_PRO
  */
 public class GenerateBalo {
 
+    private static final String LOG_ISOLATION_WARNINGS_PROP = "BALLERINA_DEV_LOG_ISOLATION_WARNINGS";
+
     public static void main(String[] args) throws IOException {
         String isBuiltinFlag = args[0];
         String sourceDir = args[1];
@@ -85,7 +88,8 @@ public class GenerateBalo {
             boolean reportWarnings = !skipReportingWarnings;
 
             genBalo(targetDir, sourceDir, reportWarnings, Boolean.parseBoolean(jvmTarget),
-                    new HashSet<>(Arrays.asList(moduleFilter.split(","))));
+                    new HashSet<>(Arrays.asList(moduleFilter.split(","))),
+                    Boolean.parseBoolean(System.getenv(LOG_ISOLATION_WARNINGS_PROP)));
         } finally {
             unsetProperty(COMPILE_BALLERINA_ORG_PROP, originalShouldCompileBalOrg);
             unsetProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, originalIsBuiltin);
@@ -102,33 +106,29 @@ public class GenerateBalo {
     }
 
     private static void genBalo(String targetDir, String sourceRootDir, boolean reportWarnings, boolean jvmTarget,
-                                Set<String> docModuleFilter) throws IOException {
+                                Set<String> docModuleFilter, boolean logIsolationWarnings)
+            throws IOException {
         Files.createDirectories(Paths.get(targetDir));
 
         CompilerContext context = new CompilerContext();
-
         CompileResult.CompileResultDiagnosticListener diagListner = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, diagListner);
-
         context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRootDir, targetDir));
-
-        CompilerPhase compilerPhase = CompilerPhase.CODE_GEN;
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootDir);
         options.put(OFFLINE, Boolean.TRUE.toString());
         options.put(BALO_GENERATION, Boolean.TRUE.toString());
-        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(SKIP_TESTS, Boolean.TRUE.toString());
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
-
 
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> buildPackages = compiler.compilePackages(false);
         BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
 
         List<Diagnostic> diagnostics = diagListner.getDiagnostics();
-        printErrors(reportWarnings, diagListner, diagnostics);
+        printErrors(reportWarnings, diagListner, diagnostics, logIsolationWarnings);
 
         compiler.write(buildPackages);
 
@@ -160,11 +160,12 @@ public class GenerateBalo {
     }
 
     private static void printErrors(boolean reportWarnings, CompileResult.CompileResultDiagnosticListener diagListner,
-                                    List<Diagnostic> diagnostics) {
+                                    List<Diagnostic> diagnostics, boolean logIsolationWarnings) {
         int deprecatedWarnCount = 0;
         if (reportWarnings && diagListner.getWarnCount() > 0) {
             for (Diagnostic diagnostic : diagListner.getDiagnostics()) {
-                if (diagnostic.getCode() == USAGE_OF_DEPRECATED_CONSTRUCT) {
+                DiagnosticCode code = diagnostic.getCode();
+                if (code == USAGE_OF_DEPRECATED_CONSTRUCT || (!logIsolationWarnings && isIsolatedWarningLog(code))) {
                     deprecatedWarnCount++;
                 }
             }
@@ -198,5 +199,15 @@ public class GenerateBalo {
             Path path = Paths.get(targetDir, dirName, compiledPackage.getPackageID().version.value);
             super.saveCompiledPackage(compiledPackage, path, fileName);
         }
+    }
+
+    private static boolean isIsolatedWarningLog(DiagnosticCode code) {
+        switch (code) {
+            case FUNCTION_CAN_BE_MARKED_ISOLATED:
+            case INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT:
+            case INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT:
+                return true;
+        }
+        return false;
     }
 }

@@ -202,7 +202,7 @@ class IterHelper {
       self.outputType = outputType;
     }
 
-    public function next() returns record {|Type value;|}|error? {
+    public isolated function next() returns record {|Type value;|}|error? {
         _StreamPipeline p = self.pipeline;
         _Frame|error? f = p.next();
         if (f is _Frame) {

@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completion.latest;
 
 import org.testng.annotations.DataProvider;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,6 +41,6 @@ public class ClassDefContextTest extends CompletionTestNew {
 
     @Override
     public List<String> skipList() {
-        return Collections.singletonList("config3.json");
+        return Arrays.asList("config3.json", "config8.json");
     }
 }

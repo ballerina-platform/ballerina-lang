@@ -18,27 +18,27 @@
 #
 # + xs - decimal values to sum
 # + return - sum of all the `xs`; 0 if `xs` is empty
-public function sum(decimal... xs) returns decimal = external;
+public isolated function sum(decimal... xs) returns decimal = external;
 
 # Maximum of one or more decimal values.
 #
 # + x - first decimal value
 # + xs - other decimal values
 # + return - maximum value of `x` and all the `xs`
-public function max(decimal x, decimal... xs) returns decimal = external;
+public isolated function max(decimal x, decimal... xs) returns decimal = external;
 
 # Minimum of one or more decimal values
 #
 # + x - first decimal value
 # + xs - other decimal values
 # + return - minimum value of `x` and all the `xs`.
-public function min(decimal x, decimal... xs) returns decimal = external;
+public isolated function min(decimal x, decimal... xs) returns decimal = external;
 
 # IEEE abs operation.
 #
 # + x - decimal value to operate on
 # + return - absolute value of `x`
-public function abs(decimal x) returns decimal = external;
+public isolated function abs(decimal x) returns decimal = external;
 
 # Round a decimal to the closest integral value.
 # Returns the decimal value that is a mathematical integer and closest to `x`.
@@ -52,19 +52,19 @@ public function abs(decimal x) returns decimal = external;
 #
 # + x - decimal value to operate on
 # + return - closest decimal value to `x` that is a mathematical integer
-public function round(decimal x) returns decimal = external;
+public isolated function round(decimal x) returns decimal = external;
 
 # Rounds a decimal down to the closest integral value.
 #
 # + x - decimal value to operate on
 # + return - largest (closest to +∞) decimal value not greater than `x` that is a mathematical integer.
-public function floor(decimal x) returns decimal = external;
+public isolated function floor(decimal x) returns decimal = external;
 
 # Rounds a decimal up to the closest integral value.
 #
 # + x - decimal value to operate on
 # + return - smallest (closest to -∞) decimal value not less than `x` that is a mathematical integer
-public function ceiling(decimal x) returns decimal = external;
+public isolated function ceiling(decimal x) returns decimal = external;
 
 # Return the decimal value represented by `s`.
 # `s` must follow the syntax of DecimalFloatingPointNumber as defined by the Ballerina specification
@@ -75,4 +75,4 @@ public function ceiling(decimal x) returns decimal = external;
 #
 # + s - string representation of a decimal
 # + return - decimal representation of the argument or error
-public function fromString(string s) returns decimal|error = external;
+public isolated function fromString(string s) returns decimal|error = external;

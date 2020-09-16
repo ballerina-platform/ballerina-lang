@@ -25,7 +25,7 @@ class XMLIterator {
 
     # Return next member or nil if end of iteration is reached.
     # + return - iterator result
-    public function next() returns record {|
+    public isolated function next() returns record {|
         (xml|string) value;
     |}? = external;
 }
