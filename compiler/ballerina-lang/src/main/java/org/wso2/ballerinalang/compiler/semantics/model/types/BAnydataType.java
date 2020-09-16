@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -81,13 +82,18 @@ public class BAnydataType extends BUnionType implements SelectivelyImmutableRefe
     }
 
     @Override
-    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
-        return visitor.visit(this, t);
+    public TypeKind getKind() {
+        return TypeKind.ANYDATA;
     }
 
     @Override
-    public TypeKind getKind() {
-        return TypeKind.ANYDATA;
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
+        return visitor.visit(this, t);
     }
 
 }
