@@ -49,7 +49,7 @@ public class TesterinaFunction {
         this.scheduler = scheduler;
     }
 
-    public Object invoke() throws BallerinaException {
+    public Object invoke() {
         return runOnSchedule(programFile, bFunctionName, scheduler, new Class[]{Strand.class}, new Object[1]);
     }
 
@@ -105,7 +105,6 @@ public class TesterinaFunction {
                 try {
                     return method.invoke(null, objects);
                 } catch (InvocationTargetException e) {
-                    //throw new BallerinaException(e);
                     return e.getTargetException();
                 } catch (IllegalAccessException e) {
                     throw new BallerinaException("Error while invoking function '" + funcName + "'", e);

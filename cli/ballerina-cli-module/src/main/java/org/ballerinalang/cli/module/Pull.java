@@ -21,7 +21,7 @@ import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.cli.module.util.ErrorUtil;
 import org.ballerinalang.cli.module.util.Utils;
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 
 import java.io.BufferedReader;
@@ -285,7 +285,7 @@ public class Pull {
             }
 
             MapValue payload = (MapValue) JSONParser.parse(result.toString());
-            createError("error: " + payload.getStringValue(StringUtils.fromString("message")));
+            createError("error: " + payload.getStringValue(BStringUtils.fromString("message")));
         } catch (IOException e) {
             createError("failed to pull the module '" + moduleFullName + "' from the remote repository '" + url + "'");
         }

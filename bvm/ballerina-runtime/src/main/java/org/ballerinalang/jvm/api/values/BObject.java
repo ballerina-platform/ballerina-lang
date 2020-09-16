@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.values.api;
+package org.ballerinalang.jvm.api.values;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BObjectType;
@@ -47,7 +47,7 @@ public interface BObject extends BRefValue {
 
     boolean getBooleanValue(BString fieldName);
 
-    BMap<?, ?> getMapValue(BString fieldName);
+    BMap getMapValue(BString fieldName);
 
     BObject getObjectValue(BString fieldName);
 

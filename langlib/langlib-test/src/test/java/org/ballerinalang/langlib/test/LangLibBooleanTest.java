@@ -18,12 +18,13 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -51,7 +52,7 @@ public class LangLibBooleanTest {
 
     @Test(dataProvider = "InputList")
     public void testFromString(String val, Object expectedVal) {
-        BRunUtil.invoke(compileResult, "testFromString", new Object[]{StringUtils.fromString(val), expectedVal});
+        BRunUtil.invoke(compileResult, "testFromString", new Object[]{BStringUtils.fromString(val), expectedVal});
     }
 
     @DataProvider(name = "InputList")
@@ -72,10 +73,10 @@ public class LangLibBooleanTest {
         };
     }
 
-    private ErrorValue getError(String value) {
-        String reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
-        String msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+    private BError getError(String value) {
+        BString reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
+        BString msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                 BTypes.typeString, value, BTypes.typeBoolean);
-        return BallerinaErrors.createError(reason, msg);
+        return BErrorCreator.createError(reason, msg);
     }
 }

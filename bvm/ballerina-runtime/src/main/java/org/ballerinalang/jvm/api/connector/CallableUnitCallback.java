@@ -15,22 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.values.api;
+package org.ballerinalang.jvm.api.connector;
+
+import org.ballerinalang.jvm.api.values.BError;
 
 /**
- * <p>
- * Represent an opaque handle value in jBallerina.
- * </p>
- *  
- * @since 1.1.0
+ * This interface represents a callback to report back a success or a
+ * failure state back to the originator.
+ *
+ * @since 0.995.0
  */
-public interface BHandle extends BRefValue {
+public interface CallableUnitCallback {
 
     /**
-     * Returns the internal value of the handle.
-     *
-     * @return {@code Object} value
+     * This should be called when you want to notify that your operation
+     * is done successfully.
      */
-    Object getValue();
+    void notifySuccess();
+
+    /**
+     * This should be called to notify the listener that your operation
+     * failed with a specific error.
+     *
+     * @param error the error to be reported when the operation failed
+     */
+    void notifyFailure(BError error);
 
 }

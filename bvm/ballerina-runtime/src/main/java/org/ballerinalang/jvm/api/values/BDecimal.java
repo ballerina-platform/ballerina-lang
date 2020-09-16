@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.jvm.values.api;
+package org.ballerinalang.jvm.api.values;
 
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.types.BType;

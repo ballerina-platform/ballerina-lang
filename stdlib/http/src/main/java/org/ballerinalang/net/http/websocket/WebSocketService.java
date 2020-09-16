@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http.websocket;
 
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WebSocketService {
 
-    protected final ObjectValue service;
+    protected final BObject service;
     protected Scheduler scheduler;
     private final Map<String, AttachedFunction> resourcesMap = new ConcurrentHashMap<>();
 
@@ -39,13 +39,13 @@ public class WebSocketService {
         service = null;
     }
 
-    public WebSocketService(ObjectValue service, Scheduler scheduler) {
+    public WebSocketService(BObject service, Scheduler scheduler) {
         this.scheduler = scheduler;
         this.service = service;
         populateResourcesMap(service);
     }
 
-    private void populateResourcesMap(ObjectValue service) {
+    private void populateResourcesMap(BObject service) {
         for (AttachedFunction resource : service.getType().getAttachedFunctions()) {
             resourcesMap.put(resource.getName(), resource);
         }
@@ -55,7 +55,7 @@ public class WebSocketService {
         return resourcesMap.get(resourceName);
     }
 
-    public ObjectValue getBalService() {
+    public BObject getBalService() {
         return service;
     }
 

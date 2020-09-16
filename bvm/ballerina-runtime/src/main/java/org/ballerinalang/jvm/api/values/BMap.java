@@ -15,9 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.values.api;
+package org.ballerinalang.jvm.api.values;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.Collection;
 import java.util.Map;
@@ -154,4 +157,34 @@ public interface BMap<K, V> extends BRefValue, BCollection {
      * @return <tt>true</tt> if this map contains no key-value mappings
      */
     boolean isEmpty();
+
+    /**
+     * Add native data to the MapValue.
+     *
+     * @param key  key to identify native value.
+     * @param data value to be added.
+     */
+    void addNativeData(String key, Object data);
+
+    /**
+     * Get native data.
+     *
+     * @param key key to identify native value.
+     * @return value for the given key.
+     */
+    Object getNativeData(String key);
+
+    Long getIntValue(BString key);
+
+    Double getFloatValue(BString key);
+
+    BString getStringValue(BString key);
+
+    Boolean getBooleanValue(BString key);
+
+    MapValue<?, ?> getMapValue(BString key);
+
+    ObjectValue getObjectValue(BString key);
+
+    ArrayValue getArrayValue(BString key);
 }

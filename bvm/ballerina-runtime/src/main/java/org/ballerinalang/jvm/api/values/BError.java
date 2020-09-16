@@ -15,12 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.values.api;
+package org.ballerinalang.jvm.api.values;
 
+import org.ballerinalang.jvm.values.ArrayValue;
 
 import java.io.PrintWriter;
-
-import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
 
 /**
  * <p>
@@ -30,6 +29,8 @@ import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
  * @since 1.1.0
  */
 public abstract class BError extends RuntimeException implements BRefValue {
+
+    public static final String ERROR_PRINT_PREFIX = "error: ";
 
     @Deprecated
     public BError(String message) {
@@ -75,5 +76,12 @@ public abstract class BError extends RuntimeException implements BRefValue {
      * @return stack trace string
      */
     public abstract String getPrintableStackTrace();
+
+    /**
+     * Returns error stack trace as a array.
+     *
+     * @return ballerina error stacktrace
+     */
+    public abstract ArrayValue getCallStack();
 
 }

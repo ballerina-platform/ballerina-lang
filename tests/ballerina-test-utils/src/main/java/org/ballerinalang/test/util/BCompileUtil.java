@@ -645,8 +645,8 @@ public class BCompileUtil {
 
             final Runtime runtime = Runtime.getRuntime();
             final Process process = runtime.exec(actualArgs.toArray(new String[0]));
-            String consoleInput = getConsoleOutput(process.getInputStream());
             String consoleError = getConsoleOutput(process.getErrorStream());
+            String consoleInput = getConsoleOutput(process.getInputStream());
             process.waitFor();
             int exitValue = process.exitValue();
             return new ExitDetails(exitValue, consoleInput, consoleError);

@@ -14,8 +14,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm;
+package org.ballerinalang.jvm.api;
 
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
@@ -23,8 +25,6 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -52,6 +52,7 @@ public class BRuntime {
         return new BRuntime(strand.scheduler);
     }
 
+
      /**
       * Invoke Object method asynchronously. This will schedule the function and block the strand.
       *
@@ -64,7 +65,7 @@ public class BRuntime {
       * @param args       Ballerina function arguments.
       * @return the result of the function invocation
       */
-     public Object invokeMethodAsync(ObjectValue object, String methodName, String strandName, StrandMetadata metadata,
+     public Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                      CallableUnitCallback callback, Object... args) {
          Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
          return scheduler.schedule(new Object[1], func, null, callback, strandName, metadata).result;
@@ -82,7 +83,7 @@ public class BRuntime {
      * @param properties Set of properties for strand
      * @param args       Ballerina function arguments.
      */
-    public void invokeMethodAsync(ObjectValue object, String methodName, String strandName, StrandMetadata metadata,
+    public void invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                   CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
         Function<Object[], Object> func = objects -> {
             Strand strand = (Strand) objects[0];

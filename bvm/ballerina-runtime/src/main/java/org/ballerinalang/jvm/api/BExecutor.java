@@ -15,8 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.values.connector;
+package org.ballerinalang.jvm.api;
 
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
@@ -31,11 +35,9 @@ import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -50,13 +52,13 @@ import java.util.function.Function;
  *
  * @since 0.995.0
  */
-public class Executor {
+public class BExecutor {
 
     private static final BUnionType OPTIONAL_ERROR_TYPE = new BUnionType(
             new BType[]{BTypes.typeError, BTypes.typeNull},
             TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.PURETYPE));
 
-    private Executor() {
+    private BExecutor() {
     }
 
     /**
@@ -72,7 +74,7 @@ public class Executor {
      * @param properties   to be passed to context.
      * @param args         required for the resource.
      */
-    public static void submit(Scheduler scheduler, ObjectValue service, String resourceName, String strandName,
+    public static void submit(Scheduler scheduler, BObject service, String resourceName, String strandName,
                               StrandMetadata metaData, CallableUnitCallback callback,
                               Map<String, Object> properties, Object... args) {
 
@@ -99,7 +101,7 @@ public class Executor {
      * @param args       to be passed to invokable unit
      * @return results
      */
-    public static Object executeFunction(Strand strand, ObjectValue service, AttachedFunction resource,
+    public static Object executeFunction(Strand strand, BObject service, AttachedFunction resource,
                                          String strandName, StrandMetadata metaData, Object... args) {
         int requiredArgNo = resource.type.paramTypes.length;
         int providedArgNo = (args.length / 2); // due to additional boolean args being added for each arg
@@ -160,7 +162,7 @@ public class Executor {
                 }
 
                 @Override
-                public void notifyFailure(ErrorValue error) {
+                public void notifyFailure(BError error) {
                     completeFunction.countDown();
                 }
             }, new HashMap<>(), BTypes.typeNull, strandName, metaData);

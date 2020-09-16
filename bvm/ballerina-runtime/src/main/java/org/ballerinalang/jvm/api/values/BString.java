@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.jvm.values.api;
+package org.ballerinalang.jvm.api.values;
 
 /**
  * Interface representing ballerina strings.

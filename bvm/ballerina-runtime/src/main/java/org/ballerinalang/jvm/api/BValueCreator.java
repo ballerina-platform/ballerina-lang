@@ -15,30 +15,48 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.values.api;
+package org.ballerinalang.jvm.api;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.JSONDataSource;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.values.BArray;
+import org.ballerinalang.jvm.api.values.BDecimal;
+import org.ballerinalang.jvm.api.values.BFunctionPointer;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BStream;
+import org.ballerinalang.jvm.api.values.BStreamingJson;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BTypedesc;
+import org.ballerinalang.jvm.api.values.BXML;
+import org.ballerinalang.jvm.api.values.BXMLQName;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.State;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BErrorType;
+import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFunctionType;
+import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.MappingInitialValueEntry;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValueImpl;
+import org.ballerinalang.jvm.values.ValueCreator;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -53,7 +71,7 @@ import java.util.function.Function;
 import javax.xml.namespace.QName;
 
  /**
-  * Helper class to create ballerina value instances.
+  * Class @{@link BValueCreator} provides apis to create ballerina value instances.
   *
   * @since 1.1.0
   */
@@ -179,29 +197,6 @@ import javax.xml.namespace.QName;
       */
      public static BDecimal createDecimalValue(String value, DecimalValueKind valueKind) {
          return new DecimalValue(value, valueKind);
-     }
-
-     /**
-      * Create error value with given type, message and details.
-      *
-      * @param type {@code BErrorType} of the error
-      * @param message error message
-      * @param details error details
-      * @return error value
-      */
-     public static BError createErrorValue(BErrorType type, BString message, Object details) {
-         return new ErrorValue(type, (StringValue) message, null, details);
-     }
-
-     /**
-      * Create error value with given message and error details.
-      *
-      * @param message error message
-      * @param details error detail
-      * @return error value
-      */
-     public static BError createErrorValue(BString message, Object details) {
-         return new ErrorValue((StringValue) message, details);
      }
 
      /**
@@ -331,6 +326,37 @@ import javax.xml.namespace.QName;
          return new XMLSequence(children);
      }
 
+     /**
+      * Create a runtime map value.
+      *
+      * @return value of the record.
+      */
+     public static BMap<BString, Object> createMapValue() {
+         return new MapValueImpl<>();
+     }
+
+     /**
+      * Create a runtime map value with given type.
+      *
+      * @param mapType map type.
+      * @return map value
+      */
+     public static BMap<BString, Object> createMapValue(BType mapType) {
+         return new MapValueImpl<>(mapType);
+     }
+
+     /**
+      * Create a runtime map value wwith given initial values and given type.
+      *
+      * @param mapType   map type.
+      * @param keyValues initial map values to be populated.
+      * @return map value
+      */
+     public static BMap<BString, Object> createMapValue(BMapType mapType,
+                                                        MappingInitialValueEntry.KeyValueEntry[] keyValues) {
+         return new MapValueImpl<>(mapType, keyValues);
+     }
+
 
      /**
       * Create a record value using the given package id and record type name.
@@ -340,7 +366,8 @@ import javax.xml.namespace.QName;
       * @return value of the record.
       */
      public static BMap<BString, Object> createRecordValue(BPackage packageId, String recordTypeName) {
-         return BallerinaValues.createRecordValue(packageId, recordTypeName);
+         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
+         return valueCreator.createRecordValue(recordTypeName);
      }
 
      /**
@@ -354,7 +381,39 @@ import javax.xml.namespace.QName;
       */
      public static BMap<BString, Object> createRecordValue(BPackage packageId, String recordTypeName,
                                                            Map<String, Object> valueMap) {
-         return BallerinaValues.createRecordValue(packageId, recordTypeName, valueMap);
+         BMap<BString, Object> record = createRecordValue(packageId, recordTypeName);
+         for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
+             Object val = fieldEntry.getValue();
+             if (val instanceof String) {
+                 val = BStringUtils.fromString((String) val);
+             }
+             record.put(BStringUtils.fromString(fieldEntry.getKey()), val);
+         }
+
+         return record;
+     }
+
+     /**
+      * Populate a runtime record value with given field values.
+      *
+      * @param record which needs to get populated
+      * @param values field values of the record.
+      * @return value of the record.
+      */
+     public static BMap<BString, Object> createRecordValue(BMap<BString, Object> record, Object... values) {
+         BRecordType recordType = (BRecordType) record.getType();
+         MapValue<BString, Object> mapValue = new MapValueImpl<>(recordType);
+         int i = 0;
+         for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
+             Object value = values[i++];
+             if (Flags.isFlagOn(fieldEntry.getValue().flags, Flags.OPTIONAL) && value == null) {
+                 continue;
+             }
+
+             mapValue.put(BStringUtils.fromString(fieldEntry.getKey()), value instanceof String ?
+                     BStringUtils.fromString((String) value) : value);
+         }
+         return mapValue;
      }
 
      /**
@@ -366,18 +425,48 @@ import javax.xml.namespace.QName;
       * @return value of the object.
       */
      public static BObject createObjectValue(BPackage packageId, String objectTypeName, Object... fieldValues) {
-         return BallerinaValues.createObjectValue(packageId, objectTypeName, fieldValues);
+         Strand currentStrand = getStrand();
+         // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
+         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
+         Object[] fields = new Object[fieldValues.length * 2];
+
+         // Here the variables are initialized with default values
+         Scheduler scheduler = null;
+         State prevState = State.RUNNABLE;
+         boolean prevBlockedOnExtern = false;
+         ObjectValue objectValue;
+
+         // Adding boolean values for each arg
+         for (int i = 0, j = 0; i < fieldValues.length; i++) {
+             fields[j++] = fieldValues[i];
+             fields[j++] = true;
+         }
+         try {
+             // Check for non-blocking call
+             if (currentStrand != null) {
+                 scheduler = currentStrand.scheduler;
+                 prevBlockedOnExtern = currentStrand.blockedOnExtern;
+                 prevState = currentStrand.getState();
+                 currentStrand.blockedOnExtern = false;
+                 currentStrand.setState(State.RUNNABLE);
+             }
+             objectValue = valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
+                                                          null, fields);
+         } finally {
+             if (currentStrand != null) {
+                 currentStrand.blockedOnExtern = prevBlockedOnExtern;
+                 currentStrand.setState(prevState);
+             }
+         }
+         return objectValue;
      }
 
-     /**
-      * Populate a runtime record value with given field values.
-      *
-      * @param record which needs to get populated
-      * @param values field values of the record.
-      * @return value of the record.
-      */
-     public static BMap<BString, Object> createRecord(BMap<BString, Object> record, Object... values) {
-         return BallerinaValues.createRecord((MapValue<BString, Object>) record, values);
+     private static Strand getStrand() {
+         try {
+             return Scheduler.getStrand();
+         } catch (Exception ex) {
+             // Ignore : issue #22871 is opened to fix this
+         }
+         return null;
      }
-
  }
