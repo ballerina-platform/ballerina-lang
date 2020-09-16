@@ -43,10 +43,9 @@ import java.util.Map;
 /**
  * Test cases to check default value initialization for bClasses in docs.
  */
-@Test(groups = "brokenOnClassChange")
 public class ObjectFieldDefaultValueTest {
     private Module testModule;
-    List<BClass> bClasses;
+    private List<BClass> bClasses;
 
     @BeforeClass
     public void setup() throws IOException {

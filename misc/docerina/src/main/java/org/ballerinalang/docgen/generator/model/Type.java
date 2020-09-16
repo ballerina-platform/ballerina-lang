@@ -217,7 +217,6 @@ public class Type {
         // If anonymous type substitute the name
         if (typeModel.name != null && typeModel.name.contains("$anonType$")) {
             // if anonymous empty record
-            // if anonymous empty record
             if (type.type instanceof BRecordType && ((BRecordType) type.type).fields.isEmpty() &&
                     type.type.isAnydata()) {
                 typeModel.name = "record {}";

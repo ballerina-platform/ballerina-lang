@@ -125,38 +125,20 @@ public class Writer {
                 }
             });
 
-
             handlebars.registerHelper("setStyles", (Helper<String>) (description, options) -> {
                 //set css for table tags
-                String newDescription = description.replaceAll("<table>", "<table class=\"ui table row-border " +
-                        "pad-left\">");
-                return newDescription;
+                return description.replaceAll("<table>", "<table class=\"ui table row-border " + "pad-left\">");
             });
 
-            handlebars.registerHelper("showSidebarList", (Helper<PageContext>) (page, options) -> {
-                if (page.getClass() == ModulePageContext.class || page instanceof ConstantsPageContext) {
-                    return false;
-                } else {
-                    return true;
-                }
-            });
+            handlebars.registerHelper("showSidebarList", (Helper<PageContext>) (page, options) ->
+                    page.getClass() != ModulePageContext.class && !(page instanceof ConstantsPageContext));
 
-            handlebars.registerHelper("isModulePage", (Helper<PageContext>) (page, options) -> {
-                if (page.getClass() == ModulePageContext.class) {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
+            handlebars.registerHelper("isModulePage", (Helper<PageContext>) (page, options) ->
+                    page.getClass() == ModulePageContext.class);
 
-            handlebars.registerHelper("addColon", (Helper<PageContext>) (page, options) -> {
-                if (page.getClass() == ClassPageContext.class || page.getClass() == RecordPageContext.class ||
-                        page.getClass() == ClientPageContext.class || page.getClass() == ListenerPageContext.class)  {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
+            handlebars.registerHelper("addColon", (Helper<PageContext>) (page, options) ->
+                    page.getClass() == ClassPageContext.class || page.getClass() == RecordPageContext.class ||
+                    page.getClass() == ClientPageContext.class || page.getClass() == ListenerPageContext.class);
 
             handlebars.registerHelper("getType", (Helper<PageContext>) (page, options) -> {
                 if (page.getClass() == ClassPageContext.class) {

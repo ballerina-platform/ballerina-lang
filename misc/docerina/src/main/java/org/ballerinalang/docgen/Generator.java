@@ -370,13 +370,6 @@ public class Generator {
                                                     Module module) {
         List<Function> functions = new ArrayList<>();
         String name = parent.getName().getValue();
-        boolean isAnonymous = false;
-        // handle anonymous names
-        if (name != null && name.contains("$anonType$")) {
-            name = "T" + name.substring(name.lastIndexOf('$') + 1);
-            isAnonymous = true;
-        }
-
         String description = description(parent);
         boolean isDeprecated = isDeprecated(parent.getAnnotationAttachments());
 
@@ -384,13 +377,12 @@ public class Generator {
                     parent.getMarkdownDocumentationAttachment(), module);
 
         // Iterate through the functions
-        if (objectType.getFunctions().size() > 0) {
-            for (BLangFunction function : objectType.getFunctions()) {
-                if (function.flagSet.contains(Flag.PUBLIC)) {
-                    functions.add(createDocForFunction(function, module));
-                }
+        for (BLangFunction function : objectType.getFunctions()) {
+            if (function.flagSet.contains(Flag.PUBLIC)) {
+                functions.add(createDocForFunction(function, module));
             }
         }
+
         module.abstractObjects.add(new BAbstractObject(name, description, isDeprecated, fields, functions));
     }
 
@@ -404,13 +396,12 @@ public class Generator {
                 classDefinition.getMarkdownDocumentationAttachment(), module);
 
         // Iterate through the functions
-        if (classDefinition.getFunctions().size() > 0) {
-            for (BLangFunction function : classDefinition.getFunctions()) {
-                if (function.flagSet.contains(Flag.PUBLIC)) {
-                    functions.add(createDocForFunction(function, module));
-                }
+        for (BLangFunction function : classDefinition.getFunctions()) {
+            if (function.flagSet.contains(Flag.PUBLIC)) {
+                functions.add(createDocForFunction(function, module));
             }
         }
+
 
         if (isEndpoint(classDefinition)) {
             module.clients.add(new Client(name, description, isDeprecated, fields, functions));
