@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -30,7 +29,7 @@ import java.util.LinkedHashSet;
 /**
  * @since 0.94
  */
-public class BJSONType extends BUnionType implements SelectivelyImmutableReferenceType {
+public class BJSONType extends BUnionType {
 
     public BJSONType(BJSONType type, boolean nullable) {
         super(type.tsymbol, type.getMemberTypes(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));

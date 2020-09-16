@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.Name;
-import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -33,7 +32,7 @@ import java.util.LinkedHashSet;
  * 
  * @since 0.985.0
  */
-public class BAnydataType extends BUnionType implements SelectivelyImmutableReferenceType {
+public class BAnydataType extends BUnionType {
 
     public BAnydataType(BTypeSymbol tsymbol, Name name, int flags) {
         this(tsymbol, name, flags, true);
