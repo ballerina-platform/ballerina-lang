@@ -444,7 +444,7 @@ public class BallerinaDocGenerator {
     private static void genSearchJson(Module module, String jsonPath) {
         List<ModuleSearchJson> searchModules = new ArrayList<>();
         List<ConstructSearchJson> searchFunctions = new ArrayList<>();
-        List<ConstructSearchJson> searchObjects = new ArrayList<>();
+        List<ConstructSearchJson> searchClasses = new ArrayList<>();
         List<ConstructSearchJson> searchRecords = new ArrayList<>();
         List<ConstructSearchJson> searchConstants = new ArrayList<>();
         List<ConstructSearchJson> searchErrors = new ArrayList<>();
@@ -452,6 +452,7 @@ public class BallerinaDocGenerator {
         List<ConstructSearchJson> searchClients = new ArrayList<>();
         List<ConstructSearchJson> searchListeners = new ArrayList<>();
         List<ConstructSearchJson> searchAnnotations = new ArrayList<>();
+        List<ConstructSearchJson> searchAbstractObjects = new ArrayList<>();
 
         if (module.summary != null) {
             searchModules.add(new ModuleSearchJson(module.id, getFirstLine(module.summary)));
@@ -460,8 +461,12 @@ public class BallerinaDocGenerator {
                 searchFunctions.add(new ConstructSearchJson(function.name, module.id,
                         getFirstLine(function.description))));
 
-        module.classes.forEach((object) ->
-                searchObjects.add(new ConstructSearchJson(object.name, module.id, getFirstLine(object.description))));
+        module.classes.forEach((bClass) ->
+                searchClasses.add(new ConstructSearchJson(bClass.name, module.id, getFirstLine(bClass.description))));
+
+        module.abstractObjects.forEach((absObj) ->
+                searchAbstractObjects.add(new ConstructSearchJson(absObj.name, module.id,
+                        getFirstLine(absObj.description))));
 
         module.clients.forEach((client) ->
                 searchClients.add(new ConstructSearchJson(client.name, module.id, getFirstLine(client.description))));
@@ -492,8 +497,9 @@ public class BallerinaDocGenerator {
                 searchAnnotations.add(new ConstructSearchJson(annotation.name, module.id,
                         getFirstLine(annotation.description))));
 
-        SearchJson searchJson = new SearchJson(searchModules, searchObjects, searchFunctions, searchRecords,
-                searchConstants, searchErrors, searchTypes, searchClients, searchListeners, searchAnnotations);
+        SearchJson searchJson = new SearchJson(searchModules, searchClasses, searchFunctions, searchRecords,
+                searchConstants, searchErrors, searchTypes, searchClients, searchListeners, searchAnnotations,
+                searchAbstractObjects);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         File jsonFile = new File(jsonPath);
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
@@ -535,7 +541,7 @@ public class BallerinaDocGenerator {
                             SearchJson modSearchJson = gson.fromJson(br, SearchJson.class);
                             searchJson.getModules().addAll(modSearchJson.getModules());
                             searchJson.getFunctions().addAll(modSearchJson.getFunctions());
-                            searchJson.getObjects().addAll(modSearchJson.getObjects());
+                            searchJson.getClasses().addAll(modSearchJson.getClasses());
                             searchJson.getClients().addAll(modSearchJson.getClients());
                             searchJson.getListeners().addAll(modSearchJson.getListeners());
                             searchJson.getRecords().addAll(modSearchJson.getRecords());
@@ -543,6 +549,7 @@ public class BallerinaDocGenerator {
                             searchJson.getErrors().addAll(modSearchJson.getErrors());
                             searchJson.getTypes().addAll(modSearchJson.getTypes());
                             searchJson.getAnnotations().addAll(modSearchJson.getAnnotations());
+                            searchJson.getAbstractObjects().addAll(modSearchJson.getAbstractObjects());
                         } catch (IOException e) {
                             String errorMsg = String.format("API documentation generation failed. Cause: %s",
                                     e.getMessage());
