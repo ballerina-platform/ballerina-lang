@@ -1041,6 +1041,11 @@ function testSort10() {
 
     assertValueEquality(sortedArr3.toString(), "[0,1,10,2,3,6]");
     assertValueEquality(sortedArr3, arr);
+
+    int[] sortedArr4 = arr.sort(array:DESCENDING, (i) => i.toString());
+
+    assertValueEquality(sortedArr4.toString(), "[6,3,2,10,1,0]");
+    assertValueEquality(sortedArr4, arr);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -5416,8 +5416,8 @@ public class TypeChecker extends BLangNodeVisitor {
             returnType = ((BLangSimpleVarRef) keyFunction).type.getReturnType();
         } else if (keyFunction.getKind() == NodeKind.ARROW_EXPR) {
             BLangArrowFunction arrowFunction = ((BLangArrowFunction) keyFunction);
-            pos = arrowFunction.params.get(0).pos;
-            returnType = arrowFunction.params.get(0).type;
+            pos = arrowFunction.body.expr.pos;
+            returnType = arrowFunction.body.expr.type;
         } else {
             BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
             pos = keyLambdaFunction.function.pos;
