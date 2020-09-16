@@ -241,7 +241,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
     public abstract String stringValue(BLink parent);
 
     @Override
-    public abstract String toBalString(BLink parent);
+    public abstract String expressionStringValue(BLink parent);
 
     @Override
     public abstract BType getType();

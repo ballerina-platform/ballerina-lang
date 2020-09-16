@@ -49,7 +49,7 @@ public interface IteratorValue extends RefValue, BIterator {
     }
 
     @Override
-    default String toBalString(BLink parent) {
+    default String expressionStringValue(BLink parent) {
         return stringValue(parent);
     }
 

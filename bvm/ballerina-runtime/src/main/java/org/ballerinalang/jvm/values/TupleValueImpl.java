@@ -402,7 +402,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public String toBalString(BLink parent) {
+    public String expressionStringValue(BLink parent) {
         return stringValue(parent);
     }
 

@@ -72,7 +72,7 @@ package org.ballerinalang.jvm.values;
      }
 
     @Override
-    public String toBalString(BLink parent) {
+    public String expressionStringValue(BLink parent) {
         return stringValue(parent);
     }
 

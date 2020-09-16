@@ -316,8 +316,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     public String stringValue(BLink parent) {
-        Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
-        return createStringValueDataEntry(itr, parent, true);
+        return createStringValueDataEntry(parent, false);
     }
 
     @Override
@@ -326,21 +325,17 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     @Override
-    public String toBalString(BLink parent) {
-        Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
-        return createStringValueDataEntry(itr, parent, false);
+    public String expressionStringValue(BLink parent) {
+        return createStringValueDataEntry(parent, true);
     }
 
-    private String createStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent, boolean isInformal) {
+    private String createStringValueDataEntry(BLink parent, boolean isExpressionStyle) {
+        Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
         String tableToStringVal = "";
         StringJoiner sj = new StringJoiner(",");
         while (itr.hasNext()) {
             Map.Entry<Long, V> struct = itr.next();
-            if (isInformal) {
-                sj.add(BStringUtils.getStringValue(struct.getValue(),
-                        new CycleUtils.Node(this, parent)));
-                tableToStringVal = "[" + sj.toString() + "]";
-            } else {
+            if (isExpressionStyle) {
                 StringJoiner keyJoiner = new StringJoiner(",");
                 String[] keysList = type.getFieldNames();
                 if (keysList.length > 0) {
@@ -348,9 +343,13 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                         keyJoiner.add(keysList[i]);
                     }
                 }
-                sj.add(BStringUtils.getToBalStringValue(struct.getValue(),
+                sj.add(BStringUtils.getExpressionStringValue(struct.getValue(),
                         new CycleUtils.Node(this, parent)));
                 tableToStringVal = "table key(" + keyJoiner.toString() + ") [" + sj.toString() + "]";
+            } else {
+                sj.add(BStringUtils.getStringValue(struct.getValue(),
+                        new CycleUtils.Node(this, parent)));
+                tableToStringVal = "[" + sj.toString() + "]";
             }
         }
         return tableToStringVal;

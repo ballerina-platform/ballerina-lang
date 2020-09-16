@@ -34,7 +34,7 @@ public interface BValue {
         return toString();
     }
 
-    String toBalString(BLink parent);
+    String expressionStringValue(BLink parent);
 
     BType getType();
 }

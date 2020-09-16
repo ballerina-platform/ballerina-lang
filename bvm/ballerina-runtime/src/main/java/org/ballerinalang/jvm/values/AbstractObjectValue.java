@@ -100,7 +100,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
-    public String toBalString(BLink parent) {
+    public String expressionStringValue(BLink parent) {
         BPackage pkg = type.getPackage();
         String moduleLocalName = pkg.org != null && pkg.org.equals("$anon") ||
                 pkg.name == null ? type.getName() :

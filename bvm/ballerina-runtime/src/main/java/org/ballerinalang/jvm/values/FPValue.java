@@ -86,7 +86,7 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     }
 
     @Override
-    public String toBalString(BLink parent) {
+    public String expressionStringValue(BLink parent) {
         return stringValue(parent);
     }
 

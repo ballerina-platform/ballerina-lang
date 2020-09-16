@@ -105,42 +105,43 @@ public class ErrorValue extends BError implements RefValue {
     public String stringValue(BLink parent) {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
-            return "error" + getModuleName(true) + "(" + ((StringValue) message).informalStringValue(linkParent) + ")";
+            return "error" + getModuleName(false) + "(" + ((StringValue) message).informalStringValue(linkParent) + ")";
         }
-        return "error" + getModuleName(true) + "(" + ((StringValue) message).informalStringValue(linkParent) +
-                getCauseToString(linkParent, true) + getDetailsToString(linkParent, true) + ")";
-    }
-
-    @Override
-    public String toBalString(BLink parent) {
-        CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
-        if (isEmptyDetail()) {
-            return "error" + getModuleName(false) + "(" + ((StringValue) message)
-                    .informalStringValue(linkParent) + ")";
-        }
-        return "error" + getModuleName(false) + "(" + ((StringValue) message).toBalString(linkParent) +
+        return "error" + getModuleName(false) + "(" + ((StringValue) message).informalStringValue(linkParent) +
                 getCauseToString(linkParent, false) + getDetailsToString(linkParent, false) + ")";
     }
 
-    private String getCauseToString(BLink parent, boolean isInformal) {
+    @Override
+    public String expressionStringValue(BLink parent) {
+        CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
+        if (isEmptyDetail()) {
+            return "error" + getModuleName(true) + "(" + ((StringValue) message)
+                    .informalStringValue(linkParent) + ")";
+        }
+        return "error" + getModuleName(true) + "(" + ((StringValue) message).expressionStringValue(linkParent) +
+                getCauseToString(linkParent, true) + getDetailsToString(linkParent, true) + ")";
+    }
+
+    private String getCauseToString(BLink parent, boolean isExpressionStyle) {
         if (cause != null) {
-            if (isInformal) {
-                return "," + cause.informalStringValue(parent);
+            if (isExpressionStyle) {
+                return "," + cause.expressionStringValue(parent);
             }
-            return "," + cause.toBalString(parent);
+            return "," + cause.informalStringValue(parent);
         }
         return "";
     }
 
-    private String getDetailsToString(BLink parent, boolean isInformal) {
+    private String getDetailsToString(BLink parent, boolean isExpressionStyle) {
         StringJoiner sj = new StringJoiner(",");
         for (Object key : ((MapValue) details).getKeys()) {
             Object value = ((MapValue) details).get(key);
             if (value == null) {
-                if (isInformal) {
+                if (isExpressionStyle) {
+                    sj.add(key + "=()");
+                } else {
                     sj.add(key + "=null");
                 }
-                sj.add(key + "=()");
             } else {
                 BType type = TypeChecker.getType(value);
                 switch (type.getTag()) {
@@ -152,21 +153,21 @@ public class ErrorValue extends BError implements RefValue {
                     case TypeTags.XML_PI_TAG:
                     case TypeTags.XMLNS_TAG:
                     case TypeTags.XML_TEXT_TAG:
-                        if (isInformal) {
-                            sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
+                        if (isExpressionStyle) {
+                            sj.add(key + "=" + ((BValue) value).expressionStringValue(parent));
                         } else {
-                            sj.add(key + "=" + ((BValue) value).toBalString(parent));
+                            sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
                         }
                         break;
                     case TypeTags.DECIMAL_TAG:
-                        if (!isInformal) {
-                            sj.add(key + "=" + ((BValue) value).toBalString(parent));
+                        if (isExpressionStyle) {
+                            sj.add(key + "=" + ((BValue) value).expressionStringValue(parent));
                         }
                     default:
-                        if (isInformal) {
-                            sj.add(key + "=" + BStringUtils.getStringValue(value, parent));
+                        if (isExpressionStyle) {
+                            sj.add(key + "=" + BStringUtils.getExpressionStringValue(value, parent));
                         } else {
-                            sj.add(key + "=" + BStringUtils.getToBalStringValue(value, parent));
+                            sj.add(key + "=" + BStringUtils.getStringValue(value, parent));
                         }
                         break;
                 }

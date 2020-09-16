@@ -466,7 +466,7 @@ public final class XMLItem extends XMLValue {
     }
 
     @Override
-    public String toBalString(BLink parent) {
+    public String expressionStringValue(BLink parent) {
         return "xml`" + toString() + "`";
     }
 

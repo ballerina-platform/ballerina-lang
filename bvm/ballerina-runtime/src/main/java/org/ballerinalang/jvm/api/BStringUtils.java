@@ -191,7 +191,25 @@ public class BStringUtils {
      * @return String value of the value
      */
     public static String getStringValue(Object value, BLink parent) {
+        return createStringValueInStyle(value, parent, false);
+    }
+
+    /**
+     * Returns the human-readable string value of Ballerina values in expression style.
+     *
+     * @param value The value on which the function is invoked
+     * @param parent The link to the parent node
+     * @return String value of the value in expression style
+     */
+    public static String getExpressionStringValue(Object value, BLink parent) {
+        return createStringValueInStyle(value, parent, true);
+    }
+
+    private static String createStringValueInStyle(Object value, BLink parent, Boolean isExpressionStyle) {
         if (value == null) {
+            if (isExpressionStyle) {
+                return "()";
+            }
             return "";
         }
 
@@ -199,7 +217,19 @@ public class BStringUtils {
 
         //TODO: bstring - change to type tag check
         if (value instanceof BString) {
+            if (isExpressionStyle) {
+                return "\"" + ((BString) value).getValue() + "\"";
+            }
             return ((BString) value).getValue();
+        }
+
+        if (type.getTag() == TypeTags.DECIMAL_TAG) {
+            DecimalValue decimalValue = (DecimalValue) value;
+            if (isExpressionStyle) {
+                return decimalValue.expressionStringValue(parent);
+            }
+            return String.valueOf(decimalValue);
+
         }
 
         if (type.getTag() < TypeTags.JSON_TAG) {
@@ -209,20 +239,33 @@ public class BStringUtils {
         CycleUtils.Node node = new CycleUtils.Node(value, parent);
 
         if (node.hasCyclesSoFar()) {
+            if (isExpressionStyle) {
+                return STR_CYCLE + "[" + node.getIndex() + "]";
+            }
             return STR_CYCLE;
         }
 
         if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             MapValueImpl mapValue = (MapValueImpl) value;
+            if (isExpressionStyle) {
+                return mapValue.expressionStringValue(parent);
+            }
             return mapValue.stringValue(parent);
+
         }
 
         if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
             ArrayValue arrayValue = (ArrayValue) value;
+            if (isExpressionStyle) {
+                return arrayValue.expressionStringValue(parent);
+            }
             return arrayValue.stringValue(parent);
         }
 
         if (type.getTag() == TypeTags.TABLE_TAG) {
+            if (isExpressionStyle) {
+                return ((RefValue) value).expressionStringValue(parent);
+            }
             return ((RefValue) value).informalStringValue(parent);
         }
 
@@ -232,86 +275,29 @@ public class BStringUtils {
             for (AttachedFunction func : objectType.getAttachedFunctions()) {
                 if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
                         func.type.retType.getTag() == TypeTags.STRING_TAG) {
+                    if (isExpressionStyle) {
+                        return "object " + objectValue.call(Scheduler.getStrand(), "toString").toString();
+                    }
                     return objectValue.call(Scheduler.getStrand(), "toString").toString();
+
                 }
             }
         }
 
         if (type.getTag() == TypeTags.ERROR_TAG) {
             RefValue errorValue = (RefValue) value;
+            if (isExpressionStyle) {
+                return errorValue.expressionStringValue(parent);
+            }
             return errorValue.stringValue(parent);
+
         }
 
         RefValue refValue = (RefValue) value;
+        if (isExpressionStyle) {
+            return refValue.expressionStringValue(parent);
+        }
         return refValue.stringValue(parent);
-    }
-
-    /**
-     * Returns the human-readable string value of Ballerina values.
-     *
-     * @param value The value on which the function is invoked
-     * @param parent The link to the parent node
-     * @return String value of the value
-     */
-    public static String getToBalStringValue(Object value, BLink parent) {
-        if (value == null) {
-            return "()";
-        }
-
-        BType type = TypeChecker.getType(value);
-
-        //TODO: bstring - change to type tag check
-        if (value instanceof BString) {
-            return "\"" + ((BString) value).getValue() + "\"";
-        }
-
-        if (type.getTag() == TypeTags.DECIMAL_TAG) {
-            DecimalValue decimalValue = (DecimalValue) value;
-            return decimalValue.toBalString(parent);
-        }
-
-        if (type.getTag() < TypeTags.JSON_TAG) {
-            return String.valueOf(value);
-        }
-
-        CycleUtils.Node node = new CycleUtils.Node(value, parent);
-
-        if (node.hasCyclesSoFar()) {
-            return STR_CYCLE + "[" + node.getIndex() + "]";
-        }
-
-        if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            MapValueImpl mapValue = (MapValueImpl) value;
-            return mapValue.toBalString(parent);
-        }
-
-        if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
-            ArrayValue arrayValue = (ArrayValue) value;
-            return arrayValue.toBalString(parent);
-        }
-
-        if (type.getTag() == TypeTags.TABLE_TAG) {
-            return ((RefValue) value).toBalString(parent);
-        }
-
-        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            AbstractObjectValue objectValue = (AbstractObjectValue) value;
-            BObjectType objectType = objectValue.getType();
-            for (AttachedFunction func : objectType.getAttachedFunctions()) {
-                if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
-                        func.type.retType.getTag() == TypeTags.STRING_TAG) {
-                    return "object " + objectValue.call(Scheduler.getStrand(), "toString").toString();
-                }
-            }
-        }
-
-        if (type.getTag() == TypeTags.ERROR_TAG) {
-            RefValue errorValue = (RefValue) value;
-            return errorValue.toBalString(parent);
-        }
-
-        RefValue refValue = (RefValue) value;
-        return refValue.toBalString(parent);
     }
 
     /**
@@ -344,5 +330,4 @@ public class BStringUtils {
         RefValue refValue = (RefValue) value;
         return refValue.stringValue(null);
     }
-
 }

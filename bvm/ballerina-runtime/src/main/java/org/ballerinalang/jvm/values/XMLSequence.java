@@ -437,7 +437,7 @@ public final class XMLSequence extends XMLValue {
     }
 
     @Override
-    public String toBalString(BLink parent) {
+    public String expressionStringValue(BLink parent) {
         return "xml`" + toString() + "`";
     }
 

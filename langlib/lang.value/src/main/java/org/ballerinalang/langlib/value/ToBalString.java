@@ -42,6 +42,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 )
 public class ToBalString {
     public static BString toBalString(Strand strand, Object value) {
-        return BStringUtils.fromString(BStringUtils.getToBalStringValue(value, null));
+        return BStringUtils.fromString(BStringUtils.getExpressionStringValue(value, null));
     }
 }

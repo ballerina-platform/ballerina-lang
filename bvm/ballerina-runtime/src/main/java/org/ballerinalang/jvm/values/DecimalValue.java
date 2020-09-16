@@ -233,11 +233,11 @@ public class DecimalValue implements SimpleValue, BDecimal {
     }
 
     /**
-     * Get the string value.
+     * Get the string value in expression style.
      * @return string value in expression style
      * @param parent The link to the parent node
      */
-    public String toBalString(BLink parent) {
+    public String expressionStringValue(BLink parent) {
         if (this.valueKind != DecimalValueKind.OTHER) {
             return this.valueKind.getValue()+"d";
         }

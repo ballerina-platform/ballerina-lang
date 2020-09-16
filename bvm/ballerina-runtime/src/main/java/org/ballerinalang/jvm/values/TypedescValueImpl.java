@@ -94,7 +94,7 @@ public class TypedescValueImpl implements  TypedescValue {
     }
 
     @Override
-    public String toBalString(BLink parent) {
+    public String expressionStringValue(BLink parent) {
         return stringValue(parent);
     }
 

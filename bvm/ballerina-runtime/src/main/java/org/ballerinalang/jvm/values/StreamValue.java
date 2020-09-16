@@ -94,7 +94,7 @@ public class StreamValue implements RefValue, BStream {
      * {@inheritDoc}
      * @param parent The link to the parent node
      */
-    public String toBalString(BLink parent) {
+    public String expressionStringValue(BLink parent) {
         return stringValue(parent);
     }
 
