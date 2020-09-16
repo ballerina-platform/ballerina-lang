@@ -1044,7 +1044,7 @@ function testSort10() {
 
     int[] sortedArr4 = arr.sort(array:DESCENDING, (i) => i.toString());
 
-    assertValueEquality(sortedArr4.toString(), "[6,3,2,10,1,0]");
+    assertValueEquality(sortedArr4, [6,3,2,10,1,0]);
     assertValueEquality(sortedArr4, arr);
 }
 
